@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.convert
 
+import dev.kobolibrary.app.tr
 import dev.kobolibrary.app.epub.BookMetadata
 import dev.kobolibrary.app.epub.Xml
 import java.io.File
@@ -29,7 +30,7 @@ object RtfConverter {
 
     fun convert(bytes: ByteArray, fileName: String, target: File) {
         val raw = String(bytes, Charsets.ISO_8859_1)
-        if (!raw.startsWith("{\\rtf")) throw ConversionException("This isn't a Rich Text file.")
+        if (!raw.startsWith("{\\rtf")) throw ConversionException(tr("This isn't a Rich Text file."))
         var charset: Charset = Charset.forName("windows-1252")
         Regex("""\\ansicpg(\d+)""").find(raw.take(500))?.groupValues?.get(1)?.let { cp -> runCatching { charset = Charset.forName("windows-$cp") }.recoverCatching { charset = Charset.forName("cp$cp") } }
         // Paragraph style numbers that are headings: \s1 named "heading 1".
@@ -277,7 +278,7 @@ object CbzConverter {
         val files = unzip(bytes)
         val pages = files.keys.filter { k -> k.substringAfterLast('.').lowercase() in pictures && !k.contains("__MACOSX") && !k.substringAfterLast('/').startsWith(".") }
             .sortedWith { a, b -> natural(a, b) }
-        if (pages.isEmpty()) throw ConversionException("There are no pictures in this comic book file.")
+        if (pages.isEmpty()) throw ConversionException(tr("There are no pictures in this comic book file."))
         var meta = BookMetadata(title = TextConverter.titleFromName(fileName))
         files.entries.firstOrNull { it.key.substringAfterLast('/').equals("ComicInfo.xml", true) }?.value?.let { xml ->
             runCatching {

@@ -1,0 +1,777 @@
+@fr
+0|{0} livre
+1|{0} livres
+2|{0} chapitre
+3|{0} chapitres
+4|{0} collection
+5|{0} collections
+6|{0} page
+7|{0} pages
+8|Remplacer
+9|Garder les deux
+10|Ignorer
+11|Ajout des livres
+12|Impossible d’ouvrir {0}
+13|Attendez que les livres en cours d’ajout ou d’envoi soient terminés, puis ajoutez le dossier.
+14|Ajout d’un livre
+15|Ajout de {0} livres
+16|Attendez d’abord la fin de « {0} ».
+17|« {0} » ignoré.
+18|{0} livres ignorés.
+19|Remplacement du livre
+20|Remplacement des livres
+21|Ajout du livre
+22|Ajout des livres
+23|« {0} » a été remplacé par le nouveau fichier.
+24|« {0} » a été ajouté une nouvelle fois, comme livre à part.
+25|1 livre a été remplacé par le nouveau fichier.
+26|{0} livres ont été remplacés par les nouveaux fichiers.
+27|1 livre a été ajouté une nouvelle fois, comme livre à part.
+28|{0} livres ont été ajoutés une nouvelle fois, comme livres à part.
+29|Échecs : {0}. Le journal donne les détails.
+30|Duplication du livre
+31|Duplication des livres
+32|Duplication ({0} sur {1})
+33|Dupliqué sous le nom « {0} ».
+34|{0} livres dupliqués.
+35|Seuls les livres que vous avez mis vous-même sur la Kobo peuvent être ajoutés. Les achats de la boutique Kobo ne le peuvent pas.
+36|Pas assez d’espace libre sur cet appareil pour {0} livres.
+37|Ajout des livres de la Kobo
+38|Pas assez d’espace sur la Kobo. Ces livres ont besoin d’environ {0} Mo, et la Kobo a {1} Mo de libre.
+39|Ces livres sont déjà en cours d’envoi.
+40|Ajouté aux livres en cours d’envoi.
+41|{0} livres ajoutés à ceux en cours d’envoi.
+42|Attendez que les livres soient ajoutés à la bibliothèque, puis envoyez.
+43|Un livre
+44|Il n’est plus dans la bibliothèque.
+45|Enregistrement des collections et des détails des livres sur la Kobo
+46|Envoi sur la Kobo
+47|Envoi de {0} livres sur la Kobo
+48|Une autre tâche est en cours. Attendez qu’elle se termine.
+49|Enregistré.
+50|Impossible d’enregistrer : {0}
+51|Couverture enregistrée. Elle sera envoyée sur la Kobo telle quelle.
+52|Couverture enregistrée.
+53|Impossible d’enregistrer la couverture : {0}
+54|Marqué comme terminé.
+55|{0} livres marqués comme terminés.
+56|Marqué comme non lu.
+57|{0} livres marqués comme non lus.
+58|Retiré de la bibliothèque.
+59|{0} livres retirés de la bibliothèque.
+60|Couverture d’origine rétablie.
+61|Impossible de rétablir la couverture d’origine : {0}
+62|Création du livre
+63|Sans titre
+64|« {0} » créé.
+65|Assemblage des livres
+66|{0} livres réunis dans « {1} ».
+67|Division du livre
+68|{0} (partie {1})
+69|« {0} » divisé en {1} livres.
+70|Inconnu
+71|Enregistrement du fichier
+72|Impossible d’enregistrer à l’emplacement choisi.
+73|« {0} » enregistré.
+74|« {0} » enregistré en kepub.
+75|« {0} » enregistré en EPUB.
+76|Enregistrement des fichiers
+77|Enregistrement des fichiers ({0} sur {1})
+78|Impossible de créer un fichier dans ce dossier.
+79|Impossible d’écrire le nouveau fichier.
+80|Enregistrement terminé : {0} en {1}.
+81|Enregistrement terminé : {0}.
+82| Non enregistrés : {0}. Le journal donne les détails.
+83|Ce livre ne peut pas être modifié : {0}
+84|Android n’a pas donné d’accès permanent à ce stockage. Réessayez, et touchez « Utiliser ce dossier », puis « Autoriser ».
+85|Connexion…
+86|La sauvegarde de la base de données a échoué : {0}
+87|La base de données de la Kobo n’a pas passé la vérification. Le journal donne les détails.
+88|La base de données de votre Kobo a été sauvegardée.
+89|Ce stockage ne ressemble pas à une Kobo.
+90|La Kobo a été déconnectée pendant la lecture. Rebranchez-la et touchez Connecter sur la Kobo.
+91|Android n’autorise plus l’accès à ce stockage. Touchez « Choisir le stockage » pour redonner l’accès.
+92|Un problème est survenu en lisant la Kobo : {0} : {1}. Le journal donne les détails.
+93|La Kobo a été déconnectée
+94|Impossible de mettre à jour les collections et les détails de la Kobo : {0}. Aucune modification n’a été faite sur la Kobo.
+95|Suppression de la Kobo…
+96|« {0} » supprimé de la Kobo.
+97|{0} livres supprimés de la Kobo.
+98| Non supprimés : {0}. Le journal donne les détails.
+99| Éjectez la Kobo pour qu’elle mette à jour sa bibliothèque.
+100|Sauvegarde…
+101|La base de données de la Kobo a été sauvegardée.
+102|Rien n’a changé depuis la dernière sauvegarde.
+103|La sauvegarde a échoué : {0}
+104|Enregistré dans {0}.
+105|Impossible d’enregistrer dans Téléchargements : {0}
+106|Impossible de terminer le fichier de sauvegarde
+107|Android n’a pas pu créer {0} dans Téléchargements
+108|Impossible d’écrire {0} dans Téléchargements
+109|Il ne contient aucun texte dont faire un livre.
+@de
+0|{0} Buch
+1|{0} Bücher
+2|{0} Kapitel
+3|{0} Kapitel
+4|{0} Sammlung
+5|{0} Sammlungen
+6|{0} Seite
+7|{0} Seiten
+8|Ersetzen
+9|Beide behalten
+10|Überspringen
+11|Bücher werden hinzugefügt
+12|{0} kann nicht geöffnet werden
+13|Warte, bis die Bücher hinzugefügt oder gesendet sind, und füge dann den Ordner hinzu.
+14|Ein Buch wird hinzugefügt
+15|{0} Bücher werden hinzugefügt
+16|Warte zuerst, bis „{0}“ fertig ist.
+17|„{0}“ übersprungen.
+18|{0} Bücher übersprungen.
+19|Das Buch wird ersetzt
+20|Die Bücher werden ersetzt
+21|Das Buch wird hinzugefügt
+22|Die Bücher werden hinzugefügt
+23|„{0}“ wurde durch die neue Datei ersetzt.
+24|„{0}“ wurde noch einmal als eigenes Buch hinzugefügt.
+25|1 Buch wurde durch die neue Datei ersetzt.
+26|{0} Bücher wurden durch die neuen Dateien ersetzt.
+27|1 Buch wurde noch einmal als eigenes Buch hinzugefügt.
+28|{0} Bücher wurden noch einmal als eigene Bücher hinzugefügt.
+29|Fehlgeschlagen: {0}. Details stehen im Protokoll.
+30|Das Buch wird dupliziert
+31|Die Bücher werden dupliziert
+32|Duplizieren ({0} von {1})
+33|Als „{0}“ dupliziert.
+34|{0} Bücher dupliziert.
+35|Nur Bücher, die du selbst auf den Kobo kopiert hast, können hinzugefügt werden. Käufe aus dem Kobo Store nicht.
+36|Nicht genug freier Speicher auf diesem Gerät für {0} Bücher.
+37|Bücher vom Kobo werden hinzugefügt
+38|Nicht genug Platz auf dem Kobo. Diese Bücher brauchen etwa {0} MB, auf dem Kobo sind {1} MB frei.
+39|Diese werden schon gesendet.
+40|Zu den Büchern hinzugefügt, die gerade gesendet werden.
+41|{0} Bücher zu denen hinzugefügt, die gerade gesendet werden.
+42|Warte, bis die Bücher zur Bibliothek hinzugefügt sind, und sende dann.
+43|Ein Buch
+44|Es ist nicht mehr in der Bibliothek.
+45|Sammlungen und Buchdetails werden auf dem Kobo gespeichert
+46|Wird an den Kobo gesendet
+47|{0} Bücher werden an den Kobo gesendet
+48|Eine andere Aufgabe läuft noch. Warte, bis sie fertig ist.
+49|Gespeichert.
+50|Speichern nicht möglich: {0}
+51|Cover gespeichert. Es wird unverändert an den Kobo gesendet.
+52|Cover gespeichert.
+53|Das Cover konnte nicht gespeichert werden: {0}
+54|Als gelesen markiert.
+55|{0} Bücher als gelesen markiert.
+56|Als ungelesen markiert.
+57|{0} Bücher als ungelesen markiert.
+58|Aus der Bibliothek entfernt.
+59|{0} Bücher aus der Bibliothek entfernt.
+60|Ursprüngliches Cover wiederhergestellt.
+61|Das ursprüngliche Cover konnte nicht wiederhergestellt werden: {0}
+62|Das Buch wird erstellt
+63|Ohne Titel
+64|„{0}“ erstellt.
+65|Die Bücher werden zusammengeführt
+66|{0} Bücher zu „{1}“ zusammengeführt.
+67|Das Buch wird geteilt
+68|{0} (Teil {1})
+69|„{0}“ in {1} Bücher geteilt.
+70|Unbekannt
+71|Datei wird gespeichert
+72|Am gewählten Ort kann nicht gespeichert werden.
+73|„{0}“ gespeichert.
+74|„{0}“ als kepub gespeichert.
+75|„{0}“ als EPUB gespeichert.
+76|Dateien werden gespeichert
+77|Dateien werden gespeichert ({0} von {1})
+78|In diesem Ordner konnte keine Datei erstellt werden.
+79|Die neue Datei konnte nicht geschrieben werden.
+80|{0} als {1} gespeichert.
+81|{0} gespeichert.
+82| Nicht gespeichert: {0}. Details stehen im Protokoll.
+83|Dieses Buch kann nicht bearbeitet werden: {0}
+84|Android hat keinen dauerhaften Zugriff auf dieses Laufwerk gegeben. Versuche es noch einmal und tippe auf „Diesen Ordner verwenden“ und dann auf „Zulassen“.
+85|Verbinden…
+86|Die Sicherung der Datenbank ist fehlgeschlagen: {0}
+87|Die Datenbank des Kobo hat die Prüfung nicht bestanden. Details stehen im Protokoll.
+88|Die Datenbank deines Kobo wurde gesichert.
+89|Dieses Laufwerk sieht nicht nach einem Kobo aus.
+90|Der Kobo wurde getrennt, während er gelesen wurde. Schließe ihn wieder an und tippe auf dem Kobo auf „Verbinden“.
+91|Android erlaubt keinen Zugriff mehr auf dieses Laufwerk. Tippe auf „Laufwerk wählen“, um den Zugriff wieder zu erlauben.
+92|Beim Lesen des Kobo ist etwas schiefgegangen: {0}: {1}. Details stehen im Protokoll.
+93|Der Kobo wurde getrennt
+94|Die Sammlungen und Details auf dem Kobo konnten nicht aktualisiert werden: {0}. Am Kobo wurde nichts geändert.
+95|Wird vom Kobo gelöscht…
+96|„{0}“ vom Kobo gelöscht.
+97|{0} Bücher vom Kobo gelöscht.
+98| Nicht gelöscht: {0}. Details stehen im Protokoll.
+99| Wirf den Kobo aus, damit er seine Bibliothek aktualisiert.
+100|Wird gesichert…
+101|Die Datenbank des Kobo wurde gesichert.
+102|Seit der letzten Sicherung hat sich nichts geändert.
+103|Sicherung fehlgeschlagen: {0}
+104|In {0} gespeichert.
+105|Speichern in „Downloads“ nicht möglich: {0}
+106|Die Sicherungsdatei konnte nicht fertiggestellt werden
+107|Android konnte {0} in „Downloads“ nicht erstellen
+108|{0} konnte nicht in „Downloads“ geschrieben werden
+109|Es enthält keinen Text, aus dem ein Buch werden könnte.
+@es
+0|{0} libro
+1|{0} libros
+2|{0} capítulo
+3|{0} capítulos
+4|{0} colección
+5|{0} colecciones
+6|{0} página
+7|{0} páginas
+8|Reemplazar
+9|Conservar ambos
+10|Omitir
+11|Añadiendo libros
+12|No se puede abrir {0}
+13|Espera a que terminen de añadirse o enviarse los libros y luego añade la carpeta.
+14|Añadiendo un libro
+15|Añadiendo {0} libros
+16|Espera primero a que termine «{0}».
+17|Se ha omitido «{0}».
+18|Se han omitido {0} libros.
+19|Reemplazando el libro
+20|Reemplazando los libros
+21|Añadiendo el libro
+22|Añadiendo los libros
+23|Se ha reemplazado «{0}» con el archivo nuevo.
+24|Se ha añadido «{0}» otra vez como libro aparte.
+25|Se ha reemplazado 1 libro con el archivo nuevo.
+26|Se han reemplazado {0} libros con los archivos nuevos.
+27|Se ha añadido 1 libro otra vez como libro aparte.
+28|Se han añadido {0} libros otra vez como libros aparte.
+29|Fallos: {0}. Los detalles están en el registro.
+30|Duplicando el libro
+31|Duplicando los libros
+32|Duplicando ({0} de {1})
+33|Duplicado como «{0}».
+34|Se han duplicado {0} libros.
+35|Solo se pueden añadir los libros que pusiste tú en el Kobo. Las compras de la tienda Kobo no.
+36|No hay espacio libre suficiente en este dispositivo para {0} libros.
+37|Añadiendo libros del Kobo
+38|No hay espacio suficiente en el Kobo. Estos libros necesitan unos {0} MB y el Kobo tiene {1} MB libres.
+39|Esos ya se están enviando.
+40|Añadido a los libros que se están enviando.
+41|{0} libros añadidos a los que se están enviando.
+42|Espera a que se terminen de añadir los libros a la biblioteca y luego envía.
+43|Un libro
+44|Ya no está en la biblioteca.
+45|Guardando colecciones y detalles de los libros en el Kobo
+46|Enviando al Kobo
+47|Enviando {0} libros al Kobo
+48|Hay otra tarea en curso. Espera a que termine.
+49|Guardado.
+50|No se ha podido guardar: {0}
+51|Portada guardada. Se enviará al Kobo sin cambios.
+52|Portada guardada.
+53|No se ha podido guardar la portada: {0}
+54|Marcado como terminado.
+55|{0} libros marcados como terminados.
+56|Marcado como no leído.
+57|{0} libros marcados como no leídos.
+58|Quitado de la biblioteca.
+59|{0} libros quitados de la biblioteca.
+60|Portada original restaurada.
+61|No se ha podido restaurar la portada original: {0}
+62|Creando el libro
+63|Sin título
+64|Se ha creado «{0}».
+65|Combinando los libros
+66|Se han combinado {0} libros en «{1}».
+67|Dividiendo el libro
+68|{0} (parte {1})
+69|Se ha dividido «{0}» en {1} libros.
+70|Desconocido
+71|Guardando el archivo
+72|No se puede guardar en la ubicación elegida.
+73|Se ha guardado «{0}».
+74|Se ha guardado «{0}» como kepub.
+75|Se ha guardado «{0}» como EPUB.
+76|Guardando los archivos
+77|Guardando archivos ({0} de {1})
+78|No se ha podido crear un archivo en esa carpeta.
+79|No se ha podido escribir el archivo nuevo.
+80|Guardado: {0} como {1}.
+81|Guardado: {0}.
+82| No guardados: {0}. Los detalles están en el registro.
+83|Este libro no se puede editar: {0}
+84|Android no ha dado acceso permanente a esa unidad. Inténtalo de nuevo y toca «Usar esta carpeta» y luego «Permitir».
+85|Conectando…
+86|La copia de seguridad de la base de datos ha fallado: {0}
+87|La base de datos del Kobo no ha superado la comprobación. Los detalles están en el registro.
+88|Se ha hecho una copia de seguridad de la base de datos de tu Kobo.
+89|Esa unidad no parece un Kobo.
+90|El Kobo se ha desconectado mientras se leía. Vuelve a conectarlo y toca Conectar en el Kobo.
+91|Android ya no permite el acceso a esta unidad. Toca «Elegir unidad» para volver a darle acceso.
+92|Algo ha fallado al leer el Kobo: {0}: {1}. Los detalles están en el registro.
+93|El Kobo se ha desconectado
+94|No se han podido actualizar las colecciones y los detalles del Kobo: {0}. No se ha cambiado nada en el Kobo.
+95|Eliminando del Kobo…
+96|Se ha eliminado «{0}» del Kobo.
+97|Se han eliminado {0} libros del Kobo.
+98| No eliminados: {0}. Los detalles están en el registro.
+99| Expulsa el Kobo para que actualice su biblioteca.
+100|Haciendo copia de seguridad…
+101|Se ha hecho una copia de seguridad de la base de datos del Kobo.
+102|No ha cambiado nada desde la última copia de seguridad.
+103|La copia de seguridad ha fallado: {0}
+104|Guardado en {0}.
+105|No se ha podido guardar en Descargas: {0}
+106|No se ha podido terminar el archivo de copia de seguridad
+107|Android no ha podido crear {0} en Descargas
+108|No se ha podido escribir {0} en Descargas
+109|No tiene texto con el que hacer un libro.
+@it
+0|{0} libro
+1|{0} libri
+2|{0} capitolo
+3|{0} capitoli
+4|{0} raccolta
+5|{0} raccolte
+6|{0} pagina
+7|{0} pagine
+8|Sostituisci
+9|Tieni entrambi
+10|Salta
+11|Aggiunta dei libri
+12|Impossibile aprire {0}
+13|Attendi che i libri in aggiunta o in invio siano terminati, poi aggiungi la cartella.
+14|Aggiunta di un libro
+15|Aggiunta di {0} libri
+16|Attendi prima che «{0}» finisca.
+17|«{0}» saltato.
+18|{0} libri saltati.
+19|Sostituzione del libro
+20|Sostituzione dei libri
+21|Aggiunta del libro
+22|Aggiunta dei libri
+23|«{0}» è stato sostituito con il nuovo file.
+24|«{0}» è stato aggiunto di nuovo come libro separato.
+25|1 libro è stato sostituito con il nuovo file.
+26|{0} libri sono stati sostituiti con i nuovi file.
+27|1 libro è stato aggiunto di nuovo come libro separato.
+28|{0} libri sono stati aggiunti di nuovo come libri separati.
+29|Non riusciti: {0}. I dettagli sono nel registro.
+30|Duplicazione del libro
+31|Duplicazione dei libri
+32|Duplicazione ({0} di {1})
+33|Duplicato come «{0}».
+34|{0} libri duplicati.
+35|Si possono aggiungere solo i libri che hai messo tu sul Kobo. Gli acquisti dal Kobo Store no.
+36|Spazio libero insufficiente su questo dispositivo per {0} libri.
+37|Aggiunta dei libri dal Kobo
+38|Spazio insufficiente sul Kobo. Questi libri richiedono circa {0} MB e il Kobo ha {1} MB liberi.
+39|Quelli sono già in invio.
+40|Aggiunto ai libri in invio.
+41|{0} libri aggiunti a quelli in invio.
+42|Attendi che i libri siano aggiunti alla libreria, poi invia.
+43|Un libro
+44|Non è più nella libreria.
+45|Salvataggio di raccolte e dettagli dei libri sul Kobo
+46|Invio al Kobo
+47|Invio di {0} libri al Kobo
+48|Un’altra operazione è ancora in corso. Attendi che finisca.
+49|Salvato.
+50|Impossibile salvare: {0}
+51|Copertina salvata. Sarà inviata al Kobo senza modifiche.
+52|Copertina salvata.
+53|Impossibile salvare la copertina: {0}
+54|Segnato come finito.
+55|{0} libri segnati come finiti.
+56|Segnato come non letto.
+57|{0} libri segnati come non letti.
+58|Rimosso dalla libreria.
+59|{0} libri rimossi dalla libreria.
+60|Copertina originale ripristinata.
+61|Impossibile ripristinare la copertina originale: {0}
+62|Creazione del libro
+63|Senza titolo
+64|«{0}» creato.
+65|Unione dei libri
+66|{0} libri uniti in «{1}».
+67|Divisione del libro
+68|{0} (parte {1})
+69|«{0}» diviso in {1} libri.
+70|Sconosciuto
+71|Salvataggio del file
+72|Impossibile salvare nella posizione scelta.
+73|«{0}» salvato.
+74|«{0}» salvato come kepub.
+75|«{0}» salvato come EPUB.
+76|Salvataggio dei file
+77|Salvataggio dei file ({0} di {1})
+78|Impossibile creare un file in quella cartella.
+79|Impossibile scrivere il nuovo file.
+80|Salvataggio completato: {0} come {1}.
+81|Salvataggio completato: {0}.
+82| Non salvati: {0}. I dettagli sono nel registro.
+83|Questo libro non può essere modificato: {0}
+84|Android non ha dato l’accesso permanente a quell’unità. Riprova, tocca «Usa questa cartella» e poi «Consenti».
+85|Connessione…
+86|Il backup del database non è riuscito: {0}
+87|Il database del Kobo non ha superato il controllo. I dettagli sono nel registro.
+88|Backup del database del tuo Kobo eseguito.
+89|Quell’unità non sembra un Kobo.
+90|Il Kobo è stato scollegato durante la lettura. Ricollegalo e tocca Connetti sul Kobo.
+91|Android non consente più l’accesso a questa unità. Tocca «Scegli unità» per consentirlo di nuovo.
+92|Si è verificato un problema leggendo il Kobo: {0}: {1}. I dettagli sono nel registro.
+93|Il Kobo è stato scollegato
+94|Impossibile aggiornare raccolte e dettagli del Kobo: {0}. Sul Kobo non è stato modificato nulla.
+95|Eliminazione dal Kobo…
+96|«{0}» eliminato dal Kobo.
+97|{0} libri eliminati dal Kobo.
+98| Non eliminati: {0}. I dettagli sono nel registro.
+99| Espelli il Kobo perché aggiorni la sua libreria.
+100|Backup in corso…
+101|Backup del database del Kobo eseguito.
+102|Non è cambiato nulla dall’ultimo backup.
+103|Backup non riuscito: {0}
+104|Salvato in {0}.
+105|Impossibile salvare in Download: {0}
+106|Impossibile completare il file di backup
+107|Android non è riuscito a creare {0} in Download
+108|Impossibile scrivere {0} in Download
+109|Non contiene testo da cui ricavare un libro.
+@nl
+0|{0} boek
+1|{0} boeken
+2|{0} hoofdstuk
+3|{0} hoofdstukken
+4|{0} collectie
+5|{0} collecties
+6|{0} pagina
+7|{0} pagina’s
+8|Vervangen
+9|Beide houden
+10|Overslaan
+11|Boeken toevoegen
+12|Kan {0} niet openen
+13|Wacht tot de boeken die worden toegevoegd of verstuurd klaar zijn en voeg dan de map toe.
+14|Een boek toevoegen
+15|{0} boeken toevoegen
+16|Wacht eerst tot ‘{0}’ klaar is.
+17|‘{0}’ overgeslagen.
+18|{0} boeken overgeslagen.
+19|Het boek wordt vervangen
+20|De boeken worden vervangen
+21|Het boek wordt toegevoegd
+22|De boeken worden toegevoegd
+23|‘{0}’ is vervangen door het nieuwe bestand.
+24|‘{0}’ is nog een keer toegevoegd als apart boek.
+25|1 boek is vervangen door het nieuwe bestand.
+26|{0} boeken zijn vervangen door de nieuwe bestanden.
+27|1 boek is nog een keer toegevoegd als apart boek.
+28|{0} boeken zijn nog een keer toegevoegd als aparte boeken.
+29|Mislukt: {0}. Details staan in het logboek.
+30|Het boek wordt gedupliceerd
+31|De boeken worden gedupliceerd
+32|Dupliceren ({0} van {1})
+33|Gedupliceerd als ‘{0}’.
+34|{0} boeken gedupliceerd.
+35|Alleen boeken die je zelf op de Kobo hebt gezet, kunnen worden toegevoegd. Aankopen uit de Kobo Store niet.
+36|Niet genoeg vrije ruimte op dit apparaat voor {0} boeken.
+37|Boeken van de Kobo toevoegen
+38|Niet genoeg ruimte op de Kobo. Deze boeken hebben ongeveer {0} MB nodig en de Kobo heeft {1} MB vrij.
+39|Die worden al verstuurd.
+40|Toegevoegd aan de boeken die worden verstuurd.
+41|{0} boeken toegevoegd aan de boeken die worden verstuurd.
+42|Wacht tot de boeken aan de bibliotheek zijn toegevoegd en verstuur dan.
+43|Een boek
+44|Het staat niet meer in de bibliotheek.
+45|Collecties en boekgegevens worden op de Kobo opgeslagen
+46|Versturen naar de Kobo
+47|{0} boeken versturen naar de Kobo
+48|Er loopt nog een andere taak. Wacht tot die klaar is.
+49|Opgeslagen.
+50|Opslaan is niet gelukt: {0}
+51|Omslag opgeslagen. Hij wordt ongewijzigd naar de Kobo gestuurd.
+52|Omslag opgeslagen.
+53|De omslag kon niet worden opgeslagen: {0}
+54|Gemarkeerd als uitgelezen.
+55|{0} boeken gemarkeerd als uitgelezen.
+56|Gemarkeerd als ongelezen.
+57|{0} boeken gemarkeerd als ongelezen.
+58|Uit de bibliotheek verwijderd.
+59|{0} boeken uit de bibliotheek verwijderd.
+60|Oorspronkelijke omslag hersteld.
+61|De oorspronkelijke omslag kon niet worden hersteld: {0}
+62|Het boek wordt gemaakt
+63|Zonder titel
+64|‘{0}’ gemaakt.
+65|De boeken worden samengevoegd
+66|{0} boeken samengevoegd tot ‘{1}’.
+67|Het boek wordt gesplitst
+68|{0} (deel {1})
+69|‘{0}’ gesplitst in {1} boeken.
+70|Onbekend
+71|Bestand opslaan
+72|Kan niet opslaan op de gekozen plek.
+73|‘{0}’ opgeslagen.
+74|‘{0}’ opgeslagen als kepub.
+75|‘{0}’ opgeslagen als EPUB.
+76|Bestanden opslaan
+77|Bestanden opslaan ({0} van {1})
+78|Kan geen bestand maken in die map.
+79|Kan het nieuwe bestand niet schrijven.
+80|{0} opgeslagen als {1}.
+81|{0} opgeslagen.
+82| Niet opgeslagen: {0}. Details staan in het logboek.
+83|Dit boek kan niet worden bewerkt: {0}
+84|Android heeft geen blijvende toegang tot die schijf gegeven. Probeer het opnieuw en tik op ‘Deze map gebruiken’ en daarna op ‘Toestaan’.
+85|Verbinden…
+86|De back-up van de database is mislukt: {0}
+87|De database van de Kobo is niet door de controle gekomen. Details staan in het logboek.
+88|Er is een back-up van de database van je Kobo gemaakt.
+89|Die schijf lijkt geen Kobo te zijn.
+90|De Kobo is losgekoppeld terwijl hij werd gelezen. Sluit hem weer aan en tik op de Kobo op Verbinden.
+91|Android geeft geen toegang meer tot deze schijf. Tik op ‘Schijf kiezen’ om weer toegang te geven.
+92|Er ging iets mis bij het lezen van de Kobo: {0}: {1}. Details staan in het logboek.
+93|De Kobo is losgekoppeld
+94|De collecties en gegevens op de Kobo konden niet worden bijgewerkt: {0}. Er is niets op de Kobo veranderd.
+95|Verwijderen van de Kobo…
+96|‘{0}’ van de Kobo verwijderd.
+97|{0} boeken van de Kobo verwijderd.
+98| Niet verwijderd: {0}. Details staan in het logboek.
+99| Werp de Kobo uit zodat hij zijn bibliotheek kan bijwerken.
+100|Back-up maken…
+101|Er is een back-up van de database van de Kobo gemaakt.
+102|Er is niets veranderd sinds de laatste back-up.
+103|Back-up mislukt: {0}
+104|Opgeslagen in {0}.
+105|Opslaan in Downloads is niet gelukt: {0}
+106|Het back-upbestand kon niet worden afgemaakt
+107|Android kon {0} niet maken in Downloads
+108|Kon {0} niet naar Downloads schrijven
+109|Er staat geen tekst in om een boek van te maken.
+@pt
+0|{0} livro
+1|{0} livros
+2|{0} capítulo
+3|{0} capítulos
+4|{0} coleção
+5|{0} coleções
+6|{0} página
+7|{0} páginas
+8|Substituir
+9|Manter os dois
+10|Pular
+11|Adicionando livros
+12|Não é possível abrir {0}
+13|Espere terminar de adicionar ou enviar os livros e depois adicione a pasta.
+14|Adicionando um livro
+15|Adicionando {0} livros
+16|Espere “{0}” terminar primeiro.
+17|“{0}” foi pulado.
+18|{0} livros foram pulados.
+19|Substituindo o livro
+20|Substituindo os livros
+21|Adicionando o livro
+22|Adicionando os livros
+23|“{0}” foi substituído pelo arquivo novo.
+24|“{0}” foi adicionado de novo como um livro separado.
+25|1 livro foi substituído pelo arquivo novo.
+26|{0} livros foram substituídos pelos arquivos novos.
+27|1 livro foi adicionado de novo como um livro separado.
+28|{0} livros foram adicionados de novo como livros separados.
+29|Falhas: {0}. Os detalhes estão no registro.
+30|Duplicando o livro
+31|Duplicando os livros
+32|Duplicando ({0} de {1})
+33|Duplicado como “{0}”.
+34|{0} livros duplicados.
+35|Só é possível adicionar livros que você mesmo colocou no Kobo. Compras da loja Kobo não.
+36|Não há espaço livre suficiente neste dispositivo para {0} livros.
+37|Adicionando livros do Kobo
+38|Não há espaço suficiente no Kobo. Esses livros precisam de cerca de {0} MB, e o Kobo tem {1} MB livres.
+39|Esses já estão sendo enviados.
+40|Adicionado aos livros que estão sendo enviados.
+41|{0} livros adicionados aos que estão sendo enviados.
+42|Espere os livros terminarem de ser adicionados à biblioteca e depois envie.
+43|Um livro
+44|Ele não está mais na biblioteca.
+45|Salvando coleções e detalhes dos livros no Kobo
+46|Enviando para o Kobo
+47|Enviando {0} livros para o Kobo
+48|Outra tarefa ainda está em andamento. Espere ela terminar.
+49|Salvo.
+50|Não foi possível salvar: {0}
+51|Capa salva. Ela será enviada ao Kobo sem alterações.
+52|Capa salva.
+53|Não foi possível salvar a capa: {0}
+54|Marcado como concluído.
+55|{0} livros marcados como concluídos.
+56|Marcado como não lido.
+57|{0} livros marcados como não lidos.
+58|Removido da biblioteca.
+59|{0} livros removidos da biblioteca.
+60|Capa original restaurada.
+61|Não foi possível restaurar a capa original: {0}
+62|Criando o livro
+63|Sem título
+64|“{0}” foi criado.
+65|Combinando os livros
+66|{0} livros combinados em “{1}”.
+67|Dividindo o livro
+68|{0} (parte {1})
+69|“{0}” foi dividido em {1} livros.
+70|Desconhecido
+71|Salvando o arquivo
+72|Não é possível salvar no local escolhido.
+73|“{0}” foi salvo.
+74|“{0}” foi salvo como kepub.
+75|“{0}” foi salvo como EPUB.
+76|Salvando os arquivos
+77|Salvando arquivos ({0} de {1})
+78|Não foi possível criar um arquivo nessa pasta.
+79|Não foi possível gravar o arquivo novo.
+80|Salvamento concluído: {0} como {1}.
+81|Salvamento concluído: {0}.
+82| Não salvos: {0}. Os detalhes estão no registro.
+83|Este livro não pode ser editado: {0}
+84|O Android não deu acesso permanente a essa unidade. Tente de novo e toque em “Usar esta pasta” e depois em “Permitir”.
+85|Conectando…
+86|O backup do banco de dados falhou: {0}
+87|O banco de dados do Kobo não passou na verificação. Os detalhes estão no registro.
+88|Foi feito o backup do banco de dados do seu Kobo.
+89|Essa unidade não parece ser um Kobo.
+90|O Kobo foi desconectado enquanto era lido. Conecte de novo e toque em Conectar no Kobo.
+91|O Android não permite mais o acesso a esta unidade. Toque em “Escolher unidade” para dar acesso de novo.
+92|Algo deu errado ao ler o Kobo: {0}: {1}. Os detalhes estão no registro.
+93|O Kobo foi desconectado
+94|Não foi possível atualizar as coleções e os detalhes do Kobo: {0}. Nada foi alterado no Kobo.
+95|Excluindo do Kobo…
+96|“{0}” foi excluído do Kobo.
+97|{0} livros foram excluídos do Kobo.
+98| Não excluídos: {0}. Os detalhes estão no registro.
+99| Ejete o Kobo para que ele atualize a biblioteca.
+100|Fazendo backup…
+101|Foi feito o backup do banco de dados do Kobo.
+102|Nada mudou desde o último backup.
+103|O backup falhou: {0}
+104|Salvo em {0}.
+105|Não foi possível salvar em Downloads: {0}
+106|Não foi possível concluir o arquivo de backup
+107|O Android não conseguiu criar {0} em Downloads
+108|Não foi possível gravar {0} em Downloads
+109|Não há texto nele para fazer um livro.
+@ja
+0|{0} 冊
+1|{0} 冊
+2|{0} 章
+3|{0} 章
+4|{0} 件のコレクション
+5|{0} 件のコレクション
+6|{0} ページ
+7|{0} ページ
+8|置き換える
+9|両方残す
+10|スキップ
+11|本を追加しています
+12|{0} を開けません
+13|本の追加や送信が終わるまで待ってから、フォルダを追加してください。
+14|本を 1 冊追加しています
+15|{0} 冊の本を追加しています
+16|先に「{0}」が終わるまでお待ちください。
+17|「{0}」をスキップしました。
+18|{0} 冊をスキップしました。
+19|本を置き換えています
+20|本を置き換えています
+21|本を追加しています
+22|本を追加しています
+23|「{0}」を新しいファイルに置き換えました。
+24|「{0}」を別の本としてもう一度追加しました。
+25|1 冊を新しいファイルに置き換えました。
+26|{0} 冊を新しいファイルに置き換えました。
+27|1 冊を別の本としてもう一度追加しました。
+28|{0} 冊を別の本としてもう一度追加しました。
+29|{0} 件を処理できませんでした。詳しくはログをご覧ください。
+30|本を複製しています
+31|本を複製しています
+32|複製中（{0}/{1}）
+33|「{0}」として複製しました。
+34|{0} 冊を複製しました。
+35|追加できるのは、自分で Kobo に入れた本だけです。Kobo ストアで購入した本は追加できません。
+36|この端末には {0} 冊分の空き容量がありません。
+37|Kobo から本を追加しています
+38|Kobo の空き容量が足りません。これらの本には約 {0} MB 必要ですが、Kobo の空きは {1} MB です。
+39|それらはすでに送信中です。
+40|送信中の本に追加しました。
+41|送信中の本に {0} 冊を追加しました。
+42|ライブラリへの本の追加が終わるまで待ってから送信してください。
+43|本
+44|この本はもうライブラリにありません。
+45|コレクションと本の情報を Kobo に保存しています
+46|Kobo に送信しています
+47|{0} 冊を Kobo に送信しています
+48|ほかの処理が実行中です。終わるまでお待ちください。
+49|保存しました。
+50|保存できませんでした: {0}
+51|表紙を保存しました。Kobo にはそのまま送られます。
+52|表紙を保存しました。
+53|表紙を保存できませんでした: {0}
+54|読了にしました。
+55|{0} 冊を読了にしました。
+56|未読にしました。
+57|{0} 冊を未読にしました。
+58|ライブラリから削除しました。
+59|ライブラリから {0} 冊を削除しました。
+60|元の表紙に戻しました。
+61|元の表紙に戻せませんでした: {0}
+62|本を作成しています
+63|無題
+64|「{0}」を作成しました。
+65|本を結合しています
+66|{0} 冊を「{1}」に結合しました。
+67|本を分割しています
+68|{0}（パート {1}）
+69|「{0}」を {1} 冊に分割しました。
+70|不明
+71|ファイルを保存しています
+72|選んだ場所に保存できません。
+73|「{0}」を保存しました。
+74|「{0}」を kepub として保存しました。
+75|「{0}」を EPUB として保存しました。
+76|ファイルを保存しています
+77|ファイルを保存しています（{0}/{1}）
+78|そのフォルダにファイルを作成できませんでした。
+79|新しいファイルを書き込めませんでした。
+80|{0} を {1} として保存しました。
+81|{0} を保存しました。
+82| {0} 件を保存できませんでした。詳しくはログをご覧ください。
+83|この本は編集できません: {0}
+84|Android からそのドライブへの永続的なアクセスが許可されませんでした。もう一度試して、「このフォルダを使用」をタップしてから「許可」をタップしてください。
+85|接続しています…
+86|データベースのバックアップに失敗しました: {0}
+87|Kobo のデータベースがチェックに合格しませんでした。詳しくはログをご覧ください。
+88|Kobo のデータベースをバックアップしました。
+89|そのドライブは Kobo ではないようです。
+90|読み込み中に Kobo の接続が切れました。もう一度つないで、Kobo で「接続」をタップしてください。
+91|Android でこのドライブへのアクセスが許可されなくなりました。「ドライブを選ぶ」をタップして、もう一度アクセスを許可してください。
+92|Kobo の読み込み中に問題が起きました: {0}: {1}。詳しくはログをご覧ください。
+93|Kobo の接続が切れました
+94|Kobo のコレクションと情報を更新できませんでした: {0}。Kobo には何も変更していません。
+95|Kobo から削除しています…
+96|「{0}」を Kobo から削除しました。
+97|{0} 冊を Kobo から削除しました。
+98| {0} 冊を削除できませんでした。詳しくはログをご覧ください。
+99| Kobo を取り出すと、Kobo のライブラリが更新されます。
+100|バックアップしています…
+101|Kobo のデータベースをバックアップしました。
+102|前回のバックアップから変更はありません。
+103|バックアップに失敗しました: {0}
+104|{0} に保存しました。
+105|ダウンロードに保存できませんでした: {0}
+106|バックアップファイルを完成できませんでした
+107|Android がダウンロードに {0} を作成できませんでした
+108|{0} をダウンロードに書き込めませんでした
+109|本にできる文章が含まれていません。

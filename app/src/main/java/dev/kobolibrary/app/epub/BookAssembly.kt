@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.epub
 
+import dev.kobolibrary.app.tr
 import java.io.File
 import java.security.MessageDigest
 import java.time.ZoneOffset
@@ -31,7 +32,7 @@ object BookAssembly {
 
     /** Writes the book to [target]: its details, its files, the reading order and the contents. */
     fun write(target: File, meta: BookMetadata, parts: List<Part>, spine: List<SpineEntry>, toc: List<TocNode>) {
-        require(spine.isNotEmpty()) { "A book must have at least one page." }
+        require(spine.isNotEmpty()) { tr("A book must have at least one page.") }
         val uid = meta.identifier?.takeIf { it.isNotBlank() } ?: "urn:uuid:${UUID.randomUUID()}"
         val lang = meta.language?.takeIf { it.isNotBlank() } ?: "en"
         val ids = HashMap<String, String>()
@@ -60,7 +61,7 @@ object BookAssembly {
             append("  </manifest>\n")
             append("  <spine toc=\"ncx\">\n")
             for (s in spine) {
-                val id = ids[s.path] ?: throw AssemblyException("A page in the reading order is missing: ${s.path}")
+                val id = ids[s.path] ?: throw AssemblyException(tr("A page in the reading order is missing: {0}", s.path))
                 append("    <itemref idref=\"").append(id).append('"')
                 if (!s.linear) append(" linear=\"no\"")
                 append("/>\n")
@@ -163,7 +164,7 @@ hr::after { content: "* * *"; }
      * contents under it. The cover is the one from [coverFrom] (an index into [sources]), if it has one.
      */
     fun merge(target: File, sources: List<File>, meta: BookMetadata, coverFrom: Int? = 0, titles: List<String>? = null) {
-        if (sources.size < 2) throw AssemblyException("Select at least two books to combine.")
+        if (sources.size < 2) throw AssemblyException(tr("Select at least two books to combine."))
         val parts = ArrayList<Part>()
         val spine = ArrayList<SpineEntry>()
         val toc = ArrayList<TocNode>()
@@ -179,7 +180,7 @@ hr::after { content: "* * *"; }
                     parts += Part(moved(path), item.mediaType, book.bytes(path), props)
                 }
                 val pages = book.spine.filter { it.path in book.files }
-                if (pages.isEmpty()) throw AssemblyException("“${book.title}” has no pages to read.")
+                if (pages.isEmpty()) throw AssemblyException(tr("“{0}” has no pages to read.", book.title))
                 pages.forEach { spine += SpineEntry(moved(it.path), it.linear) }
                 val title = titles?.getOrNull(i)?.takeIf { it.isNotBlank() } ?: book.title
                 toc += TocNode(title, moved((pages.firstOrNull { it.linear } ?: pages.first()).path), null, remap(book.toc) { moved(it) }.filter { it.path.startsWith(prefix) })
@@ -233,7 +234,7 @@ hr::after { content: "* * *"; }
             }
             close()
             best?.takeIf { total == 0 || bestWords * 2 >= total }?.title?.trim()?.takeIf { it.isNotEmpty() }
-                ?: "$bookTitle (part ${k + 1})"
+                ?: tr("{0} (part {1})", bookTitle, k + 1)
         }
     }
 
@@ -275,8 +276,8 @@ hr::after { content: "* * *"; }
             val book = readBook(epub)
             val spinePages = book.spine.filter { it.path in book.files }
             val starts = (listOf(0) + cuts.filter { it in 1 until spinePages.size }).distinct().sorted()
-            if (starts.size < 2) throw AssemblyException("Choose at least one chapter where a new book starts.")
-            require(metas.size == starts.size && targets.size == starts.size) { "One title and one file for each book." }
+            if (starts.size < 2) throw AssemblyException(tr("Choose at least one chapter where a new book starts."))
+            require(metas.size == starts.size && targets.size == starts.size) { tr("One title and one file for each book.") }
             val spinePaths = spinePages.map { it.path }.toSet()
             // Pages read only by link (notes, mostly) go with every book that links to them.
             val byLinkOnly = spinePages.filter { !it.linear }.map { it.path }.toSet()
@@ -348,7 +349,7 @@ hr::after { content: "* * *"; }
     }
 
     private fun readBook(epub: EpubFile): SourceBook {
-        val obfuscated = FontObfuscation.read(epub) ?: throw AssemblyException("“${epub.opf.readMetadata().title.ifBlank { epub.file.name }}” is copy-protected, so it can't be split or combined.")
+        val obfuscated = FontObfuscation.read(epub) ?: throw AssemblyException(tr("“{0}” is copy-protected, so it can't be split or combined.", epub.opf.readMetadata().title.ifBlank { epub.file.name }))
         val uid = epub.opf.readMetadata().identifier.orEmpty()
         val nav = epub.opf.navItem()?.let { epub.resolve(it.href) }
         val ncx = epub.opf.ncxItem()?.let { epub.resolve(it.href) }

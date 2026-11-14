@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.cover
 
+import dev.kobolibrary.app.tr
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Bitmap
@@ -38,22 +39,22 @@ import kotlin.random.Random
 /** The designs a cover can be drawn in. */
 enum class CoverStyle(val label: String) {
     /** A cloth-bound board with a pasted paper label. */
-    LABEL("Label"),
+    LABEL(tr("Label")),
 
     /** A ruled frame with scooped corners, like an old title page. */
-    CLASSIC("Classic"),
+    CLASSIC(tr("Classic")),
 
     /** A sun coming up over water. */
-    SUNRISE("Sunrise"),
+    SUNRISE(tr("Sunrise")),
 
     /** Two colours cut on a slant. */
-    SPLIT("Split"),
+    SPLIT(tr("Split")),
 
     /** A band of tiles that is different for every book. */
-    MOSAIC("Mosaic"),
+    MOSAIC(tr("Mosaic")),
 
     /** Big plain lettering and one large shape. */
-    BOLD("Bold"),
+    BOLD(tr("Bold")),
 }
 
 /**
@@ -66,14 +67,14 @@ data class CoverColors(val name: String, val ground: Int, val accent: Int, val i
 
         /** The built-in themes: four dark boards, three light ones and one in plain black and white. */
         val themes = listOf(
-            CoverColors("Midnight", rgb(0x1B2A49), rgb(0xE0B458), rgb(0xF4EBD6), rgb(0x16223B)),
-            CoverColors("Claret", rgb(0x6B1D2A), rgb(0xE8CFA4), rgb(0xF8EEDC), rgb(0x4A1220)),
-            CoverColors("Forest", rgb(0x1F4035), rgb(0xDCC98C), rgb(0xF2EDD8), rgb(0x15302A)),
-            CoverColors("Slate", rgb(0x36414B), rgb(0xA9CBD0), rgb(0xEEF3F4), rgb(0x202A31)),
-            CoverColors("Parchment", rgb(0xEFE3C6), rgb(0x9A3A2B), rgb(0x2E251B), rgb(0xFAF1DC)),
-            CoverColors("Linen", rgb(0xE4E9EC), rgb(0x2F5D7C), rgb(0x1E2B36), rgb(0xF2F6F8)),
-            CoverColors("Saffron", rgb(0xEDB84A), rgb(0x2A2622), rgb(0x2A2622), rgb(0xF6DFA6)),
-            CoverColors("Ink", rgb(0xF5F4EF), rgb(0x1C1C1C), rgb(0x1C1C1C), rgb(0xF5F4EF)),
+            CoverColors(tr("Midnight"), rgb(0x1B2A49), rgb(0xE0B458), rgb(0xF4EBD6), rgb(0x16223B)),
+            CoverColors(tr("Claret"), rgb(0x6B1D2A), rgb(0xE8CFA4), rgb(0xF8EEDC), rgb(0x4A1220)),
+            CoverColors(tr("Forest"), rgb(0x1F4035), rgb(0xDCC98C), rgb(0xF2EDD8), rgb(0x15302A)),
+            CoverColors(tr("Slate"), rgb(0x36414B), rgb(0xA9CBD0), rgb(0xEEF3F4), rgb(0x202A31)),
+            CoverColors(tr("Parchment"), rgb(0xEFE3C6), rgb(0x9A3A2B), rgb(0x2E251B), rgb(0xFAF1DC)),
+            CoverColors(tr("Linen"), rgb(0xE4E9EC), rgb(0x2F5D7C), rgb(0x1E2B36), rgb(0xF2F6F8)),
+            CoverColors(tr("Saffron"), rgb(0xEDB84A), rgb(0x2A2622), rgb(0x2A2622), rgb(0xF6DFA6)),
+            CoverColors(tr("Ink"), rgb(0xF5F4EF), rgb(0x1C1C1C), rgb(0x1C1C1C), rgb(0xF5F4EF)),
         )
 
         /**
@@ -86,9 +87,9 @@ data class CoverColors(val name: String, val ground: Int, val accent: Int, val i
             fun hsl(turn: Float, sat: Float, light: Float) = ColorUtils.HSLToColor(floatArrayOf((h + turn) % 360f, (sat * s).coerceIn(0f, 1f), light))
             return if (dark) {
                 // The accent leans a little towards the next colour round the wheel, so it isn't just a tint.
-                CoverColors("Custom", ground = hsl(0f, 0.52f, 0.22f), accent = hsl(28f, 0.62f, 0.76f), ink = hsl(0f, 0.30f, 0.94f), accentInk = hsl(0f, 0.55f, 0.14f))
+                CoverColors(tr("Custom"), ground = hsl(0f, 0.52f, 0.22f), accent = hsl(28f, 0.62f, 0.76f), ink = hsl(0f, 0.30f, 0.94f), accentInk = hsl(0f, 0.55f, 0.14f))
             } else {
-                CoverColors("Custom", ground = hsl(0f, 0.46f, 0.90f), accent = hsl(0f, 0.62f, 0.30f), ink = hsl(0f, 0.50f, 0.13f), accentInk = hsl(0f, 0.30f, 0.95f))
+                CoverColors(tr("Custom"), ground = hsl(0f, 0.46f, 0.90f), accent = hsl(0f, 0.62f, 0.30f), ink = hsl(0f, 0.50f, 0.13f), accentInk = hsl(0f, 0.30f, 0.95f))
             }
         }
     }
@@ -140,7 +141,7 @@ class CoverGenerator(context: Context) {
     fun render(text: CoverText, design: CoverDesign, width: Int = CoverCrop.OUT_WIDTH, height: Int = CoverCrop.OUT_HEIGHT): Bitmap {
         val bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val sheet = Sheet(Canvas(bmp), width.toFloat(), height.toFloat(), design.colors)
-        val title = text.title.trim().ifEmpty { "Untitled" }
+        val title = text.title.trim().ifEmpty { tr("Untitled") }
         val author = authorLine(text)
         val words = Words(title, seriesLine(text), author, seed = "$title\u0000${author.orEmpty()}".hashCode())
         when (design.style) {
@@ -163,18 +164,18 @@ class CoverGenerator(context: Context) {
         val name = t.series?.trim().orEmpty()
         if (name.isEmpty()) return null
         val number = t.seriesIndex ?: return name
-        return "$name · Book ${Names.formatIndex(number)}"
+        return tr("{0} · Book {1}", name, Names.formatIndex(number))
     }
 
     /** Everyone who wrote it on one line: "A", "A & B", "A, B & C", and past three, "A, B & others". */
     private fun authorLine(t: CoverText): String? {
-        val names = t.authors.map { it.trim() }.filter { it.isNotEmpty() && !it.equals("Unknown", ignoreCase = true) }
+        val names = t.authors.map { it.trim() }.filter { it.isNotEmpty() && !it.equals(tr("Unknown"), ignoreCase = true) }
         return when (names.size) {
             0 -> null
             1 -> names[0]
             2 -> "${names[0]} & ${names[1]}"
             3 -> "${names[0]}, ${names[1]} & ${names[2]}"
-            else -> "${names[0]}, ${names[1]} & others"
+            else -> tr("{0}, {1} & others", names[0], names[1])
         }
     }
 

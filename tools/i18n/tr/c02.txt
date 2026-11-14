@@ -1,0 +1,812 @@
+@fr
+110|Ce zip ne contient aucun fichier FictionBook.
+111|Le PDF est fermé.
+112|Le fichier FictionBook est endommagé : {0}
+113|Ce n’est pas un fichier FictionBook.
+114|Ce fichier est trop court pour être un livre Kindle.
+115|Ce livre Kindle est endommagé.
+116|Ce livre est protégé par DRM, il ne peut donc pas être ouvert.
+117|Ce livre Kindle est compressé d’une façon qui ne peut pas être lue.
+118|Les tables de compression de ce livre Kindle sont manquantes.
+119|Les tables de compression de ce livre Kindle sont endommagées.
+120|Le texte de ce livre Kindle est endommagé.
+121|Un index de ce livre Kindle est endommagé.
+122|Ce n’est pas un livre Kindle.
+123|Ce livre Kindle n’a pas pu être lu : {0}
+124|Ce livre Kindle ne contient aucun texte.
+125|L’index des pages de ce livre Kindle est manquant.
+126|Le fichier est trop volumineux pour être ouvert.
+127|Une partie du document ({0}) est manquante.
+128|Une partie du document ({0}) est endommagée.
+129|Ce document ne contient aucun texte.
+130|Ce PDF ne contient pas de texte (ce sont peut-être des pages numérisées), il ne peut donc pas devenir un livre.
+131|Ce n’est pas un fichier PDF.
+132|Le verrou de ce PDF ne peut pas être lu.
+133|Ce PDF demande un mot de passe pour être ouvert, il ne peut donc pas être converti.
+134|Ce PDF est endommagé.
+135|Ce PDF est verrouillé d’une façon qui ne permet pas de l’ouvrir.
+136|Ce n’est pas un fichier RTF.
+137|Ce fichier de bande dessinée ne contient aucune image.
+138|Un livre doit avoir au moins une page.
+139|Une page de l’ordre de lecture est manquante : {0}
+140|Sélectionnez au moins deux livres à réunir.
+141|« {0} » n’a aucune page à lire.
+142|Choisissez au moins un chapitre où commence un nouveau livre.
+143|Un titre et un fichier pour chaque livre.
+144|« {0} » est protégé contre la copie, il ne peut donc pas être divisé ou réuni.
+145|Impossible d’enregistrer une copie du livre d’origine
+146|Impossible de remplacer {0}
+147|{0}, ligne {1} : {2}
+148|Le fichier de paquet du livre (OPF) ne peut pas être lu
+149|L’ordre de lecture est vide
+150|Le livre mentionne ce fichier, mais il est manquant
+151|L’ordre de lecture comprend « {0} », qui n’est pas dans le livre
+152|Le fichier de paquet du livre est manquant.
+153|Ce chapitre n’est plus dans le livre.
+154|Saisissez un nom pour le chapitre.
+155|« {0} » renommé en « {1} »
+156|Chapitre déplacé
+157|Le livre n’a pas d’ordre de lecture.
+158|Les chapitres ont changé pendant leur déplacement.
+159|Ce chapitre n’est pas dans l’ordre de lecture.
+160|« {0} » masqué
+161|« {0} » de nouveau affiché
+162|Le livre s’ouvre maintenant sur « {0} »
+163|Un livre doit avoir au moins un chapitre.
+164|Ce chapitre n’est pas dans la liste des fichiers du livre.
+165|« {0} » supprimé
+166|C’est le premier chapitre, il n’y a donc pas de chapitre précédent auquel le joindre.
+167|Le chapitre précédent ne peut pas être lu.
+168|Le chapitre ne peut pas être lu.
+169|L’un de ces chapitres n’a pas de partie texte (body), ils ne peuvent donc pas être joints.
+170|« {0} » joint à « {1} »
+171|Cet endroit n’est plus dans le chapitre.
+172|Un chapitre ne peut être divisé qu’à l’intérieur de son texte.
+173|C’est déjà le début du chapitre.
+174|Le livre n’a pas de liste de fichiers.
+175|« {0} » ajouté
+176|Image ajoutée
+177|Aucun chapitre n’a de titre, la table des matières ne peut donc pas être refaite.
+178|Table des matières refaite à partir des titres
+179|Supprimer les lignes vides en trop
+180|Remplace plusieurs lignes vides à la suite par une seule, et supprime les lignes vides au début et à la fin des chapitres. Les lignes vides seules (changements de scène) sont conservées.
+181|ligne vide
+182|lignes vides
+183|Guillemets droits en guillemets courbes
+184|\"Bonjour\", dit-il, 'c'est à moi.' devient “Bonjour”, dit-il, ‘c’est à moi.’
+185|Joindre les lignes coupées en pleine phrase
+186|Joint les paragraphes coupés au milieu d’une phrase. C’est fréquent dans les livres faits à partir de PDF ou de numérisations.
+187|ligne coupée
+188|lignes coupées
+189|Doubles tirets en tirets longs
+190|Transforme -- et --- en vrai tiret (—).
+191|Supprimer les polices intégrées
+192|Supprime les fichiers de police du livre, pour que la Kobo utilise la police que vous y choisissez.
+193|Ce fichier n’est pas un EPUB (il n’a pas de META-INF/container.xml).
+194|Le fichier container.xml du livre est endommagé.
+195|Le fichier container.xml du livre n’indique pas où se trouve son fichier de paquet.
+196|Le fichier de paquet du livre ({0}) est manquant.
+197|Ce fichier n’est pas un EPUB (ce n’est pas une archive zip).
+198|Cet EPUB utilise des noms de fichiers inhabituels qui ne peuvent pas être lus.
+199|Le fichier n’a pas pu être ouvert : {0}
+200|Ce motif n’est pas valide.
+201|Ce motif correspondrait à un texte vide, il ne peut donc pas être utilisé.
+202|minuscule
+203|après « {0} »
+204|partie d’un mot composé
+205|tout en majuscules
+206|dans un titre
+207|commence un paragraphe
+208|commence une phrase
+209|Commentaire non fermé à {0}
+210|CDATA non fermé à {0}
+211|Instruction de traitement non fermée à {0}
+212|Balise de fin non fermée à {0}
+213|Aucun élément racine
+214|Balise incorrecte à {0}
+215|Ligne {0}, colonne {1} : {2}
+216|Un caractère de contrôle (code {0}) n’est pas autorisé
+217|Texte après la fin du document
+218|Texte avant le début du document
+219|Un commentaire n’est pas fermé
+220|« -- » n’est pas autorisé dans un commentaire
+221|CDATA n’est pas autorisé en dehors du document
+222|Une section CDATA n’est pas fermée
+223|Une instruction de traitement n’est pas fermée
+224|Un doctype ne peut pas venir après le début du document
+@de
+110|In dieser ZIP-Datei ist keine FictionBook-Datei.
+111|Das PDF ist geschlossen.
+112|Die FictionBook-Datei ist beschädigt: {0}
+113|Das ist keine FictionBook-Datei.
+114|Diese Datei ist zu kurz für ein Kindle-Buch.
+115|Dieses Kindle-Buch ist beschädigt.
+116|Dieses Buch ist mit DRM geschützt und kann daher nicht geöffnet werden.
+117|Dieses Kindle-Buch ist auf eine Weise komprimiert, die nicht gelesen werden kann.
+118|Die Komprimierungstabellen dieses Kindle-Buchs fehlen.
+119|Die Komprimierungstabellen dieses Kindle-Buchs sind beschädigt.
+120|Der Text dieses Kindle-Buchs ist beschädigt.
+121|Ein Index in diesem Kindle-Buch ist beschädigt.
+122|Das ist kein Kindle-Buch.
+123|Dieses Kindle-Buch konnte nicht gelesen werden: {0}
+124|In diesem Kindle-Buch ist kein Text.
+125|Der Seitenindex dieses Kindle-Buchs fehlt.
+126|Die Datei ist zu groß zum Öffnen.
+127|Ein Teil des Dokuments ({0}) fehlt.
+128|Ein Teil des Dokuments ({0}) ist beschädigt.
+129|In diesem Dokument ist kein Text.
+130|Dieses PDF enthält keinen Text (es sind vielleicht gescannte Seiten) und kann daher nicht zu einem Buch werden.
+131|Das ist keine PDF-Datei.
+132|Die Sperre dieses PDFs kann nicht gelesen werden.
+133|Dieses PDF braucht ein Passwort zum Öffnen und kann daher nicht umgewandelt werden.
+134|Dieses PDF ist beschädigt.
+135|Dieses PDF ist auf eine Weise gesperrt, die sich nicht öffnen lässt.
+136|Das ist keine RTF-Datei.
+137|In dieser Comic-Datei sind keine Bilder.
+138|Ein Buch muss mindestens eine Seite haben.
+139|Eine Seite der Lesereihenfolge fehlt: {0}
+140|Wähle mindestens zwei Bücher zum Zusammenführen aus.
+141|„{0}“ hat keine Seiten zum Lesen.
+142|Wähle mindestens ein Kapitel, an dem ein neues Buch beginnt.
+143|Ein Titel und eine Datei für jedes Buch.
+144|„{0}“ ist kopiergeschützt und kann daher nicht geteilt oder zusammengeführt werden.
+145|Eine Kopie des ursprünglichen Buchs konnte nicht gespeichert werden
+146|{0} konnte nicht ersetzt werden
+147|{0}, Zeile {1}: {2}
+148|Die Paketdatei des Buchs (OPF) kann nicht gelesen werden
+149|Die Lesereihenfolge ist leer
+150|Das Buch führt diese Datei auf, aber sie fehlt
+151|Die Lesereihenfolge enthält „{0}“, das nicht im Buch ist
+152|Die Paketdatei des Buchs fehlt.
+153|Dieses Kapitel ist nicht mehr im Buch.
+154|Gib einen Namen für das Kapitel ein.
+155|„{0}“ in „{1}“ umbenannt
+156|Kapitel verschoben
+157|Das Buch hat keine Lesereihenfolge.
+158|Die Kapitel haben sich beim Verschieben geändert.
+159|Dieses Kapitel ist nicht in der Lesereihenfolge.
+160|„{0}“ ausgeblendet
+161|„{0}“ wieder eingeblendet
+162|Das Buch öffnet jetzt bei „{0}“
+163|Ein Buch muss mindestens ein Kapitel haben.
+164|Dieses Kapitel ist nicht in der Dateiliste des Buchs.
+165|„{0}“ gelöscht
+166|Das ist das erste Kapitel, es gibt also kein vorheriges, mit dem es verbunden werden kann.
+167|Das vorherige Kapitel kann nicht gelesen werden.
+168|Das Kapitel kann nicht gelesen werden.
+169|Eines dieser Kapitel hat keinen Textbereich (body), sie können daher nicht verbunden werden.
+170|„{0}“ mit „{1}“ verbunden
+171|Diese Stelle ist nicht mehr im Kapitel.
+172|Ein Kapitel kann nur innerhalb seines Textes geteilt werden.
+173|Das ist schon der Anfang des Kapitels.
+174|Das Buch hat keine Dateiliste.
+175|„{0}“ hinzugefügt
+176|Ein Bild hinzugefügt
+177|Keines der Kapitel hat eine Überschrift, das Inhaltsverzeichnis kann daher nicht neu erstellt werden.
+178|Inhaltsverzeichnis aus den Überschriften neu erstellt
+179|Überflüssige Leerzeilen entfernen
+180|Macht aus mehreren Leerzeilen hintereinander eine und entfernt Leerzeilen am Anfang und Ende von Kapiteln. Einzelne Leerzeilen (Szenenwechsel) bleiben.
+181|Leerzeile
+182|Leerzeilen
+183|Gerade Anführungszeichen zu typografischen
+184|\"Hallo\", sagte er, 'es ist meins.' wird zu “Hallo”, sagte er, ‘es ist meins.’
+185|Mitten im Satz umbrochene Zeilen verbinden
+186|Verbindet Absätze, die mitten im Satz getrennt wurden. Das ist häufig bei Büchern, die aus PDFs oder Scans gemacht wurden.
+187|umbrochene Zeile
+188|umbrochene Zeilen
+189|Doppelte Bindestriche zu Gedankenstrichen
+190|Macht aus -- und --- einen richtigen Strich (—).
+191|Eingebettete Schriften entfernen
+192|Löscht die Schriftdateien im Buch, damit der Kobo die Schrift verwendet, die du auf ihm wählst.
+193|Diese Datei ist kein EPUB (sie hat keine META-INF/container.xml).
+194|Die container.xml des Buchs ist beschädigt.
+195|Die container.xml des Buchs gibt nicht an, wo seine Paketdatei ist.
+196|Die Paketdatei des Buchs ({0}) fehlt.
+197|Diese Datei ist kein EPUB (sie ist kein ZIP-Archiv).
+198|Dieses EPUB verwendet ungewöhnliche Dateinamen, die nicht gelesen werden können.
+199|Die Datei konnte nicht geöffnet werden: {0}
+200|Dieses Muster ist nicht gültig.
+201|Dieses Muster würde leeren Text finden und kann daher nicht verwendet werden.
+202|kleingeschrieben
+203|nach „{0}“
+204|Teil eines Wortes mit Bindestrich
+205|nur Großbuchstaben
+206|in einer Überschrift
+207|beginnt einen Absatz
+208|beginnt einen Satz
+209|Nicht geschlossener Kommentar bei {0}
+210|Nicht geschlossener CDATA-Abschnitt bei {0}
+211|Nicht geschlossene Verarbeitungsanweisung bei {0}
+212|Nicht geschlossenes End-Tag bei {0}
+213|Kein Wurzelelement
+214|Fehlerhaftes Tag bei {0}
+215|Zeile {0}, Spalte {1}: {2}
+216|Ein Steuerzeichen (Code {0}) ist nicht erlaubt
+217|Text nach dem Ende des Dokuments
+218|Text vor dem Anfang des Dokuments
+219|Ein Kommentar ist nicht geschlossen
+220|„--“ ist in einem Kommentar nicht erlaubt
+221|CDATA ist außerhalb des Dokuments nicht erlaubt
+222|Ein CDATA-Abschnitt ist nicht geschlossen
+223|Eine Verarbeitungsanweisung ist nicht geschlossen
+224|Ein Doctype darf nicht nach dem Anfang des Dokuments kommen
+@es
+110|No hay ningún archivo FictionBook en este zip.
+111|El PDF está cerrado.
+112|El archivo FictionBook está dañado: {0}
+113|No es un archivo FictionBook.
+114|Este archivo es demasiado corto para ser un libro de Kindle.
+115|Este libro de Kindle está dañado.
+116|Este libro está protegido con DRM, así que no se puede abrir.
+117|Este libro de Kindle está comprimido de una forma que no se puede leer.
+118|Faltan las tablas de compresión de este libro de Kindle.
+119|Las tablas de compresión de este libro de Kindle están dañadas.
+120|El texto de este libro de Kindle está dañado.
+121|Un índice de este libro de Kindle está dañado.
+122|No es un libro de Kindle.
+123|No se ha podido leer este libro de Kindle: {0}
+124|Este libro de Kindle no tiene texto.
+125|Falta el índice de páginas de este libro de Kindle.
+126|El archivo es demasiado grande para abrirlo.
+127|Falta una parte del documento ({0}).
+128|Una parte del documento ({0}) está dañada.
+129|Este documento no tiene texto.
+130|Este PDF no tiene texto (quizá sean páginas escaneadas), así que no se puede convertir en un libro.
+131|No es un archivo PDF.
+132|No se puede leer el bloqueo de este PDF.
+133|Este PDF necesita una contraseña para abrirse, así que no se puede convertir.
+134|Este PDF está dañado.
+135|Este PDF está bloqueado de una forma que no permite abrirlo.
+136|No es un archivo RTF.
+137|Este archivo de cómic no tiene imágenes.
+138|Un libro debe tener al menos una página.
+139|Falta una página del orden de lectura: {0}
+140|Selecciona al menos dos libros para combinar.
+141|«{0}» no tiene páginas para leer.
+142|Elige al menos un capítulo donde empiece un libro nuevo.
+143|Un título y un archivo para cada libro.
+144|«{0}» está protegido contra copia, así que no se puede dividir ni combinar.
+145|No se ha podido guardar una copia del libro original
+146|No se ha podido reemplazar {0}
+147|{0}, línea {1}: {2}
+148|No se puede leer el archivo de paquete del libro (OPF)
+149|El orden de lectura está vacío
+150|El libro incluye este archivo, pero falta
+151|El orden de lectura incluye «{0}», que no está en el libro
+152|Falta el archivo de paquete del libro.
+153|Ese capítulo ya no está en el libro.
+154|Escribe un nombre para el capítulo.
+155|«{0}» renombrado como «{1}»
+156|Capítulo movido
+157|El libro no tiene orden de lectura.
+158|Los capítulos han cambiado mientras se movían.
+159|Ese capítulo no está en el orden de lectura.
+160|«{0}» ocultado
+161|«{0}» se muestra de nuevo
+162|Ahora el libro se abre en «{0}»
+163|Un libro debe tener al menos un capítulo.
+164|Ese capítulo no está en la lista de archivos del libro.
+165|«{0}» eliminado
+166|Es el primer capítulo, así que no hay un capítulo anterior con el que unirlo.
+167|No se puede leer el capítulo anterior.
+168|No se puede leer el capítulo.
+169|Uno de estos capítulos no tiene sección de texto (body), así que no se pueden unir.
+170|«{0}» unido con «{1}»
+171|Ese punto ya no está en el capítulo.
+172|Un capítulo solo se puede dividir dentro de su texto.
+173|Ese ya es el principio del capítulo.
+174|El libro no tiene lista de archivos.
+175|«{0}» añadido
+176|Imagen añadida
+177|Ningún capítulo tiene título, así que no se puede rehacer el índice.
+178|Índice rehecho a partir de los títulos
+179|Quitar líneas en blanco de más
+180|Convierte varias líneas en blanco seguidas en una sola y quita las líneas en blanco al principio y al final de los capítulos. Las líneas en blanco sueltas (cambios de escena) se conservan.
+181|línea en blanco
+182|líneas en blanco
+183|Comillas rectas a tipográficas
+184|\"Hola\", dijo, 'es mío.' pasa a ser “Hola”, dijo, ‘es mío.’
+185|Unir líneas cortadas a mitad de frase
+186|Une los párrafos que se cortaron a mitad de una frase. Es habitual en libros hechos a partir de PDF o escaneos.
+187|línea cortada
+188|líneas cortadas
+189|Guiones dobles a rayas
+190|Convierte -- y --- en una raya de verdad (—).
+191|Quitar fuentes incrustadas
+192|Elimina los archivos de fuentes del libro, para que el Kobo use la fuente que elijas en él.
+193|Este archivo no es un EPUB (no tiene META-INF/container.xml).
+194|El container.xml del libro está dañado.
+195|El container.xml del libro no indica dónde está su archivo de paquete.
+196|Falta el archivo de paquete del libro ({0}).
+197|Este archivo no es un EPUB (no es un archivo zip).
+198|Este EPUB usa nombres de archivo poco habituales que no se pueden leer.
+199|No se ha podido abrir el archivo: {0}
+200|Ese patrón no es válido.
+201|Ese patrón coincidiría con texto vacío, así que no se puede usar.
+202|minúsculas
+203|después de «{0}»
+204|parte de una palabra con guion
+205|todo en mayúsculas
+206|en un título
+207|empieza un párrafo
+208|empieza una frase
+209|Comentario sin cerrar en {0}
+210|CDATA sin cerrar en {0}
+211|Instrucción de procesamiento sin cerrar en {0}
+212|Etiqueta de cierre sin cerrar en {0}
+213|No hay elemento raíz
+214|Etiqueta incorrecta en {0}
+215|Línea {0}, columna {1}: {2}
+216|No se permite un carácter de control (código {0})
+217|Texto después del final del documento
+218|Texto antes del principio del documento
+219|Un comentario no está cerrado
+220|No se permite «--» dentro de un comentario
+221|No se permite CDATA fuera del documento
+222|Una sección CDATA no está cerrada
+223|Una instrucción de procesamiento no está cerrada
+224|Un doctype no puede ir después del principio del documento
+@it
+110|In questo zip non c’è nessun file FictionBook.
+111|Il PDF è chiuso.
+112|Il file FictionBook è danneggiato: {0}
+113|Non è un file FictionBook.
+114|Questo file è troppo corto per essere un libro Kindle.
+115|Questo libro Kindle è danneggiato.
+116|Questo libro è protetto da DRM, quindi non può essere aperto.
+117|Questo libro Kindle è compresso in un modo che non può essere letto.
+118|Mancano le tabelle di compressione di questo libro Kindle.
+119|Le tabelle di compressione di questo libro Kindle sono danneggiate.
+120|Il testo di questo libro Kindle è danneggiato.
+121|Un indice di questo libro Kindle è danneggiato.
+122|Non è un libro Kindle.
+123|Impossibile leggere questo libro Kindle: {0}
+124|Questo libro Kindle non contiene testo.
+125|Manca l’indice delle pagine di questo libro Kindle.
+126|Il file è troppo grande per essere aperto.
+127|Manca una parte del documento ({0}).
+128|Una parte del documento ({0}) è danneggiata.
+129|Questo documento non contiene testo.
+130|Questo PDF non contiene testo (forse sono pagine scansionate), quindi non può diventare un libro.
+131|Non è un file PDF.
+132|Il blocco di questo PDF non può essere letto.
+133|Questo PDF richiede una password per essere aperto, quindi non può essere convertito.
+134|Questo PDF è danneggiato.
+135|Questo PDF è bloccato in un modo che non permette di aprirlo.
+136|Non è un file RTF.
+137|In questo file di fumetto non ci sono immagini.
+138|Un libro deve avere almeno una pagina.
+139|Manca una pagina dell’ordine di lettura: {0}
+140|Seleziona almeno due libri da unire.
+141|«{0}» non ha pagine da leggere.
+142|Scegli almeno un capitolo in cui inizia un nuovo libro.
+143|Un titolo e un file per ogni libro.
+144|«{0}» è protetto da copia, quindi non può essere diviso o unito.
+145|Impossibile salvare una copia del libro originale
+146|Impossibile sostituire {0}
+147|{0}, riga {1}: {2}
+148|Il file di pacchetto del libro (OPF) non può essere letto
+149|L’ordine di lettura è vuoto
+150|Il libro elenca questo file, ma manca
+151|L’ordine di lettura include «{0}», che non è nel libro
+152|Manca il file di pacchetto del libro.
+153|Quel capitolo non è più nel libro.
+154|Inserisci un nome per il capitolo.
+155|«{0}» rinominato in «{1}»
+156|Capitolo spostato
+157|Il libro non ha un ordine di lettura.
+158|I capitoli sono cambiati mentre venivano spostati.
+159|Quel capitolo non è nell’ordine di lettura.
+160|«{0}» nascosto
+161|«{0}» di nuovo visibile
+162|Ora il libro si apre su «{0}»
+163|Un libro deve avere almeno un capitolo.
+164|Quel capitolo non è nell’elenco dei file del libro.
+165|«{0}» eliminato
+166|È il primo capitolo, quindi non c’è un capitolo precedente a cui unirlo.
+167|Il capitolo precedente non può essere letto.
+168|Il capitolo non può essere letto.
+169|Uno di questi capitoli non ha una sezione di testo (body), quindi non possono essere uniti.
+170|«{0}» unito a «{1}»
+171|Quel punto non è più nel capitolo.
+172|Un capitolo può essere diviso solo all’interno del suo testo.
+173|È già l’inizio del capitolo.
+174|Il libro non ha un elenco dei file.
+175|«{0}» aggiunto
+176|Immagine aggiunta
+177|Nessun capitolo ha un titolo, quindi l’indice non può essere ricostruito.
+178|Indice ricostruito dai titoli
+179|Rimuovi le righe vuote in più
+180|Trasforma più righe vuote di seguito in una sola e rimuove le righe vuote all’inizio e alla fine dei capitoli. Le righe vuote singole (cambi di scena) restano.
+181|riga vuota
+182|righe vuote
+183|Virgolette dritte in curve
+184|\"Ciao\", disse, 'è mio.' diventa “Ciao”, disse, ‘è mio.’
+185|Unisci le righe spezzate a metà frase
+186|Unisce i paragrafi divisi a metà di una frase. Succede spesso nei libri ricavati da PDF o scansioni.
+187|riga spezzata
+188|righe spezzate
+189|Doppi trattini in lineette
+190|Trasforma -- e --- in una vera lineetta (—).
+191|Rimuovi i caratteri incorporati
+192|Elimina i file dei caratteri nel libro, così il Kobo usa il carattere che scegli sul Kobo.
+193|Questo file non è un EPUB (non ha META-INF/container.xml).
+194|Il container.xml del libro è danneggiato.
+195|Il container.xml del libro non indica dove si trova il file di pacchetto.
+196|Manca il file di pacchetto del libro ({0}).
+197|Questo file non è un EPUB (non è un archivio zip).
+198|Questo EPUB usa nomi di file insoliti che non possono essere letti.
+199|Impossibile aprire il file: {0}
+200|Questo schema non è valido.
+201|Questo schema troverebbe testo vuoto, quindi non può essere usato.
+202|minuscolo
+203|dopo «{0}»
+204|parte di una parola con trattino
+205|tutto maiuscolo
+206|in un titolo
+207|inizia un paragrafo
+208|inizia una frase
+209|Commento non chiuso a {0}
+210|CDATA non chiuso a {0}
+211|Istruzione di elaborazione non chiusa a {0}
+212|Tag di chiusura non chiuso a {0}
+213|Nessun elemento radice
+214|Tag errato a {0}
+215|Riga {0}, colonna {1}: {2}
+216|Un carattere di controllo (codice {0}) non è consentito
+217|Testo dopo la fine del documento
+218|Testo prima dell’inizio del documento
+219|Un commento non è chiuso
+220|«--» non è consentito in un commento
+221|CDATA non è consentito fuori dal documento
+222|Una sezione CDATA non è chiusa
+223|Un’istruzione di elaborazione non è chiusa
+224|Un doctype non può venire dopo l’inizio del documento
+@nl
+110|Er staat geen FictionBook-bestand in deze zip.
+111|De pdf is gesloten.
+112|Het FictionBook-bestand is beschadigd: {0}
+113|Dit is geen FictionBook-bestand.
+114|Dit bestand is te kort om een Kindle-boek te zijn.
+115|Dit Kindle-boek is beschadigd.
+116|Dit boek is beveiligd met DRM en kan dus niet worden geopend.
+117|Dit Kindle-boek is gecomprimeerd op een manier die niet kan worden gelezen.
+118|De compressietabellen van dit Kindle-boek ontbreken.
+119|De compressietabellen van dit Kindle-boek zijn beschadigd.
+120|De tekst van dit Kindle-boek is beschadigd.
+121|Een index in dit Kindle-boek is beschadigd.
+122|Dit is geen Kindle-boek.
+123|Dit Kindle-boek kon niet worden gelezen: {0}
+124|Er staat geen tekst in dit Kindle-boek.
+125|De pagina-index van dit Kindle-boek ontbreekt.
+126|Het bestand is te groot om te openen.
+127|Een deel van het document ({0}) ontbreekt.
+128|Een deel van het document ({0}) is beschadigd.
+129|Er staat geen tekst in dit document.
+130|Deze pdf bevat geen tekst (misschien zijn het gescande pagina’s) en kan dus geen boek worden.
+131|Dit is geen pdf-bestand.
+132|De beveiliging van deze pdf kan niet worden gelezen.
+133|Deze pdf heeft een wachtwoord nodig om te openen en kan dus niet worden omgezet.
+134|Deze pdf is beschadigd.
+135|Deze pdf is beveiligd op een manier die niet kan worden geopend.
+136|Dit is geen RTF-bestand.
+137|Er staan geen afbeeldingen in dit stripbestand.
+138|Een boek moet minstens één pagina hebben.
+139|Een pagina in de leesvolgorde ontbreekt: {0}
+140|Selecteer minstens twee boeken om samen te voegen.
+141|‘{0}’ heeft geen pagina’s om te lezen.
+142|Kies minstens één hoofdstuk waar een nieuw boek begint.
+143|Eén titel en één bestand voor elk boek.
+144|‘{0}’ is beveiligd tegen kopiëren en kan dus niet worden gesplitst of samengevoegd.
+145|Er kon geen kopie van het oorspronkelijke boek worden opgeslagen
+146|Kan {0} niet vervangen
+147|{0}, regel {1}: {2}
+148|Het pakketbestand van het boek (OPF) kan niet worden gelezen
+149|De leesvolgorde is leeg
+150|Het boek noemt dit bestand, maar het ontbreekt
+151|De leesvolgorde bevat ‘{0}’, dat niet in het boek staat
+152|Het pakketbestand van het boek ontbreekt.
+153|Dat hoofdstuk staat niet meer in het boek.
+154|Geef het hoofdstuk een naam.
+155|‘{0}’ hernoemd naar ‘{1}’
+156|Hoofdstuk verplaatst
+157|Het boek heeft geen leesvolgorde.
+158|De hoofdstukken zijn veranderd tijdens het verplaatsen.
+159|Dat hoofdstuk staat niet in de leesvolgorde.
+160|‘{0}’ verborgen
+161|‘{0}’ weer zichtbaar
+162|Het boek opent nu bij ‘{0}’
+163|Een boek moet minstens één hoofdstuk hebben.
+164|Dat hoofdstuk staat niet in de bestandenlijst van het boek.
+165|‘{0}’ verwijderd
+166|Het is het eerste hoofdstuk, dus er is geen vorig hoofdstuk om het mee samen te voegen.
+167|Het vorige hoofdstuk kan niet worden gelezen.
+168|Het hoofdstuk kan niet worden gelezen.
+169|Een van deze hoofdstukken heeft geen tekstgedeelte (body), dus ze kunnen niet worden samengevoegd.
+170|‘{0}’ samengevoegd met ‘{1}’
+171|Die plek staat niet meer in het hoofdstuk.
+172|Een hoofdstuk kan alleen binnen de tekst worden gesplitst.
+173|Dat is al het begin van het hoofdstuk.
+174|Het boek heeft geen bestandenlijst.
+175|‘{0}’ toegevoegd
+176|Afbeelding toegevoegd
+177|Geen van de hoofdstukken heeft een kop, dus de inhoudsopgave kan niet opnieuw worden gemaakt.
+178|Inhoudsopgave opnieuw gemaakt uit de koppen
+179|Overbodige lege regels verwijderen
+180|Maakt van meerdere lege regels achter elkaar één regel en verwijdert lege regels aan het begin en eind van hoofdstukken. Losse lege regels (scènewisselingen) blijven staan.
+181|lege regel
+182|lege regels
+183|Rechte aanhalingstekens naar gekrulde
+184|\"Hallo\", zei hij, 'het is van mij.' wordt “Hallo”, zei hij, ‘het is van mij.’
+185|Regels samenvoegen die midden in een zin zijn afgebroken
+186|Voegt alinea’s samen die midden in een zin zijn gesplitst. Dat komt vaak voor in boeken die van pdf’s of scans zijn gemaakt.
+187|afgebroken regel
+188|afgebroken regels
+189|Dubbele streepjes naar gedachtestreepjes
+190|Maakt van -- en --- een echt gedachtestreepje (—).
+191|Ingesloten lettertypen verwijderen
+192|Verwijdert de lettertypebestanden in het boek, zodat de Kobo het lettertype gebruikt dat je erop kiest.
+193|Dit bestand is geen EPUB (het heeft geen META-INF/container.xml).
+194|Het container.xml-bestand van het boek is beschadigd.
+195|Het container.xml-bestand van het boek zegt niet waar het pakketbestand staat.
+196|Het pakketbestand van het boek ({0}) ontbreekt.
+197|Dit bestand is geen EPUB (het is geen zip-archief).
+198|Deze EPUB gebruikt ongebruikelijke bestandsnamen die niet kunnen worden gelezen.
+199|Het bestand kon niet worden geopend: {0}
+200|Dat patroon is niet geldig.
+201|Dat patroon zou lege tekst vinden en kan dus niet worden gebruikt.
+202|kleine letters
+203|na ‘{0}’
+204|deel van een woord met een koppelteken
+205|alleen hoofdletters
+206|in een kop
+207|begint een alinea
+208|begint een zin
+209|Niet-gesloten opmerking bij {0}
+210|Niet-gesloten CDATA bij {0}
+211|Niet-gesloten verwerkingsinstructie bij {0}
+212|Niet-gesloten eindtag bij {0}
+213|Geen hoofdelement
+214|Ongeldige tag bij {0}
+215|Regel {0}, kolom {1}: {2}
+216|Een besturingsteken (code {0}) is niet toegestaan
+217|Tekst na het einde van het document
+218|Tekst voor het begin van het document
+219|Een opmerking is niet gesloten
+220|‘--’ is niet toegestaan in een opmerking
+221|CDATA is niet toegestaan buiten het document
+222|Een CDATA-gedeelte is niet gesloten
+223|Een verwerkingsinstructie is niet gesloten
+224|Een doctype mag niet na het begin van het document komen
+@pt
+110|Não há nenhum arquivo FictionBook neste zip.
+111|O PDF está fechado.
+112|O arquivo FictionBook está danificado: {0}
+113|Este não é um arquivo FictionBook.
+114|Este arquivo é curto demais para ser um livro do Kindle.
+115|Este livro do Kindle está danificado.
+116|Este livro está protegido por DRM, então não pode ser aberto.
+117|Este livro do Kindle está compactado de um jeito que não pode ser lido.
+118|As tabelas de compactação deste livro do Kindle estão faltando.
+119|As tabelas de compactação deste livro do Kindle estão danificadas.
+120|O texto deste livro do Kindle está danificado.
+121|Um índice deste livro do Kindle está danificado.
+122|Este não é um livro do Kindle.
+123|Não foi possível ler este livro do Kindle: {0}
+124|Não há texto neste livro do Kindle.
+125|O índice de páginas deste livro do Kindle está faltando.
+126|O arquivo é grande demais para ser aberto.
+127|Falta uma parte do documento ({0}).
+128|Uma parte do documento ({0}) está danificada.
+129|Não há texto neste documento.
+130|Este PDF não tem texto (talvez sejam páginas digitalizadas), então não pode virar um livro.
+131|Este não é um arquivo PDF.
+132|Não é possível ler o bloqueio deste PDF.
+133|Este PDF precisa de uma senha para abrir, então não pode ser convertido.
+134|Este PDF está danificado.
+135|Este PDF está bloqueado de um jeito que não permite abri-lo.
+136|Este não é um arquivo RTF.
+137|Não há imagens neste arquivo de quadrinhos.
+138|Um livro precisa ter pelo menos uma página.
+139|Falta uma página na ordem de leitura: {0}
+140|Selecione pelo menos dois livros para combinar.
+141|“{0}” não tem páginas para ler.
+142|Escolha pelo menos um capítulo onde comece um livro novo.
+143|Um título e um arquivo para cada livro.
+144|“{0}” é protegido contra cópia, então não pode ser dividido nem combinado.
+145|Não foi possível salvar uma cópia do livro original
+146|Não foi possível substituir {0}
+147|{0}, linha {1}: {2}
+148|Não é possível ler o arquivo de pacote do livro (OPF)
+149|A ordem de leitura está vazia
+150|O livro lista este arquivo, mas ele está faltando
+151|A ordem de leitura inclui “{0}”, que não está no livro
+152|O arquivo de pacote do livro está faltando.
+153|Esse capítulo não está mais no livro.
+154|Digite um nome para o capítulo.
+155|“{0}” renomeado para “{1}”
+156|Capítulo movido
+157|O livro não tem ordem de leitura.
+158|Os capítulos mudaram enquanto eram movidos.
+159|Esse capítulo não está na ordem de leitura.
+160|“{0}” ocultado
+161|“{0}” voltou a aparecer
+162|Agora o livro abre em “{0}”
+163|Um livro precisa ter pelo menos um capítulo.
+164|Esse capítulo não está na lista de arquivos do livro.
+165|“{0}” excluído
+166|É o primeiro capítulo, então não há capítulo anterior para juntar.
+167|Não é possível ler o capítulo anterior.
+168|Não é possível ler o capítulo.
+169|Um destes capítulos não tem seção de texto (body), então eles não podem ser juntados.
+170|“{0}” juntado a “{1}”
+171|Esse ponto não está mais no capítulo.
+172|Um capítulo só pode ser dividido dentro do texto.
+173|Esse já é o início do capítulo.
+174|O livro não tem lista de arquivos.
+175|“{0}” adicionado
+176|Imagem adicionada
+177|Nenhum capítulo tem título, então o sumário não pode ser refeito.
+178|Sumário refeito a partir dos títulos
+179|Remover linhas em branco a mais
+180|Transforma várias linhas em branco seguidas em uma só e remove linhas em branco no início e no fim dos capítulos. Linhas em branco isoladas (mudanças de cena) são mantidas.
+181|linha em branco
+182|linhas em branco
+183|Aspas retas para curvas
+184|\"Olá\", disse ele, 'é meu.' vira “Olá”, disse ele, ‘é meu.’
+185|Juntar linhas quebradas no meio da frase
+186|Junta parágrafos que foram cortados no meio de uma frase. Isso é comum em livros feitos a partir de PDFs ou digitalizações.
+187|linha quebrada
+188|linhas quebradas
+189|Hífens duplos para travessões
+190|Transforma -- e --- em um travessão de verdade (—).
+191|Remover fontes incorporadas
+192|Exclui os arquivos de fonte do livro, para o Kobo usar a fonte que você escolher nele.
+193|Este arquivo não é um EPUB (não tem META-INF/container.xml).
+194|O container.xml do livro está danificado.
+195|O container.xml do livro não diz onde está o arquivo de pacote.
+196|O arquivo de pacote do livro ({0}) está faltando.
+197|Este arquivo não é um EPUB (não é um arquivo zip).
+198|Este EPUB usa nomes de arquivo incomuns que não podem ser lidos.
+199|Não foi possível abrir o arquivo: {0}
+200|Esse padrão não é válido.
+201|Esse padrão encontraria texto vazio, então não pode ser usado.
+202|minúsculas
+203|depois de “{0}”
+204|parte de uma palavra com hífen
+205|tudo em maiúsculas
+206|em um título
+207|começa um parágrafo
+208|começa uma frase
+209|Comentário não fechado em {0}
+210|CDATA não fechado em {0}
+211|Instrução de processamento não fechada em {0}
+212|Tag de fechamento não fechada em {0}
+213|Nenhum elemento raiz
+214|Tag inválida em {0}
+215|Linha {0}, coluna {1}: {2}
+216|Um caractere de controle (código {0}) não é permitido
+217|Texto depois do fim do documento
+218|Texto antes do início do documento
+219|Um comentário não está fechado
+220|“--” não é permitido dentro de um comentário
+221|CDATA não é permitido fora do documento
+222|Uma seção CDATA não está fechada
+223|Uma instrução de processamento não está fechada
+224|Um doctype não pode vir depois do início do documento
+@ja
+110|この zip には FictionBook ファイルがありません。
+111|PDF は閉じられています。
+112|FictionBook ファイルが壊れています: {0}
+113|FictionBook ファイルではありません。
+114|このファイルは Kindle 本にしては短すぎます。
+115|この Kindle 本は壊れています。
+116|この本は DRM で保護されているため、開けません。
+117|この Kindle 本は読み取れない方式で圧縮されています。
+118|この Kindle 本の圧縮テーブルがありません。
+119|この Kindle 本の圧縮テーブルが壊れています。
+120|この Kindle 本の本文が壊れています。
+121|この Kindle 本の索引が壊れています。
+122|Kindle 本ではありません。
+123|この Kindle 本を読み取れませんでした: {0}
+124|この Kindle 本には本文がありません。
+125|この Kindle 本のページ索引がありません。
+126|ファイルが大きすぎて開けません。
+127|文書の一部（{0}）がありません。
+128|文書の一部（{0}）が壊れています。
+129|この文書には本文がありません。
+130|この PDF には文字がありません（スキャンしたページかもしれません）。そのため本にできません。
+131|PDF ファイルではありません。
+132|この PDF のロックを読み取れません。
+133|この PDF を開くにはパスワードが必要なため、変換できません。
+134|この PDF は壊れています。
+135|この PDF は開けない方式でロックされています。
+136|リッチテキストファイルではありません。
+137|このコミックファイルには画像がありません。
+138|本には少なくとも 1 ページ必要です。
+139|読む順番にあるページがありません: {0}
+140|結合する本を 2 冊以上選んでください。
+141|「{0}」には読めるページがありません。
+142|新しい本が始まる章を 1 つ以上選んでください。
+143|本ごとにタイトルとファイルが 1 つずつ必要です。
+144|「{0}」はコピー防止されているため、分割や結合はできません。
+145|元の本のコピーを保存できませんでした
+146|{0} を置き換えられませんでした
+147|{0}、{1} 行目: {2}
+148|本のパッケージファイル（OPF）を読み取れません
+149|読む順番が空です
+150|本にはこのファイルが記載されていますが、見つかりません
+151|読む順番に「{0}」がありますが、本の中にありません
+152|本のパッケージファイルがありません。
+153|その章はもう本にありません。
+154|章の名前を入力してください。
+155|「{0}」を「{1}」に名前変更しました
+156|章を移動しました
+157|この本には読む順番がありません。
+158|移動中に章が変わりました。
+159|その章は読む順番に入っていません。
+160|「{0}」を非表示にしました
+161|「{0}」を再び表示しました
+162|本は「{0}」から開くようになりました
+163|本には少なくとも 1 つの章が必要です。
+164|その章は本のファイル一覧にありません。
+165|「{0}」を削除しました
+166|最初の章なので、つなげる前の章がありません。
+167|前の章を読み取れません。
+168|章を読み取れません。
+169|これらの章のどれかに本文部分（body）がないため、つなげられません。
+170|「{0}」を「{1}」につなげました
+171|その位置はもう章にありません。
+172|章は本文の中でしか分割できません。
+173|そこはすでに章の始まりです。
+174|この本にはファイル一覧がありません。
+175|「{0}」を追加しました
+176|画像を追加しました
+177|見出しのある章がないため、目次を作り直せません。
+178|見出しから目次を作り直しました
+179|余分な空行を削除
+180|連続した空行を 1 行にまとめ、章の最初と最後の空行を削除します。1 行だけの空行（場面の区切り）は残します。
+181|空行
+182|空行
+183|ストレートの引用符をカーリーに
+184|\"Hello,\" he said, 'it's mine.' は “Hello,” he said, ‘it’s mine.’ になります
+185|文の途中で切れた行をつなげる
+186|文の途中で分かれてしまった段落をつなげます。PDF やスキャンから作った本によくあります。
+187|切れた行
+188|切れた行
+189|二重ハイフンをダッシュに
+190|-- と --- を正しいダッシュ（—）に変えます。
+191|埋め込みフォントを削除
+192|本の中のフォントファイルを削除し、Kobo で選んだフォントが使われるようにします。
+193|このファイルは EPUB ではありません（META-INF/container.xml がありません）。
+194|本の container.xml が壊れています。
+195|本の container.xml にパッケージファイルの場所が書かれていません。
+196|本のパッケージファイル（{0}）がありません。
+197|このファイルは EPUB ではありません（zip アーカイブではありません）。
+198|この EPUB は読み取れない珍しいファイル名を使っています。
+199|ファイルを開けませんでした: {0}
+200|そのパターンは正しくありません。
+201|そのパターンは空の文字列に一致するため、使えません。
+202|小文字
+203|「{0}」の後
+204|ハイフンでつながった語の一部
+205|すべて大文字
+206|見出しの中
+207|段落の先頭
+208|文の先頭
+209|{0} でコメントが閉じていません
+210|{0} で CDATA が閉じていません
+211|{0} で処理命令が閉じていません
+212|{0} で終了タグが閉じていません
+213|ルート要素がありません
+214|{0} のタグが正しくありません
+215|{0} 行 {1} 列: {2}
+216|制御文字（コード {0}）は使えません
+217|文書の終わりの後に文字があります
+218|文書の始まりの前に文字があります
+219|コメントが閉じていません
+220|コメントの中に「--」は使えません
+221|文書の外に CDATA は使えません
+222|CDATA セクションが閉じていません
+223|処理命令が閉じていません
+224|文書の始まりの後に doctype は置けません

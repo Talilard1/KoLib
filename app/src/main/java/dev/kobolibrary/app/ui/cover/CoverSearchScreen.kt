@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.cover
 
+import dev.kobolibrary.app.tr
 import android.annotation.SuppressLint
 import android.graphics.BitmapFactory
 import android.os.Handler
@@ -134,8 +135,8 @@ fun CoverSearchScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                navigationIcon = { IconButton(onClick = onClose) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
-                title = { Text("Find a cover") },
+                navigationIcon = { IconButton(onClick = onClose) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Back")) } },
+                title = { Text(tr("Find a cover")) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
             )
         },
@@ -150,16 +151,16 @@ fun CoverSearchScreen(
                     value = typed,
                     onValueChange = { typed = it },
                     singleLine = true,
-                    label = { Text("Search for") },
+                    label = { Text(tr("Search for")) },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                     keyboardActions = KeyboardActions(onSearch = { go() }),
                     modifier = Modifier.weight(1f),
                 )
-                IconButton(onClick = go) { Icon(Icons.Outlined.Search, "Search") }
+                IconButton(onClick = go) { Icon(Icons.Outlined.Search, tr("Search")) }
             }
             PrimaryTabRow(selectedTabIndex = tab) {
-                Tab(selected = tab == 0, onClick = { tab = 0 }, text = { Text("Amazon and book sites") })
-                Tab(selected = tab == 1, onClick = { tab = 1 }, text = { Text("Google Images") })
+                Tab(selected = tab == 0, onClick = { tab = 0 }, text = { Text(tr("Amazon and book sites")) })
+                Tab(selected = tab == 1, onClick = { tab = 1 }, text = { Text(tr("Google Images")) })
             }
             if (tab == 0) {
                 Box(Modifier.weight(1f).fillMaxWidth()) {
@@ -176,10 +177,10 @@ fun CoverSearchScreen(
                         searching && found.isEmpty() -> Column(Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally) {
                             CircularProgressIndicator()
                             Spacer(Modifier.height(12.dp))
-                            Text("Looking on Amazon, Google Books and Open Library…", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(tr("Looking on Amazon, Google Books and Open Library…"), color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         !searching && found.isEmpty() -> Text(
-                            "No covers found. Check you're online, try other words, or look on Google Images.",
+                            tr("No covers found. Check you're online, try other words, or look on Google Images."),
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.align(Alignment.Center).padding(32.dp),
@@ -188,7 +189,7 @@ fun CoverSearchScreen(
                     }
                 }
             } else {
-                GoogleImages(searched ?: "$firstQuery book cover", Modifier.weight(1f).fillMaxWidth()) { cover -> picked = cover }
+                GoogleImages(searched ?: tr("{0} book cover", firstQuery), Modifier.weight(1f).fillMaxWidth()) { cover -> picked = cover }
             }
         }
     }
@@ -259,8 +260,8 @@ private fun PickedCover(s: Shown, onUse: () -> Unit, onCancel: () -> Unit) {
                 Text("${s.cover.source.label} · ${s.cover.width} × ${s.cover.height}", style = MaterialTheme.typography.bodyMedium)
                 Spacer(Modifier.height(16.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    OutlinedButton(onClick = onCancel) { Text("Cancel") }
-                    GoldButton(onClick = onUse) { Text("Use this cover") }
+                    OutlinedButton(onClick = onCancel) { Text(tr("Cancel")) }
+                    GoldButton(onClick = onUse) { Text(tr("Use this cover")) }
                 }
             }
         }
@@ -279,7 +280,7 @@ private fun GoogleImages(query: String, modifier: Modifier, onPicture: (Shown) -
     var problem by remember { mutableStateOf<String?>(null) }
     Column(modifier) {
         Text(
-            problem ?: if (loading) "Getting the picture…" else "Tap a picture to see it bigger, then press and hold it to use it.",
+            problem ?: if (loading) tr("Getting the picture…") else tr("Tap a picture to see it bigger, then press and hold it to use it."),
             style = MaterialTheme.typography.bodySmall,
             color = if (problem != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
@@ -304,7 +305,7 @@ private fun GoogleImages(query: String, modifier: Modifier, onPicture: (Shown) -
                                     }
                                 }
                                 loading = false
-                                if (shown == null) problem = "That picture couldn't be fetched. Tap it to open it bigger, then try again."
+                                if (shown == null) problem = tr("That picture couldn't be fetched. Tap it to open it bigger, then try again.")
                                 else onPicture(shown)
                             }
                         }

@@ -1,5 +1,8 @@
 package dev.kobolibrary.app.ui.components
 
+import androidx.compose.ui.text.style.LineBreak
+import androidx.compose.material3.LocalTextStyle
+import dev.kobolibrary.app.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -105,11 +108,11 @@ fun PhoneSearchField(
     TextField(
         value = query,
         onValueChange = onQuery,
-        placeholder = { Text(placeholder, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+        placeholder = { FittedText(placeholder, style = LocalTextStyle.current) },
         leadingIcon = { Icon(Icons.Filled.Search, null) },
         trailingIcon = {
-            if (query.isNotEmpty()) IconButton(onClick = { onQuery("") }) { Icon(Icons.Filled.Clear, "Clear search") }
-            else IconButton(onClick = onHelp) { Icon(Icons.AutoMirrored.Outlined.HelpOutline, "How to search") }
+            if (query.isNotEmpty()) IconButton(onClick = { onQuery("") }) { Icon(Icons.Filled.Clear, tr("Clear search")) }
+            else IconButton(onClick = onHelp) { Icon(Icons.AutoMirrored.Outlined.HelpOutline, tr("How to search")) }
         },
         singleLine = true,
         shape = RoundedCornerShape(28.dp),
@@ -137,11 +140,11 @@ fun PhoneSelectionHeader(count: Int, onSelectAll: () -> Unit, onCancel: () -> Un
                 .padding(start = 4.dp, end = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            IconButton(onClick = onCancel) { Icon(Icons.Filled.Close, "Stop selecting", tint = MaterialTheme.colorScheme.onSecondaryContainer) }
+            IconButton(onClick = onCancel) { Icon(Icons.Filled.Close, tr("Stop selecting"), tint = MaterialTheme.colorScheme.onSecondaryContainer) }
             Spacer(Modifier.width(4.dp))
             Column(Modifier.weight(1f)) {
                 Text(
-                    if (count == 0) "Tap books to select them" else "${Fmt.plural(count, "book")} selected",
+                    if (count == 0) tr("Tap books to select them") else if (count == 1) tr("1 book selected") else tr("{0} books selected", count),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                     maxLines = 1,
@@ -149,7 +152,7 @@ fun PhoneSelectionHeader(count: Int, onSelectAll: () -> Unit, onCancel: () -> Un
                 )
                 hint?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondaryContainer) }
             }
-            TextButton(onClick = onSelectAll) { Text("Select all") }
+            TextButton(onClick = onSelectAll) { Text(tr("Select all")) }
         }
     }
 }
@@ -206,7 +209,7 @@ fun RowScope.PhoneAction(
             contentAlignment = Alignment.Center,
         ) { Icon(icon, null, tint = tint, modifier = Modifier.size(24.dp)) }
         Spacer(Modifier.height(4.dp))
-        Text(
+        FittedText(
             label,
             style = MaterialTheme.typography.labelMedium,
             color = when {
@@ -214,9 +217,8 @@ fun RowScope.PhoneAction(
                 destructive -> colors.error
                 else -> colors.onSurface
             },
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 2.dp),
         )
     }
 }
@@ -239,7 +241,8 @@ fun ActionTile(icon: ImageVector, label: String, onClick: () -> Unit, modifier: 
             Spacer(Modifier.height(6.dp))
             Text(
                 label,
-                style = MaterialTheme.typography.labelMedium,
+                // Broken between words or phrases, never inside one (Japanese has no spaces to break at).
+                style = MaterialTheme.typography.labelMedium.copy(lineBreak = LineBreak.Heading),
                 textAlign = TextAlign.Center,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,

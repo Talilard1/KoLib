@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.textedit
 
+import dev.kobolibrary.app.tr
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -80,7 +81,7 @@ class FindState(private val owner: TextEditState) {
         val result = withContext(Dispatchers.Default) { runCatching { FindReplace.search(owner.edit, owner.structure, opts, only) } }
         searching = false
         result.exceptionOrNull()?.let { e ->
-            error = (e as? FindReplace.BadPattern)?.message ?: e.message ?: "That search isn't valid."
+            error = (e as? FindReplace.BadPattern)?.message ?: e.message ?: tr("That search isn't valid.")
             return
         }
         val matches = result.getOrThrow()
@@ -150,12 +151,12 @@ class FindState(private val owner: TextEditState) {
             val opts = searchedFor ?: return@launch
             val (changes, skipped) = FindReplace.replace(owner.edit, listOf(cur.match), replacement, opts)
             if (skipped > 0 || changes.isEmpty()) {
-                owner.message = "The text there has changed, so the search was run again."
+                owner.message = tr("The text there has changed, so the search was run again.")
                 searchNow(keepRemoved = true)
                 return@launch
             }
             val newText = FindReplace.replacementFor(cur.match, replacement, opts)
-            if (owner.edit.apply("Replaced “${cur.match.text}” with “$newText”", changes)) owner.bump()
+            if (owner.edit.apply(tr("Replaced “{0}” with “{1}”", cur.match.text, newText), changes)) owner.bump()
             val shifted = FindReplace.shiftAfter(entries.map { it.match }, cur.match, newText)
             entries = entries.mapIndexed { i, e -> if (e.id == cur.id) e.copy(status = EntryStatus.REPLACED, newText = newText) else e.copy(match = shifted[i]) }
             searchedVersion = owner.edit.version
@@ -163,7 +164,7 @@ class FindState(private val owner: TextEditState) {
             if (next != null) select(next, reload = true) else {
                 currentId = null
                 owner.refreshPage(null)
-                owner.message = "That was the last one."
+                owner.message = tr("That was the last one.")
             }
         }
     }
@@ -179,13 +180,14 @@ class FindState(private val owner: TextEditState) {
             val (changes, skipped) = withContext(Dispatchers.Default) { FindReplace.replace(owner.edit, todo.map { it.match }, replacement, opts) }
             if (changes.isEmpty()) return@launch
             val done = todo.size - skipped
-            if (owner.edit.apply("Replaced ${if (done == 1) "1 “${opts.query}”" else "$done × “${opts.query}”"} with “$replacement”", changes)) owner.bump()
+            val label = if (done == 1) tr("Replaced “{0}” with “{1}”", opts.query, replacement) else tr("Replaced {0} × “{1}” with “{2}”", done, opts.query, replacement)
+            if (owner.edit.apply(label, changes)) owner.bump()
             val ids = todo.map { it.id }.toSet()
             entries = entries.map { e -> if (e.id in ids) e.copy(status = EntryStatus.REPLACED, newText = FindReplace.replacementFor(e.match, replacement, opts)) else e }
             searchedVersion = -1 // positions moved; the next action looks again
             currentId = null
             owner.refreshPage(null)
-            owner.message = "Replaced $done." + if (skipped > 0) " $skipped had changed and were skipped." else ""
+            owner.message = tr("Replaced {0}.", done) + if (skipped > 0) tr(" {0} had changed and were skipped.", skipped) else ""
         }
     }
 

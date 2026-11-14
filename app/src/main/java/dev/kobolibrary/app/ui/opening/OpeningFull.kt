@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.opening
 
+import dev.kobolibrary.app.tr
 import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.BlurMaskFilter
@@ -259,7 +260,7 @@ private class FullArt {
 
     fun name(measurer: androidx.compose.ui.text.TextMeasurer, style: TextStyle): NameLayout {
         nameLayout?.let { if (style == nameStyle) return it }
-        val text = "KoLib"
+        val text = tr("KoLib")
         val whole = measurer.measure(text, style)
         val letters = text.indices.map { i -> measurer.measure(text[i].toString(), style) to whole.getBoundingBox(i).left }
         return NameLayout(whole, letters).also {

@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.kobo
 
+import dev.kobolibrary.app.tr
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 import dev.kobolibrary.app.backup.BackupManager
@@ -43,17 +44,17 @@ class KoboDatabaseWriter(private val workRoot: File, private val backups: Backup
     fun write(tree: SafTree, current: File, currentWal: File?, deviceLabel: String, edit: (KoboDbEditor) -> Int): Written? {
         val started = System.currentTimeMillis()
         val koboDir = tree.child(tree.rootDocId, ".kobo")
-            ?: throw IOException("The Kobo's .kobo folder can't be found. Is it still connected?")
+            ?: throw IOException(tr("The Kobo's .kobo folder can't be found. Is it still connected?"))
         tree.child(koboDir.docId, TEMP_NAME)?.let { runCatching { tree.delete(it.docId) } }
-        val onKobo = tree.child(koboDir.docId, DB_NAME) ?: throw IOException("The Kobo's database can't be found.")
+        val onKobo = tree.child(koboDir.docId, DB_NAME) ?: throw IOException(tr("The Kobo's database can't be found."))
         if (onKobo.size > 0 && onKobo.size != current.length()) {
             throw KoboDatabaseChangedException(
-                "The Kobo's database has changed since it was read (${onKobo.size} bytes, expected ${current.length()}). Connect the Kobo again first."
+                tr("The Kobo's database has changed since it was read ({0} bytes, expected {1}). Connect the Kobo again first.", onKobo.size, current.length())
             )
         }
         val walOnKobo = tree.child(koboDir.docId, "$DB_NAME-wal")?.size ?: 0L
         if (walOnKobo != (currentWal?.length() ?: 0L)) {
-            throw KoboDatabaseChangedException("The Kobo's database has changed since it was read. Connect the Kobo again first.")
+            throw KoboDatabaseChangedException(tr("The Kobo's database has changed since it was read. Connect the Kobo again first."))
         }
 
         // 1. A backup of the database as it is now. No backup, no write.
@@ -84,7 +85,7 @@ class KoboDatabaseWriter(private val workRoot: File, private val backups: Backup
             return null
         }
         val leftoverWal = File(dir, "$DB_NAME-wal")
-        if (leftoverWal.length() > 0) throw IOException("The updated database couldn't be combined into a single file, so it wasn't copied to the Kobo.")
+        if (leftoverWal.length() > 0) throw IOException(tr("The updated database couldn't be combined into a single file, so it wasn't copied to the Kobo."))
         listOf("-wal", "-shm", "-journal").forEach { File(dir, DB_NAME + it).delete() }
 
         // 3. Check it.
@@ -92,16 +93,16 @@ class KoboDatabaseWriter(private val workRoot: File, private val backups: Backup
             sql.rawQuery("PRAGMA integrity_check", null).use { c -> if (c.moveToFirst()) c.getString(0) else "no answer" }
         }
         listOf("-wal", "-shm", "-journal").forEach { File(dir, DB_NAME + it).delete() }
-        if (check != "ok") throw IOException("The updated database failed its check ($check), so it wasn't copied to the Kobo.")
+        if (check != "ok") throw IOException(tr("The updated database failed its check ({0}), so it wasn't copied to the Kobo.", check))
         val hash = sha256(db.inputStream())
 
         // 4. Put it on the Kobo, under a temporary name first.
         tree.writeFile(".kobo/$TEMP_NAME", db)
-        val temp = tree.child(koboDir.docId, TEMP_NAME) ?: throw IOException("The updated database disappeared from the Kobo while it was being written.")
+        val temp = tree.child(koboDir.docId, TEMP_NAME) ?: throw IOException(tr("The updated database disappeared from the Kobo while it was being written."))
         val back = tree.openInput(temp.docId).use { sha256(it) }
         if (back != hash) {
             runCatching { tree.delete(temp.docId) }
-            throw IOException("The updated database didn't read back correctly from the Kobo, so the Kobo's original database wasn't replaced.")
+            throw IOException(tr("The updated database didn't read back correctly from the Kobo, so the Kobo's original database wasn't replaced."))
         }
         // From here on the Kobo's database is being replaced.
         tree.child(koboDir.docId, "$DB_NAME-wal")?.let { tree.delete(it.docId) }
@@ -117,7 +118,7 @@ class KoboDatabaseWriter(private val workRoot: File, private val backups: Backup
         }
         val placed = tree.child(koboDir.docId, DB_NAME)
         if (placed == null || (placed.size > 0 && placed.size != db.length())) {
-            throw IOException("The updated database couldn't replace the old one on the Kobo. Don't eject yet. Connect again and check the Kobo's books.")
+            throw IOException(tr("The updated database couldn't replace the old one on the Kobo. Don't eject yet. Connect again and check the Kobo's books."))
         }
         aside?.let { id -> runCatching { tree.delete(id) }.onFailure { AppLog.w("KoboDb", "Couldn't delete the old database copy $OLD_NAME", it) } }
         AppLog.i("KoboDb", "Wrote $changes change(s) to the Kobo's database (${db.length()} bytes) in ${System.currentTimeMillis() - started} ms.")
@@ -212,7 +213,7 @@ class KoboDbEditor(private val db: SQLiteDatabase, private val now: String = tim
      */
     fun ensureCollection(name: String): Pair<String, Boolean> {
         val clean = name.trim()
-        require(clean.isNotEmpty()) { "A collection needs a name." }
+        require(clean.isNotEmpty()) { tr("A collection needs a name.") }
         val cols = columns("Shelf")
         findShelf(clean)?.let { shelf ->
             if (!shelf.deleted) return shelf.key to false

@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.edit
 
+import dev.kobolibrary.app.tr
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -74,15 +75,15 @@ class DetailsDraft(private val original: BookMetadata, originalCollections: List
 
     // ---- checks -----------------------------------------------------------------------------
 
-    val titleProblem: String? get() = if (title.isBlank()) "Enter a title." else null
+    val titleProblem: String? get() = if (title.isBlank()) tr("Enter a title.") else null
 
     val seriesIndexProblem: String?
         get() = if (series.isNotBlank() && seriesIndex.isNotBlank() && parseSeriesIndex(seriesIndex) == null) {
-            "Use a number, like 3 or 2.5."
+            tr("Use a number, like 3 or 2.5.")
         } else null
 
     val publishedProblem: String?
-        get() = if (published.isNotBlank() && parseDate(published) == null) "Use a year (2005) or a date (2005-07-17)." else null
+        get() = if (published.isNotBlank() && parseDate(published) == null) tr("Use a year (2005) or a date (2005-07-17).") else null
 
     /** An ISBN that was already wrong isn't held against an edit; a newly typed one must add up. */
     val isbnProblem: String?
@@ -91,12 +92,12 @@ class DetailsDraft(private val original: BookMetadata, originalCollections: List
             if (typed.isEmpty() || Isbn.isValid(typed)) return null
             if (Isbn.normalize(typed) == Isbn.normalize(originalIsbn)) return null
             val digits = Isbn.normalize(typed)
-            return if (digits.length != 10 && digits.length != 13) "An ISBN has 10 or 13 digits. This one has ${digits.length}."
-            else "This ISBN isn't valid. Check for a typo."
+            return if (digits.length != 10 && digits.length != 13) tr("An ISBN has 10 or 13 digits. This one has {0}.", digits.length)
+            else tr("This ISBN isn't valid. Check for a typo.")
         }
 
     val isbnWarning: String?
-        get() = if (isbn.isNotBlank() && !Isbn.isValid(isbn) && isbnProblem == null) "This ISBN came with the book, but it isn't valid." else null
+        get() = if (isbn.isNotBlank() && !Isbn.isValid(isbn) && isbnProblem == null) tr("This ISBN came with the book, but it isn't valid.") else null
 
     val problems: List<String> get() = listOfNotNull(titleProblem, seriesIndexProblem, publishedProblem, isbnProblem)
 

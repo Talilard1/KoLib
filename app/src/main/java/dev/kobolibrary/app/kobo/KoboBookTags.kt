@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.kobo
 
+import dev.kobolibrary.app.tr
 import dev.kobolibrary.app.epub.EpubFile
 import dev.kobolibrary.app.epub.OpfDocument
 import dev.kobolibrary.app.epub.Xml
@@ -33,7 +34,7 @@ class ZipPeek(private val size: Long, private val readAt: (position: Long, buffe
         while (done < length) {
             val chunk = ByteArray(length - done)
             val n = readAt(position + done, chunk, length - done)
-            if (n <= 0) throw IOException("The file ended early")
+            if (n <= 0) throw IOException(tr("The file ended early"))
             System.arraycopy(chunk, 0, buf, done, n)
             done += n
         }
@@ -44,7 +45,7 @@ class ZipPeek(private val size: Long, private val readAt: (position: Long, buffe
     private fun u32(b: ByteArray, at: Int) = (u16(b, at).toLong()) or (u16(b, at + 2).toLong() shl 16)
 
     private fun readDirectory(): Map<String, Entry> {
-        if (size < 22) throw IOException("Not a zip file")
+        if (size < 22) throw IOException(tr("Not a zip file"))
         val tailLength = minOf(size, 65_557L).toInt()
         val tail = readFully(size - tailLength, tailLength)
         var eocd = -1
@@ -54,11 +55,11 @@ class ZipPeek(private val size: Long, private val readAt: (position: Long, buffe
                 break
             }
         }
-        if (eocd < 0) throw IOException("Not a zip file (no directory)")
+        if (eocd < 0) throw IOException(tr("Not a zip file (no directory)"))
         val count = u16(tail, eocd + 10)
         val dirSize = u32(tail, eocd + 12)
         val dirOffset = u32(tail, eocd + 16)
-        if (dirOffset + dirSize > size || dirSize > 16L * 1024 * 1024) throw IOException("The zip's directory is damaged")
+        if (dirOffset + dirSize > size || dirSize > 16L * 1024 * 1024) throw IOException(tr("The zip's directory is damaged"))
         val dir = readFully(dirOffset, dirSize.toInt())
         val out = LinkedHashMap<String, Entry>()
         var p = 0
@@ -85,7 +86,7 @@ class ZipPeek(private val size: Long, private val readAt: (position: Long, buffe
         val e = entries[name] ?: return null
         if (e.size > limit || e.compressedSize > limit) return null
         val header = readFully(e.localHeaderOffset, 30)
-        if (u32(header, 0) != 0x04034b50L) throw IOException("Damaged zip entry $name")
+        if (u32(header, 0) != 0x04034b50L) throw IOException(tr("Damaged zip entry {0}", name))
         val dataStart = e.localHeaderOffset + 30 + u16(header, 26) + u16(header, 28)
         val data = readFully(dataStart, e.compressedSize.toInt())
         return when (e.method) {

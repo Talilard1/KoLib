@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.textedit
 
+import dev.kobolibrary.app.tr
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.AssetManager
@@ -224,7 +225,7 @@ class TextEditState(
         } else withBody(text, markup) ?: return
         val key = joinNext ?: "type:$path"
         joinNext = null
-        if (edit.apply("Typing in “${chapterTitle(path)}”", mapOf(path to newText.toByteArray(Charsets.UTF_8)), coalesceKey = key)) bump()
+        if (edit.apply(tr("Typing in “{0}”", chapterTitle(path)), mapOf(path to newText.toByteArray(Charsets.UTF_8)), coalesceKey = key)) bump()
     }
 
     private fun codeChanged(path: String, typed: String) {
@@ -234,7 +235,7 @@ class TextEditState(
         codeError = error
         js("KLCD.error(${JSONObject.quote(error?.let { JSONObject().put("line", it.line).put("message", it.message).toString() } ?: "null")})")
         if (error != null) return
-        if (edit.apply("Edited the code of “${chapterTitle(path)}”", mapOf(path to text.toByteArray(Charsets.UTF_8)), coalesceKey = "code:$path")) bump()
+        if (edit.apply(tr("Edited the code of “{0}”", chapterTitle(path)), mapOf(path to text.toByteArray(Charsets.UTF_8)), coalesceKey = "code:$path")) bump()
     }
 
     private fun chapterTitle(path: String) = structure.chapters.firstOrNull { it.path == path }?.title ?: path.substringAfterLast('/')
@@ -310,7 +311,7 @@ class TextEditState(
             if (showCode && codeError != null && !discardBadCode) {
                 flush()
                 if (codeError != null) {
-                    message = "Fix the mistake in the code first, or undo it. (${codeError})"
+                    message = tr("Fix the mistake in the code first, or undo it. ({0})", codeError)
                     return@go
                 }
             } else flush()
@@ -354,7 +355,7 @@ class TextEditState(
     fun change(work: suspend () -> ChapterOps.Result?) {
         go {
             flush()
-            busy = "Working…"
+            busy = tr("Working…")
             try {
                 val result = withContext(Dispatchers.Default) { work() } ?: return@go
                 if (edit.apply(result.label, result.changes)) {
@@ -372,7 +373,7 @@ class TextEditState(
                 message = e.message
             } catch (e: Exception) {
                 AppLog.e("Editor", "A change to the book failed", e)
-                message = "That didn't work: ${e.message ?: e.javaClass.simpleName}"
+                message = tr("That didn't work: {0}", e.message ?: e.javaClass.simpleName)
             } finally {
                 busy = null
             }
@@ -398,24 +399,24 @@ class TextEditState(
     fun splitAtCursor() {
         val path = currentPath ?: return
         if (showCode) {
-            message = "Switch back from the code to split at the cursor."
+            message = tr("Switch back from the code to split at the cursor.")
             return
         }
         js("KLED.splitHere()") { raw ->
             val marked = raw?.let { runCatching { JSONArray("[$it]").optString(0) }.getOrNull() }.orEmpty()
             if (marked.isEmpty()) {
-                message = "Put the cursor in the paragraph the new chapter should start with."
+                message = tr("Put the cursor in the paragraph the new chapter should start with.")
                 return@js
             }
             change {
                 val text = edit.text(path) ?: return@change null
                 val whole = loadedWhole
                 val withMarker = if (whole) "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<!DOCTYPE html>\n$marked\n" else {
-                    withBody(text, marked) ?: throw ChapterOps.OpError("This chapter has no text to split.")
+                    withBody(text, marked) ?: throw ChapterOps.OpError(tr("This chapter has no text to split."))
                 }
                 val doc = Xml.parse(withMarker)
                 val target = doc.root.descendants().firstOrNull { it.attributes.containsKey("data-kl-split") }
-                    ?: throw ChapterOps.OpError("The place to split couldn't be found.")
+                    ?: throw ChapterOps.OpError(tr("The place to split couldn't be found."))
                 val attrs = LinkedHashMap(target.attributes).apply { remove("data-kl-split") }
                 val clean = withMarker.substring(0, target.start) + Xml.startTag(target.name, attrs, target.selfClosing) + withMarker.substring(target.startTagEnd)
                 val overlay = OverlayFiles(edit, mapOf(path to clean.toByteArray(Charsets.UTF_8)))
@@ -439,7 +440,7 @@ class TextEditState(
             flush()
             val prepared = withContext(Dispatchers.Default) { preparePicture(bytes, null) }
             if (prepared == null) {
-                message = "That picture couldn't be read."
+                message = tr("That picture couldn't be read.")
                 return@go
             }
             val (data, type) = prepared
@@ -465,10 +466,10 @@ class TextEditState(
             val oldType = BookServer.mediaType(picPath)
             val prepared = withContext(Dispatchers.Default) { preparePicture(bytes, oldType) }
             if (prepared == null || !edit.has(picPath)) {
-                message = "That picture couldn't be used."
+                message = tr("That picture couldn't be used.")
                 return@go
             }
-            if (edit.apply("Replaced a picture", mapOf(picPath to prepared.first))) {
+            if (edit.apply(tr("Replaced a picture"), mapOf(picPath to prepared.first))) {
                 bump()
                 command("reloadImage", src)
             }
@@ -513,27 +514,30 @@ class TextEditState(
         go {
             flush()
             if (codeError != null) {
-                message = "The code has a mistake, so your change isn't in the book yet. Fix it or undo it first."
+                message = tr("The code has a mistake, so your change isn't in the book yet. Fix it or undo it first.")
                 return@go
             }
-            busy = "Saving and checking the book…"
+            busy = tr("Saving and checking the book…")
             try {
                 val result = withContext(Dispatchers.IO) { edit.save(library.originalTextFile(bookId)) }
                 when (result) {
-                    BookEdit.SaveResult.NothingToSave -> message = "Nothing to save."
+                    BookEdit.SaveResult.NothingToSave -> message = tr("Nothing to save.")
                     is BookEdit.SaveResult.Saved -> {
                         bump()
                         hasOriginal = true
                         library.afterTextEdit(bookId)
-                        message = "Saved. The book was checked and has no new problems." +
-                            if (result.problemsBefore > 0) " (It already had ${result.problemsBefore} problem${if (result.problemsBefore == 1) "" else "s"} before you edited it. Those weren't changed.)" else ""
+                        message = tr("Saved. The book was checked and has no new problems.") + when (result.problemsBefore) {
+                            0 -> ""
+                            1 -> tr(" (It already had 1 problem before you edited it. That wasn't changed.)")
+                            else -> tr(" (It already had {0} problems before you edited it. Those weren't changed.)", result.problemsBefore)
+                        }
                         onSaved?.invoke()
                     }
                     is BookEdit.SaveResult.Refused -> refused = result.problems
                 }
             } catch (e: Exception) {
                 AppLog.e("Editor", "Saving the text failed", e)
-                message = "Couldn't save: ${e.message ?: e.javaClass.simpleName}. The book wasn't changed."
+                message = tr("Couldn't save: {0}. The book wasn't changed.", e.message ?: e.javaClass.simpleName)
             } finally {
                 busy = null
             }
@@ -551,7 +555,7 @@ class TextEditState(
     fun checkBook() {
         go {
             flush()
-            busy = "Checking the book…"
+            busy = tr("Checking the book…")
             checkResult = withContext(Dispatchers.Default) { BookCheck.run(edit) }
             busy = null
         }
@@ -559,7 +563,7 @@ class TextEditState(
 
     fun revert(onDone: () -> Unit) {
         go {
-            busy = "Restoring the original text…"
+            busy = tr("Restoring the original text…")
             try {
                 library.revertText(bookId)
                 withContext(Dispatchers.IO) { edit.reload() }
@@ -568,11 +572,11 @@ class TextEditState(
                 if (currentPath?.let { edit.has(it) } != true) currentPath = structure.chapters.firstOrNull()?.path
                 load()
                 find.bookChanged()
-                message = "The original text has been restored. The details and cover weren't changed."
+                message = tr("The original text has been restored. The details and cover weren't changed.")
                 onDone()
             } catch (e: Exception) {
                 AppLog.e("Editor", "Reverting failed", e)
-                message = "Couldn't restore the original text: ${e.message}"
+                message = tr("Couldn't restore the original text: {0}", e.message)
             } finally {
                 busy = null
             }
@@ -595,7 +599,7 @@ class TextEditState(
         go {
             flush()
             if (showCode && codeError != null) {
-                message = "Fix the mistake in the code first, or undo it. (${codeError})"
+                message = tr("Fix the mistake in the code first, or undo it. ({0})", codeError)
                 return@go
             }
             showCode = false

@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui
 
+import dev.kobolibrary.app.tr
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.provider.Settings
@@ -27,33 +28,33 @@ fun EjectDialog(onDismiss: () -> Unit, busy: Boolean = false, savingDatabase: Bo
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Outlined.Eject, null) },
-        title = { Text("Eject the Kobo") },
+        title = { Text(tr("Eject the Kobo")) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (busy) {
                     Text(
-                        "Books are still being sent. Wait until sending finishes, or the book being copied will be incomplete.",
+                        tr("Books are still being sent. Wait until sending finishes, or the book being copied will be incomplete."),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 } else if (savingDatabase) {
                     Text(
-                        "The app is saving collections and book details to the Kobo. Wait a few seconds until it's done.",
+                        tr("The app is saving collections and book details to the Kobo. Wait a few seconds until it's done."),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 }
-                Text("Apps can't eject drives on Android, so use Android's Unmount option:")
+                Text(tr("Apps can't eject drives on Android, so use Android's Unmount option:"))
                 if (myFiles != null) {
-                    Text("1. Open My Files.")
-                    Text("2. Tap the USB drive, then ⋮ (top right) → Unmount.")
+                    Text(tr("1. Open My Files."))
+                    Text(tr("2. Tap the USB drive, then ⋮ (top right) → Unmount."))
                 } else {
-                    Text("1. Open Storage settings.")
-                    Text("2. Find the USB drive and tap Unmount.")
+                    Text(tr("1. Open Storage settings."))
+                    Text(tr("2. Find the USB drive and tap Unmount."))
                 }
-                Text("3. Once it says the drive is unmounted, unplug the cable.")
+                Text(tr("3. Once it says the drive is unmounted, unplug the cable."))
                 Text(
-                    "You can also swipe down from the top of the screen. The USB drive notification often has an Unmount button.",
+                    tr("You can also swipe down from the top of the screen. The USB drive notification often has an Unmount button."),
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
@@ -66,8 +67,8 @@ fun EjectDialog(onDismiss: () -> Unit, busy: Boolean = false, savingDatabase: Bo
                 } catch (_: ActivityNotFoundException) {
                     context.startActivity(Intent(Settings.ACTION_SETTINGS))
                 }
-            }) { Text(if (myFiles != null) "Open My Files" else "Open storage settings") }
+            }) { Text(if (myFiles != null) tr("Open My Files") else tr("Open storage settings")) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Close")) } },
     )
 }

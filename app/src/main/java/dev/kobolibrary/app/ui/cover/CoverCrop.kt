@@ -1,18 +1,19 @@
 package dev.kobolibrary.app.ui.cover
 
+import dev.kobolibrary.app.tr
 import kotlin.math.max
 import kotlin.math.min
 
 /** How a picture is placed in the cover frame. */
 enum class CoverFit(val label: String, val explanation: String) {
     /** Fills the whole frame; whatever sticks out is cut off. */
-    FILL("Crop to fill", "Enlarges the picture to fill the screen and cuts off the edges that don't fit."),
+    FILL(tr("Crop to fill"), tr("Enlarges the picture to fill the screen and cuts off the edges that don't fit.")),
     /** Shows the whole picture, with a blurred copy of it behind. */
-    FIT_BLUR("Blur the gaps", "Shows the whole picture, with a blurred copy of it filling the empty space."),
+    FIT_BLUR(tr("Blur the gaps"), tr("Shows the whole picture, with a blurred copy of it filling the empty space.")),
     /** Shows the whole picture on white. */
-    FIT_WHITE("White gaps", "Shows the whole picture, with white filling the empty space."),
+    FIT_WHITE(tr("White gaps"), tr("Shows the whole picture, with white filling the empty space.")),
     /** The picture itself, untouched: not cropped, resized or redrawn, here or when it's sent. */
-    AS_IS("Leave unchanged", "Keeps the picture without cropping or resizing it, and sends it to the Kobo unchanged."),
+    AS_IS(tr("Leave unchanged"), tr("Keeps the picture without cropping or resizing it, and sends it to the Kobo unchanged.")),
 }
 
 /**

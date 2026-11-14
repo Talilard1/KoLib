@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.reader
 
+import dev.kobolibrary.app.tr
 import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.Matrix
@@ -322,18 +323,18 @@ fun PdfBookReader(
         var opened: PdfPages? = null
         val job = scope.launch {
             try {
-                val file: File = library.sourceFile(book.id) ?: throw java.io.IOException("The PDF isn't in the library any more.")
+                val file: File = library.sourceFile(book.id) ?: throw java.io.IOException(tr("The PDF isn't in the library any more."))
                 val doc = withContext(Dispatchers.IO) { AndroidPdfPages(file) }
                 if (doc.count == 0) {
                     doc.close()
-                    error = "This PDF has no pages."
+                    error = tr("This PDF has no pages.")
                     return@launch
                 }
                 opened = PdfPages(doc)
                 pages = opened
             } catch (e: Exception) {
                 AppLog.e("PDF", "The PDF couldn't be opened", e)
-                error = "This PDF couldn't be opened. It may be damaged, or locked with a password."
+                error = tr("This PDF couldn't be opened. It may be damaged, or locked with a password.")
             }
         }
         onDispose {
@@ -391,8 +392,8 @@ fun PdfBookReader(
                 Text(error!!, style = MaterialTheme.typography.bodyLarge)
                 Spacer(Modifier.height(8.dp))
                 Row {
-                    if (onReadAsText != null) TextButton(onClick = onReadAsText) { Text("Read as text") }
-                    TextButton(onClick = onClose) { Text("Back") }
+                    if (onReadAsText != null) TextButton(onClick = onReadAsText) { Text(tr("Read as text")) }
+                    TextButton(onClick = onClose) { Text(tr("Back")) }
                 }
             }
         }
@@ -497,21 +498,21 @@ internal fun PdfPagesView(
             AnimatedVisibility(controls, enter = fadeIn() + slideInVertically { -it }, exit = fadeOut() + slideOutVertically { -it }, modifier = Modifier.align(Alignment.TopCenter)) {
                 Surface(color = MaterialTheme.colorScheme.surfaceContainer, shadowElevation = 4.dp, modifier = Modifier.fillMaxWidth()) {
                     Row(Modifier.statusBarsPadding().padding(horizontal = 4.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                        IconButton(onClick = onClose) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Close the book") }
+                        IconButton(onClick = onClose) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Close the book")) }
                         IconButton(onClick = {
                             showContents = true
                             if (contents == null) scope.launch {
                                 contents = withContext(Dispatchers.IO) { dirSource(dir)?.let { PdfConverter.contents(it) }.orEmpty() }
                             }
-                        }) { Icon(Icons.AutoMirrored.Filled.List, "Contents") }
+                        }) { Icon(Icons.AutoMirrored.Filled.List, tr("Contents")) }
                         Column(Modifier.weight(1f).padding(horizontal = 4.dp)) {
                             Text(book.title, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                             val shown = screens.getOrNull(pager.currentPage)
                             Text(
                                 when {
                                     shown == null -> ""
-                                    shown.size == 2 -> "Pages ${shown[0] + 1} and ${shown[1] + 1} of $count"
-                                    else -> "Page ${shown[0] + 1} of $count"
+                                    shown.size == 2 -> tr("Pages {0} and {1} of {2}", shown[0] + 1, shown[1] + 1, count)
+                                    else -> tr("Page {0} of {1}", shown[0] + 1, count)
                                 },
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -519,10 +520,10 @@ internal fun PdfPagesView(
                             )
                         }
                         IconButton(onClick = { twoChosen = !two }) {
-                            if (two) Icon(Icons.Outlined.Description, "Show one page at a time")
-                            else Icon(Icons.Outlined.AutoStories, "Show two pages side by side")
+                            if (two) Icon(Icons.Outlined.Description, tr("Show one page at a time"))
+                            else Icon(Icons.Outlined.AutoStories, tr("Show two pages side by side"))
                         }
-                        if (onReadAsText != null) IconButton(onClick = onReadAsText) { Icon(Icons.Outlined.FormatSize, "Read as text") }
+                        if (onReadAsText != null) IconButton(onClick = onReadAsText) { Icon(Icons.Outlined.FormatSize, tr("Read as text")) }
                     }
                 }
             }
@@ -530,7 +531,7 @@ internal fun PdfPagesView(
                 Surface(color = MaterialTheme.colorScheme.surfaceContainer, shadowElevation = 4.dp, modifier = Modifier.fillMaxWidth()) {
                     var dragging by remember { mutableStateOf<Float?>(null) }
                     Row(Modifier.navigationBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        IconButton(onClick = { turn(-1) }) { Icon(Icons.AutoMirrored.Filled.NavigateBefore, "Previous page") }
+                        IconButton(onClick = { turn(-1) }) { Icon(Icons.AutoMirrored.Filled.NavigateBefore, tr("Previous page")) }
                         Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                             if (count > 1) {
                                 Slider(
@@ -543,9 +544,9 @@ internal fun PdfPagesView(
                                     valueRange = 0f..(count - 1).toFloat(),
                                 )
                             }
-                            dragging?.let { v -> Text("Page ${v.toInt() + 1}", style = MaterialTheme.typography.bodySmall) }
+                            dragging?.let { v -> Text(tr("Page {0}", v.toInt() + 1), style = MaterialTheme.typography.bodySmall) }
                         }
-                        IconButton(onClick = { turn(1) }) { Icon(Icons.AutoMirrored.Filled.NavigateNext, "Next page") }
+                        IconButton(onClick = { turn(1) }) { Icon(Icons.AutoMirrored.Filled.NavigateNext, tr("Next page")) }
                     }
                 }
             }
@@ -553,11 +554,11 @@ internal fun PdfPagesView(
                 val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
                 ModalBottomSheet(onDismissRequest = { showContents = false }, sheetState = sheet) {
                     val list = contents
-                    Text("Contents", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp))
+                    Text(tr("Contents"), style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp))
                     when {
                         list == null -> Box(Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
                         list.isEmpty() -> Text(
-                            "This PDF has no contents list. Use the bar at the bottom to go to a page.",
+                            tr("This PDF has no contents list. Use the bar at the bottom to go to a page."),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),

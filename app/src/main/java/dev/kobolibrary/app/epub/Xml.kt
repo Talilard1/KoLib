@@ -1,5 +1,7 @@
 package dev.kobolibrary.app.epub
 
+import dev.kobolibrary.app.tr
+
 /**
  * A small XML reader that remembers where every element sits in the source text.
  *
@@ -129,19 +131,19 @@ object Xml {
             when {
                 source.startsWith("<!--", lt) -> {
                     val close = source.indexOf("-->", lt + 4)
-                    if (close < 0) throw XmlException("Unclosed comment at $lt")
+                    if (close < 0) throw XmlException(tr("Unclosed comment at {0}", lt))
                     addChild(XOther(source.substring(lt, close + 3), lt, close + 3))
                     i = close + 3
                 }
                 source.startsWith("<![CDATA[", lt) -> {
                     val close = source.indexOf("]]>", lt + 9)
-                    if (close < 0) throw XmlException("Unclosed CDATA at $lt")
+                    if (close < 0) throw XmlException(tr("Unclosed CDATA at {0}", lt))
                     addChild(XText(source.substring(lt + 9, close), lt, close + 3, isCData = true))
                     i = close + 3
                 }
                 source.startsWith("<?", lt) -> {
                     val close = source.indexOf("?>", lt + 2)
-                    if (close < 0) throw XmlException("Unclosed processing instruction at $lt")
+                    if (close < 0) throw XmlException(tr("Unclosed processing instruction at {0}", lt))
                     addChild(XOther(source.substring(lt, close + 2), lt, close + 2))
                     i = close + 2
                 }
@@ -161,7 +163,7 @@ object Xml {
                 }
                 source.startsWith("</", lt) -> {
                     val close = source.indexOf('>', lt)
-                    if (close < 0) throw XmlException("Unclosed end tag at $lt")
+                    if (close < 0) throw XmlException(tr("Unclosed end tag at {0}", lt))
                     val name = source.substring(lt + 2, close).trim()
                     // Pop to the matching element; tolerate small nesting mistakes.
                     var e = current
@@ -188,7 +190,7 @@ object Xml {
                 }
             }
         }
-        return XDocument(source, root ?: throw XmlException("No root element"))
+        return XDocument(source, root ?: throw XmlException(tr("No root element")))
     }
 
     private fun parseStartTag(s: String, lt: Int, parent: XElement?): Pair<XElement, Int> {
@@ -196,7 +198,7 @@ object Xml {
         val n = s.length
         while (j < n && !s[j].isWhitespace() && s[j] != '>' && s[j] != '/') j++
         val name = s.substring(lt + 1, j)
-        if (name.isEmpty()) throw XmlException("Bad tag at $lt")
+        if (name.isEmpty()) throw XmlException(tr("Bad tag at {0}", lt))
         val attrs = LinkedHashMap<String, String>()
         var selfClosing = false
         while (j < n) {

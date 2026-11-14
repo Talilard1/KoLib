@@ -1,0 +1,812 @@
+@fr
+1035|{0} livres ne peuvent partir qu’en PDF : leurs pages sont des images, ou ils sont trop gros pour être convertis sur cet appareil.
+1036|Couvertures qui ne remplissent pas l’écran de la Kobo
+1037|La couverture de ce livre sera envoyée telle quelle.
+1038|La couverture d’1 livre sera envoyée telle quelle.
+1039|Les couvertures de {0} livres seront envoyées telles quelles.
+1040|Ce livre est déjà sur la Kobo. Il sera mis à jour, et vous ne perdrez pas votre position. Si ses chapitres ont changé, la Kobo le traitera comme un nouveau livre.
+1041|1 livre est déjà sur la Kobo. Il sera mis à jour, et vous ne perdrez pas votre position. Si ses chapitres ont changé, la Kobo le traitera comme un nouveau livre.
+1042|{0} livres sont déjà sur la Kobo. Ils seront mis à jour, et vous ne perdrez pas votre position. Si leurs chapitres ont changé, la Kobo les traitera comme de nouveaux livres.
+1043|Ce livre est sur la Kobo en {0}, il va donc changer de format. La Kobo le traitera comme un nouveau livre, et votre progression de lecture repartira de zéro.
+1044|1 livre va changer de format. La Kobo le traitera comme un nouveau livre, et votre progression de lecture repartira de zéro.
+1045|{0} livres vont changer de format. La Kobo les traitera comme de nouveaux livres, et votre progression de lecture repartira de zéro.
+1046|Taille totale : {0}.
+1047| Espace libre sur la Kobo : {0}.
+1048|La Kobo n’est pas connectée. Branchez-la et touchez Connecter sur son écran.
+1049|Aller à la Kobo
+1050|+ Nouvelle
+1051|KoLib. Touchez pour passer.
+1052|Souligner plutôt
+1053|Note
+1054|Ajouter une note
+1055|Copier
+1056|Partager
+1057|Rechercher
+1058|Ajouter une note
+1059|Votre note
+1060|Supprimer la note
+1061|Aucune appli de dictionnaire ou de traduction trouvée. Installez-en une qui sait rechercher le texte sélectionné, comme ColorDict ou Google Traduction, et elle apparaîtra ici.
+1062|Mémoriser mon choix
+1063|Wikipédia
+1064|Rechercher sur le web
+1065|Définir sur le web
+1066|Pas encore de surlignage. Pour en ajouter un, appuyez longuement sur un mot, faites glisser pour sélectionner le texte, puis touchez Surligner ou Note.
+1067|Notes
+1068|{0} : surlignages et notes
+1069|Partager les surlignages et les notes
+1070|Chapitre sans titre
+1071|Modifier la note
+1072|Ce livre n’a aucun chapitre à lire.
+1073|Le livre n’a pas pu être ouvert.
+1074|Le PDF n’est plus dans la bibliothèque.
+1075|Ce PDF n’a aucune page.
+1076|Ce PDF n’a pas pu être ouvert. Il est peut-être endommagé, ou protégé par un mot de passe.
+1077|Lire en mode texte
+1078|Fermer le livre
+1079|Table des matières
+1080|Pages {0} et {1} sur {2}
+1081|Page {0} sur {1}
+1082|Afficher une page à la fois
+1083|Afficher deux pages côte à côte
+1084|Page précédente
+1085|Page {0}
+1086|Page suivante
+1087|Ce PDF n’a pas de table des matières. Utilisez la barre du bas pour aller à une page.
+1088|Assombrissement {0} %
+1089|Luminosité {0} %
+1090|Revenir à {0}
+1091|l’endroit précédent
+1092|Fermer
+1093|Ouvrir ce lien ?
+1094|Ce lien ouvre une page web en dehors du livre :\n\n{0}
+1095|Ouvrir
+1096|Fin
+1097|Vous êtes arrivé à la fin de « {0} ».
+1098|Retour à la bibliothèque
+1099|Rester sur cette page
+1100|Table des matières et signets
+1101|Rechercher dans le livre
+1102|Retirer le signet
+1103|Mettre un signet sur cette page
+1104|Réglages de lecture
+1105|Lire en PDF
+1106|Modifier le texte de ce chapitre
+1107|Chapitre précédent
+1108|Chapitre suivant
+1109|Aller à {0} %
+1110|{0} sur {1} dans le chapitre
+1111|Comptage des pages…
+1112|{0} min restantes dans le chapitre
+1113|{0} % du livre lu
+1114|Revenir à la page {0}
+1115|Revenir à {0} %
+1116|Mettre en pause le défilement
+1117|Défilement automatique
+1118|Vitesse
+1119|Plus lent
+1120|mots par minute
+1121|{0} mots par minute
+1122|Plus rapide
+1123|Signets ({0})
+1124|Surlignages ({0})
+1125|Signets
+1126|Surlignages
+1127|Pas encore de signet. Pour mettre un signet sur une page, touchez le milieu de la page, puis l’icône de signet en haut.
+1128|Signet
+1129|Rechercher
+1130|Rechercher dans le livre
+1131|Recherche…
+1132|Tapez un mot ou une expression pour le trouver dans le livre.
+1133|Aucun résultat.
+1134|Les 2 000 premiers résultats sont affichés
+1135|Texte
+1136|Page
+1137|Mise en page
+1138|Commandes
+1139|Police
+1140|Taille du texte
+1141|Plus petit
+1142|Plus grand
+1143|Interligne
+1144|Valeur du livre
+1145|Marges
+1146|Alignement
+1147|Césure en fin de ligne
+1148|Revenir aux valeurs du livre
+1149|Couleur de la page
+@de
+1035|{0} Bücher können nur als PDFs gesendet werden: Ihre Seiten sind Bilder, oder sie sind zu groß, um auf diesem Gerät umgewandelt zu werden.
+1036|Cover, die nicht auf den Bildschirm des Kobo passen
+1037|Das Cover dieses Buchs wird unverändert gesendet.
+1038|Das Cover von 1 Buch wird unverändert gesendet.
+1039|Die Cover von {0} Büchern werden unverändert gesendet.
+1040|Dieses Buch ist schon auf dem Kobo. Es wird aktualisiert, und du verlierst deine Lesestelle nicht. Wenn sich seine Kapitel geändert haben, behandelt der Kobo es als neues Buch.
+1041|1 Buch ist schon auf dem Kobo. Es wird aktualisiert, und du verlierst deine Lesestelle nicht. Wenn sich seine Kapitel geändert haben, behandelt der Kobo es als neues Buch.
+1042|{0} Bücher sind schon auf dem Kobo. Sie werden aktualisiert, und du verlierst deine Lesestelle nicht. Wenn sich ihre Kapitel geändert haben, behandelt der Kobo sie als neue Bücher.
+1043|Dieses Buch ist als {0} auf dem Kobo, sein Format ändert sich also. Der Kobo behandelt es als neues Buch, dein Lesefortschritt darin beginnt also von vorn.
+1044|1 Buch ändert sein Format. Der Kobo behandelt es als neues Buch, dein Lesefortschritt darin beginnt also von vorn.
+1045|{0} Bücher ändern ihr Format. Der Kobo behandelt sie als neue Bücher, dein Lesefortschritt darin beginnt also von vorn.
+1046|Gesamtgröße: {0}.
+1047| Freier Speicher auf dem Kobo: {0}.
+1048|Der Kobo ist nicht verbunden. Schließe ihn an und tippe auf seinem Bildschirm auf „Verbinden“.
+1049|Zum Kobo
+1050|+ Neu
+1051|KoLib. Zum Überspringen tippen.
+1052|Stattdessen unterstreichen
+1053|Notiz
+1054|Notiz hinzufügen
+1055|Kopieren
+1056|Teilen
+1057|Nachschlagen
+1058|Notiz hinzufügen
+1059|Deine Notiz
+1060|Notiz löschen
+1061|Keine Wörterbuch- oder Übersetzungs-App gefunden. Installiere eine, die markierten Text nachschlagen kann, etwa ColorDict oder Google Übersetzer, dann erscheint sie hier.
+1062|Auswahl merken
+1063|Wikipedia
+1064|Im Web suchen
+1065|Im Web nachschlagen
+1066|Noch keine Markierungen. Um eine hinzuzufügen, halte ein Wort gedrückt, ziehe, um den Text auszuwählen, und tippe dann auf „Markieren“ oder „Notiz“.
+1067|Notizen
+1068|{0}: Markierungen und Notizen
+1069|Markierungen und Notizen teilen
+1070|Kapitel ohne Titel
+1071|Notiz bearbeiten
+1072|Dieses Buch hat keine Kapitel zum Lesen.
+1073|Das Buch konnte nicht geöffnet werden.
+1074|Das PDF ist nicht mehr in der Bibliothek.
+1075|Dieses PDF hat keine Seiten.
+1076|Dieses PDF konnte nicht geöffnet werden. Es ist vielleicht beschädigt oder mit einem Passwort geschützt.
+1077|Als Text lesen
+1078|Buch schließen
+1079|Inhalt
+1080|Seiten {0} und {1} von {2}
+1081|Seite {0} von {1}
+1082|Eine Seite auf einmal zeigen
+1083|Zwei Seiten nebeneinander zeigen
+1084|Vorherige Seite
+1085|Seite {0}
+1086|Nächste Seite
+1087|Dieses PDF hat kein Inhaltsverzeichnis. Nutze die Leiste unten, um zu einer Seite zu springen.
+1088|Extra dunkel {0} %
+1089|Helligkeit {0} %
+1090|Zurück zu {0}
+1091|der vorherigen Stelle
+1092|Schließen
+1093|Diesen Link öffnen?
+1094|Dieser Link öffnet eine Webseite außerhalb des Buchs:\n\n{0}
+1095|Öffnen
+1096|Ende
+1097|Du bist am Ende von „{0}“ angekommen.
+1098|Zurück zur Bibliothek
+1099|Auf dieser Seite bleiben
+1100|Inhalt und Lesezeichen
+1101|Im Buch suchen
+1102|Lesezeichen entfernen
+1103|Lesezeichen für diese Seite
+1104|Leseeinstellungen
+1105|Als PDF lesen
+1106|Text dieses Kapitels bearbeiten
+1107|Vorheriges Kapitel
+1108|Nächstes Kapitel
+1109|Zu {0} % springen
+1110|{0} von {1} im Kapitel
+1111|Seiten werden gezählt…
+1112|Noch {0} Min. im Kapitel
+1113|{0} % des Buchs gelesen
+1114|Zurück zu Seite {0}
+1115|Zurück zu {0} %
+1116|Automatisches Scrollen anhalten
+1117|Automatisch scrollen
+1118|Tempo
+1119|Langsamer
+1120|Wörter pro Minute
+1121|{0} Wörter pro Minute
+1122|Schneller
+1123|Lesezeichen ({0})
+1124|Markierungen ({0})
+1125|Lesezeichen
+1126|Markierungen
+1127|Noch keine Lesezeichen. Um ein Lesezeichen zu setzen, tippe auf die Mitte der Seite und dann oben auf das Lesezeichen-Symbol.
+1128|Lesezeichen
+1129|Suchen
+1130|Im Buch suchen
+1131|Suche läuft…
+1132|Gib ein Wort oder eine Wortgruppe ein, um sie im Buch zu finden.
+1133|Keine Treffer gefunden.
+1134|Die ersten 2.000 Treffer werden angezeigt
+1135|Text
+1136|Seite
+1137|Layout
+1138|Steuerung
+1139|Schrift
+1140|Textgröße
+1141|Kleiner
+1142|Größer
+1143|Zeilenabstand
+1144|Wie im Buch
+1145|Ränder
+1146|Ausrichtung
+1147|Silbentrennung am Zeilenende
+1148|Auf die Werte des Buchs zurücksetzen
+1149|Seitenfarbe
+@es
+1035|{0} libros solo se pueden enviar como PDF: sus páginas son imágenes o son demasiado grandes para convertirlos en este dispositivo.
+1036|Portadas que no encajan en la pantalla del Kobo
+1037|La portada de este libro se enviará sin cambios.
+1038|La portada de 1 libro se enviará sin cambios.
+1039|Las portadas de {0} libros se enviarán sin cambios.
+1040|Este libro ya está en el Kobo. Se actualizará y no perderás por dónde ibas. Si sus capítulos han cambiado, el Kobo lo tratará como un libro nuevo.
+1041|1 libro ya está en el Kobo. Se actualizará y no perderás por dónde ibas. Si sus capítulos han cambiado, el Kobo lo tratará como un libro nuevo.
+1042|{0} libros ya están en el Kobo. Se actualizarán y no perderás por dónde ibas. Si sus capítulos han cambiado, el Kobo los tratará como libros nuevos.
+1043|Este libro está en el Kobo como {0}, así que cambiará de formato. El Kobo lo tratará como un libro nuevo, así que tu progreso de lectura empezará de cero.
+1044|1 libro cambiará de formato. El Kobo lo tratará como un libro nuevo, así que tu progreso de lectura empezará de cero.
+1045|{0} libros cambiarán de formato. El Kobo los tratará como libros nuevos, así que tu progreso de lectura empezará de cero.
+1046|Tamaño total: {0}.
+1047| Espacio libre en el Kobo: {0}.
+1048|El Kobo no está conectado. Conéctalo y toca Conectar en su pantalla.
+1049|Ir al Kobo
+1050|+ Nueva
+1051|KoLib. Toca para saltar.
+1052|Subrayar con línea
+1053|Nota
+1054|Añadir nota
+1055|Copiar
+1056|Compartir
+1057|Consultar
+1058|Añadir una nota
+1059|Tu nota
+1060|Eliminar nota
+1061|No se han encontrado apps de diccionario ni de traducción. Instala una que pueda consultar texto seleccionado, como ColorDict o Google Traductor, y aparecerá aquí.
+1062|Recordar mi elección
+1063|Wikipedia
+1064|Buscar en la web
+1065|Definir en la web
+1066|Aún no hay subrayados. Para añadir uno, mantén pulsada una palabra, arrastra para seleccionar el texto y toca Subrayar o Nota.
+1067|Notas
+1068|{0}: subrayados y notas
+1069|Compartir subrayados y notas
+1070|Capítulo sin título
+1071|Editar nota
+1072|Este libro no tiene capítulos que leer.
+1073|No se ha podido abrir el libro.
+1074|El PDF ya no está en la biblioteca.
+1075|Este PDF no tiene páginas.
+1076|No se ha podido abrir este PDF. Puede que esté dañado o protegido con contraseña.
+1077|Leer como texto
+1078|Cerrar el libro
+1079|Índice
+1080|Páginas {0} y {1} de {2}
+1081|Página {0} de {1}
+1082|Mostrar una página cada vez
+1083|Mostrar dos páginas una al lado de otra
+1084|Página anterior
+1085|Página {0}
+1086|Página siguiente
+1087|Este PDF no tiene índice. Usa la barra de abajo para ir a una página.
+1088|Atenuación extra {0} %
+1089|Brillo {0} %
+1090|Volver a {0}
+1091|donde estabas
+1092|Cerrar
+1093|¿Abrir este enlace?
+1094|Este enlace abre una página web fuera del libro:\n\n{0}
+1095|Abrir
+1096|Fin
+1097|Has llegado al final de «{0}».
+1098|Volver a la biblioteca
+1099|Quedarse en esta página
+1100|Índice y marcadores
+1101|Buscar en el libro
+1102|Quitar marcador
+1103|Poner un marcador en esta página
+1104|Ajustes de lectura
+1105|Leer como PDF
+1106|Editar el texto de este capítulo
+1107|Capítulo anterior
+1108|Capítulo siguiente
+1109|Ir al {0} %
+1110|{0} de {1} en el capítulo
+1111|Contando páginas…
+1112|Quedan {0} min en el capítulo
+1113|{0} % del libro leído
+1114|Volver a la página {0}
+1115|Volver al {0} %
+1116|Pausar el desplazamiento automático
+1117|Desplazamiento automático
+1118|Velocidad
+1119|Más lento
+1120|palabras por minuto
+1121|{0} palabras por minuto
+1122|Más rápido
+1123|Marcadores ({0})
+1124|Subrayados ({0})
+1125|Marcadores
+1126|Subrayados
+1127|Aún no hay marcadores. Para marcar una página, toca el centro de la página y luego el icono de marcador de arriba.
+1128|Marcador
+1129|Buscar
+1130|Buscar en el libro
+1131|Buscando…
+1132|Escribe una palabra o frase para encontrarla en el libro.
+1133|No se han encontrado coincidencias.
+1134|Se muestran las primeras 2000 coincidencias
+1135|Texto
+1136|Página
+1137|Diseño
+1138|Controles
+1139|Fuente
+1140|Tamaño del texto
+1141|Más pequeño
+1142|Más grande
+1143|Interlineado
+1144|El del libro
+1145|Márgenes
+1146|Alineación
+1147|Guiones a final de línea
+1148|Volver a los valores del libro
+1149|Color de la página
+@it
+1035|{0} libri possono essere inviati solo come PDF: le loro pagine sono immagini, oppure sono troppo grandi per essere convertiti su questo dispositivo.
+1036|Copertine che non si adattano allo schermo del Kobo
+1037|La copertina di questo libro verrà inviata senza modifiche.
+1038|La copertina di 1 libro verrà inviata senza modifiche.
+1039|Le copertine di {0} libri verranno inviate senza modifiche.
+1040|Questo libro è già sul Kobo. Verrà aggiornato e non perderai il punto in cui eri. Se i suoi capitoli sono cambiati, il Kobo lo tratterà come un nuovo libro.
+1041|1 libro è già sul Kobo. Verrà aggiornato e non perderai il punto in cui eri. Se i suoi capitoli sono cambiati, il Kobo lo tratterà come un nuovo libro.
+1042|{0} libri sono già sul Kobo. Verranno aggiornati e non perderai il punto in cui eri. Se i loro capitoli sono cambiati, il Kobo li tratterà come nuovi libri.
+1043|Questo libro è sul Kobo come {0}, quindi cambierà formato. Il Kobo lo tratterà come un nuovo libro, quindi i tuoi progressi di lettura ripartiranno da zero.
+1044|1 libro cambierà formato. Il Kobo lo tratterà come un nuovo libro, quindi i tuoi progressi di lettura ripartiranno da zero.
+1045|{0} libri cambieranno formato. Il Kobo li tratterà come nuovi libri, quindi i tuoi progressi di lettura ripartiranno da zero.
+1046|Dimensione totale: {0}.
+1047| Spazio libero sul Kobo: {0}.
+1048|Il Kobo non è collegato. Collegalo e tocca Connetti sul suo schermo.
+1049|Vai al Kobo
+1050|+ Nuova
+1051|KoLib. Tocca per saltare.
+1052|Sottolinea invece
+1053|Nota
+1054|Aggiungi nota
+1055|Copia
+1056|Condividi
+1057|Cerca
+1058|Aggiungi una nota
+1059|La tua nota
+1060|Elimina nota
+1061|Nessuna app di dizionario o traduzione trovata. Installane una che sappia cercare il testo selezionato, come ColorDict o Google Traduttore, e apparirà qui.
+1062|Ricorda la mia scelta
+1063|Wikipedia
+1064|Cerca sul web
+1065|Definisci sul web
+1066|Ancora nessuna evidenziazione. Per aggiungerne una, tieni premuta una parola, trascina per selezionare il testo, poi tocca Evidenzia o Nota.
+1067|Note
+1068|{0}: evidenziazioni e note
+1069|Condividi evidenziazioni e note
+1070|Capitolo senza titolo
+1071|Modifica nota
+1072|Questo libro non ha capitoli da leggere.
+1073|Impossibile aprire il libro.
+1074|Il PDF non è più nella libreria.
+1075|Questo PDF non ha pagine.
+1076|Impossibile aprire questo PDF. Potrebbe essere danneggiato o protetto da password.
+1077|Leggi come testo
+1078|Chiudi il libro
+1079|Indice
+1080|Pagine {0} e {1} di {2}
+1081|Pagina {0} di {1}
+1082|Mostra una pagina alla volta
+1083|Mostra due pagine affiancate
+1084|Pagina precedente
+1085|Pagina {0}
+1086|Pagina successiva
+1087|Questo PDF non ha un indice. Usa la barra in basso per andare a una pagina.
+1088|Attenuazione extra {0}%
+1089|Luminosità {0}%
+1090|Torna a {0}
+1091|dove eri
+1092|Chiudi
+1093|Aprire questo link?
+1094|Questo link apre una pagina web fuori dal libro:\n\n{0}
+1095|Apri
+1096|Fine
+1097|Sei arrivato alla fine di «{0}».
+1098|Torna alla libreria
+1099|Resta su questa pagina
+1100|Indice e segnalibri
+1101|Cerca nel libro
+1102|Rimuovi segnalibro
+1103|Aggiungi un segnalibro a questa pagina
+1104|Impostazioni di lettura
+1105|Leggi come PDF
+1106|Modifica il testo di questo capitolo
+1107|Capitolo precedente
+1108|Capitolo successivo
+1109|Vai al {0}%
+1110|{0} di {1} nel capitolo
+1111|Conteggio delle pagine…
+1112|{0} min rimanenti nel capitolo
+1113|{0}% del libro letto
+1114|Torna a pagina {0}
+1115|Torna al {0}%
+1116|Metti in pausa lo scorrimento
+1117|Scorrimento automatico
+1118|Velocità
+1119|Più lento
+1120|parole al minuto
+1121|{0} parole al minuto
+1122|Più veloce
+1123|Segnalibri ({0})
+1124|Evidenziazioni ({0})
+1125|Segnalibri
+1126|Evidenziazioni
+1127|Ancora nessun segnalibro. Per aggiungerne uno a una pagina, tocca il centro della pagina, poi l’icona del segnalibro in alto.
+1128|Segnalibro
+1129|Cerca
+1130|Cerca nel libro
+1131|Ricerca in corso…
+1132|Scrivi una parola o una frase per trovarla nel libro.
+1133|Nessun risultato.
+1134|Vengono mostrati i primi 2.000 risultati
+1135|Testo
+1136|Pagina
+1137|Layout
+1138|Comandi
+1139|Carattere
+1140|Dimensione del testo
+1141|Più piccolo
+1142|Più grande
+1143|Interlinea
+1144|Come nel libro
+1145|Margini
+1146|Allineamento
+1147|Sillabazione a fine riga
+1148|Ripristina i valori del libro
+1149|Colore della pagina
+@nl
+1035|{0} boeken kunnen alleen als pdf gaan: de pagina’s zijn afbeeldingen, of ze zijn te groot om op dit apparaat om te zetten.
+1036|Omslagen die niet op het scherm van de Kobo passen
+1037|De omslag van dit boek wordt ongewijzigd verstuurd.
+1038|De omslag van 1 boek wordt ongewijzigd verstuurd.
+1039|De omslagen van {0} boeken worden ongewijzigd verstuurd.
+1040|Dit boek staat al op de Kobo. Het wordt bijgewerkt en je raakt je plek niet kwijt. Als de hoofdstukken zijn veranderd, behandelt de Kobo het als een nieuw boek.
+1041|1 boek staat al op de Kobo. Het wordt bijgewerkt en je raakt je plek niet kwijt. Als de hoofdstukken zijn veranderd, behandelt de Kobo het als een nieuw boek.
+1042|{0} boeken staan al op de Kobo. Ze worden bijgewerkt en je raakt je plek niet kwijt. Als de hoofdstukken zijn veranderd, behandelt de Kobo ze als nieuwe boeken.
+1043|Dit boek staat op de Kobo als {0}, dus het formaat verandert. De Kobo behandelt het als een nieuw boek, dus je leesvoortgang begint opnieuw.
+1044|1 boek verandert van formaat. De Kobo behandelt het als een nieuw boek, dus je leesvoortgang begint opnieuw.
+1045|{0} boeken veranderen van formaat. De Kobo behandelt ze als nieuwe boeken, dus je leesvoortgang begint opnieuw.
+1046|Totale grootte: {0}.
+1047| Vrije ruimte op de Kobo: {0}.
+1048|De Kobo is niet verbonden. Sluit hem aan en tik op het scherm op Verbinden.
+1049|Naar Kobo
+1050|+ Nieuw
+1051|KoLib. Tik om over te slaan.
+1052|In plaats daarvan onderstrepen
+1053|Notitie
+1054|Notitie toevoegen
+1055|Kopiëren
+1056|Delen
+1057|Opzoeken
+1058|Een notitie toevoegen
+1059|Je notitie
+1060|Notitie verwijderen
+1061|Geen woordenboek- of vertaalapps gevonden. Installeer er een die geselecteerde tekst kan opzoeken, zoals ColorDict of Google Translate, dan verschijnt hij hier.
+1062|Mijn keuze onthouden
+1063|Wikipedia
+1064|Zoeken op het web
+1065|Betekenis op het web
+1066|Nog geen markeringen. Houd een woord ingedrukt, sleep om de tekst te selecteren en tik dan op Markeren of Notitie om er een toe te voegen.
+1067|Notities
+1068|{0}: markeringen en notities
+1069|Markeringen en notities delen
+1070|Hoofdstuk zonder titel
+1071|Notitie bewerken
+1072|Dit boek heeft geen hoofdstukken om te lezen.
+1073|Het boek kon niet worden geopend.
+1074|De pdf staat niet meer in de bibliotheek.
+1075|Deze pdf heeft geen pagina’s.
+1076|Deze pdf kon niet worden geopend. Hij is misschien beschadigd of met een wachtwoord beveiligd.
+1077|Lezen als tekst
+1078|Het boek sluiten
+1079|Inhoud
+1080|Pagina’s {0} en {1} van {2}
+1081|Pagina {0} van {1}
+1082|Eén pagina tegelijk tonen
+1083|Twee pagina’s naast elkaar tonen
+1084|Vorige pagina
+1085|Pagina {0}
+1086|Volgende pagina
+1087|Deze pdf heeft geen inhoudsopgave. Gebruik de balk onderaan om naar een pagina te gaan.
+1088|Extra gedimd {0}%
+1089|Helderheid {0}%
+1090|Terug naar {0}
+1091|waar je was
+1092|Sluiten
+1093|Deze link openen?
+1094|Deze link opent een webpagina buiten het boek:\n\n{0}
+1095|Openen
+1096|Einde
+1097|Je bent aan het einde van ‘{0}’.
+1098|Terug naar de bibliotheek
+1099|Op deze pagina blijven
+1100|Inhoud en bladwijzers
+1101|Zoeken in het boek
+1102|Bladwijzer verwijderen
+1103|Bladwijzer op deze pagina
+1104|Leesinstellingen
+1105|Lezen als pdf
+1106|Tekst van dit hoofdstuk bewerken
+1107|Vorig hoofdstuk
+1108|Volgend hoofdstuk
+1109|Naar {0}%
+1110|{0} van {1} in hoofdstuk
+1111|Pagina’s tellen…
+1112|Nog {0} min in hoofdstuk
+1113|{0}% van het boek gelezen
+1114|Terug naar pagina {0}
+1115|Terug naar {0}%
+1116|Automatisch scrollen pauzeren
+1117|Automatisch scrollen
+1118|Snelheid
+1119|Langzamer
+1120|woorden per minuut
+1121|{0} woorden per minuut
+1122|Sneller
+1123|Bladwijzers ({0})
+1124|Markeringen ({0})
+1125|Bladwijzers
+1126|Markeringen
+1127|Nog geen bladwijzers. Tik op het midden van de pagina en dan bovenaan op het bladwijzericoon om een bladwijzer te maken.
+1128|Bladwijzer
+1129|Zoeken
+1130|Zoeken in boek
+1131|Zoeken…
+1132|Typ een woord of woordgroep om het in het boek te vinden.
+1133|Geen resultaten gevonden.
+1134|De eerste 2.000 resultaten worden getoond
+1135|Tekst
+1136|Pagina
+1137|Indeling
+1138|Bediening
+1139|Lettertype
+1140|Tekstgrootte
+1141|Kleiner
+1142|Groter
+1143|Regelafstand
+1144|Zoals in het boek
+1145|Marges
+1146|Uitlijning
+1147|Afbreekstreepjes aan regeleinden
+1148|Terugzetten naar het boek
+1149|Paginakleur
+@pt
+1035|{0} livros só podem ir como PDF: as páginas são imagens, ou eles são grandes demais para serem convertidos neste dispositivo.
+1036|Capas que não se ajustam à tela do Kobo
+1037|A capa deste livro será enviada sem alterações.
+1038|A capa de 1 livro será enviada sem alterações.
+1039|As capas de {0} livros serão enviadas sem alterações.
+1040|Este livro já está no Kobo. Ele será atualizado, e você não vai perder onde parou. Se os capítulos dele mudaram, o Kobo vai tratá-lo como um livro novo.
+1041|1 livro já está no Kobo. Ele será atualizado, e você não vai perder onde parou. Se os capítulos dele mudaram, o Kobo vai tratá-lo como um livro novo.
+1042|{0} livros já estão no Kobo. Eles serão atualizados, e você não vai perder onde parou. Se os capítulos deles mudaram, o Kobo vai tratá-los como livros novos.
+1043|Este livro está no Kobo como {0}, então vai mudar de formato. O Kobo vai tratá-lo como um livro novo, então seu progresso de leitura nele vai recomeçar.
+1044|1 livro vai mudar de formato. O Kobo vai tratá-lo como um livro novo, então seu progresso de leitura nele vai recomeçar.
+1045|{0} livros vão mudar de formato. O Kobo vai tratá-los como livros novos, então seu progresso de leitura neles vai recomeçar.
+1046|Tamanho total: {0}.
+1047| Espaço livre no Kobo: {0}.
+1048|O Kobo não está conectado. Conecte-o e toque em Conectar na tela dele.
+1049|Ir ao Kobo
+1050|+ Nova
+1051|KoLib. Toque para pular.
+1052|Sublinhar em vez disso
+1053|Nota
+1054|Adicionar nota
+1055|Copiar
+1056|Compartilhar
+1057|Consultar
+1058|Adicionar uma nota
+1059|Sua nota
+1060|Excluir nota
+1061|Nenhum app de dicionário ou tradução encontrado. Instale um que consiga consultar o texto selecionado, como ColorDict ou Google Tradutor, e ele vai aparecer aqui.
+1062|Lembrar minha escolha
+1063|Wikipédia
+1064|Pesquisar na web
+1065|Definir na web
+1066|Ainda não há destaques. Para adicionar um, toque e segure uma palavra, arraste para selecionar o texto e toque em Destacar ou Nota.
+1067|Notas
+1068|{0}: destaques e notas
+1069|Compartilhar destaques e notas
+1070|Capítulo sem título
+1071|Editar nota
+1072|Este livro não tem capítulos para ler.
+1073|Não foi possível abrir o livro.
+1074|O PDF não está mais na biblioteca.
+1075|Este PDF não tem páginas.
+1076|Não foi possível abrir este PDF. Ele pode estar danificado ou protegido por senha.
+1077|Ler como texto
+1078|Fechar o livro
+1079|Sumário
+1080|Páginas {0} e {1} de {2}
+1081|Página {0} de {1}
+1082|Mostrar uma página por vez
+1083|Mostrar duas páginas lado a lado
+1084|Página anterior
+1085|Página {0}
+1086|Próxima página
+1087|Este PDF não tem sumário. Use a barra embaixo para ir a uma página.
+1088|Escurecimento extra {0}%
+1089|Brilho {0}%
+1090|Voltar para {0}
+1091|onde você estava
+1092|Dispensar
+1093|Abrir este link?
+1094|Este link abre uma página da web fora do livro:\n\n{0}
+1095|Abrir
+1096|Fim
+1097|Você chegou ao fim de “{0}”.
+1098|Voltar à biblioteca
+1099|Ficar nesta página
+1100|Sumário e marcadores
+1101|Pesquisar no livro
+1102|Remover marcador
+1103|Marcar esta página
+1104|Configurações de leitura
+1105|Ler como PDF
+1106|Editar o texto deste capítulo
+1107|Capítulo anterior
+1108|Próximo capítulo
+1109|Ir para {0}%
+1110|{0} de {1} no capítulo
+1111|Contando páginas…
+1112|{0} min restantes no capítulo
+1113|{0}% do livro lido
+1114|Voltar para a página {0}
+1115|Voltar para {0}%
+1116|Pausar a rolagem automática
+1117|Rolagem automática
+1118|Velocidade
+1119|Mais devagar
+1120|palavras por minuto
+1121|{0} palavras por minuto
+1122|Mais rápido
+1123|Marcadores ({0})
+1124|Destaques ({0})
+1125|Marcadores
+1126|Destaques
+1127|Ainda não há marcadores. Para marcar uma página, toque no meio da página e depois no ícone de marcador em cima.
+1128|Marcador
+1129|Pesquisar
+1130|Pesquisar no livro
+1131|Pesquisando…
+1132|Digite uma palavra ou frase para encontrá-la no livro.
+1133|Nenhum resultado encontrado.
+1134|Mostrando os primeiros 2.000 resultados
+1135|Texto
+1136|Página
+1137|Layout
+1138|Controles
+1139|Fonte
+1140|Tamanho do texto
+1141|Menor
+1142|Maior
+1143|Espaçamento entre linhas
+1144|Padrão do livro
+1145|Margens
+1146|Alinhamento
+1147|Hifenização no fim da linha
+1148|Voltar ao padrão do livro
+1149|Cor da página
+@ja
+1035|{0} 冊は PDF でしか送れません。ページが画像か、大きすぎてこの端末では変換できません。
+1036|Kobo の画面に合わない表紙
+1037|この本の表紙はそのまま送られます。
+1038|1 冊の表紙はそのまま送られます。
+1039|{0} 冊の表紙はそのまま送られます。
+1040|この本はすでに Kobo にあります。更新されますが、読んでいた位置は失われません。章が変わっている場合、Kobo は新しい本として扱います。
+1041|1 冊はすでに Kobo にあります。更新されますが、読んでいた位置は失われません。章が変わっている場合、Kobo は新しい本として扱います。
+1042|{0} 冊はすでに Kobo にあります。更新されますが、読んでいた位置は失われません。章が変わっている場合、Kobo は新しい本として扱います。
+1043|この本は Kobo に {0} として入っているため、形式が変わります。Kobo は新しい本として扱うので、読書の進み具合は最初からになります。
+1044|1 冊の形式が変わります。Kobo は新しい本として扱うので、読書の進み具合は最初からになります。
+1045|{0} 冊の形式が変わります。Kobo は新しい本として扱うので、読書の進み具合は最初からになります。
+1046|合計サイズ: {0}。
+1047|Kobo の空き容量: {0}。
+1048|Kobo が接続されていません。Kobo をつないで、画面の「接続」をタップしてください。
+1049|Kobo へ
+1050|+ 新規
+1051|KoLib。タップでスキップ。
+1052|代わりに下線を引く
+1053|メモ
+1054|メモを追加
+1055|コピー
+1056|共有
+1057|調べる
+1058|メモを追加
+1059|メモ
+1060|メモを削除
+1061|辞書アプリや翻訳アプリが見つかりません。ColorDict や Google 翻訳など、選んだ文字を調べられるアプリを入れると、ここに表示されます。
+1062|選択を記憶する
+1063|ウィキペディア
+1064|ウェブで検索
+1065|ウェブで意味を調べる
+1066|まだハイライトはありません。追加するには、単語を長押しし、ドラッグして文字を選んでから「ハイライト」か「メモ」をタップしてください。
+1067|メモ
+1068|{0}: ハイライトとメモ
+1069|ハイライトとメモを共有
+1070|無題の章
+1071|メモを編集
+1072|この本には読める章がありません。
+1073|本を開けませんでした。
+1074|この PDF はもうライブラリにありません。
+1075|この PDF にはページがありません。
+1076|この PDF を開けませんでした。破損しているか、パスワードで保護されている可能性があります。
+1077|テキストで読む
+1078|本を閉じる
+1079|目次
+1080|{0}・{1} ページ / {2}
+1081|{0} / {1} ページ
+1082|1 ページずつ表示
+1083|2 ページを並べて表示
+1084|前のページ
+1085|{0} ページ
+1086|次のページ
+1087|この PDF には目次がありません。下のバーを使ってページに移動してください。
+1088|さらに暗く {0}%
+1089|明るさ {0}%
+1090|{0}に戻る
+1091|前の場所
+1092|閉じる
+1093|このリンクを開きますか？
+1094|このリンクは本の外のウェブページを開きます:\n\n{0}
+1095|開く
+1096|おわり
+1097|「{0}」の最後まで読みました。
+1098|ライブラリに戻る
+1099|このページにとどまる
+1100|目次としおり
+1101|本の中を検索
+1102|しおりを削除
+1103|このページにしおりを挟む
+1104|読書の設定
+1105|PDF で読む
+1106|この章の本文を編集
+1107|前の章
+1108|次の章
+1109|{0}% に移動
+1110|章内 {0} / {1}
+1111|ページを数えています…
+1112|章の残り {0} 分
+1113|本の {0}% を読了
+1114|{0} ページに戻る
+1115|{0}% に戻る
+1116|自動スクロールを一時停止
+1117|自動スクロール
+1118|速さ
+1119|遅く
+1120|語/分
+1121|毎分 {0} 語
+1122|速く
+1123|しおり（{0}）
+1124|ハイライト（{0}）
+1125|しおり
+1126|ハイライト
+1127|まだしおりはありません。ページにしおりを挟むには、ページの中央をタップしてから、上部のしおりアイコンをタップしてください。
+1128|しおり
+1129|検索
+1130|本の中を検索
+1131|検索しています…
+1132|本の中で探したい言葉や語句を入力してください。
+1133|見つかりませんでした。
+1134|最初の 2,000 件を表示しています
+1135|文字
+1136|ページ
+1137|レイアウト
+1138|操作
+1139|フォント
+1140|文字サイズ
+1141|小さく
+1142|大きく
+1143|行間
+1144|本の設定どおり
+1145|余白
+1146|行揃え
+1147|行末のハイフネーション
+1148|本の設定に戻す
+1149|ページの色

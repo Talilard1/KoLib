@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.textedit
 
+import dev.kobolibrary.app.tr
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -108,17 +109,17 @@ fun FindPanel(find: FindState, modifier: Modifier = Modifier, onClose: () -> Uni
     }
     Column(modifier.fillMaxSize()) {
         Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text("Find & replace", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-            IconButton(onClick = { find.search(keepRemoved = true) }, enabled = find.query.isNotEmpty()) { Icon(Icons.Filled.Refresh, "Search again") }
-            IconButton(onClick = onClose) { Icon(Icons.Filled.Close, "Close find & replace") }
+            Text(tr("Find & replace"), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+            IconButton(onClick = { find.search(keepRemoved = true) }, enabled = find.query.isNotEmpty()) { Icon(Icons.Filled.Refresh, tr("Search again")) }
+            IconButton(onClick = onClose) { Icon(Icons.Filled.Close, tr("Close find & replace")) }
         }
         Column(Modifier.padding(horizontal = 16.dp)) {
             OutlinedTextField(
                 value = find.query,
                 onValueChange = { find.query = it },
-                label = { Text(if (find.nameMode) "Name to find" else "Find") },
+                label = { Text(if (find.nameMode) tr("Name to find") else tr("Find")) },
                 leadingIcon = { Icon(Icons.Filled.Search, null) },
-                trailingIcon = { if (find.query.isNotEmpty()) IconButton(onClick = { find.query = "" }) { Icon(Icons.Filled.Clear, "Clear") } },
+                trailingIcon = { if (find.query.isNotEmpty()) IconButton(onClick = { find.query = "" }) { Icon(Icons.Filled.Clear, tr("Clear")) } },
                 singleLine = true,
                 isError = find.error != null,
                 supportingText = find.error?.let { { Text(it) } },
@@ -129,30 +130,30 @@ fun FindPanel(find: FindState, modifier: Modifier = Modifier, onClose: () -> Uni
             OutlinedTextField(
                 value = find.replacement,
                 onValueChange = { find.replacement = it },
-                label = { Text("Replace with") },
+                label = { Text(tr("Replace with")) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
             )
             // Wraps rather than scrolls, so no option hides off the edge.
             FlowRow(Modifier.fillMaxWidth().padding(top = 2.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                FilterChip(selected = find.nameMode, onClick = { find.nameMode = !find.nameMode }, label = { Text("Name mode") })
-                FilterChip(selected = find.thisChapterOnly, onClick = { find.thisChapterOnly = !find.thisChapterOnly }, label = { Text("This chapter only") })
-                FilterChip(selected = find.matchCase && !find.nameMode, enabled = !find.nameMode, onClick = { find.matchCase = !find.matchCase }, label = { Text("Match case") })
-                FilterChip(selected = find.wholeWords || find.nameMode, enabled = !find.nameMode, onClick = { find.wholeWords = !find.wholeWords }, label = { Text("Whole words") })
-                FilterChip(selected = find.pattern, onClick = { find.pattern = !find.pattern }, label = { Text("Pattern") })
+                FilterChip(selected = find.nameMode, onClick = { find.nameMode = !find.nameMode }, label = { Text(tr("Name mode")) })
+                FilterChip(selected = find.thisChapterOnly, onClick = { find.thisChapterOnly = !find.thisChapterOnly }, label = { Text(tr("This chapter only")) })
+                FilterChip(selected = find.matchCase && !find.nameMode, enabled = !find.nameMode, onClick = { find.matchCase = !find.matchCase }, label = { Text(tr("Match case")) })
+                FilterChip(selected = find.wholeWords || find.nameMode, enabled = !find.nameMode, onClick = { find.wholeWords = !find.wholeWords }, label = { Text(tr("Whole words")) })
+                FilterChip(selected = find.pattern, onClick = { find.pattern = !find.pattern }, label = { Text(tr("Pattern")) })
             }
             if (find.nameMode) {
                 Text(
-                    "Red: probably the ordinary word, not the name. Amber: unsure. Swipe away any you want to skip.",
+                    tr("Red: probably the ordinary word, not the name. Amber: unsure. Swipe away any you want to skip."),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 4.dp),
                 )
             }
             FlowRow(Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                OutlinedButton(onClick = { find.skip() }, enabled = find.pendingCount > 0 && !find.stale) { Text("Skip") }
-                FilledTonalButton(onClick = { find.replaceCurrent() }, enabled = find.pendingCount > 0 && !find.stale) { Text("Replace") }
-                Button(onClick = { find.replaceAll() }, enabled = find.pendingCount > 0 && !find.stale) { Text("Replace all (${find.pendingCount})", maxLines = 1) }
+                OutlinedButton(onClick = { find.skip() }, enabled = find.pendingCount > 0 && !find.stale) { Text(tr("Skip")) }
+                FilledTonalButton(onClick = { find.replaceCurrent() }, enabled = find.pendingCount > 0 && !find.stale) { Text(tr("Replace")) }
+                Button(onClick = { find.replaceAll() }, enabled = find.pendingCount > 0 && !find.stale) { Text(tr("Replace all ({0})", find.pendingCount), maxLines = 1) }
             }
         }
         if (find.searching) LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 8.dp))
@@ -160,14 +161,14 @@ fun FindPanel(find: FindState, modifier: Modifier = Modifier, onClose: () -> Uni
             val total = find.entries.size
             Text(
                 when {
-                    find.searchedFor == null -> "Type something, then tap Find."
-                    total == 0 -> "No matches found."
+                    find.searchedFor == null -> tr("Type something, then tap Find.")
+                    total == 0 -> tr("No matches found.")
                     else -> listOfNotNull(
-                        "${find.pendingCount} left",
-                        find.replacedCount.takeIf { it > 0 }?.let { "$it replaced" },
-                        find.removedCount.takeIf { it > 0 }?.let { "$it skipped" },
+                        tr("{0} left", find.pendingCount),
+                        find.replacedCount.takeIf { it > 0 }?.let { tr("{0} replaced", it) },
+                        find.removedCount.takeIf { it > 0 }?.let { tr("{0} skipped", it) },
                     ).joinToString(" · ")
-                } + if (find.stale) " · search again to include your new text" else "",
+                } + if (find.stale) tr(" · search again to include your new text") else "",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.weight(1f),
@@ -176,17 +177,17 @@ fun FindPanel(find: FindState, modifier: Modifier = Modifier, onClose: () -> Uni
                 TextButton(onClick = { find.undoRemove() }) {
                     Icon(Icons.AutoMirrored.Filled.Undo, null, Modifier.size(16.dp))
                     Spacer(Modifier.width(4.dp))
-                    Text("Undo")
+                    Text(tr("Undo"))
                 }
             } else if (find.removedCount > 0) {
-                TextButton(onClick = { find.restoreAllRemoved() }) { Text("Bring all back") }
+                TextButton(onClick = { find.restoreAllRemoved() }) { Text(tr("Bring all back")) }
             }
         }
         if (find.nameMode && find.flaggedCount > 0) {
             TextButton(onClick = { find.removeFlagged() }, modifier = Modifier.padding(start = 8.dp)) {
                 Icon(Icons.Outlined.FilterAltOff, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
-                Text("Skip the ${find.flaggedCount} that probably aren't the name")
+                Text(tr("Skip the {0} that probably aren't the name", find.flaggedCount))
             }
         }
         HorizontalDivider(Modifier.padding(top = 4.dp))
@@ -228,7 +229,7 @@ private fun FindEntryRow(e: FindEntry, current: Boolean, onClick: () -> Unit, on
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Outlined.RemoveCircleOutline, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(Modifier.width(8.dp))
-                        Text("Leave this one", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(tr("Leave this one"), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
@@ -260,10 +261,10 @@ private fun FindEntryRow(e: FindEntry, current: Boolean, onClick: () -> Unit, on
                     if (e.status == EntryStatus.REPLACED) {
                         Icon(Icons.Filled.Check, null, Modifier.size(14.dp), tint = MaterialTheme.colorScheme.tertiary)
                         Spacer(Modifier.width(4.dp))
-                        Text("Replaced", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
+                        Text(tr("Replaced"), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
                     } else if (m.reason != null && flag != null) {
                         Text(
-                            (if (m.flag == FindReplace.Flag.NOT_NAME) "Probably not the name: " else "Unsure: ") + m.reason,
+                            (if (m.flag == FindReplace.Flag.NOT_NAME) tr("Probably not the name: ") else tr("Unsure: ")) + m.reason,
                             style = MaterialTheme.typography.labelSmall,
                             color = flag.second,
                         )

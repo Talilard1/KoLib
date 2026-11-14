@@ -2,6 +2,7 @@
 
 package dev.kobolibrary.app.ui
 
+import dev.kobolibrary.app.tr
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.graphics.Color
 import androidx.activity.compose.BackHandler
@@ -55,16 +56,16 @@ object Notices {
     private const val APACHE = "Apache License 2.0"
 
     val all = listOf(
-        Notice("kepubify", "Books sent as kepubs are converted by kepubify's method.", "MIT License", "© 2017–2022 Patrick Gaskin", "kepubify-MIT.txt"),
-        Notice("Lora", "Lettering on the covers the app makes.", OFL, "© 2011 The Lora Project Authors", "lora-OFL.txt"),
-        Notice("Poppins", "Lettering on the covers the app makes.", OFL, "© 2020 The Poppins Project Authors", "poppins-OFL.txt"),
-        Notice("Liberation Serif and Sans", "Covers the app makes, for alphabets Lora and Poppins don't have.", OFL, "© 2010 Google Corporation, © 2012 Red Hat, Inc.", "liberation-fonts.txt"),
-        Notice("EB Garamond", "A typeface for reading, and for the app's headings and book titles.", OFL, "© 2017 The EB Garamond Project Authors", "eb-garamond-OFL.txt"),
-        Notice("Literata", "A typeface for reading.", OFL, "© 2017 The Literata Project Authors", "literata-OFL.txt"),
-        Notice("Atkinson Hyperlegible", "A typeface for reading.", OFL, "© 2020 Braille Institute of America, Inc.", "atkinson-hyperlegible-OFL.txt"),
-        Notice("OpenDyslexic", "A typeface for reading.", OFL, "© 2012–2019 Abbie Gonzalez", "opendyslexic-OFL.txt"),
-        Notice("Android Jetpack", "The app's screens, controls and icons (AndroidX, Jetpack Compose, Material icons).", APACHE, "© The Android Open Source Project", "apache-2.0.txt"),
-        Notice("Kotlin", "The language the app is written in, with kotlinx.coroutines.", APACHE, "© JetBrains s.r.o. and Kotlin contributors", "apache-2.0.txt"),
+        Notice("kepubify", tr("Books sent as kepubs are converted by kepubify's method."), tr("MIT License"), tr("© 2017–2022 Patrick Gaskin"), "kepubify-MIT.txt"),
+        Notice(tr("Lora"), tr("Lettering on the covers the app makes."), OFL, tr("© 2011 The Lora Project Authors"), "lora-OFL.txt"),
+        Notice(tr("Poppins"), tr("Lettering on the covers the app makes."), OFL, tr("© 2020 The Poppins Project Authors"), "poppins-OFL.txt"),
+        Notice(tr("Liberation Serif and Sans"), tr("Covers the app makes, for alphabets Lora and Poppins don't have."), OFL, tr("© 2010 Google Corporation, © 2012 Red Hat, Inc."), "liberation-fonts.txt"),
+        Notice(tr("EB Garamond"), tr("A typeface for reading, and for the app's headings and book titles."), OFL, tr("© 2017 The EB Garamond Project Authors"), "eb-garamond-OFL.txt"),
+        Notice(tr("Literata"), tr("A typeface for reading."), OFL, tr("© 2017 The Literata Project Authors"), "literata-OFL.txt"),
+        Notice(tr("Atkinson Hyperlegible"), tr("A typeface for reading."), OFL, tr("© 2020 Braille Institute of America, Inc."), "atkinson-hyperlegible-OFL.txt"),
+        Notice(tr("OpenDyslexic"), tr("A typeface for reading."), OFL, tr("© 2012–2019 Abbie Gonzalez"), "opendyslexic-OFL.txt"),
+        Notice(tr("Android Jetpack"), tr("The app's screens, controls and icons (AndroidX, Jetpack Compose, Material icons)."), APACHE, tr("© The Android Open Source Project"), "apache-2.0.txt"),
+        Notice(tr("Kotlin"), tr("The language the app is written in, with kotlinx.coroutines."), APACHE, tr("© JetBrains s.r.o. and Kotlin contributors"), "apache-2.0.txt"),
     )
 }
 
@@ -83,8 +84,8 @@ fun AboutScreen(onBack: () -> Unit, onShowIntro: (() -> Unit)? = null) {
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
-                title = { Text("About") },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
+                title = { Text(tr("About")) },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Back")) } },
             )
         },
     ) { padding ->
@@ -109,25 +110,25 @@ fun AboutScreen(onBack: () -> Unit, onShowIntro: (() -> Unit)? = null) {
                                 brush = androidx.compose.ui.graphics.Brush.linearGradient(dev.kobolibrary.app.ui.theme.LocalKoLibStyle.current.markGold),
                             ),
                         )
-                        Text("A library for your Kobo e-reader", style = MaterialTheme.typography.bodyMedium)
-                        Text("Version ${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(tr("A library for your Kobo e-reader"), style = MaterialTheme.typography.bodyMedium)
+                        Text(tr("Version {0}", BuildConfig.VERSION_NAME), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Text(
-                        "Your books, and everything you do with them, stay on this device and your Kobo. KoLib only goes online when you search for a cover, and then only sends the words you search for.",
+                        tr("Your books, and everything you do with them, stay on this device and your Kobo. KoLib only goes online when you search for a cover, and then only sends the words you search for."),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Text(
-                        "Kobo is a trademark of Rakuten Kobo Inc. This app isn't made or endorsed by Rakuten Kobo.",
+                        tr("Kobo is a trademark of Rakuten Kobo Inc. This app isn't made or endorsed by Rakuten Kobo."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     if (onShowIntro != null) {
-                        androidx.compose.material3.OutlinedButton(onClick = onShowIntro) { Text("Show the introduction again") }
+                        androidx.compose.material3.OutlinedButton(onClick = onShowIntro) { Text(tr("Show the introduction again")) }
                     }
                 }
                 HorizontalDivider(Modifier.widthIn(max = 640.dp).fillMaxWidth())
                 Text(
-                    "Open-source software and fonts",
+                    tr("Open-source software and fonts"),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.widthIn(max = 640.dp).fillMaxWidth().padding(start = 24.dp, end = 24.dp, top = 20.dp, bottom = 4.dp),
@@ -137,7 +138,7 @@ fun AboutScreen(onBack: () -> Unit, onShowIntro: (() -> Unit)? = null) {
                 ListItem(
                     headlineContent = { Text(n.name) },
                     supportingContent = { Text("${n.use}\n${n.licence} · ${n.holder}") },
-                    trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, "Read the licence") },
+                    trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, tr("Read the licence")) },
                     modifier = Modifier.widthIn(max = 640.dp).fillMaxWidth().clickable { open = n }.padding(horizontal = 8.dp),
                 )
             }
@@ -151,7 +152,7 @@ internal fun LicenceText(notice: Notice, onBack: () -> Unit) {
     val context = LocalContext.current
     val text = remember(notice.file) {
         runCatching { context.assets.open("licences/${notice.file}").bufferedReader().use { it.readText() } }
-            .getOrElse { "The licence couldn't be read." }
+            .getOrElse { tr("The licence couldn't be read.") }
     }
     Scaffold(
         containerColor = Color.Transparent,
@@ -164,7 +165,7 @@ internal fun LicenceText(notice: Notice, onBack: () -> Unit) {
                         Text(notice.licence, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Back")) } },
             )
         },
     ) { padding ->

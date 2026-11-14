@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.library
 
+import dev.kobolibrary.app.tr
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -116,11 +117,11 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
             try {
                 open().use { input -> raw.outputStream().use { input.copyTo(it, 256 * 1024) } }
             } catch (e: IOException) {
-                return@withContext ImportOutcome.Failed(name, "Couldn't read the file: ${e.message}")
+                return@withContext ImportOutcome.Failed(name, tr("Couldn't read the file: {0}", e.message))
             }
-            if (raw.length() == 0L) return@withContext ImportOutcome.Failed(name, "The file is empty.")
+            if (raw.length() == 0L) return@withContext ImportOutcome.Failed(name, tr("The file is empty."))
             val format = if (attach != null) SourceFormat.EPUB else runCatching { BookFormats.detect(raw, name) }.getOrNull()
-                ?: return@withContext ImportOutcome.Failed(name, "KoLib can't open this kind of file.")
+                ?: return@withContext ImportOutcome.Failed(name, tr("KoLib can't open this kind of file."))
             if (format == SourceFormat.EPUB) {
                 if (!raw.renameTo(temp)) raw.copyTo(temp, overwrite = true)
             } else {
@@ -134,12 +135,12 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
                         pages?.close()
                     }
                 } catch (e: ConversionException) {
-                    return@withContext ImportOutcome.Failed(name, e.message ?: "It couldn't be made into a book.")
+                    return@withContext ImportOutcome.Failed(name, e.message ?: tr("It couldn't be made into a book."))
                 } catch (e: OutOfMemoryError) {
-                    return@withContext ImportOutcome.Failed(name, "It's too big to convert on this device.")
+                    return@withContext ImportOutcome.Failed(name, tr("It's too big to convert on this device."))
                 } catch (e: Exception) {
                     AppLog.e("Library", "Converting '$name' failed", e)
-                    return@withContext ImportOutcome.Failed(name, "It couldn't be made into a book (${e.message ?: e.javaClass.simpleName}).")
+                    return@withContext ImportOutcome.Failed(name, tr("It couldn't be made into a book ({0}).", e.message ?: e.javaClass.simpleName))
                 }
                 origin = raw to (result.kind ?: format.name)
                 AppLog.i("Library", "Made '$name' (${format.label}) into an EPUB in ${System.currentTimeMillis() - made0} ms.")
@@ -148,7 +149,7 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
             try {
                 EpubFile.open(temp).close()
             } catch (e: EpubException) {
-                return@withContext ImportOutcome.Failed(name, e.message ?: "This isn't an EPUB file.")
+                return@withContext ImportOutcome.Failed(name, e.message ?: tr("This isn't an EPUB file."))
             }
             val stripped = try {
                 EpubEditor.stripKepub(temp)
@@ -166,7 +167,7 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
                     epub.opf.readMetadata()
                 }
             } catch (e: Exception) {
-                return@withContext ImportOutcome.Failed(name, "The book's details couldn't be read: ${e.message}")
+                return@withContext ImportOutcome.Failed(name, tr("The book's details couldn't be read: {0}", e.message))
             }
             val meta = withFallbacks(fromFile, fallback, name)
 
@@ -268,7 +269,7 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
 
     /** One book made of [ids], in that order, with the cover of the book at [coverFrom]. The books themselves stay as they are. */
     suspend fun mergeBooks(ids: List<String>, meta: BookMetadata, coverFrom: Int?, titles: List<String>? = null): LibraryBook {
-        val books = ids.map { book(it) ?: throw IOException("One of the selected books is no longer in the library.") }
+        val books = ids.map { book(it) ?: throw IOException(tr("One of the selected books is no longer in the library.")) }
         val file = scratch("merged")
         withContext(Dispatchers.IO) { BookAssembly.merge(file, books.map { epubFile(it.id) }, meta, coverFrom, titles) }
         val collections = books.flatMap { it.collections }.distinctBy { it.lowercase() }
@@ -280,7 +281,7 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
 
     /** Books cut from [id] at [cuts] (page indexes where each new one starts), one for each of [metas]. The book itself stays as it is. */
     suspend fun splitBook(id: String, cuts: List<Int>, metas: List<BookMetadata>): List<LibraryBook> {
-        val source = book(id) ?: throw IOException("That book is no longer in the library.")
+        val source = book(id) ?: throw IOException(tr("That book is no longer in the library."))
         val files = metas.indices.map { scratch("part-${it + 1}") }
         try {
             withContext(Dispatchers.IO) { BookAssembly.split(epubFile(id), cuts, metas, files) }
@@ -292,7 +293,7 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
 
     /** A copy of [id] in the library, called "Title (copy)", in the same collections. The book itself stays as it is. */
     suspend fun duplicate(id: String): LibraryBook {
-        val source = book(id) ?: throw IOException("That book is no longer in the library.")
+        val source = book(id) ?: throw IOException(tr("That book is no longer in the library."))
         val file = scratch("copy")
         val title = copyTitle(source.meta.title)
         withContext(Dispatchers.IO) {
@@ -322,7 +323,7 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
         val taken = _books.value.map { Names.normalizeSpace(it.meta.title).lowercase() }.toSet()
         var n = 1
         while (true) {
-            val candidate = if (n == 1) "$base (copy)" else "$base (copy $n)"
+            val candidate = if (n == 1) tr("{0} (copy)", base) else tr("{0} (copy {1})", base, n)
             if (Names.normalizeSpace(candidate).lowercase() !in taken) return candidate
             n++
         }
@@ -347,11 +348,11 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
      */
     suspend fun replaceWith(id: String, file: File, name: String): LibraryBook = withContext(Dispatchers.IO) {
         lock.withLock {
-            book(id) ?: throw IOException("That book is no longer in the library.")
+            book(id) ?: throw IOException(tr("That book is no longer in the library."))
             try {
                 EpubFile.open(file).close()
             } catch (e: EpubException) {
-                throw IOException(e.message ?: "The new file isn't an EPUB.")
+                throw IOException(e.message ?: tr("The new file isn't an EPUB."))
             }
             val target = epubFile(id)
             val tmp = File(target.path + ".replacing")
@@ -359,7 +360,7 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
                 file.copyTo(tmp, overwrite = true)
                 if (!tmp.renameTo(target)) {
                     target.delete()
-                    if (!tmp.renameTo(target)) throw IOException("Couldn't replace the file.")
+                    if (!tmp.renameTo(target)) throw IOException(tr("Couldn't replace the file."))
                 }
             } finally {
                 tmp.delete()
@@ -383,11 +384,11 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
         }
 
     suspend fun importFromKobo(session: KoboSession, book: KoboBook): ImportOutcome {
-        val path = book.relativePath ?: return ImportOutcome.Failed(book.title, "The Kobo's database doesn't list where this book's file is.")
-        if (!book.isSideloaded) return ImportOutcome.Failed(book.title, "Kobo Store books can't be copied from the Kobo.")
+        val path = book.relativePath ?: return ImportOutcome.Failed(book.title, tr("The Kobo's database doesn't list where this book's file is."))
+        if (!book.isSideloaded) return ImportOutcome.Failed(book.title, tr("Kobo Store books can't be copied from the Kobo."))
         byKoboPath(path)?.let { return ImportOutcome.AlreadyThere(book.title, it) }
         val entry = withContext(Dispatchers.IO) { session.tree.resolve(path) }
-            ?: return ImportOutcome.Failed(book.title, "The file isn't on the Kobo any more ($path).")
+            ?: return ImportOutcome.Failed(book.title, tr("The file isn't on the Kobo any more ({0}).", path))
         return import(
             name = path.substringAfterLast('/'),
             open = { session.tree.openInput(entry.docId) },
@@ -431,7 +432,7 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
     /** Saves new details into the EPUB and the library. */
     suspend fun updateDetails(id: String, meta: BookMetadata, collections: List<String>): LibraryBook = withContext(Dispatchers.IO) {
         lock.withLock {
-            val book = book(id) ?: throw IOException("That book is no longer in the library.")
+            val book = book(id) ?: throw IOException(tr("That book is no longer in the library."))
             val cleanCollections = collections.map { it.trim() }.filter { it.isNotEmpty() }.distinctBy { it.lowercase() }
             if (meta == book.meta) {
                 // Only the collections changed. They aren't kept in the book file, so the file (and
@@ -467,7 +468,7 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
     suspend fun updateCover(id: String, image: ByteArray, mediaType: String, width: Int, height: Int, asIs: Boolean = false): LibraryBook {
         val current = withContext(Dispatchers.IO) { runCatching { originalCover(id) }.getOrNull() }
         if (current != null && current.contentEquals(image)) {
-            return setCoverAsIs(id, asIs, edit = true) ?: throw IOException("That book is no longer in the library.")
+            return setCoverAsIs(id, asIs, edit = true) ?: throw IOException(tr("That book is no longer in the library."))
         }
         return replaceCoverWith(id, image, mediaType, width, height, if (asIs) "Saved an unchanged cover for" else "Saved a new cover for", asIs)
     }
@@ -490,7 +491,7 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
 
     /** Puts the book's first cover back, exactly as it was. */
     suspend fun restoreOriginalCover(id: String): LibraryBook {
-        val (bytes, type) = withContext(Dispatchers.IO) { readSavedOriginal(id) } ?: throw IOException("This book's original cover wasn't saved, so it can't be restored.")
+        val (bytes, type) = withContext(Dispatchers.IO) { readSavedOriginal(id) } ?: throw IOException(tr("This book's original cover wasn't saved, so it can't be restored."))
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
         // "Restore it unchanged": it stays unchanged on the Kobo too.
@@ -523,7 +524,7 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
 
     private suspend fun replaceCoverWith(id: String, image: ByteArray, mediaType: String, width: Int, height: Int, what: String, asIs: Boolean): LibraryBook = withContext(Dispatchers.IO) {
         lock.withLock {
-            val book = book(id) ?: throw IOException("That book is no longer in the library.")
+            val book = book(id) ?: throw IOException(tr("That book is no longer in the library."))
             val file = epubFile(id)
             keepOriginalCover(id)
             EpubEditor.replaceCover(file, image, mediaType, width, height)
@@ -553,7 +554,7 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
     }
 
     private fun refreshFromFile(id: String, what: String, also: (LibraryBook) -> LibraryBook = { it }): LibraryBook {
-        val book = book(id) ?: throw IOException("That book is no longer in the library.")
+        val book = book(id) ?: throw IOException(tr("That book is no longer in the library."))
         val file = epubFile(id)
         var cover: ByteArray? = null
         var words: Int? = null
@@ -585,9 +586,9 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
      */
     suspend fun revertText(id: String): LibraryBook = withContext(Dispatchers.IO) {
         lock.withLock {
-            val book = book(id) ?: throw IOException("That book is no longer in the library.")
+            val book = book(id) ?: throw IOException(tr("That book is no longer in the library."))
             val original = originalTextFile(id)
-            if (!original.exists()) throw IOException("This book's text hasn't been changed.")
+            if (!original.exists()) throw IOException(tr("This book's text hasn't been changed."))
             val file = epubFile(id)
             val coverNow = runCatching {
                 EpubFile.open(file).use { e -> e.findCover()?.let { c -> e.readBytes(c.path)?.let { it to c.mediaType } } }
@@ -605,7 +606,7 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
                 EpubFile.open(tmp).close()
                 if (!tmp.renameTo(file)) {
                     file.delete()
-                    if (!tmp.renameTo(file)) throw IOException("Couldn't restore the original")
+                    if (!tmp.renameTo(file)) throw IOException(tr("Couldn't restore the original"))
                 }
             } finally {
                 tmp.delete()

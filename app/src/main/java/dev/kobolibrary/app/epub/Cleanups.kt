@@ -1,37 +1,40 @@
 package dev.kobolibrary.app.epub
 
+import dev.kobolibrary.app.tr
+
 /** One-tap tidying of a book's text. Each finds what it would change first, so its count can be shown. */
 object Cleanups {
 
-    enum class Kind(val label: String, val explanation: String, val unit: Pair<String, String>) {
+    enum class Kind(val label: String, val explanation: String, private val one: String, private val many: String) {
         BLANK_LINES(
-            "Remove extra blank lines",
-            "Turns several blank lines in a row into one, and removes blank lines at the start and end of chapters. Single blank lines (scene breaks) are kept.",
-            "blank line" to "blank lines",
+            tr("Remove extra blank lines"),
+            tr("Turns several blank lines in a row into one, and removes blank lines at the start and end of chapters. Single blank lines (scene breaks) are kept."),
+            tr("1 blank line"), tr("{0} blank lines"),
         ),
         CURLY_QUOTES(
-            "Straight quotes to curly",
-            "\"Hello,\" he said, 'it's mine.' becomes “Hello,” he said, ‘it’s mine.’",
-            "quote" to "quotes",
+            tr("Straight quotes to curly"),
+            tr("\"Hello,\" he said, 'it's mine.' becomes “Hello,” he said, ‘it’s mine.’"),
+            tr("1 quote"), tr("{0} quotes"),
         ),
         JOIN_LINES(
-            "Join lines broken mid-sentence",
-            "Joins paragraphs that were split in the middle of a sentence. This is common in books made from PDFs or scans.",
-            "broken line" to "broken lines",
+            tr("Join lines broken mid-sentence"),
+            tr("Joins paragraphs that were split in the middle of a sentence. This is common in books made from PDFs or scans."),
+            tr("1 broken line"), tr("{0} broken lines"),
         ),
         DASHES(
-            "Double hyphens to dashes",
-            "Changes -- and --- into a proper dash (—).",
-            "dash" to "dashes",
+            tr("Double hyphens to dashes"),
+            tr("Changes -- and --- into a proper dash (—)."),
+            tr("1 dash"), tr("{0} dashes"),
         ),
         STRIP_FONTS(
-            "Remove embedded fonts",
-            "Deletes the font files inside the book, so the Kobo uses the font you pick on it.",
-            "font" to "fonts",
+            tr("Remove embedded fonts"),
+            tr("Deletes the font files inside the book, so the Kobo uses the font you pick on it."),
+            tr("1 font"), tr("{0} fonts"),
         ),
         ;
 
-        fun describe(count: Int): String = "%,d %s".format(count, if (count == 1) unit.first else unit.second)
+        /** "3 dashes", in the language KoLib is shown in. */
+        fun describe(count: Int): String = if (count == 1) one else many.replace("{0}", "%,d".format(count))
     }
 
     data class Result(val kind: Kind, val changes: Map<String, ByteArray?>, val count: Int)

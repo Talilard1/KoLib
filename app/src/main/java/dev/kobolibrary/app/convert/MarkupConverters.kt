@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.convert
 
+import dev.kobolibrary.app.tr
 import dev.kobolibrary.app.epub.BookMetadata
 import dev.kobolibrary.app.epub.TocNode
 import dev.kobolibrary.app.epub.XElement
@@ -171,10 +172,10 @@ object Fb2Converter {
         val doc = try {
             Xml.parse(TextDecoding.decode(bytes, declared))
         } catch (e: Exception) {
-            throw ConversionException("The FictionBook file is damaged: ${e.message}")
+            throw ConversionException(tr("The FictionBook file is damaged: {0}", e.message))
         }
         val root = doc.root
-        if (root.localName != "FictionBook") throw ConversionException("This isn't a FictionBook file.")
+        if (root.localName != "FictionBook") throw ConversionException(tr("This isn't a FictionBook file."))
         val desc = root.child("description")
         val info = desc?.child("title-info")
         val publish = desc?.child("publish-info")
@@ -208,7 +209,7 @@ object Fb2Converter {
         }
         out.coverPage()
         val bodies = root.elements().filter { it.localName == "body" }
-        val main = bodies.firstOrNull { it.attr("name") == null } ?: bodies.firstOrNull() ?: throw ConversionException("There's no text in this FictionBook file.")
+        val main = bodies.firstOrNull { it.attr("name") == null } ?: bodies.firstOrNull() ?: throw ConversionException(tr("There's no text in this FictionBook file."))
         val notes = bodies.filter { it !== main }
         // Each section (and what's before them) a page; where every id is, for links.
         val sections = ArrayList<Pair<XElement?, Int>>()

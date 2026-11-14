@@ -2,6 +2,7 @@
 
 package dev.kobolibrary.app.ui.edit
 
+import dev.kobolibrary.app.tr
 import dev.kobolibrary.app.ui.components.GoldButton
 import android.annotation.SuppressLint
 import android.os.Handler
@@ -170,10 +171,10 @@ fun DescriptionEditor(initialHtml: String, bookTitle: String, onDone: (String?) 
         containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
-                navigationIcon = { IconButton(onClick = tryCancel) { Icon(Icons.Filled.Close, "Cancel") } },
+                navigationIcon = { IconButton(onClick = tryCancel) { Icon(Icons.Filled.Close, tr("Cancel")) } },
                 title = {
                     Column {
-                        Text("Description")
+                        Text(tr("Description"))
                         Text(bookTitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
                     }
                 },
@@ -187,7 +188,7 @@ fun DescriptionEditor(initialHtml: String, bookTitle: String, onDone: (String?) 
                             }
                         },
                         modifier = Modifier.padding(end = 12.dp),
-                    ) { Text("Done") }
+                    ) { Text(tr("Done")) }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             )
@@ -217,20 +218,20 @@ fun DescriptionEditor(initialHtml: String, bookTitle: String, onDone: (String?) 
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(2.dp),
                     ) {
-                        IconToggleButton(checked = format.bold, onCheckedChange = { run("bold") }) { Icon(Icons.Filled.FormatBold, "Bold") }
-                        IconToggleButton(checked = format.italic, onCheckedChange = { run("italic") }) { Icon(Icons.Filled.FormatItalic, "Italic") }
-                        IconToggleButton(checked = format.underline, onCheckedChange = { run("underline") }) { Icon(Icons.Filled.FormatUnderlined, "Underline") }
+                        IconToggleButton(checked = format.bold, onCheckedChange = { run("bold") }) { Icon(Icons.Filled.FormatBold, tr("Bold")) }
+                        IconToggleButton(checked = format.italic, onCheckedChange = { run("italic") }) { Icon(Icons.Filled.FormatItalic, tr("Italic")) }
+                        IconToggleButton(checked = format.underline, onCheckedChange = { run("underline") }) { Icon(Icons.Filled.FormatUnderlined, tr("Underline")) }
                         VerticalDivider(Modifier.padding(horizontal = 6.dp).height(28.dp))
                         IconToggleButton(checked = format.bullets, onCheckedChange = { run("insertUnorderedList") }) {
-                            Icon(Icons.AutoMirrored.Filled.FormatListBulleted, "Bulleted list")
+                            Icon(Icons.AutoMirrored.Filled.FormatListBulleted, tr("Bulleted list"))
                         }
                         IconToggleButton(checked = format.numbers, onCheckedChange = { run("insertOrderedList") }) {
-                            Icon(Icons.Filled.FormatListNumbered, "Numbered list")
+                            Icon(Icons.Filled.FormatListNumbered, tr("Numbered list"))
                         }
                         VerticalDivider(Modifier.padding(horizontal = 6.dp).height(28.dp))
-                        IconButton(onClick = { run("removeFormat") }) { Icon(Icons.Filled.FormatClear, "Remove formatting from the selected text") }
-                        IconButton(onClick = { run("undo") }) { Icon(Icons.AutoMirrored.Filled.Undo, "Undo") }
-                        IconButton(onClick = { run("redo") }) { Icon(Icons.AutoMirrored.Filled.Redo, "Redo") }
+                        IconButton(onClick = { run("removeFormat") }) { Icon(Icons.Filled.FormatClear, tr("Remove formatting from the selected text")) }
+                        IconButton(onClick = { run("undo") }) { Icon(Icons.AutoMirrored.Filled.Undo, tr("Undo")) }
+                        IconButton(onClick = { run("redo") }) { Icon(Icons.AutoMirrored.Filled.Redo, tr("Redo")) }
                     }
                     Spacer(Modifier.height(4.dp))
                 }
@@ -250,7 +251,7 @@ fun DescriptionEditor(initialHtml: String, bookTitle: String, onDone: (String?) 
                                     plain = it
                                     changed = true
                                 },
-                                placeholder = { Text("What the book is about…") },
+                                placeholder = { Text(tr("What the book is about…")) },
                                 modifier = Modifier.fillMaxSize(),
                             )
                         }
@@ -280,7 +281,7 @@ fun DescriptionEditor(initialHtml: String, bookTitle: String, onDone: (String?) 
                                             ),
                                             "KL",
                                         )
-                                        loadDataWithBaseURL(null, editorPage(textColor, hintColor, "What the book is about…"), "text/html", "utf-8", null)
+                                        loadDataWithBaseURL(null, editorPage(textColor, hintColor, tr("What the book is about…")), "text/html", "utf-8", null)
                                         webView = this
                                     }
                                 } catch (e: Exception) {
@@ -302,7 +303,7 @@ fun DescriptionEditor(initialHtml: String, bookTitle: String, onDone: (String?) 
                     }
                 }
                 Text(
-                    "Pasted text loses its formatting, so it matches the rest of the description.",
+                    tr("Pasted text loses its formatting, so it matches the rest of the description."),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 8.dp, start = 4.dp),
@@ -314,14 +315,14 @@ fun DescriptionEditor(initialHtml: String, bookTitle: String, onDone: (String?) 
     if (confirmDiscard) {
         AlertDialog(
             onDismissRequest = { confirmDiscard = false },
-            title = { Text("Discard changes to the description?") },
+            title = { Text(tr("Discard changes to the description?")) },
             confirmButton = {
                 TextButton(onClick = {
                     confirmDiscard = false
                     onCancel()
-                }) { Text("Discard") }
+                }) { Text(tr("Discard")) }
             },
-            dismissButton = { TextButton(onClick = { confirmDiscard = false }) { Text("Keep editing") } },
+            dismissButton = { TextButton(onClick = { confirmDiscard = false }) { Text(tr("Keep editing")) } },
         )
     }
 }

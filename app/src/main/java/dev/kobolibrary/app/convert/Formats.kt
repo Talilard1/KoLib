@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.convert
 
+import dev.kobolibrary.app.tr
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.pdf.PdfRenderer
@@ -127,7 +128,7 @@ object BookFormats {
             SourceFormat.MOBI, SourceFormat.AZW3 -> MobiConverter.convert(bytes, name, target)
             SourceFormat.FB2 -> {
                 val xml = if (bytes.size > 2 && bytes[0] == 'P'.code.toByte() && bytes[1] == 'K'.code.toByte()) {
-                    unzip(bytes).entries.firstOrNull { it.key.endsWith(".fb2", true) }?.value ?: throw ConversionException("There's no FictionBook file in this zip.")
+                    unzip(bytes).entries.firstOrNull { it.key.endsWith(".fb2", true) }?.value ?: throw ConversionException(tr("There's no FictionBook file in this zip."))
                 } else bytes
                 Fb2Converter.convert(xml, name, target)
             }
@@ -190,18 +191,18 @@ class AndroidPdfPages(file: File) : PdfDocument, PdfPageRenderer {
     override val count: Int = renderer.pageCount
 
     override fun size(index: Int): Pair<Int, Int> = synchronized(this) {
-        check(!closed) { "The PDF is closed." }
+        check(!closed) { tr("The PDF is closed.") }
         renderer.openPage(index).use { it.width to it.height }
     }
 
     override fun drawInto(index: Int, into: Bitmap, clip: android.graphics.Rect, transform: android.graphics.Matrix) = synchronized(this) {
-        check(!closed) { "The PDF is closed." }
+        check(!closed) { tr("The PDF is closed.") }
         android.graphics.Canvas(into).drawRect(clip, android.graphics.Paint().apply { color = Color.WHITE })
         renderer.openPage(index).use { page -> page.render(into, clip, transform, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY) }
     }
 
     override fun bitmap(index: Int, w: Int, h: Int): Bitmap = synchronized(this) {
-        check(!closed) { "The PDF is closed." }
+        check(!closed) { tr("The PDF is closed.") }
         renderer.openPage(index).use { page ->
             val bmp = Bitmap.createBitmap(maxOf(1, w), maxOf(1, h), Bitmap.Config.ARGB_8888)
             bmp.eraseColor(Color.WHITE)

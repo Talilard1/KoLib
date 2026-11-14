@@ -1,0 +1,798 @@
+@fr
+920|Trouve l’un ou l’autre
+921|Un signe moins exclut : les livres qui ne sont pas sur la Kobo
+922|Notés quatre étoiles ou plus
+923|Publiés avant 1900
+924|Modifiés depuis leur envoi sur la Kobo
+925|Commencés mais pas terminés sur la Kobo
+926|Livres qui ne sont pas encore dans votre bibliothèque
+927|Commencés mais pas terminés
+928|Terminés et notés quatre étoiles ou plus
+929|Un signe moins exclut : pas d’horreur
+930|Seulement les PDF (ou epub, kepub, cbz, etc.)
+931|Comment chercher sur la Kobo
+932|Comment chercher dans la bibliothèque
+938|Filtrer par étiquettes
+939|Toutes
+940|Au moins une
+941|Chercher des étiquettes
+942|Afficher
+943|Relire
+944|Lire · {0} %
+945|Marquer comme terminé
+946|Marquer comme non lu
+947|Modifier le texte
+948|Changer la couverture
+949|Diviser en livres
+950|Enregistrer en fichier
+951|Mettre à jour sur la Kobo
+952|Renvoyer sur la Kobo
+953|Modifié depuis l’envoi. Touchez Mettre à jour sur la Kobo pour envoyer la nouvelle version.
+954|Connectez votre Kobo pour envoyer ce livre.
+955|Dans aucune collection. Pour l’ajouter à une collection, touchez Modifier les détails.
+956|Environ {0} ({1} mots)
+957|Fichier sur la Kobo
+958|Pas encore envoyé
+959|Dernier envoi
+960|Ajouté comme
+961|Retirer « {0} » ?
+962|Cela supprime de la bibliothèque le livre et vos modifications.
+963| La copie sur la Kobo ne sera pas supprimée.
+964|Pas commencé sur la Kobo
+965|{0} % lu sur la Kobo
+966|Terminé sur la Kobo
+967| · lu pour la dernière fois le {0}
+968| (à la dernière connexion de la Kobo)
+969|{0} : tomes {1}–{2}
+970|{0} : tomes {1} et {2}
+972|{0} – Recueil
+973|{0} et autres
+974|Collectif
+975|Le livre s’ouvre dans l’éditeur de texte avec un chapitre vide. Vous pouvez ajouter d’autres chapitres depuis la liste des chapitres. Une couverture simple est créée, que vous pourrez changer plus tard.
+976|Pour plusieurs auteurs, mettez & entre les noms
+977|Créer
+978|Combiner {0} livres
+979|Ordre
+980|Monter « {0} »
+981|Descendre « {0} »
+982|Couverture
+983|Créer une nouvelle couverture avec le titre
+984|Utiliser la couverture de « {0} »
+985|Le nouveau livre contient tous leurs chapitres, dans cet ordre. Sa table des matières liste chaque livre avec ses chapitres en dessous. Il est ajouté à toutes leurs collections. Les livres d’origine ne changent pas.
+986|« {0} » n’a qu’un chapitre, il ne peut donc pas être divisé en livres. Divisez d’abord le chapitre dans l’éditeur de texte.
+987|Le livre n’a pas pu être lu : {0}
+988|Diviser « {0} »
+989|Nommer les {0} livres
+990|Cochez les chapitres où commence chaque nouveau livre.
+991| Les chapitres qui semblent commencer un livre sont déjà cochés.
+992|1 mot
+994|ouvert seulement depuis des liens
+995|Livre {0}
+996|Rien n’est coché pour l’instant. Le premier livre commence toujours au début.
+997|Cela créera {0} livres.
+998|Les numéroter comme une série
+999|Ils seront numérotés 1, 2, 3… dans cet ordre
+1001|Chaque nouveau livre reçoit ses chapitres, avec les images, styles et polices qu’ils utilisent, et les pages de notes vers lesquelles ils renvoient. Le premier livre garde la couverture d’origine. Les autres prennent la première image de leurs premières pages, ou reçoivent une nouvelle couverture avec leur titre. « {0} » lui-même ne change pas.
+1002|Suivant
+1003|Diviser
+1004|Enregistrer « {0} » en fichier
+1005|Enregistrer {0} livres en fichiers
+1006|EPUB : fonctionne avec toutes les applis de lecture et liseuses
+1007|Kepub : le format propre à Kobo, le même que pour l’envoi sur la Kobo
+1008|{0} : le fichier d’origine
+1009|Comme ajoutés : le PDF, MOBI ou autre fichier d’origine de chaque livre
+1010|Comme ajoutés : les livres arrivés en PDF, MOBI, etc. sont enregistrés ainsi, les autres en EPUB
+1011|Vous choisirez ensuite où l’enregistrer.
+1012|Vous choisirez ensuite un dossier. Chaque livre y est enregistré sous le nom « Titre - Auteur ».
+1013|Choisir l’emplacement
+1014|À propos de KoLib
+1015|Chercher dans la bibliothèque
+1016|Envoyer
+1017|EPUB, PDF, MOBI, Word et plus encore
+1018|Tous les livres qu’il contient, et ceux de ses sous-dossiers
+1019|Connectez d’abord votre Kobo
+1020|Retour à la bibliothèque
+1021|Retirer de la bibliothèque
+1022|Renvoyer
+1023|Kepub (recommandé)
+1024|Envoyer « {0} » sur la Kobo
+1025|Envoyer {0} livres sur la Kobo
+1026|Format de fichier
+1027|Envoyer le PDF
+1028|Envoyer les PDF en PDF
+1029|Les pages s’affichent exactement comme imprimées. Le texte ne peut pas être agrandi, elles sont donc plus lisibles sur un grand écran.
+1030|Il part en {0} : le texte s’adapte à l’écran de la Kobo et vous pouvez changer sa taille.
+1031|Les PDF partent en {0} : le texte s’adapte à l’écran de la Kobo et vous pouvez changer sa taille.
+1032|Ce livre ne peut partir qu’en PDF : ses pages sont des images, sans texte à convertir.
+1033|Ce livre ne peut partir qu’en PDF : il est trop gros pour être converti sur cet appareil.
+1034|1 livre ne peut partir qu’en PDF : ses pages sont des images, ou il est trop gros pour être converti sur cet appareil.
+1392|{0} ko
+1393|{0} Mo
+1394|Tapez des mots pour chercher dans les titres, auteurs, séries, étiquettes, collections et éditeurs.\n\nPour ne chercher que dans l’un d’eux, tapez d’abord son nom et deux-points, comme author:tolkien. Vous pouvez utiliser : title, author, tag, series, collection, publisher, language, isbn, pages, rating, year, read, library ou format.\n\nTouchez un exemple pour l’essayer. Les étiquettes viennent du livre dans votre bibliothèque, ou du fichier du livre sur la Kobo.
+1395|Tapez des mots pour chercher dans les titres, auteurs, séries, étiquettes, collections et éditeurs.\n\nPour ne chercher que dans l’un d’eux, tapez d’abord son nom et deux-points, comme author:tolkien. Vous pouvez utiliser : title, author, tag, series, collection, publisher, language, isbn, pages, rating, year, kobo ou read.\n\nTouchez un exemple pour l’essayer.
+1396|{0} mots
+1397|{0} mots, à partir de « {1} »
+@de
+920|Trifft auf eines von beiden zu
+921|Ein Minuszeichen schließt aus: Bücher, die nicht auf dem Kobo sind
+922|Mit vier oder mehr Sternen bewertet
+923|Vor 1900 erschienen
+924|Geändert, seit es an den Kobo gesendet wurde
+925|Auf dem Kobo angefangen, aber nicht beendet
+926|Bücher, die noch nicht in deiner Bibliothek sind
+927|Angefangen, aber nicht beendet
+928|Beendet und mit vier oder mehr Sternen bewertet
+929|Ein Minuszeichen schließt aus: kein Horror
+930|Nur PDFs (oder epub, kepub, cbz usw.)
+931|So durchsuchst du den Kobo
+932|So durchsuchst du die Bibliothek
+938|Nach Schlagwörtern filtern
+939|Alle müssen passen
+940|Eines muss passen
+941|Schlagwörter durchsuchen
+942|Anzeigen
+943|Noch einmal lesen
+944|Lesen · {0} %
+945|Als beendet markieren
+946|Als ungelesen markieren
+947|Text bearbeiten
+948|Cover ändern
+949|In Bücher aufteilen
+950|Als Datei speichern
+951|Auf dem Kobo aktualisieren
+952|Erneut an den Kobo senden
+953|Seit dem Senden geändert. Tippe auf „Auf dem Kobo aktualisieren“, um die neue Version zu senden.
+954|Verbinde deinen Kobo, um dieses Buch zu senden.
+955|In keiner Sammlung. Um es einer hinzuzufügen, tippe auf „Details bearbeiten“.
+956|Etwa {0} ({1} Wörter)
+957|Datei auf dem Kobo
+958|Noch nicht gesendet
+959|Zuletzt gesendet
+960|Hinzugefügt als
+961|„{0}“ entfernen?
+962|Damit werden das Buch und deine Änderungen daran aus der Bibliothek gelöscht.
+963| Die Kopie auf dem Kobo wird nicht gelöscht.
+964|Auf dem Kobo nicht angefangen
+965|{0} % auf dem Kobo gelesen
+966|Auf dem Kobo beendet
+967| · zuletzt gelesen {0}
+968| (Stand der letzten Verbindung mit dem Kobo)
+969|{0}: Bände {1}–{2}
+970|{0}: Bände {1} und {2}
+972|{0} – Sammelband
+973|{0} und andere
+974|Verschiedene
+975|Das Buch öffnet sich im Texteditor mit einem leeren Kapitel. Weitere Kapitel kannst du in der Kapitelliste hinzufügen. Es bekommt ein einfaches Cover, das du später ändern kannst.
+976|Bei mehreren Autoren setze & zwischen die Namen
+977|Erstellen
+978|{0} Bücher zusammenfügen
+979|Reihenfolge
+980|„{0}“ nach oben
+981|„{0}“ nach unten
+982|Cover
+983|Neues Cover mit dem Titel erstellen
+984|Cover von „{0}“ verwenden
+985|Das neue Buch enthält alle ihre Kapitel in dieser Reihenfolge. Sein Inhaltsverzeichnis listet jedes Buch mit seinen Kapiteln darunter. Es wird allen ihren Sammlungen hinzugefügt. Die ursprünglichen Bücher ändern sich nicht.
+986|„{0}“ hat nur ein Kapitel und kann deshalb nicht in Bücher aufgeteilt werden. Teile zuerst das Kapitel im Texteditor.
+987|Das Buch konnte nicht gelesen werden: {0}
+988|„{0}“ aufteilen
+989|Die {0} Bücher benennen
+990|Hake die Kapitel an, mit denen jeweils ein neues Buch beginnt.
+991| Kapitel, die wie der Anfang eines Buchs aussehen, sind schon angehakt.
+992|1 Wort
+994|nur über Links geöffnet
+995|Buch {0}
+996|Noch nichts angehakt. Das erste Buch beginnt immer am Anfang.
+997|Daraus werden {0} Bücher.
+998|Als Reihe nummerieren
+999|Sie werden in dieser Reihenfolge mit 1, 2, 3… nummeriert
+1001|Jedes neue Buch bekommt seine Kapitel mit den Bildern, Stilen und Schriften, die sie verwenden, und allen Anmerkungsseiten, auf die sie verweisen. Das erste Buch bekommt das ursprüngliche Cover. Die anderen nutzen das erste Bild auf ihren ersten Seiten oder bekommen ein neues Cover mit ihrem Titel. „{0}“ selbst ändert sich nicht.
+1002|Weiter
+1003|Aufteilen
+1004|„{0}“ als Datei speichern
+1005|{0} Bücher als Dateien speichern
+1006|EPUB: funktioniert mit jeder Lese-App und jedem E-Reader
+1007|Kepub: das eigene Format von Kobo, wie beim Senden an den Kobo
+1008|{0}: die ursprüngliche Datei
+1009|Wie hinzugefügt: die PDF-, MOBI- oder andere Datei, als die jedes Buch kam
+1010|Wie hinzugefügt: Bücher, die als PDF, MOBI usw. kamen, werden so gespeichert, der Rest als EPUB
+1011|Als Nächstes wählst du, wo es gespeichert wird.
+1012|Als Nächstes wählst du einen Ordner. Jedes Buch wird dort als „Titel - Autor“ gespeichert.
+1013|Speicherort wählen
+1014|Über KoLib
+1015|Bibliothek durchsuchen
+1016|Senden
+1017|EPUB, PDF, MOBI, Word und mehr
+1018|Jedes Buch darin und in den Ordnern darin
+1019|Verbinde zuerst deinen Kobo
+1020|Zurück zur Bibliothek
+1021|Aus der Bibliothek entfernen
+1022|Erneut senden
+1023|Kepub (empfohlen)
+1024|„{0}“ an den Kobo senden
+1025|{0} Bücher an den Kobo senden
+1026|Dateiformat
+1027|Das PDF senden
+1028|PDFs als PDFs senden
+1029|Die Seiten sehen genau so aus, wie sie gedruckt wurden. Der Text lässt sich nicht vergrößern, daher eignen sie sich am besten für einen großen Bildschirm.
+1030|Es geht als {0}, damit der Text auf den Bildschirm des Kobo passt und du seine Größe ändern kannst.
+1031|PDFs gehen als {0}, damit der Text auf den Bildschirm des Kobo passt und du seine Größe ändern kannst.
+1032|Dieses Buch kann nur als PDF gesendet werden: Seine Seiten sind Bilder ohne Text zum Umwandeln.
+1033|Dieses Buch kann nur als PDF gesendet werden: Es ist zu groß, um auf diesem Gerät umgewandelt zu werden.
+1034|1 Buch kann nur als PDF gesendet werden: Seine Seiten sind Bilder, oder es ist zu groß, um auf diesem Gerät umgewandelt zu werden.
+1392|{0} kB
+1393|{0} MB
+1394|Gib Wörter ein, um Titel, Autoren, Reihen, Schlagwörter, Sammlungen und Verlage zu durchsuchen.\n\nUm nur eines davon zu durchsuchen, gib zuerst seinen Namen und einen Doppelpunkt ein, etwa author:tolkien. Möglich sind: title, author, tag, series, collection, publisher, language, isbn, pages, rating, year, read, library oder format.\n\nTippe auf ein Beispiel, um es auszuprobieren. Schlagwörter stammen aus dem Buch in deiner Bibliothek oder aus der Buchdatei auf dem Kobo.
+1395|Gib Wörter ein, um Titel, Autoren, Reihen, Schlagwörter, Sammlungen und Verlage zu durchsuchen.\n\nUm nur eines davon zu durchsuchen, gib zuerst seinen Namen und einen Doppelpunkt ein, etwa author:tolkien. Möglich sind: title, author, tag, series, collection, publisher, language, isbn, pages, rating, year, kobo oder read.\n\nTippe auf ein Beispiel, um es auszuprobieren.
+1396|{0} Wörter
+1397|{0} Wörter, ab „{1}“
+@es
+920|Coincide con cualquiera de los dos
+921|Un signo menos excluye: libros que no están en el Kobo
+922|Valorados con cuatro estrellas o más
+923|Publicados antes de 1900
+924|Cambiados desde que se enviaron al Kobo
+925|Empezados pero no terminados en el Kobo
+926|Libros que aún no están en tu biblioteca
+927|Empezados pero no terminados
+928|Terminados y valorados con cuatro estrellas o más
+929|Un signo menos excluye: nada de terror
+930|Solo PDF (o epub, kepub, cbz, etc.)
+931|Cómo buscar en el Kobo
+932|Cómo buscar en la biblioteca
+938|Filtrar por etiquetas
+939|Todas
+940|Cualquiera
+941|Buscar etiquetas
+942|Mostrar
+943|Volver a leer
+944|Leer · {0} %
+945|Marcar como terminado
+946|Marcar como no leído
+947|Editar el texto
+948|Cambiar portada
+949|Dividir en libros
+950|Guardar como archivo
+951|Actualizar en el Kobo
+952|Volver a enviar al Kobo
+953|Ha cambiado desde que lo enviaste. Toca Actualizar en el Kobo para enviar la nueva versión.
+954|Conecta tu Kobo para enviar este libro.
+955|No está en ninguna colección. Para añadirlo a una, toca Editar detalles.
+956|Unas {0} ({1} palabras)
+957|Archivo en el Kobo
+958|Aún no enviado
+959|Último envío
+960|Añadido como
+961|¿Quitar «{0}»?
+962|Se eliminan de la biblioteca el libro y tus cambios.
+963| La copia del Kobo no se eliminará.
+964|Sin empezar en el Kobo
+965|{0} % leído en el Kobo
+966|Terminado en el Kobo
+967| · última lectura: {0}
+968| (según la última vez que se conectó el Kobo)
+969|{0}: libros {1}–{2}
+970|{0}: libros {1} y {2}
+972|{0}: antología
+973|{0} y otros
+974|Varios
+975|El libro se abre en el editor de texto con un capítulo vacío. Puedes añadir más capítulos desde la lista de capítulos. Se le crea una portada sencilla, que puedes cambiar más adelante.
+976|Si hay más de un autor, pon & entre los nombres
+977|Crear
+978|Combinar {0} libros
+979|Orden
+980|Subir «{0}»
+981|Bajar «{0}»
+982|Portada
+983|Crear una portada nueva con el título
+984|Usar la portada de «{0}»
+985|El libro nuevo contiene todos sus capítulos, en este orden. Su índice muestra cada libro con sus capítulos debajo. Se añade a todas sus colecciones. Los libros originales no cambian.
+986|«{0}» solo tiene un capítulo, así que no se puede dividir en libros. Primero divide el capítulo en el editor de texto.
+987|No se ha podido leer el libro: {0}
+988|Dividir «{0}»
+989|Poner nombre a los {0} libros
+990|Marca los capítulos donde empieza cada libro nuevo.
+991| Los capítulos que parecen el comienzo de un libro ya están marcados.
+992|1 palabra
+994|solo se abre desde enlaces
+995|Libro {0}
+996|Aún no hay nada marcado. El primer libro siempre empieza al principio.
+997|Se crearán {0} libros.
+998|Numerarlos como una serie
+999|Se numerarán 1, 2, 3… en este orden
+1001|Cada libro nuevo recibe sus capítulos, con las imágenes, estilos y fuentes que usan y las páginas de notas a las que enlazan. El primer libro se queda con la portada original. Los demás usan la primera imagen de sus primeras páginas o reciben una portada nueva con su título. «{0}» en sí no cambia.
+1002|Siguiente
+1003|Dividir
+1004|Guardar «{0}» como archivo
+1005|Guardar {0} libros como archivos
+1006|EPUB: funciona con cualquier app de lectura o lector de libros electrónicos
+1007|Kepub: el formato propio de Kobo, el mismo que al enviar al Kobo
+1008|{0}: el archivo original
+1009|Como se añadieron: el PDF, MOBI u otro archivo original de cada libro
+1010|Como se añadieron: los libros que llegaron como PDF, MOBI, etc. se guardan así, y el resto como EPUB
+1011|Luego elegirás dónde guardarlo.
+1012|Luego elegirás una carpeta. Cada libro se guarda allí como «Título - Autor».
+1013|Elegir ubicación
+1014|Acerca de KoLib
+1015|Buscar en la biblioteca
+1016|Enviar
+1017|EPUB, PDF, MOBI, Word y más
+1018|Todos los libros que contiene, también en sus subcarpetas
+1019|Primero conecta tu Kobo
+1020|Volver a la biblioteca
+1021|Quitar de la biblioteca
+1022|Volver a enviar
+1023|Kepub (recomendado)
+1024|Enviar «{0}» al Kobo
+1025|Enviar {0} libros al Kobo
+1026|Formato de archivo
+1027|Enviar el PDF
+1028|Enviar los PDF como PDF
+1029|Las páginas se ven exactamente como se imprimieron. El texto no se puede agrandar, así que se leen mejor en una pantalla grande.
+1030|Se envía como {0}, para que el texto se ajuste a la pantalla del Kobo y puedas cambiar su tamaño.
+1031|Los PDF se envían como {0}, para que el texto se ajuste a la pantalla del Kobo y puedas cambiar su tamaño.
+1032|Este libro solo se puede enviar como PDF: sus páginas son imágenes, sin texto que convertir.
+1033|Este libro solo se puede enviar como PDF: es demasiado grande para convertirlo en este dispositivo.
+1034|1 libro solo se puede enviar como PDF: sus páginas son imágenes o es demasiado grande para convertirlo en este dispositivo.
+1392|{0} kB
+1393|{0} MB
+1394|Escribe palabras para buscar en títulos, autores, series, etiquetas, colecciones y editoriales.\n\nPara buscar solo en uno de ellos, escribe primero su nombre y dos puntos, como author:tolkien. Puedes usar: title, author, tag, series, collection, publisher, language, isbn, pages, rating, year, read, library o format.\n\nToca un ejemplo para probarlo. Las etiquetas vienen del libro de tu biblioteca o del archivo del libro en el Kobo.
+1395|Escribe palabras para buscar en títulos, autores, series, etiquetas, colecciones y editoriales.\n\nPara buscar solo en uno de ellos, escribe primero su nombre y dos puntos, como author:tolkien. Puedes usar: title, author, tag, series, collection, publisher, language, isbn, pages, rating, year, kobo o read.\n\nToca un ejemplo para probarlo.
+1396|{0} palabras
+1397|{0} palabras, desde «{1}»
+@it
+920|Corrisponde a uno dei due
+921|Il segno meno esclude: libri che non sono sul Kobo
+922|Con voto di quattro stelle o più
+923|Pubblicati prima del 1900
+924|Modificati dopo l’invio al Kobo
+925|Iniziati ma non finiti sul Kobo
+926|Libri non ancora nella tua libreria
+927|Iniziati ma non finiti
+928|Finiti e con voto di quattro stelle o più
+929|Il segno meno esclude: niente horror
+930|Solo PDF (o epub, kepub, cbz e così via)
+931|Come cercare sul Kobo
+932|Come cercare nella libreria
+938|Filtra per tag
+939|Tutti
+940|Almeno uno
+941|Cerca tag
+942|Mostra
+943|Rileggi
+944|Leggi · {0}%
+945|Segna come finito
+946|Segna come non letto
+947|Modifica il testo
+948|Cambia copertina
+949|Dividi in libri
+950|Salva come file
+951|Aggiorna sul Kobo
+952|Invia di nuovo al Kobo
+953|Modificato dopo l’invio. Tocca Aggiorna sul Kobo per inviare la nuova versione.
+954|Collega il tuo Kobo per inviare questo libro.
+955|Non è in nessuna raccolta. Per aggiungerlo a una, tocca Modifica dettagli.
+956|Circa {0} ({1} parole)
+957|File sul Kobo
+958|Non ancora inviato
+959|Ultimo invio
+960|Aggiunto come
+961|Rimuovere «{0}»?
+962|Il libro e le tue modifiche vengono eliminati dalla libreria.
+963| La copia sul Kobo non verrà eliminata.
+964|Non iniziato sul Kobo
+965|{0}% letto sul Kobo
+966|Finito sul Kobo
+967| · ultima lettura: {0}
+968| (all’ultimo collegamento del Kobo)
+969|{0}: libri {1}–{2}
+970|{0}: libri {1} e {2}
+972|{0} – Omnibus
+973|{0} e altri
+974|Autori vari
+975|Il libro si apre nell’editor di testo con un capitolo vuoto. Puoi aggiungere altri capitoli dall’elenco dei capitoli. Viene creata una copertina semplice, che potrai cambiare in seguito.
+976|Per più autori, metti & tra i nomi
+977|Crea
+978|Unisci {0} libri
+979|Ordine
+980|Sposta su «{0}»
+981|Sposta giù «{0}»
+982|Copertina
+983|Crea una nuova copertina con il titolo
+984|Usa la copertina di «{0}»
+985|Il nuovo libro contiene tutti i loro capitoli, in quest’ordine. Il suo indice elenca ogni libro con i suoi capitoli sotto. Viene aggiunto a tutte le loro raccolte. I libri originali non cambiano.
+986|«{0}» ha un solo capitolo, quindi non può essere diviso in libri. Prima dividi il capitolo nell’editor di testo.
+987|Impossibile leggere il libro: {0}
+988|Dividi «{0}»
+989|Dai un nome ai {0} libri
+990|Spunta i capitoli dove inizia ogni nuovo libro.
+991| I capitoli che sembrano l’inizio di un libro sono già spuntati.
+992|1 parola
+994|aperto solo dai link
+995|Libro {0}
+996|Ancora niente di spuntato. Il primo libro inizia sempre dall’inizio.
+997|Verranno creati {0} libri.
+998|Numerali come una serie
+999|Saranno numerati 1, 2, 3… in quest’ordine
+1001|Ogni nuovo libro riceve i suoi capitoli, con le immagini, gli stili e i font che usano e le pagine di note a cui rimandano. Il primo libro riceve la copertina originale. Gli altri usano la prima immagine delle loro pagine iniziali, oppure ricevono una nuova copertina con il loro titolo. «{0}» non viene modificato.
+1002|Avanti
+1003|Dividi
+1004|Salva «{0}» come file
+1005|Salva {0} libri come file
+1006|EPUB: funziona con qualsiasi app di lettura o e-reader
+1007|Kepub: il formato di Kobo, lo stesso usato per l’invio al Kobo
+1008|{0}: il file originale
+1009|Come sono stati aggiunti: il file PDF, MOBI o altro originale di ogni libro
+1010|Come sono stati aggiunti: i libri arrivati come PDF, MOBI e così via vengono salvati così, gli altri come EPUB
+1011|Poi sceglierai dove salvarlo.
+1012|Poi sceglierai una cartella. Ogni libro viene salvato lì come «Titolo - Autore».
+1013|Scegli posizione
+1014|Informazioni su KoLib
+1015|Cerca nella libreria
+1016|Invia
+1017|EPUB, PDF, MOBI, Word e altro
+1018|Ogni libro contenuto, anche nelle sottocartelle
+1019|Prima collega il tuo Kobo
+1020|Torna alla libreria
+1021|Rimuovi dalla libreria
+1022|Invia di nuovo
+1023|Kepub (consigliato)
+1024|Invia «{0}» al Kobo
+1025|Invia {0} libri al Kobo
+1026|Formato del file
+1027|Invia il PDF
+1028|Invia i PDF come PDF
+1029|Le pagine appaiono esattamente come sono state stampate. Il testo non si può ingrandire, quindi rendono meglio su uno schermo grande.
+1030|Viene inviato come {0}, così il testo si adatta allo schermo del Kobo e puoi cambiarne la dimensione.
+1031|I PDF vengono inviati come {0}, così il testo si adatta allo schermo del Kobo e puoi cambiarne la dimensione.
+1032|Questo libro può essere inviato solo come PDF: le sue pagine sono immagini, senza testo da convertire.
+1033|Questo libro può essere inviato solo come PDF: è troppo grande per essere convertito su questo dispositivo.
+1034|1 libro può essere inviato solo come PDF: le sue pagine sono immagini, oppure è troppo grande per essere convertito su questo dispositivo.
+1392|{0} kB
+1393|{0} MB
+1394|Scrivi delle parole per cercare in titoli, autori, serie, tag, raccolte ed editori.\n\nPer cercare solo in uno di questi, scrivi prima il suo nome e i due punti, come author:tolkien. Puoi usare: title, author, tag, series, collection, publisher, language, isbn, pages, rating, year, read, library o format.\n\nTocca un esempio per provarlo. I tag vengono dal libro nella tua libreria o dal file del libro sul Kobo.
+1395|Scrivi delle parole per cercare in titoli, autori, serie, tag, raccolte ed editori.\n\nPer cercare solo in uno di questi, scrivi prima il suo nome e i due punti, come author:tolkien. Puoi usare: title, author, tag, series, collection, publisher, language, isbn, pages, rating, year, kobo o read.\n\nTocca un esempio per provarlo.
+1396|{0} parole
+1397|{0} parole, a partire da «{1}»
+@nl
+920|Komt overeen met een van beide
+921|Een minteken sluit uit: boeken die niet op de Kobo staan
+922|Beoordeeld met vier sterren of meer
+923|Verschenen vóór 1900
+924|Gewijzigd sinds het naar de Kobo is verstuurd
+925|Begonnen maar niet uitgelezen op de Kobo
+926|Boeken die nog niet in je bibliotheek staan
+927|Begonnen maar niet uitgelezen
+928|Uitgelezen en beoordeeld met vier sterren of meer
+929|Een minteken sluit uit: geen horror
+930|Alleen pdf’s (of epub, kepub, cbz enzovoort)
+931|Zo zoek je op de Kobo
+932|Zo zoek je in de bibliotheek
+938|Filteren op labels
+939|Alle
+940|Minstens één
+941|Labels zoeken
+942|Tonen
+943|Opnieuw lezen
+944|Lezen · {0}%
+945|Markeren als uitgelezen
+946|Markeren als ongelezen
+947|Tekst bewerken
+948|Omslag wijzigen
+949|Opsplitsen in boeken
+950|Opslaan als bestand
+951|Bijwerken op Kobo
+952|Opnieuw naar Kobo sturen
+953|Gewijzigd sinds je het hebt verstuurd. Tik op Bijwerken op Kobo om de nieuwe versie te versturen.
+954|Verbind je Kobo om dit boek te versturen.
+955|In geen enkele collectie. Tik op Gegevens bewerken om het aan een collectie toe te voegen.
+956|Ongeveer {0} ({1} woorden)
+957|Bestand op de Kobo
+958|Nog niet verstuurd
+959|Laatst verstuurd
+960|Toegevoegd als
+961|‘{0}’ verwijderen?
+962|Hiermee verwijder je het boek en je wijzigingen eraan uit de bibliotheek.
+963| Het exemplaar op de Kobo wordt niet verwijderd.
+964|Niet begonnen op de Kobo
+965|{0}% gelezen op de Kobo
+966|Uitgelezen op de Kobo
+967| · laatst gelezen {0}
+968| (zoals bij de laatste verbinding met de Kobo)
+969|{0}: boeken {1}–{2}
+970|{0}: boeken {1} en {2}
+972|{0} – Omnibus
+973|{0} en andere
+974|Diverse auteurs
+975|Het boek opent in de teksteditor met één leeg hoofdstuk. Je kunt meer hoofdstukken toevoegen vanuit de hoofdstukkenlijst. Er wordt een eenvoudige omslag voor gemaakt, die je later kunt wijzigen.
+976|Zet bij meer dan één auteur & tussen de namen
+977|Maken
+978|{0} boeken samenvoegen
+979|Volgorde
+980|‘{0}’ omhoog
+981|‘{0}’ omlaag
+982|Omslag
+983|Een nieuwe omslag met de titel maken
+984|De omslag van ‘{0}’ gebruiken
+985|Het nieuwe boek bevat al hun hoofdstukken, in deze volgorde. De inhoudsopgave toont elk boek met de hoofdstukken eronder. Het wordt aan al hun collecties toegevoegd. De oorspronkelijke boeken veranderen niet.
+986|‘{0}’ heeft maar één hoofdstuk en kan dus niet in boeken worden opgesplitst. Splits eerst het hoofdstuk in de teksteditor.
+987|Het boek kon niet worden gelezen: {0}
+988|‘{0}’ opsplitsen
+989|De {0} boeken een naam geven
+990|Vink de hoofdstukken aan waar elk nieuw boek begint.
+991| Hoofdstukken die op het begin van een boek lijken, zijn al aangevinkt.
+992|1 woord
+994|alleen geopend via links
+995|Boek {0}
+996|Nog niets aangevinkt. Het eerste boek begint altijd aan het begin.
+997|Dit worden {0} boeken.
+998|Nummeren als reeks
+999|Ze worden in deze volgorde genummerd als 1, 2, 3…
+1001|Elk nieuw boek krijgt zijn hoofdstukken, met de afbeeldingen, stijlen en lettertypen die ze gebruiken en de notenpagina’s waarnaar ze linken. Het eerste boek krijgt de oorspronkelijke omslag. De andere gebruiken de eerste afbeelding op hun eerste pagina’s, of krijgen een nieuwe omslag met hun titel. ‘{0}’ zelf verandert niet.
+1002|Volgende
+1003|Opsplitsen
+1004|‘{0}’ opslaan als bestand
+1005|{0} boeken opslaan als bestanden
+1006|EPUB: werkt met elke lees-app en e-reader
+1007|Kepub: het eigen formaat van Kobo, hetzelfde als bij versturen naar de Kobo
+1008|{0}: het oorspronkelijke bestand
+1009|Zoals toegevoegd: het pdf-, MOBI- of andere bestand waarmee elk boek kwam
+1010|Zoals toegevoegd: boeken die als pdf, MOBI enzovoort kwamen, worden zo opgeslagen, de rest als EPUB
+1011|Daarna kies je waar je het opslaat.
+1012|Daarna kies je een map. Elk boek wordt daar opgeslagen als ‘Titel - Auteur’.
+1013|Locatie kiezen
+1014|Over KoLib
+1015|Zoeken in de bibliotheek
+1016|Versturen
+1017|EPUB, pdf, MOBI, Word en meer
+1018|Elk boek erin, ook in de mappen erin
+1019|Verbind eerst je Kobo
+1020|Terug naar de bibliotheek
+1021|Uit de bibliotheek verwijderen
+1022|Opnieuw versturen
+1023|Kepub (aanbevolen)
+1024|‘{0}’ naar de Kobo sturen
+1025|{0} boeken naar de Kobo sturen
+1026|Bestandsformaat
+1027|De pdf versturen
+1028|Pdf’s als pdf versturen
+1029|De pagina’s zien er precies zo uit als ze zijn gedrukt. De tekst kan niet groter worden gemaakt, dus ze zijn het best op een groot scherm.
+1030|Het gaat als {0}, zodat de tekst op het scherm van de Kobo past en je de grootte kunt wijzigen.
+1031|Pdf’s gaan als {0}, zodat de tekst op het scherm van de Kobo past en je de grootte kunt wijzigen.
+1032|Dit boek kan alleen als pdf gaan: de pagina’s zijn afbeeldingen, zonder tekst om om te zetten.
+1033|Dit boek kan alleen als pdf gaan: het is te groot om op dit apparaat om te zetten.
+1034|1 boek kan alleen als pdf gaan: de pagina’s zijn afbeeldingen, of het is te groot om op dit apparaat om te zetten.
+1392|{0} kB
+1393|{0} MB
+1394|Typ woorden om te zoeken in titels, auteurs, reeksen, labels, collecties en uitgevers.\n\nOm alleen in een daarvan te zoeken, typ je eerst de naam en een dubbele punt, zoals author:tolkien. Je kunt gebruiken: title, author, tag, series, collection, publisher, language, isbn, pages, rating, year, read, library of format.\n\nTik op een voorbeeld om het te proberen. Labels komen uit het boek in je bibliotheek, of uit het boekbestand op de Kobo.
+1395|Typ woorden om te zoeken in titels, auteurs, reeksen, labels, collecties en uitgevers.\n\nOm alleen in een daarvan te zoeken, typ je eerst de naam en een dubbele punt, zoals author:tolkien. Je kunt gebruiken: title, author, tag, series, collection, publisher, language, isbn, pages, rating, year, kobo of read.\n\nTik op een voorbeeld om het te proberen.
+1396|{0} woorden
+1397|{0} woorden, vanaf ‘{1}’
+@pt
+920|Corresponde a qualquer um dos dois
+921|O sinal de menos exclui: livros que não estão no Kobo
+922|Avaliados com quatro estrelas ou mais
+923|Publicados antes de 1900
+924|Alterados desde que foram enviados ao Kobo
+925|Começados mas não concluídos no Kobo
+926|Livros que ainda não estão na sua biblioteca
+927|Começados mas não concluídos
+928|Concluídos e avaliados com quatro estrelas ou mais
+929|O sinal de menos exclui: sem terror
+930|Só PDFs (ou epub, kepub, cbz etc.)
+931|Como pesquisar no Kobo
+932|Como pesquisar na biblioteca
+938|Filtrar por tags
+939|Todas
+940|Qualquer uma
+941|Pesquisar tags
+942|Mostrar
+943|Ler de novo
+944|Ler · {0}%
+945|Marcar como concluído
+946|Marcar como não lido
+947|Editar o texto
+948|Mudar capa
+949|Dividir em livros
+950|Salvar como arquivo
+951|Atualizar no Kobo
+952|Enviar ao Kobo de novo
+953|Alterado desde que você o enviou. Toque em Atualizar no Kobo para enviar a nova versão.
+954|Conecte seu Kobo para enviar este livro.
+955|Não está em nenhuma coleção. Para adicioná-lo a uma, toque em Editar detalhes.
+956|Cerca de {0} ({1} palavras)
+957|Arquivo no Kobo
+958|Ainda não enviado
+959|Último envio
+960|Adicionado como
+961|Remover “{0}”?
+962|Isso exclui da biblioteca o livro e as suas edições nele.
+963| A cópia no Kobo não será excluída.
+964|Não começado no Kobo
+965|{0}% lido no Kobo
+966|Concluído no Kobo
+967| · última leitura em {0}
+968| (na última vez que o Kobo foi conectado)
+969|{0}: livros {1}–{2}
+970|{0}: livros {1} e {2}
+972|{0} – Coletânea
+973|{0} e outros
+974|Vários
+975|O livro abre no editor de texto com um capítulo vazio. Você pode adicionar mais capítulos na lista de capítulos. Uma capa simples é criada para ele, e você pode mudá-la depois.
+976|Para mais de um autor, coloque & entre os nomes
+977|Criar
+978|Combinar {0} livros
+979|Ordem
+980|Mover “{0}” para cima
+981|Mover “{0}” para baixo
+982|Capa
+983|Criar uma capa nova com o título
+984|Usar a capa de “{0}”
+985|O livro novo contém todos os capítulos deles, nesta ordem. O sumário lista cada livro com os capítulos embaixo. Ele é adicionado a todas as coleções deles. Os livros originais não mudam.
+986|“{0}” tem só um capítulo, então não pode ser dividido em livros. Primeiro divida o capítulo no editor de texto.
+987|Não foi possível ler o livro: {0}
+988|Dividir “{0}”
+989|Dar nome aos {0} livros
+990|Marque os capítulos onde cada livro novo começa.
+991| Os capítulos que parecem o começo de um livro já estão marcados.
+992|1 palavra
+994|aberto só por links
+995|Livro {0}
+996|Nada marcado ainda. O primeiro livro sempre começa no início.
+997|Isso vai criar {0} livros.
+998|Numerar como uma série
+999|Eles serão numerados 1, 2, 3… nesta ordem
+1001|Cada livro novo recebe os capítulos dele, com as imagens, estilos e fontes que eles usam e as páginas de notas para as quais apontam. O primeiro livro fica com a capa original. Os outros usam a primeira imagem das páginas iniciais ou recebem uma capa nova com o título. O próprio “{0}” não muda.
+1002|Próximo
+1003|Dividir
+1004|Salvar “{0}” como arquivo
+1005|Salvar {0} livros como arquivos
+1006|EPUB: funciona com qualquer app de leitura ou leitor digital
+1007|Kepub: o formato próprio do Kobo, o mesmo usado ao enviar ao Kobo
+1008|{0}: o arquivo original
+1009|Como foram adicionados: o PDF, MOBI ou outro arquivo original de cada livro
+1010|Como foram adicionados: livros que vieram como PDF, MOBI etc. são salvos assim, e o resto como EPUB
+1011|Em seguida, você vai escolher onde salvá-lo.
+1012|Em seguida, você vai escolher uma pasta. Cada livro é salvo lá como “Título - Autor”.
+1013|Escolher local
+1014|Sobre o KoLib
+1015|Pesquisar na biblioteca
+1016|Enviar
+1017|EPUB, PDF, MOBI, Word e mais
+1018|Todos os livros dela, inclusive nas subpastas
+1019|Conecte seu Kobo primeiro
+1020|Voltar à biblioteca
+1021|Remover da biblioteca
+1022|Enviar de novo
+1023|Kepub (recomendado)
+1024|Enviar “{0}” ao Kobo
+1025|Enviar {0} livros ao Kobo
+1026|Formato do arquivo
+1027|Enviar o PDF
+1028|Enviar PDFs como PDF
+1029|As páginas ficam exatamente como foram impressas. O texto não pode ser aumentado, então elas funcionam melhor em uma tela grande.
+1030|Ele vai como {0}, para que o texto se ajuste à tela do Kobo e você possa mudar o tamanho.
+1031|Os PDFs vão como {0}, para que o texto se ajuste à tela do Kobo e você possa mudar o tamanho.
+1032|Este livro só pode ir como PDF: as páginas são imagens, sem texto para converter.
+1033|Este livro só pode ir como PDF: ele é grande demais para ser convertido neste dispositivo.
+1034|1 livro só pode ir como PDF: as páginas são imagens, ou ele é grande demais para ser convertido neste dispositivo.
+1392|{0} kB
+1393|{0} MB
+1394|Digite palavras para pesquisar títulos, autores, séries, tags, coleções e editoras.\n\nPara pesquisar só um deles, digite primeiro o nome e dois-pontos, como author:tolkien. Você pode usar: title, author, tag, series, collection, publisher, language, isbn, pages, rating, year, read, library ou format.\n\nToque em um exemplo para testar. As tags vêm do livro na sua biblioteca ou do arquivo do livro no Kobo.
+1395|Digite palavras para pesquisar títulos, autores, séries, tags, coleções e editoras.\n\nPara pesquisar só um deles, digite primeiro o nome e dois-pontos, como author:tolkien. Você pode usar: title, author, tag, series, collection, publisher, language, isbn, pages, rating, year, kobo ou read.\n\nToque em um exemplo para testar.
+1396|{0} palavras
+1397|{0} palavras, a partir de “{1}”
+@ja
+920|どちらかに一致
+921|マイナス記号で除外: Kobo にない本
+922|評価が星 4 つ以上
+923|1900 年より前に出版
+924|Kobo に送ったあとで変更あり
+925|Kobo で読み始めたが読み終えていない
+926|まだライブラリにない本
+927|読み始めたが読み終えていない
+928|読み終えていて、評価が星 4 つ以上
+929|マイナス記号で除外: ホラーを除く
+930|PDF のみ（epub、kepub、cbz なども指定可）
+931|Kobo の検索方法
+932|ライブラリの検索方法
+938|タグで絞り込む
+939|すべてに一致
+940|いずれかに一致
+941|タグを検索
+942|表示
+943|もう一度読む
+944|読む · {0}%
+945|読了にする
+946|未読にする
+947|本文を編集
+948|表紙を変更
+949|複数の本に分割
+950|ファイルに保存
+951|Kobo で更新
+952|Kobo にもう一度送る
+953|送ったあとで変更されています。新しい版を送るには「Kobo で更新」をタップしてください。
+954|この本を送るには Kobo を接続してください。
+955|どのコレクションにも入っていません。追加するには「情報を編集」をタップしてください。
+956|約 {0}（{1} 語）
+957|Kobo 上のファイル
+958|まだ送っていません
+959|最後に送った日時
+960|追加時の形式
+961|「{0}」を削除しますか？
+962|本とその編集内容をライブラリから削除します。
+963|Kobo にある本は削除されません。
+964|Kobo で未読
+965|Kobo で {0}% 読了
+966|Kobo で読了
+967| · 最後に読んだ日時: {0}
+968|（Kobo を最後に接続したときの情報）
+969|{0}: 第 {1}～{2} 巻
+970|{0}: 第 {1}・{2} 巻
+972|{0} 合本
+973|{0} ほか
+974|複数の著者
+975|本は空の章が 1 つある状態でテキストエディタで開きます。章はあとで章の一覧から追加できます。簡単な表紙が作られますが、あとで変更できます。
+976|著者が複数いる場合は、名前の間に & を入れてください
+977|作成
+978|{0} 冊を結合
+979|順番
+980|「{0}」を上へ
+981|「{0}」を下へ
+982|表紙
+983|タイトル入りの新しい表紙を作る
+984|「{0}」の表紙を使う
+985|新しい本には、すべての章がこの順番で入ります。目次には各本と、その下にその本の章が並びます。新しい本は、元の本のコレクションすべてに追加されます。元の本は変わりません。
+986|「{0}」は章が 1 つしかないため、複数の本に分割できません。先にテキストエディタで章を分割してください。
+987|本を読み込めませんでした: {0}
+988|「{0}」を分割
+989|{0} 冊に名前を付ける
+990|新しい本が始まる章にチェックを入れてください。
+991|本の始まりらしい章には、すでにチェックが入っています。
+992|1 語
+994|リンクからのみ開く
+995|第 {0} 冊
+996|まだチェックがありません。最初の本は必ず先頭から始まります。
+997|{0} 冊の本ができます。
+998|シリーズとして番号を付ける
+999|この順番で 1、2、3… と番号が付きます
+1001|新しい本にはそれぞれの章が入り、章で使われている画像、スタイル、フォント、リンク先の注釈ページも含まれます。最初の本には元の表紙が付きます。ほかの本は最初のページの最初の画像を表紙にするか、タイトル入りの新しい表紙が付きます。「{0}」自体は変わりません。
+1002|次へ
+1003|分割
+1004|「{0}」をファイルとして保存
+1005|{0} 冊をファイルとして保存
+1006|EPUB: どの読書アプリや電子書籍リーダーでも使えます
+1007|Kepub: Kobo 独自の形式。Kobo に送るときと同じです
+1008|{0}: 追加したときのファイル
+1009|追加したときのまま: それぞれの本の元の PDF、MOBI などのファイル
+1010|追加したときのまま: PDF や MOBI などで追加した本はその形式で、それ以外は EPUB で保存します
+1011|次に保存先を選びます。
+1012|次にフォルダを選びます。それぞれの本は「タイトル - 著者」という名前で保存されます。
+1013|保存先を選ぶ
+1014|KoLib について
+1015|ライブラリを検索
+1016|送る
+1017|EPUB、PDF、MOBI、Word など
+1018|フォルダ内のすべての本（中のフォルダも含む）
+1019|先に Kobo を接続してください
+1020|ライブラリに戻る
+1021|ライブラリから削除
+1022|もう一度送る
+1023|Kepub（おすすめ）
+1024|「{0}」を Kobo に送る
+1025|{0} 冊を Kobo に送る
+1026|ファイル形式
+1027|PDF を送る
+1028|PDF は PDF のまま送る
+1029|ページは印刷されたとおりに表示されます。文字を大きくできないため、大きな画面に向いています。
+1030|{0} として送るため、文字が Kobo の画面に合わせて表示され、サイズも変えられます。
+1031|PDF は {0} として送るため、文字が Kobo の画面に合わせて表示され、サイズも変えられます。
+1032|この本は PDF でしか送れません。ページが画像で、変換できる文字がありません。
+1033|この本は PDF でしか送れません。大きすぎて、この端末では変換できません。
+1034|1 冊は PDF でしか送れません。ページが画像か、大きすぎてこの端末では変換できません。
+1392|{0} KB
+1393|{0} MB
+1394|タイトル、著者、シリーズ、タグ、コレクション、出版社を検索するには、言葉を入力します。\n\nどれか 1 つだけを検索するには、author:tolkien のように、先にその名前とコロンを入力します。使える名前: title, author, tag, series, collection, publisher, language, isbn, pages, rating, year, read, library, format。\n\n例をタップすると試せます。タグは、ライブラリの本か、Kobo 上の本のファイルから読み取ります。
+1395|タイトル、著者、シリーズ、タグ、コレクション、出版社を検索するには、言葉を入力します。\n\nどれか 1 つだけを検索するには、author:tolkien のように、先にその名前とコロンを入力します。使える名前: title, author, tag, series, collection, publisher, language, isbn, pages, rating, year, kobo, read。\n\n例をタップすると試せます。
+1396|{0} 語
+1397|{0} 語（「{1}」から）

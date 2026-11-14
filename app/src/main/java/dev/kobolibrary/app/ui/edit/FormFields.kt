@@ -2,6 +2,7 @@
 
 package dev.kobolibrary.app.ui.edit
 
+import dev.kobolibrary.app.tr
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -152,7 +153,7 @@ fun ChipsField(
                                     .clip(CircleShape)
                                     .clickable { onRemove(i) },
                                 contentAlignment = Alignment.Center,
-                            ) { Icon(Icons.Filled.Close, "Remove $v", Modifier.size(16.dp)) }
+                            ) { Icon(Icons.Filled.Close, tr("Remove {0}", v), Modifier.size(16.dp)) }
                         },
                     )
                 }
@@ -231,7 +232,7 @@ fun SuggestField(
             supportingText = supportingText?.let { { Text(it) } },
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words, imeAction = ImeAction.Next),
             trailingIcon = {
-                if (value.isNotEmpty()) IconButton(onClick = { onValueChange("") }) { Icon(Icons.Filled.Close, "Clear $label") }
+                if (value.isNotEmpty()) IconButton(onClick = { onValueChange("") }) { Icon(Icons.Filled.Close, tr("Clear {0}", label)) }
             },
             modifier = Modifier
                 .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable)
@@ -259,7 +260,7 @@ fun SeriesNumberField(value: String, onValueChange: (String) -> Unit, enabled: B
         OutlinedTextField(
             value = value,
             onValueChange = { s -> onValueChange(s.filter { it.isDigit() || it == '.' || it == ',' }) },
-            label = { Text("Number") },
+            label = { Text(tr("Number")) },
             singleLine = true,
             enabled = enabled,
             isError = error != null,
@@ -275,14 +276,14 @@ fun SeriesNumberField(value: String, onValueChange: (String) -> Unit, enabled: B
                         onValueChange(dev.kobolibrary.app.epub.Names.formatIndex(maxOf(0.0, Math.ceil(n) - 1)))
                     },
                     enabled = enabled,
-                ) { Icon(Icons.Filled.Remove, "One less") }
+                ) { Icon(Icons.Filled.Remove, tr("One less")) }
                 IconButton(
                     onClick = {
                         val n = DetailsDraft.parseSeriesIndex(value)
                         onValueChange(dev.kobolibrary.app.epub.Names.formatIndex(if (n == null) 1.0 else Math.floor(n) + 1))
                     },
                     enabled = enabled,
-                ) { Icon(Icons.Filled.Add, "One more") }
+                ) { Icon(Icons.Filled.Add, tr("One more")) }
             }
         }
     }
@@ -301,7 +302,7 @@ fun RatingField(rating: Int, onChange: (Int) -> Unit) {
             IconButton(onClick = { onChange(if (rating == star * 2) 0 else star * 2) }) {
                 Icon(
                     icon,
-                    contentDescription = if (star == 1) "1 star" else "$star stars",
+                    contentDescription = if (star == 1) tr("1 star") else tr("{0} stars", star),
                     tint = if (rating >= star * 2 - 1) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.outline,
                     modifier = Modifier.size(30.dp),
                 )
@@ -310,15 +311,15 @@ fun RatingField(rating: Int, onChange: (Int) -> Unit) {
         Spacer(Modifier.width(8.dp))
         Text(
             when {
-                rating <= 0 -> "Not rated"
-                rating % 2 == 0 -> "${rating / 2} of 5"
-                else -> "${rating / 2}½ of 5"
+                rating <= 0 -> tr("Not rated")
+                rating % 2 == 0 -> tr("{0} of 5", rating / 2)
+                else -> tr("{0}½ of 5", rating / 2)
             },
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         if (rating > 0) {
-            TextButton(onClick = { onChange(0) }) { Text("Clear") }
+            TextButton(onClick = { onChange(0) }) { Text(tr("Clear")) }
         }
     }
 }
@@ -339,10 +340,10 @@ fun LanguageField(code: String, onChange: (String) -> Unit, modifier: Modifier =
     }
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }, modifier = modifier) {
         OutlinedTextField(
-            value = if (code.isBlank()) "Not set" else languageName(code),
+            value = if (code.isBlank()) tr("Not set") else languageName(code),
             onValueChange = {},
             readOnly = true,
-            label = { Text("Language") },
+            label = { Text(tr("Language")) },
             singleLine = true,
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
@@ -380,13 +381,13 @@ fun PublishedField(value: String, onChange: (String) -> Unit, error: String?, mo
     OutlinedTextField(
         value = value,
         onValueChange = { s -> onChange(s.filter { it.isDigit() || it == '-' }.take(10)) },
-        label = { Text("Published") },
-        placeholder = { Text("2005 or 2005-07-17") },
+        label = { Text(tr("Published")) },
+        placeholder = { Text(tr("2005 or 2005-07-17")) },
         singleLine = true,
         isError = error != null,
         supportingText = (error ?: readable)?.let { { Text(it) } },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
-        trailingIcon = { IconButton(onClick = { picking = true }) { Icon(Icons.Filled.CalendarMonth, "Pick a date") } },
+        trailingIcon = { IconButton(onClick = { picking = true }) { Icon(Icons.Filled.CalendarMonth, tr("Pick a date")) } },
         modifier = modifier,
     )
     if (picking) {
@@ -412,7 +413,7 @@ fun PublishedField(value: String, onChange: (String) -> Unit, error: String?, mo
                     enabled = state.selectedDateMillis != null,
                 ) { Text("OK") }
             },
-            dismissButton = { TextButton(onClick = { picking = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { picking = false }) { Text(tr("Cancel")) } },
         ) {
             DatePicker(state = state)
         }

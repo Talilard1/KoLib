@@ -2,6 +2,7 @@
 
 package dev.kobolibrary.app.ui
 
+import dev.kobolibrary.app.tr
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -143,7 +144,7 @@ fun DeviceScreen(
                         Text(view.info.displayName, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         Text(
                             listOfNotNull(
-                                view.info.version?.firmware?.takeIf { !phone }?.let { "Firmware $it" },
+                                view.info.version?.firmware?.takeIf { !phone }?.let { tr("Firmware {0}", it) },
                                 Fmt.plural(snapshot.books.size, "book"),
                                 Fmt.plural(snapshot.collections.size, "collection"),
                             ).joinToString(" · "),
@@ -159,57 +160,57 @@ fun DeviceScreen(
                         TextButton(onClick = { showEject = true }) {
                             Icon(Icons.Outlined.Eject, null)
                             Spacer(Modifier.width(6.dp))
-                            Text("Eject")
+                            Text(tr("Eject"))
                         }
-                        IconButton(onClick = onReconnect) { Icon(Icons.Filled.Refresh, "Refresh") }
+                        IconButton(onClick = onReconnect) { Icon(Icons.Filled.Refresh, tr("Refresh")) }
                     } else if (!view.live) {
                         TextButton(onClick = onHowToConnect) {
                             Icon(Icons.Outlined.Usb, null)
                             Spacer(Modifier.width(6.dp))
-                            Text("Connect")
+                            Text(tr("Connect"))
                         }
                     }
-                    IconButton(onClick = { menuOpen = true }) { Icon(Icons.Filled.MoreVert, "More") }
+                    IconButton(onClick = { menuOpen = true }) { Icon(Icons.Filled.MoreVert, tr("More")) }
                     DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                         // On a phone, the book list's own options are here too, so the screen has one menu.
                         if (phone && tab == 0) {
                             DropdownMenuItem(
-                                text = { Text("Select books") },
+                                text = { Text(tr("Select books")) },
                                 leadingIcon = { Icon(Icons.Outlined.Checklist, null) },
                                 onClick = { menuOpen = false; browse.selecting = true },
                             )
                             DropdownMenuItem(
-                                text = { Text(if (browse.grid) "Show as list" else "Show as grid") },
+                                text = { Text(if (browse.grid) tr("Show as list") else tr("Show as grid")) },
                                 leadingIcon = { Icon(if (browse.grid) Icons.AutoMirrored.Filled.ViewList else Icons.Filled.GridView, null) },
                                 onClick = { menuOpen = false; browse.grid = !browse.grid },
                             )
                             HorizontalDivider()
                         }
                         DropdownMenuItem(
-                            text = { Text("Back up database now") },
+                            text = { Text(tr("Back up database now")) },
                             leadingIcon = { Icon(Icons.Outlined.Backup, null) },
                             enabled = live,
                             onClick = { menuOpen = false; onBackupNow() },
                         )
                         DropdownMenuItem(
-                            text = { Text("Database backups") },
+                            text = { Text(tr("Database backups")) },
                             leadingIcon = { Icon(Icons.Outlined.Restore, null) },
                             onClick = { menuOpen = false; onOpenBackups() },
                         )
                         DropdownMenuItem(
-                            text = { Text("Check write access") },
+                            text = { Text(tr("Check write access")) },
                             leadingIcon = { Icon(Icons.Outlined.EditNote, null) },
                             enabled = live,
                             onClick = { menuOpen = false; tab = 2; onWriteCheck() },
                         )
                         DropdownMenuItem(
-                            text = { Text("Log") },
+                            text = { Text(tr("Log")) },
                             leadingIcon = { Icon(Icons.AutoMirrored.Outlined.Article, null) },
                             onClick = { menuOpen = false; onOpenLog() },
                         )
                         HorizontalDivider()
                         DropdownMenuItem(
-                            text = { Text("Forget this Kobo") },
+                            text = { Text(tr("Forget this Kobo")) },
                             leadingIcon = { Icon(Icons.Outlined.LinkOff, null) },
                             onClick = { menuOpen = false; confirmForget = true },
                         )
@@ -232,9 +233,9 @@ fun DeviceScreen(
                 }
                 // A phone has the counts in the bar above, so the tabs fit on one line.
                 PrimaryTabRow(selectedTabIndex = tab, containerColor = Color.Transparent) {
-                    Tab(selected = tab == 0, onClick = { tab = 0 }, text = { Text(if (phone) "Books" else "Books (${snapshot.books.size})") })
-                    Tab(selected = tab == 1, onClick = { tab = 1 }, text = { Text(if (phone) "Collections" else "Collections (${snapshot.collections.size})") })
-                    Tab(selected = tab == 2, onClick = { tab = 2 }, text = { Text("Device") })
+                    Tab(selected = tab == 0, onClick = { tab = 0 }, text = { Text(if (phone) tr("Books") else tr("Books ({0})", snapshot.books.size)) })
+                    Tab(selected = tab == 1, onClick = { tab = 1 }, text = { Text(if (phone) tr("Collections") else tr("Collections ({0})", snapshot.collections.size)) })
+                    Tab(selected = tab == 2, onClick = { tab = 2 }, text = { Text(tr("Device")) })
                 }
             }
             when (tab) {
@@ -270,15 +271,14 @@ fun DeviceScreen(
     if (confirmForget) {
         AlertDialog(
             onDismissRequest = { confirmForget = false },
-            title = { Text("Forget this Kobo?") },
+            title = { Text(tr("Forget this Kobo?")) },
             text = {
                 Text(
-                    "The app will lose its permission to use the Kobo's drive. Nothing on the Kobo changes, and backups on this device aren't deleted. " +
-                        "Next time, you'll be asked to allow access again."
+                    tr("The app will lose its permission to use the Kobo's drive. Nothing on the Kobo changes, and backups on this device aren't deleted. Next time, you'll be asked to allow access again.")
                 )
             },
-            confirmButton = { TextButton(onClick = { confirmForget = false; onForget() }) { Text("Forget") } },
-            dismissButton = { TextButton(onClick = { confirmForget = false }) { Text("Cancel") } },
+            confirmButton = { TextButton(onClick = { confirmForget = false; onForget() }) { Text(tr("Forget")) } },
+            dismissButton = { TextButton(onClick = { confirmForget = false }) { Text(tr("Cancel")) } },
         )
     }
 }
@@ -290,11 +290,11 @@ private fun OfflineBanner(readAt: Long, onHowToConnect: () -> Unit) {
             Icon(Icons.Outlined.UsbOff, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.width(12.dp))
             Text(
-                "Not connected. Showing your Kobo as it was on ${Fmt.dateTime(readAt)}.",
+                tr("Not connected. Showing your Kobo as it was on {0}.", Fmt.dateTime(readAt)),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f),
             )
-            TextButton(onClick = onHowToConnect) { Text("How to connect") }
+            TextButton(onClick = onHowToConnect) { Text(tr("How to connect")) }
         }
     }
 }
@@ -306,7 +306,7 @@ private fun SyncingBanner() {
             CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.onTertiaryContainer)
             Spacer(Modifier.width(12.dp))
             Text(
-                "Saving collections and book details to the Kobo… Wait until this finishes before ejecting.",
+                tr("Saving collections and book details to the Kobo… Wait until this finishes before ejecting."),
                 color = MaterialTheme.colorScheme.onTertiaryContainer,
                 style = MaterialTheme.typography.bodyMedium,
             )
@@ -321,7 +321,7 @@ private fun UnpluggedBanner(readAt: Long) {
             Icon(Icons.Outlined.UsbOff, null, tint = MaterialTheme.colorScheme.onSecondaryContainer)
             Spacer(Modifier.width(12.dp))
             Text(
-                "The Kobo is unplugged. Showing what was loaded at ${Fmt.time(readAt)}. To refresh, plug it in and tap Connect on the Kobo.",
+                tr("The Kobo is unplugged. Showing what was loaded at {0}. To refresh, plug it in and tap Connect on the Kobo.", Fmt.time(readAt)),
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                 style = MaterialTheme.typography.bodyMedium,
             )

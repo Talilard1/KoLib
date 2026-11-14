@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.saf
 
+import dev.kobolibrary.app.tr
 import android.content.ContentResolver
 import android.database.Cursor
 import android.net.Uri
@@ -60,7 +61,7 @@ class SafTree(private val resolver: ContentResolver, val treeUri: Uri) {
     fun children(docId: String): List<DocEntry> {
         val uri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, docId)
         val cursor = resolver.query(uri, PROJECTION, null, null, null)
-            ?: throw IOException("The drive didn't respond when listing $docId")
+            ?: throw IOException(tr("The drive didn't respond when listing {0}", docId))
         return cursor.use { c ->
             buildList { while (c.moveToNext()) add(c.toEntry()) }
         }
@@ -115,10 +116,10 @@ class SafTree(private val resolver: ContentResolver, val treeUri: Uri) {
     }
 
     fun openInput(docId: String): InputStream =
-        resolver.openInputStream(uriOf(docId)) ?: throw IOException("Could not open $docId for reading")
+        resolver.openInputStream(uriOf(docId)) ?: throw IOException(tr("Could not open {0} for reading", docId))
 
     fun openOutput(docId: String, mode: String = "wt"): OutputStream =
-        resolver.openOutputStream(uriOf(docId), mode) ?: throw IOException("Could not open $docId for writing")
+        resolver.openOutputStream(uriOf(docId), mode) ?: throw IOException(tr("Could not open {0} for writing", docId))
 
     /** Creates a file and returns its document id (the provider may adjust the name if it already exists). */
     fun createFile(parentDocId: String, mimeType: String, name: String): String? =
@@ -149,9 +150,9 @@ class SafTree(private val resolver: ContentResolver, val treeUri: Uri) {
             val existing = child(parent, name)
             parent = when {
                 existing == null -> createFile(parent, Document.MIME_TYPE_DIR, name)
-                    ?: throw IOException("Couldn't create the folder $name on the drive")
+                    ?: throw IOException(tr("Couldn't create the folder {0} on the drive", name))
                 existing.isDirectory -> existing.docId
-                else -> throw IOException("Can't create the folder $name, because a file with that name exists")
+                else -> throw IOException(tr("Can't create the folder {0}, because a file with that name exists", name))
             }
         }
         return parent
@@ -168,17 +169,17 @@ class SafTree(private val resolver: ContentResolver, val treeUri: Uri) {
         val existing = child(parent, name)?.takeIf { !it.isDirectory }
         val id = existing?.docId
             ?: createFile(parent, "application/octet-stream", name)
-            ?: throw IOException("Android couldn't create $name on the drive")
+            ?: throw IOException(tr("Android couldn't create {0} on the drive", name))
         // Some drives quietly rename a new file; the Kobo would then know it by the wrong name.
         if (existing == null) {
             val made = stat(id)?.name
             if (made != null && made != name) {
                 delete(id)
-                throw IOException("The drive renamed $name to $made")
+                throw IOException(tr("The drive renamed {0} to {1}", name, made))
             }
         }
         try {
-            val pfd = resolver.openFileDescriptor(uriOf(id), "wt") ?: throw IOException("Could not open $name for writing")
+            val pfd = resolver.openFileDescriptor(uriOf(id), "wt") ?: throw IOException(tr("Could not open {0} for writing", name))
             ParcelFileDescriptor.AutoCloseOutputStream(pfd).use { out ->
                 source.inputStream().use { input ->
                     val buffer = ByteArray(256 * 1024)
@@ -200,7 +201,7 @@ class SafTree(private val resolver: ContentResolver, val treeUri: Uri) {
         }
         val size = stat(id)?.size
         if (size != null && size > 0 && size != source.length()) {
-            throw IOException("$name was written, but its size on the drive is wrong ($size instead of ${source.length()} bytes)")
+            throw IOException(tr("{0} was written, but its size on the drive is wrong ({1} instead of {2} bytes)", name, size, source.length()))
         }
         return existing != null
     }

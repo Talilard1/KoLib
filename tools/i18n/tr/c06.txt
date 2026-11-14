@@ -1,0 +1,812 @@
+@fr
+575|Collections
+576| · touchez un livre pour voir ses détails
+577|Collection vide
+578|Chaque livre de cette Kobo est dans au moins une collection.
+579|Aucun livre de cette collection n’est sur la Kobo en ce moment.
+580|Connectez votre Kobo
+581|KoLib lit les livres et les collections de votre Kobo par un câble USB-C.
+582|Branchez la Kobo sur cet appareil avec un câble de données USB-C.
+583|Sur l’écran de la Kobo, touchez Connecter.
+584|La première fois seulement : autorisez l’accès au stockage de la Kobo ci-dessous.
+585|Choisir le stockage de la Kobo à la main
+586|Sauvegardes de la base de données ({0})
+587|Journal
+588|Kobo détectée. Touchez Connecter sur l’écran de la Kobo.
+589|En attente de la Kobo…
+590|« {0} » trouvé.
+591|Autoriser l’accès à la Kobo
+592|Android va ouvrir son sélecteur de dossiers sur le stockage de la Kobo. Touchez « Utiliser ce dossier », puis « Autoriser ».
+593|Réessayer
+594|Choisir le stockage
+595|L’appli la trouve automatiquement et la recharge.
+596|La Kobo est branchée. Touchez Connecter sur son écran.
+597|Choisir le stockage à la main
+598|Micrologiciel {0}
+599|Éjecter
+600|Actualiser
+601|Connecter
+602|Plus
+603|Sélectionner des livres
+604|Sauvegarder la base de données maintenant
+605|Vérifier l’accès en écriture
+606|Oublier cette Kobo
+607|Livres
+608|Livres ({0})
+609|Collections ({0})
+610|Appareil
+611|Oublier cette Kobo ?
+612|L’appli perdra son autorisation d’utiliser le stockage de la Kobo. Rien ne change sur la Kobo, et les sauvegardes sur cet appareil ne sont pas supprimées. La prochaine fois, il faudra autoriser l’accès à nouveau.
+613|Oublier
+614|Non connectée. Votre Kobo telle qu’elle était le {0}.
+615|Comment connecter
+616|Enregistrement des collections et des détails des livres sur la Kobo… Attendez la fin avant d’éjecter.
+617|La Kobo est débranchée. Voici ce qui avait été chargé à {0}. Pour actualiser, branchez-la et touchez Connecter sur la Kobo.
+618|Micrologiciel
+619|Numéro de série
+620|ID du modèle
+621|ID USB
+622|Version de la base de données
+623|Stockage
+624|{0} libres sur {1}
+625|Non indiqué par Android
+626|Espace
+627|Espace (à la dernière connexion)
+628|Connectée
+629|Dernière connexion
+630|Sur cette Kobo
+631|Boutique Kobo, non téléchargés
+632|Extraits
+633|Base de données et sauvegardes
+634|Vérification
+635|Vérification…
+636|Pas encore faite
+637|Réussie
+638|Journal d’écriture anticipée
+639|Présent
+640|Aucun
+641|Dernière sauvegarde
+642|Échec : {0}
+643|Faite à la connexion ({0}), {1} une fois zippée
+644|{0} (aucun changement depuis)
+645|Aucune pour l’instant
+646|À chaque connexion où la base de données de la Kobo a changé, une copie zippée est enregistrée sur cet appareil. Les {0} plus récentes sont conservées.
+647|Sauvegarder maintenant
+648|Sauvegardes ({0})
+649|Vérification de l’accès en écriture
+650|Envoyer des livres demande l’accès en écriture à la Kobo. Cette vérification écrit un petit fichier de test masqué sur la Kobo, le relit et le supprime. Rien d’autre ne change.
+651|Diagnostic
+652|Recherche rapide de fichiers
+653|Fonctionne
+654|Non utilisée
+655|Accès direct aux fichiers
+656|Disponible
+657|Non disponible (normal)
+658|Couvertures chargées
+659|Remarques sur la base de données
+660|Rien d’inhabituel
+661|Ouvrir le journal
+662|Éjecter la Kobo
+663|Des livres sont encore en cours d’envoi. Attendez la fin de l’envoi, sinon le livre en cours de copie sera incomplet.
+664|L’appli enregistre les collections et les détails des livres sur la Kobo. Attendez quelques secondes qu’elle ait fini.
+665|Les applis ne peuvent pas éjecter de stockage sur Android, utilisez donc l’option Démonter d’Android :
+666|1. Ouvrez Mes fichiers.
+667|2. Touchez la clé USB, puis ⋮ (en haut à droite) → Démonter.
+668|1. Ouvrez les paramètres de stockage.
+669|2. Trouvez la clé USB et touchez Démonter.
+670|3. Quand le stockage est démonté, débranchez le câble.
+671|Vous pouvez aussi balayer vers le bas depuis le haut de l’écran. La notification de la clé USB a souvent un bouton Démonter.
+672|Ouvrir Mes fichiers
+673|Ouvrir les paramètres de stockage
+674|Fermer
+675|Partager le fichier journal
+676|Copier le journal
+677|Effacer le journal
+678|Le journal est vide
+679|L’activité de l’appli sera enregistrée ici.
+680|Effacer le journal ?
+681|Cela supprime tout le journal, y compris les sessions précédentes.
+682|Partager le journal
+683|Impossible de partager le journal : {0}
+684|Journal de KoLib
+685|Journal copié.
+686|Effacer les filtres
+687|Plus d’options
+688|Rechercher dans {0}
+689|Lecture des étiquettes des fichiers : {0} sur {1}
+@de
+575|Sammlungen
+576| · tippe auf ein Buch, um seine Details zu sehen
+577|Leere Sammlung
+578|Jedes Buch auf diesem Kobo ist in mindestens einer Sammlung.
+579|Keines der Bücher dieser Sammlung ist gerade auf dem Kobo.
+580|Kobo verbinden
+581|KoLib liest die Bücher und Sammlungen deines Kobo über ein USB-C-Kabel.
+582|Schließe den Kobo mit einem USB-C-Datenkabel an dieses Gerät an.
+583|Tippe auf dem Bildschirm des Kobo auf „Verbinden“.
+584|Nur beim ersten Mal: Erlaube unten den Zugriff auf das Laufwerk des Kobo.
+585|Laufwerk des Kobo selbst wählen
+586|Datenbanksicherungen ({0})
+587|Protokoll
+588|Kobo erkannt. Tippe auf dem Bildschirm des Kobo auf „Verbinden“.
+589|Warte auf den Kobo…
+590|„{0}“ gefunden.
+591|Zugriff auf den Kobo erlauben
+592|Android öffnet die Ordnerauswahl auf dem Laufwerk des Kobo. Tippe auf „Diesen Ordner verwenden“ und dann auf „Zulassen“.
+593|Erneut versuchen
+594|Laufwerk wählen
+595|Die App findet ihn automatisch und lädt ihn neu.
+596|Der Kobo ist angeschlossen. Tippe auf seinem Bildschirm auf „Verbinden“.
+597|Laufwerk selbst wählen
+598|Firmware {0}
+599|Auswerfen
+600|Aktualisieren
+601|Verbinden
+602|Mehr
+603|Bücher auswählen
+604|Datenbank jetzt sichern
+605|Schreibzugriff prüfen
+606|Diesen Kobo vergessen
+607|Bücher
+608|Bücher ({0})
+609|Sammlungen ({0})
+610|Gerät
+611|Diesen Kobo vergessen?
+612|Die App verliert ihre Berechtigung für das Laufwerk des Kobo. Auf dem Kobo ändert sich nichts, und Sicherungen auf diesem Gerät werden nicht gelöscht. Beim nächsten Mal musst du den Zugriff wieder erlauben.
+613|Vergessen
+614|Nicht verbunden. Dein Kobo, wie er am {0} war.
+615|So verbindest du ihn
+616|Sammlungen und Buchdetails werden auf dem Kobo gespeichert… Warte damit, bis es fertig ist, bevor du auswirfst.
+617|Der Kobo ist nicht angeschlossen. Angezeigt wird, was um {0} geladen wurde. Zum Aktualisieren schließe ihn an und tippe auf dem Kobo auf „Verbinden“.
+618|Firmware
+619|Seriennummer
+620|Modell-ID
+621|USB-ID
+622|Datenbankversion
+623|Laufwerk
+624|{0} von {1} frei
+625|Von Android nicht angegeben
+626|Speicher
+627|Speicher (beim letzten Verbinden)
+628|Verbunden
+629|Zuletzt verbunden
+630|Auf diesem Kobo
+631|Kobo Store, nicht heruntergeladen
+632|Leseproben
+633|Datenbank und Sicherungen
+634|Prüfung
+635|Wird geprüft…
+636|Nicht ausgeführt
+637|Bestanden
+638|Write-Ahead-Log
+639|Vorhanden
+640|Keines
+641|Neueste Sicherung
+642|Fehlgeschlagen: {0}
+643|Beim Verbinden erstellt ({0}), gezippt {1}
+644|{0} (seitdem keine Änderungen)
+645|Noch keine
+646|Wann immer du verbindest und sich die Datenbank des Kobo geändert hat, wird eine gezippte Kopie auf diesem Gerät gespeichert. Die neuesten {0} werden behalten.
+647|Jetzt sichern
+648|Sicherungen ({0})
+649|Prüfung des Schreibzugriffs
+650|Zum Senden von Büchern braucht die App Schreibzugriff auf den Kobo. Diese Prüfung schreibt eine kleine versteckte Testdatei auf den Kobo, liest sie zurück und löscht sie. Sonst ändert sich nichts.
+651|Diagnose
+652|Schnelle Dateisuche
+653|Funktioniert
+654|Nicht verwendet
+655|Direkter Dateizugriff
+656|Verfügbar
+657|Nicht verfügbar (normal)
+658|Geladene Cover
+659|Hinweise zur Datenbank
+660|Nichts Ungewöhnliches
+661|Protokoll öffnen
+662|Kobo auswerfen
+663|Es werden noch Bücher gesendet. Warte, bis das Senden fertig ist, sonst ist das gerade kopierte Buch unvollständig.
+664|Die App speichert Sammlungen und Buchdetails auf dem Kobo. Warte ein paar Sekunden, bis sie fertig ist.
+665|Apps können unter Android keine Laufwerke auswerfen, nutze also die Option „Auswerfen“ von Android:
+666|1. Öffne „Eigene Dateien“.
+667|2. Tippe auf das USB-Laufwerk, dann auf ⋮ (oben rechts) → Auswerfen.
+668|1. Öffne die Speichereinstellungen.
+669|2. Suche das USB-Laufwerk und tippe auf „Auswerfen“.
+670|3. Sobald das Laufwerk als ausgeworfen angezeigt wird, zieh das Kabel ab.
+671|Du kannst auch vom oberen Bildschirmrand nach unten wischen. Die Benachrichtigung des USB-Laufwerks hat oft eine Schaltfläche zum Auswerfen.
+672|„Eigene Dateien“ öffnen
+673|Speichereinstellungen öffnen
+674|Schließen
+675|Protokolldatei teilen
+676|Protokoll kopieren
+677|Protokoll löschen
+678|Das Protokoll ist leer
+679|Was die App tut, wird hier aufgezeichnet.
+680|Protokoll löschen?
+681|Damit wird das ganze Protokoll gelöscht, auch frühere Sitzungen.
+682|Protokoll teilen
+683|Das Protokoll konnte nicht geteilt werden: {0}
+684|KoLib-Protokoll
+685|Protokoll kopiert.
+686|Filter löschen
+687|Weitere Optionen
+688|{0} durchsuchen
+689|Schlagwörter werden aus den Buchdateien gelesen: {0} von {1}
+@es
+575|Colecciones
+576| · toca un libro para ver sus detalles
+577|Colección vacía
+578|Todos los libros de este Kobo están en al menos una colección.
+579|Ninguno de los libros de esta colección está ahora en el Kobo.
+580|Conecta tu Kobo
+581|KoLib lee los libros y las colecciones de tu Kobo por un cable USB-C.
+582|Conecta el Kobo a este dispositivo con un cable de datos USB-C.
+583|En la pantalla del Kobo, toca Conectar.
+584|Solo la primera vez: permite el acceso a la unidad del Kobo abajo.
+585|Elegir la unidad del Kobo a mano
+586|Copias de seguridad de la base de datos ({0})
+587|Registro
+588|Kobo detectado. Toca Conectar en la pantalla del Kobo.
+589|Esperando al Kobo…
+590|Se ha encontrado «{0}».
+591|Permitir el acceso al Kobo
+592|Android abrirá su selector de carpetas en la unidad del Kobo. Toca «Usar esta carpeta» y luego «Permitir».
+593|Reintentar
+594|Elegir unidad
+595|La app lo encuentra sola y lo vuelve a cargar.
+596|El Kobo está conectado. Toca Conectar en su pantalla.
+597|Elegir la unidad a mano
+598|Firmware {0}
+599|Expulsar
+600|Actualizar
+601|Conectar
+602|Más
+603|Seleccionar libros
+604|Hacer copia de seguridad ahora
+605|Comprobar el acceso de escritura
+606|Olvidar este Kobo
+607|Libros
+608|Libros ({0})
+609|Colecciones ({0})
+610|Dispositivo
+611|¿Olvidar este Kobo?
+612|La app perderá el permiso para usar la unidad del Kobo. No cambia nada en el Kobo, y las copias de seguridad de este dispositivo no se eliminan. La próxima vez tendrás que volver a permitir el acceso.
+613|Olvidar
+614|No conectado. Se muestra tu Kobo como estaba el {0}.
+615|Cómo conectarlo
+616|Guardando colecciones y detalles de los libros en el Kobo… Espera a que termine antes de expulsarlo.
+617|El Kobo está desconectado. Se muestra lo que se cargó a las {0}. Para actualizar, conéctalo y toca Conectar en el Kobo.
+618|Firmware
+619|Número de serie
+620|ID del modelo
+621|ID de USB
+622|Versión de la base de datos
+623|Unidad
+624|{0} libres de {1}
+625|Android no lo indica
+626|Almacenamiento
+627|Almacenamiento (la última vez que se conectó)
+628|Conectado
+629|Última conexión
+630|En este Kobo
+631|Tienda Kobo, sin descargar
+632|Muestras
+633|Base de datos y copias de seguridad
+634|Comprobación
+635|Comprobando…
+636|Sin hacer
+637|Superada
+638|Registro de escritura anticipada
+639|Presente
+640|Ninguno
+641|Última copia de seguridad
+642|Ha fallado: {0}
+643|Hecha al conectar ({0}), {1} comprimida
+644|{0} (sin cambios desde entonces)
+645|Ninguna todavía
+646|Cada vez que conectas y la base de datos del Kobo ha cambiado, se guarda una copia comprimida en este dispositivo. Se conservan las {0} más recientes.
+647|Hacer copia ahora
+648|Copias de seguridad ({0})
+649|Comprobación del acceso de escritura
+650|Para enviar libros hace falta acceso de escritura al Kobo. Esta comprobación escribe un pequeño archivo de prueba oculto en el Kobo, lo vuelve a leer y lo elimina. No cambia nada más.
+651|Diagnóstico
+652|Búsqueda rápida de archivos
+653|Funciona
+654|No se usa
+655|Acceso directo a archivos
+656|Disponible
+657|No disponible (normal)
+658|Portadas cargadas
+659|Notas de la base de datos
+660|Nada fuera de lo normal
+661|Abrir el registro
+662|Expulsar el Kobo
+663|Todavía se están enviando libros. Espera a que termine el envío, o el libro que se está copiando quedará incompleto.
+664|La app está guardando colecciones y detalles de los libros en el Kobo. Espera unos segundos a que termine.
+665|En Android las apps no pueden expulsar unidades, así que usa la opción Desmontar de Android:
+666|1. Abre Mis archivos.
+667|2. Toca la unidad USB y luego ⋮ (arriba a la derecha) → Desmontar.
+668|1. Abre los ajustes de almacenamiento.
+669|2. Busca la unidad USB y toca Desmontar.
+670|3. Cuando indique que la unidad está desmontada, desconecta el cable.
+671|También puedes deslizar hacia abajo desde la parte superior de la pantalla. La notificación de la unidad USB suele tener un botón Desmontar.
+672|Abrir Mis archivos
+673|Abrir los ajustes de almacenamiento
+674|Cerrar
+675|Compartir el archivo de registro
+676|Copiar el registro
+677|Borrar el registro
+678|El registro está vacío
+679|Aquí se registrará lo que hace la app.
+680|¿Borrar el registro?
+681|Se borrará todo el registro, incluidas las sesiones anteriores.
+682|Compartir el registro
+683|No se ha podido compartir el registro: {0}
+684|Registro de KoLib
+685|Registro copiado.
+686|Borrar filtros
+687|Más opciones
+688|Buscar en {0}
+689|Leyendo etiquetas de los archivos: {0} de {1}
+@it
+575|Raccolte
+576| · tocca un libro per vederne i dettagli
+577|Raccolta vuota
+578|Ogni libro su questo Kobo è in almeno una raccolta.
+579|Nessuno dei libri di questa raccolta è sul Kobo in questo momento.
+580|Collega il tuo Kobo
+581|KoLib legge i libri e le raccolte del tuo Kobo tramite un cavo USB-C.
+582|Collega il Kobo a questo dispositivo con un cavo dati USB-C.
+583|Sullo schermo del Kobo, tocca Connetti.
+584|Solo la prima volta: consenti qui sotto l’accesso all’unità del Kobo.
+585|Scegli l’unità del Kobo a mano
+586|Backup del database ({0})
+587|Registro
+588|Kobo rilevato. Tocca Connetti sullo schermo del Kobo.
+589|In attesa del Kobo…
+590|Trovato «{0}».
+591|Consenti l’accesso al Kobo
+592|Android aprirà il selettore di cartelle sull’unità del Kobo. Tocca «Usa questa cartella», poi «Consenti».
+593|Riprova
+594|Scegli unità
+595|L’app lo trova da sola e lo ricarica.
+596|Il Kobo è collegato. Tocca Connetti sul suo schermo.
+597|Scegli l’unità a mano
+598|Firmware {0}
+599|Espelli
+600|Aggiorna
+601|Connetti
+602|Altro
+603|Seleziona libri
+604|Esegui ora il backup del database
+605|Controlla l’accesso in scrittura
+606|Dimentica questo Kobo
+607|Libri
+608|Libri ({0})
+609|Raccolte ({0})
+610|Dispositivo
+611|Dimenticare questo Kobo?
+612|L’app perderà il permesso di usare l’unità del Kobo. Sul Kobo non cambia nulla e i backup su questo dispositivo non vengono eliminati. La prossima volta dovrai consentire di nuovo l’accesso.
+613|Dimentica
+614|Non collegato. Il tuo Kobo com’era il {0}.
+615|Come collegarlo
+616|Salvataggio di raccolte e dettagli dei libri sul Kobo… Attendi che finisca prima di espellerlo.
+617|Il Kobo è scollegato. Viene mostrato ciò che era stato caricato alle {0}. Per aggiornare, collegalo e tocca Connetti sul Kobo.
+618|Firmware
+619|Numero di serie
+620|ID modello
+621|ID USB
+622|Versione del database
+623|Unità
+624|{0} liberi su {1}
+625|Non indicato da Android
+626|Memoria
+627|Memoria (all’ultimo collegamento)
+628|Collegato
+629|Ultimo collegamento
+630|Su questo Kobo
+631|Kobo Store, non scaricati
+632|Anteprime
+633|Database e backup
+634|Controllo
+635|Controllo in corso…
+636|Non eseguito
+637|Superato
+638|Registro write-ahead
+639|Presente
+640|Nessuno
+641|Ultimo backup
+642|Non riuscito: {0}
+643|Fatto al collegamento ({0}), {1} compresso
+644|{0} (nessuna modifica da allora)
+645|Ancora nessuno
+646|Ogni volta che colleghi il Kobo e il suo database è cambiato, su questo dispositivo viene salvata una copia compressa. Vengono conservati i {0} più recenti.
+647|Esegui ora il backup
+648|Backup ({0})
+649|Controllo dell’accesso in scrittura
+650|Per inviare libri serve l’accesso in scrittura al Kobo. Questo controllo scrive un piccolo file di prova nascosto sul Kobo, lo rilegge e lo elimina. Nient’altro cambia.
+651|Diagnostica
+652|Ricerca rapida dei file
+653|Funziona
+654|Non usata
+655|Accesso diretto ai file
+656|Disponibile
+657|Non disponibile (normale)
+658|Copertine caricate
+659|Note sul database
+660|Niente di insolito
+661|Apri il registro
+662|Espelli il Kobo
+663|Alcuni libri sono ancora in invio. Attendi che l’invio finisca, altrimenti il libro in copia sarà incompleto.
+664|L’app sta salvando raccolte e dettagli dei libri sul Kobo. Attendi qualche secondo che finisca.
+665|Su Android le app non possono espellere le unità, quindi usa l’opzione Smonta di Android:
+666|1. Apri Archivio.
+667|2. Tocca l’unità USB, poi ⋮ (in alto a destra) → Smonta.
+668|1. Apri le impostazioni della memoria.
+669|2. Trova l’unità USB e tocca Smonta.
+670|3. Quando l’unità risulta smontata, scollega il cavo.
+671|Puoi anche scorrere verso il basso dalla parte alta dello schermo. La notifica dell’unità USB ha spesso un pulsante Smonta.
+672|Apri Archivio
+673|Apri le impostazioni della memoria
+674|Chiudi
+675|Condividi il file di registro
+676|Copia il registro
+677|Cancella il registro
+678|Il registro è vuoto
+679|Qui verrà registrata l’attività dell’app.
+680|Cancellare il registro?
+681|Viene cancellato tutto il registro, comprese le sessioni precedenti.
+682|Condividi il registro
+683|Impossibile condividere il registro: {0}
+684|Registro di KoLib
+685|Registro copiato.
+686|Cancella filtri
+687|Altre opzioni
+688|Cerca in {0}
+689|Lettura dei tag dai file: {0} di {1}
+@nl
+575|Collecties
+576| · tik op een boek om de gegevens te zien
+577|Lege collectie
+578|Elk boek op deze Kobo staat in minstens één collectie.
+579|Geen van de boeken in deze collectie staat nu op de Kobo.
+580|Je Kobo verbinden
+581|KoLib leest de boeken en collecties van je Kobo via een USB-C-kabel.
+582|Sluit de Kobo met een USB-C-datakabel aan op dit apparaat.
+583|Tik op het scherm van de Kobo op Verbinden.
+584|Alleen de eerste keer: geef hieronder toegang tot de schijf van de Kobo.
+585|Schijf van de Kobo zelf kiezen
+586|Databaseback-ups ({0})
+587|Logboek
+588|Kobo gevonden. Tik op het scherm van de Kobo op Verbinden.
+589|Wachten op de Kobo…
+590|‘{0}’ gevonden.
+591|Toegang tot de Kobo geven
+592|Android opent de mapkiezer op de schijf van de Kobo. Tik op ‘Deze map gebruiken’ en daarna op ‘Toestaan’.
+593|Opnieuw proberen
+594|Schijf kiezen
+595|De app vindt hem automatisch en laadt hem opnieuw.
+596|De Kobo is aangesloten. Tik op het scherm op Verbinden.
+597|Schijf zelf kiezen
+598|Firmware {0}
+599|Uitwerpen
+600|Vernieuwen
+601|Verbinden
+602|Meer
+603|Boeken selecteren
+604|Nu een back-up van de database maken
+605|Schrijftoegang controleren
+606|Deze Kobo vergeten
+607|Boeken
+608|Boeken ({0})
+609|Collecties ({0})
+610|Apparaat
+611|Deze Kobo vergeten?
+612|De app verliest zijn toestemming om de schijf van de Kobo te gebruiken. Op de Kobo verandert niets, en back-ups op dit apparaat worden niet verwijderd. De volgende keer moet je opnieuw toegang geven.
+613|Vergeten
+614|Niet verbonden. Je Kobo zoals hij was op {0}.
+615|Zo verbind je hem
+616|Collecties en boekgegevens worden op de Kobo opgeslagen… Wacht tot dit klaar is voordat je hem uitwerpt.
+617|De Kobo is losgekoppeld. Je ziet wat er om {0} was geladen. Sluit hem aan en tik op de Kobo op Verbinden om te vernieuwen.
+618|Firmware
+619|Serienummer
+620|Model-ID
+621|USB-ID
+622|Databaseversie
+623|Schijf
+624|{0} vrij van {1}
+625|Niet doorgegeven door Android
+626|Opslag
+627|Opslag (bij de laatste verbinding)
+628|Verbonden
+629|Laatst verbonden
+630|Op deze Kobo
+631|Kobo Store, niet gedownload
+632|Voorproefjes
+633|Database en back-ups
+634|Controle
+635|Controleren…
+636|Niet uitgevoerd
+637|Geslaagd
+638|Write-ahead-logboek
+639|Aanwezig
+640|Geen
+641|Laatste back-up
+642|Mislukt: {0}
+643|Gemaakt bij het verbinden ({0}), {1} gezipt
+644|{0} (sindsdien niets veranderd)
+645|Nog geen
+646|Telkens als je verbinding maakt en de database van de Kobo is veranderd, wordt een gezipte kopie op dit apparaat opgeslagen. De nieuwste {0} worden bewaard.
+647|Nu back-up maken
+648|Back-ups ({0})
+649|Controle van schrijftoegang
+650|Om boeken te versturen is schrijftoegang tot de Kobo nodig. Deze controle schrijft een klein verborgen testbestand naar de Kobo, leest het terug en verwijdert het. Verder verandert er niets.
+651|Diagnose
+652|Snel bestanden opzoeken
+653|Werkt
+654|Niet gebruikt
+655|Directe toegang tot bestanden
+656|Beschikbaar
+657|Niet beschikbaar (normaal)
+658|Geladen omslagen
+659|Opmerkingen over de database
+660|Niets ongewoons
+661|Logboek openen
+662|De Kobo uitwerpen
+663|Er worden nog boeken verstuurd. Wacht tot het versturen klaar is, anders is het boek dat wordt gekopieerd onvolledig.
+664|De app slaat collecties en boekgegevens op de Kobo op. Wacht een paar seconden tot hij klaar is.
+665|Apps kunnen op Android geen schijven uitwerpen, dus gebruik de optie Ontkoppelen van Android:
+666|1. Open Mijn bestanden.
+667|2. Tik op de USB-schijf en dan op ⋮ (rechtsboven) → Ontkoppelen.
+668|1. Open de opslaginstellingen.
+669|2. Zoek de USB-schijf en tik op Ontkoppelen.
+670|3. Als de schijf ontkoppeld is, haal je de kabel eruit.
+671|Je kunt ook vanaf de bovenkant van het scherm omlaag vegen. De melding van de USB-schijf heeft vaak een knop Ontkoppelen.
+672|Mijn bestanden openen
+673|Opslaginstellingen openen
+674|Sluiten
+675|Logbestand delen
+676|Logboek kopiëren
+677|Logboek wissen
+678|Het logboek is leeg
+679|Wat de app doet, wordt hier bijgehouden.
+680|Logboek wissen?
+681|Hiermee wordt het hele logboek gewist, ook eerdere sessies.
+682|Logboek delen
+683|Kon het logboek niet delen: {0}
+684|KoLib-logboek
+685|Logboek gekopieerd.
+686|Filters wissen
+687|Meer opties
+688|Zoeken in {0}
+689|Labels lezen uit de boekbestanden: {0} van {1}
+@pt
+575|Coleções
+576| · toque em um livro para ver os detalhes
+577|Coleção vazia
+578|Todos os livros deste Kobo estão em pelo menos uma coleção.
+579|Nenhum dos livros desta coleção está no Kobo agora.
+580|Conecte seu Kobo
+581|O KoLib lê os livros e as coleções do seu Kobo por um cabo USB-C.
+582|Conecte o Kobo a este dispositivo com um cabo de dados USB-C.
+583|Na tela do Kobo, toque em Conectar.
+584|Só na primeira vez: permita o acesso à unidade do Kobo abaixo.
+585|Escolher a unidade do Kobo manualmente
+586|Backups do banco de dados ({0})
+587|Registro
+588|Kobo detectado. Toque em Conectar na tela do Kobo.
+589|Aguardando o Kobo…
+590|“{0}” encontrado.
+591|Permitir acesso ao Kobo
+592|O Android vai abrir o seletor de pastas na unidade do Kobo. Toque em “Usar esta pasta” e depois em “Permitir”.
+593|Tentar de novo
+594|Escolher unidade
+595|O app o encontra sozinho e o carrega de novo.
+596|O Kobo está conectado. Toque em Conectar na tela dele.
+597|Escolher a unidade manualmente
+598|Firmware {0}
+599|Ejetar
+600|Atualizar
+601|Conectar
+602|Mais
+603|Selecionar livros
+604|Fazer backup do banco de dados agora
+605|Verificar acesso de gravação
+606|Esquecer este Kobo
+607|Livros
+608|Livros ({0})
+609|Coleções ({0})
+610|Dispositivo
+611|Esquecer este Kobo?
+612|O app vai perder a permissão de usar a unidade do Kobo. Nada muda no Kobo, e os backups neste dispositivo não são excluídos. Da próxima vez, você vai precisar permitir o acesso de novo.
+613|Esquecer
+614|Desconectado. Mostrando seu Kobo como estava em {0}.
+615|Como conectar
+616|Salvando coleções e detalhes dos livros no Kobo… Espere terminar antes de ejetar.
+617|O Kobo está desconectado. Mostrando o que foi carregado às {0}. Para atualizar, conecte-o e toque em Conectar no Kobo.
+618|Firmware
+619|Número de série
+620|ID do modelo
+621|ID USB
+622|Versão do banco de dados
+623|Unidade
+624|{0} livres de {1}
+625|Não informado pelo Android
+626|Armazenamento
+627|Armazenamento (na última conexão)
+628|Conectado
+629|Última conexão
+630|Neste Kobo
+631|Loja Kobo, não baixados
+632|Amostras
+633|Banco de dados e backups
+634|Verificação
+635|Verificando…
+636|Não feita
+637|Aprovada
+638|Log de gravação antecipada
+639|Presente
+640|Nenhum
+641|Último backup
+642|Falhou: {0}
+643|Feito ao conectar ({0}), {1} compactado
+644|{0} (sem mudanças desde então)
+645|Nenhum ainda
+646|Sempre que você conecta e o banco de dados do Kobo mudou, uma cópia compactada é salva neste dispositivo. Os {0} mais recentes são mantidos.
+647|Fazer backup agora
+648|Backups ({0})
+649|Verificação do acesso de gravação
+650|Para enviar livros é preciso acesso de gravação ao Kobo. Esta verificação grava um pequeno arquivo de teste oculto no Kobo, lê de volta e o exclui. Nada mais muda.
+651|Diagnóstico
+652|Busca rápida de arquivos
+653|Funcionando
+654|Não usada
+655|Acesso direto aos arquivos
+656|Disponível
+657|Não disponível (normal)
+658|Capas carregadas
+659|Observações do banco de dados
+660|Nada fora do normal
+661|Abrir o registro
+662|Ejetar o Kobo
+663|Ainda há livros sendo enviados. Espere o envio terminar, senão o livro que está sendo copiado vai ficar incompleto.
+664|O app está salvando coleções e detalhes dos livros no Kobo. Espere alguns segundos até terminar.
+665|No Android, os apps não podem ejetar unidades, então use a opção Desmontar do Android:
+666|1. Abra Meus arquivos.
+667|2. Toque na unidade USB e depois em ⋮ (canto superior direito) → Desmontar.
+668|1. Abra as configurações de armazenamento.
+669|2. Encontre a unidade USB e toque em Desmontar.
+670|3. Quando aparecer que a unidade foi desmontada, desconecte o cabo.
+671|Você também pode deslizar para baixo a partir do topo da tela. A notificação da unidade USB costuma ter um botão Desmontar.
+672|Abrir Meus arquivos
+673|Abrir as configurações de armazenamento
+674|Fechar
+675|Compartilhar o arquivo de registro
+676|Copiar o registro
+677|Limpar o registro
+678|O registro está vazio
+679|A atividade do app será registrada aqui.
+680|Limpar o registro?
+681|Isso apaga todo o registro, inclusive as sessões anteriores.
+682|Compartilhar o registro
+683|Não foi possível compartilhar o registro: {0}
+684|Registro do KoLib
+685|Registro copiado.
+686|Limpar filtros
+687|Mais opções
+688|Pesquisar {0}
+689|Lendo tags dos arquivos dos livros: {0} de {1}
+@ja
+575|コレクション
+576| · 本をタップすると詳細が表示されます
+577|空のコレクション
+578|この Kobo の本はすべて、どれかのコレクションに入っています。
+579|このコレクションの本は、今は Kobo に 1 冊もありません。
+580|Kobo を接続する
+581|KoLib は USB-C ケーブルで Kobo の本とコレクションを読み込みます。
+582|USB-C データケーブルで Kobo をこの端末につなぎます。
+583|Kobo の画面で「接続」をタップします。
+584|初回のみ: 下のボタンから Kobo のドライブへのアクセスを許可します。
+585|Kobo のドライブを手動で選ぶ
+586|データベースのバックアップ（{0}）
+587|ログ
+588|Kobo が見つかりました。Kobo の画面で「接続」をタップしてください。
+589|Kobo を待っています…
+590|「{0}」が見つかりました。
+591|Kobo へのアクセスを許可
+592|Android のフォルダ選択画面が Kobo のドライブで開きます。「このフォルダを使用」をタップしてから「許可」をタップしてください。
+593|再試行
+594|ドライブを選ぶ
+595|アプリが自動で見つけて、もう一度読み込みます。
+596|Kobo がつながっています。Kobo の画面で「接続」をタップしてください。
+597|ドライブを手動で選ぶ
+598|ファームウェア {0}
+599|取り出す
+600|更新
+601|接続
+602|その他
+603|本を選択
+604|今すぐデータベースをバックアップ
+605|書き込みアクセスを確認
+606|この Kobo を削除
+607|本
+608|本（{0}）
+609|コレクション（{0}）
+610|端末
+611|この Kobo を削除しますか？
+612|アプリが Kobo のドライブを使う許可がなくなります。Kobo では何も変わらず、この端末のバックアップも削除されません。次回はもう一度アクセスを許可する必要があります。
+613|削除
+614|接続されていません。{0} 時点の Kobo を表示しています。
+615|接続のしかた
+616|コレクションと本の情報を Kobo に保存しています… 終わるまで取り出さないでください。
+617|Kobo が外されています。{0} に読み込んだ内容を表示しています。更新するには、Kobo をつないで「接続」をタップしてください。
+618|ファームウェア
+619|シリアル番号
+620|モデル ID
+621|USB ID
+622|データベースのバージョン
+623|ドライブ
+624|{1} 中 {0} の空き
+625|Android からの情報なし
+626|ストレージ
+627|ストレージ（前回接続時）
+628|接続日時
+629|前回の接続
+630|この Kobo に
+631|Kobo ストア（未ダウンロード）
+632|試し読み
+633|データベースとバックアップ
+634|チェック
+635|確認しています…
+636|未実行
+637|合格
+638|先行書き込みログ
+639|あり
+640|なし
+641|最新のバックアップ
+642|失敗しました: {0}
+643|接続時に作成（{0}）、zip で {1}
+644|{0}（それ以降変更なし）
+645|まだありません
+646|接続したときに Kobo のデータベースが変わっていれば、zip にしたコピーをこの端末に保存します。新しいものから {0} 件を残します。
+647|今すぐバックアップ
+648|バックアップ（{0}）
+649|書き込みアクセスの確認
+650|本を送るには Kobo への書き込みアクセスが必要です。この確認では、小さな非表示のテストファイルを Kobo に書き込み、読み戻してから削除します。ほかには何も変わりません。
+651|診断
+652|ファイルのすばやい検索
+653|動作中
+654|使用していません
+655|ファイルへの直接アクセス
+656|利用可能
+657|利用不可（通常どおり）
+658|読み込んだ表紙
+659|データベースに関するメモ
+660|特に問題なし
+661|ログを開く
+662|Kobo を取り出す
+663|まだ本を送信しています。送信が終わるまで待ってください。途中で取り出すと、コピー中の本が不完全になります。
+664|コレクションと本の情報を Kobo に保存しています。数秒お待ちください。
+665|Android ではアプリからドライブを取り出せないため、Android の「マウント解除」を使ってください:
+666|1. マイファイルを開きます。
+667|2. USB ドライブをタップし、⋮（右上）→「マウント解除」をタップします。
+668|1. ストレージの設定を開きます。
+669|2. USB ドライブを見つけて「マウント解除」をタップします。
+670|3. マウント解除されたと表示されたら、ケーブルを抜きます。
+671|画面の上端から下にスワイプする方法もあります。USB ドライブの通知に「マウント解除」ボタンがあることがよくあります。
+672|マイファイルを開く
+673|ストレージの設定を開く
+674|閉じる
+675|ログファイルを共有
+676|ログをコピー
+677|ログを消去
+678|ログは空です
+679|アプリの動作がここに記録されます。
+680|ログを消去しますか？
+681|以前のセッションも含め、ログをすべて削除します。
+682|ログを共有
+683|ログを共有できませんでした: {0}
+684|KoLib のログ
+685|ログをコピーしました。
+686|絞り込みを解除
+687|その他のオプション
+688|{0} を検索
+689|本のファイルからタグを読み込んでいます: {0}/{1}

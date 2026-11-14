@@ -2,6 +2,7 @@
 
 package dev.kobolibrary.app.ui.library
 
+import dev.kobolibrary.app.tr
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -214,41 +215,41 @@ fun LibraryScreen(
             TopAppBar(
                 title = {
                     Column {
-                        Text("Library")
+                        Text(tr("Library"))
                         Text(
-                            Fmt.plural(books.size, "book") + " on this device",
+                            if (books.size == 1) tr("1 book on this device") else tr("{0} books on this device", books.size),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 },
                 actions = {
-                    IconButton(onClick = onAbout) { Icon(Icons.Outlined.Info, "About and licences") }
+                    IconButton(onClick = onAbout) { Icon(Icons.Outlined.Info, tr("About and licences")) }
                     Box {
                         GoldButton(onClick = { addMenu = true }) {
                             Icon(Icons.Filled.Add, null, Modifier.size(18.dp))
                             Spacer(Modifier.width(8.dp))
-                            Text("Add books")
+                            Text(tr("Add books"))
                         }
                         DropdownMenu(expanded = addMenu, onDismissRequest = { addMenu = false }) {
                             DropdownMenuItem(
-                                text = { Text("Files from this device") },
+                                text = { Text(tr("Files from this device")) },
                                 leadingIcon = { Icon(Icons.Outlined.FileOpen, null) },
                                 onClick = { addMenu = false; onAddFiles() },
                             )
                             DropdownMenuItem(
-                                text = { Text("A folder of books") },
+                                text = { Text(tr("A folder of books")) },
                                 leadingIcon = { Icon(Icons.Outlined.FolderOpen, null) },
                                 onClick = { addMenu = false; onAddFolder() },
                             )
                             DropdownMenuItem(
-                                text = { Text(if (koboConnected) "Books from the Kobo" else "Books from the Kobo (connect it first)") },
+                                text = { Text(if (koboConnected) tr("Books from the Kobo") else tr("Books from the Kobo (connect it first)")) },
                                 leadingIcon = { Icon(Icons.Outlined.Usb, null) },
                                 onClick = { addMenu = false; onAddFromKobo() },
                             )
                             HorizontalDivider()
                             DropdownMenuItem(
-                                text = { Text("Write a new book") },
+                                text = { Text(tr("Write a new book")) },
                                 leadingIcon = { Icon(Icons.AutoMirrored.Outlined.NoteAdd, null) },
                                 onClick = { addMenu = false; onNewBook() },
                             )
@@ -304,7 +305,7 @@ fun LibraryScreen(
                         Box(Modifier.weight(1f).fillMaxHeight()) {
                             if (selected != null && !browse.selecting) detail(selected, null)
                             else if (browse.selecting) SelectionHelp(browse.picked.size)
-                            else EmptyState(Icons.Outlined.AutoStories, "Tap a book", "Its details will show here. To work with several books at once, tap Select, or press and hold a book.")
+                            else EmptyState(Icons.Outlined.AutoStories, tr("Tap a book"), tr("Its details will show here. To work with several books at once, tap Select, or press and hold a book."))
                         }
                     }
                 } else if (selected != null && !browse.selecting) {
@@ -325,8 +326,8 @@ private val SelectionButtonPadding = PaddingValues(start = 10.dp, end = 14.dp, t
 private fun SelectionHelp(count: Int) {
     EmptyState(
         Icons.Outlined.Checklist,
-        if (count == 0) "Select books" else "${Fmt.plural(count, "book")} selected",
-        "Tap books to select or deselect them. Then use the buttons above the list to send, save, duplicate, combine or remove them.",
+        if (count == 0) tr("Select books") else if (count == 1) tr("1 book selected") else tr("{0} books selected", count),
+        tr("Tap books to select or deselect them. Then use the buttons above the list to send, save, duplicate, combine or remove them."),
     )
 }
 
@@ -335,7 +336,7 @@ internal fun JobStrip(p: JobProgress, onShow: () -> Unit) {
     Surface(color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.fillMaxWidth().clickable(onClick = onShow)) {
         Column(Modifier.padding(horizontal = 20.dp, vertical = 10.dp)) {
             Text(
-                "${p.title}: ${p.done} of ${p.total}" + (p.current?.let { " · $it" } ?: ""),
+                tr("{0}: {1} of {2}", p.title, p.done, p.total) + (p.current?.let { " · $it" } ?: ""),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 maxLines = 1,
@@ -353,11 +354,10 @@ internal fun EmptyLibrary(koboConnected: Boolean, onAddFiles: () -> Unit, onAddF
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.widthIn(max = 520.dp)) {
             KoLibMark(Modifier.size(84.dp), glow = true)
             Spacer(Modifier.height(16.dp))
-            Text("Your library is empty", style = MaterialTheme.typography.headlineSmall)
+            Text(tr("Your library is empty"), style = MaterialTheme.typography.headlineSmall)
             Spacer(Modifier.height(8.dp))
             Text(
-                "Add books from your Kobo, or files from this device: EPUBs, PDFs, MOBIs, Word files and more. Then you can edit their details and covers here. " +
-                    "Books from the Kobo come with their collections.",
+                tr("Add books from your Kobo, or files from this device: EPUBs, PDFs, MOBIs, Word files and more. Then you can edit their details and covers here. Books from the Kobo come with their collections."),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -367,14 +367,14 @@ internal fun EmptyLibrary(koboConnected: Boolean, onAddFiles: () -> Unit, onAddF
                 GoldButton(onClick = onAddFromKobo, modifier = if (phoneLayout()) Modifier.fillMaxWidth().height(48.dp) else Modifier) {
                     Icon(Icons.Outlined.Usb, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text(if (koboConnected) "Add from Kobo" else "Connect Kobo")
+                    Text(if (koboConnected) tr("Add from Kobo") else tr("Connect Kobo"))
                 }
             }
             val fromFiles: @Composable () -> Unit = {
                 OutlinedButton(onClick = onAddFiles, modifier = if (phoneLayout()) Modifier.fillMaxWidth().height(48.dp) else Modifier) {
                     Icon(Icons.Outlined.FileOpen, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("Add files")
+                    Text(tr("Add files"))
                 }
             }
             // On a phone the buttons go one above the other, the width of the screen.
@@ -393,7 +393,7 @@ internal fun EmptyLibrary(koboConnected: Boolean, onAddFiles: () -> Unit, onAddF
             TextButton(onClick = onNewBook) {
                 Icon(Icons.AutoMirrored.Outlined.NoteAdd, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Write a new book")
+                Text(tr("Write a new book"))
             }
         }
     }
@@ -433,33 +433,33 @@ private fun LibraryBrowser(
                 OutlinedButton(onClick = { confirmRemove = chosen() }, enabled = browse.picked.isNotEmpty(), contentPadding = SelectionButtonPadding) {
                     Icon(Icons.Outlined.Delete, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text("Remove")
+                    Text(tr("Remove"))
                 }
                 OutlinedButton(onClick = { onExport(chosen()) }, enabled = browse.picked.isNotEmpty(), contentPadding = SelectionButtonPadding) {
                     Icon(Icons.Outlined.SaveAlt, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text("Save as files")
+                    Text(tr("Save as files"))
                 }
                 OutlinedButton(onClick = { onDuplicate(chosen()) }, enabled = browse.picked.isNotEmpty(), contentPadding = SelectionButtonPadding) {
                     Icon(Icons.Outlined.ContentCopy, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text("Duplicate")
+                    Text(tr("Duplicate"))
                 }
                 OutlinedButton(onClick = { onMerge(chosen()) }, enabled = browse.picked.size >= 2, contentPadding = SelectionButtonPadding) {
                     Icon(Icons.Outlined.Merge, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text("Combine")
+                    Text(tr("Combine"))
                 }
                 Button(onClick = { onSend(chosen()) }, enabled = browse.picked.isNotEmpty(), contentPadding = SelectionButtonPadding) {
                     Icon(Icons.AutoMirrored.Filled.Send, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text("Send to Kobo")
+                    Text(tr("Send to Kobo"))
                 }
             }
         }
         LibraryControls(all, browse, books.size)
         if (books.isEmpty()) {
-            EmptyState(Icons.Outlined.SearchOff, "No matching books", "Try a different search, or clear the filters.")
+            EmptyState(Icons.Outlined.SearchOff, tr("No matching books"), tr("Try a different search, or clear the filters."))
             return@Column
         }
         if (browse.grid) ShelfGridBox(minCell = 132.dp, coverPadding = 8.dp) {
@@ -577,17 +577,17 @@ internal fun LibraryListItem(
                                 // The series is already on the line under the title.
                                 sortDetail(book, sort, reading, here)?.takeIf { it != book.meta.seriesLabel }?.let { Text(it, style = MaterialTheme.typography.labelMedium) }
                                 here?.takeIf { it.started }?.let { h ->
-                                    Text("${h.percent}% read on this device", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                                    Text(tr("{0}% read on this device", h.percent), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                                 }
                                 if (here?.finished == true) {
-                                    Text("Finished on this device", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                                    Text(tr("Finished on this device"), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                                 }
                                 reading?.takeIf { it.readStatus == ReadStatus.READING }?.let { k ->
-                                    Text("${k.percentRead}% read on Kobo", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(tr("{0}% read on Kobo", k.percentRead), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                                 when {
-                                    book.changedSinceOnKobo -> Text("Changed since sent", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
-                                    book.koboPath != null -> Text("On Kobo", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary)
+                                    book.changedSinceOnKobo -> Text(tr("Changed since sent"), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
+                                    book.koboPath != null -> Text(tr("On Kobo"), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary)
                                 }
                             }
                         },
@@ -603,10 +603,10 @@ internal fun LibraryListItem(
 internal fun RemoveBooksDialog(ids: List<String>, onRemove: () -> Unit, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (ids.size == 1) "Remove this book from the library?" else "Remove ${ids.size} books from the library?") },
-        text = { Text(if (ids.size == 1) "This deletes the book and your edits to it from the library. If it's on the Kobo, the copy there won't be deleted." else "This deletes the books and your edits to them from the library. Copies on the Kobo won't be deleted.") },
-        confirmButton = { TextButton(onClick = onRemove) { Text("Remove", color = MaterialTheme.colorScheme.error) } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        title = { Text(if (ids.size == 1) tr("Remove this book from the library?") else tr("Remove {0} books from the library?", ids.size)) },
+        text = { Text(if (ids.size == 1) tr("This deletes the book and your edits to it from the library. If it's on the Kobo, the copy there won't be deleted.") else tr("This deletes the books and your edits to them from the library. Copies on the Kobo won't be deleted.")) },
+        confirmButton = { TextButton(onClick = onRemove) { Text(tr("Remove"), color = MaterialTheme.colorScheme.error) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Cancel")) } },
     )
 }
 
@@ -617,8 +617,8 @@ internal fun sortDetail(book: LibraryBook, sort: LibrarySort, reading: KoboBook?
     LibrarySort.PUBLISHED -> book.meta.published?.take(4)
     LibrarySort.ADDED -> Fmt.date(book.addedAt)
     LibrarySort.EDITED -> Fmt.date(book.modifiedAt)
-    LibrarySort.SIZE -> if (book.fileSize < 1_048_576) "${(book.fileSize + 1023) / 1024} kB" else "%.1f MB".format(book.fileSize / 1_048_576.0)
-    LibrarySort.PAGES -> book.pages?.let { if (it == 1) "1 page" else "%,d pages".format(it) }
+    LibrarySort.SIZE -> if (book.fileSize < 1_048_576) tr("{0} kB", (book.fileSize + 1023) / 1024) else tr("{0} MB", "%.1f".format(book.fileSize / 1_048_576.0))
+    LibrarySort.PAGES -> book.pages?.let { if (it == 1) tr("1 page") else tr("{0} pages", "%,d".format(it)) }
     LibrarySort.RATING -> book.meta.rating?.takeIf { it > 0 }?.let { r -> "★".repeat(r / 2) + if (r % 2 == 1) "½" else "" }
     else -> book.meta.seriesLabel
 }
@@ -637,12 +637,12 @@ private fun LibraryControls(all: List<LibraryBook>, browse: LibraryBrowseState, 
             OutlinedTextField(
                 value = browse.query,
                 onValueChange = { browse.query = it },
-                placeholder = { Text("Search titles, authors, tags…", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                placeholder = { Text(tr("Search titles, authors, tags…"), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 leadingIcon = { Icon(Icons.Filled.Search, null) },
                 trailingIcon = {
                     Row {
-                        if (browse.query.isNotEmpty()) IconButton(onClick = { browse.query = "" }) { Icon(Icons.Filled.Clear, "Clear search") }
-                        IconButton(onClick = { showHelp = true }) { Icon(Icons.AutoMirrored.Outlined.HelpOutline, "How to search") }
+                        if (browse.query.isNotEmpty()) IconButton(onClick = { browse.query = "" }) { Icon(Icons.Filled.Clear, tr("Clear search")) }
+                        IconButton(onClick = { showHelp = true }) { Icon(Icons.AutoMirrored.Outlined.HelpOutline, tr("How to search")) }
                     }
                 },
                 singleLine = true,
@@ -655,12 +655,12 @@ private fun LibraryControls(all: List<LibraryBook>, browse: LibraryBrowseState, 
                 TextButton(onClick = { browse.selecting = true }) {
                     Icon(Icons.Outlined.Checklist, null, Modifier.size(20.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text("Select")
+                    Text(tr("Select"))
                 }
             }
             var sortOpen by remember { mutableStateOf(false) }
             Box {
-                IconButton(onClick = { sortOpen = true }) { Icon(Icons.AutoMirrored.Filled.Sort, "Sort") }
+                IconButton(onClick = { sortOpen = true }) { Icon(Icons.AutoMirrored.Filled.Sort, tr("Sort")) }
                 DropdownMenu(expanded = sortOpen, onDismissRequest = { sortOpen = false }) {
                     LibrarySort.entries.forEach { order ->
                         val current = order == browse.sort
@@ -679,7 +679,7 @@ private fun LibraryControls(all: List<LibraryBook>, browse: LibraryBrowseState, 
                             },
                             leadingIcon = { if (current) Icon(Icons.Filled.Check, null) else Spacer(Modifier.size(24.dp)) },
                             trailingIcon = {
-                                if (current) Icon(if (browse.descending) Icons.Filled.ArrowDownward else Icons.Filled.ArrowUpward, "Reverse order")
+                                if (current) Icon(if (browse.descending) Icons.Filled.ArrowDownward else Icons.Filled.ArrowUpward, tr("Reverse order"))
                             },
                             onClick = { browse.sortBy(order); sortOpen = false },
                         )
@@ -687,7 +687,7 @@ private fun LibraryControls(all: List<LibraryBook>, browse: LibraryBrowseState, 
                 }
             }
             IconButton(onClick = { browse.grid = !browse.grid }) {
-                if (browse.grid) Icon(Icons.AutoMirrored.Filled.ViewList, "Show as list") else Icon(Icons.Filled.GridView, "Show as grid")
+                if (browse.grid) Icon(Icons.AutoMirrored.Filled.ViewList, tr("Show as list")) else Icon(Icons.Filled.GridView, tr("Show as grid"))
             }
         }
         // Wraps onto a second line rather than hiding filters off the edge.
@@ -707,12 +707,12 @@ private fun LibraryControls(all: List<LibraryBook>, browse: LibraryBrowseState, 
                     FilterChip(
                         selected = browse.collection != null,
                         onClick = { open = true },
-                        label = { Text(browse.collection ?: "Collection") },
+                        label = { Text(browse.collection ?: tr("Collection")) },
                         leadingIcon = { Icon(Icons.Outlined.CollectionsBookmark, null, Modifier.size(18.dp)) },
                         trailingIcon = { Icon(Icons.Filled.ArrowDropDown, null, Modifier.size(18.dp)) },
                     )
                     DropdownMenu(expanded = open, onDismissRequest = { open = false }, modifier = Modifier.heightIn(max = 420.dp)) {
-                        DropdownMenuItem(text = { Text("All collections") }, onClick = { browse.collection = null; open = false })
+                        DropdownMenuItem(text = { Text(tr("All collections")) }, onClick = { browse.collection = null; open = false })
                         HorizontalDivider()
                         collections.forEach { c ->
                             DropdownMenuItem(
@@ -731,9 +731,9 @@ private fun LibraryControls(all: List<LibraryBook>, browse: LibraryBrowseState, 
                     label = {
                         Text(
                             when (browse.tags.size) {
-                                0 -> "Tags"
+                                0 -> tr("Tags")
                                 1 -> browse.tags.first()
-                                else -> "${browse.tags.size} tags (${if (browse.tagsMatchAll) "all" else "any"})"
+                                else -> if (browse.tagsMatchAll) tr("{0} tags (all)", browse.tags.size) else tr("{0} tags (any)", browse.tags.size)
                             }
                         )
                     },
@@ -744,12 +744,12 @@ private fun LibraryControls(all: List<LibraryBook>, browse: LibraryBrowseState, 
         }
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
             Text(
-                (if (shown == all.size) Fmt.plural(all.size, "book") else "$shown of ${Fmt.plural(all.size, "book")}") + " · sorted by ${browse.sortDescription}",
+                (if (shown == all.size) Fmt.plural(all.size, "book") else tr("{0} of {1}", shown, Fmt.plural(all.size, "book"))) + tr(" · sorted by {0}", browse.sortDescription),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = 4.dp).weight(1f, fill = false),
             )
-            if (browse.narrowed) TextButton(onClick = { browse.clearFilters() }) { Text("Clear search and filters") }
+            if (browse.narrowed) TextButton(onClick = { browse.clearFilters() }) { Text(tr("Clear search and filters")) }
         }
     }
     if (showHelp) SearchHelpDialog(onPick = { browse.query = it; showHelp = false }, onDismiss = { showHelp = false })
@@ -769,44 +769,44 @@ private fun LibraryControls(all: List<LibraryBook>, browse: LibraryBrowseState, 
 }
 
 private val searchExamples = listOf(
-    "tag:history" to "Books with a tag that contains “history”",
-    "tag:=history" to "Books with the exact tag “History”",
-    "author:\"conan doyle\"" to "Use quotes to search for a phrase",
-    "tag:history and not tag:greece" to "Tagged history, but not Greece",
-    "series:holmes or collection:gothic" to "Matches either one",
-    "-kobo:yes" to "A minus sign excludes: books that aren't on the Kobo",
-    "(tag:history or tag:philosophy) pages:>300" to "Brackets group terms; a space means “and”",
-    "rating:>=4" to "Rated four stars or more",
-    "year:<1900" to "Published before 1900",
-    "kobo:changed" to "Changed since it was sent to the Kobo",
-    "read:reading" to "Started but not finished on the Kobo",
+    "tag:history" to tr("Books with a tag that contains “history”"),
+    "tag:=history" to tr("Books with the exact tag “History”"),
+    "author:\"conan doyle\"" to tr("Use quotes to search for a phrase"),
+    "tag:history and not tag:greece" to tr("Tagged history, but not Greece"),
+    "series:holmes or collection:gothic" to tr("Matches either one"),
+    "-kobo:yes" to tr("A minus sign excludes: books that aren't on the Kobo"),
+    "(tag:history or tag:philosophy) pages:>300" to tr("Brackets group terms; a space means “and”"),
+    "rating:>=4" to tr("Rated four stars or more"),
+    "year:<1900" to tr("Published before 1900"),
+    "kobo:changed" to tr("Changed since it was sent to the Kobo"),
+    "read:reading" to tr("Started but not finished on the Kobo"),
 )
 
 private val koboSearchExamples = listOf(
-    "tag:history" to "Books with a tag that contains “history”",
-    "author:\"conan doyle\"" to "Use quotes to search for a phrase",
-    "library:no" to "Books that aren't in your library yet",
-    "read:reading" to "Started but not finished",
-    "read:finished rating:>=4" to "Finished and rated four stars or more",
-    "collection:\"to read\" -tag:horror" to "A minus sign excludes: no horror",
-    "series:holmes or series:poirot" to "Matches either one",
-    "format:pdf" to "Only PDFs (or epub, kepub, cbz and so on)",
-    "year:<1900" to "Published before 1900",
+    "tag:history" to tr("Books with a tag that contains “history”"),
+    "author:\"conan doyle\"" to tr("Use quotes to search for a phrase"),
+    "library:no" to tr("Books that aren't in your library yet"),
+    "read:reading" to tr("Started but not finished"),
+    "read:finished rating:>=4" to tr("Finished and rated four stars or more"),
+    "collection:\"to read\" -tag:horror" to tr("A minus sign excludes: no horror"),
+    "series:holmes or series:poirot" to tr("Matches either one"),
+    "format:pdf" to tr("Only PDFs (or epub, kepub, cbz and so on)"),
+    "year:<1900" to tr("Published before 1900"),
 )
 
 @Composable
 internal fun SearchHelpDialog(onPick: (String) -> Unit, onDismiss: () -> Unit, forKobo: Boolean = false) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (forKobo) "How to search the Kobo" else "How to search the library") },
+        title = { Text(if (forKobo) tr("How to search the Kobo") else tr("How to search the library")) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 Text(
-                    "Type words to search titles, authors, series, tags, collections and publishers.\n\n" +
-                        "To search only one of these, type its name and a colon first, like author:tolkien. You can use: title, author, tag, series, collection, publisher, language, isbn, " +
-                        (if (forKobo) "pages, rating, year, read, library or format." else "pages, rating, year, kobo or read.") +
-                        "\n\nTap an example to try it." +
-                        if (forKobo) " Tags come from the book in your library, or from the book file on the Kobo." else "",
+                    if (forKobo) {
+                        tr("Type words to search titles, authors, series, tags, collections and publishers.\n\nTo search only one of these, type its name and a colon first, like author:tolkien. You can use: title, author, tag, series, collection, publisher, language, isbn, pages, rating, year, read, library or format.\n\nTap an example to try it. Tags come from the book in your library, or from the book file on the Kobo.")
+                    } else {
+                        tr("Type words to search titles, authors, series, tags, collections and publishers.\n\nTo search only one of these, type its name and a colon first, like author:tolkien. You can use: title, author, tag, series, collection, publisher, language, isbn, pages, rating, year, kobo or read.\n\nTap an example to try it.")
+                    },
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Spacer(Modifier.height(12.dp))
@@ -824,7 +824,7 @@ internal fun SearchHelpDialog(onPick: (String) -> Unit, onDismiss: () -> Unit, f
                 }
             }
         },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(tr("Close")) } },
     )
 }
 
@@ -842,19 +842,19 @@ internal fun TagPickerDialog(
     val shown = remember(tags, filter) { tags.filter { it.first.contains(filter.trim(), ignoreCase = true) } }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Filter by tags") },
+        title = { Text(tr("Filter by tags")) },
         text = {
             Column {
                 SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                    SegmentedButton(selected = all, onClick = { all = true }, shape = SegmentedButtonDefaults.itemShape(0, 2)) { Text("Match all") }
-                    SegmentedButton(selected = !all, onClick = { all = false }, shape = SegmentedButtonDefaults.itemShape(1, 2)) { Text("Match any") }
+                    SegmentedButton(selected = all, onClick = { all = true }, shape = SegmentedButtonDefaults.itemShape(0, 2)) { Text(tr("Match all")) }
+                    SegmentedButton(selected = !all, onClick = { all = false }, shape = SegmentedButtonDefaults.itemShape(1, 2)) { Text(tr("Match any")) }
                 }
                 Spacer(Modifier.height(8.dp))
                 if (tags.size > 12) {
                     OutlinedTextField(
                         value = filter,
                         onValueChange = { filter = it },
-                        placeholder = { Text("Search tags") },
+                        placeholder = { Text(tr("Search tags")) },
                         singleLine = true,
                         leadingIcon = { Icon(Icons.Filled.Search, null) },
                         modifier = Modifier.fillMaxWidth(),
@@ -880,11 +880,11 @@ internal fun TagPickerDialog(
                 }
             }
         },
-        confirmButton = { TextButton(onClick = { onApply(picked, all) }) { Text("Show") } },
+        confirmButton = { TextButton(onClick = { onApply(picked, all) }) { Text(tr("Show")) } },
         dismissButton = {
             Row {
-                if (picked.isNotEmpty()) TextButton(onClick = { picked = emptySet() }) { Text("Clear") }
-                TextButton(onClick = onDismiss) { Text("Cancel") }
+                if (picked.isNotEmpty()) TextButton(onClick = { picked = emptySet() }) { Text(tr("Clear")) }
+                TextButton(onClick = onDismiss) { Text(tr("Cancel")) }
             }
         },
     )
@@ -930,7 +930,7 @@ fun LibraryDetailPane(
             TextButton(onClick = onBack, contentPadding = PaddingValues(horizontal = 4.dp)) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Library")
+                Text(tr("Library"))
             }
             Spacer(Modifier.height(8.dp))
         }
@@ -962,9 +962,9 @@ fun LibraryDetailPane(
                 Spacer(Modifier.width(8.dp))
                 Text(
                     when {
-                        finished -> "Read again"
-                        readHere != null && readHere > 0.005f -> "Read · ${(readHere * 100).roundToInt()}%"
-                        else -> "Read"
+                        finished -> tr("Read again")
+                        readHere != null && readHere > 0.005f -> tr("Read · {0}%", (readHere * 100).roundToInt())
+                        else -> tr("Read")
                     }
                 )
             }
@@ -972,54 +972,54 @@ fun LibraryDetailPane(
                 OutlinedButton(onClick = onMarkFinished) {
                     Icon(Icons.Outlined.TaskAlt, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("Mark as finished")
+                    Text(tr("Mark as finished"))
                 }
             }
             if ((finished || (readHere ?: 0f) > 0.005f) && onMarkUnread != null) {
                 OutlinedButton(onClick = onMarkUnread) {
                     Icon(Icons.Outlined.RestartAlt, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("Mark as unread")
+                    Text(tr("Mark as unread"))
                 }
             }
             OutlinedButton(onClick = onEdit) {
                 Icon(Icons.Outlined.Edit, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Edit details")
+                Text(tr("Edit details"))
             }
             OutlinedButton(onClick = onEditText) {
                 Icon(Icons.Outlined.EditNote, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Edit text")
+                Text(tr("Edit text"))
             }
             OutlinedButton(onClick = onCover) {
                 Icon(Icons.Outlined.Image, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Change cover")
+                Text(tr("Change cover"))
             }
             OutlinedButton(onClick = onSplit) {
                 Icon(Icons.AutoMirrored.Outlined.CallSplit, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Split into books")
+                Text(tr("Split into books"))
             }
             OutlinedButton(onClick = onExport) {
                 Icon(Icons.Outlined.SaveAlt, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Save as file")
+                Text(tr("Save as file"))
             }
             OutlinedButton(onClick = onDuplicate) {
                 Icon(Icons.Outlined.ContentCopy, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Duplicate")
+                Text(tr("Duplicate"))
             }
             FilledTonalButton(onClick = onSend) {
                 Icon(Icons.AutoMirrored.Filled.Send, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
                 Text(
                     when {
-                        book.changedSinceOnKobo -> "Update on Kobo"
-                        book.koboPath != null -> "Send to Kobo again"
-                        else -> "Send to Kobo"
+                        book.changedSinceOnKobo -> tr("Update on Kobo")
+                        book.koboPath != null -> tr("Send to Kobo again")
+                        else -> tr("Send to Kobo")
                     }
                 )
             }
@@ -1029,7 +1029,7 @@ fun LibraryDetailPane(
             ) {
                 Icon(Icons.Outlined.Delete, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Remove")
+                Text(tr("Remove"))
             }
         }
         reading?.let { k -> ReadingLine(k, live = readingLive) }
@@ -1038,14 +1038,14 @@ fun LibraryDetailPane(
                 Icon(Icons.Outlined.WarningAmber, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.error)
                 Spacer(Modifier.width(6.dp))
                 Text(
-                    "Changed since you sent it. Tap Update on Kobo to send the new version.",
+                    tr("Changed since you sent it. Tap Update on Kobo to send the new version."),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error,
                 )
             }
         } else if (!koboConnected && book.koboPath == null) {
             Text(
-                "Connect your Kobo to send this book.",
+                tr("Connect your Kobo to send this book."),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 8.dp),
@@ -1053,10 +1053,10 @@ fun LibraryDetailPane(
         }
 
         Spacer(Modifier.height(24.dp))
-        Text("Kobo collections", style = MaterialTheme.typography.titleSmall)
+        Text(tr("Kobo collections"), style = MaterialTheme.typography.titleSmall)
         Spacer(Modifier.height(6.dp))
         if (book.collections.isEmpty()) {
-            Text("Not in any collection. To add it to one, tap Edit details.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(tr("Not in any collection. To add it to one, tap Edit details."), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         } else {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 book.collections.forEach { name ->
@@ -1070,7 +1070,7 @@ fun LibraryDetailPane(
         }
         if (meta.tags.isNotEmpty()) {
             Spacer(Modifier.height(16.dp))
-            Text("Tags", style = MaterialTheme.typography.titleSmall)
+            Text(tr("Tags"), style = MaterialTheme.typography.titleSmall)
             Spacer(Modifier.height(6.dp))
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 meta.tags.forEach { t ->
@@ -1080,24 +1080,24 @@ fun LibraryDetailPane(
         }
 
         Spacer(Modifier.height(20.dp))
-        SectionCard("Details") {
-            InfoRow("Publisher", meta.publisher)
-            InfoRow("Published", Fmt.publication(meta.published))
-            InfoRow("Language", meta.language?.let { languageName(it) })
+        SectionCard(tr("Details")) {
+            InfoRow(tr("Publisher"), meta.publisher)
+            InfoRow(tr("Published"), Fmt.publication(meta.published))
+            InfoRow(tr("Language"), meta.language?.let { languageName(it) })
             InfoRow("ISBN", meta.isbn, selectable = true)
-            InfoRow("Length", book.pages?.let { p -> "About ${Fmt.plural(p, "page")} (${"%,d".format(book.words)} words)" })
-            InfoRow("File on the Kobo", book.koboPath ?: "Not sent yet")
-            InfoRow("Last sent", Fmt.dateTime(book.sentAt))
-            InfoRow("Added", Fmt.date(book.addedAt))
-            InfoRow("Last edited", Fmt.dateTime(book.modifiedAt).takeIf { book.modifiedAt > book.addedAt + 1000 })
-            InfoRow("Added as", book.addedAs)
-            InfoRow("File size", Fmt.bytes(context, book.fileSize))
+            InfoRow(tr("Length"), book.pages?.let { p -> tr("About {0} ({1} words)", Fmt.plural(p, "page"), "%,d".format(book.words)) })
+            InfoRow(tr("File on the Kobo"), book.koboPath ?: tr("Not sent yet"))
+            InfoRow(tr("Last sent"), Fmt.dateTime(book.sentAt))
+            InfoRow(tr("Added"), Fmt.date(book.addedAt))
+            InfoRow(tr("Last edited"), Fmt.dateTime(book.modifiedAt).takeIf { book.modifiedAt > book.addedAt + 1000 })
+            InfoRow(tr("Added as"), book.addedAs)
+            InfoRow(tr("File size"), Fmt.bytes(context, book.fileSize))
         }
         meta.description?.let { html ->
             val text = remember(html) { descriptionText(html) }
             if (text.isNotBlank()) {
                 Spacer(Modifier.height(16.dp))
-                SectionCard("Description") { Text(text, style = MaterialTheme.typography.bodyMedium) }
+                SectionCard(tr("Description")) { Text(text, style = MaterialTheme.typography.bodyMedium) }
             }
         }
         Spacer(Modifier.height(24.dp))
@@ -1105,15 +1105,15 @@ fun LibraryDetailPane(
     if (confirmDelete) {
         AlertDialog(
             onDismissRequest = { confirmDelete = false },
-            title = { Text("Remove “${meta.title}”?") },
+            title = { Text(tr("Remove “{0}”?", meta.title)) },
             text = {
                 Text(
-                    "This deletes the book and your edits to it from the library." +
-                        if (book.koboPath != null) " The copy on the Kobo won't be deleted." else ""
+                    tr("This deletes the book and your edits to it from the library.") +
+                        if (book.koboPath != null) tr(" The copy on the Kobo won't be deleted.") else ""
                 )
             },
-            confirmButton = { TextButton(onClick = { confirmDelete = false; onDelete() }) { Text("Remove", color = MaterialTheme.colorScheme.error) } },
-            dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text("Cancel") } },
+            confirmButton = { TextButton(onClick = { confirmDelete = false; onDelete() }) { Text(tr("Remove"), color = MaterialTheme.colorScheme.error) } },
+            dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text(tr("Cancel")) } },
         )
     }
 }
@@ -1122,10 +1122,10 @@ fun LibraryDetailPane(
 @Composable
 internal fun ReadingLine(k: KoboBook, live: Boolean) {
     val text = when (k.readStatus) {
-        ReadStatus.UNREAD -> "Not started on the Kobo"
-        ReadStatus.READING -> "${k.percentRead}% read on the Kobo"
-        ReadStatus.FINISHED -> "Finished on the Kobo"
-    } + (k.lastReadMillis?.let { " · last read ${Fmt.dateTime(it)}" } ?: "") + if (live) "" else " (as of the last time the Kobo was connected)"
+        ReadStatus.UNREAD -> tr("Not started on the Kobo")
+        ReadStatus.READING -> tr("{0}% read on the Kobo", k.percentRead)
+        ReadStatus.FINISHED -> tr("Finished on the Kobo")
+    } + (k.lastReadMillis?.let { tr(" · last read {0}", Fmt.dateTime(it)) } ?: "") + if (live) "" else tr(" (as of the last time the Kobo was connected)")
     Column(Modifier.padding(top = 12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(

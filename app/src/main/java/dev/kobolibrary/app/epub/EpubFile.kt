@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.epub
 
+import dev.kobolibrary.app.tr
 import java.io.Closeable
 import java.io.File
 import java.io.IOException
@@ -16,15 +17,15 @@ class EpubFile private constructor(val file: File, private val zip: ZipFile) : C
     init {
         try {
             val container = readText("META-INF/container.xml")
-                ?: throw EpubException("This file isn't an EPUB (it has no META-INF/container.xml).")
+                ?: throw EpubException(tr("This file isn't an EPUB (it has no META-INF/container.xml)."))
             val rootfile = try {
                 Xml.parse(container).root.descendants().firstOrNull { it.localName.equals("rootfile", true) }
             } catch (e: XmlException) {
-                throw EpubException("The book's container.xml is damaged.")
+                throw EpubException(tr("The book's container.xml is damaged."))
             }
             opfPath = rootfile?.attributes?.get("full-path")?.trimStart('/')
-                ?: throw EpubException("The book's container.xml doesn't say where its package file is.")
-            val opfText = readText(opfPath) ?: throw EpubException("The book's package file ($opfPath) is missing.")
+                ?: throw EpubException(tr("The book's container.xml doesn't say where its package file is."))
+            val opfText = readText(opfPath) ?: throw EpubException(tr("The book's package file ({0}) is missing.", opfPath))
             opf = OpfDocument(opfText)
         } catch (e: Exception) {
             zip.close()
@@ -79,11 +80,11 @@ class EpubFile private constructor(val file: File, private val zip: ZipFile) : C
             val zip = try {
                 ZipFile(file)
             } catch (e: ZipException) {
-                throw EpubException("This file isn't an EPUB (it isn't a zip archive).")
+                throw EpubException(tr("This file isn't an EPUB (it isn't a zip archive)."))
             } catch (e: IllegalArgumentException) {
-                throw EpubException("This EPUB uses unusual file names inside it that can't be read.")
+                throw EpubException(tr("This EPUB uses unusual file names inside it that can't be read."))
             } catch (e: IOException) {
-                throw EpubException("The file couldn't be opened: ${e.message}")
+                throw EpubException(tr("The file couldn't be opened: {0}", e.message))
             }
             return EpubFile(file, zip)
         }

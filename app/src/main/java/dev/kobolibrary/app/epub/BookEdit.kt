@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.epub
 
+import dev.kobolibrary.app.tr
 import java.io.Closeable
 import java.io.File
 import java.io.IOException
@@ -180,7 +181,7 @@ class BookEdit(val file: File) : BookFiles, Closeable {
             if (original != null && !original.exists()) {
                 val part = File(original.path + ".part")
                 file.copyTo(part, overwrite = true)
-                if (!part.renameTo(original)) throw IOException("Couldn't save a copy of the original book")
+                if (!part.renameTo(original)) throw IOException(tr("Couldn't save a copy of the original book"))
             }
 
             // Every version in the undo history, written relative to the new file.
@@ -192,7 +193,7 @@ class BookEdit(val file: File) : BookFiles, Closeable {
             base.close()
             if (!tmp.renameTo(file)) {
                 file.delete()
-                if (!tmp.renameTo(file)) throw IOException("Couldn't replace ${file.name}")
+                if (!tmp.renameTo(file)) throw IOException(tr("Couldn't replace {0}", file.name))
             }
             base = EpubFile.open(file)
 
@@ -240,7 +241,7 @@ object BookCheck {
     data class Problem(val path: String, val message: String, val line: Int? = null) {
         /** Problems are compared without line numbers, which move when text is edited. */
         val key: String get() = "$path\u0000$message"
-        override fun toString() = if (line != null) "$path, line $line: $message" else "$path: $message"
+        override fun toString() = if (line != null) tr("{0}, line {1}: {2}", path, line, message) else "$path: $message"
     }
 
     fun run(files: BookFiles): List<Problem> {
@@ -248,16 +249,16 @@ object BookCheck {
         val structure = try {
             BookStructure(files)
         } catch (e: Exception) {
-            return listOf(Problem(files.opfPath, e.message ?: "The book's package file (OPF) can't be read"))
+            return listOf(Problem(files.opfPath, e.message ?: tr("The book's package file (OPF) can't be read")))
         }
         val opf = structure.opf
         XmlCheck.check(structure.opfText)?.let { out += Problem(files.opfPath, it.message, it.line) }
-        if (opf.spineRefs().isEmpty()) out += Problem(files.opfPath, "The reading order is empty")
+        if (opf.spineRefs().isEmpty()) out += Problem(files.opfPath, tr("The reading order is empty"))
         val names = files.names().toHashSet()
         for (item in opf.items) {
             val path = structure.pathOf(item)
             if (path !in names) {
-                out += Problem(path, "The book lists this file, but it's missing")
+                out += Problem(path, tr("The book lists this file, but it's missing"))
                 continue
             }
             val checkXml = item.mediaType == "application/xhtml+xml" || item.mediaType == "application/x-dtbncx+xml" ||
@@ -268,7 +269,7 @@ object BookCheck {
             }
         }
         for (ref in opf.spineRefs()) {
-            if (opf.item(ref.idref) == null) out += Problem(files.opfPath, "The reading order includes “${ref.idref}”, which isn't in the book")
+            if (opf.item(ref.idref) == null) out += Problem(files.opfPath, tr("The reading order includes “{0}”, which isn't in the book", ref.idref))
         }
         return out
     }

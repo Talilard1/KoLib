@@ -1,5 +1,7 @@
 package dev.kobolibrary.app.epub
 
+import dev.kobolibrary.app.tr
+
 /**
  * Changes to a book's chapters: renaming, reordering, merging, splitting, deleting, hiding and
  * choosing where it starts. The package file, the table of contents and links between chapters are
@@ -108,9 +110,9 @@ object ChapterOps {
 
     /** Gives a chapter a new title in the contents (and, if wanted, in its first heading). */
     fun rename(files: BookFiles, structure: BookStructure, path: String, title: String, alsoHeading: Boolean): Result {
-        val chapter = structure.chapterAt(path) ?: throw OpError("That chapter is no longer in the book.")
+        val chapter = structure.chapterAt(path) ?: throw OpError(tr("That chapter is no longer in the book."))
         val clean = title.trim().replace(Regex("\\s+"), " ")
-        if (clean.isEmpty()) throw OpError("Enter a name for the chapter.")
+        if (clean.isEmpty()) throw OpError(tr("Enter a name for the chapter."))
         val changes = LinkedHashMap<String, ByteArray?>()
         changes.putAll(Contents.write(files, structure, tocWithTitle(structure, path, clean), changes))
         if (alsoHeading) {
@@ -125,19 +127,19 @@ object ChapterOps {
                 }
             }
         }
-        return Result("Renamed “${chapter.title}” to “$clean”", changes, path)
+        return Result(tr("Renamed “{0}” to “{1}”", chapter.title, clean), changes, path)
     }
 
     // ---- reorder -----------------------------------------------------------------------------
 
     /** Puts the chapters in [newOrder] (paths); the contents follow. */
-    fun reorder(files: BookFiles, structure: BookStructure, newOrder: List<String>, label: String = "Moved a chapter"): Result {
+    fun reorder(files: BookFiles, structure: BookStructure, newOrder: List<String>, label: String = tr("Moved a chapter")): Result {
         val opf = structure.opf
-        val spine = opf.spineElement ?: throw OpError("The book has no reading order.")
+        val spine = opf.spineElement ?: throw OpError(tr("The book has no reading order."))
         val refs = opf.spineRefs()
         val pathOfRef = refs.associateWith { r -> opf.item(r.idref)?.let { structure.pathOf(it) } }
         val content = refs.filter { r -> opf.item(r.idref)?.isContent == true }
-        if (newOrder.toSet() != content.mapNotNull { pathOfRef[it] }.toSet()) throw OpError("The chapters changed while they were being moved.")
+        if (newOrder.toSet() != content.mapNotNull { pathOfRef[it] }.toSet()) throw OpError(tr("The chapters changed while they were being moved."))
         // Other things in the reading order (pictures, say) stay after the chapter they followed.
         val followers = LinkedHashMap<SpineKey, MutableList<OpfDocument.SpineRef>>()
         var last: OpfDocument.SpineRef? = null
@@ -178,13 +180,13 @@ object ChapterOps {
      * or puts it back. Its contents entry stays, so it can still be reached from there.
      */
     fun setHidden(files: BookFiles, structure: BookStructure, path: String, hidden: Boolean): Result {
-        val chapter = structure.chapterAt(path) ?: throw OpError("That chapter is no longer in the book.")
-        val ref = spineRef(structure.opf, chapter.id) ?: throw OpError("That chapter isn't in the reading order.")
+        val chapter = structure.chapterAt(path) ?: throw OpError(tr("That chapter is no longer in the book."))
+        val ref = spineRef(structure.opf, chapter.id) ?: throw OpError(tr("That chapter isn't in the reading order."))
         val attrs = LinkedHashMap(ref.element.attributes)
         if (hidden) attrs["linear"] = "no" else attrs.remove("linear")
         val edits = TextEdits(structure.opfText)
         edits.replace(ref.element.start, ref.element.startTagEnd, Xml.startTag(ref.element.name, attrs, ref.element.selfClosing))
-        return Result(if (hidden) "Hid “${chapter.title}”" else "Showed “${chapter.title}” again", mapOf(structure.opfPath to bytes(edits.apply())), path)
+        return Result(if (hidden) tr("Hid “{0}”", chapter.title) else tr("Showed “{0}” again", chapter.title), mapOf(structure.opfPath to bytes(edits.apply())), path)
     }
 
     // ---- start -------------------------------------------------------------------------------
@@ -205,7 +207,7 @@ object ChapterOps {
     }
 
     fun setStart(files: BookFiles, structure: BookStructure, path: String): Result {
-        val chapter = structure.chapterAt(path) ?: throw OpError("That chapter is no longer in the book.")
+        val chapter = structure.chapterAt(path) ?: throw OpError(tr("That chapter is no longer in the book."))
         val opf = structure.opf
         val text = structure.opfText
         val edits = TextEdits(text)
@@ -221,7 +223,7 @@ object ChapterOps {
             guide != null && !guide.selfClosing -> edits.insert(guide.endTagStart, "  $newRef\n" + indentBefore(text, guide))
             guide != null -> edits.replace(guide.start, guide.end, "<${guide.name}>\n${indentBefore(text, guide)}  $newRef\n${indentBefore(text, guide)}</${guide.name}>")
             else -> {
-                val spine = opf.spineElement ?: throw OpError("The book has no reading order.")
+                val spine = opf.spineElement ?: throw OpError(tr("The book has no reading order."))
                 val ind = indentBefore(text, spine)
                 val guideName = opf.pkg.prefix?.let { "$it:guide" } ?: "guide"
                 edits.insert(spine.end, "\n$ind<$guideName>\n$ind  $newRef\n$ind</$guideName>")
@@ -252,16 +254,16 @@ object ChapterOps {
             }
             changes[navPath] = bytes(ne.apply())
         }
-        return Result("The book now opens at “${chapter.title}”", changes, path)
+        return Result(tr("The book now opens at “{0}”", chapter.title), changes, path)
     }
 
     // ---- delete ------------------------------------------------------------------------------
 
     fun delete(files: BookFiles, structure: BookStructure, path: String): Result {
-        val chapter = structure.chapterAt(path) ?: throw OpError("That chapter is no longer in the book.")
-        if (structure.chapters.size <= 1) throw OpError("A book must have at least one chapter.")
+        val chapter = structure.chapterAt(path) ?: throw OpError(tr("That chapter is no longer in the book."))
+        if (structure.chapters.size <= 1) throw OpError(tr("A book must have at least one chapter."))
         val opf = structure.opf
-        val item = opf.item(chapter.id) ?: throw OpError("That chapter isn't in the book's list of files.")
+        val item = opf.item(chapter.id) ?: throw OpError(tr("That chapter isn't in the book's list of files."))
         val text = structure.opfText
         val edits = TextEdits(text)
         edits.removeWithLeadingSpace(item.element)
@@ -300,7 +302,7 @@ object ChapterOps {
             if (fixed != navText) changes[navPath] = bytes(fixed)
         }
         val next = structure.chapters.getOrNull(chapter.index + 1) ?: structure.chapters.getOrNull(chapter.index - 1)
-        return Result("Deleted “${chapter.title}”", changes, next?.path)
+        return Result(tr("Deleted “{0}”", chapter.title), changes, next?.path)
     }
 
     private fun unwrapLinksTo(text: String, docPath: String, target: String): String {
@@ -347,15 +349,15 @@ object ChapterOps {
 
     /** Joins a chapter onto the end of the one before it. */
     fun mergeWithPrevious(files: BookFiles, structure: BookStructure, path: String): Result {
-        val chapter = structure.chapterAt(path) ?: throw OpError("That chapter is no longer in the book.")
-        val previous = structure.chapters.getOrNull(chapter.index - 1) ?: throw OpError("It's the first chapter, so there's no previous chapter to join it with.")
-        val a = files.text(previous.path) ?: throw OpError("The previous chapter can't be read.")
-        val b = files.text(path) ?: throw OpError("The chapter can't be read.")
+        val chapter = structure.chapterAt(path) ?: throw OpError(tr("That chapter is no longer in the book."))
+        val previous = structure.chapters.getOrNull(chapter.index - 1) ?: throw OpError(tr("It's the first chapter, so there's no previous chapter to join it with."))
+        val a = files.text(previous.path) ?: throw OpError(tr("The previous chapter can't be read."))
+        val b = files.text(path) ?: throw OpError(tr("The chapter can't be read."))
         val docA = Xml.parse(a)
         val docB = Xml.parse(b)
         val bodyA = TextMap.body(docA)
         val bodyB = TextMap.body(docB)
-        if (bodyA === docA.root || bodyB === docB.root) throw OpError("One of these chapters has no text section (body), so they can't be joined.")
+        if (bodyA === docA.root || bodyB === docB.root) throw OpError(tr("One of these chapters has no text section (body), so they can't be joined."))
 
         // Ids from the second chapter that are already used in the first get new names.
         val idsA = idsIn(a)
@@ -448,7 +450,7 @@ object ChapterOps {
             val fixed = rewriteLinks(navText, navPath, map = retarget)
             if (fixed != navText) changes[navPath] = bytes(fixed)
         }
-        return Result("Joined “${chapter.title}” with “${previous.title}”", changes, previous.path)
+        return Result(tr("Joined “{0}” with “{1}”", chapter.title, previous.title), changes, previous.path)
     }
 
     // ---- split -------------------------------------------------------------------------------
@@ -479,15 +481,15 @@ object ChapterOps {
      * are closed in the first part and opened again in the second.
      */
     fun split(files: BookFiles, structure: BookStructure, path: String, offset: Int, newTitle: String?): Result {
-        val chapter = structure.chapterAt(path) ?: throw OpError("That chapter is no longer in the book.")
-        val text = files.text(path) ?: throw OpError("The chapter can't be read.")
+        val chapter = structure.chapterAt(path) ?: throw OpError(tr("That chapter is no longer in the book."))
+        val text = files.text(path) ?: throw OpError(tr("The chapter can't be read."))
         val doc = Xml.parse(text)
         val body = TextMap.body(doc)
-        val at = body.descendants().firstOrNull { it.start == offset } ?: throw OpError("That spot is no longer in the chapter.")
+        val at = body.descendants().firstOrNull { it.start == offset } ?: throw OpError(tr("That spot is no longer in the chapter."))
         val ancestors = generateSequence(at.parent) { it.parent }.takeWhile { it !== body }.toList().reversed()
-        if (at.parent == null || generateSequence(at.parent) { it.parent }.none { it === body }) throw OpError("A chapter can only be split within its text.")
+        if (at.parent == null || generateSequence(at.parent) { it.parent }.none { it === body }) throw OpError(tr("A chapter can only be split within its text."))
         val firstText = text.substring(body.startTagEnd, at.start)
-        if (EpubText.plainText(firstText).isBlank() && !firstText.contains("<img", true)) throw OpError("That's already the start of the chapter.")
+        if (EpubText.plainText(firstText).isBlank() && !firstText.contains("<img", true)) throw OpError(tr("That's already the start of the chapter."))
 
         val close = ancestors.reversed().joinToString("") { "</${it.name}>" }
         val reopen = ancestors.joinToString("") { e -> Xml.startTag(e.name, LinkedHashMap(e.attributes).apply { remove("id") }, false) }
@@ -505,8 +507,8 @@ object ChapterOps {
         val newPath = candidate()
 
         val opf = structure.opf
-        val item = opf.item(chapter.id) ?: throw OpError("That chapter isn't in the book's list of files.")
-        val ref = spineRef(opf, chapter.id) ?: throw OpError("That chapter isn't in the reading order.")
+        val item = opf.item(chapter.id) ?: throw OpError(tr("That chapter isn't in the book's list of files."))
+        val ref = spineRef(opf, chapter.id) ?: throw OpError(tr("That chapter isn't in the reading order."))
         val newId = uniqueId(opf, "${chapter.id}-$n")
         val oe = TextEdits(structure.opfText)
         val itemName = item.element.name
@@ -541,7 +543,7 @@ object ChapterOps {
         // Contents: entries now in the second part move; the new chapter gets an entry of its own.
         val title = newTitle?.trim()?.takeIf { it.isNotEmpty() }
             ?: TextMap.body(Xml.parse(second)).descendants().firstOrNull { TextMap.isHeading(it) }?.text()?.let { BookStructure.clean(it) }?.takeIf { it.isNotEmpty() }
-            ?: "${chapter.title} (continued)"
+            ?: tr("{0} (continued)", chapter.title)
         val flat = Contents.flatten(structure.toc).map { (node, level) ->
             if (node.path == path && node.fragment != null && node.fragment in moved) node.copy(path = newPath) to level else node to level
         }.toMutableList()
@@ -557,7 +559,7 @@ object ChapterOps {
             }
         }
         changes.putAll(Contents.write(files, structure, Contents.nest(flat), changes))
-        return Result("Split “${chapter.title}”", changes, newPath)
+        return Result(tr("Split “{0}”", chapter.title), changes, newPath)
     }
 
     // ---- new chapters --------------------------------------------------------------------------
@@ -574,10 +576,10 @@ object ChapterOps {
      * chapter), and it looks like its neighbour at that level: the same style sheets and kind of heading.
      */
     fun addChapter(files: BookFiles, structure: BookStructure, afterPath: String?, title: String): Result {
-        val name = title.trim().ifEmpty { throw OpError("Enter a name for the chapter.") }
+        val name = title.trim().ifEmpty { throw OpError(tr("Enter a name for the chapter.")) }
         val opf = structure.opf
-        val manifest = opf.manifestElement ?: throw OpError("The book has no list of files.")
-        val spineEl = opf.spineElement ?: throw OpError("The book has no reading order.")
+        val manifest = opf.manifestElement ?: throw OpError(tr("The book has no list of files."))
+        val spineEl = opf.spineElement ?: throw OpError(tr("The book has no reading order."))
         val after = afterPath?.let { structure.chapterAt(it) } ?: structure.chapters.lastOrNull { it.linear } ?: structure.chapters.lastOrNull()
         val dir = after?.path?.substringBeforeLast('/', "") ?: (if (structure.opfDir.isEmpty()) "text" else "${structure.opfDir}/text")
         var n = structure.chapters.size + 1
@@ -633,7 +635,7 @@ object ChapterOps {
         changes[structure.opfPath] = bytes(oe.apply())
         changes[newPath] = bytes(page)
         changes.putAll(Contents.write(files, structure, Contents.nest(flat), changes))
-        return Result("Added “$name”", changes, newPath)
+        return Result(tr("Added “{0}”", name), changes, newPath)
     }
 
     // ---- pictures ----------------------------------------------------------------------------
@@ -652,14 +654,14 @@ object ChapterOps {
     /** Adds a file to the book and lists it in the package file. */
     fun addFile(files: BookFiles, structure: BookStructure, path: String, data: ByteArray, mediaType: String): Result {
         val opf = structure.opf
-        val manifest = opf.manifestElement ?: throw OpError("The book has no list of files.")
+        val manifest = opf.manifestElement ?: throw OpError(tr("The book has no list of files."))
         val id = uniqueId(opf, "kl-" + path.substringAfterLast('/').substringBeforeLast('.'))
         val href = Contents.encodeHref(EpubFile.relativeHref(structure.opfPath, path))
         val itemName = manifest.prefix?.let { "$it:item" } ?: "item"
         val edits = TextEdits(structure.opfText)
         val anchor = manifest.elements().lastOrNull()?.end ?: manifest.startTagEnd
         edits.insert(anchor, "\n${opf.indentOf(manifest) ?: "    "}<$itemName id=\"$id\" href=\"${Xml.escapeAttr(href)}\" media-type=\"$mediaType\"/>")
-        return Result("Added a picture", mapOf(structure.opfPath to bytes(edits.apply()), path to data))
+        return Result(tr("Added a picture"), mapOf(structure.opfPath to bytes(edits.apply()), path to data))
     }
 
     // ---- contents from headings --------------------------------------------------------------
@@ -697,9 +699,9 @@ object ChapterOps {
             val fixed = edits.apply()
             if (fixed != text) changes[chapter.path] = bytes(fixed)
         }
-        if (flat.isEmpty()) throw OpError("None of the chapters has a heading, so the contents can't be rebuilt.")
+        if (flat.isEmpty()) throw OpError(tr("None of the chapters has a heading, so the contents can't be rebuilt."))
         val minLevel = flat.minOf { it.second }
         changes.putAll(Contents.write(files, structure, Contents.nest(flat.map { it.first to it.second - minLevel }), changes))
-        return Result("Rebuilt the contents from the headings", changes)
+        return Result(tr("Rebuilt the contents from the headings"), changes)
     }
 }

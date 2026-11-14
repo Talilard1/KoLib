@@ -1,0 +1,819 @@
+@fr
+690|Retour aux livres de la Kobo
+691|Connectez votre Kobo pour ajouter ce livre à votre bibliothèque.
+692|Lire
+693|Modifié
+694|Sur la Kobo
+695|Terminé sur cet appareil
+696|{0} % lu sur cet appareil
+697|Sélectionné
+698|Arrêter la sélection
+699|Recadrer pour remplir
+700|Agrandit l’image pour remplir l’écran et coupe les bords qui dépassent.
+701|Flouter les vides
+702|Montre toute l’image, avec une copie floutée qui remplit l’espace vide.
+703|Vides en blanc
+704|Montre toute l’image, avec du blanc dans l’espace vide.
+705|Laisser tel quel
+706|Garde l’image sans la recadrer ni la redimensionner, et l’envoie sur la Kobo telle quelle.
+707|La couverture du livre
+708|La couverture d’origine
+709|Cette image n’a pas pu être ouverte. Essayez un JPEG ou un PNG.
+710|Cette image n’a pas pu être ouverte. Essayez-en une autre.
+711|Image de Photos
+712|Image de Fichiers
+713|Créée ici, avec le modèle {0}
+714|Enregistrer la couverture
+715|Cet appareil n’a pas de sélecteur de photos. Utilisez plutôt Fichiers.
+716|Rétablir la couverture d’origine ?
+717|Le livre retrouvera la couverture avec laquelle il est arrivé. Vous pourrez la changer plus tard.
+718|Rétablir
+719|Abandonner la nouvelle couverture ?
+720|La couverture du livre ne changera pas.
+721|Pas encore de couverture. Choisissez une image.
+722|Couverture actuelle
+723|Couverture d’origine
+724|C’est la couverture avec laquelle le livre est arrivé. Vous pouvez l’ajuster à l’écran de la Kobo comme n’importe quelle image, ou la rétablir telle quelle.
+725|La rétablir telle quelle
+726|Photos
+727|Fichiers
+728|Chercher en ligne
+729|Créer une couverture
+730|Cette image est bien plus petite que l’écran de la Kobo, elle risque d’être floue.
+731|Ajuster
+732|Zoom
+733|Le déplacement et le zoom sont désactivés tant que l’image reste telle quelle.
+734|Faites glisser l’image pour la déplacer, pincez pour zoomer, ou touchez deux fois pour zoomer et dézoomer.
+735|Aperçu en noir et blanc
+736|À peu près ce que vous verrez sur l’écran de la Kobo.
+737|L’image est enregistrée dans le fichier du livre à sa propre taille
+738| ({0} × {1} pixels)
+739| et envoyée sur la Kobo telle quelle.
+740|La couverture est enregistrée dans le fichier du livre en {0} × {1} pixels, la taille de l’écran de la Kobo Clara.
+741|Étiquette
+742|Classique
+743|Aurore
+744|Mosaïque
+745|Minuit
+746|Bordeaux
+747|Forêt
+748|Ardoise
+749|Parchemin
+750|Lin
+751|Safran
+752|Encre
+753|Personnalisée
+754|{0} · Tome {1}
+755|{0}, {1} et d’autres
+756|Utiliser cette couverture
+757|La couverture
+758|Surprenez-moi
+759|Style
+760|Couleur
+761|Votre couleur
+762|Couverture sombre
+763|Couverture claire
+764|Intensité
+765|La couverture montre le titre, la série et les auteurs du livre. Elle est créée en 1072 × 1448 pixels, la taille de l’écran de la Kobo Clara.
+766|Trouver une couverture
+767|Rechercher
+768|Amazon et sites de livres
+769|Google Images
+770|Recherche sur Amazon, Google Books et Open Library…
+771|Aucune couverture trouvée. Vérifiez que vous êtes en ligne, essayez d’autres mots, ou regardez dans Google Images.
+772|couverture {0}
+773|Récupération de l’image…
+774|Touchez une image pour l’agrandir, puis appuyez longuement dessus pour l’utiliser.
+775|Cette image n’a pas pu être récupérée. Touchez-la pour l’agrandir, puis réessayez.
+776|Gras
+777|Italique
+778|Souligné
+779|Liste à puces
+780|Liste numérotée
+781|Retirer la mise en forme du texte sélectionné
+782|Annuler
+783|Rétablir
+784|De quoi parle le livre…
+785|Le texte collé perd sa mise en forme, pour s’accorder au reste de la description.
+786|Abandonner les modifications de la description ?
+787|Abandonner
+788|Continuer à modifier
+789|Saisissez un titre.
+790|Utilisez un nombre, comme 3 ou 2,5.
+791|Utilisez une année (2005) ou une date (2005-07-17).
+792|Un ISBN a 10 ou 13 chiffres. Celui-ci en a {0}.
+793|Cet ISBN n’est pas valide. Vérifiez qu’il n’y a pas de faute de frappe.
+794|Cet ISBN venait avec le livre, mais il n’est pas valide.
+795|Modifier les détails
+796|Enregistrer
+797|Pour changer la couverture, touchez Changer la couverture sur la page du livre.
+798|Identifiant du livre : {0}
+799|Abandonner vos modifications ?
+800|Les détails du livre ne changeront pas.
+801|Corrigez ces problèmes pour enregistrer :
+802|Titre et auteurs
+803|Classé comme « {0} »
+804|Changer
+1375|Lu
+@de
+690|Zurück zu den Büchern des Kobo
+691|Verbinde deinen Kobo, um dieses Buch deiner Bibliothek hinzuzufügen.
+692|Lesen
+693|Geändert
+694|Auf dem Kobo
+695|Auf diesem Gerät gelesen
+696|{0} % auf diesem Gerät gelesen
+697|Ausgewählt
+698|Auswahl beenden
+699|Zuschneiden und füllen
+700|Vergrößert das Bild auf den ganzen Bildschirm und schneidet die überstehenden Ränder ab.
+701|Lücken unscharf füllen
+702|Zeigt das ganze Bild, die leere Fläche füllt eine unscharfe Kopie davon.
+703|Weiße Lücken
+704|Zeigt das ganze Bild, die leere Fläche ist weiß.
+705|Unverändert lassen
+706|Behält das Bild ohne Zuschneiden oder Größenänderung und sendet es unverändert an den Kobo.
+707|Das Cover des Buchs
+708|Das ursprüngliche Cover
+709|Dieses Bild konnte nicht geöffnet werden. Versuche ein JPEG oder PNG.
+710|Dieses Bild konnte nicht geöffnet werden. Versuche ein anderes.
+711|Bild aus Fotos
+712|Bild aus Dateien
+713|Hier erstellt, im Design „{0}“
+714|Cover speichern
+715|Dieses Gerät hat keine Fotoauswahl. Nutze stattdessen „Dateien“.
+716|Ursprüngliches Cover wiederherstellen?
+717|Das Buch bekommt das Cover zurück, mit dem es gekommen ist. Du kannst es später wieder ändern.
+718|Wiederherstellen
+719|Neues Cover verwerfen?
+720|Das Cover des Buchs ändert sich nicht.
+721|Noch kein Cover. Wähle ein Bild.
+722|Aktuelles Cover
+723|Ursprüngliches Cover
+724|Das ist das Cover, mit dem das Buch gekommen ist. Du kannst es wie jedes andere Bild an den Bildschirm des Kobo anpassen oder es unverändert wiederherstellen.
+725|Unverändert wiederherstellen
+726|Fotos
+727|Dateien
+728|Online suchen
+729|Cover erstellen
+730|Dieses Bild ist viel kleiner als der Bildschirm des Kobo und sieht daher vielleicht unscharf aus.
+731|Einpassen
+732|Zoomen
+733|Verschieben und Zoomen sind aus, solange das Bild unverändert bleibt.
+734|Ziehe das Bild, um es zu verschieben, ziehe es mit zwei Fingern auf oder zu, um zu zoomen, oder tippe zweimal, um hinein- und herauszuzoomen.
+735|Schwarz-Weiß-Vorschau
+736|Ungefähr so sieht es auf dem Bildschirm des Kobo aus.
+737|Das Bild wird in seiner eigenen Größe in der Buchdatei gespeichert
+738| ({0} × {1} Pixel)
+739| und unverändert an den Kobo gesendet.
+740|Das Cover wird mit {0} × {1} Pixeln in der Buchdatei gespeichert, der Bildschirmgröße des Kobo Clara.
+741|Etikett
+742|Klassisch
+743|Morgenrot
+744|Mosaik
+745|Mitternacht
+746|Bordeaux
+747|Wald
+748|Schiefer
+749|Pergament
+750|Leinen
+751|Safran
+752|Tinte
+753|Eigene
+754|{0} · Band {1}
+755|{0}, {1} und andere
+756|Dieses Cover verwenden
+757|Das Cover
+758|Überrasch mich
+759|Stil
+760|Farbe
+761|Deine Farbe
+762|Dunkles Cover
+763|Helles Cover
+764|Stärke
+765|Das Cover zeigt Titel, Reihe und Autoren des Buchs. Es wird mit 1072 × 1448 Pixeln erstellt, der Bildschirmgröße des Kobo Clara.
+766|Cover suchen
+767|Suchen nach
+768|Amazon und Buchseiten
+769|Google Bilder
+770|Suche bei Amazon, Google Books und Open Library…
+771|Keine Cover gefunden. Prüfe, ob du online bist, versuche andere Wörter oder suche bei Google Bilder.
+772|{0} Buchcover
+773|Bild wird geholt…
+774|Tippe auf ein Bild, um es größer zu sehen, und halte es dann gedrückt, um es zu verwenden.
+775|Dieses Bild konnte nicht geholt werden. Tippe darauf, um es größer zu öffnen, und versuche es noch einmal.
+776|Fett
+777|Kursiv
+778|Unterstrichen
+779|Aufzählung
+780|Nummerierte Liste
+781|Formatierung aus dem markierten Text entfernen
+782|Rückgängig
+783|Wiederholen
+784|Worum geht es in dem Buch…
+785|Eingefügter Text verliert seine Formatierung, damit er zum Rest der Beschreibung passt.
+786|Änderungen an der Beschreibung verwerfen?
+787|Verwerfen
+788|Weiter bearbeiten
+789|Gib einen Titel ein.
+790|Nutze eine Zahl, etwa 3 oder 2,5.
+791|Nutze ein Jahr (2005) oder ein Datum (2005-07-17).
+792|Eine ISBN hat 10 oder 13 Ziffern. Diese hat {0}.
+793|Diese ISBN ist ungültig. Prüfe sie auf Tippfehler.
+794|Diese ISBN kam mit dem Buch, ist aber ungültig.
+795|Details bearbeiten
+796|Speichern
+797|Um das Cover zu ändern, tippe auf der Seite des Buchs auf „Cover ändern“.
+798|Buchkennung: {0}
+799|Änderungen verwerfen?
+800|Die Details des Buchs ändern sich nicht.
+801|Behebe diese Probleme, um zu speichern:
+802|Titel und Autoren
+803|Einsortiert als „{0}“
+804|Ändern
+1375|Gelesen
+@es
+690|Volver a los libros del Kobo
+691|Conecta tu Kobo para añadir este libro a tu biblioteca.
+692|Leer
+693|Cambiado
+694|En el Kobo
+695|Terminado en este dispositivo
+696|{0} % leído en este dispositivo
+697|Seleccionado
+698|Dejar de seleccionar
+699|Recortar para llenar
+700|Amplía la imagen para llenar la pantalla y recorta los bordes que no caben.
+701|Difuminar los huecos
+702|Muestra la imagen entera, con una copia difuminada que llena el espacio vacío.
+703|Huecos en blanco
+704|Muestra la imagen entera, con blanco en el espacio vacío.
+705|Dejar sin cambios
+706|Mantiene la imagen sin recortarla ni cambiar su tamaño, y la envía al Kobo sin cambios.
+707|La portada del libro
+708|La portada original
+709|No se ha podido abrir esa imagen. Prueba con un JPEG o un PNG.
+710|No se ha podido abrir esa imagen. Prueba con otra.
+711|Imagen de Fotos
+712|Imagen de Archivos
+713|Hecha aquí, con el diseño {0}
+714|Guardar portada
+715|Este dispositivo no tiene selector de fotos. Usa Archivos.
+716|¿Restaurar la portada original?
+717|El libro recuperará la portada con la que venía. Puedes cambiarla otra vez más adelante.
+718|Restaurar
+719|¿Descartar la portada nueva?
+720|La portada del libro no cambiará.
+721|Aún no hay portada. Elige una imagen.
+722|Portada actual
+723|Portada original
+724|Esta es la portada con la que venía el libro. Puedes ajustarla a la pantalla del Kobo como cualquier otra imagen, o restaurarla sin cambios.
+725|Restaurarla sin cambios
+726|Fotos
+727|Archivos
+728|Buscar en internet
+729|Crear una portada
+730|Esta imagen es mucho más pequeña que la pantalla del Kobo, así que puede verse borrosa.
+731|Ajustar
+732|Zoom
+733|Mover y hacer zoom están desactivados mientras la imagen se deja sin cambios.
+734|Arrastra la imagen para moverla, pellizca para hacer zoom o toca dos veces para acercar y alejar.
+735|Vista previa en blanco y negro
+736|Más o menos como se verá en la pantalla del Kobo.
+737|La imagen se guarda en el archivo del libro con su propio tamaño
+738| ({0} × {1} píxeles)
+739| y se envía al Kobo sin cambios.
+740|La portada se guarda en el archivo del libro a {0} × {1} píxeles, el tamaño de la pantalla del Kobo Clara.
+741|Etiqueta
+742|Clásico
+743|Amanecer
+744|Mosaico
+745|Medianoche
+746|Burdeos
+747|Bosque
+748|Pizarra
+749|Pergamino
+750|Lino
+751|Azafrán
+752|Tinta
+753|Personalizado
+754|{0} · Libro {1}
+755|{0}, {1} y otros
+756|Usar esta portada
+757|La portada
+758|Sorpréndeme
+759|Estilo
+760|Color
+761|Tu color
+762|Portada oscura
+763|Portada clara
+764|Intensidad
+765|La portada muestra el título, la serie y los autores del libro. Se crea a 1072 × 1448 píxeles, el tamaño de la pantalla del Kobo Clara.
+766|Buscar una portada
+767|Buscar
+768|Amazon y sitios de libros
+769|Google Imágenes
+770|Buscando en Amazon, Google Books y Open Library…
+771|No se han encontrado portadas. Comprueba que tienes conexión, prueba otras palabras o busca en Google Imágenes.
+772|{0} portada libro
+773|Obteniendo la imagen…
+774|Toca una imagen para verla más grande y luego mantenla pulsada para usarla.
+775|No se ha podido obtener esa imagen. Tócala para abrirla más grande y vuelve a intentarlo.
+776|Negrita
+777|Cursiva
+778|Subrayado
+779|Lista con viñetas
+780|Lista numerada
+781|Quitar el formato del texto seleccionado
+782|Deshacer
+783|Rehacer
+784|De qué trata el libro…
+785|El texto pegado pierde su formato, para que coincida con el resto de la descripción.
+786|¿Descartar los cambios de la descripción?
+787|Descartar
+788|Seguir editando
+789|Escribe un título.
+790|Usa un número, como 3 o 2,5.
+791|Usa un año (2005) o una fecha (2005-07-17).
+792|Un ISBN tiene 10 o 13 dígitos. Este tiene {0}.
+793|Este ISBN no es válido. Revisa si hay una errata.
+794|Este ISBN venía con el libro, pero no es válido.
+795|Editar detalles
+796|Guardar
+797|Para cambiar la portada, toca Cambiar portada en la página del libro.
+798|Identificador del libro: {0}
+799|¿Descartar los cambios?
+800|Los detalles del libro no cambiarán.
+801|Corrige estos problemas para guardar:
+802|Título y autores
+803|Ordenado como «{0}»
+804|Cambiar
+1375|Leído
+@it
+690|Torna ai libri del Kobo
+691|Collega il tuo Kobo per aggiungere questo libro alla tua libreria.
+692|Leggi
+693|Modificato
+694|Sul Kobo
+695|Finito su questo dispositivo
+696|{0}% letto su questo dispositivo
+697|Selezionato
+698|Smetti di selezionare
+699|Ritaglia per riempire
+700|Ingrandisce l’immagine fino a riempire lo schermo e taglia i bordi che non ci stanno.
+701|Sfoca gli spazi vuoti
+702|Mostra tutta l’immagine, con una copia sfocata che riempie lo spazio vuoto.
+703|Spazi vuoti bianchi
+704|Mostra tutta l’immagine, con il bianco nello spazio vuoto.
+705|Lascia invariata
+706|Mantiene l’immagine senza ritagliarla né ridimensionarla, e la invia al Kobo senza modifiche.
+707|La copertina del libro
+708|La copertina originale
+709|Impossibile aprire quell’immagine. Prova un JPEG o un PNG.
+710|Impossibile aprire quell’immagine. Provane un’altra.
+711|Immagine da Foto
+712|Immagine da File
+713|Creata qui, con il modello {0}
+714|Salva copertina
+715|Questo dispositivo non ha un selettore di foto. Usa File.
+716|Ripristinare la copertina originale?
+717|Il libro riavrà la copertina con cui è arrivato. Potrai cambiarla di nuovo in seguito.
+718|Ripristina
+719|Scartare la nuova copertina?
+720|La copertina del libro non cambierà.
+721|Ancora nessuna copertina. Scegli un’immagine.
+722|Copertina attuale
+723|Copertina originale
+724|Questa è la copertina con cui è arrivato il libro. Puoi adattarla allo schermo del Kobo come qualsiasi altra immagine, o ripristinarla senza modifiche.
+725|Ripristinala senza modifiche
+726|Foto
+727|File
+728|Cerca online
+729|Crea una copertina
+730|Questa immagine è molto più piccola dello schermo del Kobo, quindi potrebbe sembrare sfocata.
+731|Adatta
+732|Zoom
+733|Spostamento e zoom sono disattivati finché l’immagine resta invariata.
+734|Trascina l’immagine per spostarla, allarga o avvicina due dita per lo zoom, o tocca due volte per ingrandire e ridurre.
+735|Anteprima in bianco e nero
+736|Più o meno come apparirà sullo schermo del Kobo.
+737|L’immagine viene salvata nel file del libro nelle sue dimensioni
+738| ({0} × {1} pixel)
+739| e inviata al Kobo senza modifiche.
+740|La copertina viene salvata nel file del libro a {0} × {1} pixel, la dimensione dello schermo del Kobo Clara.
+741|Etichetta
+742|Classico
+743|Alba
+744|Mosaico
+745|Mezzanotte
+746|Bordeaux
+747|Foresta
+748|Ardesia
+749|Pergamena
+750|Lino
+751|Zafferano
+752|Inchiostro
+753|Personalizzato
+754|{0} · Libro {1}
+755|{0}, {1} e altri
+756|Usa questa copertina
+757|La copertina
+758|Sorprendimi
+759|Stile
+760|Colore
+761|Il tuo colore
+762|Copertina scura
+763|Copertina chiara
+764|Intensità
+765|La copertina mostra titolo, serie e autori del libro. Viene creata a 1072 × 1448 pixel, la dimensione dello schermo del Kobo Clara.
+766|Trova una copertina
+767|Cerca
+768|Amazon e siti di libri
+769|Google Immagini
+770|Ricerca su Amazon, Google Books e Open Library…
+771|Nessuna copertina trovata. Controlla di essere online, prova altre parole o cerca su Google Immagini.
+772|{0} copertina libro
+773|Recupero dell’immagine…
+774|Tocca un’immagine per vederla più grande, poi tienila premuta per usarla.
+775|Impossibile recuperare quell’immagine. Toccala per aprirla più grande, poi riprova.
+776|Grassetto
+777|Corsivo
+778|Sottolineato
+779|Elenco puntato
+780|Elenco numerato
+781|Rimuovi la formattazione dal testo selezionato
+782|Annulla
+783|Ripeti
+784|Di cosa parla il libro…
+785|Il testo incollato perde la formattazione, così si accorda con il resto della descrizione.
+786|Scartare le modifiche alla descrizione?
+787|Scarta
+788|Continua a modificare
+789|Inserisci un titolo.
+790|Usa un numero, come 3 o 2,5.
+791|Usa un anno (2005) o una data (2005-07-17).
+792|Un ISBN ha 10 o 13 cifre. Questo ne ha {0}.
+793|Questo ISBN non è valido. Controlla che non ci siano errori di battitura.
+794|Questo ISBN era nel libro, ma non è valido.
+795|Modifica dettagli
+796|Salva
+797|Per cambiare la copertina, tocca Cambia copertina nella pagina del libro.
+798|Identificativo del libro: {0}
+799|Scartare le modifiche?
+800|I dettagli del libro non cambieranno.
+801|Correggi questi problemi per salvare:
+802|Titolo e autori
+803|Ordinato come «{0}»
+804|Cambia
+1375|Letto
+@nl
+690|Terug naar de boeken van de Kobo
+691|Verbind je Kobo om dit boek aan je bibliotheek toe te voegen.
+692|Lezen
+693|Gewijzigd
+694|Op Kobo
+695|Uitgelezen op dit apparaat
+696|{0}% gelezen op dit apparaat
+697|Geselecteerd
+698|Stoppen met selecteren
+699|Bijsnijden om te vullen
+700|Vergroot de afbeelding tot hij het scherm vult en snijdt de randen af die niet passen.
+701|Gaten vervagen
+702|Toont de hele afbeelding, met een vervaagde kopie ervan in de lege ruimte.
+703|Witte gaten
+704|Toont de hele afbeelding, met wit in de lege ruimte.
+705|Ongewijzigd laten
+706|Houdt de afbeelding zonder bijsnijden of schalen en stuurt hem ongewijzigd naar de Kobo.
+707|De omslag van het boek
+708|De oorspronkelijke omslag
+709|Die afbeelding kon niet worden geopend. Probeer een JPEG of PNG.
+710|Die afbeelding kon niet worden geopend. Probeer een andere.
+711|Afbeelding uit Foto’s
+712|Afbeelding uit Bestanden
+713|Hier gemaakt, in het ontwerp {0}
+714|Omslag opslaan
+715|Dit apparaat heeft geen fotokiezer. Gebruik Bestanden.
+716|Oorspronkelijke omslag herstellen?
+717|Het boek krijgt de omslag terug waarmee het kwam. Je kunt hem later weer wijzigen.
+718|Herstellen
+719|Nieuwe omslag weggooien?
+720|De omslag van het boek verandert niet.
+721|Nog geen omslag. Kies een afbeelding.
+722|Huidige omslag
+723|Oorspronkelijke omslag
+724|Dit is de omslag waarmee het boek kwam. Je kunt hem aan het scherm van de Kobo aanpassen zoals elke andere afbeelding, of hem ongewijzigd herstellen.
+725|Ongewijzigd herstellen
+726|Foto’s
+727|Bestanden
+728|Online zoeken
+729|Een omslag maken
+730|Deze afbeelding is veel kleiner dan het scherm van de Kobo en kan er dus wazig uitzien.
+731|Passend
+732|Zoom
+733|Verschuiven en zoomen staan uit zolang de afbeelding ongewijzigd blijft.
+734|Sleep de afbeelding om hem te verschuiven, knijp om te zoomen of tik twee keer om in en uit te zoomen.
+735|Voorbeeld in zwart-wit
+736|Ongeveer zoals het eruitziet op het scherm van de Kobo.
+737|De afbeelding wordt op zijn eigen formaat in het boekbestand opgeslagen
+738| ({0} × {1} pixels)
+739| en ongewijzigd naar de Kobo gestuurd.
+740|De omslag wordt in het boekbestand opgeslagen op {0} × {1} pixels, de schermgrootte van de Kobo Clara.
+741|Etiket
+742|Klassiek
+743|Dageraad
+744|Mozaïek
+745|Middernacht
+746|Bordeaux
+747|Bos
+748|Leisteen
+749|Perkament
+750|Linnen
+751|Saffraan
+752|Inkt
+753|Eigen
+754|{0} · Boek {1}
+755|{0}, {1} en anderen
+756|Deze omslag gebruiken
+757|De omslag
+758|Verras me
+759|Stijl
+760|Kleur
+761|Je eigen kleur
+762|Donkere omslag
+763|Lichte omslag
+764|Sterkte
+765|De omslag toont de titel, reeks en auteurs van het boek. Hij wordt gemaakt op 1072 × 1448 pixels, de schermgrootte van de Kobo Clara.
+766|Een omslag zoeken
+767|Zoeken naar
+768|Amazon en boekensites
+769|Google Afbeeldingen
+770|Zoeken op Amazon, Google Books en Open Library…
+771|Geen omslagen gevonden. Controleer of je online bent, probeer andere woorden of kijk bij Google Afbeeldingen.
+772|{0} boekomslag
+773|Afbeelding ophalen…
+774|Tik op een afbeelding om hem groter te zien, en houd hem dan ingedrukt om hem te gebruiken.
+775|Die afbeelding kon niet worden opgehaald. Tik erop om hem groter te openen en probeer het opnieuw.
+776|Vet
+777|Cursief
+778|Onderstrepen
+779|Lijst met opsommingstekens
+780|Genummerde lijst
+781|Opmaak van de geselecteerde tekst verwijderen
+782|Ongedaan maken
+783|Opnieuw
+784|Waar gaat het boek over…
+785|Geplakte tekst verliest zijn opmaak, zodat hij past bij de rest van de beschrijving.
+786|Wijzigingen in de beschrijving weggooien?
+787|Weggooien
+788|Verder bewerken
+789|Vul een titel in.
+790|Gebruik een getal, zoals 3 of 2,5.
+791|Gebruik een jaar (2005) of een datum (2005-07-17).
+792|Een ISBN heeft 10 of 13 cijfers. Dit heeft er {0}.
+793|Dit ISBN is niet geldig. Controleer op een typefout.
+794|Dit ISBN zat bij het boek, maar is niet geldig.
+795|Gegevens bewerken
+796|Opslaan
+797|Tik op de pagina van het boek op Omslag wijzigen om de omslag te veranderen.
+798|Boek-ID: {0}
+799|Je wijzigingen weggooien?
+800|De gegevens van het boek veranderen niet.
+801|Los deze problemen op om op te slaan:
+802|Titel en auteurs
+803|Gesorteerd als ‘{0}’
+804|Wijzigen
+1375|Gelezen
+@pt
+690|Voltar aos livros do Kobo
+691|Conecte seu Kobo para adicionar este livro à sua biblioteca.
+692|Ler
+693|Alterado
+694|No Kobo
+695|Concluído neste dispositivo
+696|{0}% lido neste dispositivo
+697|Selecionado
+698|Parar de selecionar
+699|Cortar para preencher
+700|Amplia a imagem para preencher a tela e corta as bordas que não cabem.
+701|Desfocar os espaços
+702|Mostra a imagem inteira, com uma cópia desfocada preenchendo o espaço vazio.
+703|Espaços em branco
+704|Mostra a imagem inteira, com branco no espaço vazio.
+705|Deixar como está
+706|Mantém a imagem sem cortar nem redimensionar, e a envia ao Kobo sem alterações.
+707|A capa do livro
+708|A capa original
+709|Não foi possível abrir essa imagem. Tente um JPEG ou PNG.
+710|Não foi possível abrir essa imagem. Tente outra.
+711|Imagem de Fotos
+712|Imagem de Arquivos
+713|Feita aqui, no modelo {0}
+714|Salvar capa
+715|Este dispositivo não tem seletor de fotos. Use Arquivos.
+716|Restaurar a capa original?
+717|O livro vai voltar a ter a capa com que veio. Você pode mudá-la de novo depois.
+718|Restaurar
+719|Descartar a capa nova?
+720|A capa do livro não vai mudar.
+721|Ainda não há capa. Escolha uma imagem.
+722|Capa atual
+723|Capa original
+724|Esta é a capa com que o livro veio. Você pode ajustá-la à tela do Kobo como qualquer outra imagem, ou restaurá-la sem alterações.
+725|Restaurar sem alterações
+726|Fotos
+727|Arquivos
+728|Procurar na internet
+729|Criar uma capa
+730|Esta imagem é bem menor que a tela do Kobo, então pode ficar borrada.
+731|Ajustar
+732|Zoom
+733|Mover e dar zoom ficam desativados enquanto a imagem é deixada como está.
+734|Arraste a imagem para movê-la, faça movimento de pinça para dar zoom ou toque duas vezes para aproximar e afastar.
+735|Prévia em preto e branco
+736|Mais ou menos como vai ficar na tela do Kobo.
+737|A imagem é salva no arquivo do livro no tamanho dela
+738| ({0} × {1} pixels)
+739| e enviada ao Kobo sem alterações.
+740|A capa é salva no arquivo do livro com {0} × {1} pixels, o tamanho da tela do Kobo Clara.
+741|Etiqueta
+742|Clássico
+743|Aurora
+744|Mosaico
+745|Meia-noite
+746|Bordô
+747|Floresta
+748|Ardósia
+749|Pergaminho
+750|Linho
+751|Açafrão
+752|Tinta
+753|Personalizado
+754|{0} · Livro {1}
+755|{0}, {1} e outros
+756|Usar esta capa
+757|A capa
+758|Me surpreenda
+759|Estilo
+760|Cor
+761|Sua cor
+762|Capa escura
+763|Capa clara
+764|Intensidade
+765|A capa mostra o título, a série e os autores do livro. Ela é criada com 1072 × 1448 pixels, o tamanho da tela do Kobo Clara.
+766|Encontrar uma capa
+767|Procurar
+768|Amazon e sites de livros
+769|Google Imagens
+770|Procurando na Amazon, no Google Books e na Open Library…
+771|Nenhuma capa encontrada. Verifique se você está on-line, tente outras palavras ou procure no Google Imagens.
+772|{0} capa livro
+773|Buscando a imagem…
+774|Toque em uma imagem para vê-la maior e depois toque e segure para usá-la.
+775|Não foi possível buscar essa imagem. Toque nela para abrir maior e tente de novo.
+776|Negrito
+777|Itálico
+778|Sublinhado
+779|Lista com marcadores
+780|Lista numerada
+781|Remover a formatação do texto selecionado
+782|Desfazer
+783|Refazer
+784|Sobre o que é o livro…
+785|O texto colado perde a formatação, para combinar com o resto da descrição.
+786|Descartar as mudanças na descrição?
+787|Descartar
+788|Continuar editando
+789|Digite um título.
+790|Use um número, como 3 ou 2,5.
+791|Use um ano (2005) ou uma data (2005-07-17).
+792|Um ISBN tem 10 ou 13 dígitos. Este tem {0}.
+793|Este ISBN não é válido. Verifique se há erro de digitação.
+794|Este ISBN veio com o livro, mas não é válido.
+795|Editar detalhes
+796|Salvar
+797|Para mudar a capa, toque em Mudar capa na página do livro.
+798|Identificador do livro: {0}
+799|Descartar suas mudanças?
+800|Os detalhes do livro não vão mudar.
+801|Corrija estes problemas para salvar:
+802|Título e autores
+803|Ordenado como “{0}”
+804|Mudar
+1375|Lido
+@ja
+690|Kobo の本に戻る
+691|この本をライブラリに追加するには Kobo を接続してください。
+692|読む
+693|変更あり
+694|Kobo にあり
+695|この端末で読了
+696|この端末で {0}% 読了
+697|選択済み
+698|選択を終了
+699|切り取って全面に
+700|画像を画面いっぱいに拡大し、はみ出した端を切り取ります。
+701|余白をぼかす
+702|画像全体を表示し、空いた部分は画像をぼかしたもので埋めます。
+703|余白を白に
+704|画像全体を表示し、空いた部分は白で埋めます。
+705|そのままにする
+706|画像を切り取りもサイズ変更もせず、そのまま Kobo に送ります。
+707|本の表紙
+708|元の表紙
+709|その画像を開けませんでした。JPEG か PNG を試してください。
+710|その画像を開けませんでした。別の画像を試してください。
+711|フォトから画像を選ぶ
+712|ファイルから画像を選ぶ
+713|ここで作成（デザイン: {0}）
+714|表紙を保存
+715|この端末には写真の選択画面がありません。ファイルを使ってください。
+716|元の表紙に戻しますか？
+717|本についていた表紙に戻します。あとでまた変更できます。
+718|戻す
+719|新しい表紙を破棄しますか？
+720|本の表紙は変わりません。
+721|まだ表紙がありません。画像を選んでください。
+722|現在の表紙
+723|元の表紙
+724|本についていた表紙です。ほかの画像と同じように Kobo の画面に合わせることも、そのまま戻すこともできます。
+725|そのまま戻す
+726|フォト
+727|ファイル
+728|オンラインで探す
+729|表紙を作る
+730|この画像は Kobo の画面よりかなり小さいため、ぼやけて見えるかもしれません。
+731|全体
+732|ズーム
+733|画像をそのままにしている間は、移動とズームはできません。
+734|画像をドラッグして移動、ピンチでズーム、ダブルタップで拡大と縮小ができます。
+735|白黒のプレビュー
+736|Kobo の画面ではだいたいこのように見えます。
+737|画像は元のサイズのまま本のファイルに保存され
+738| （{0} × {1} ピクセル）
+739|、そのまま Kobo に送られます。
+740|表紙は Kobo Clara の画面と同じ {0} × {1} ピクセルで本のファイルに保存されます。
+741|ラベル
+742|クラシック
+743|朝焼け
+744|モザイク
+745|真夜中
+746|ワイン
+747|森
+748|スレート
+749|羊皮紙
+750|リネン
+751|サフラン
+752|インク
+753|カスタム
+754|{0} · 第 {1} 巻
+755|{0}、{1} ほか
+756|この表紙を使う
+757|表紙
+758|おまかせ
+759|スタイル
+760|色
+761|好きな色
+762|暗い表紙
+763|明るい表紙
+764|強さ
+765|表紙には本のタイトル、シリーズ、著者が入ります。Kobo Clara の画面と同じ 1072 × 1448 ピクセルで作成します。
+766|表紙を探す
+767|検索する言葉
+768|Amazon と本のサイト
+769|Google 画像検索
+770|Amazon、Google Books、Open Library で探しています…
+771|表紙が見つかりませんでした。インターネットに接続しているか確認するか、別の言葉で試すか、Google 画像検索で探してください。
+772|{0} 表紙
+773|画像を取得しています…
+774|画像をタップすると大きく表示されます。長押しするとその画像を使います。
+775|その画像を取得できませんでした。タップして大きく開いてから、もう一度試してください。
+776|太字
+777|斜体
+778|下線
+779|箇条書き
+780|番号付きリスト
+781|選んだ文字の書式を解除
+782|元に戻す
+783|やり直す
+784|この本の内容…
+785|貼り付けた文字は、説明のほかの部分に合わせて書式がなくなります。
+786|説明の変更を破棄しますか？
+787|破棄
+788|編集を続ける
+789|タイトルを入力してください。
+790|3 や 2.5 のような数字を入力してください。
+791|年（2005）か日付（2005-07-17）を入力してください。
+792|ISBN は 10 桁か 13 桁です。これは {0} 桁です。
+793|この ISBN は正しくありません。入力ミスがないか確認してください。
+794|この ISBN は本についていたものですが、正しくありません。
+795|情報を編集
+796|保存
+797|表紙を変えるには、本のページで「表紙を変更」をタップしてください。
+798|本の識別子: {0}
+799|変更を破棄しますか？
+800|本の情報は変わりません。
+801|保存するには、次の問題を直してください:
+802|タイトルと著者
+803|並び順: 「{0}」
+804|変更
+1375|既読

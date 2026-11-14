@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.reader
 
+import dev.kobolibrary.app.tr
 import android.content.Context
 import android.graphics.Rect
 import android.view.ActionMode
@@ -10,10 +11,10 @@ import android.webkit.WebView
 
 /** What the reader adds to the text-selection toolbar. */
 enum class SelectionAction(val id: Int, val label: String, val order: Int) {
-    HIGHLIGHT(0x6B4C0001, "Highlight", 0),
-    NOTE(0x6B4C0002, "Note", 0),
-    LOOK_UP(0x6B4C0003, "Look up", 0),
-    SEARCH(0x6B4C0004, "Search in book", 200),
+    HIGHLIGHT(0x6B4C0001, tr("Highlight"), 0),
+    NOTE(0x6B4C0002, tr("Note"), 0),
+    LOOK_UP(0x6B4C0003, tr("Look up"), 0),
+    SEARCH(0x6B4C0004, tr("Search in book"), 200),
 }
 
 /**

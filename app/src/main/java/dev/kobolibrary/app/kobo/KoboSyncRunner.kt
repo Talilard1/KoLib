@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.kobo
 
+import dev.kobolibrary.app.tr
 import dev.kobolibrary.app.library.Library
 import dev.kobolibrary.app.log.AppLog
 import kotlinx.coroutines.Dispatchers
@@ -29,16 +30,16 @@ class KoboSyncRunner(
 
         fun describe(): String? {
             val parts = buildList {
-                if (collectionsOnKobo > 0) add("Put ${plural(collectionsOnKobo)} in their collections on the Kobo.")
-                if (detailsOnKobo > 0) add("Updated the details of ${plural(detailsOnKobo)} on the Kobo.")
-                if (collectionsInLibrary > 0) add("Copied collection changes from the Kobo to ${plural(collectionsInLibrary)} in your library.")
-                if (noLongerOnKobo > 0) add("Marked ${plural(noLongerOnKobo)} as deleted from the Kobo.")
+                if (collectionsOnKobo > 0) add(tr("Put {0} in their collections on the Kobo.", plural(collectionsOnKobo)))
+                if (detailsOnKobo > 0) add(tr("Updated the details of {0} on the Kobo.", plural(detailsOnKobo)))
+                if (collectionsInLibrary > 0) add(tr("Copied collection changes from the Kobo to {0} in your library.", plural(collectionsInLibrary)))
+                if (noLongerOnKobo > 0) add(tr("Marked {0} as deleted from the Kobo.", plural(noLongerOnKobo)))
             }
             if (parts.isEmpty()) return null
             return parts.joinToString(" ")
         }
 
-        private fun plural(n: Int) = if (n == 1) "1 book" else "$n books"
+        private fun plural(n: Int) = if (n == 1) tr("1 book") else tr("{0} books", n)
     }
 
     suspend fun run(session: KoboSession): Outcome = withContext(Dispatchers.IO) {

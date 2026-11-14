@@ -1,5 +1,7 @@
 package dev.kobolibrary.app.epub
 
+import dev.kobolibrary.app.tr
+
 /**
  * A strict well-formedness check, the way an EPUB reader's XML parser sees a file. The app's own
  * reader ([Xml]) forgives mistakes so it can edit damaged books; this says whether a file is right.
@@ -7,7 +9,7 @@ package dev.kobolibrary.app.epub
 object XmlCheck {
 
     data class Problem(val message: String, val line: Int, val column: Int, val offset: Int) {
-        override fun toString() = "Line $line, column $column: $message"
+        override fun toString() = tr("Line {0}, column {1}: {2}", line, column, message)
     }
 
     private val nameStart = Regex("[A-Za-z_:\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD]")
@@ -47,7 +49,7 @@ object XmlCheck {
                 htmlEntities -> name in HtmlEntities.codepoints
                 else -> false
             }
-            return if (ok) null else problem("Unknown character reference &$name;", amp)
+            return if (ok) null else problem(tr("Unknown character reference &{0};", name), amp)
         }
 
         fun checkText(from: Int, to: Int): Problem? {
@@ -56,7 +58,7 @@ object XmlCheck {
                 val c = s[k]
                 if (c == '&') checkReference(k, to)?.let { return it }
                 else if (c == '<') return problem("Stray “<”", k)
-                else if (c.code < 0x20 && c != '\t' && c != '\n' && c != '\r') return problem("A control character (code ${c.code}) isn't allowed", k)
+                else if (c.code < 0x20 && c != '\t' && c != '\n' && c != '\r') return problem(tr("A control character (code {0}) isn't allowed", c.code), k)
                 else if (c == ']' && s.startsWith("]]>", k)) return problem("“]]>” isn't allowed in text", k)
                 k++
             }
@@ -69,7 +71,7 @@ object XmlCheck {
             if (textEnd > i) {
                 if (stack.isEmpty()) {
                     // Outside the root only whitespace may appear.
-                    for (k in i until textEnd) if (!s[k].isWhitespace()) return problem(if (rootClosed) "Text after the end of the document" else "Text before the start of the document", k)
+                    for (k in i until textEnd) if (!s[k].isWhitespace()) return problem(if (rootClosed) tr("Text after the end of the document") else tr("Text before the start of the document"), k)
                 } else {
                     checkText(i, textEnd)?.let { return it }
                 }
@@ -78,20 +80,20 @@ object XmlCheck {
             when {
                 s.startsWith("<!--", lt) -> {
                     val close = s.indexOf("-->", lt + 4)
-                    if (close < 0) return problem("A comment isn't closed", lt)
+                    if (close < 0) return problem(tr("A comment isn't closed"), lt)
                     val dd = s.indexOf("--", lt + 4)
-                    if (dd in (lt + 4) until close) return problem("“--” isn't allowed inside a comment", dd)
+                    if (dd in (lt + 4) until close) return problem(tr("“--” isn't allowed inside a comment"), dd)
                     i = close + 3
                 }
                 s.startsWith("<![CDATA[", lt) -> {
-                    if (stack.isEmpty()) return problem("CDATA isn't allowed outside the document", lt)
+                    if (stack.isEmpty()) return problem(tr("CDATA isn't allowed outside the document"), lt)
                     val close = s.indexOf("]]>", lt + 9)
-                    if (close < 0) return problem("A CDATA section isn't closed", lt)
+                    if (close < 0) return problem(tr("A CDATA section isn't closed"), lt)
                     i = close + 3
                 }
                 s.startsWith("<?", lt) -> {
                     val close = s.indexOf("?>", lt + 2)
-                    if (close < 0) return problem("A processing instruction isn't closed", lt)
+                    if (close < 0) return problem(tr("A processing instruction isn't closed"), lt)
                     val target = s.substring(lt + 2, close).trimStart().takeWhile { !it.isWhitespace() }
                     if (target.equals("xml", true) && lt != (if (n > 0 && s[0] == '﻿') 1 else 0)) {
                         return problem("The <?xml …?> declaration must come first", lt)
@@ -99,7 +101,7 @@ object XmlCheck {
                     i = close + 2
                 }
                 s.startsWith("<!DOCTYPE", lt) || s.startsWith("<!doctype", lt) -> {
-                    if (rootSeen) return problem("A doctype can't come after the document starts", lt)
+                    if (rootSeen) return problem(tr("A doctype can't come after the document starts"), lt)
                     var j = lt + 9
                     var depth = 0
                     var quote = 0.toChar()
@@ -113,7 +115,7 @@ object XmlCheck {
                         else if (c == '>' && depth <= 0) break
                         j++
                     }
-                    if (j >= n) return problem("The doctype isn't closed", lt)
+                    if (j >= n) return problem(tr("The doctype isn't closed"), lt)
                     i = j + 1
                 }
                 s.startsWith("</", lt) -> {
@@ -178,7 +180,7 @@ object XmlCheck {
             }
         }
         if (stack.isNotEmpty()) return problem("<${stack.last()}> is never closed", n)
-        if (!rootSeen) return problem("The file has no content", 0)
+        if (!rootSeen) return problem(tr("The file has no content"), 0)
         return null
     }
 

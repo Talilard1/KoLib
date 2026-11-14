@@ -1,5 +1,7 @@
 package dev.kobolibrary.app.epub
 
+import dev.kobolibrary.app.tr
+
 /**
  * Writes a book's table of contents: the NCX (which EPUB 2 readers and the Kobo use) and the EPUB 3
  * navigation document, whichever the book has. Everything else in those files is kept.
@@ -78,7 +80,7 @@ object Contents {
             val n = ++counter[0]
             append('\n').append(indent).append("<${prefix}navPoint id=\"navPoint-$n\" playOrder=\"$n\">")
             append('\n').append(indent).append(unit).append("<${prefix}navLabel><${prefix}text>")
-                .append(Xml.escapeText(node.title.ifBlank { "Untitled" })).append("</${prefix}text></${prefix}navLabel>")
+                .append(Xml.escapeText(node.title.ifBlank { tr("Untitled") })).append("</${prefix}text></${prefix}navLabel>")
             append('\n').append(indent).append(unit).append("<${prefix}content src=\"").append(Xml.escapeAttr(href(ncxPath, node))).append("\"/>")
             append(ncxPoints(node.children, ncxPath, indent + unit, unit, counter, prefix))
             append('\n').append(indent).append("</${prefix}navPoint>")
@@ -118,9 +120,9 @@ object Contents {
         for (node in toc) {
             if (node.linked || node.children.isEmpty()) {
                 append('\n').append(indent).append(unit).append("<li><a href=\"").append(Xml.escapeAttr(href(navPath, node))).append("\">")
-                    .append(Xml.escapeText(node.title.ifBlank { "Untitled" })).append("</a>")
+                    .append(Xml.escapeText(node.title.ifBlank { tr("Untitled") })).append("</a>")
             } else {
-                append('\n').append(indent).append(unit).append("<li><span>").append(Xml.escapeText(node.title.ifBlank { "Untitled" })).append("</span>")
+                append('\n').append(indent).append(unit).append("<li><span>").append(Xml.escapeText(node.title.ifBlank { tr("Untitled") })).append("</span>")
             }
             if (node.children.isNotEmpty()) {
                 append('\n').append(indent).append(unit).append(unit)

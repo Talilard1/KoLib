@@ -1,5 +1,7 @@
 package dev.kobolibrary.app.kobo
 
+import dev.kobolibrary.app.tr
+
 /** How a book got onto the Kobo, as its database records it. */
 enum class BookKind {
     /** Copied onto the Kobo by USB (what this app will manage). */
@@ -12,9 +14,9 @@ enum class BookKind {
 }
 
 enum class ReadStatus(val label: String) {
-    UNREAD("Unread"),
-    READING("Reading"),
-    FINISHED("Finished");
+    UNREAD(tr("Unread")),
+    READING(tr("Reading")),
+    FINISHED(tr("Finished"));
 
     companion object {
         fun fromKobo(value: Long?): ReadStatus = when (value) {

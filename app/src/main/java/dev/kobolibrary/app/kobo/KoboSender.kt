@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.kobo
 
+import dev.kobolibrary.app.tr
 import android.content.Context
 import dev.kobolibrary.app.epub.BookMetadata
 import dev.kobolibrary.app.epub.EpubEditor
@@ -15,14 +16,14 @@ import java.text.Normalizer
 /** The two ways a book can go onto the Kobo. */
 enum class SendFormat(val label: String, val extension: String, val explanation: String) {
     KEPUB(
-        "Kepub",
+        tr("Kepub"),
         ".kepub.epub",
-        "Kobo's own format. Pages turn faster, and the Kobo shows reading stats.",
+        tr("Kobo's own format. Pages turn faster, and the Kobo shows reading stats."),
     ),
     EPUB(
         "EPUB",
         ".epub",
-        "The standard format. The Kobo opens it in its older, slower reader.",
+        tr("The standard format. The Kobo opens it in its older, slower reader."),
     );
 
     companion object {
@@ -44,8 +45,8 @@ object KoboPaths {
 
     /** [number] above 1 is for a second book with the same title and authors: "Title - Author (2)". */
     fun forBook(meta: BookMetadata, format: SendFormat, number: Int = 1): String {
-        val folder = component(meta.authorSort.ifBlank { "Unknown" }, 60)
-        val authors = meta.authors.joinToString(" & ").ifBlank { "Unknown" }
+        val folder = component(meta.authorSort.ifBlank { tr("Unknown") }, 60)
+        val authors = meta.authors.joinToString(" & ").ifBlank { tr("Unknown") }
         val name = component("${meta.title} - $authors", 110) + if (number > 1) " ($number)" else ""
         return "$folder/$name${format.extension}"
     }
@@ -206,7 +207,7 @@ class KoboSender(private val context: Context) {
                     }
                 } catch (e: Exception) {
                     AppLog.e("Send", "Kepub conversion of '$title' failed", e)
-                    return@withContext SendOutcome.Failed(title, "Couldn't convert it to kepub (${e.message ?: e.javaClass.simpleName}).", conversionFailed = true)
+                    return@withContext SendOutcome.Failed(title, tr("Couldn't convert it to kepub ({0}).", e.message ?: e.javaClass.simpleName), conversionFailed = true)
                 }
                 out
             } else source
@@ -280,10 +281,10 @@ class KoboSender(private val context: Context) {
             )
         } catch (e: IOException) {
             AppLog.e("Send", "Sending '$title' failed", e)
-            SendOutcome.Failed(title, e.message ?: "Couldn't write to the Kobo.")
+            SendOutcome.Failed(title, e.message ?: tr("Couldn't write to the Kobo."))
         } catch (e: SecurityException) {
             AppLog.e("Send", "Sending '$title' failed", e)
-            SendOutcome.Failed(title, "Android didn't allow writing to the Kobo.")
+            SendOutcome.Failed(title, tr("Android didn't allow writing to the Kobo."))
         } finally {
             temps.forEach { it.delete() }
         }
@@ -320,10 +321,10 @@ class KoboSender(private val context: Context) {
             )
         } catch (e: IOException) {
             AppLog.e("Send", "Sending '$title' failed", e)
-            SendOutcome.Failed(title, e.message ?: "Couldn't write to the Kobo.")
+            SendOutcome.Failed(title, e.message ?: tr("Couldn't write to the Kobo."))
         } catch (e: SecurityException) {
             AppLog.e("Send", "Sending '$title' failed", e)
-            SendOutcome.Failed(title, "Android didn't allow writing to the Kobo.")
+            SendOutcome.Failed(title, tr("Android didn't allow writing to the Kobo."))
         }
     }
 

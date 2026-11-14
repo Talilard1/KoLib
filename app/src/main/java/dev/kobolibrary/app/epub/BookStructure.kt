@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.epub
 
+import dev.kobolibrary.app.tr
 import java.io.Closeable
 
 /** Anything a book's files can be read from: the EPUB itself, or an edit in progress. */
@@ -63,7 +64,7 @@ data class TocNode(
 /** The reading order and table of contents of a book, as they are in [source]. */
 class BookStructure(val source: BookFiles) {
 
-    val opfText: String = source.text(source.opfPath) ?: throw EpubException("The book's package file is missing.")
+    val opfText: String = source.text(source.opfPath) ?: throw EpubException(tr("The book's package file is missing."))
     val opf = OpfDocument(opfText)
     val opfPath: String = source.opfPath
     val opfDir: String = opfPath.substringBeforeLast('/', "")

@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.library
 
+import dev.kobolibrary.app.tr
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.PaddingValues
@@ -45,9 +46,9 @@ fun JobDialog(
             Text(
                 when {
                     !p.finished -> p.title
-                    p.cancelled -> "Stopped"
-                    sending && p.failures.isEmpty() -> "Sent"
-                    else -> "Done"
+                    p.cancelled -> tr("Stopped")
+                    sending && p.failures.isEmpty() -> tr("Sent")
+                    else -> tr("Done")
                 }
             )
         },
@@ -56,48 +57,50 @@ fun JobDialog(
                 if (!p.finished) {
                     LinearProgressIndicator(progress = { p.fraction }, modifier = Modifier.fillMaxWidth())
                     Spacer(Modifier.height(10.dp))
-                    Text("${p.done} of ${p.total}", style = MaterialTheme.typography.labelLarge)
+                    Text(tr("{0} of {1}", p.done, p.total), style = MaterialTheme.typography.labelLarge)
                     p.current?.let { Text(it, maxLines = 2, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodyMedium) }
                     Spacer(Modifier.height(10.dp))
                     Text(
-                        if (sending) "Keep the Kobo plugged in until sending finishes. You can hide this window in the meantime."
-                        else "You can hide this window and keep using the app. Progress is shown at the top of the library.",
+                        if (sending) tr("Keep the Kobo plugged in until sending finishes. You can hide this window in the meantime.")
+                        else tr("You can hide this window and keep using the app. Progress is shown at the top of the library."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 } else {
                     val parts = buildList {
                         if (sending) {
-                            add("${Fmt.plural(p.succeeded, "book")} sent.")
-                            if (p.alreadyThere > 0) add(if (p.alreadyThere == 1) "1 of them was already on the Kobo and was updated." else "${p.alreadyThere} of them were already on the Kobo and were updated.")
-                            if (p.failures.isNotEmpty()) add("${p.failures.size} couldn't be sent.")
+                            add(if (p.succeeded == 1) tr("1 book sent.") else tr("{0} books sent.", p.succeeded))
+                            if (p.alreadyThere > 0) add(if (p.alreadyThere == 1) tr("1 of them was already on the Kobo and was updated.") else tr("{0} of them were already on the Kobo and were updated.", p.alreadyThere))
+                            if (p.failures.isNotEmpty()) add(tr("{0} couldn't be sent.", p.failures.size))
                         } else {
-                            add("${Fmt.plural(p.succeeded, "book")} added.")
-                            if (p.alreadyThere > 0) add(if (p.alreadyThere == 1) "1 was already in the library." else "${p.alreadyThere} were already in the library.")
-                            if (p.failures.isNotEmpty()) add("${p.failures.size} couldn't be added.")
+                            add(if (p.succeeded == 1) tr("1 book added.") else tr("{0} books added.", p.succeeded))
+                            if (p.alreadyThere > 0) add(if (p.alreadyThere == 1) tr("1 was already in the library.") else tr("{0} were already in the library.", p.alreadyThere))
+                            if (p.failures.isNotEmpty()) add(tr("{0} couldn't be added.", p.failures.size))
                         }
-                        if (p.cancelled) (p.total - p.done).let { add(if (it == 1) "1 was skipped because you stopped." else "$it were skipped because you stopped.") }
+                        if (p.cancelled) (p.total - p.done).let { add(if (it == 1) tr("1 was skipped because you stopped.") else tr("{0} were skipped because you stopped.", it)) }
                     }
                     Text(parts.joinToString(" "), style = MaterialTheme.typography.bodyLarge)
                     if (sending && p.succeeded > 0) {
                         Spacer(Modifier.height(10.dp))
                         Text(
-                            "Now eject the Kobo. Once it's unplugged, it adds the new books to its library. This takes a moment.",
+                            tr("Now eject the Kobo. Once it's unplugged, it adds the new books to its library. This takes a moment."),
                             style = MaterialTheme.typography.bodyMedium,
                         )
                         if (p.coversAfterRestart.isNotEmpty()) {
                             Spacer(Modifier.height(6.dp))
                             Text(
-                                (if (p.coversAfterRestart.size == 1) "To see the new cover of “${p.coversAfterRestart[0]}”, "
-                                else "To see the new covers of ${p.coversAfterRestart.size} books, ") +
-                                    "restart the Kobo after ejecting it. It keeps showing a book's old cover until it restarts.",
+                                if (p.coversAfterRestart.size == 1) {
+                                    tr("To see the new cover of “{0}”, restart the Kobo after ejecting it. It keeps showing a book's old cover until it restarts.", p.coversAfterRestart[0])
+                                } else {
+                                    tr("To see the new covers of {0} books, restart the Kobo after ejecting it. It keeps showing a book's old cover until it restarts.", p.coversAfterRestart.size)
+                                },
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                         if (onHowToEject != null) {
                             TextButton(onClick = onHowToEject, contentPadding = PaddingValues(horizontal = 0.dp, vertical = 4.dp)) {
-                                Text("How to eject")
+                                Text(tr("How to eject"))
                             }
                         }
                     }
@@ -115,7 +118,7 @@ fun JobDialog(
                     if (sending && p.conversionFailedIds.isNotEmpty() && onSendAsEpub != null) {
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            "Books that couldn't be converted to kepub can be sent as EPUB instead.",
+                            tr("Books that couldn't be converted to kepub can be sent as EPUB instead."),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -125,14 +128,14 @@ fun JobDialog(
         },
         confirmButton = {
             if (p.finished) TextButton(onClick = onDone) { Text("OK") }
-            else TextButton(onClick = onHide) { Text("Hide") }
+            else TextButton(onClick = onHide) { Text(tr("Hide")) }
         },
         dismissButton = {
             when {
-                !p.finished -> TextButton(onClick = onStop) { Text("Stop") }
+                !p.finished -> TextButton(onClick = onStop) { Text(tr("Stop")) }
                 sending && p.conversionFailedIds.isNotEmpty() && onSendAsEpub != null ->
-                    TextButton(onClick = { onSendAsEpub(p.conversionFailedIds) }) { Text("Send them as EPUB") }
-                onOpenLibrary != null && p.succeeded > 0 -> TextButton(onClick = onOpenLibrary) { Text("Open library") }
+                    TextButton(onClick = { onSendAsEpub(p.conversionFailedIds) }) { Text(tr("Send them as EPUB")) }
+                onOpenLibrary != null && p.succeeded > 0 -> TextButton(onClick = onOpenLibrary) { Text(tr("Open library")) }
             }
         },
     )

@@ -110,7 +110,8 @@ object Fmt {
     fun time(millis: Long?): String? = millis?.let { timeFormatter.format(Instant.ofEpochMilli(it)) }
     fun bytes(context: Context, bytes: Long?): String? = bytes?.let { Formatter.formatShortFileSize(context, it) }
 
-    fun plural(n: Int, one: String, many: String = one + "s") = "$n ${if (n == 1) one else many}"
+    /** "1 book", "3 books": [one] and [many] are the English words; the phrase is in KoLib's language. */
+    fun plural(n: Int, one: String, many: String = one + "s") = dev.kobolibrary.app.tr(if (n == 1) "{0} $one" else "{0} $many", n)
 
     /** A publication date as stored ("2003", "2003-02" or "2003-02-27"), written out for reading. */
     fun publication(iso: String?): String? {

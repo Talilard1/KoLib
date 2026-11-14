@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.library
 
+import dev.kobolibrary.app.tr
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -88,12 +89,12 @@ internal object MakeBooks {
                 val whole = numbers.all { it == Math.floor(it) }
                 val run = whole && numbers.zipWithNext().all { (a, b) -> b - a == 1.0 }
                 return when {
-                    run -> "$series: Books ${number(numbers.first())}–${number(numbers.last())}"
-                    numbers.size == 2 -> "$series: Books ${number(numbers[0])} & ${number(numbers[1])}"
-                    else -> "$series: Books " + numbers.dropLast(1).joinToString(", ") { number(it) } + " & " + number(numbers.last())
+                    run -> tr("{0}: Books {1}–{2}", series, number(numbers.first()), number(numbers.last()))
+                    numbers.size == 2 -> tr("{0}: Books {1} & {2}", series, number(numbers[0]), number(numbers[1]))
+                    else -> tr("{0}: Books {1} & {2}", series, numbers.dropLast(1).joinToString(", ") { number(it) }, number(numbers.last()))
                 }
             }
-            return "$series Omnibus"
+            return tr("{0} Omnibus", series)
         }
         return when (books.size) {
             2 -> "${books[0].title} & ${books[1].title}"
@@ -101,7 +102,7 @@ internal object MakeBooks {
             else -> {
                 val authors = books.map { b -> b.meta.authors.map { it.lowercase() }.toSet() }.distinct()
                 val author = books[0].meta.authors.singleOrNull()?.takeIf { authors.size == 1 }
-                if (author != null) "$author Omnibus" else "${books[0].title} and Others"
+                if (author != null) tr("{0} Omnibus", author) else tr("{0} and Others", books[0].title)
             }
         }
     }
@@ -109,7 +110,7 @@ internal object MakeBooks {
     /** Everyone who wrote them, in order: "A & B", or "Various" for a crowd. */
     fun mergedAuthor(books: List<LibraryBook>): String {
         val all = books.flatMap { it.meta.authors }.map { it.trim() }.filter { it.isNotEmpty() }.distinctBy { it.lowercase() }
-        return if (all.size > 4) "Various" else all.joinToString(" & ")
+        return if (all.size > 4) tr("Various") else all.joinToString(" & ")
     }
 }
 
@@ -123,11 +124,11 @@ fun NewBookDialog(onMake: (title: String, author: String) -> Unit, onDismiss: ()
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.AutoMirrored.Outlined.NoteAdd, null) },
-        title = { Text("Write a new book") },
+        title = { Text(tr("Write a new book")) },
         text = {
             Column {
                 Text(
-                    "The book opens in the text editor with one empty chapter. You can add more chapters from the chapter list. A simple cover is made for it, and you can change it later.",
+                    tr("The book opens in the text editor with one empty chapter. You can add more chapters from the chapter list. A simple cover is made for it, and you can change it later."),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -135,7 +136,7 @@ fun NewBookDialog(onMake: (title: String, author: String) -> Unit, onDismiss: ()
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("Title") },
+                    label = { Text(tr("Title")) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().focusRequester(focus),
                 )
@@ -143,15 +144,15 @@ fun NewBookDialog(onMake: (title: String, author: String) -> Unit, onDismiss: ()
                 OutlinedTextField(
                     value = author,
                     onValueChange = { author = it },
-                    label = { Text("Author") },
-                    supportingText = { Text("For more than one author, put & between the names") },
+                    label = { Text(tr("Author")) },
+                    supportingText = { Text(tr("For more than one author, put & between the names")) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
         },
-        confirmButton = { TextButton(onClick = { onMake(title, author) }, enabled = title.isNotBlank()) { Text("Create") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        confirmButton = { TextButton(onClick = { onMake(title, author) }, enabled = title.isNotBlank()) { Text(tr("Create")) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Cancel")) } },
     )
 }
 
@@ -182,10 +183,10 @@ fun MergeDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Outlined.Merge, null) },
-        title = { Text("Combine ${books.size} books") },
+        title = { Text(tr("Combine {0} books", books.size)) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
-                Text("Order", style = MaterialTheme.typography.titleSmall)
+                Text(tr("Order"), style = MaterialTheme.typography.titleSmall)
                 Spacer(Modifier.height(4.dp))
                 order.forEachIndexed { i, b ->
                     Row(Modifier.fillMaxWidth().padding(vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -202,15 +203,15 @@ fun MergeDialog(
                                 overflow = TextOverflow.Ellipsis,
                             )
                         }
-                        IconButton(onClick = { move(i, i - 1) }, enabled = i > 0) { Icon(Icons.Outlined.ArrowUpward, "Move “${b.title}” up") }
-                        IconButton(onClick = { move(i, i + 1) }, enabled = i < order.lastIndex) { Icon(Icons.Outlined.ArrowDownward, "Move “${b.title}” down") }
+                        IconButton(onClick = { move(i, i - 1) }, enabled = i > 0) { Icon(Icons.Outlined.ArrowUpward, tr("Move “{0}” up", b.title)) }
+                        IconButton(onClick = { move(i, i + 1) }, enabled = i < order.lastIndex) { Icon(Icons.Outlined.ArrowDownward, tr("Move “{0}” down", b.title)) }
                     }
                 }
                 Spacer(Modifier.height(16.dp))
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it; titleTyped = true },
-                    label = { Text("Title") },
+                    label = { Text(tr("Title")) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -218,24 +219,23 @@ fun MergeDialog(
                 OutlinedTextField(
                     value = author,
                     onValueChange = { author = it; authorTyped = true },
-                    label = { Text("Author") },
-                    supportingText = { Text("For more than one author, put & between the names") },
+                    label = { Text(tr("Author")) },
+                    supportingText = { Text(tr("For more than one author, put & between the names")) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(Modifier.height(8.dp))
-                Text("Cover", style = MaterialTheme.typography.titleSmall)
-                CoverChoice(selected = coverOf == null, text = "Make a new cover with the title", onClick = { coverOf = null })
+                Text(tr("Cover"), style = MaterialTheme.typography.titleSmall)
+                CoverChoice(selected = coverOf == null, text = tr("Make a new cover with the title"), onClick = { coverOf = null })
                 order.filter { it.hasCover }.forEach { b ->
-                    CoverChoice(selected = coverOf == b.id, text = "Use the cover of “${b.title}”", onClick = { coverOf = b.id })
+                    CoverChoice(selected = coverOf == b.id, text = tr("Use the cover of “{0}”", b.title), onClick = { coverOf = b.id })
                 }
                 Spacer(Modifier.height(12.dp))
                 Row(verticalAlignment = Alignment.Top) {
                     Icon(Icons.Outlined.Info, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        "The new book contains all their chapters, in this order. Its contents list each book with its chapters under it. " +
-                            "It's added to all of their collections. The original books aren't changed.",
+                        tr("The new book contains all their chapters, in this order. Its contents list each book with its chapters under it. It's added to all of their collections. The original books aren't changed."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -246,9 +246,9 @@ fun MergeDialog(
             TextButton(
                 onClick = { onMerge(order.map { it.id }, title, author, coverOf?.let { id -> order.indexOfFirst { it.id == id }.takeIf { it >= 0 } }) },
                 enabled = title.isNotBlank(),
-            ) { Text("Combine") }
+            ) { Text(tr("Combine")) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Cancel")) } },
     )
 }
 
@@ -295,34 +295,34 @@ fun SplitBookDialog(
         if (pages != null) return@LaunchedEffect
         try {
             val p = loadPages()
-            if (p.size < 2) problem = "“${book.title}” has only one chapter, so it can't be split into books. First split the chapter in the text editor."
+            if (p.size < 2) problem = tr("“{0}” has only one chapter, so it can't be split into books. First split the chapter in the text editor.", book.title)
             BookAssembly.suggestedCuts(p).forEach { cuts[it] = true }
             suggested = cuts.size
             pages = p
         } catch (e: AssemblyException) {
             problem = e.message
         } catch (e: Exception) {
-            problem = "The book couldn't be read: ${e.message ?: e.javaClass.simpleName}"
+            problem = tr("The book couldn't be read: {0}", e.message ?: e.javaClass.simpleName)
         }
     }
     val list = pages
     val sortedCuts = cuts.keys.sorted()
     val starts = listOf(0) + sortedCuts
     val defaults = remember(list, sortedCuts) { list?.let { BookAssembly.partTitles(it, sortedCuts, book.title) }.orEmpty() }
-    fun titleOf(k: Int) = typed[starts[k]] ?: defaults.getOrElse(k) { "${book.title} (part ${k + 1})" }
+    fun titleOf(k: Int) = typed[starts[k]] ?: defaults.getOrElse(k) { tr("{0} (part {1})", book.title, k + 1) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.AutoMirrored.Outlined.CallSplit, null) },
-        title = { Text(if (step == 0) "Split “${book.title}”" else "Name the ${starts.size} books") },
+        title = { Text(if (step == 0) tr("Split “{0}”", book.title) else tr("Name the {0} books", starts.size)) },
         text = {
             when {
                 problem != null -> Text(problem!!, style = MaterialTheme.typography.bodyMedium)
                 list == null -> Box(Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
                 step == 0 -> Column {
                     Text(
-                        "Tick the chapters where each new book starts." +
-                            if (suggested > 0) " Chapters that look like the start of a book are already ticked." else "",
+                        tr("Tick the chapters where each new book starts.") +
+                            if (suggested > 0) tr(" Chapters that look like the start of a book are already ticked.") else "",
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Spacer(Modifier.height(8.dp))
@@ -354,8 +354,8 @@ fun SplitBookDialog(
                                     )
                                     Text(
                                         listOfNotNull(
-                                            if (p.words == 1) "1 word" else "%,d words".format(p.words),
-                                            if (!p.linear) "only opened from links" else null,
+                                            if (p.words == 1) tr("1 word") else tr("{0} words", "%,d".format(p.words)),
+                                            if (!p.linear) tr("only opened from links") else null,
                                         ).joinToString(" · "),
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -363,7 +363,7 @@ fun SplitBookDialog(
                                 }
                                 if (startsBook) {
                                     Text(
-                                        "Book ${starts.indexOf(p.index) + 1}",
+                                        tr("Book {0}", starts.indexOf(p.index) + 1),
                                         style = MaterialTheme.typography.labelMedium,
                                         color = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.padding(start = 8.dp, end = 4.dp),
@@ -375,7 +375,7 @@ fun SplitBookDialog(
                     HorizontalDivider()
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        if (sortedCuts.isEmpty()) "Nothing ticked yet. The first book always starts at the beginning." else "This will make ${starts.size} books.",
+                        if (sortedCuts.isEmpty()) tr("Nothing ticked yet. The first book always starts at the beginning.") else tr("This will make {0} books.", starts.size),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -388,15 +388,15 @@ fun SplitBookDialog(
                             .padding(vertical = 6.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text("Number them as a series", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                        Text(tr("Number them as a series"), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
                         Switch(checked = numbered, onCheckedChange = null)
                     }
                     if (numbered) {
                         OutlinedTextField(
                             value = series,
                             onValueChange = { series = it },
-                            label = { Text("Series") },
-                            supportingText = { Text("They'll be numbered 1, 2, 3… in this order") },
+                            label = { Text(tr("Series")) },
+                            supportingText = { Text(tr("They'll be numbered 1, 2, 3… in this order")) },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth(),
                         )
@@ -408,8 +408,8 @@ fun SplitBookDialog(
                         OutlinedTextField(
                             value = titleOf(k),
                             onValueChange = { typed[start] = it },
-                            label = { Text("Book ${k + 1}") },
-                            supportingText = { Text("%,d words, starting at “%s”".format(words, list[start].title), maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                            label = { Text(tr("Book {0}", k + 1)) },
+                            supportingText = { Text(tr("{0} words, starting at “{1}”", "%,d".format(words), list[start].title), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth(),
                         )
@@ -419,9 +419,7 @@ fun SplitBookDialog(
                         Icon(Icons.Outlined.Info, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(Modifier.width(8.dp))
                         Text(
-                            "Each new book gets its chapters, with the pictures, styles and fonts they use, and any notes pages they link to. " +
-                                "The first book gets the original cover. The others use the first picture in their opening pages, or get a new cover with their title. " +
-                                "“${book.title}” itself isn't changed.",
+                            tr("Each new book gets its chapters, with the pictures, styles and fonts they use, and any notes pages they link to. The first book gets the original cover. The others use the first picture in their opening pages, or get a new cover with their title. “{0}” itself isn't changed.", book.title),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -431,19 +429,19 @@ fun SplitBookDialog(
         },
         confirmButton = {
             when {
-                problem != null || list == null -> TextButton(onClick = onDismiss) { Text("Close") }
-                step == 0 -> TextButton(onClick = { step = 1 }, enabled = sortedCuts.isNotEmpty()) { Text("Next") }
+                problem != null || list == null -> TextButton(onClick = onDismiss) { Text(tr("Close")) }
+                step == 0 -> TextButton(onClick = { step = 1 }, enabled = sortedCuts.isNotEmpty()) { Text(tr("Next")) }
                 else -> TextButton(
                     onClick = { onSplit(sortedCuts, starts.indices.map { titleOf(it) }, series.trim().takeIf { numbered && it.isNotEmpty() }) },
                     enabled = starts.indices.all { titleOf(it).isNotBlank() },
-                ) { Text("Split") }
+                ) { Text(tr("Split")) }
             }
         },
         dismissButton = {
             when {
                 problem != null || list == null -> Unit
-                step == 0 -> TextButton(onClick = onDismiss) { Text("Cancel") }
-                else -> TextButton(onClick = { step = 0 }) { Text("Back") }
+                step == 0 -> TextButton(onClick = onDismiss) { Text(tr("Cancel")) }
+                else -> TextButton(onClick = { step = 0 }) { Text(tr("Back")) }
             }
         },
     )
@@ -468,39 +466,39 @@ fun ExportDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Outlined.SaveAlt, null) },
-        title = { Text(if (count == 1 && title != null) "Save “$title” as a file" else "Save ${count} books as files") },
+        title = { Text(if (count == 1 && title != null) tr("Save “{0}” as a file", title) else tr("Save {0} books as files", count)) },
         text = {
             Column {
                 CoverChoice(
                     selected = format == dev.kobolibrary.app.kobo.SendFormat.EPUB,
-                    text = "EPUB: works with any reading app or e-reader",
+                    text = tr("EPUB: works with any reading app or e-reader"),
                     onClick = { format = dev.kobolibrary.app.kobo.SendFormat.EPUB },
                 )
                 CoverChoice(
                     selected = format == dev.kobolibrary.app.kobo.SendFormat.KEPUB,
-                    text = "Kepub: Kobo's own format, the same as when sending to the Kobo",
+                    text = tr("Kepub: Kobo's own format, the same as when sending to the Kobo"),
                     onClick = { format = dev.kobolibrary.app.kobo.SendFormat.KEPUB },
                 )
                 if (addedAsOther > 0) {
                     CoverChoice(
                         selected = format == null,
                         text = when {
-                            count == 1 && addedAsLabel != null -> "$addedAsLabel: the file it was added as"
-                            addedAsOther == count -> "As they were added: the PDF, MOBI or other file each one came as"
-                            else -> "As they were added: books that came as PDFs, MOBIs and so on are saved as those, the rest as EPUBs"
+                            count == 1 && addedAsLabel != null -> tr("{0}: the file it was added as", addedAsLabel)
+                            addedAsOther == count -> tr("As they were added: the PDF, MOBI or other file each one came as")
+                            else -> tr("As they were added: books that came as PDFs, MOBIs and so on are saved as those, the rest as EPUBs")
                         },
                         onClick = { format = null },
                     )
                 }
                 Spacer(Modifier.height(12.dp))
                 Text(
-                    if (count == 1) "Next, you'll choose where to save it." else "Next, you'll choose a folder. Each book is saved there as “Title - Author”.",
+                    if (count == 1) tr("Next, you'll choose where to save it.") else tr("Next, you'll choose a folder. Each book is saved there as “Title - Author”."),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         },
-        confirmButton = { TextButton(onClick = { onSave(format) }) { Text("Choose location") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        confirmButton = { TextButton(onClick = { onSave(format) }) { Text(tr("Choose location")) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Cancel")) } },
     )
 }

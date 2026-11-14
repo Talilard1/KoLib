@@ -2,6 +2,7 @@
 
 package dev.kobolibrary.app.ui.cover
 
+import dev.kobolibrary.app.ui.components.GoldButton
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -212,6 +213,7 @@ fun CoverEditorScreen(
     BackHandler { tryClose() }
 
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 navigationIcon = { IconButton(onClick = tryClose) { Icon(Icons.Filled.Close, "Close") } },
@@ -226,9 +228,9 @@ fun CoverEditorScreen(
                         CircularProgressIndicator(Modifier.size(22.dp), strokeWidth = 2.dp)
                         Spacer(Modifier.width(16.dp))
                     }
-                    Button(
+                    GoldButton(
                         onClick = {
-                            val pic = shown?.picture ?: return@Button
+                            val pic = shown?.picture ?: return@GoldButton
                             val how = crop
                             rendering = true
                             scope.launch {
@@ -243,7 +245,7 @@ fun CoverEditorScreen(
                         modifier = Modifier.padding(end = 12.dp),
                     ) { Text("Save cover") }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             )
         },
     ) { padding ->

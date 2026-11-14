@@ -2,6 +2,7 @@
 
 package dev.kobolibrary.app.ui.cover
 
+import dev.kobolibrary.app.ui.components.GoldButton
 import android.graphics.Bitmap
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
@@ -110,6 +111,7 @@ fun CoverGeneratorScreen(
     }
 
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 navigationIcon = { IconButton(onClick = onCancel) { Icon(Icons.Filled.Close, "Cancel") } },
@@ -119,7 +121,7 @@ fun CoverGeneratorScreen(
                         CircularProgressIndicator(Modifier.size(22.dp), strokeWidth = 2.dp)
                         Spacer(Modifier.width(16.dp))
                     }
-                    Button(
+                    GoldButton(
                         onClick = {
                             making = true
                             scope.launch {
@@ -132,7 +134,7 @@ fun CoverGeneratorScreen(
                         modifier = Modifier.padding(end = 12.dp),
                     ) { Text("Use this cover") }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             )
         },
     ) { padding ->

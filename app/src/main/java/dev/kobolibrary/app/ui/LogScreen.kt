@@ -2,6 +2,8 @@
 
 package dev.kobolibrary.app.ui
 
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.graphics.Color
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -57,8 +59,10 @@ fun LogScreen(onBack: () -> Unit, onMessage: (String) -> Unit) {
     }
 
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
                 title = { Text("Log") },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
                 actions = {

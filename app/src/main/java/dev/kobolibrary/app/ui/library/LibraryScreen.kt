@@ -5,6 +5,7 @@ package dev.kobolibrary.app.ui.library
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
@@ -68,6 +69,9 @@ import androidx.compose.material.icons.outlined.LocalOffer
 import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material.icons.outlined.Usb
 import androidx.compose.material.icons.outlined.WarningAmber
+import dev.kobolibrary.app.ui.components.KoLibMark
+import dev.kobolibrary.app.ui.components.SeriesStyle
+import dev.kobolibrary.app.ui.components.GoldButton
 import dev.kobolibrary.app.ui.components.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
@@ -202,6 +206,7 @@ fun LibraryScreen(
     var addMenu by remember { mutableStateOf(false) }
 
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = {
@@ -217,7 +222,7 @@ fun LibraryScreen(
                 actions = {
                     IconButton(onClick = onAbout) { Icon(Icons.Outlined.Info, "About and licences") }
                     Box {
-                        FilledTonalButton(onClick = { addMenu = true }) {
+                        GoldButton(onClick = { addMenu = true }) {
                             Icon(Icons.Filled.Add, null, Modifier.size(18.dp))
                             Spacer(Modifier.width(8.dp))
                             Text("Add books")
@@ -243,7 +248,7 @@ fun LibraryScreen(
                     }
                     Spacer(Modifier.width(8.dp))
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             )
         },
     ) { padding ->
@@ -338,7 +343,7 @@ internal fun JobStrip(p: JobProgress, onShow: () -> Unit) {
 internal fun EmptyLibrary(koboConnected: Boolean, onAddFiles: () -> Unit, onAddFromKobo: () -> Unit, onNewBook: () -> Unit) {
     Box(Modifier.fillMaxSize().padding(32.dp), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.widthIn(max = 520.dp)) {
-            Icon(Icons.Outlined.AutoStories, null, tint = MaterialTheme.colorScheme.outline, modifier = Modifier.size(56.dp))
+            KoLibMark(Modifier.size(84.dp), glow = true)
             Spacer(Modifier.height(16.dp))
             Text("Your library is empty", style = MaterialTheme.typography.headlineSmall)
             Spacer(Modifier.height(8.dp))
@@ -351,7 +356,7 @@ internal fun EmptyLibrary(koboConnected: Boolean, onAddFiles: () -> Unit, onAddF
             )
             Spacer(Modifier.height(24.dp))
             val fromKobo: @Composable () -> Unit = {
-                Button(onClick = onAddFromKobo, modifier = if (phoneLayout()) Modifier.fillMaxWidth().height(48.dp) else Modifier) {
+                GoldButton(onClick = onAddFromKobo, modifier = if (phoneLayout()) Modifier.fillMaxWidth().height(48.dp) else Modifier) {
                     Icon(Icons.Outlined.Usb, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
                     Text(if (koboConnected) "Add from Kobo" else "Connect Kobo")
@@ -511,7 +516,13 @@ internal fun LibraryGridItem(
         Modifier
             .shelfUnderCover(coverTop = padding, index = index, count = count)
             .clip(RoundedCornerShape(12.dp))
-            .background(if (highlighted && picked == null) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent)
+            .then(
+                if (highlighted && picked == null) {
+                    Modifier
+                        .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.8f))
+                        .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.45f), RoundedCornerShape(12.dp))
+                } else Modifier
+            )
             .combinedClickable(onClick = onTap, onLongClick = onHold)
             .padding(padding)
     ) {
@@ -921,13 +932,13 @@ fun LibraryDetailPane(
                 Text(meta.title, style = MaterialTheme.typography.headlineSmall)
                 Spacer(Modifier.height(6.dp))
                 book.authorLine?.let { Text(it, style = MaterialTheme.typography.titleMedium) }
-                meta.seriesLabel?.let { Text(it, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.secondary) }
+                meta.seriesLabel?.let { Text(it, style = SeriesStyle(), color = MaterialTheme.colorScheme.primary) }
                 meta.rating?.takeIf { it > 0 }?.let { r ->
                     Row(Modifier.padding(top = 6.dp)) {
                         repeat(5) { i ->
                             Icon(
                                 Icons.Filled.Star, null,
-                                tint = if (i < (r + 1) / 2) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.outlineVariant,
+                                tint = if (i < (r + 1) / 2) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
                                 modifier = Modifier.size(18.dp),
                             )
                         }
@@ -938,7 +949,7 @@ fun LibraryDetailPane(
         // What can be done with the book, under the cover so the buttons can sit side by side.
         Spacer(Modifier.height(20.dp))
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(onClick = onRead) {
+            GoldButton(onClick = onRead) {
                 Icon(Icons.AutoMirrored.Outlined.MenuBook, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
                 Text(

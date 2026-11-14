@@ -93,6 +93,24 @@ class PageCurlTest {
         }
     }
 
+    @Test
+    fun aLeafHeldRightOverIsTheSameColourAsThePageItBecomes() {
+        // Two pages: dragged right over and held, the leaf's back is the new left-hand page. It has to
+        // look just as that page will when the turn ends, not a shade darker.
+        val w = 1280; val h = 800
+        val paper = Color.rgb(0xF4, 0xEC, 0xD8)
+        val a = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.rgb(0x30, 0x40, 0x50)) }
+        val b = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888).apply { eraseColor(paper) }
+        val c = PageCurl(w / 2f, 1, w / 2f, h.toFloat(), 1f)
+        c.anchorY = h * 0.8f
+        val img = frame(w, h) { cv -> c.draw(cv, a, b, paper, c.pose(0f)) }
+        for ((x, y) in listOf(40 to 40, 320 to 400, 600 to 760, 200 to 650)) {
+            val got = img.getPixel(x, y)
+            val off = maxOf(abs(Color.red(got) - Color.red(paper)), abs(Color.green(got) - Color.green(paper)), abs(Color.blue(got) - Color.blue(paper)))
+            assertTrue("at $x,$y: ${Integer.toHexString(got)} instead of ${Integer.toHexString(paper)}", off <= 1)
+        }
+    }
+
     // ---- pictures, to look at --------------------------------------------------------------------
 
     private val out = File("build/outputs/curl").apply { mkdirs() }

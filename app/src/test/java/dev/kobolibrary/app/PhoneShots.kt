@@ -253,6 +253,10 @@ class PhoneShots {
     @Test @Config(qualifiers = PHONE) fun libraryFiltered() = libraryIn("p04_library_filtered") { collection = "Classics"; sortBy(LibrarySort.LAST_READ) }
     @Test @Config(qualifiers = PHONE) fun book() = libraryIn("p05_book") { selectedId = it.titled("Moby Dick").id }
     @Test @Config(qualifiers = PHONE) fun bookLight() = libraryIn("p05_book_light", ThemeChoice.LIGHT) { selectedId = it.titled("Moby Dick").id }
+    @Test @Config(qualifiers = PHONE) fun libraryDarkLook() = libraryIn("p02_library_dark", ThemeChoice.DARK)
+    @Test @Config(qualifiers = PHONE) fun libraryOledLook() = libraryIn("p02_library_oled", ThemeChoice.OLED)
+    @Test @Config(qualifiers = PHONE) fun bookDarkLook() = libraryIn("p05_book_dark", ThemeChoice.DARK) { selectedId = it.titled("Moby Dick").id }
+    @Test @Config(qualifiers = PHONE) fun bookOledLook() = libraryIn("p05_book_oled", ThemeChoice.OLED) { selectedId = it.titled("Moby Dick").id }
     @Test @Config(qualifiers = PHONE) fun bookLongTitle() = libraryIn("p06_book_story") { selectedId = it.titled(STORY).id }
     @Test @Config(qualifiers = PHONE) fun selecting() = libraryIn("p07_selecting") {
         selecting = true

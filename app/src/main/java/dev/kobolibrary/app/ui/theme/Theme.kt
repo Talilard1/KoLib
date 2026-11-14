@@ -1,123 +1,169 @@
 package dev.kobolibrary.app.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.graphics.Color
-import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import dev.kobolibrary.app.ui.components.PenTapsOpenTheKeyboard
+import kotlin.math.max
 
-// Ink blue and leather on warm paper.
+// ---- the gold of the opening -------------------------------------------------------------------
+
+/** The opening's colours, which every look borrows from. */
+object KoLibGold {
+    val night = Color(0xFF1E120B)
+    val glow = Color(0xFF46291A)
+    val ember = Color(0xFF7A4A22)
+    val light = Color(0xFFF6CF95)
+    val gold = Color(0xFFE2B76A)
+    val deep = Color(0xFFC98A45)
+    val spark = Color(0xFFFFF3D6)
+    /** Text and icons on gold. */
+    val ink = Color(0xFF2A1806)
+}
+
+// ---- the looks --------------------------------------------------------------------------------
+
+// Warm paper, ink, and gold leaf.
 private val Light = lightColorScheme(
-    primary = Color(0xFF2F5D8A),
+    primary = Color(0xFF87591A),
     onPrimary = Color(0xFFFFFFFF),
-    primaryContainer = Color(0xFFD3E4FF),
-    onPrimaryContainer = Color(0xFF001C38),
-    secondary = Color(0xFF8A5A2B),
+    primaryContainer = Color(0xFFF3DDB3),
+    onPrimaryContainer = Color(0xFF2E1D02),
+    secondary = Color(0xFF7A5C3A),
     onSecondary = Color(0xFFFFFFFF),
-    secondaryContainer = Color(0xFFFFDCC2),
-    onSecondaryContainer = Color(0xFF2E1500),
-    tertiary = Color(0xFF4E6543),
+    secondaryContainer = Color(0xFFEEDFC4),
+    onSecondaryContainer = Color(0xFF3A2A12),
+    tertiary = Color(0xFF4F6B3F),
     onTertiary = Color(0xFFFFFFFF),
-    tertiaryContainer = Color(0xFFD0EBC0),
-    onTertiaryContainer = Color(0xFF0C2006),
-    background = Color(0xFFFBF8F3),
-    onBackground = Color(0xFF1D1B18),
-    surface = Color(0xFFFBF8F3),
-    onSurface = Color(0xFF1D1B18),
-    surfaceVariant = Color(0xFFEDE6DC),
-    onSurfaceVariant = Color(0xFF4D463C),
-    outline = Color(0xFF7F766B),
-    outlineVariant = Color(0xFFD1C6B8),
+    tertiaryContainer = Color(0xFFD6E9C6),
+    onTertiaryContainer = Color(0xFF13240A),
+    error = Color(0xFFB3261E),
+    onError = Color(0xFFFFFFFF),
+    errorContainer = Color(0xFFF9DEDC),
+    onErrorContainer = Color(0xFF410E0B),
+    background = Color(0xFFFBF7EF),
+    onBackground = Color(0xFF1F1A14),
+    surface = Color(0xFFFBF7EF),
+    onSurface = Color(0xFF1F1A14),
+    surfaceVariant = Color(0xFFEEE5D6),
+    onSurfaceVariant = Color(0xFF5A4E40),
+    surfaceTint = Color(0xFF87591A),
+    outline = Color(0xFF857766),
+    outlineVariant = Color(0xFFDCCFBC),
     surfaceContainerLowest = Color(0xFFFFFFFF),
-    surfaceContainerLow = Color(0xFFF7F2EA),
-    surfaceContainer = Color(0xFFF2ECE3),
-    surfaceContainerHigh = Color(0xFFECE6DC),
-    surfaceContainerHighest = Color(0xFFE6E0D6),
-    surfaceBright = Color(0xFFFBF8F3),
-    surfaceDim = Color(0xFFDDD8CF),
+    surfaceContainerLow = Color(0xFFF7F1E6),
+    surfaceContainer = Color(0xFFF2EADD),
+    surfaceContainerHigh = Color(0xFFECE3D4),
+    surfaceContainerHighest = Color(0xFFE6DCCB),
+    surfaceBright = Color(0xFFFBF7EF),
+    surfaceDim = Color(0xFFDED4C3),
+    inverseSurface = Color(0xFF342E26),
+    inverseOnSurface = Color(0xFFF8EFE2),
+    inversePrimary = Color(0xFFE6BE78),
 )
 
+// The opening's own colours: gold on deep brown.
 private val Dark = darkColorScheme(
-    primary = Color(0xFFA2C9F7),
-    onPrimary = Color(0xFF00325A),
-    primaryContainer = Color(0xFF14456F),
-    onPrimaryContainer = Color(0xFFD3E4FF),
-    secondary = Color(0xFFF0BD8E),
-    onSecondary = Color(0xFF4A2800),
-    secondaryContainer = Color(0xFF6A4315),
-    onSecondaryContainer = Color(0xFFFFDCC2),
-    tertiary = Color(0xFFB4CFA5),
-    onTertiary = Color(0xFF21361A),
-    tertiaryContainer = Color(0xFF374D2D),
-    onTertiaryContainer = Color(0xFFD0EBC0),
-    background = Color(0xFF161412),
-    onBackground = Color(0xFFE8E2D9),
-    surface = Color(0xFF161412),
-    onSurface = Color(0xFFE8E2D9),
-    surfaceVariant = Color(0xFF4D463C),
-    onSurfaceVariant = Color(0xFFD0C5B8),
-    outline = Color(0xFF998F83),
-    outlineVariant = Color(0xFF4D463C),
-    surfaceContainerLowest = Color(0xFF100E0C),
-    surfaceContainerLow = Color(0xFF1E1B18),
-    surfaceContainer = Color(0xFF221F1C),
-    surfaceContainerHigh = Color(0xFF2D2A26),
-    surfaceContainerHighest = Color(0xFF383430),
-    surfaceBright = Color(0xFF3C3935),
-    surfaceDim = Color(0xFF161412),
+    primary = Color(0xFFE6BE78),
+    onPrimary = Color(0xFF2B1903),
+    primaryContainer = Color(0xFF5B3F16),
+    onPrimaryContainer = Color(0xFFFFE3B3),
+    secondary = Color(0xFFDDB68C),
+    onSecondary = Color(0xFF3A2410),
+    secondaryContainer = Color(0xFF4A3420),
+    onSecondaryContainer = Color(0xFFF6D9A8),
+    tertiary = Color(0xFFB5CDA0),
+    onTertiary = Color(0xFF1E3312),
+    tertiaryContainer = Color(0xFF34472A),
+    onTertiaryContainer = Color(0xFFD2E8C2),
+    error = Color(0xFFF0A492),
+    onError = Color(0xFF4D1408),
+    errorContainer = Color(0xFF6E2A1C),
+    onErrorContainer = Color(0xFFFFDAD2),
+    background = Color(0xFF1A110B),
+    onBackground = Color(0xFFF3E8D7),
+    surface = Color(0xFF1A110B),
+    onSurface = Color(0xFFF3E8D7),
+    surfaceVariant = Color(0xFF4B3727),
+    onSurfaceVariant = Color(0xFFCBB497),
+    surfaceTint = Color(0xFFE6BE78),
+    outline = Color(0xFF8E7458),
+    outlineVariant = Color(0xFF4B3727),
+    surfaceContainerLowest = Color(0xFF120B07),
+    surfaceContainerLow = Color(0xFF21160F),
+    surfaceContainer = Color(0xFF271A12),
+    surfaceContainerHigh = Color(0xFF302117),
+    surfaceContainerHighest = Color(0xFF3A2A1D),
+    surfaceBright = Color(0xFF443222),
+    surfaceDim = Color(0xFF1A110B),
+    inverseSurface = Color(0xFFF3E8D7),
+    inverseOnSurface = Color(0xFF2B1E15),
+    inversePrimary = Color(0xFF87591A),
 )
 
-// Dark, on true black: the screen's black parts are switched off on an OLED screen.
+// Gold on true black: the screen's black parts are switched off on an OLED screen.
 private val Oled = Dark.copy(
     background = Color(0xFF000000),
     surface = Color(0xFF000000),
-    surfaceVariant = Color(0xFF2E2A25),
-    outlineVariant = Color(0xFF3A342D),
+    surfaceVariant = Color(0xFF2E2219),
+    outlineVariant = Color(0xFF3A2B1F),
+    secondaryContainer = Color(0xFF3A2918),
     surfaceContainerLowest = Color(0xFF000000),
-    surfaceContainerLow = Color(0xFF080807),
-    surfaceContainer = Color(0xFF0E0D0C),
-    surfaceContainerHigh = Color(0xFF171513),
-    surfaceContainerHighest = Color(0xFF211E1B),
-    surfaceBright = Color(0xFF2A2724),
+    surfaceContainerLow = Color(0xFF0A0705),
+    surfaceContainer = Color(0xFF120D09),
+    surfaceContainerHigh = Color(0xFF1A130E),
+    surfaceContainerHighest = Color(0xFF241A13),
+    surfaceBright = Color(0xFF2C2118),
     surfaceDim = Color(0xFF000000),
 )
 
 // Dark walnut shelves, brass fittings, oxblood leather and parchment.
 private val Bookcase = darkColorScheme(
     primary = Color(0xFFE2B76A),
-    onPrimary = Color(0xFF3B2700),
+    onPrimary = Color(0xFF2E1D04),
     primaryContainer = Color(0xFF5E4314),
     onPrimaryContainer = Color(0xFFFFDEA6),
     secondary = Color(0xFFE8A88C),
     onSecondary = Color(0xFF4A1A08),
-    secondaryContainer = Color(0xFF6E2F1D),
+    secondaryContainer = Color(0xFF66291A),
     onSecondaryContainer = Color(0xFFFFDBCF),
     tertiary = Color(0xFFA9C79A),
     onTertiary = Color(0xFF16330E),
     tertiaryContainer = Color(0xFF2E4A26),
     onTertiaryContainer = Color(0xFFC5E4B5),
-    background = Color(0xFF2B1C13),
+    error = Color(0xFFF2A08C),
+    onError = Color(0xFF4D1408),
+    errorContainer = Color(0xFF6E2A1C),
+    onErrorContainer = Color(0xFFFFDAD2),
+    background = Color(0xFF2A1B12),
     onBackground = Color(0xFFF1E3CC),
-    surface = Color(0xFF2B1C13),
+    surface = Color(0xFF2A1B12),
     onSurface = Color(0xFFF1E3CC),
     surfaceVariant = Color(0xFF4A3424),
     onSurfaceVariant = Color(0xFFDCC7AA),
+    surfaceTint = Color(0xFFE2B76A),
     outline = Color(0xFFA68C6F),
     outlineVariant = Color(0xFF5C4431),
     surfaceContainerLowest = Color(0xFF20140D),
-    surfaceContainerLow = Color(0xFF352418),
+    surfaceContainerLow = Color(0xFF332217),
     surfaceContainer = Color(0xFF3B291C),
     surfaceContainerHigh = Color(0xFF463222),
     surfaceContainerHighest = Color(0xFF523B29),
     surfaceBright = Color(0xFF5A4330),
-    surfaceDim = Color(0xFF2B1C13),
+    surfaceDim = Color(0xFF2A1B12),
     inverseSurface = Color(0xFFF1E3CC),
     inverseOnSurface = Color(0xFF2B1C13),
     inversePrimary = Color(0xFF7A5A1F),
@@ -134,22 +180,172 @@ object ShelfColors {
     val back = Color(0xFF22160F)
 }
 
+// ---- what the colour scheme can't say -----------------------------------------------------------
+
+/** What's drawn behind the screens: a glow like the opening's, lamplight, paper, or plain black. */
+enum class Backdrop { GLOW, LAMP, PAPER, BLACK }
+
+/**
+ * The parts of a look beyond Material's colour roles: the gold of the main buttons and the mark, and
+ * what's drawn behind the screens.
+ */
+@Immutable
+class KoLibStyle(
+    val dark: Boolean,
+    val backdrop: Backdrop,
+    /** The main buttons' gold, top to bottom. */
+    val buttonGold: List<Color>,
+    /** Text and icons on [buttonGold]. */
+    val onGold: Color,
+    /** The mark's gold, light at its top left to deep at its foot. */
+    val markGold: List<Color>,
+    /** A fine line in gold, for dividers and edges. */
+    val hairline: Color,
+    /** The badges on covers: a dark film, and their text. */
+    val badge: Color,
+    val onBadge: Color,
+    /** Shadows' colour: warmer than black on paper. */
+    val shadow: Color,
+) {
+    fun buttonBrush(): Brush = Brush.verticalGradient(buttonGold)
+}
+
+private val GoldButton = listOf(Color(0xFFF7DDA8), Color(0xFFE9BD76), Color(0xFFD29A55))
+
+private val DarkStyle = KoLibStyle(
+    dark = true,
+    backdrop = Backdrop.GLOW,
+    buttonGold = GoldButton,
+    onGold = KoLibGold.ink,
+    markGold = listOf(Color(0xFFFBE6BF), Color(0xFFEBC07E), KoLibGold.deep),
+    hairline = KoLibGold.gold.copy(alpha = 0.20f),
+    badge = Color.Black.copy(alpha = 0.64f),
+    onBadge = Color(0xFFFFF3E0),
+    shadow = Color.Black,
+)
+
+private val OledStyle = KoLibStyle(
+    dark = true,
+    backdrop = Backdrop.BLACK,
+    buttonGold = GoldButton,
+    onGold = KoLibGold.ink,
+    markGold = listOf(Color(0xFFFBE6BF), Color(0xFFEBC07E), KoLibGold.deep),
+    hairline = KoLibGold.gold.copy(alpha = 0.18f),
+    badge = Color.Black.copy(alpha = 0.70f),
+    onBadge = Color(0xFFFFF3E0),
+    shadow = Color.Black,
+)
+
+private val BookcaseStyle = KoLibStyle(
+    dark = true,
+    backdrop = Backdrop.LAMP,
+    buttonGold = GoldButton,
+    onGold = KoLibGold.ink,
+    markGold = listOf(Color(0xFFFBE6BF), Color(0xFFEBC07E), KoLibGold.deep),
+    hairline = KoLibGold.gold.copy(alpha = 0.22f),
+    badge = Color.Black.copy(alpha = 0.64f),
+    onBadge = Color(0xFFFFF3E0),
+    shadow = Color.Black,
+)
+
+private val LightStyle = KoLibStyle(
+    dark = false,
+    backdrop = Backdrop.PAPER,
+    buttonGold = GoldButton,
+    onGold = KoLibGold.ink,
+    markGold = listOf(Color(0xFFC99A55), Color(0xFFA06B28), Color(0xFF6E4614)),
+    hairline = Color(0xFF87591A).copy(alpha = 0.20f),
+    badge = Color(0xFF1F1A14).copy(alpha = 0.66f),
+    onBadge = Color(0xFFFFF8EC),
+    shadow = Color(0xFF5A3A12),
+)
+
+val LocalKoLibStyle = staticCompositionLocalOf { LightStyle }
+
 @Composable
 fun KoboLibraryTheme(choice: ThemeChoice = ThemeChoice.SYSTEM, content: @Composable () -> Unit) {
-    val scheme = when (choice) {
-        ThemeChoice.SYSTEM -> if (isSystemInDarkTheme()) Dark else Light
-        ThemeChoice.LIGHT -> Light
-        ThemeChoice.DARK -> Dark
-        ThemeChoice.OLED -> Oled
-        ThemeChoice.BOOKCASE -> Bookcase
+    val systemDark = isSystemInDarkTheme()
+    val (scheme, style) = when (choice) {
+        ThemeChoice.SYSTEM -> if (systemDark) Dark to DarkStyle else Light to LightStyle
+        ThemeChoice.LIGHT -> Light to LightStyle
+        ThemeChoice.DARK -> Dark to DarkStyle
+        ThemeChoice.OLED -> Oled to OledStyle
+        ThemeChoice.BOOKCASE -> Bookcase to BookcaseStyle
     }
-    CompositionLocalProvider(LocalBookcase provides (choice == ThemeChoice.BOOKCASE)) {
-        MaterialTheme(colorScheme = scheme, content = content)
+    CompositionLocalProvider(
+        LocalBookcase provides (choice == ThemeChoice.BOOKCASE),
+        LocalKoLibStyle provides style,
+    ) {
+        MaterialTheme(colorScheme = scheme, typography = KoLibTypography, content = content)
     }
 }
 
 /**
- * The theme plus a surface under everything, which gives every screen the theme's background and
+ * The look's background, with what's drawn on it: in Dark, a warm glow from the top like the opening's;
+ * in Bookcase, lamplight on the wood; in Light, paper catching the light; in OLED black, nothing.
+ */
+@Composable
+fun Modifier.appBackdrop(): Modifier {
+    val style = LocalKoLibStyle.current
+    val background = MaterialTheme.colorScheme.background
+    return drawWithCache {
+        val w = size.width
+        val h = size.height
+        val big = max(w, h).coerceAtLeast(1f)
+        val layers: List<Brush> = when (style.backdrop) {
+            Backdrop.BLACK -> emptyList()
+            Backdrop.GLOW -> listOf(
+                Brush.radialGradient(
+                    0f to KoLibGold.glow.copy(alpha = 0.62f),
+                    0.45f to KoLibGold.glow.copy(alpha = 0.22f),
+                    1f to Color.Transparent,
+                    center = Offset(w * 0.24f, -h * 0.10f),
+                    radius = big * 0.95f,
+                ),
+                Brush.radialGradient(
+                    0f to KoLibGold.ember.copy(alpha = 0.14f),
+                    1f to Color.Transparent,
+                    center = Offset(w * 1.02f, h * 1.06f),
+                    radius = big * 0.62f,
+                ),
+            )
+            Backdrop.LAMP -> listOf(
+                Brush.radialGradient(
+                    0f to Color(0xFF6E4629).copy(alpha = 0.50f),
+                    0.5f to Color(0xFF6E4629).copy(alpha = 0.16f),
+                    1f to Color.Transparent,
+                    center = Offset(w * 0.5f, -h * 0.18f),
+                    radius = big * 0.9f,
+                ),
+                Brush.verticalGradient(
+                    0.55f to Color.Transparent,
+                    1f to Color.Black.copy(alpha = 0.28f),
+                ),
+            )
+            Backdrop.PAPER -> listOf(
+                Brush.radialGradient(
+                    0f to Color.White.copy(alpha = 0.75f),
+                    1f to Color.Transparent,
+                    center = Offset(w * 0.15f, -h * 0.12f),
+                    radius = big * 0.9f,
+                ),
+                Brush.radialGradient(
+                    0f to Color(0xFFE6D6BB).copy(alpha = 0.50f),
+                    1f to Color.Transparent,
+                    center = Offset(w * 1.05f, h * 1.1f),
+                    radius = big * 0.7f,
+                ),
+            )
+        }
+        onDrawBehind {
+            drawRect(background)
+            for (layer in layers) drawRect(layer)
+        }
+    }
+}
+
+/**
+ * The theme plus a background under everything, which gives every screen the look's backdrop and
  * text colours. Without it, text that doesn't set its own colour is black, even in the dark looks.
  * It also makes pen taps on text boxes open the keyboard (see [PenTapsOpenTheKeyboard]).
  */
@@ -157,7 +353,9 @@ fun KoboLibraryTheme(choice: ThemeChoice = ThemeChoice.SYSTEM, content: @Composa
 fun AppSurface(choice: ThemeChoice = ThemeChoice.SYSTEM, content: @Composable () -> Unit) {
     KoboLibraryTheme(choice) {
         PenTapsOpenTheKeyboard {
-            Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) { content() }
+            Box(Modifier.fillMaxSize().appBackdrop()) {
+                CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onBackground) { content() }
+            }
         }
     }
 }

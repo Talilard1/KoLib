@@ -2,6 +2,8 @@
 
 package dev.kobolibrary.app.ui.edit
 
+import dev.kobolibrary.app.ui.components.GoldButton
+import androidx.compose.ui.graphics.Color
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -126,6 +128,7 @@ fun EditDetailsScreen(
     val canSave = draft.isDirty && problems.isEmpty() && !saving
 
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 navigationIcon = { IconButton(onClick = tryClose) { Icon(Icons.Filled.Close, "Close") } },
@@ -146,13 +149,13 @@ fun EditDetailsScreen(
                         CircularProgressIndicator(Modifier.size(22.dp), strokeWidth = 2.dp)
                         Spacer(Modifier.width(16.dp))
                     }
-                    Button(
+                    GoldButton(
                         onClick = { onSave(draft.toMetadata(), draft.collectionList()) },
                         enabled = canSave,
                         modifier = Modifier.padding(end = 12.dp),
                     ) { Text("Save") }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             )
         },
     ) { padding ->

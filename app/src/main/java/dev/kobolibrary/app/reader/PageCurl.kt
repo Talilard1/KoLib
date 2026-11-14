@@ -196,11 +196,12 @@ class PageCurl(
             else -> 1f - 0.42f * (1f - cos(min(d / r, (PI / 2).toFloat())))
         }
 
-        fun backShade(d: Float): Float = when {
-            r < 0.5f -> 0.97f
+        /** [flat] is how much light the back catches where it lies flat on the page opposite. */
+        fun backShade(d: Float, flat: Float): Float = when {
+            r < 0.5f -> flat
             else -> {
                 val theta = d / r
-                if (theta >= PI) 0.97f else 0.70f + 0.27f * max(0f, -cos(max(theta, (PI / 2).toFloat())))
+                if (theta >= PI) flat else 0.70f + (flat - 0.70f) * max(0f, -cos(max(theta, (PI / 2).toFloat())))
             }
         }
     }
@@ -241,6 +242,12 @@ class PageCurl(
             canvas.drawBitmap(front, src, leafRect, texturePaint)
             return
         }
+        // How far over the leaf is (0 lying flat, 1 right over), and how much of the turn is left.
+        val over = ((width - pose.fu) / (2 * width)).coerceIn(0f, 1f)
+        val left = 1f - over
+        // The back of the leaf lies a touch in shade while it's still turning, and in full light once it
+        // has landed: right over, it's the very page that shows when the turn ends, in the same colours.
+        val flatBack = 1f - 0.03f * ramp(left / 0.1f)
         var k = 0
         val out = FloatArray(2)
         var maxD = 0f
@@ -252,15 +259,12 @@ class PageCurl(
             g.map(u, y, Side.FRONT, out); frontVerts[2 * k] = out[0]; frontVerts[2 * k + 1] = out[1]
             g.map(u, y, Side.BACK, out); backVerts[2 * k] = out[0]; backVerts[2 * k + 1] = out[1]
             val fs = g.frontShade(d)
-            val bs = g.backShade(d)
+            val bs = g.backShade(d, flatBack)
             frontColors[k] = gray(fs)
             backColors[k] = gray(bs)
             washColors[k] = shadeColor(paper, bs, 0.86f)
             k++
         }
-        // How far over the leaf is (0 lying flat, 1 right over), and how much of the turn is left.
-        val over = ((width - pose.fu) / (2 * width)).coerceIn(0f, 1f)
-        val left = 1f - over
 
         // The shadow the curl casts on what's underneath, beyond its crest.
         val crestU = g.au + g.nu_ * g.r

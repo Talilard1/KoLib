@@ -588,6 +588,8 @@ private fun ReaderBottomBar(controller: ReaderController, onSettings: (ReaderSet
                     controller.chapterTitle.ifBlank { null },
                     controller.bookPage?.let { "Page $it of ${book?.total}" }
                         ?: if (controller.pages > 1) "Page ${controller.page + 1} of ${controller.pages} in chapter" else null,
+                    // The book's page numbers show once every chapter is counted, so they never change.
+                    if (controller.countingPages && book == null) "Counting pages…" else null,
                     controller.minutesLeftInChapter.takeIf { it > 0 }?.let { "$it min left in chapter" },
                     "${(controller.bookProgress * 100).roundToInt()}% of book read",
                 ).joinToString(" · ")
@@ -611,7 +613,7 @@ private fun ReaderBottomBar(controller: ReaderController, onSettings: (ReaderSet
  */
 @Composable
 private fun BarReturnButton(controller: ReaderController, back: ReaderPosition, compact: Boolean, modifier: Modifier = Modifier) {
-    val label = controller.bookPageOf(back)?.let { "Back to page $it" } ?: "Back to ${(back.bookProgress * 100).roundToInt()}%"
+    val label = controller.barReturnBookPage?.let { "Back to page $it" } ?: "Back to ${(back.bookProgress * 100).roundToInt()}%"
     if (compact) {
         FilledTonalIconButton(onClick = { controller.swapWithBarReturn() }, modifier = modifier) {
             Icon(Icons.AutoMirrored.Filled.Undo, label, Modifier.size(20.dp))

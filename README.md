@@ -27,7 +27,7 @@ the Kobo as kepubs, the Kobo's own format, so pages turn quickly and the Kobo ke
 
 | Library | Kobo | Reader |
 |---|---|---|
-| Add EPUB, PDF, MOBI, Word and other ebook files, or a whole folder at once. Edit titles, authors, series, tags, descriptions and covers. | See what's on your Kobo, put books into its collections, send books and keep backups of its database. | Read in KoLib too, with your own typeface, margins and page colour, highlights, notes and bookmarks. |
+| Add EPUB, PDF, MOBI, Word and other ebook files, or a whole folder at once. Edit titles, authors, series, tags, descriptions and covers. | See what's on your Kobo, put books into its collections, send books and keep backups of its database. | Read in KoLib too, with your choice of font, margins and page colour, and highlights, notes and bookmarks. |
 
 ## On a tablet
 
@@ -37,11 +37,7 @@ the Kobo as kepubs, the Kobo's own format, so pages turn quickly and the Kobo ke
 | <a href="docs/images/tablet-send.webp"><img src="docs/images/tablet-send.webp" alt="Sending a book to the Kobo"></a><br>**Sending a book** | <a href="docs/images/tablet-details.webp"><img src="docs/images/tablet-details.webp" alt="Editing a book's details"></a><br>**Editing its details** |
 | <a href="docs/images/tablet-cover.webp"><img src="docs/images/tablet-cover.webp" alt="Changing a cover"></a><br>**Changing a cover** | <a href="docs/images/tablet-make-cover.webp"><img src="docs/images/tablet-make-cover.webp" alt="Making a cover"></a><br>**Making a new one** |
 | <a href="docs/images/tablet-editor.webp"><img src="docs/images/tablet-editor.webp" alt="Finding and replacing in a book's text"></a><br>**Editing the text** | <a href="docs/images/tablet-library-light.webp"><img src="docs/images/tablet-library-light.webp" alt="The library in the light look"></a><br>**The light look** |
-
-<p align="center">
-  <a href="docs/images/tablet-reader.webp"><img src="docs/images/tablet-reader.webp" width="860" alt="Two pages side by side in the reader"></a><br>
-  <b>Reading, two pages at a time in landscape</b>
-</p>
+| <a href="docs/images/tablet-reader.webp"><img src="docs/images/tablet-reader.webp" alt="Two pages side by side in the reader"></a><br>**Reading, two pages side by side** | <a href="docs/images/tablet-reader-settings.webp"><img src="docs/images/tablet-reader-settings.webp" alt="The reader's layout settings"></a><br>**The reader's settings** |
 
 ## On a phone
 
@@ -53,7 +49,7 @@ the Kobo as kepubs, the Kobo's own format, so pages turn quickly and the Kobo ke
 ## Highlights
 
 - **Sends books the way the Kobo likes them:** as kepubs (or plain EPUB if you'd rather), with the
-  cover fitted to the Kobo's screen. A book you send again is updated on the Kobo, not added twice.
+  cover fitted to the Kobo's screen. Send a book again and it replaces the copy on the Kobo, which keeps your place in it.
 - **Any ebook file:** EPUB, kepub, PDF, MOBI, AZW and AZW3, FB2, Word (.docx), OpenDocument (.odt),
   RTF, plain text, Markdown, HTML and CBZ. Everything is made into an EPUB you can edit, and the
   file you added is kept. A PDF can still go to the Kobo as a PDF.
@@ -77,7 +73,7 @@ the Kobo as kepubs, the Kobo's own format, so pages turn quickly and the Kobo ke
 
 ## Install
 
-1. Download the APK for your device from [Releases](../../releases/latest). Not sure which?
+1. Download the APK for your device from [Releases](https://github.com/Talilard1/KoLib/releases/latest). Not sure which?
    Take **arm64-v8a**, or the universal one.
 2. Open it, and allow installing apps from that source if Android asks.
 3. Open KoLib. A short tour sets the language, finds your books and shows how to connect your Kobo.
@@ -109,7 +105,7 @@ their books the same way, so they should work too.
 ## Something wrong?
 
 KoLib keeps a log of what it does (Kobo → Device → Open log). Share the log when you
-[report a problem](../../issues), and say which Kobo and device you have.
+[report a problem](https://github.com/Talilard1/KoLib/issues), and say which Kobo and device you have.
 
 <details>
 <summary><b>Building from source</b></summary>

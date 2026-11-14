@@ -96,7 +96,7 @@ object Opening {
     internal const val RECEDE_START = 1.9f
     /** ...then comes at it, faster and faster, through into the app. */
     internal const val ZOOM_START = 4.25f
-    /** From here the dark thins and the app shows through. */
+    /** From here the app shows through the book as it comes at the camera, and only through it. */
     internal const val REVEAL = ZOOM_START + 0.2f
 }
 

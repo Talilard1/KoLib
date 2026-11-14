@@ -85,6 +85,21 @@ class OpeningFrames {
         List((Opening.LENGTH * 60).toInt() + 24) { it / 60f }, light = true,
     )
 
+    /** The moments the app shows through the book as it comes at the camera, and only through it. */
+    private val through = listOf(4.3f, 4.45f, 4.52f, 4.6f, 4.68f, 4.76f, 4.84f, 4.9f, 4.96f)
+
+    @Test
+    @Config(qualifiers = "w411dp-h914dp-port-hdpi")
+    fun phoneThrough() = render(File(home, "through-phone"), "/home/claude/phone/after/p01_library.png", through)
+
+    @Test
+    @Config(qualifiers = "w411dp-h914dp-port-hdpi")
+    fun phoneThroughLight() = render(File(home, "through-phone-light"), "/home/claude/phone/after/p01_library.png", through, light = true)
+
+    @Test
+    @Config(qualifiers = "w1280dp-h800dp-land-mdpi")
+    fun tabletThrough() = render(File(home, "through-tablet"), "/home/claude/advert/app140/ad_library.png", through)
+
     /** A few moments on a tablet held sideways, to check the layout there. */
     @Test
     @Config(qualifiers = "w1280dp-h800dp-land-mdpi")

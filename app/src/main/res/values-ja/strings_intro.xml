@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="intro_skip">スキップ</string>
+    <string name="intro_continue">次へ</string>
+    <string name="intro_page">%2$d ページ中 %1$d ページ目</string>
+    <string name="intro_language_title">KoLib へようこそ</string>
+    <string name="intro_language_text">使用する言語を選んでください。あとで変更できます。</string>
+    <string name="intro_device_language">端末の言語</string>
+    <string name="intro_folder_title">本はどこにありますか？</string>
+    <string name="intro_folder_text">本を保存しているフォルダを選ぶと、KoLib がその中の本をすべてライブラリに追加します。中にあるフォルダの本も追加されます。</string>
+    <string name="intro_folder_kinds">EPUB、PDF、MOBI、Word など、ほとんどの電子書籍ファイルに対応しています。</string>
+    <string name="intro_folder_choose">フォルダを選ぶ</string>
+    <string name="intro_folder_another">別のフォルダを選ぶ</string>
+    <string name="intro_folder_looking">%1$s で本を探しています…</string>
+    <string name="intro_folder_looking_short">本を探しています…</string>
+    <plurals name="intro_folder_found_so_far">
+        <item quantity="other">%2$s で %1$d 冊の本が見つかりました…</item>
+    </plurals>
+    <plurals name="intro_folder_found">
+        <item quantity="other">%2$s に %1$d 冊の本があります。</item>
+    </plurals>
+    <string name="intro_folder_none">%1$s に本はありません。本があるフォルダを選んでください。</string>
+    <string name="intro_folder_failed">%1$s を開けませんでした。もう一度選んでください。</string>
+    <plurals name="intro_folder_add">
+        <item quantity="other">%d 冊を追加</item>
+    </plurals>
+    <plurals name="intro_folder_adding">
+        <item quantity="other">%d 冊をライブラリに追加しています。追加中もほかの操作を続けられます。</item>
+    </plurals>
+    <string name="intro_kobo_title">Kobo を接続する</string>
+    <string name="intro_kobo_step1">USB-C データケーブルで Kobo をこの端末につなぎます。</string>
+    <string name="intro_kobo_step2">Kobo の画面で「接続」をタップします。</string>
+    <string name="intro_kobo_step3">初回のみ、KoLib に Kobo のドライブへのアクセスを許可します。</string>
+    <string name="intro_kobo_waiting">Kobo を待っています…</string>
+    <string name="intro_kobo_detected">Kobo が見つかりました。Kobo の画面で「接続」をタップしてください。</string>
+    <string name="intro_kobo_allow">Kobo へのアクセスを許可</string>
+    <string name="intro_kobo_allow_help">Android のフォルダ選択画面が Kobo のドライブで開きます。「このフォルダを使用」をタップしてから「許可」をタップしてください。</string>
+    <string name="intro_kobo_working">Kobo を開いています…</string>
+    <string name="intro_kobo_connected">%1$s に接続しました。</string>
+    <string name="intro_kobo_failed">Kobo を開けませんでした。ケーブルを抜いて差し直し、もう一度お試しください。</string>
+    <string name="intro_kobo_retry">再試行</string>
+    <string name="intro_kobo_later">Kobo が手元にない場合はスキップできます。Kobo タブからいつでも接続できます。</string>
+    <string name="intro_collections_title">Kobo のコレクション</string>
+    <string name="intro_collections_text">KoLib は Kobo のコレクションに本を入れることはできますが、Kobo に新しいコレクションを作ることはできません。先に Kobo でコレクションを作ると、KoLib から本を追加できるようになります。</string>
+    <string name="intro_collections_how">Kobo で［マイブック］→［コレクション］を開き、［新しいコレクション］をタップします。</string>
+    <string name="intro_done_title">準備ができました</string>
+    <string name="intro_done_text">［本を追加］ボタンでいつでも本を追加できます。Kobo をつないだら、本を Kobo に送りましょう。</string>
+    <string name="intro_start">ライブラリへ</string>
+</resources>

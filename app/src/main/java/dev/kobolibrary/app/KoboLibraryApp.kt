@@ -38,6 +38,11 @@ class KoboLibraryApp : Application() {
     /** How far each library book has been read in the app's reader. */
     val readingHere: ReadingHereIndex by lazy { ReadingHereIndex() }
 
+    // Before Android 13, the language chosen in KoLib is applied here (and to each screen).
+    override fun attachBaseContext(base: android.content.Context) {
+        super.attachBaseContext(AppLanguage.wrap(base))
+    }
+
     override fun onCreate() {
         super.onCreate()
         AppLog.init(this)

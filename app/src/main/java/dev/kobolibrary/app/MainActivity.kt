@@ -30,6 +30,10 @@ class MainActivity : ComponentActivity() {
     private val vm: MainViewModel by viewModels()
     private val libraryVm: LibraryViewModel by viewModels()
 
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(AppLanguage.wrap(newBase))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         // The starting theme's dark was only for while the app starts.
         setTheme(R.style.Theme_KoboLibrary)
@@ -47,6 +51,7 @@ class MainActivity : ComponentActivity() {
             val opening by themes.opening.collectAsStateWithLifecycle()
             val openingSound by themes.openingSound.collectAsStateWithLifecycle()
             val openingLight by themes.openingLight.collectAsStateWithLifecycle()
+            val introSeen by themes.introSeen.collectAsStateWithLifecycle()
             var showOpening by remember { mutableStateOf(playOpening) }
             val clock = remember { OpeningClock() }
             Box(Modifier.fillMaxSize()) {
@@ -64,6 +69,8 @@ class MainActivity : ComponentActivity() {
                         onOpeningSound = themes::setOpeningSound,
                         openingLight = openingLight,
                         onOpeningLight = themes::setOpeningLight,
+                        introSeen = introSeen,
+                        onIntroSeen = themes::setIntroSeen,
                     )
                 }
                 }

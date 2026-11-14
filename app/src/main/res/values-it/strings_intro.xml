@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="intro_skip">Salta</string>
+    <string name="intro_continue">Continua</string>
+    <string name="intro_page">Pagina %1$d di %2$d</string>
+    <string name="intro_language_title">Ti diamo il benvenuto in KoLib</string>
+    <string name="intro_language_text">Scegli la lingua. Potrai cambiarla in seguito.</string>
+    <string name="intro_device_language">Lingua del dispositivo</string>
+    <string name="intro_folder_title">Dove sono i tuoi libri?</string>
+    <string name="intro_folder_text">Scegli la cartella in cui tieni i tuoi libri: KoLib li aggiunge tutti alla tua libreria, compresi quelli nelle sottocartelle.</string>
+    <string name="intro_folder_kinds">EPUB, PDF, MOBI, Word e quasi tutti gli altri file di ebook.</string>
+    <string name="intro_folder_choose">Scegli una cartella</string>
+    <string name="intro_folder_another">Scegli un’altra cartella</string>
+    <string name="intro_folder_looking">Ricerca di libri in %1$s…</string>
+    <string name="intro_folder_looking_short">Ricerca di libri…</string>
+    <plurals name="intro_folder_found_so_far">
+        <item quantity="one">Finora trovato %1$d libro in %2$s…</item>
+        <item quantity="many">Finora trovati %1$d libri in %2$s…</item>
+        <item quantity="other">Finora trovati %1$d libri in %2$s…</item>
+    </plurals>
+    <plurals name="intro_folder_found">
+        <item quantity="one">C’è %1$d libro in %2$s.</item>
+        <item quantity="many">Ci sono %1$d libri in %2$s.</item>
+        <item quantity="other">Ci sono %1$d libri in %2$s.</item>
+    </plurals>
+    <string name="intro_folder_none">Non ci sono libri in %1$s. Scegli la cartella in cui si trovano.</string>
+    <string name="intro_folder_failed">KoLib non è riuscito ad aprire %1$s. Prova a sceglierla di nuovo.</string>
+    <plurals name="intro_folder_add">
+        <item quantity="one">Aggiungi %d libro</item>
+        <item quantity="many">Aggiungi %d libri</item>
+        <item quantity="other">Aggiungi %d libri</item>
+    </plurals>
+    <plurals name="intro_folder_adding">
+        <item quantity="one">Aggiunta di %d libro alla tua libreria. Puoi continuare nel frattempo.</item>
+        <item quantity="many">Aggiunta di %d libri alla tua libreria. Puoi continuare nel frattempo.</item>
+        <item quantity="other">Aggiunta di %d libri alla tua libreria. Puoi continuare nel frattempo.</item>
+    </plurals>
+    <string name="intro_kobo_title">Collega il tuo Kobo</string>
+    <string name="intro_kobo_step1">Collega il Kobo a questo dispositivo con un cavo dati USB-C.</string>
+    <string name="intro_kobo_step2">Sullo schermo del Kobo, tocca Connetti.</string>
+    <string name="intro_kobo_step3">Solo la prima volta: consenti a KoLib di accedere all’unità del Kobo.</string>
+    <string name="intro_kobo_waiting">In attesa del Kobo…</string>
+    <string name="intro_kobo_detected">Kobo trovato. Tocca Connetti sul suo schermo.</string>
+    <string name="intro_kobo_allow">Consenti l’accesso al Kobo</string>
+    <string name="intro_kobo_allow_help">Android apre il selettore di cartelle sull’unità del Kobo. Tocca «Usa questa cartella», poi «Consenti».</string>
+    <string name="intro_kobo_working">Apertura del Kobo…</string>
+    <string name="intro_kobo_connected">Collegato al tuo %1$s.</string>
+    <string name="intro_kobo_failed">KoLib non è riuscito ad aprire il Kobo. Scollegalo, ricollegalo e riprova.</string>
+    <string name="intro_kobo_retry">Riprova</string>
+    <string name="intro_kobo_later">Non hai il Kobo a portata di mano? Salta questo passaggio. Puoi collegarlo quando vuoi dalla scheda Kobo.</string>
+    <string name="intro_collections_title">Le raccolte sul tuo Kobo</string>
+    <string name="intro_collections_text">KoLib può mettere i tuoi libri nelle raccolte del Kobo, ma non può crearne di nuove. Crea prima la raccolta sul Kobo: poi KoLib potrà aggiungerci dei libri.</string>
+    <string name="intro_collections_how">Sul Kobo, vai in I miei libri, poi in Raccolte, e tocca Nuova raccolta.</string>
+    <string name="intro_done_title">È tutto pronto</string>
+    <string name="intro_done_text">Aggiungi libri quando vuoi con il pulsante Aggiungi libri, e inviali al tuo Kobo quando è collegato.</string>
+    <string name="intro_start">Vai alla mia libreria</string>
+</resources>

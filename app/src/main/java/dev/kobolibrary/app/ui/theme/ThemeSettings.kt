@@ -43,6 +43,15 @@ class ThemeSettings(context: Context) {
     /** The opening animation plays its sound. */
     val openingSound: StateFlow<Boolean> = _openingSound.asStateFlow()
 
+    private val _introSeen = MutableStateFlow(prefs.getBoolean(INTRO_SEEN, false))
+    /** The introduction has been gone through (or skipped): it's shown the first time KoLib starts. */
+    val introSeen: StateFlow<Boolean> = _introSeen.asStateFlow()
+
+    fun setIntroSeen(seen: Boolean) {
+        prefs.edit().putBoolean(INTRO_SEEN, seen).apply()
+        _introSeen.value = seen
+    }
+
     fun set(choice: ThemeChoice) {
         prefs.edit().putString(KEY, choice.name).apply()
         _choice.value = choice
@@ -68,5 +77,6 @@ class ThemeSettings(context: Context) {
         const val OPENING = "opening"
         const val OPENING_SOUND = "openingSound"
         const val OPENING_LIGHT = "openingLight"
+        const val INTRO_SEEN = "introSeen"
     }
 }

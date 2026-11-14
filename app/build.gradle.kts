@@ -21,8 +21,8 @@ android {
         applicationId = "dev.kobolibrary.app"
         minSdk = 29
         targetSdk = 36
-        versionCode = 47
-        versionName = "0.9.20-preview"
+        versionCode = 48
+        versionName = "0.9.21-preview"
     }
 
     signingConfigs {

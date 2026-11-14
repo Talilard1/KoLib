@@ -217,6 +217,19 @@ html.kl-paged.kl-recto body::before {
   break-after: column !important;
   -webkit-column-break-after: always !important;
 }
+/* Two short pages side by side (a title page and a notice, a dedication and a quote): the app puts the left
+   one in front of the right one, which starts a new page. */
+html.kl-paged > #kl-pair {
+  margin: 0 !important;
+  padding: 0 !important;
+  break-after: column !important;
+  -webkit-column-break-after: always !important;
+}
+/* A book's title page, alone, two pages side by side: in the middle of the screen. */
+html.kl-paged.kl-centre body {
+  position: relative !important;
+  left: var(--kl-centre-shift, 0px) !important;
+}
 /* A wide picture alone (a map made to go across two pages): across the whole screen, in the middle, into the
    margins; anything else on its page (a caption, a title) is hidden behind it. */
 html.kl-paged.kl-spread-pic body { visibility: hidden !important; }

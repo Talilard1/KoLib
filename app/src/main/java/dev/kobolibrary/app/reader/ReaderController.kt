@@ -65,7 +65,7 @@ class ReaderController(
 
     val chapters = structure.chapters
     val toc: List<TocNode> = structure.toc
-    private val server = BookServer(assets, files).apply { transform = { path, text -> withOpening(path, text) } }
+    private val server = BookServer(assets, files).apply { transform = { path, text -> joined(path, text) } }
     private val main = Handler(Looper.getMainLooper())
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
@@ -278,7 +278,7 @@ class ReaderController(
             if (counter != null && !countFailed) return null
             val perPage = textPerPage() ?: return null
             return BookPages(IntArray(chapters.size) { i ->
-                if (openings[i] == true) 0
+                if (isKnownJoined(i)) 0
                 else laidOutPages[i] ?: ceil(textWithOpening(i) / perPage).toInt().coerceAtLeast(1)
             })
         }
@@ -449,7 +449,7 @@ class ReaderController(
                 delay(400)
                 val result = IntArray(chapters.size)
                 for (i in chapters.indices) {
-                    if (withContext(Dispatchers.IO) { isOpening(i) }) continue
+                    if (withContext(Dispatchers.IO) { isOpening(i) || isPairedLeft(i) }) continue
                     val start = JSONObject()
                         .put("settings", JSONObject(settingsJs(settings)))
                         .put("chapters", aroundJs(i))
@@ -515,9 +515,12 @@ class ReaderController(
 
     private fun isKnownOpening(i: Int) = openings[i] == true
 
-    /** A chapter's text, with its opening's when the opening is shown in front of it. */
+    /** Chapter [i] is known to be shown in front of the next: an opening, or a short page beside it. */
+    private fun isKnownJoined(i: Int) = openings[i] == true || pairs[i] == true
+
+    /** A chapter's text, with its opening's (or the short page beside it) when that's shown in front of it. */
     private fun textWithOpening(i: Int): Float =
-        weights.getOrElse(i) { 0f } + if (i > 0 && openings[i - 1] == true) weights.getOrElse(i - 1) { 0f } else 0f
+        weights.getOrElse(i) { 0f } + if (i > 0 && isKnownJoined(i - 1)) weights.getOrElse(i - 1) { 0f } else 0f
 
     /** How much text a page holds at the present size, from the chapters laid out so far. */
     private fun textPerPage(): Float? {
@@ -525,7 +528,7 @@ class ReaderController(
         var pages = 0f
         // Chapters of two pages or more (the last page of each only part full).
         for ((i, n) in laidOutPages) {
-            if (n >= 2 && openings[i] != true) {
+            if (n >= 2 && !isKnownJoined(i)) {
                 text += textWithOpening(i)
                 pages += n - 0.5f
             }
@@ -538,8 +541,12 @@ class ReaderController(
 
     /** Which chapters are openings shown with the chapter after (for counting pages), worked out away from the screen. */
     private suspend fun findOpenings() {
-        if (!settings.joinOpenings) return
-        withContext(Dispatchers.IO) { for (i in chapters.indices) runCatching { isOpening(i) } }
+        withContext(Dispatchers.IO) {
+            for (i in chapters.indices) {
+                if (settings.joinOpenings) runCatching { isOpening(i) }
+                runCatching { isPairedLeft(i) }
+            }
+        }
     }
 
     // ---- the WebView ----------------------------------------------------------------------------
@@ -627,8 +634,9 @@ class ReaderController(
 
     fun open(index: Int, target: JSONObject) {
         // A chapter's opening page is shown with the chapter's text, so it's never opened alone: its
-        // text opens instead, at its start (a link into the opening still finds its place).
-        if (isOpening(index)) {
+        // text opens instead, at its start (a link into the opening still finds its place). The same
+        // for a short page shown beside the next.
+        if (isOpening(index) || isPairedLeft(index)) {
             open(index + 1, if (target.optString("type") == "fragment") target else target("start"))
             return
         }
@@ -640,6 +648,7 @@ class ReaderController(
             .put("annotations", annotationsJs(c.path))
             .put("chapters", aroundJs(index))
             .apply { if (autoscroll) put("auto", autoJs().put("startDelay", 1500)) }
+            .apply { runCatching { pageKind(index).place }.getOrNull()?.let { put("place", it) } }
             .toString()
         if (index == chapterIndex && !loading && webView?.url?.let { BookServer.pathOf(it)?.first } == c.path) {
             js("KLR.go(${quote(target.toString())}, false)")
@@ -661,8 +670,9 @@ class ReaderController(
         while (i in chapters.indices) {
             if (chapters[i].linear) {
                 // Forward onto an opening: its chapter, which shows it. Back onto one: it's the opening of the
-                // chapter being left, already shown, so on to the chapter before.
-                if (isOpening(i)) {
+                // chapter being left, already shown, so on to the chapter before. (A short page shown
+                // beside the next, the same.)
+                if (isOpening(i) || isPairedLeft(i)) {
                     if (step > 0) return i + 1
                     i += step
                     continue
@@ -692,12 +702,59 @@ class ReaderController(
         }
     }
 
-    /** The chapter at [path] with its opening in front of it, if it has one. */
-    private fun withOpening(path: String, text: String): String? {
+    /** The chapter at [path] with its opening in front of it, if it has one; or the short page shown beside it. */
+    private fun joined(path: String, text: String): String? {
         val i = chapters.indexOfFirst { it.path == path }
-        if (i <= 0 || !isOpening(i - 1)) return null
-        val opening = chapters[i - 1]
-        return ChapterOpenings.join(text, path, files.text(opening.path) ?: return null, opening.path)
+        if (i <= 0) return null
+        val before = chapters[i - 1]
+        if (isOpening(i - 1)) return ChapterOpenings.join(text, path, files.text(before.path) ?: return null, before.path)
+        if (isPairedLeft(i - 1)) return ChapterOpenings.join(text, path, files.text(before.path) ?: return null, before.path, ChapterOpenings.PAIR_BOX)
+        return null
+    }
+
+    // ---- short pages, two pages side by side --------------------------------------------------------
+
+    /** What each chapter is, if it's a page of its own kind, as found so far. */
+    private val kinds = java.util.concurrent.ConcurrentHashMap<Int, PageKind>()
+
+    /** Whether each chapter is a short page shown on the left beside the next, as found so far. */
+    private val pairs = java.util.concurrent.ConcurrentHashMap<Int, Boolean>()
+
+    /** The first chapter in the reading order: where the book's cover is. */
+    private val firstLinear: Int by lazy { chapters.indexOfFirst { it.linear }.coerceAtLeast(0) }
+
+    /** What chapter [i] is: a cover, a title page, a dedication, a quote, a short page, or a chapter of text. */
+    fun pageKind(i: Int): PageKind = kinds[i] ?: run {
+        val c = chapters.getOrNull(i) ?: return PageKind.TEXT
+        // Words counted already (when the book opened): more than a short page has, it's a chapter of text.
+        val counted = chapterWords.getOrNull(i)
+        val kind = if (!c.linear || (counted != null && counted > PagePlacement.SHORT_WORDS)) PageKind.TEXT else {
+            val f = PagePlacement.facts(files.text(c.path).orEmpty(), c.path, c.title) { p -> files.bytes(p)?.let { ImageSize.of(it) } }
+            val bookStart = i == firstLinear || innerBooks.any { it.first == i }
+            // A book inside this one starts with its cover, or its title page: the title page, after a cover if it has one.
+            val titlePlace = innerBooks.any { it.first == i || (it.first == i - 1 && pageKind(i - 1) == PageKind.COVER) }
+            PagePlacement.kind(f, coverPlace = bookStart, titlePlace = titlePlace)
+        }
+        kinds[i] = kind
+        kind
+    }
+
+    /**
+     * Chapter [i] is a short page (a title page, a notice, a dedication) shown on the left beside the
+     * chapter after it, another short page (a notice, a quote), rather than each alone on a screen. In one
+     * page for the reader: the left one in a box in front of the right one, with a page break between.
+     */
+    fun isPairedLeft(i: Int): Boolean = pairs[i] ?: run {
+        val a = chapters.getOrNull(i)
+        val b = chapters.getOrNull(i + 1)
+        val paired = a != null && b != null && a.linear && b.linear &&
+            pageKind(i).canBeLeft && pageKind(i + 1).canBeRight &&
+            !isOpening(i) && !isOpening(i + 1) && (i == 0 || !isPairedLeft(i - 1)) &&
+            runCatching {
+                ChapterOpenings.join(files.text(b.path)!!, b.path, files.text(a.path)!!, a.path, ChapterOpenings.PAIR_BOX) != null
+            }.getOrDefault(false)
+        pairs[i] = paired
+        paired
     }
 
     private fun titleOf(index: Int): String =
@@ -708,7 +765,10 @@ class ReaderController(
 
     /** Where the contents point for the chapter on screen: its own file, and its opening's. */
     val contentsPaths: List<String>
-        get() = listOfNotNull(chapter?.path, chapters.getOrNull(chapterIndex - 1)?.takeIf { chapterIndex > 0 && isOpening(chapterIndex - 1) }?.path)
+        get() = listOfNotNull(
+            chapter?.path,
+            chapters.getOrNull(chapterIndex - 1)?.takeIf { chapterIndex > 0 && (isOpening(chapterIndex - 1) || isPairedLeft(chapterIndex - 1)) }?.path,
+        )
 
     fun nextChapter() {
         val i = nextLinear(chapterIndex, 1)
@@ -876,6 +936,7 @@ class ReaderController(
         if (s.joinOpenings != old.joinOpenings) {
             // The chapter is served differently now: open it again where it was.
             openings.clear()
+            pairs.clear()
             laidOutPages.clear()
             scope.launch { findOpenings() }
             stopTurn()
@@ -950,7 +1011,7 @@ class ReaderController(
             val out = ArrayList<Float>()
             var acc = 0f
             for (i in chapters.indices) {
-                if (i > 0 && chapters[i].linear && openings[i - 1] != true) out += acc / weightTotal
+                if (i > 0 && chapters[i].linear && !isKnownJoined(i - 1)) out += acc / weightTotal
                 acc += weights.getOrElse(i) { 0f }
             }
             return out
@@ -1253,6 +1314,9 @@ class ReaderController(
             saveSoon()
         }
     }
+
+    /** For tests: the chapter at [path] as the reader is given it (with what's shown in front of it). */
+    internal fun servedText(path: String): String? = files.text(path)?.let { joined(path, it) ?: it }
 
     /** For tests: as if the page reported [json] (where it is, and how it's laid out). */
     internal fun reported(json: String) = update(json)

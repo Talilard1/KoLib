@@ -157,6 +157,8 @@ import dev.kobolibrary.app.reader.MarginRoom
 import dev.kobolibrary.app.reader.PageFrame
 import dev.kobolibrary.app.reader.PageSide
 import dev.kobolibrary.app.reader.RunningHeads
+import dev.kobolibrary.app.reader.HeadTitlePlace
+import dev.kobolibrary.app.reader.CollectionTitle
 import dev.kobolibrary.app.ui.theme.Garamond
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
@@ -167,6 +169,8 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.AnnotatedString
@@ -1271,6 +1275,15 @@ private fun PageSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) 
         else "Like a printed book: each page's number at its outside corner, with the book's title over left-hand pages and the chapter's over right-hand ones." +
             if (s.scrolling) " They show when you're turning pages, not scrolling." else ""
     )
+    if (s.runningHeads != RunningHeads.OFF) {
+        Heading("Heading titles")
+        Choices(HeadTitlePlace.entries, s.headTitlePlace, { it.label }) { onChange(s.copy(headTitlePlace = it)) }
+        Help("Centred on the page, or nearer the middle of the book, as some printed books set them.")
+    }
+
+    Heading("Book of several books")
+    Choices(CollectionTitle.entries, s.collectionTitle, { it.label }) { onChange(s.copy(collectionTitle = it)) }
+    Help("For a collection such as an omnibus: the title shown over left-hand pages (and as the book title around the page) is the one of the book you're reading in it, or the whole collection's.")
 
     Heading("Info around the page")
     Help(
@@ -1667,17 +1680,53 @@ private fun BoxWithConstraintsScope.PageHeads(controller: ReaderController, s: R
                     modifier = Modifier.align(if (p.side == PageSide.LEFT) Alignment.CenterStart else Alignment.CenterEnd),
                 )
             }
-            if (title.isNotBlank()) {
-                Text(
-                    title,
-                    style = HeadTitle.copy(fontFeatureSettings = HeadTitles.smallCapsFeatures(title)),
-                    color = color,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.align(Alignment.Center).padding(horizontal = 46.dp),
-                )
+            if (title.isNotBlank()) HeadTitleLine(title, p.side, s.headTitlePlace, color)
+        }
+    }
+}
+
+/**
+ * A page heading's title, along its page: in the middle, clear of the number at either end; or toward the
+ * spine, in the middle of the page's inner half, moving out only as far as a longer title needs.
+ */
+@Composable
+private fun HeadTitleLine(
+    title: String,
+    side: PageSide,
+    place: HeadTitlePlace,
+    color: Color,
+    style: TextStyle = HeadTitle.copy(fontFeatureSettings = HeadTitles.smallCapsFeatures(title)),
+    clearOfNumber: androidx.compose.ui.unit.Dp = 46.dp,
+) {
+    Layout(
+        content = {
+            Text(
+                title,
+                style = style,
+                color = color,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+            )
+        },
+        modifier = Modifier.fillMaxSize(),
+    ) { measurables, constraints ->
+        val w = constraints.maxWidth
+        val h = constraints.maxHeight
+        val clear = clearOfNumber.roundToPx()
+        val spine = place == HeadTitlePlace.SPINE
+        // Centred, it keeps clear of a number at both ends; toward the spine, only at the outside one.
+        val room = (if (spine) w - clear else w - 2 * clear).coerceAtLeast(0)
+        val text = measurables.first().measure(Constraints(maxWidth = room, maxHeight = h))
+        layout(w, h) {
+            val x = if (!spine) (w - text.width) / 2 else {
+                val left = side == PageSide.LEFT
+                val middle = if (left) w * 0.75f else w * 0.25f
+                val lo = if (left) clear else 0
+                val hi = (if (left) w - text.width else w - clear - text.width).coerceAtLeast(lo)
+                (middle - text.width / 2f).roundToInt().coerceIn(lo, hi)
             }
+            text.place(x, (h - text.height) / 2)
         }
     }
 }
@@ -1738,11 +1787,11 @@ private fun MarginPreview(s: ReaderSettings) {
                 horizontalArrangement = Arrangement.spacedBy(28.dp),
             ) {
                 listOf(Triple("44", "The Eye of the World", true), Triple("45", "The Hook", false)).forEach { (n, t, left) ->
-                    Box(Modifier.weight(1f)) {
+                    Box(Modifier.weight(1f).height(12.dp)) {
                         Text(n, style = numberStyle, color = ink.copy(alpha = 0.7f), modifier = Modifier.align(if (left) Alignment.CenterStart else Alignment.CenterEnd))
-                        Text(
-                            t, style = headStyle, color = ink.copy(alpha = 0.7f), maxLines = 1, overflow = TextOverflow.Ellipsis,
-                            textAlign = TextAlign.Center, modifier = Modifier.align(Alignment.Center).padding(horizontal = 13.dp),
+                        HeadTitleLine(
+                            t, if (left) PageSide.LEFT else PageSide.RIGHT, s.headTitlePlace, ink.copy(alpha = 0.7f),
+                            style = headStyle, clearOfNumber = 13.dp,
                         )
                     }
                 }

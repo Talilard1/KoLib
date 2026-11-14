@@ -56,7 +56,8 @@ class HeadingShots {
 
     private fun shot(
         name: String, page: String, pageIndex: Int, pages: Int, columns: Int, twoUp: Boolean, settings: ReaderSettings = ReaderSettings(),
-        panel: Panel = Panel.NONE, prepare: (ReaderController) -> Unit = {},
+        panel: Panel = Panel.NONE, prepare: (ReaderController) -> Unit = {}, file: String = "chapter-1.xhtml", blank: Int = 0,
+        display: Boolean = false,
     ) {
         val epubFile = File("/home/claude/advert/books/herman-melville_moby-dick.epub")
         val img = File(root, "pages/$page.png")
@@ -65,9 +66,9 @@ class HeadingShots {
             val files = EpubFileFiles(epub)
             // A title as a file-sorted library might have it: the headings leave its number off.
             val c = ReaderController(files, BookStructure(files), "01 Moby Dick", "en", null, settings, context.assets, "Herman Melville")
-            val at = c.chapters.indexOfFirst { it.path.endsWith("chapter-1.xhtml") }
+            val at = c.chapters.indexOfFirst { it.path.endsWith(file) }
             counted(c)
-            c.showForPreview(at, pageIndex, pages, columns, twoUp)
+            c.showForPreview(at, pageIndex, pages, columns, twoUp, blank, display)
             prepare(c)
             val bitmap = BitmapFactory.decodeFile(img.path).asImageBitmap()
             out.mkdirs()
@@ -79,7 +80,7 @@ class HeadingShots {
                 }
             }
             compose.mainClock.advanceTimeBy(50)
-            c.showForPreview(at, pageIndex, pages, columns, twoUp)
+            c.showForPreview(at, pageIndex, pages, columns, twoUp, blank, display)
             compose.mainClock.advanceTimeBy(900)
             captureScreenRoboImage(File(out, "$name.png").path)
         }
@@ -96,6 +97,16 @@ class HeadingShots {
     @Test
     @Config(qualifiers = "w1280dp-h800dp-land-xhdpi")
     fun tabletAtTheBottom() = shot("tab_bottom", "tabb_1", 1, 3, 5, true, ReaderSettings().withHeads(RunningHeads.OFF).copy(runningHeads = RunningHeads.OFF).withHeads(RunningHeads.BOTTOM))
+
+    /** The headings' titles toward the spine, as some printed books set them. */
+    @Test
+    @Config(qualifiers = "w1280dp-h800dp-land-xhdpi")
+    fun tabletTowardTheSpine() = shot("tab_spine", "tab_1", 1, 3, 5, true, ReaderSettings(headTitlePlace = dev.kobolibrary.app.reader.HeadTitlePlace.SPINE))
+
+    /** A page on its own (the dedication): the right-hand one, with no heading over it, not even its number. */
+    @Test
+    @Config(qualifiers = "w1280dp-h800dp-land-xhdpi")
+    fun tabletPageOnItsOwn() = shot("tab_lone", "tabd_0", 0, 1, 1, true, file = "dedication.xhtml", blank = 1, display = true)
 
     @Test
     @Config(qualifiers = "w411dp-h914dp-port-xxhdpi")

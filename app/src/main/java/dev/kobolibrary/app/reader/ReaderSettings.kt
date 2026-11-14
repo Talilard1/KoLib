@@ -161,6 +161,18 @@ enum class RunningHeads(val label: String, val top: Boolean) {
     OFF("Off", false),
 }
 
+/** Where a page heading's title sits: in the middle of its page, or nearer the spine, as some printed books have it. */
+enum class HeadTitlePlace(val label: String) {
+    CENTRED("Centred"),
+    SPINE("Toward the spine"),
+}
+
+/** In a book that holds several (an omnibus, a box set), the title over left-hand pages and in the margins. */
+enum class CollectionTitle(val label: String) {
+    BOOK("The book you're in"),
+    COLLECTION("The collection's"),
+}
+
 /** What the margins can show while reading, in the order they're shown when they share a place. */
 enum class MarginItem(val label: String, val example: String, val default: MarginSpot) {
     BOOK("Book title", "The Eye of the World", MarginSpot.OFF),
@@ -234,6 +246,10 @@ data class ReaderSettings(
     val marginItems: Map<MarginItem, MarginSpot> = MarginItem.DEFAULTS,
     /** Page headings as a printed book has them: at the top of each page, the bottom, or none. */
     val runningHeads: RunningHeads = RunningHeads.TOP,
+    /** Where the page headings' titles sit along the page. */
+    val headTitlePlace: HeadTitlePlace = HeadTitlePlace.CENTRED,
+    /** In a book of several books, whose title the headings and margins show: the one being read, or the whole book's. */
+    val collectionTitle: CollectionTitle = CollectionTitle.BOOK,
     /** The screen stays on while reading. */
     val keepScreenOn: Boolean = true,
     /** Screen brightness while reading, 0 to 1; below 0, the tablet's own. */
@@ -358,6 +374,7 @@ data class ReaderSettings(
         volumeKeys = true, edgePanels = true, edgeBack = false, keepScreenOn = true, brightness = -1f,
         marginItems = if (scrolling) marginItems else MarginItem.DEFAULTS,
         runningHeads = if (scrolling) runningHeads else RunningHeads.TOP,
+        headTitlePlace = HeadTitlePlace.CENTRED, collectionTitle = CollectionTitle.BOOK,
         highlightColor = HighlightColor.YELLOW, highlightStyle = HighlightStyle.HIGHLIGHT, dictionary = null,
         dim = 0f, rotation = ReaderRotation.AUTO, autoWpm = 230, autoEnd = AutoEnd.WAIT, autoResume = AutoResume.SOON,
         progressLine = ProgressLine.BOOK,
@@ -459,6 +476,8 @@ class ReaderSettingsStore(context: Context) {
             .putString("progressBar", next.progressLine.name)
             .putString("barShade", next.barShade.name)
             .putString("heads", next.runningHeads.name)
+            .putString("headTitles", next.headTitlePlace.name)
+            .putString("collectionTitle", next.collectionTitle.name)
             .apply()
     }
 
@@ -516,6 +535,8 @@ class ReaderSettingsStore(context: Context) {
             barShade = enumOf("barShade", d.barShade),
             marginItems = prefs.getString("marginItems", null)?.let { MarginItem.parse(it) } ?: marginsBefore(),
             runningHeads = enumOf("heads", d.runningHeads),
+            headTitlePlace = enumOf("headTitles", d.headTitlePlace),
+            collectionTitle = enumOf("collectionTitle", d.collectionTitle),
             keepScreenOn = prefs.getBoolean("awake", d.keepScreenOn),
         )
     }

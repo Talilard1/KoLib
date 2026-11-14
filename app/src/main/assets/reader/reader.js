@@ -25,6 +25,12 @@
   var padTop = 44, padBottom = 44;
   // A chapter that's only a picture (a cover, a plate): no page headings over it.
   var picturePage = false;
+  // Two pages side by side: a chapter of one page sits on the right-hand page, as in a printed book, with a
+  // blank page before it (blankBefore); a wide picture alone (a map) goes across both pages (spreadPicture).
+  var blankBefore = 0, spreadPicture = false;
+  // A page of its own kind that a printed book doesn't number: a dedication, an epigraph or other quote, a
+  // part's title, a map or plate. No page headings over it.
+  var displayPage = false;
   var ready = false, animating = 0, laidOutWidth = 0;
   // Only counting the chapter's pages, in a WebView that's never shown (see countOnly).
   var countingOnly = false;
@@ -449,21 +455,105 @@
       if (fill) fill.style.display = 'none';
       pages = Math.max(1, Math.ceil(textMax() / stepH()) + 1);
       columns = pages;
+      displayPage = false;
       page = scrolledPage();
       return pages;
     }
-    // Counted without the filler, which then goes at the far edge of the last screen.
+    // Counted without the filler, which then goes at the far edge of the last screen; and laid out as the
+    // book has it, before a page alone is moved to the right or a wide picture across both pages.
     if (fill) fill.style.display = 'none';
+    root.classList.remove('kl-recto', 'kl-spread-pic');
+    blankBefore = 0;
+    spreadPicture = false;
     var w = scroller.scrollWidth;
     pages = W > 0 ? Math.max(1, Math.ceil((w - 2) / W)) : 1;
-    // Each column is a page: a column and the gap after it are half a screen when two are side by side.
-    // The text ends at the last column's edge (less its margin), so the nearest whole count is the pages.
-    columns = perScreen === 2 && W > 0 ? Math.max(1, Math.min(pages * 2, Math.round(w / (W / 2)))) : pages;
+    // Each column is a page. The last one is the column the chapter's last words (or picture) are in: the
+    // width scrolled can't say, as it's never less than the screen's, however little the chapter fills.
+    columns = perScreen === 2 && W > 0 ? Math.max(1, Math.min(pages * 2, lastColumn() + 1)) : pages;
+    // Nothing after them but empty space (a page break the book asks for at its end): no screens for it.
+    if (perScreen === 2) pages = Math.max(1, Math.min(pages, Math.ceil(columns / 2)));
+    displayPage = columns === 1 && pages === 1 && looksLikeDisplayPage();
+    if (perScreen === 2 && pages === 1) {
+      if (picturePage && widePicture()) {
+        // A map or a picture made to go across two pages: across the screen, in the middle.
+        spreadPicture = true;
+        columns = 2;
+        displayPage = true;
+        // Into the margins, up to the rows of the time and the rest over and under the page, if they're there.
+        setVar('--kl-spread-top', Math.max(12, Math.round((settings.minTop || 0) - 10)) + 'px');
+        setVar('--kl-spread-bottom', Math.max(12, Math.round((settings.minBottom || 0) - 10)) + 'px');
+        root.classList.add('kl-spread-pic');
+      } else if (columns === 1) {
+        // A page on its own (a dedication, an epigraph, a plate) goes on the right, as in print.
+        blankBefore = 1;
+        root.classList.add('kl-recto');
+      }
+    }
     if (fill) {
       fill.style.left = (pages * W - 1) + 'px';
       fill.style.display = 'block';
     }
     return pages;
+  }
+
+  /**
+   * The chapter, on one page, is one a printed book wouldn't number: a picture, little text (a dedication, a
+   * quote, a part's title), or marked as a dedication or epigraph by the book.
+   */
+  function looksLikeDisplayPage() {
+    var body = document.body;
+    if (!body) return false;
+    if (picturePage) return true;
+    if ((body.textContent || '').replace(/\s+/g, '').length < 700) return true;
+    var marks = /(^|[^a-z])(dedication|epigraphs?|titlepage|halftitle(page)?|half-title|frontispiece|pullquote)([^a-z]|$)/i;
+    if (marks.test(decodeURIComponent((location.pathname || '').split('/').pop() || ''))) return true;
+    var els = [body].concat(Array.prototype.slice.call(body.querySelectorAll('section, div, blockquote, aside')).slice(0, 6));
+    for (var i = 0; i < els.length; i++) {
+      var e = els[i];
+      var said = [e.getAttribute('epub:type'), e.getAttributeNS && e.getAttributeNS('http://www.idpf.org/2007/ops', 'type'),
+        e.getAttribute('role'), e.getAttribute('class'), e.id].join(' ');
+      if (marks.test(said)) return true;
+    }
+    return false;
+  }
+
+  /** The column (counted from 0) the chapter's last words or picture are in, laid out as pages. */
+  function lastColumn() {
+    var body = document.body;
+    if (!body || W <= 0) return 0;
+    var pitch = W / perScreen, right = 0;
+    var x0 = scroller.scrollLeft;
+    // The last words: the last text with more than spaces in it that's laid out (not hidden).
+    var tw = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, null), n, texts = [];
+    while ((n = tw.nextNode())) if (n.data.trim()) texts.push(n);
+    var r = document.createRange();
+    for (var t = texts.length - 1; t >= 0 && t >= texts.length - 40; t--) {
+      r.selectNodeContents(texts[t]);
+      var rects = r.getClientRects();
+      if (rects.length) { right = Math.max(right, rects[rects.length - 1].left + x0); break; }
+    }
+    // The last picture, if it comes after them.
+    var pics = body.querySelectorAll('img, svg, video');
+    for (var i = pics.length - 1; i >= 0; i--) {
+      var b = pics[i].getBoundingClientRect();
+      if (b.width > 1 && b.height > 1) { right = Math.max(right, b.left + x0); break; }
+    }
+    return Math.max(0, Math.floor((right + 1) / pitch));
+  }
+
+  /** The chapter's one picture is wider than it is tall, as a map across two pages is. */
+  function widePicture() {
+    var el = document.querySelector('.kl-full-page');
+    if (!el) return false;
+    var w = 0, h = 0;
+    if (el.localName === 'img') { w = el.naturalWidth; h = el.naturalHeight; }
+    else {
+      var vb = el.viewBox && el.viewBox.baseVal;
+      if (vb && vb.width && vb.height) { w = vb.width; h = vb.height; }
+      var im = el.querySelector && el.querySelector('image');
+      if ((!w || !h) && im) { w = parseFloat(im.getAttribute('width')) || 0; h = parseFloat(im.getAttribute('height')) || 0; }
+    }
+    return w > 0 && h > 0 && w / h > 1.15;
   }
 
   /**
@@ -772,8 +862,11 @@
       scrolled: scrolled,
       layout: layoutKey(),
       columns: columns,
+      blank: blankBefore,
+      display: displayPage,
       frame: { w: W, h: H, perScreen: perScreen, padX: padX, col: colW, padTop: padTop, padBottom: padBottom },
       picture: picturePage,
+      spreadPicture: spreadPicture,
     };
   }
 
@@ -1344,7 +1437,10 @@
         goTo(startTarget, false);
         root.classList.add('kl-ready');
         var h = here();
-        try { KL.ready(JSON.stringify({ pages: pages, page: page, spread: perScreen === 2, progress: h.progress, scrolled: scrolled, columns: columns })); } catch (e) { log(e); }
+        try {
+          KL.ready(JSON.stringify({ pages: pages, page: page, spread: perScreen === 2, progress: h.progress, scrolled: scrolled, columns: columns,
+            blank: blankBefore, display: displayPage, picture: picturePage, spreadPicture: spreadPicture }));
+        } catch (e) { log(e); }
         if (st.auto) setAuto(st.auto, true);
       });
     });

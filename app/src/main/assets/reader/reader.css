@@ -206,6 +206,34 @@ html.kl-paged .kl-full-page {
   object-fit: contain !important;
 }
 
+/* Two pages side by side, a chapter of one page goes on the right-hand page (reader.js decides). Before the
+   body, not in it, so nothing in the book moves along. */
+html.kl-paged.kl-recto body::before {
+  content: "" !important;
+  display: block !important;
+  height: 1px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  break-after: column !important;
+  -webkit-column-break-after: always !important;
+}
+/* A wide picture alone (a map made to go across two pages): across the whole screen, in the middle, into the
+   margins; anything else on its page (a caption, a title) is hidden behind it. */
+html.kl-paged.kl-spread-pic body { visibility: hidden !important; }
+html.kl-paged.kl-spread-pic .kl-full-page {
+  visibility: visible !important;
+  position: fixed !important;
+  left: 12px !important;
+  top: var(--kl-spread-top, 12px) !important;
+  width: calc(var(--kl-vw, 100vw) - 24px) !important;
+  height: calc(var(--kl-vh, 100vh) - var(--kl-spread-top, 12px) - var(--kl-spread-bottom, 12px)) !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  object-fit: contain !important;
+  z-index: 2 !important;
+}
+
 html.kl-paged h1, html.kl-paged h2, html.kl-paged h3, html.kl-paged h4, html.kl-paged h5, html.kl-paged h6 {
   break-after: avoid;
   page-break-after: avoid;

@@ -87,6 +87,18 @@ class ReaderController(
     /** The chapter on screen is only a picture (a cover, a plate), with no headings over it. */
     var picturePage by mutableStateOf(false)
         private set
+    /**
+     * Two pages side by side, the blank pages on screen before the chapter's first: one when the chapter is a
+     * single page (an epigraph, a dedication), which goes on the right as in a printed book.
+     */
+    var blankBefore by mutableStateOf(0)
+        private set
+    /**
+     * The chapter is a page a printed book doesn't number (a dedication, an epigraph or other quote, a map or
+     * plate): no headings over it, not even its number.
+     */
+    var displayPage by mutableStateOf(false)
+        private set
     /** How deep a camera's cutout is at the top of the screen, in dp: a top row in the margins sits below it. */
     var cutoutTop = 0
         private set
@@ -277,11 +289,11 @@ class ReaderController(
     /** Pages on a screen: two side by side, or one. */
     val perScreen: Int get() = if (spread && !scrolledHere) 2 else 1
 
-    /** The first page on screen, in the chapter (0 is its first). */
-    val firstShown: Int get() = (page * perScreen).coerceIn(0, (chapterPages - 1).coerceAtLeast(0))
+    /** The first page with text on screen, in the chapter (0 is its first). */
+    val firstShown: Int get() = (page * perScreen - blankBefore).coerceIn(0, (chapterPages - 1).coerceAtLeast(0))
 
     /** The last page on screen, in the chapter: the same as [firstShown] unless two show and the right-hand one has text. */
-    val lastShown: Int get() = (firstShown + perScreen - 1).coerceAtMost((chapterPages - 1).coerceAtLeast(0))
+    val lastShown: Int get() = (page * perScreen + perScreen - 1 - blankBefore).coerceIn(firstShown, (chapterPages - 1).coerceAtLeast(0))
 
     /** The page showing (the left-hand one, with two side by side), counted through the whole book (the first is 1). */
     val bookPage: Int?
@@ -307,39 +319,61 @@ class ReaderController(
      */
     val shownPages: List<ShownPage>
         get() {
-            if (scrolledHere || settings.scrolling || picturePage || loading) return emptyList()
+            if (scrolledHere || settings.scrolling || picturePage || displayPage || loading) return emptyList()
             val first = bookPage
             val last = bookPageLast
-            return (firstShown..lastShown).mapIndexed { slot, inChapter ->
-                val number = if (slot == 0) first else last
+            val firstOnScreen = firstShown
+            val start = page * perScreen - blankBefore
+            return (0 until perScreen).mapNotNull { slot ->
+                val inChapter = start + slot
+                if (inChapter < 0 || inChapter >= chapterPages) return@mapNotNull null
+                val number = if (inChapter == firstOnScreen) first else last
                 val side = when {
                     perScreen == 2 -> if (slot == 0) PageSide.LEFT else PageSide.RIGHT
                     number != null && number % 2 == 0 -> PageSide.LEFT
                     else -> PageSide.RIGHT
                 }
-                ShownPage(slot, number, side, opening = inChapter == 0 && startsChapter(chapterIndex))
+                // A page on its own (an epigraph, a dedication) has its number but no title over it, as in print.
+                val alone = blankBefore > 0 && chapterPages == 1
+                ShownPage(slot, number, side, opening = alone || (inChapter == 0 && startsChapter(chapterIndex)))
             }
         }
 
-    /** The book's title as the headings show it: without a number in front that's only there to sort it. */
-    val headBookTitle: String by lazy { HeadTitles.book(bookTitle, bookSeriesIndex) }
+    /** The books inside this one, if it holds several (an omnibus); none if it's a single book. */
+    val innerBooks: List<InnerBook> by lazy { runCatching { Omnibus.books(toc, chapters, bookTitle) }.getOrDefault(emptyList()) }
+
+    /** The book being read, in a book that holds several; null in one that doesn't, or in the pages around its books. */
+    val innerBook: InnerBook? get() = innerBooks.firstOrNull { chapterIndex in it.first..it.last }
+
+    /** The whole book's title as the headings show it: without a number in front that's only there to sort it. */
+    private val ownHeadTitle: String by lazy { HeadTitles.book(bookTitle, bookSeriesIndex) }
+
+    /**
+     * The book's title as the headings (and the margins) show it: in a book of several books, the one being
+     * read, unless the whole book's is chosen.
+     */
+    val headBookTitle: String
+        get() = (if (settings.collectionTitle == CollectionTitle.BOOK) innerBook?.title else null) ?: ownHeadTitle
 
     /**
      * The chapter's title as the headings show it: the contents' name for it, or for a file that only
      * carries on a chapter, the chapter it carries on; blank if the contents don't name one.
      */
     val headChapterTitle: String
-        get() {
-            var i = chapterIndex
-            while (i >= 0) {
-                val c = chapters.getOrNull(i) ?: return ""
-                val fromToc = c.titleFromToc || (i > 0 && isKnownOpening(i - 1) && chapters[i - 1].titleFromToc)
-                if (fromToc) return titleOf(i)
-                if (toc.isEmpty()) return titleOf(i).takeUnless { it == c.path.substringAfterLast('/').substringBeforeLast('.') }.orEmpty()
-                i--
-            }
-            return ""
+        get() = HeadTitles.chapter(headChapterName())
+
+    /** The chapter's name for [headChapterTitle], with its number if it has one in front. */
+    private fun headChapterName(): String {
+        var i = chapterIndex
+        while (i >= 0) {
+            val c = chapters.getOrNull(i) ?: return ""
+            val fromToc = c.titleFromToc || (i > 0 && isKnownOpening(i - 1) && chapters[i - 1].titleFromToc)
+            if (fromToc) return titleOf(i)
+            if (toc.isEmpty()) return titleOf(i).takeUnless { it == c.path.substringAfterLast('/').substringBeforeLast('.') }.orEmpty()
+            i--
         }
+        return ""
+    }
 
     /** Chapter [i] starts a chapter of the contents (or the book has none), rather than carrying one on. */
     private fun startsChapter(i: Int): Boolean {
@@ -1177,6 +1211,9 @@ class ReaderController(
             ).takeIf { it.width > 0f && it.col > 0f }
         }
         if (o.has("picture")) picturePage = o.optBoolean("picture")
+        if (o.has("blank")) blankBefore = if (perScreen == 2) o.optInt("blank", 0).coerceIn(0, 1) else 0
+        else if (perScreen != 2) blankBefore = 0
+        if (o.has("display")) displayPage = o.optBoolean("display")
         val newPage = o.optInt("page", 0)
         if (jumpedFrom != null && (newPage != page || chapterIndex != reportedChapter)) {
             // Landing is one move; three pages on from there, going back isn't offered any more.
@@ -1230,11 +1267,13 @@ class ReaderController(
     internal val lengthsCounted: Boolean get() = lengthsKnown
 
     /** For pictures of the reading screen in tests, where there's no WebView to report pages. */
-    internal fun showForPreview(chapter: Int, page: Int, pages: Int, columns: Int = pages, twoUp: Boolean = false) {
+    internal fun showForPreview(chapter: Int, page: Int, pages: Int, columns: Int = pages, twoUp: Boolean = false, blank: Int = 0, display: Boolean = false) {
         chapterIndex = chapter
         this.page = page
         this.pages = pages
         spread = twoUp
+        blankBefore = if (twoUp) blank else 0
+        displayPage = display
         chapterPages = columns
         chapterProgress = if (pages > 1) page.toFloat() / (pages - 1) else 0f
         loading = false

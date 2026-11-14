@@ -86,6 +86,8 @@ class ReaderFrame(context: Context, val controller: ReaderController) : FrameLay
     init {
         addView(webView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         controller.turner = turner
+        // Every chapter's pages are counted under the page, at its size, for page numbers through the book.
+        controller.createCounter(this)
     }
 
     private var surfaceOn = false

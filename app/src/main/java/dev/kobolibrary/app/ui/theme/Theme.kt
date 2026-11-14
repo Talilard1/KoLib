@@ -193,9 +193,9 @@ enum class Backdrop { GLOW, LAMP, PAPER, BLACK }
 class KoLibStyle(
     val dark: Boolean,
     val backdrop: Backdrop,
-    /** The main buttons' gold, top to bottom. */
-    val buttonGold: List<Color>,
-    /** Text and icons on [buttonGold]. */
+    /** The main buttons' gold: one flat colour. */
+    val gold: Color,
+    /** Text and icons on [gold]. */
     val onGold: Color,
     /** The mark's gold, light at its top left to deep at its foot. */
     val markGold: List<Color>,
@@ -206,16 +206,12 @@ class KoLibStyle(
     val onBadge: Color,
     /** Shadows' colour: warmer than black on paper. */
     val shadow: Color,
-) {
-    fun buttonBrush(): Brush = Brush.verticalGradient(buttonGold)
-}
-
-private val GoldButton = listOf(Color(0xFFF7DDA8), Color(0xFFE9BD76), Color(0xFFD29A55))
+)
 
 private val DarkStyle = KoLibStyle(
     dark = true,
     backdrop = Backdrop.GLOW,
-    buttonGold = GoldButton,
+    gold = Color(0xFFE8BE78),
     onGold = KoLibGold.ink,
     markGold = listOf(Color(0xFFFBE6BF), Color(0xFFEBC07E), KoLibGold.deep),
     hairline = KoLibGold.gold.copy(alpha = 0.20f),
@@ -227,7 +223,7 @@ private val DarkStyle = KoLibStyle(
 private val OledStyle = KoLibStyle(
     dark = true,
     backdrop = Backdrop.BLACK,
-    buttonGold = GoldButton,
+    gold = Color(0xFFE8BE78),
     onGold = KoLibGold.ink,
     markGold = listOf(Color(0xFFFBE6BF), Color(0xFFEBC07E), KoLibGold.deep),
     hairline = KoLibGold.gold.copy(alpha = 0.18f),
@@ -239,7 +235,7 @@ private val OledStyle = KoLibStyle(
 private val BookcaseStyle = KoLibStyle(
     dark = true,
     backdrop = Backdrop.LAMP,
-    buttonGold = GoldButton,
+    gold = Color(0xFFE6BA70),
     onGold = KoLibGold.ink,
     markGold = listOf(Color(0xFFFBE6BF), Color(0xFFEBC07E), KoLibGold.deep),
     hairline = KoLibGold.gold.copy(alpha = 0.22f),
@@ -251,7 +247,7 @@ private val BookcaseStyle = KoLibStyle(
 private val LightStyle = KoLibStyle(
     dark = false,
     backdrop = Backdrop.PAPER,
-    buttonGold = GoldButton,
+    gold = Color(0xFFE5B567),
     onGold = KoLibGold.ink,
     markGold = listOf(Color(0xFFC99A55), Color(0xFFA06B28), Color(0xFF6E4614)),
     hairline = Color(0xFF87591A).copy(alpha = 0.20f),

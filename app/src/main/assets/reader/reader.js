@@ -19,6 +19,8 @@
   var settings = {};
   var W = 0, H = 0, page = 0, pages = 1, padX = 48, padY = 44, perScreen = 1;
   var ready = false, animating = 0, laidOutWidth = 0;
+  // Only counting the chapter's pages, in a WebView that's never shown (see countOnly).
+  var countingOnly = false;
   var startTarget = null;
   // Scrolling: the chapter as one long page. The bands at the top and bottom are where the app shows
   // the margins' chapter title, time and so on, over the text going by.
@@ -78,6 +80,7 @@
   var inkOnPaperKnown = typeof WeakMap !== 'undefined' ? new WeakMap() : null;
 
   function blendPictures() {
+    if (countingOnly) return;
     var mode = settings.blend || 'ornaments';
     var pics = document.querySelectorAll('img, svg');
     for (var i = 0; i < pics.length; i++) markBlend(pics[i], mode);
@@ -747,10 +750,14 @@
       snippet: v ? snippetFrom(v.node, v.offset) : '',
       spread: perScreen === 2,
       scrolled: scrolled,
-      // What the pages were laid out at: the same chapter comes to the same pages while this stays the same.
-      layout: [W, H, perScreen, scrolled ? 1 : 0, padX, padY, bandTop, bandBottom, settings.fontScale, settings.font,
-        settings.line, settings.align, settings.hyphens, settings.lang].join('|'),
+      layout: layoutKey(),
     };
+  }
+
+  /** What the pages were laid out at: the same chapter comes to the same pages while this stays the same. */
+  function layoutKey() {
+    return [W, H, perScreen, scrolled ? 1 : 0, padX, padY, bandTop, bandBottom, settings.fontScale, settings.font,
+      settings.line, settings.align, settings.hyphens, settings.lang].join('|');
   }
 
   var reportTimer = 0, reportedAt = 0;
@@ -1146,6 +1153,15 @@
 
   // ---- laying out, and again when something changes -----------------------------------------------
 
+  /**
+   * After the next frame. Counting, in a WebView that's never drawn, there may be no frames to wait
+   * for (they come with drawing), so a moment instead: the layout is there whether or not it's drawn.
+   */
+  function nextFrame(fn) {
+    if (countingOnly) setTimeout(fn, 16);
+    else requestAnimationFrame(fn);
+  }
+
   function whenSettled(done) {
     var waits = [];
     if (document.fonts && document.fonts.ready) waits.push(document.fonts.ready);
@@ -1157,7 +1173,7 @@
     }
     var timeout = new Promise(function (res) { setTimeout(res, 1800); });
     Promise.race([Promise.all(waits), timeout]).then(function () {
-      requestAnimationFrame(function () { requestAnimationFrame(done); });
+      nextFrame(function () { nextFrame(done); });
     });
   }
 
@@ -1273,12 +1289,13 @@
     var t0 = Date.now();
     (function wait() {
       if (hasSize() || Date.now() - t0 > 4000) done();
-      else requestAnimationFrame(wait);
+      else nextFrame(wait);
     })();
   }
 
   function start() {
     var st = parse(KL.start());
+    if (st.measure) { countOnly(st); return; }
     markFullPagePictures();
     try { keepPictureShapes(); } catch (e) { log(e); }
     try { centrePictures(); } catch (e) { log(e); }
@@ -1306,6 +1323,34 @@
         var h = here();
         try { KL.ready(JSON.stringify({ pages: pages, page: page, spread: perScreen === 2, progress: h.progress, scrolled: scrolled })); } catch (e) { log(e); }
         if (st.auto) setAuto(st.auto, true);
+      });
+    });
+  }
+
+  /**
+   * Lays the chapter out just as start() does, with the same settings and at the same size, counts its
+   * pages, and tells the app. Nothing else: no place to go to, nothing to show. The app numbers pages
+   * through the whole book from these counts, so the numbers don't change as the book is read.
+   */
+  function countOnly(st) {
+    countingOnly = true;
+    markFullPagePictures();
+    try { keepPictureShapes(); } catch (e) { log(e); }
+    try { centrePictures(); } catch (e) { log(e); }
+    try { keepOpeningTogether(); } catch (e) { log(e); }
+    var around = st.chapters || {};
+    nextTitle = around.next || null;
+    isLast = around.hasNext === false;
+    hasPrev = around.hasPrev !== false;
+    try { addChapterEnd(); } catch (e) { log(e); }
+    whenSized(function () {
+      applySettings(st.settings || {});
+      whenSettled(function () {
+        if (screenWidth() !== W || screenHeight() !== H) measure();
+        try { fitPictureBoxes(); } catch (e) { log(e); }
+        measureDensity();
+        countPages();
+        try { KL.measured(JSON.stringify({ id: st.measure, pages: pages, layout: layoutKey() })); } catch (e) { log(e); }
       });
     });
   }

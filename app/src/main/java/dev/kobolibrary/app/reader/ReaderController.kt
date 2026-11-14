@@ -34,6 +34,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONObject
 
 /** A footnote to show over the page. */
@@ -206,9 +207,15 @@ class ReaderController(
             position = s.position
         }
         scope.launch {
+            val stamp = java.util.zip.CRC32()
             val counted = withContext(Dispatchers.IO) {
-                chapters.map { c -> runCatching { files.text(c.path)?.let { EpubText.plainText(it) } }.getOrNull().orEmpty() }
+                chapters.map { c ->
+                    val text = runCatching { files.text(c.path) }.getOrNull()
+                    stamp.update((c.path + "\u0000" + text.orEmpty()).toByteArray())
+                    text?.let { runCatching { EpubText.plainText(it) }.getOrNull() }.orEmpty()
+                }
             }
+            textStamp = stamp.value.toString(16)
             chapterWords = counted.map { EpubText.countWords(it) }.toIntArray()
             weights = counted.map { maxOf(1f, it.length.toFloat()) }.toFloatArray()
             weightTotal = weights.sum()
@@ -229,10 +236,17 @@ class ReaderController(
         }
     }
 
-    /** Pages through the whole book at the present text size; null until a chapter has been laid out to go by. */
+    /**
+     * Pages through the whole book at the present text size and page size: every chapter counted (see
+     * [ChapterCounter]), so a page has the same number however the reader got to it. Null while they're
+     * being counted (no number rather than one that changes). Without a counter (or if counting failed),
+     * worked out from the chapters laid out so far.
+     */
     val bookPages: BookPages?
         get() {
             if (!lengthsKnown || chapters.isEmpty()) return null
+            exactPages()?.let { return BookPages(it) }
+            if (counter != null && !countFailed) return null
             val perPage = textPerPage() ?: return null
             return BookPages(IntArray(chapters.size) { i ->
                 if (openings[i] == true) 0
@@ -240,9 +254,103 @@ class ReaderController(
             })
         }
 
+    /** Each chapter's pages as counted, for the layout on screen; null if they're not all counted for it. */
+    private fun exactPages(): IntArray? = counted?.takeIf { countedKey == layoutKey && it.size == chapters.size }
+
     /** The page showing, counted through the whole book (the first is 1). */
     val bookPage: Int?
-        get() = bookPages?.let { (it.before(chapterIndex) + page + 1).coerceIn(1, it.total) }
+        get() = bookPages?.let { bp ->
+            val inChapter = page.coerceIn(0, (bp.counts.getOrElse(chapterIndex) { 1 } - 1).coerceAtLeast(0))
+            (bp.before(chapterIndex) + inChapter + 1).coerceIn(1, bp.total)
+        }
+
+    // ---- counting every chapter's pages ------------------------------------------------------------
+
+    /** Counts chapters' pages away from the screen; set by the reader's frame (none in tests of the reader alone). */
+    var counter: ChapterCounter? = null
+
+    /** Each chapter's pages, counted at [countedKey]; null until all are counted. */
+    private var counted by mutableStateOf<IntArray?>(null)
+    private var countedKey by mutableStateOf("")
+    /** Counting couldn't be done at this layout: pages are worked out from the chapters laid out instead. */
+    private var countFailed by mutableStateOf(false)
+    /** Every chapter's pages are being counted. */
+    var countingPages by mutableStateOf(false)
+        private set
+    private var countJob: Job? = null
+    private var countToken: Any? = null
+    /** A stamp of the book's text, so counts kept from before are used only for the book as it is. */
+    private var textStamp = ""
+
+    /** Makes the counter for this book, in the reader's [frame]. */
+    fun createCounter(frame: ViewGroup) {
+        counter?.close()
+        counter = PageCounter(frame, server)
+    }
+
+    /**
+     * Has every chapter's pages counted at the layout [key] (the reader's, as it reported it), unless they
+     * already are or are being: kept from an earlier visit if the book and the layout are the same, or
+     * counted one chapter after another, away from the screen.
+     */
+    private fun countPagesFor(key: String, rawLayout: String) {
+        if (key == countedKey && (counted != null || countingPages || countFailed)) return
+        countJob?.cancel()
+        countedKey = key
+        counted = null
+        countFailed = false
+        val c = counter ?: return
+        countingPages = true
+        // This count, as against one given up on for a new layout (which mustn't undo this one as it ends).
+        val token = Any()
+        countToken = token
+        countJob = scope.launch {
+            try {
+                // The chapters' lengths and openings first (the openings are counted with their chapters).
+                while (!lengthsKnown) delay(50)
+                val stored = "$key|$textStamp|${dev.kobolibrary.app.BuildConfig.VERSION_CODE}"
+                val kept = withContext(Dispatchers.IO) { store?.pageCounts(stored) }
+                if (kept != null && kept.size == chapters.size) {
+                    counted = kept
+                    return@launch
+                }
+                // Let the chapter being opened settle before counting the rest.
+                delay(400)
+                val result = IntArray(chapters.size)
+                for (i in chapters.indices) {
+                    if (withContext(Dispatchers.IO) { isOpening(i) }) continue
+                    val start = JSONObject()
+                        .put("settings", JSONObject(settings.toJs(language)))
+                        .put("chapters", aroundJs(i))
+                        .toString()
+                    val got = withTimeoutOrNull(20_000) {
+                        try {
+                            c.count(chapters[i].path, start)
+                        } catch (e: kotlinx.coroutines.CancellationException) {
+                            throw e
+                        } catch (e: Exception) {
+                            AppLog.w("Reader", "Counting pages went wrong", e)
+                            null
+                        }
+                    }
+                    if (got == null || got.layout != rawLayout) {
+                        AppLog.w("Reader", if (got == null) "Couldn't count the pages of ${chapters[i].path}" else "Pages counted at a different layout (${got.layout}, not $rawLayout)")
+                        countFailed = true
+                        return@launch
+                    }
+                    result[i] = got.pages
+                }
+                counted = result
+                withContext(Dispatchers.IO) { store?.savePageCounts(stored, result) }
+                AppLog.i("Reader", "Counted the pages of ${chapters.size} chapters: ${result.sum()} in all")
+            } finally {
+                if (countToken === token) {
+                    countingPages = false
+                    c.close()
+                }
+            }
+        }
+    }
 
     /** The page the progress bar at [f] goes to, counted through the whole book. */
     fun bookPageAt(f: Float): Int? {
@@ -308,23 +416,7 @@ class ReaderController(
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface")
     fun createView(context: Context): WebView = ReaderWebView(context).apply {
         onSelectionAction = { action, mode -> selectionAction(action) { mode.finish() } }
-        // A WebView left to wrap its content treats the page as having no height (100vh = 0),
-        // which squeezed every page down to one line on the tablet.
-        layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-        settings.javaScriptEnabled = true
-        settings.allowFileAccess = false
-        settings.allowContentAccess = false
-        settings.domStorageEnabled = false
-        settings.setSupportZoom(false)
-        settings.builtInZoomControls = false
-        settings.displayZoomControls = false
-        settings.textZoom = 100
-        settings.useWideViewPort = true
-        settings.loadWithOverviewMode = false
-        settings.mediaPlaybackRequiresUserGesture = true
-        isVerticalScrollBarEnabled = false
-        isHorizontalScrollBarEnabled = false
-        overScrollMode = View.OVER_SCROLL_NEVER
+        setUpForReading()
         setBackgroundColor(this@ReaderController.settings.theme.bg.toInt())
         keepScreenOn = this@ReaderController.settings.keepScreenOn || autoscroll
         webViewClient = object : WebViewClient() {
@@ -350,6 +442,9 @@ class ReaderController(
         saveNow()
         turner?.release()
         turner = null
+        countJob?.cancel()
+        counter?.close()
+        counter = null
         scope.cancel()
         webView?.let { v ->
             v.stopLoading()
@@ -563,7 +658,13 @@ class ReaderController(
     fun goToBookProgress(f: Float) {
         stopTurn()
         val (i, p) = chapterAtBookProgress(f) ?: return
-        open(i, target("progress", p.toDouble()))
+        val exact = exactPages()
+        if (exact != null && exact[i] > 0) {
+            // With every chapter counted: the very page the bar named while it was dragged.
+            open(i, target("page", ((exact[i] - 1) * p).roundToInt()))
+        } else {
+            open(i, target("progress", p.toDouble()))
+        }
     }
 
     fun goToHit(hit: ReaderHit) {
@@ -578,19 +679,34 @@ class ReaderController(
      */
     var barReturn by mutableStateOf<ReaderPosition?>(null)
         private set
+    /** The page [barReturn] was on as numbered there, and the layout it was numbered at. */
+    private var barReturnPage by mutableStateOf<Pair<String, Int>?>(null)
+
+    /** The page the button with the controls goes back to, counted through the whole book. */
+    val barReturnBookPage: Int?
+        get() {
+            val back = barReturn ?: return null
+            barReturnPage?.let { (key, n) -> if (key == layoutKey && exactPages() != null) return n }
+            return bookPageOf(back)
+        }
 
     /** The progress bar let go at [f]: there, remembering where the reader was. */
     fun goToBookProgressFromBar(f: Float) {
         val here = position
         // Let go where it already was: not a move.
-        if (here != null && abs(f - bookProgress) >= 0.002f) barReturn = here
+        if (here != null && abs(f - bookProgress) >= 0.002f) {
+            barReturn = here
+            barReturnPage = bookPage?.let { layoutKey to it }
+        }
         goToBookProgress(f)
     }
 
     /** To the place remembered from the progress bar, remembering this one to come back to. */
     fun swapWithBarReturn() {
         val there = barReturn ?: return
+        val herePage = bookPage
         barReturn = position
+        barReturnPage = herePage?.let { layoutKey to it }
         goTo(there)
     }
 
@@ -957,12 +1073,18 @@ class ReaderController(
         // The chapter's pages at this text size and page size, for counting pages through the book. Laid
         // out differently, the pages counted so far no longer hold.
         if (o.has("layout")) {
-            val key = o.optString("layout") + "|" + settings.joinOpenings
+            val raw = o.optString("layout")
+            val key = raw + "|" + settings.joinOpenings
             if (key != layoutKey) {
                 layoutKey = key
                 laidOutPages.clear()
             }
             if (laidOutPages[chapterIndex] != pages) laidOutPages[chapterIndex] = pages
+            // Every chapter counted at this layout, so pages keep their numbers wherever the reader goes.
+            countPagesFor(key, raw)
+            exactPages()?.getOrNull(chapterIndex)?.let { n ->
+                if (n != pages && n > 0) AppLog.d("Reader", "Chapter $chapterIndex laid out at $pages pages; counted at $n")
+            }
         }
         if (o.has("scrolled")) scrolledHere = o.optBoolean("scrolled")
         // Scrolling says how far down the chapter it is; pages are counted.
@@ -981,6 +1103,12 @@ class ReaderController(
             saveSoon()
         }
     }
+
+    /** For tests: as if the page reported [json] (where it is, and how it's laid out). */
+    internal fun reported(json: String) = update(json)
+
+    /** For tests: the chapters' lengths have been counted. */
+    internal val lengthsCounted: Boolean get() = lengthsKnown
 
     /** For pictures of the reading screen in tests, where there's no WebView to report pages. */
     internal fun showForPreview(chapter: Int, page: Int, pages: Int) {

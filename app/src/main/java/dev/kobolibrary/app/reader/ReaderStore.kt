@@ -93,6 +93,40 @@ class ReaderStore(
         onSaved?.invoke(state)
     }
 
+    private val pagesFile get() = File(bookDir, "pages.json")
+
+    /** Each chapter's pages as counted before at [key] (the layout and the book's text), if they were. */
+    fun pageCounts(key: String): IntArray? = try {
+        if (!pagesFile.exists()) null else {
+            JSONObject(pagesFile.readText()).optJSONObject("counts")?.optJSONArray(key)?.let { a -> IntArray(a.length()) { a.optInt(it) } }
+        }
+    } catch (e: Exception) {
+        null
+    }
+
+    /** Keeps [counts] for [key], with the last few other layouts' (a phone's and a tablet's, a few text sizes). */
+    fun savePageCounts(key: String, counts: IntArray) {
+        try {
+            bookDir.mkdirs()
+            val old = runCatching { JSONObject(pagesFile.readText()) }.getOrNull()
+            val before = old?.optJSONArray("order")?.let { a -> (0 until a.length()).map { a.optString(it) } }.orEmpty()
+            val keep = (listOf(key) + before.filter { it != key }).take(8)
+            val all = JSONObject()
+            for (k in keep) {
+                if (k == key) all.put(k, JSONArray().apply { counts.forEach { put(it) } })
+                else old?.optJSONObject("counts")?.optJSONArray(k)?.let { all.put(k, it) }
+            }
+            val tmp = File(bookDir, "pages.json.part")
+            tmp.writeText(JSONObject().put("order", JSONArray(keep)).put("counts", all).toString())
+            if (!tmp.renameTo(pagesFile)) {
+                pagesFile.delete()
+                tmp.renameTo(pagesFile)
+            }
+        } catch (e: Exception) {
+            AppLog.w("Reader", "The page counts couldn't be saved", e)
+        }
+    }
+
     companion object {
         /** How far through the book it was left, for the library (0 to 1), or null if never opened. */
         fun progressOf(bookDir: File): Float? = readHereOf(bookDir)?.progress

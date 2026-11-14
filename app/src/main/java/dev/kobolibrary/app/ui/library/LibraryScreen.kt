@@ -62,6 +62,7 @@ import androidx.compose.material.icons.outlined.RestartAlt
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.FileOpen
+import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Info
@@ -155,6 +156,8 @@ fun LibraryScreen(
     koboConnected: Boolean,
     onAddFiles: () -> Unit,
     onAddFromKobo: () -> Unit,
+    /** Adds the books in a folder (and the folders in it). */
+    onAddFolder: () -> Unit = {},
     onShowJob: () -> Unit,
     onEditDetails: (String) -> Unit,
     onChangeCover: (String) -> Unit,
@@ -196,7 +199,7 @@ fun LibraryScreen(
         PhoneLibraryScreen(
             books = books, visible = visible, covers = covers, browse = browse, selected = selected, job = job,
             koboConnected = koboConnected, reading = reading, here = here, readingHere = readingHere, koboLive = koboLive,
-            onAddFiles = onAddFiles, onAddFromKobo = onAddFromKobo, onShowJob = onShowJob, onEditDetails = onEditDetails,
+            onAddFiles = onAddFiles, onAddFromKobo = onAddFromKobo, onAddFolder = onAddFolder, onShowJob = onShowJob, onEditDetails = onEditDetails,
             onChangeCover = onChangeCover, onDelete = onDelete, onSend = onSend, onRead = onRead, onEditText = onEditText,
             onNewBook = onNewBook, onMerge = onMerge, onSplit = onSplit, onExport = onExport, onDuplicate = onDuplicate,
             onAbout = onAbout, onTheme = onTheme, onMarkFinished = onMarkFinished, onMarkUnread = onMarkUnread,
@@ -232,6 +235,11 @@ fun LibraryScreen(
                                 text = { Text("Files from this device") },
                                 leadingIcon = { Icon(Icons.Outlined.FileOpen, null) },
                                 onClick = { addMenu = false; onAddFiles() },
+                            )
+                            DropdownMenuItem(
+                                text = { Text("A folder of books") },
+                                leadingIcon = { Icon(Icons.Outlined.FolderOpen, null) },
+                                onClick = { addMenu = false; onAddFolder() },
                             )
                             DropdownMenuItem(
                                 text = { Text(if (koboConnected) "Books from the Kobo" else "Books from the Kobo (connect it first)") },

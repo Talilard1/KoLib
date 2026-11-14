@@ -77,6 +77,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Switch
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.outlined.Language
 import dev.kobolibrary.app.ui.components.AlertDialog
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.TextButton
@@ -126,8 +128,12 @@ fun AppRoot(
     onOpeningSound: ((Boolean) -> Unit)? = null,
     openingLight: Boolean = false,
     onOpeningLight: ((Boolean) -> Unit)? = null,
+    /** The introduction shown the first time KoLib starts has been gone through. */
+    introSeen: Boolean = true,
+    onIntroSeen: (Boolean) -> Unit = {},
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
+    val folderScan by libraryVm.folderScan.collectAsStateWithLifecycle()
     val books by libraryVm.books.collectAsStateWithLifecycle()
     val readingHere by libraryVm.readingHere.books.collectAsStateWithLifecycle()
     val koboCollections by libraryVm.koboCollections.collectAsStateWithLifecycle()
@@ -147,6 +153,7 @@ fun AppRoot(
     var showEject by remember { mutableStateOf(false) }
     var showConnectHelp by remember { mutableStateOf(false) }
     var showLook by remember { mutableStateOf(false) }
+    var showLanguage by remember { mutableStateOf(false) }
     /** Books waiting in the send dialog. */
     var sendIds by remember { mutableStateOf<List<String>?>(null) }
     /** Making books: the new-book dialog, books to put together, a book to split. */
@@ -200,6 +207,18 @@ fun AppRoot(
             localMessage = "This device has no file picker."
         }
     }
+    // A folder of books: looked through, then its books added.
+    val folderPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        if (uri != null) libraryVm.scanFolder(uri)
+    }
+    val addFolder = {
+        try {
+            folderPicker.launch(libraryVm.booksFolder)
+        } catch (e: ActivityNotFoundException) {
+            AppLog.e("Library", "No folder picker available", e)
+            localMessage = "This device has no folder picker."
+        }
+    }
     val addFromKobo = {
         section = Section.KOBO
         browse.deviceTab = 0
@@ -208,10 +227,11 @@ fun AppRoot(
         browse.selecting = true
     }
 
-    // A new job: show its progress (and the library, for books shared from other apps).
-    LaunchedEffect(job?.title, job?.total, job?.startedAt) {
+    // A new job: show its progress (and the library, for books shared from other apps). During the
+    // introduction it waits until the introduction is done.
+    LaunchedEffect(job?.title, job?.total, job?.startedAt, introSeen) {
         val p = job ?: return@LaunchedEffect
-        if (!p.finished) {
+        if (!p.finished && introSeen) {
             showJob = true
             if (p.kind == JobKind.ADD_FILES) {
                 section = Section.LIBRARY
@@ -221,9 +241,9 @@ fun AppRoot(
     }
     // Finished while hidden: say how it went instead (unless there are books already there to ask about:
     // that question says how it went).
-    LaunchedEffect(job?.finished, showJob) {
+    LaunchedEffect(job?.finished, showJob, introSeen) {
         val p = job ?: return@LaunchedEffect
-        if (p.finished && !showJob && libraryVm.duplicates.value.isEmpty()) {
+        if (p.finished && !showJob && introSeen && libraryVm.duplicates.value.isEmpty()) {
             libraryVm.dismissJob()
             val sent = p.kind == JobKind.SEND
             snackbar.showSnackbar(
@@ -273,7 +293,13 @@ fun AppRoot(
         val current = overlay
         when {
             current == "log" -> LogScreen(onBack = { overlay = null }, onMessage = { localMessage = it })
-            current == "about" -> AboutScreen(onBack = { overlay = null })
+            current == "about" -> AboutScreen(
+                onBack = { overlay = null },
+                onShowIntro = {
+                    overlay = null
+                    onIntroSeen(false)
+                },
+            )
             current == "backups" -> BackupsScreen(
                 backups = state.backups,
                 onExport = vm::exportBackup,
@@ -403,6 +429,7 @@ fun AppRoot(
                         koboConnected = liveSession != null,
                         onAddFiles = addFiles,
                         onAddFromKobo = addFromKobo,
+                        onAddFolder = addFolder,
                         onShowJob = { showJob = true },
                         onEditDetails = { overlay = "edit:$it" },
                         onChangeCover = { overlay = "cover:$it" },
@@ -663,7 +690,24 @@ fun AppRoot(
             current = theme, onPick = onTheme, onDismiss = { showLook = false },
             opening = opening, onOpening = onOpening, openingSound = openingSound, onOpeningSound = onOpeningSound,
             openingLight = openingLight, onOpeningLight = onOpeningLight,
+            onLanguage = {
+                showLook = false
+                showLanguage = true
+            },
         )
+        if (showLanguage) dev.kobolibrary.app.ui.library.LanguageDialog(onDismiss = { showLanguage = false })
+        // A folder chosen from Add books: what's in it, to add (the introduction shows this itself).
+        folderScan?.takeIf { introSeen && it !is dev.kobolibrary.app.library.FolderScan.Adding }?.let { scan ->
+            dev.kobolibrary.app.ui.library.FolderScanDialog(
+                scan = scan,
+                onAdd = {
+                    libraryVm.addFoundBooks()
+                    libraryVm.forgetFolderScan()
+                },
+                onChooseAnother = addFolder,
+                onDismiss = libraryVm::forgetFolderScan,
+            )
+        }
         if (showConnectHelp) ConnectHelpDialog(connection, chooseDrive, onDismiss = { showConnectHelp = false })
 
         SnackbarHost(
@@ -681,6 +725,23 @@ fun AppRoot(
                     },
                 ),
         )
+
+        // The first time KoLib starts: the introduction, over everything.
+        if (!introSeen) {
+            dev.kobolibrary.app.ui.onboarding.Onboarding(
+                connection = connection,
+                onChooseDrive = chooseDrive,
+                onRetry = vm::retry,
+                scan = folderScan,
+                onChooseFolder = addFolder,
+                onAddFound = libraryVm::addFoundBooks,
+                onDone = {
+                    libraryVm.forgetFolderScan()
+                    section = Section.LIBRARY
+                    onIntroSeen(true)
+                },
+            )
+        }
     }
 }
 
@@ -816,6 +877,8 @@ fun LookDialog(
     onOpeningSound: ((Boolean) -> Unit)? = null,
     openingLight: Boolean = false,
     onOpeningLight: ((Boolean) -> Unit)? = null,
+    /** Opens the choice of language. */
+    onLanguage: (() -> Unit)? = null,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -823,6 +886,26 @@ fun LookDialog(
         title = { Text("App theme") },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
+                if (onLanguage != null) {
+                    val context = androidx.compose.ui.platform.LocalContext.current
+                    val language = remember { dev.kobolibrary.app.AppLanguage.nativeName(dev.kobolibrary.app.AppLanguage.current(context)) }
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable(onClick = onLanguage)
+                            .padding(vertical = 10.dp, horizontal = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(Icons.Outlined.Language, null, Modifier.padding(horizontal = 10.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text("Language", style = MaterialTheme.typography.titleSmall)
+                            Text(language, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                    HorizontalDivider(Modifier.padding(vertical = 10.dp))
+                }
                 Column(Modifier.selectableGroup()) {
                     ThemeChoice.entries.forEach { choice ->
                         Row(

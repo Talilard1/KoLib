@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="intro_skip">Overslaan</string>
+    <string name="intro_continue">Doorgaan</string>
+    <string name="intro_page">Pagina %1$d van %2$d</string>
+    <string name="intro_language_title">Welkom bij KoLib</string>
+    <string name="intro_language_text">Kies je taal. Je kunt deze later wijzigen.</string>
+    <string name="intro_device_language">Taal van je apparaat</string>
+    <string name="intro_folder_title">Waar staan je boeken?</string>
+    <string name="intro_folder_text">Kies de map waarin je je boeken bewaart, en KoLib zet ze allemaal in je bibliotheek, ook die in submappen.</string>
+    <string name="intro_folder_kinds">EPUB, PDF, MOBI, Word en de meeste andere e-bookbestanden.</string>
+    <string name="intro_folder_choose">Map kiezen</string>
+    <string name="intro_folder_another">Andere map kiezen</string>
+    <string name="intro_folder_looking">Boeken zoeken in %1$s…</string>
+    <string name="intro_folder_looking_short">Boeken zoeken…</string>
+    <plurals name="intro_folder_found_so_far">
+        <item quantity="one">Tot nu toe %1$d boek gevonden in %2$s…</item>
+        <item quantity="other">Tot nu toe %1$d boeken gevonden in %2$s…</item>
+    </plurals>
+    <plurals name="intro_folder_found">
+        <item quantity="one">Er staat %1$d boek in %2$s.</item>
+        <item quantity="other">Er staan %1$d boeken in %2$s.</item>
+    </plurals>
+    <string name="intro_folder_none">Er staan geen boeken in %1$s. Kies de map waarin ze staan.</string>
+    <string name="intro_folder_failed">KoLib kon %1$s niet openen. Kies de map opnieuw.</string>
+    <plurals name="intro_folder_add">
+        <item quantity="one">%d boek toevoegen</item>
+        <item quantity="other">%d boeken toevoegen</item>
+    </plurals>
+    <plurals name="intro_folder_adding">
+        <item quantity="one">%d boek wordt aan je bibliotheek toegevoegd. Je kunt intussen verder.</item>
+        <item quantity="other">%d boeken worden aan je bibliotheek toegevoegd. Je kunt intussen verder.</item>
+    </plurals>
+    <string name="intro_kobo_title">Je Kobo verbinden</string>
+    <string name="intro_kobo_step1">Sluit de Kobo met een USB-C-datakabel aan op dit apparaat.</string>
+    <string name="intro_kobo_step2">Tik op het scherm van de Kobo op Verbinden.</string>
+    <string name="intro_kobo_step3">Alleen de eerste keer: geef KoLib toegang tot de schijf van de Kobo.</string>
+    <string name="intro_kobo_waiting">Wachten op de Kobo…</string>
+    <string name="intro_kobo_detected">Kobo gevonden. Tik op het scherm op Verbinden.</string>
+    <string name="intro_kobo_allow">Toegang tot de Kobo geven</string>
+    <string name="intro_kobo_allow_help">Android opent de mapkiezer op de schijf van de Kobo. Tik op ‘Deze map gebruiken’ en daarna op ‘Toestaan’.</string>
+    <string name="intro_kobo_working">De Kobo wordt geopend…</string>
+    <string name="intro_kobo_connected">Verbonden met je %1$s.</string>
+    <string name="intro_kobo_failed">KoLib kon de Kobo niet openen. Koppel hem los, sluit hem opnieuw aan en probeer het nog eens.</string>
+    <string name="intro_kobo_retry">Opnieuw proberen</string>
+    <string name="intro_kobo_later">Geen Kobo bij de hand? Sla dit over. Je kunt hem altijd verbinden via het tabblad Kobo.</string>
+    <string name="intro_collections_title">Collecties op je Kobo</string>
+    <string name="intro_collections_text">KoLib kan je boeken in collecties op de Kobo zetten, maar kan daar geen nieuwe collecties maken. Maak de collectie eerst op de Kobo aan, dan kan KoLib er boeken aan toevoegen.</string>
+    <string name="intro_collections_how">Ga op de Kobo naar Mijn boeken, dan naar Collecties, en tik op Nieuwe collectie.</string>
+    <string name="intro_done_title">Je bent er klaar voor</string>
+    <string name="intro_done_text">Voeg altijd boeken toe met de knop Boeken toevoegen, en stuur ze naar je Kobo als die is aangesloten.</string>
+    <string name="intro_start">Naar mijn bibliotheek</string>
+</resources>

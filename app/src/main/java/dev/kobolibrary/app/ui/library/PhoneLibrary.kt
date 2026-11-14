@@ -54,6 +54,7 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.EditNote
 import androidx.compose.material.icons.outlined.FileOpen
+import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.LocalOffer
@@ -152,6 +153,7 @@ internal fun PhoneLibraryScreen(
     koboLive: Boolean,
     onAddFiles: () -> Unit,
     onAddFromKobo: () -> Unit,
+    onAddFolder: () -> Unit = {},
     onShowJob: () -> Unit,
     onEditDetails: (String) -> Unit,
     onChangeCover: (String) -> Unit,
@@ -363,6 +365,7 @@ internal fun PhoneLibraryScreen(
             onDismiss = { addSheet = false },
             onAddFiles = onAddFiles,
             onAddFromKobo = onAddFromKobo,
+            onAddFolder = onAddFolder,
             onNewBook = onNewBook,
         )
     }
@@ -411,12 +414,14 @@ private fun AddBooksSheet(
     onDismiss: () -> Unit,
     onAddFiles: () -> Unit,
     onAddFromKobo: () -> Unit,
+    onAddFolder: () -> Unit,
     onNewBook: () -> Unit,
 ) {
     val state = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = state) {
         Text("Add books", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(start = 24.dp, end = 24.dp, bottom = 8.dp))
         SheetItem(Icons.Outlined.FileOpen, "Files from this device", "EPUB, PDF, MOBI, Word and more") { onDismiss(); onAddFiles() }
+        SheetItem(Icons.Outlined.FolderOpen, "A folder of books", "Every book in it, and in the folders inside it") { onDismiss(); onAddFolder() }
         SheetItem(Icons.Outlined.Usb, "Books from the Kobo", if (koboConnected) null else "Connect your Kobo first") { onDismiss(); onAddFromKobo() }
         SheetItem(Icons.AutoMirrored.Outlined.NoteAdd, "Write a new book") { onDismiss(); onNewBook() }
         Spacer(Modifier.height(16.dp))

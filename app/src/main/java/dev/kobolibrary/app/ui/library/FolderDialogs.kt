@@ -1,0 +1,118 @@
+package dev.kobolibrary.app.ui.library
+
+import android.app.Activity
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.FolderOpen
+import androidx.compose.material.icons.outlined.Language
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.dp
+import dev.kobolibrary.app.AppLanguage
+import dev.kobolibrary.app.library.FolderScan
+import dev.kobolibrary.app.ui.components.AlertDialog
+import dev.kobolibrary.app.ui.components.Fmt
+
+/** A folder chosen to add books from: being looked through, then how many books it has, to add them. */
+@Composable
+fun FolderScanDialog(scan: FolderScan, onAdd: () -> Unit, onChooseAnother: () -> Unit, onDismiss: () -> Unit) {
+    val found = scan as? FolderScan.Found
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = { Icon(Icons.Outlined.FolderOpen, null) },
+        title = { Text(scan.folder) },
+        text = {
+            when (scan) {
+                is FolderScan.Looking -> Row(verticalAlignment = Alignment.CenterVertically) {
+                    CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
+                    Spacer(Modifier.width(12.dp))
+                    Text(if (scan.found == 0) "Looking for books…" else "Looking for books… ${Fmt.plural(scan.found, "book")} so far.")
+                }
+                is FolderScan.Found -> Text(
+                    when (scan.books.size) {
+                        0 -> "There are no books in this folder, or in the folders inside it."
+                        1 -> "There's 1 book in this folder. If it's in your library already, it's left as it is."
+                        else -> "There are ${scan.books.size} books in this folder and the folders inside it. Books already in your library are left as they are."
+                    },
+                )
+                is FolderScan.Failed -> Text("KoLib couldn't look in this folder. Choose it again, or another one.")
+                is FolderScan.Adding -> Unit
+            }
+        },
+        confirmButton = {
+            when {
+                found != null && found.books.isNotEmpty() -> TextButton(onClick = onAdd) {
+                    Text(if (found.books.size == 1) "Add 1 book" else "Add ${found.books.size} books")
+                }
+                scan is FolderScan.Looking -> Unit
+                else -> TextButton(onClick = onChooseAnother) { Text("Choose another folder") }
+            }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+    )
+}
+
+/** The language KoLib is in: the device's, or another. */
+@Composable
+fun LanguageDialog(onDismiss: () -> Unit) {
+    val context = LocalContext.current
+    val current = remember { AppLanguage.current(context) }
+    val device = remember { AppLanguage.deviceLanguage() }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = { Icon(Icons.Outlined.Language, null) },
+        title = { Text("Language") },
+        text = {
+            Column(Modifier.verticalScroll(rememberScrollState()).selectableGroup()) {
+                for (tag in AppLanguage.supported) {
+                    val selected = tag == current
+                    Row(
+                        Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                            .selectable(selected = selected, role = Role.RadioButton) {
+                                onDismiss()
+                                generateSequence(context) { (it as? android.content.ContextWrapper)?.baseContext }
+                                    .filterIsInstance<Activity>().firstOrNull()?.let { AppLanguage.choose(it, tag) }
+                            }
+                            .padding(vertical = 8.dp, horizontal = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        RadioButton(selected = selected, onClick = null)
+                        Spacer(Modifier.width(12.dp))
+                        Column {
+                            Text(AppLanguage.nativeName(tag), style = MaterialTheme.typography.titleSmall)
+                            val local = AppLanguage.localName(tag, context)
+                            val note = listOfNotNull(
+                                local.takeIf { it != AppLanguage.nativeName(tag) },
+                                androidx.compose.ui.res.stringResource(dev.kobolibrary.app.R.string.intro_device_language).takeIf { tag == device },
+                            ).joinToString(" · ")
+                            if (note.isNotEmpty()) Text(note, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text("Done") } },
+    )
+}

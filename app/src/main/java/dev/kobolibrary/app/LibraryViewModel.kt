@@ -184,6 +184,78 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    // ---- a folder of books -----------------------------------------------------------------------
+
+    private val _folderScan = MutableStateFlow<dev.kobolibrary.app.library.FolderScan?>(null)
+    /** A folder of books being looked through, what's in it, and its books being added. */
+    val folderScan: StateFlow<dev.kobolibrary.app.library.FolderScan?> = _folderScan.asStateFlow()
+    private var scanning: Job? = null
+
+    /** The folder of books chosen last, kept so it can be looked through again. */
+    var booksFolder: Uri?
+        get() = prefs.getString("books_folder", null)?.let(Uri::parse)
+        private set(value) = prefs.edit().putString("books_folder", value?.toString()).apply()
+
+    /** Looks through [tree], a folder chosen in Android's folder picker, and the folders in it for books. */
+    fun scanFolder(tree: Uri) {
+        val resolver = getApplication<Application>().contentResolver
+        // Kept, so the folder can be looked through again another time.
+        runCatching { resolver.takePersistableUriPermission(tree, android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION) }
+            .onFailure { AppLog.w("Library", "Android didn't let KoLib keep the folder", it) }
+        booksFolder = tree
+        val name = dev.kobolibrary.app.library.BookFolders.nameOf(resolver, tree)
+        scanning?.cancel()
+        _folderScan.value = dev.kobolibrary.app.library.FolderScan.Looking(name, 0)
+        scanning = viewModelScope.launch {
+            val found = try {
+                withContext(Dispatchers.IO) {
+                    dev.kobolibrary.app.library.BookFolders.find(resolver, tree) { n ->
+                        // Told every few books, so the count can be seen going up.
+                        if (n % 5 == 0) _folderScan.value = dev.kobolibrary.app.library.FolderScan.Looking(name, n)
+                    }
+                }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                AppLog.e("Library", "Couldn't look through the folder $name", e)
+                _folderScan.value = dev.kobolibrary.app.library.FolderScan.Failed(name)
+                return@launch
+            }
+            AppLog.i("Library", "Found ${found.size} book file(s) in $name.")
+            _folderScan.value = dev.kobolibrary.app.library.FolderScan.Found(name, found)
+        }
+    }
+
+    /** Adds the books found in the folder. Those the library has already are left as they are. */
+    fun addFoundBooks() {
+        val scan = _folderScan.value as? dev.kobolibrary.app.library.FolderScan.Found ?: return
+        if (scan.books.isEmpty()) return
+        if (runningJob?.isActive == true) {
+            _message.value = "Wait until the books being added or sent are finished, then add the folder."
+            return
+        }
+        _folderScan.value = dev.kobolibrary.app.library.FolderScan.Adding(scan.folder, scan.books.size)
+        val resolver = getApplication<Application>().contentResolver
+        startJob(JobKind.ADD_FILES, if (scan.books.size == 1) "Adding a book" else "Adding ${scan.books.size} books", scan.books.size) { report ->
+            for (b in scan.books) {
+                if (!isActive) break
+                report(b.name) { _ ->
+                    library.import(
+                        name = b.name,
+                        open = { resolver.openInputStream(b.uri) ?: throw FileNotFoundException("Can't open ${b.name}") },
+                        source = BookSource.FILE,
+                    ).toStep()
+                }
+            }
+        }
+    }
+
+    /** Done with the folder: what was found is let go. */
+    fun forgetFolderScan() {
+        scanning?.cancel()
+        _folderScan.value = null
+    }
+
     private val _duplicates = MutableStateFlow<List<HeldDuplicate>>(emptyList())
     /** Files added that the library already has, waiting for "Replace", "Keep both" or "Skip". */
     val duplicates: StateFlow<List<HeldDuplicate>> = _duplicates.asStateFlow()

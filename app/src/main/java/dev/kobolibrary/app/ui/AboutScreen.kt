@@ -70,7 +70,7 @@ object Notices {
 
 /** The app's name and version, and the licences of everything in it that comes from elsewhere. */
 @Composable
-fun AboutScreen(onBack: () -> Unit) {
+fun AboutScreen(onBack: () -> Unit, onShowIntro: (() -> Unit)? = null) {
     var open by remember { mutableStateOf<Notice?>(null) }
     val showing = open
     BackHandler(enabled = showing != null) { open = null }
@@ -121,6 +121,9 @@ fun AboutScreen(onBack: () -> Unit) {
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                    if (onShowIntro != null) {
+                        androidx.compose.material3.OutlinedButton(onClick = onShowIntro) { Text("Show the introduction again") }
+                    }
                 }
                 HorizontalDivider(Modifier.widthIn(max = 640.dp).fillMaxWidth())
                 Text(

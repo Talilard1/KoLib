@@ -164,13 +164,13 @@ enum class RunningHeads(val label: String, val top: Boolean) {
 /** Where a page heading's title sits: in the middle of its page, or nearer the spine, as some printed books have it. */
 enum class HeadTitlePlace(val label: String) {
     CENTRED("Centred"),
-    SPINE("Toward the spine"),
+    SPINE("Near the spine"),
 }
 
 /** In a book that holds several (an omnibus, a box set), the title over left-hand pages and in the margins. */
 enum class CollectionTitle(val label: String) {
-    BOOK("The book you're in"),
-    COLLECTION("The collection's"),
+    BOOK("Current book"),
+    COLLECTION("Whole omnibus"),
 }
 
 /** What the margins can show while reading, in the order they're shown when they share a place. */

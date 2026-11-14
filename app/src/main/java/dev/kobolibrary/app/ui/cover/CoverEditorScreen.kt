@@ -34,6 +34,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.material.icons.outlined.TravelExplore
 import androidx.compose.material.icons.outlined.AutoStories
 import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.PhotoLibrary
@@ -118,6 +119,7 @@ fun CoverEditorScreen(
         CoverText(book.meta.title, book.meta.authors, book.meta.series, book.meta.seriesIndex)
     }
     var generating by remember { mutableStateOf(false) }
+    var findingOnline by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var original by remember { mutableStateOf(initialPicture?.let { ShownPicture(it) }) }
@@ -191,12 +193,45 @@ fun CoverEditorScreen(
         }
     }
 
+    /** A picture found online, already fetched. */
+    fun openBytes(bytes: ByteArray, label: String) {
+        scope.launch {
+            loading = true
+            problem = null
+            val picture = withContext(Dispatchers.Default) {
+                runCatching { CoverRendering.decode(bytes)?.let { CoverRendering.prepare(it, label, bytes.takeIf { b -> b.size <= MAX_KEPT_PICTURE }) } }
+                    .onFailure { AppLog.w("Cover", "Couldn't open the picture found online", it) }
+                    .getOrNull()
+            }
+            if (picture == null) {
+                problem = "That picture couldn't be opened. Try another."
+            } else {
+                shown = ShownPicture(picture)
+                crop = CoverCrop(fit = crop.fit)
+            }
+            loading = false
+        }
+    }
+
     val photoPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { open(it, "Picture from Photos") }
     val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { open(it, "Picture from Files") }
 
     val changed = shown !== original || crop != startCrop
     val tryClose = { if (changed) confirmDiscard = true else onClose() }
 
+    if (findingOnline) {
+        CoverSearchScreen(
+            title = dev.kobolibrary.app.reader.HeadTitles.book(book.meta.title, book.meta.seriesIndex),
+            authors = book.meta.authors,
+            isbn = book.meta.isbn,
+            onPick = { bytes, label ->
+                findingOnline = false
+                openBytes(bytes, label)
+            },
+            onClose = { findingOnline = false },
+        )
+        return
+    }
     if (generating) {
         CoverGeneratorScreen(
             text = coverText,
@@ -286,6 +321,7 @@ fun CoverEditorScreen(
                             .onFailure { problem = "This device has no file picker." }
                     },
                     onGenerate = { generating = true },
+                    onFind = { findingOnline = true },
                     onCrop = { crop = it },
                     onGreyscale = { greyscale = it },
                     modifier = m,
@@ -435,6 +471,7 @@ private fun CoverControls(
     onPhotos: () -> Unit,
     onFiles: () -> Unit,
     onGenerate: () -> Unit,
+    onFind: () -> Unit,
     onCrop: (CoverCrop) -> Unit,
     onGreyscale: (Boolean) -> Unit,
     modifier: Modifier,
@@ -487,6 +524,11 @@ private fun CoverControls(
                 Icon(Icons.Outlined.FolderOpen, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
                 Text("Files")
+            }
+            OutlinedButton(onClick = onFind) {
+                Icon(Icons.Outlined.TravelExplore, null, Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Find online")
             }
             OutlinedButton(onClick = onGenerate) {
                 Icon(Icons.Outlined.AutoAwesome, null, Modifier.size(18.dp))

@@ -2,6 +2,8 @@
 
 package dev.kobolibrary.app.ui.library
 
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.activity.compose.BackHandler
@@ -676,19 +678,25 @@ internal fun ReadStateButtons(
     val canFinish = !finished && onMarkFinished != null
     val canUnread = (finished || started) && onMarkUnread != null
     if (!canFinish && !canUnread) return
-    Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        if (canFinish) {
-            OutlinedButton(onClick = onMarkFinished!!, modifier = Modifier.weight(1f)) {
-                Icon(Icons.Outlined.TaskAlt, null, Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
-                Text("Mark as finished", maxLines = 1, overflow = TextOverflow.Ellipsis)
-            }
+    // Side by side, with their padding trimmed so both names show whole on a phone; on a very narrow
+    // screen, one above the other.
+    val button: @Composable (ImageVector, String, () -> Unit, Modifier) -> Unit = { icon, text, onClick, m ->
+        OutlinedButton(onClick = onClick, contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp), modifier = m) {
+            Icon(icon, null, Modifier.size(16.dp))
+            Spacer(Modifier.width(6.dp))
+            Text(text, maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis)
         }
-        if (canUnread) {
-            OutlinedButton(onClick = onMarkUnread!!, modifier = Modifier.weight(1f)) {
-                Icon(Icons.Outlined.RestartAlt, null, Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
-                Text("Mark as unread", maxLines = 1, overflow = TextOverflow.Ellipsis)
+    }
+    BoxWithConstraints(modifier.fillMaxWidth()) {
+        if (canFinish && canUnread && maxWidth < 316.dp) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                button(Icons.Outlined.TaskAlt, "Mark as finished", onMarkFinished!!, Modifier.fillMaxWidth())
+                button(Icons.Outlined.RestartAlt, "Mark as unread", onMarkUnread!!, Modifier.fillMaxWidth())
+            }
+        } else {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                if (canFinish) button(Icons.Outlined.TaskAlt, "Mark as finished", onMarkFinished!!, Modifier.weight(1f))
+                if (canUnread) button(Icons.Outlined.RestartAlt, "Mark as unread", onMarkUnread!!, Modifier.weight(1f))
             }
         }
     }

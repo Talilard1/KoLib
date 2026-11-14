@@ -73,6 +73,7 @@ fun BookReader(
                     initialSettings = settings.settings.value,
                     assets = context.assets,
                     bookAuthor = book.authorLine,
+                    bookSeriesIndex = book.meta.seriesIndex,
                 )
             } catch (e: Exception) {
                 AppLog.e("Reader", "The book couldn't be opened", e)

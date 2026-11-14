@@ -19,8 +19,11 @@ import org.json.JSONObject
 
 /** Counts how many pages a chapter comes to, laid out just as the reader will lay it out. */
 interface ChapterCounter {
-    /** A chapter's pages, and what they were laid out at (the reader's layout key, as reader.js gives it). */
-    class Counted(val pages: Int, val layout: String)
+    /**
+     * A chapter's screens of pages, its pages of text ([columns]: with two side by side, up to twice the
+     * screens), and what they were laid out at (the reader's layout key, as reader.js gives it).
+     */
+    class Counted(val pages: Int, val layout: String, val columns: Int = pages)
 
     /** The pages of the chapter at [path], opened with [start] (as the reader would be); null if it can't be counted. */
     suspend fun count(path: String, start: String): Counted?
@@ -96,7 +99,10 @@ class PageCounter(private val frame: ViewGroup, private val server: BookServer) 
             val (id, cont) = waiting ?: return@post
             if (o.optInt("id") != id) return@post
             waiting = null
-            if (cont.isActive) cont.resume(ChapterCounter.Counted(o.optInt("pages", 1).coerceAtLeast(1), o.optString("layout")))
+            val screens = o.optInt("pages", 1).coerceAtLeast(1)
+            // Pages of text: with two side by side, as many as twice the screens, less a blank last one.
+            val columns = o.optInt("columns", screens).coerceIn(1, screens * 2)
+            if (cont.isActive) cont.resume(ChapterCounter.Counted(screens, o.optString("layout"), columns))
         }
 
         @JavascriptInterface

@@ -84,8 +84,8 @@ class BookPageNumbersTest {
             c.openAt("ch1.xhtml", 3, 7)
             // Until every chapter is counted there are no page numbers through the book: none, rather than ones that change.
             assertNull(c.bookPage)
-            settle { c.bookPages != null }
-            assertTrue(!c.countingPages)
+            // Counted, and the counts kept (which finishes just after they're there to use).
+            settle { c.bookPages != null && !c.countingPages }
             val bp = c.bookPages!!
             val ch1 = c.index("ch1.xhtml")
             val ch2 = c.index("ch2.xhtml")

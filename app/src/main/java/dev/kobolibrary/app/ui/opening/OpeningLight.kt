@@ -35,7 +35,10 @@ import androidx.compose.ui.graphics.PathMeasure
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.asAndroidPath
+import androidx.compose.ui.graphics.asComposePath
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
@@ -157,6 +160,19 @@ private class LightArt {
     val leftHalf = path(LEFT_HALF)
     val rightHalf = path(RIGHT_HALF)
     val ribbon = path(RIBBON)
+    /** The book's outline on screen, as it flies at the camera: the app shows through it. */
+    private val holeOutline = android.graphics.Path()
+    private val holeMatrix = android.graphics.Matrix()
+    val hole: Path = holeOutline.asComposePath()
+
+    /** Puts [hole] where the book is: its middle at [center], [scale] pixels to a unit of its 64 x 64 space. */
+    fun placeHole(center: Offset, scale: Float): Path {
+        holeMatrix.setTranslate(-32f, -32.85f)
+        holeMatrix.postScale(scale, scale)
+        holeMatrix.postTranslate(center.x, center.y)
+        book.asAndroidPath().transform(holeMatrix, holeOutline)
+        return hole
+    }
     /** One gold for the whole mark, light at the top left to deep at the foot. */
     val gold = Brush.linearGradient(
         0f to Color(0xFFFBE6BF), 0.5f to Color(0xFFEBC07E), 1f to GoldDeep,
@@ -347,11 +363,9 @@ private fun DrawScope.drawOpening(
     val zoom = 1f + 17f * zoomT.pow(3)
     // Easing back from the camera as the book forms, slowing to a stop just before it comes at it.
     val recede = 1.08f - 0.18f * easeInOutSine(clamp01((t - Opening.RECEDE_START) / (Opening.ZOOM_START - Opening.RECEDE_START)))
-    // The dark goes last of all, letting the app show through as the mark flies past.
-    val dark = (1f - smooth(Opening.REVEAL, Opening.LENGTH, t)) * alpha
-
     // The dark, warming from the middle as the light gathers.
-    if (dark > 0f) {
+    fun backdrop(dark: Float) {
+        if (dark <= 0f) return
         val backdrop = art.backdrop(size.width, size.height, center)
         drawIntoCanvas { c ->
             val glowIn = smooth(0.05f, 0.7f, t)
@@ -367,6 +381,16 @@ private fun DrawScope.drawOpening(
             drawCircle(Brush.radialGradient(listOf(Ember, Ember.copy(alpha = 0f)), center, r), radius = r, center = center, alpha = dark * ember * 0.5f)
         }
     }
+    // As the book comes at the camera the app shows through it, and only through it: the dark stays all
+    // round it until the book has grown past the screen's edges, as if flown through.
+    val through = smooth(Opening.REVEAL, Opening.REVEAL + 0.15f, t)
+    if (through <= 0f) {
+        backdrop(alpha)
+    } else {
+        val hole = art.placeHole(center, recede * unit * zoom)
+        clipPath(hole, ClipOp.Difference) { backdrop(alpha * (1f - smooth(Opening.LENGTH - 0.08f, Opening.LENGTH, t))) }
+        if (through < 1f) clipPath(hole) { backdrop(alpha * (1f - through)) }
+    }
 
     drawIntoCanvas { c ->
         val canvas = c.nativeCanvas
@@ -381,8 +405,9 @@ private fun DrawScope.drawOpening(
         drawFlash(t, alpha, center, minSide, unit)
         drawIntoCanvas { c -> drawSparks(c.nativeCanvas, t, alpha, art, center, minSide, unit) }
 
-        // The mark, flying at the camera at the end.
-        val markAlpha = alpha * (1f - smooth(Opening.LENGTH - 0.32f, Opening.LENGTH, t))
+        // The mark, flying at the camera at the end: whole until it's past the screen's edges, its line
+        // round the edge of what shows through it.
+        val markAlpha = alpha * (1f - smooth(Opening.LENGTH - 0.08f, Opening.LENGTH, t))
         if (markAlpha > 0f) {
             val pages = easeInOut(clamp01((t - Opening.DRAW_START) / (Opening.DRAW_END - Opening.DRAW_START)))
             val ribbon = easeOut(clamp01((t - Opening.RIBBON_START) / (Opening.RIBBON_END - Opening.RIBBON_START)))

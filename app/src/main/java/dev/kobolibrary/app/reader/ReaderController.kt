@@ -57,6 +57,8 @@ class ReaderController(
     private val assets: android.content.res.AssetManager,
     /** For quotes shared from the book. */
     val bookAuthor: String? = null,
+    /** The book's number in its series, if it has one: a title starting with it has it there to sort by. */
+    private val bookSeriesIndex: Double? = null,
 ) {
     /** The book's language, for looking words up in the right Wikipedia. */
     val bookLanguage: String? get() = language
@@ -72,6 +74,21 @@ class ReaderController(
     var page by mutableStateOf(0)
         private set
     var pages by mutableStateOf(1)
+        private set
+    /**
+     * The pages of text in the chapter: one a screen, or with two side by side, up to twice the screens
+     * (the last can have text on its left-hand page only). Pages are numbered by these, each on its own.
+     */
+    var chapterPages by mutableStateOf(1)
+        private set
+    /** Where the pages' text sits on screen, as the page last laid it out (null until it has). */
+    var frame by mutableStateOf<PageFrame?>(null)
+        private set
+    /** The chapter on screen is only a picture (a cover, a plate), with no headings over it. */
+    var picturePage by mutableStateOf(false)
+        private set
+    /** How deep a camera's cutout is at the top of the screen, in dp: a top row in the margins sits below it. */
+    var cutoutTop = 0
         private set
     var chapterProgress by mutableStateOf(0f)
         private set
@@ -257,12 +274,92 @@ class ReaderController(
     /** Each chapter's pages as counted, for the layout on screen; null if they're not all counted for it. */
     private fun exactPages(): IntArray? = counted?.takeIf { countedKey == layoutKey && it.size == chapters.size }
 
-    /** The page showing, counted through the whole book (the first is 1). */
+    /** Pages on a screen: two side by side, or one. */
+    val perScreen: Int get() = if (spread && !scrolledHere) 2 else 1
+
+    /** The first page on screen, in the chapter (0 is its first). */
+    val firstShown: Int get() = (page * perScreen).coerceIn(0, (chapterPages - 1).coerceAtLeast(0))
+
+    /** The last page on screen, in the chapter: the same as [firstShown] unless two show and the right-hand one has text. */
+    val lastShown: Int get() = (firstShown + perScreen - 1).coerceAtMost((chapterPages - 1).coerceAtLeast(0))
+
+    /** The page showing (the left-hand one, with two side by side), counted through the whole book (the first is 1). */
     val bookPage: Int?
-        get() = bookPages?.let { bp ->
-            val inChapter = page.coerceIn(0, (bp.counts.getOrElse(chapterIndex) { 1 } - 1).coerceAtLeast(0))
-            (bp.before(chapterIndex) + inChapter + 1).coerceIn(1, bp.total)
+        get() = bookPageOfShown(firstShown)
+
+    /** The last page showing, counted through the whole book: with two side by side, the right-hand one. */
+    val bookPageLast: Int?
+        get() = if (lastShown == firstShown) bookPage else bookPageOfShown(lastShown)?.takeIf { n -> bookPage.let { it == null || n > it } }
+
+    /** The chapter's page [inChapter] (0 is its first), counted through the whole book; null while they're counted. */
+    private fun bookPageOfShown(inChapter: Int): Int? = bookPages?.let { bp ->
+        val i = inChapter.coerceIn(0, (bp.counts.getOrElse(chapterIndex) { 1 } - 1).coerceAtLeast(0))
+        (bp.before(chapterIndex) + i + 1).coerceIn(1, bp.total)
+    }
+
+    /** "Page 45", or with two pages showing, "Pages 45–46". */
+    fun pagesLabel(first: Int, last: Int?): String = if (last != null && last > first) "Pages $first–$last" else "Page $first"
+
+    /**
+     * The pages on screen as their headings show them: their numbers through the book, which side of a
+     * printed book each is (two side by side are a left and a right; one alone, a left if its number is
+     * even), and whether it's the first page of a chapter. None while scrolling, or over a picture.
+     */
+    val shownPages: List<ShownPage>
+        get() {
+            if (scrolledHere || settings.scrolling || picturePage || loading) return emptyList()
+            val first = bookPage
+            val last = bookPageLast
+            return (firstShown..lastShown).mapIndexed { slot, inChapter ->
+                val number = if (slot == 0) first else last
+                val side = when {
+                    perScreen == 2 -> if (slot == 0) PageSide.LEFT else PageSide.RIGHT
+                    number != null && number % 2 == 0 -> PageSide.LEFT
+                    else -> PageSide.RIGHT
+                }
+                ShownPage(slot, number, side, opening = inChapter == 0 && startsChapter(chapterIndex))
+            }
         }
+
+    /** The book's title as the headings show it: without a number in front that's only there to sort it. */
+    val headBookTitle: String by lazy { HeadTitles.book(bookTitle, bookSeriesIndex) }
+
+    /**
+     * The chapter's title as the headings show it: the contents' name for it, or for a file that only
+     * carries on a chapter, the chapter it carries on; blank if the contents don't name one.
+     */
+    val headChapterTitle: String
+        get() {
+            var i = chapterIndex
+            while (i >= 0) {
+                val c = chapters.getOrNull(i) ?: return ""
+                val fromToc = c.titleFromToc || (i > 0 && isKnownOpening(i - 1) && chapters[i - 1].titleFromToc)
+                if (fromToc) return titleOf(i)
+                if (toc.isEmpty()) return titleOf(i).takeUnless { it == c.path.substringAfterLast('/').substringBeforeLast('.') }.orEmpty()
+                i--
+            }
+            return ""
+        }
+
+    /** Chapter [i] starts a chapter of the contents (or the book has none), rather than carrying one on. */
+    private fun startsChapter(i: Int): Boolean {
+        val c = chapters.getOrNull(i) ?: return false
+        return toc.isEmpty() || c.titleFromToc || (i > 0 && isKnownOpening(i - 1) && chapters[i - 1].titleFromToc)
+    }
+
+    /** The camera's cutout at the top of the screen is [dp] deep: the margins' top row goes below it, the text with it. */
+    fun setCutoutTop(dp: Int) {
+        if (dp == cutoutTop) return
+        val before = settings.marginRoom(cutoutTop)
+        cutoutTop = dp
+        if (settings.marginRoom(dp) != before) {
+            startJson = JSONObject(startJson.ifEmpty { "{}" }).put("settings", JSONObject(settingsJs(settings))).toString()
+            js("KLR.apply(${quote(settingsJs(settings))})")
+        }
+    }
+
+    /** The reader's settings as the page is told them. */
+    private fun settingsJs(s: ReaderSettings): String = s.toJs(language, cutoutTop)
 
     // ---- counting every chapter's pages ------------------------------------------------------------
 
@@ -320,7 +417,7 @@ class ReaderController(
                 for (i in chapters.indices) {
                     if (withContext(Dispatchers.IO) { isOpening(i) }) continue
                     val start = JSONObject()
-                        .put("settings", JSONObject(settings.toJs(language)))
+                        .put("settings", JSONObject(settingsJs(settings)))
                         .put("chapters", aroundJs(i))
                         .toString()
                     val got = withTimeoutOrNull(20_000) {
@@ -338,7 +435,7 @@ class ReaderController(
                         countFailed = true
                         return@launch
                     }
-                    result[i] = got.pages
+                    result[i] = got.columns
                 }
                 counted = result
                 withContext(Dispatchers.IO) { store?.savePageCounts(stored, result) }
@@ -504,7 +601,7 @@ class ReaderController(
         val c = chapters.getOrNull(index) ?: return
         atEnd = false
         startJson = JSONObject()
-            .put("settings", JSONObject(settings.toJs(language)))
+            .put("settings", JSONObject(settingsJs(settings)))
             .put("target", target)
             .put("annotations", annotationsJs(c.path))
             .put("chapters", aroundJs(index))
@@ -660,8 +757,9 @@ class ReaderController(
         val (i, p) = chapterAtBookProgress(f) ?: return
         val exact = exactPages()
         if (exact != null && exact[i] > 0) {
-            // With every chapter counted: the very page the bar named while it was dragged.
-            open(i, target("page", ((exact[i] - 1) * p).roundToInt()))
+            // With every chapter counted: the very page the bar named while it was dragged (on the screen
+            // it's on, when two pages show side by side).
+            open(i, target("page", ((exact[i] - 1) * p).roundToInt() / perScreen))
         } else {
             open(i, target("progress", p.toDouble()))
         }
@@ -750,20 +848,22 @@ class ReaderController(
             val p = position
             if (!loading && p != null && p.path == chapter?.path) {
                 loading = true
-                startJson = JSONObject(startJson.ifEmpty { "{}" }).put("settings", JSONObject(s.toJs(language)))
+                startJson = JSONObject(startJson.ifEmpty { "{}" }).put("settings", JSONObject(settingsJs(s)))
                     .put("target", target("anchor", p.anchor, p.progress)).toString()
                 main.post { webView?.loadUrl(server.urlFor(p.path)) }
                 return
             }
         }
-        if (s.pageOnly() != old.pageOnly()) stopTurn()
-        startJson = JSONObject(startJson.ifEmpty { "{}" }).put("settings", JSONObject(s.toJs(language))).toString()
+        // What the page shows, or the room kept round it for the margins, changed: laid out again.
+        val pageChanged = s.pageOnly() != old.pageOnly() || s.marginRoom(cutoutTop) != old.marginRoom(cutoutTop)
+        if (pageChanged) stopTurn()
+        startJson = JSONObject(startJson.ifEmpty { "{}" }).put("settings", JSONObject(settingsJs(s))).toString()
         main.post {
             webView?.setBackgroundColor(s.theme.bg.toInt())
             webView?.keepScreenOn = s.keepScreenOn || autoscroll
         }
-        if (s.pageOnly() != old.pageOnly()) {
-            js("KLR.apply(${quote(s.toJs(language))})")
+        if (pageChanged) {
+            js("KLR.apply(${quote(settingsJs(s))})")
         }
         if (autoscroll && (s.autoWpm != old.autoWpm || s.autoEnd != old.autoEnd || s.autoResume != old.autoResume)) tellAuto()
     }
@@ -1063,6 +1163,20 @@ class ReaderController(
         val o = runCatching { JSONObject(json) }.getOrNull() ?: return
         pages = o.optInt("pages", 1).coerceAtLeast(1)
         if (o.has("spread")) spread = o.optBoolean("spread")
+        if (o.has("scrolled")) scrolledHere = o.optBoolean("scrolled")
+        chapterPages = o.optInt("columns", pages * perScreen).coerceIn(1, pages * perScreen)
+        o.optJSONObject("frame")?.let { f ->
+            frame = PageFrame(
+                width = f.optDouble("w", 0.0).toFloat(),
+                height = f.optDouble("h", 0.0).toFloat(),
+                perScreen = f.optInt("perScreen", 1).coerceIn(1, 2),
+                padX = f.optDouble("padX", 0.0).toFloat(),
+                col = f.optDouble("col", 0.0).toFloat(),
+                padTop = f.optDouble("padTop", 0.0).toFloat(),
+                padBottom = f.optDouble("padBottom", 0.0).toFloat(),
+            ).takeIf { it.width > 0f && it.col > 0f }
+        }
+        if (o.has("picture")) picturePage = o.optBoolean("picture")
         val newPage = o.optInt("page", 0)
         if (jumpedFrom != null && (newPage != page || chapterIndex != reportedChapter)) {
             // Landing is one move; three pages on from there, going back isn't offered any more.
@@ -1079,14 +1193,13 @@ class ReaderController(
                 layoutKey = key
                 laidOutPages.clear()
             }
-            if (laidOutPages[chapterIndex] != pages) laidOutPages[chapterIndex] = pages
+            if (laidOutPages[chapterIndex] != chapterPages) laidOutPages[chapterIndex] = chapterPages
             // Every chapter counted at this layout, so pages keep their numbers wherever the reader goes.
             countPagesFor(key, raw)
             exactPages()?.getOrNull(chapterIndex)?.let { n ->
-                if (n != pages && n > 0) AppLog.d("Reader", "Chapter $chapterIndex laid out at $pages pages; counted at $n")
+                if (n != chapterPages && n > 0) AppLog.d("Reader", "Chapter $chapterIndex laid out at $chapterPages pages; counted at $n")
             }
         }
-        if (o.has("scrolled")) scrolledHere = o.optBoolean("scrolled")
         // Scrolling says how far down the chapter it is; pages are counted.
         chapterProgress = if (o.has("progress")) o.optDouble("progress", 0.0).toFloat().coerceIn(0f, 1f)
         else if (pages > 1) page.toFloat() / (pages - 1) else 0f
@@ -1107,17 +1220,25 @@ class ReaderController(
     /** For tests: as if the page reported [json] (where it is, and how it's laid out). */
     internal fun reported(json: String) = update(json)
 
+    /** For tests: as if the chapter had finished laying out, at [json]. */
+    internal fun readied(json: String) {
+        loading = false
+        update(json)
+    }
+
     /** For tests: the chapters' lengths have been counted. */
     internal val lengthsCounted: Boolean get() = lengthsKnown
 
     /** For pictures of the reading screen in tests, where there's no WebView to report pages. */
-    internal fun showForPreview(chapter: Int, page: Int, pages: Int) {
+    internal fun showForPreview(chapter: Int, page: Int, pages: Int, columns: Int = pages, twoUp: Boolean = false) {
         chapterIndex = chapter
         this.page = page
         this.pages = pages
+        spread = twoUp
+        chapterPages = columns
         chapterProgress = if (pages > 1) page.toFloat() / (pages - 1) else 0f
         loading = false
-        laidOutPages[chapter] = pages
+        laidOutPages[chapter] = columns
     }
 
     companion object {

@@ -18,6 +18,13 @@
   var scroller = document.scrollingElement || root;
   var settings = {};
   var W = 0, H = 0, page = 0, pages = 1, padX = 48, padY = 44, perScreen = 1;
+  // The pages of text in the chapter: as many as its screens, or with two side by side, up to twice as
+  // many (the last screen can have text on its left-hand page only). Each is numbered on its own.
+  var columns = 1, colW = 0;
+  // The space above and below the text: room is kept there for what the app shows in the margins.
+  var padTop = 44, padBottom = 44;
+  // A chapter that's only a picture (a cover, a plate): no page headings over it.
+  var picturePage = false;
   var ready = false, animating = 0, laidOutWidth = 0;
   // Only counting the chapter's pages, in a WebView that's never shown (see countOnly).
   var countingOnly = false;
@@ -251,6 +258,8 @@
       setVar('--kl-band-top', bandTop + 'px');
       setVar('--kl-band-bottom', bandBottom + 'px');
       setVar('--kl-page-h', Math.max(80, H - bandTop - bandBottom - 2 * padY) + 'px');
+      padTop = padBottom = padY;
+      colW = Math.min(W - 2 * padX, W);
       return;
     }
     bandTop = bandBottom = 0;
@@ -260,12 +269,18 @@
     var margin = Math.round(Math.max(16, Math.min(140, pageWidth * (s.marginFrac || 0.06))));
     padX = margin;
     padY = s.marginY || Math.round(Math.max(28, Math.min(64, H * 0.05)));
+    // At least the room the app asks for, above and below, for the page headings and the rest.
+    padTop = Math.max(padY, Math.round(s.minTop || 0));
+    padBottom = Math.max(padY, Math.round(s.minBottom || 0));
     var col = perScreen === 2 ? Math.floor((W - 4 * padX) / 2) : Math.floor(W - 2 * padX);
+    colW = col;
     setVar('--kl-pad-x', padX + 'px');
     setVar('--kl-pad-y', padY + 'px');
+    setVar('--kl-pad-top', padTop + 'px');
+    setVar('--kl-pad-bottom', padBottom + 'px');
     setVar('--kl-col', col + 'px');
     setVar('--kl-gap', 2 * padX + 'px');
-    setVar('--kl-page-h', Math.max(80, H - 2 * padY - 2) + 'px');
+    setVar('--kl-page-h', Math.max(80, H - padTop - padBottom - 2) + 'px');
   }
 
   /** Pictures that are a page on their own (covers, plates) fill the page. */
@@ -285,6 +300,7 @@
       if (h && /%$/.test(h)) svgs[i].classList.add('kl-full-page');
     }
     if (pics.length === 1) pics[0].classList.add('kl-full-page');
+    picturePage = !!document.querySelector('.kl-full-page');
   }
 
   /**
@@ -432,6 +448,7 @@
     if (scrolled) {
       if (fill) fill.style.display = 'none';
       pages = Math.max(1, Math.ceil(textMax() / stepH()) + 1);
+      columns = pages;
       page = scrolledPage();
       return pages;
     }
@@ -439,6 +456,9 @@
     if (fill) fill.style.display = 'none';
     var w = scroller.scrollWidth;
     pages = W > 0 ? Math.max(1, Math.ceil((w - 2) / W)) : 1;
+    // Each column is a page: a column and the gap after it are half a screen when two are side by side.
+    // The text ends at the last column's edge (less its margin), so the nearest whole count is the pages.
+    columns = perScreen === 2 && W > 0 ? Math.max(1, Math.min(pages * 2, Math.round(w / (W / 2)))) : pages;
     if (fill) {
       fill.style.left = (pages * W - 1) + 'px';
       fill.style.display = 'block';
@@ -657,7 +677,7 @@
   /** The first character on the current page. */
   function firstVisible() {
     if (scrolled) return firstVisibleScrolled();
-    var r = document.caretRangeFromPoint ? document.caretRangeFromPoint(padX + 3, padY + 6) : null;
+    var r = document.caretRangeFromPoint ? document.caretRangeFromPoint(padX + 3, padTop + 6) : null;
     if (r && r.startContainer && r.startContainer.nodeType === 3 && document.body.contains(r.startContainer)) {
       var p = pageOf(r.startContainer, r.startOffset);
       if (p === page) return { node: r.startContainer, offset: r.startOffset };
@@ -751,12 +771,15 @@
       spread: perScreen === 2,
       scrolled: scrolled,
       layout: layoutKey(),
+      columns: columns,
+      frame: { w: W, h: H, perScreen: perScreen, padX: padX, col: colW, padTop: padTop, padBottom: padBottom },
+      picture: picturePage,
     };
   }
 
   /** What the pages were laid out at: the same chapter comes to the same pages while this stays the same. */
   function layoutKey() {
-    return [W, H, perScreen, scrolled ? 1 : 0, padX, padY, bandTop, bandBottom, settings.fontScale, settings.font,
+    return [W, H, perScreen, scrolled ? 1 : 0, padX, padTop + '/' + padBottom, bandTop, bandBottom, settings.fontScale, settings.font,
       settings.line, settings.align, settings.hyphens, settings.lang].join('|');
   }
 
@@ -1321,7 +1344,7 @@
         goTo(startTarget, false);
         root.classList.add('kl-ready');
         var h = here();
-        try { KL.ready(JSON.stringify({ pages: pages, page: page, spread: perScreen === 2, progress: h.progress, scrolled: scrolled })); } catch (e) { log(e); }
+        try { KL.ready(JSON.stringify({ pages: pages, page: page, spread: perScreen === 2, progress: h.progress, scrolled: scrolled, columns: columns })); } catch (e) { log(e); }
         if (st.auto) setAuto(st.auto, true);
       });
     });
@@ -1350,7 +1373,7 @@
         try { fitPictureBoxes(); } catch (e) { log(e); }
         measureDensity();
         countPages();
-        try { KL.measured(JSON.stringify({ id: st.measure, pages: pages, layout: layoutKey() })); } catch (e) { log(e); }
+        try { KL.measured(JSON.stringify({ id: st.measure, pages: pages, columns: columns, layout: layoutKey() })); } catch (e) { log(e); }
       });
     });
   }
@@ -1904,7 +1927,7 @@
     autoHold: function (on) { autoHeld = !!on; },
     info: function () {
       return JSON.stringify({
-        page: page, pages: pages, W: W, H: H, padX: padX, padY: padY, scrollWidth: scroller.scrollWidth,
+        page: page, pages: pages, columns: columns, W: W, H: H, padX: padX, padY: padY, padTop: padTop, padBottom: padBottom, scrollWidth: scroller.scrollWidth,
         scrolled: scrolled, scrollTop: scroller.scrollTop, scrollHeight: scroller.scrollHeight, maxScroll: maxScroll(), textMax: scrolled ? textMax() : 0,
         step: stepH(), lineH: lineH, pxPerWord: pxPerWord, auto: auto.on, wpm: auto.wpm, pageNeed: autoPageNeed, pageDone: autoPageDone,
       });

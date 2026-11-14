@@ -136,14 +136,37 @@ enum class MarginSpot(val label: String, val top: Boolean, val align: Int) {
     TOP_RIGHT("Top right", true, 1),
     BOTTOM_LEFT("Bottom left", false, -1),
     BOTTOM_CENTER("Bottom centre", false, 0),
-    BOTTOM_RIGHT("Bottom right", false, 1),
+    BOTTOM_RIGHT("Bottom right", false, 1);
+
+    /** The same place at the other end of the page (top for bottom, bottom for top). */
+    fun otherEnd(): MarginSpot = when (this) {
+        OFF -> OFF
+        TOP_LEFT -> BOTTOM_LEFT
+        TOP_CENTER -> BOTTOM_CENTER
+        TOP_RIGHT -> BOTTOM_RIGHT
+        BOTTOM_LEFT -> TOP_LEFT
+        BOTTOM_CENTER -> TOP_CENTER
+        BOTTOM_RIGHT -> TOP_RIGHT
+    }
+}
+
+/**
+ * Page headings as a printed book has them, over (or under) each page: the page's number at its outside
+ * corner, with the book's title on left-hand pages and the chapter's on right-hand ones. Two pages side by
+ * side are a left and a right; one page at a time, even pages are left-hand pages and odd ones right-hand.
+ */
+enum class RunningHeads(val label: String, val top: Boolean) {
+    TOP("Top", true),
+    BOTTOM("Bottom", false),
+    OFF("Off", false),
 }
 
 /** What the margins can show while reading, in the order they're shown when they share a place. */
 enum class MarginItem(val label: String, val example: String, val default: MarginSpot) {
     BOOK("Book title", "The Eye of the World", MarginSpot.OFF),
-    CHAPTER("Chapter title", "1 The Hook", MarginSpot.TOP_CENTER),
-    PAGE("Page number in chapter", "Page 3 of 12", MarginSpot.BOTTOM_LEFT),
+    // The chapter's title and the page number are in the page headings, which are on to start with.
+    CHAPTER("Chapter title", "1 The Hook", MarginSpot.OFF),
+    PAGE("Page number in chapter", "Page 3 of 12", MarginSpot.OFF),
     BOOK_PAGE("Page number in book", "Page 45 of 380", MarginSpot.OFF),
     PAGES_LEFT("Pages left in chapter", "9 pages left", MarginSpot.OFF),
     TIME_LEFT("Reading time left in chapter", "12 min left", MarginSpot.OFF),
@@ -166,6 +189,24 @@ enum class MarginItem(val label: String, val example: String, val default: Margi
         }
 
         fun write(map: Map<MarginItem, MarginSpot>): String = entries.joinToString(",") { "${it.name}=${(map[it] ?: it.default).name}" }
+
+        /** What the page headings show anyway: shown in the margins as well, they'd be there twice. */
+        val IN_HEADINGS = listOf(BOOK, CHAPTER, PAGE, BOOK_PAGE)
+    }
+}
+
+/**
+ * Room kept above and below the text for what shows in the margins, in dp: the text starts (and ends) at
+ * least this far from the edge, so a heading or the time never sits on it, or under a camera's cutout.
+ */
+data class MarginRoom(val top: Int = 0, val bottom: Int = 0) {
+    companion object {
+        /** How far down the top row sits, with nothing in the way (where the margins' top row has always been). */
+        const val ROW_TOP = 12
+        /** A row's height, for its line of small type. */
+        const val ROW_HEIGHT = 18
+        /** The space between a row and the text. */
+        const val GAP = 10
     }
 }
 
@@ -191,6 +232,8 @@ data class ReaderSettings(
     val edgeBack: Boolean = false,
     /** Where the chapter, page number, time and the rest show in the margins (or don't). */
     val marginItems: Map<MarginItem, MarginSpot> = MarginItem.DEFAULTS,
+    /** Page headings as a printed book has them: at the top of each page, the bottom, or none. */
+    val runningHeads: RunningHeads = RunningHeads.TOP,
     /** The screen stays on while reading. */
     val keepScreenOn: Boolean = true,
     /** Screen brightness while reading, 0 to 1; below 0, the tablet's own. */
@@ -237,6 +280,61 @@ data class ReaderSettings(
 
     fun spotOf(item: MarginItem): MarginSpot = marginItems[item] ?: item.default
 
+    /** Page headings are shown: they're on, and there are pages (not one long scroll). */
+    val headsShown: Boolean get() = runningHeads != RunningHeads.OFF && !scrolling
+
+    /**
+     * Where [item] shows: where it's been put, or, if the page headings are at that end of the page, the
+     * same place at the other end.
+     */
+    fun shownSpotOf(item: MarginItem): MarginSpot {
+        val spot = spotOf(item)
+        return if (headsShown && spot != MarginSpot.OFF && spot.top == runningHeads.top) spot.otherEnd() else spot
+    }
+
+    /**
+     * With the page headings at [h]. Turned on, what they show (the titles and page numbers) is taken out
+     * of the margins, so it isn't there twice, and anything at their end of the page moves to the other
+     * end. Turned off, the chapter's title and the page number come back to where they used to be, if
+     * nothing else is there.
+     */
+    fun withHeads(h: RunningHeads): ReaderSettings {
+        if (h == runningHeads) return this
+        val items = marginItems.toMutableMap()
+        if (h != RunningHeads.OFF) {
+            MarginItem.IN_HEADINGS.forEach { items[it] = MarginSpot.OFF }
+            for ((item, spot) in items.toMap()) if (spot != MarginSpot.OFF && spot.top == h.top) items[item] = spot.otherEnd()
+        } else {
+            fun free(spot: MarginSpot) = items.values.none { it == spot }
+            if (items[MarginItem.CHAPTER] == MarginSpot.OFF && free(MarginSpot.TOP_CENTER)) items[MarginItem.CHAPTER] = MarginSpot.TOP_CENTER
+            if (items[MarginItem.PAGE] == MarginSpot.OFF && items[MarginItem.BOOK_PAGE] == MarginSpot.OFF && free(MarginSpot.BOTTOM_LEFT)) {
+                items[MarginItem.PAGE] = MarginSpot.BOTTOM_LEFT
+            }
+        }
+        return copy(runningHeads = h, marginItems = items)
+    }
+
+    /**
+     * The room the margins need above and below the text, with a camera's cutout [cutoutTop] dp deep at
+     * the top of the screen: a row at the top sits below it. None when scrolling, which has bands of its own.
+     */
+    fun marginRoom(cutoutTop: Int = 0): MarginRoom {
+        if (scrolling) return MarginRoom()
+        val atTop = (headsShown && runningHeads.top) || MarginItem.entries.any { shownSpotOf(it).top }
+        val atBottom = (headsShown && !runningHeads.top) || MarginItem.entries.any { shownSpotOf(it).let { s -> s != MarginSpot.OFF && !s.top } }
+        val row = MarginRoom.ROW_HEIGHT + MarginRoom.GAP
+        return MarginRoom(
+            top = if (atTop) topRowAt(cutoutTop) + row else 0,
+            bottom = if (atBottom) bottomRowAt() + row else 0,
+        )
+    }
+
+    /** How far down the top row of the margins sits: below a camera's cutout [cutoutTop] dp deep, if there is one. */
+    fun topRowAt(cutoutTop: Int): Int = maxOf(MarginRoom.ROW_TOP, if (cutoutTop > 0) cutoutTop + 2 else 0)
+
+    /** How far up the bottom row of the margins sits: above the progress bar, when there is one. */
+    fun bottomRowAt(): Int = if (progressLine == ProgressLine.OFF) 5 else 10
+
     /**
      * Brightness as one number, for the slider and the swipe down the left edge: 1 is the brightest,
      * 0 the screen's dimmest, and below that the page is shaded darker still. Null: the tablet's own.
@@ -254,20 +352,26 @@ data class ReaderSettings(
     /**
      * Just what the page itself shows: the rest (keys, brightness, highlight colour...) changes nothing
      * there. When scrolling, the margins do: their items show over the text, in bands it scrolls under.
+     * (Turning pages, the room kept for the margins does too: see [marginRoom].)
      */
     fun pageOnly(): ReaderSettings = copy(
-        volumeKeys = true, edgePanels = true, edgeBack = false, marginItems = if (scrolling) marginItems else MarginItem.DEFAULTS, keepScreenOn = true, brightness = -1f,
+        volumeKeys = true, edgePanels = true, edgeBack = false, keepScreenOn = true, brightness = -1f,
+        marginItems = if (scrolling) marginItems else MarginItem.DEFAULTS,
+        runningHeads = if (scrolling) runningHeads else RunningHeads.TOP,
         highlightColor = HighlightColor.YELLOW, highlightStyle = HighlightStyle.HIGHLIGHT, dictionary = null,
         dim = 0f, rotation = ReaderRotation.AUTO, autoWpm = 230, autoEnd = AutoEnd.WAIT, autoResume = AutoResume.SOON,
         progressLine = ProgressLine.BOOK,
     )
 
-    /** When scrolling, the bands the margins' items show in, top and bottom (none where nothing shows). */
-    val bandTop: Int get() = if (scrolling && marginItems.values.any { it.top }) BAND else 0
-    val bandBottom: Int get() = if (scrolling && marginItems.values.any { !it.top && it != MarginSpot.OFF }) BAND else 0
+    /**
+     * When scrolling, the bands the margins' items show in, top and bottom (none where nothing shows). With
+     * page headings on, their end has one too, with the chapter's title in it.
+     */
+    val bandTop: Int get() = if (scrolling && (marginItems.values.any { it.top } || runningHeads == RunningHeads.TOP)) BAND else 0
+    val bandBottom: Int get() = if (scrolling && (marginItems.values.any { !it.top && it != MarginSpot.OFF } || runningHeads == RunningHeads.BOTTOM)) BAND else 0
 
-    /** What reader.js is told. */
-    fun toJs(language: String?): String = JSONObject().apply {
+    /** What reader.js is told; [cutoutTop], how deep a camera's cutout is at the top of the screen, in dp. */
+    fun toJs(language: String?, cutoutTop: Int = 0): String = JSONObject().apply {
         put("bg", css(theme.bg))
         put("fg", css(theme.fg))
         put("link", css(theme.link))
@@ -285,6 +389,10 @@ data class ReaderSettings(
         put("flow", flow.js)
         put("bandTop", bandTop)
         put("bandBottom", bandBottom)
+        marginRoom(cutoutTop).let { room ->
+            put("minTop", room.top)
+            put("minBottom", room.bottom)
+        }
         put("animate", pageTurn == PageTurn.SLIDE)
         put("turn", if (scrolling) PageTurn.SLIDE.js else pageTurn.js)
         put("taps", taps.js)
@@ -315,6 +423,10 @@ class ReaderSettingsStore(context: Context) {
     fun update(change: (ReaderSettings) -> ReaderSettings) {
         val next = change(_settings.value)
         _settings.value = next
+        save(next)
+    }
+
+    private fun save(next: ReaderSettings) {
         prefs.edit()
             .putString("theme", next.theme.name)
             .putString("font", next.font.name)
@@ -346,6 +458,7 @@ class ReaderSettingsStore(context: Context) {
             .putString("autoResume", next.autoResume.name)
             .putString("progressBar", next.progressLine.name)
             .putString("barShade", next.barShade.name)
+            .putString("heads", next.runningHeads.name)
             .apply()
     }
 
@@ -361,6 +474,16 @@ class ReaderSettingsStore(context: Context) {
         prefs.getString(key, null)?.let { v -> enumValues<E>().firstOrNull { it.name == v } } ?: default
 
     private fun load(): ReaderSettings {
+        val loaded = loadAsSaved()
+        // Settings from before there were page headings: they're turned on, as they are to start with,
+        // with the chapter's title and the page number now in them rather than in the margins.
+        if (!prefs.contains("heads") && prefs.contains("marginItems")) {
+            return loaded.copy(runningHeads = RunningHeads.OFF).withHeads(RunningHeads.TOP).also { save(it) }
+        }
+        return loaded
+    }
+
+    private fun loadAsSaved(): ReaderSettings {
         val d = ReaderSettings()
         return ReaderSettings(
             theme = enumOf("theme", d.theme),
@@ -392,6 +515,7 @@ class ReaderSettingsStore(context: Context) {
             progressLine = enumOf("progressBar", d.progressLine),
             barShade = enumOf("barShade", d.barShade),
             marginItems = prefs.getString("marginItems", null)?.let { MarginItem.parse(it) } ?: marginsBefore(),
+            runningHeads = enumOf("heads", d.runningHeads),
             keepScreenOn = prefs.getBoolean("awake", d.keepScreenOn),
         )
     }

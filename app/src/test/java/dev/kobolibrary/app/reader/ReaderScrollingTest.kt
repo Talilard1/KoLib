@@ -37,7 +37,7 @@ class ReaderScrollingTest {
         assertEquals(ReaderSettings.BAND, js.getInt("bandTop"))
         assertEquals(ReaderSettings.BAND, js.getInt("bandBottom"))
         // Nothing at the top: no band there, so the text goes up to the edge.
-        val noTop = s.copy(marginItems = MarginItem.DEFAULTS + (MarginItem.CHAPTER to MarginSpot.OFF))
+        val noTop = s.copy(runningHeads = RunningHeads.OFF, marginItems = MarginItem.DEFAULTS + (MarginItem.CHAPTER to MarginSpot.OFF))
         assertEquals(0, JSONObject(noTop.toJs("en")).getInt("bandTop"))
         // Pages: no bands, and the turn as chosen.
         val pages = JSONObject(s.copy(flow = ReaderFlow.PAGES).toJs("en"))

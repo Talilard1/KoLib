@@ -146,6 +146,18 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.em
+import dev.kobolibrary.app.reader.HeadTitles
+import dev.kobolibrary.app.reader.MarginRoom
+import dev.kobolibrary.app.reader.PageFrame
+import dev.kobolibrary.app.reader.PageSide
+import dev.kobolibrary.app.reader.RunningHeads
+import dev.kobolibrary.app.ui.theme.Garamond
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
@@ -272,6 +284,9 @@ internal fun ReaderScreen(
         }
         onDispose { ReaderKeys.handler = null }
     }
+    // The camera's cutout at the top of the screen: a row of headings at the top goes below it.
+    val cutoutTop = with(LocalDensity.current) { (WindowInsets.displayCutout.getTop(this) / density).roundToInt() }
+    SideEffect { controller.setCutoutTop(cutoutTop) }
     LaunchedEffect(Unit) { controller.start() }
 
     // Going back closes what's over the page, else the book: from Android's back, or KoLib's own back swipe.
@@ -319,10 +334,12 @@ internal fun ReaderScreen(
             )
         }
 
-        // The chapter, page number, time and the rest, each where it's been put, like a printed book's running heads.
+        // The page headings, as a printed book has them, and the time and the rest, each where it's been put.
         // When scrolling, they sit on strips of the page's colour that the text scrolls under.
         if (!controller.controlsVisible) {
             if (s.scrolling) ScrollBands(s, pageColor)
+            if (s.headsShown) PageHeads(controller, s, inkColor)
+            if (s.scrolling && s.runningHeads != RunningHeads.OFF) ScrollHead(controller, s, inkColor)
             Margins(controller, s, inkColor.copy(alpha = 0.5f))
             if (s.progressLine != ProgressLine.OFF) ProgressLineBar(controller, s)
         }
@@ -586,8 +603,8 @@ private fun ReaderBottomBar(controller: ReaderController, onSettings: (ReaderSet
             } else {
                 val details = if (dragging) "Go to ${(value * 100).roundToInt()}%" else listOfNotNull(
                     controller.chapterTitle.ifBlank { null },
-                    controller.bookPage?.let { "Page $it of ${book?.total}" }
-                        ?: if (controller.pages > 1) "Page ${controller.page + 1} of ${controller.pages} in chapter" else null,
+                    controller.bookPage?.let { "${controller.pagesLabel(it, controller.bookPageLast)} of ${book?.total}" }
+                        ?: if (controller.chapterPages > 1) "${controller.pagesLabel(controller.firstShown + 1, controller.lastShown + 1)} of ${controller.chapterPages} in chapter" else null,
                     // The book's page numbers show once every chapter is counted, so they never change.
                     if (controller.countingPages && book == null) "Counting pages…" else null,
                     controller.minutesLeftInChapter.takeIf { it > 0 }?.let { "$it min left in chapter" },
@@ -1247,13 +1264,27 @@ private fun PageSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) 
     Choices(PictureBlend.entries, s.pictures, { it.label }) { onChange(s.copy(pictures = it)) }
     Help(s.pictures.help)
 
+    Heading("Page headings")
+    Choices(RunningHeads.entries, s.runningHeads, { it.label }) { onChange(s.withHeads(it)) }
+    Help(
+        if (s.runningHeads == RunningHeads.OFF) "Off: put the page number and titles where you like below."
+        else "Like a printed book: each page's number at its outside corner, with the book's title over left-hand pages and the chapter's over right-hand ones." +
+            if (s.scrolling) " They show when you're turning pages, not scrolling." else ""
+    )
+
     Heading("Info around the page")
-    Help("Choose what to show around the text, and where. Tap a position to change it.")
+    Help(
+        "Choose what to show around the text, and where. Tap a position to change it." +
+            if (s.runningHeads != RunningHeads.OFF) " The ${if (s.runningHeads.top) "top" else "bottom"} is kept for the page headings." else ""
+    )
     Spacer(Modifier.height(8.dp))
     MarginPreview(s)
     Spacer(Modifier.height(4.dp))
+    val headsEnd: Boolean? = if (s.runningHeads != RunningHeads.OFF) s.runningHeads.top else null
     MarginItem.entries.forEach { item ->
-        MarginRow(item, s.spotOf(item)) { spot -> onChange(s.copy(marginItems = s.marginItems + (item to spot))) }
+        MarginRow(item, s.copy(flow = ReaderFlow.PAGES).shownSpotOf(item), taken = { spot -> spot != MarginSpot.OFF && spot.top == headsEnd }) { spot ->
+            onChange(s.copy(marginItems = s.marginItems + (item to spot)))
+        }
     }
 
     Heading("Progress bar at the bottom")
@@ -1497,11 +1528,11 @@ private sealed interface MarginPiece {
 }
 
 private fun marginPiece(item: MarginItem, c: ReaderController, time: String, battery: Pair<Int, Boolean>?): MarginPiece? = when (item) {
-    MarginItem.BOOK -> MarginPiece.Words(c.bookTitle, stretch = true)
+    MarginItem.BOOK -> MarginPiece.Words(c.headBookTitle, stretch = true)
     MarginItem.CHAPTER -> c.chapterTitle.takeIf { it.isNotBlank() }?.let { MarginPiece.Words(it, stretch = true) }
-    MarginItem.PAGE -> if (c.pages > 1) MarginPiece.Words("Page ${c.page + 1} of ${c.pages}") else null
-    MarginItem.BOOK_PAGE -> c.bookPage?.let { n -> c.bookPages?.let { MarginPiece.Words("Page $n of ${it.total}") } }
-    MarginItem.PAGES_LEFT -> if (c.pages > 1) (c.pages - c.page - 1).let { n ->
+    MarginItem.PAGE -> if (c.chapterPages > 1) MarginPiece.Words("${c.pagesLabel(c.firstShown + 1, c.lastShown + 1)} of ${c.chapterPages}") else null
+    MarginItem.BOOK_PAGE -> c.bookPage?.let { n -> c.bookPages?.let { MarginPiece.Words("${c.pagesLabel(n, c.bookPageLast)} of ${it.total}") } }
+    MarginItem.PAGES_LEFT -> if (c.chapterPages > 1) (c.chapterPages - c.lastShown - 1).let { n ->
         MarginPiece.Words(when (n) { 0 -> "Last page in chapter"; 1 -> "1 page left"; else -> "$n pages left" })
     } else null
     MarginItem.TIME_LEFT -> if (c.chapterWordsKnown) c.minutesLeftInChapter.let { m ->
@@ -1525,7 +1556,7 @@ private fun MarginSpot.alignment(): Alignment = when (this) {
 @Composable
 private fun BoxWithConstraintsScope.Margins(controller: ReaderController, s: ReaderSettings, color: Color) {
     val context = LocalContext.current
-    val clocked = s.spotOf(MarginItem.CLOCK) != MarginSpot.OFF || s.spotOf(MarginItem.BATTERY) != MarginSpot.OFF
+    val clocked = s.shownSpotOf(MarginItem.CLOCK) != MarginSpot.OFF || s.shownSpotOf(MarginItem.BATTERY) != MarginSpot.OFF
     var now by remember { mutableStateOf(System.currentTimeMillis()) }
     if (clocked) {
         LaunchedEffect(Unit) {
@@ -1538,15 +1569,16 @@ private fun BoxWithConstraintsScope.Margins(controller: ReaderController, s: Rea
     val time = remember(now) { android.text.format.DateFormat.getTimeFormat(context).format(java.util.Date(now)) }
     val battery = remember(now, clocked) { if (clocked) batteryNow(context) else null }
     val style = MaterialTheme.typography.labelMedium
+    val rowTop = if (s.scrolling) 12 else s.topRowAt(controller.cutoutTop)
     for (spot in MarginSpot.entries) {
         if (spot == MarginSpot.OFF) continue
-        val pieces = MarginItem.entries.filter { s.spotOf(it) == spot }.mapNotNull { marginPiece(it, controller, time, battery) }
+        val pieces = MarginItem.entries.filter { s.shownSpotOf(it) == spot }.mapNotNull { marginPiece(it, controller, time, battery) }
         if (pieces.isEmpty()) continue
         Row(
             Modifier
                 .align(spot.alignment())
                 .padding(horizontal = 24.dp)
-                .padding(top = if (spot.top) 12.dp else 0.dp, bottom = if (spot.top) 0.dp else bottomItemsInset(s))
+                .padding(top = if (spot.top) rowTop.dp else 0.dp, bottom = if (spot.top) 0.dp else bottomItemsInset(s))
                 .widthIn(max = maxWidth * (if (spot.align == 0) 0.4f else 0.28f)),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -1584,6 +1616,93 @@ private fun BoxWithConstraintsScope.Margins(controller: ReaderController, s: Rea
     }
 }
 
+/** The page headings' type: Garamond's small capitals, spaced out, and its old-style figures for the numbers. */
+private val HeadTitle = TextStyle(
+    fontFamily = Garamond,
+    fontWeight = FontWeight.Medium,
+    fontSize = 13.sp,
+    lineHeight = 16.sp,
+    letterSpacing = 0.14.em,
+    platformStyle = PlatformTextStyle(includeFontPadding = false),
+)
+private val HeadNumber = HeadTitle.copy(letterSpacing = 0.04.em, fontFeatureSettings = "onum, pnum")
+
+/**
+ * The page headings, as a printed book has them: over (or under) each page on screen, its number at the
+ * outside corner, and the book's title over a left-hand page or the chapter's over a right-hand one, in
+ * line with the page's text. A chapter's first page has its number but not the title, its own heading
+ * being right there.
+ */
+@Composable
+private fun BoxWithConstraintsScope.PageHeads(controller: ReaderController, s: ReaderSettings, ink: Color) {
+    val pages = controller.shownPages
+    if (pages.isEmpty()) return
+    val frame = controller.frame?.takeIf { it.perScreen == controller.perScreen }
+        ?: PageFrame.of(maxWidth.value, maxHeight.value, s, s.marginRoom(controller.cutoutTop))
+    val top = s.runningHeads.top
+    // Close over (or under) the text, as in print; never under the camera, nor nearer the edge than the margins' rows.
+    val inset = if (top) {
+        maxOf(s.topRowAt(controller.cutoutTop).toFloat(), frame.padTop - MarginRoom.GAP - MarginRoom.ROW_HEIGHT)
+    } else {
+        maxOf(bottomItemsInset(s).value, frame.padBottom - MarginRoom.GAP - MarginRoom.ROW_HEIGHT)
+    }
+    val color = ink.copy(alpha = 0.72f)
+    for (p in pages) {
+        val title = when {
+            p.opening -> ""
+            p.side == PageSide.LEFT -> controller.headBookTitle
+            else -> controller.headChapterTitle.ifBlank { controller.headBookTitle }
+        }
+        Box(
+            Modifier
+                .align(if (top) Alignment.TopStart else Alignment.BottomStart)
+                .offset(x = frame.textLeft(p.slot).dp)
+                .padding(top = if (top) inset.dp else 0.dp, bottom = if (top) 0.dp else inset.dp)
+                .width(frame.col.dp)
+                .height(MarginRoom.ROW_HEIGHT.dp),
+        ) {
+            p.number?.let { n ->
+                Text(
+                    n.toString(), style = HeadNumber, color = color, maxLines = 1,
+                    modifier = Modifier.align(if (p.side == PageSide.LEFT) Alignment.CenterStart else Alignment.CenterEnd),
+                )
+            }
+            if (title.isNotBlank()) {
+                Text(
+                    title,
+                    style = HeadTitle.copy(fontFeatureSettings = HeadTitles.smallCapsFeatures(title)),
+                    color = color,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.align(Alignment.Center).padding(horizontal = 46.dp),
+                )
+            }
+        }
+    }
+}
+
+/** Scrolling, there are no pages to head: the chapter's title, in the headings' band, as they'd have it. */
+@Composable
+private fun BoxWithConstraintsScope.ScrollHead(controller: ReaderController, s: ReaderSettings, ink: Color) {
+    val title = controller.headChapterTitle.ifBlank { controller.headBookTitle }
+    if (title.isBlank()) return
+    val top = s.runningHeads.top
+    Text(
+        title,
+        style = HeadTitle.copy(fontFeatureSettings = HeadTitles.smallCapsFeatures(title)),
+        color = ink.copy(alpha = 0.72f),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        textAlign = TextAlign.Center,
+        modifier = Modifier
+            .align(if (top) Alignment.TopCenter else Alignment.BottomCenter)
+            .padding(horizontal = 24.dp)
+            .padding(top = if (top) 10.dp else 0.dp, bottom = if (top) 0.dp else bottomItemsInset(s))
+            .widthIn(max = maxWidth * 0.6f),
+    )
+}
+
 /** A little page with each margin item where it's been put, as a guide to the choices under it. */
 @Composable
 private fun MarginPreview(s: ReaderSettings) {
@@ -1598,16 +1717,43 @@ private fun MarginPreview(s: ReaderSettings) {
             .background(paper)
             .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(10.dp)),
     ) {
-        // The text of the page, as grey lines.
-        Column(Modifier.align(Alignment.Center).fillMaxWidth().padding(horizontal = 28.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
-            repeat(6) { i -> Box(Modifier.fillMaxWidth(if (i == 5) 0.6f else 1f).height(4.dp).clip(RoundedCornerShape(2.dp)).background(ink.copy(alpha = 0.14f))) }
+        // The text of the page, as grey lines: two pages side by side when they have headings, to show them as a book has them.
+        val heads = s.runningHeads != RunningHeads.OFF
+        Row(Modifier.align(Alignment.Center).fillMaxWidth().padding(horizontal = if (heads) 18.dp else 28.dp), horizontalArrangement = Arrangement.spacedBy(28.dp)) {
+            repeat(if (heads) 2 else 1) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                    repeat(6) { i -> Box(Modifier.fillMaxWidth(if (i == 5) 0.6f else 1f).height(4.dp).clip(RoundedCornerShape(2.dp)).background(ink.copy(alpha = 0.14f))) }
+                }
+            }
+        }
+        if (heads) {
+            val headStyle = HeadTitle.copy(fontSize = 8.5.sp, lineHeight = 11.sp, letterSpacing = 0.08.em, fontFeatureSettings = "smcp, onum")
+            val numberStyle = HeadNumber.copy(fontSize = 9.sp, lineHeight = 11.sp)
+            Row(
+                Modifier
+                    .align(if (s.runningHeads.top) Alignment.TopCenter else Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(horizontal = 18.dp)
+                    .padding(top = if (s.runningHeads.top) 7.dp else 0.dp, bottom = if (s.runningHeads.top) 0.dp else if (bar) 8.dp else 5.dp),
+                horizontalArrangement = Arrangement.spacedBy(28.dp),
+            ) {
+                listOf(Triple("44", "The Eye of the World", true), Triple("45", "The Hook", false)).forEach { (n, t, left) ->
+                    Box(Modifier.weight(1f)) {
+                        Text(n, style = numberStyle, color = ink.copy(alpha = 0.7f), modifier = Modifier.align(if (left) Alignment.CenterStart else Alignment.CenterEnd))
+                        Text(
+                            t, style = headStyle, color = ink.copy(alpha = 0.7f), maxLines = 1, overflow = TextOverflow.Ellipsis,
+                            textAlign = TextAlign.Center, modifier = Modifier.align(Alignment.Center).padding(horizontal = 13.dp),
+                        )
+                    }
+                }
+            }
         }
         if (bar) {
             ProgressBarLine(0.35f, Color(s.barColor), Modifier.align(Alignment.BottomStart).padding(bottom = 3.dp))
         }
         for (spot in MarginSpot.entries) {
             if (spot == MarginSpot.OFF) continue
-            val words = MarginItem.entries.filter { s.spotOf(it) == spot }.joinToString("  ·  ") { it.example }
+            val words = MarginItem.entries.filter { s.copy(flow = ReaderFlow.PAGES).shownSpotOf(it) == spot }.joinToString("  ·  ") { it.example }
             if (words.isEmpty()) continue
             Text(
                 words,
@@ -1628,7 +1774,7 @@ private fun MarginPreview(s: ReaderSettings) {
 
 /** One margin item and the place it's in, with the places to move it to. */
 @Composable
-private fun MarginRow(item: MarginItem, spot: MarginSpot, onPick: (MarginSpot) -> Unit) {
+private fun MarginRow(item: MarginItem, spot: MarginSpot, taken: (MarginSpot) -> Boolean = { false }, onPick: (MarginSpot) -> Unit) {
     var open by remember { mutableStateOf(false) }
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Text(item.label, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
@@ -1638,7 +1784,7 @@ private fun MarginRow(item: MarginItem, spot: MarginSpot, onPick: (MarginSpot) -
                 Icon(Icons.Filled.ArrowDropDown, null)
             }
             DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-                MarginSpot.entries.forEach { o ->
+                MarginSpot.entries.filterNot(taken).forEach { o ->
                     DropdownMenuItem(
                         text = { Text(o.label) },
                         leadingIcon = { if (o == spot) Icon(Icons.Filled.Check, null) else Spacer(Modifier.size(24.dp)) },

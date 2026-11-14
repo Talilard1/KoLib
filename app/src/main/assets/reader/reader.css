@@ -14,6 +14,8 @@
   --kl-font-size: 100%;
   --kl-pad-x: 48px;
   --kl-pad-y: 44px;
+  --kl-pad-top: 44px;
+  --kl-pad-bottom: 44px;
   --kl-col: 600px;
   --kl-gap: 96px;
   --kl-page-h: 600px;
@@ -25,7 +27,7 @@ html.kl-ready { visibility: visible; }
 
 html.kl-paged {
   margin: 0 !important;
-  padding: var(--kl-pad-y) var(--kl-pad-x) !important;
+  padding: var(--kl-pad-top) var(--kl-pad-x) var(--kl-pad-bottom) !important;
   box-sizing: border-box !important;
   /* The screen's size in pixels, measured by reader.js: viewport units can be wrong in a WebView. */
   width: var(--kl-vw, 100vw) !important;

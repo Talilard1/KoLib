@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.convert
 
+import dev.kobolibrary.app.tr
 import java.io.ByteArrayOutputStream
 import java.security.MessageDigest
 import java.util.zip.Inflater
@@ -247,15 +248,15 @@ internal class PdfFile(val data: ByteArray) {
     private var crypt: PdfCrypt? = null
 
     init {
-        if (String(data, 0, minOf(data.size, 1024), Charsets.ISO_8859_1).indexOf("%PDF") < 0) throw ConversionException("This isn't a PDF file.")
+        if (String(data, 0, minOf(data.size, 1024), Charsets.ISO_8859_1).indexOf("%PDF") < 0) throw ConversionException(tr("This isn't a PDF file."))
         val ok = runCatching { readXref() }.getOrDefault(false)
         if (!ok || trailer["Root"] == null) scan()
         val enc = trailer["Encrypt"]
         if (enc != null) {
-            val dict = resolve(enc) as? Map<*, *> ?: throw ConversionException("This PDF's lock can't be read.")
+            val dict = resolve(enc) as? Map<*, *> ?: throw ConversionException(tr("This PDF's lock can't be read."))
             @Suppress("UNCHECKED_CAST")
             crypt = PdfCrypt(dict as Map<String, Any?>, (trailer["ID"] as? List<*>)?.firstOrNull() as? PdfString, this)
-            if (!crypt!!.opened) throw ConversionException("This PDF needs a password to open, so it can't be converted.")
+            if (!crypt!!.opened) throw ConversionException(tr("This PDF needs a password to open, so it can't be converted."))
         }
     }
 
@@ -366,7 +367,7 @@ internal class PdfFile(val data: ByteArray) {
                 }
             }
         }
-        if (trailer["Root"] == null) throw ConversionException("This PDF is damaged.")
+        if (trailer["Root"] == null) throw ConversionException(tr("This PDF is damaged."))
     }
 
     fun streamBytes(lx: PdfLexer, dict: Map<String, Any?>): ByteArray? {
@@ -569,7 +570,7 @@ internal class PdfCrypt(private val d: Map<String, Any?>, id: PdfString?, privat
     val opened: Boolean
 
     init {
-        if ((d["Filter"] as? PdfName)?.name != "Standard") throw ConversionException("This PDF is locked in a way that can't be opened.")
+        if ((d["Filter"] as? PdfName)?.name != "Standard") throw ConversionException(tr("This PDF is locked in a way that can't be opened."))
         if (v >= 4) {
             val cf = pdf.dict(d["CF"])
             val stmF = (d["StmF"] as? PdfName)?.name ?: "Identity"

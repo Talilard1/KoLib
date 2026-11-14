@@ -45,6 +45,9 @@ class KoboLibraryApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        // The small process that starts KoLib again after a change of language needs none of this.
+        if (android.os.Build.VERSION.SDK_INT >= 28 && getProcessName().endsWith(":restart")) return
+        L10n.load(this)
         AppLog.init(this)
         val previous = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, error ->

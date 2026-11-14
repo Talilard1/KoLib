@@ -81,6 +81,15 @@
             </intent-filter>
         </activity>
 
+        <!-- Starts KoLib again after its language is changed. -->
+        <activity
+            android:name=".RestartActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:process=":restart"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.files"

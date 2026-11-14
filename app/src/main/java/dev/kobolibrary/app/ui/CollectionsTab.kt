@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui
 
+import dev.kobolibrary.app.tr
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -74,7 +75,7 @@ fun CollectionsTab(
     val entries = remember(snapshot) {
         snapshot.collections.map { c ->
             CollectionEntry(c.name, c.name, snapshot.booksIn(c), hidden = !c.isVisible)
-        } + CollectionEntry(NO_COLLECTION_KEY, "Not in any collection", snapshot.booksWithoutCollection(), hidden = false)
+        } + CollectionEntry(NO_COLLECTION_KEY, tr("Not in any collection"), snapshot.booksWithoutCollection(), hidden = false)
     }
     val selected = entries.firstOrNull { it.key == selectedKey }
 
@@ -87,7 +88,7 @@ fun CollectionsTab(
                     if (selected != null) {
                         CollectionBooks(view, live, selected, libraryPaths, null, onOpenBook, onAddToLibrary)
                     } else {
-                        EmptyState(Icons.Outlined.CollectionsBookmark, "Tap a collection", "Its books will show here.")
+                        EmptyState(Icons.Outlined.CollectionsBookmark, tr("Tap a collection"), tr("Its books will show here."))
                     }
                 }
             }
@@ -111,7 +112,7 @@ private fun CollectionList(
     LazyColumn(modifier.fillMaxHeight(), contentPadding = PaddingValues(bottom = 24.dp)) {
         item {
             Text(
-                if (collectionCount == 0) "This Kobo has no collections yet." else "${Fmt.plural(collectionCount, "collection")} on this Kobo",
+                if (collectionCount == 0) tr("This Kobo has no collections yet.") else tr("{0} on this Kobo", Fmt.plural(collectionCount, "collection")),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 8.dp),
@@ -125,7 +126,7 @@ private fun CollectionList(
                     Text(
                         buildString {
                             append(Fmt.plural(e.books.size, "book"))
-                            if (e.hidden) append(" · hidden on the Kobo")
+                            if (e.hidden) append(tr(" · hidden on the Kobo"))
                         }
                     )
                 },
@@ -165,7 +166,7 @@ private fun CollectionBooks(
         // On a phone: back and the name on one line, and the button under them the width of the screen.
         if (phone) Column(Modifier.padding(start = 4.dp, end = 16.dp, top = 8.dp, bottom = 4.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                if (onBack != null) IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back to the collections") }
+                if (onBack != null) IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Back to the collections")) }
                 Spacer(Modifier.width(4.dp))
                 Column(Modifier.weight(1f)) {
                     Text(entry.name, style = MaterialTheme.typography.titleLarge, maxLines = 2, overflow = TextOverflow.Ellipsis)
@@ -176,7 +177,7 @@ private fun CollectionBooks(
                 FilledTonalButton(onClick = { onAddToLibrary(notInLibrary) }, modifier = Modifier.fillMaxWidth().padding(start = 12.dp, top = 8.dp)) {
                     Icon(Icons.Filled.LibraryAdd, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text(if (notInLibrary.size == entry.books.size) "Add all to library" else "Add ${notInLibrary.size} to library")
+                    Text(if (notInLibrary.size == entry.books.size) tr("Add all to library") else tr("Add {0} to library", notInLibrary.size))
                 }
             }
         } else Row(
@@ -187,7 +188,7 @@ private fun CollectionBooks(
                 TextButton(onClick = onBack) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("Collections")
+                    Text(tr("Collections"))
                 }
                 Spacer(Modifier.width(8.dp))
             } else {
@@ -196,7 +197,7 @@ private fun CollectionBooks(
             Column(Modifier.weight(1f)) {
                 Text(entry.name, style = MaterialTheme.typography.titleLarge)
                 Text(
-                    Fmt.plural(entry.books.size, "book") + " · tap a book to see its details",
+                    Fmt.plural(entry.books.size, "book") + tr(" · tap a book to see its details"),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -205,15 +206,15 @@ private fun CollectionBooks(
                 FilledTonalButton(onClick = { onAddToLibrary(notInLibrary) }) {
                     Icon(Icons.Filled.LibraryAdd, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text(if (notInLibrary.size == entry.books.size) "Add all to library" else "Add ${notInLibrary.size} to library")
+                    Text(if (notInLibrary.size == entry.books.size) tr("Add all to library") else tr("Add {0} to library", notInLibrary.size))
                 }
             }
         }
         if (entry.books.isEmpty()) {
             EmptyState(
                 Icons.Outlined.CollectionsBookmark,
-                "Empty collection",
-                if (entry.key == NO_COLLECTION_KEY) "Every book on this Kobo is in at least one collection." else "None of this collection's books are on the Kobo right now.",
+                tr("Empty collection"),
+                if (entry.key == NO_COLLECTION_KEY) tr("Every book on this Kobo is in at least one collection.") else tr("None of this collection's books are on the Kobo right now."),
             )
             return@Column
         }

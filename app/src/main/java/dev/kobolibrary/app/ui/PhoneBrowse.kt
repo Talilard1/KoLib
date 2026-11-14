@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui
 
+import dev.kobolibrary.app.tr
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -89,7 +90,7 @@ fun <T> PhoneSortChip(
             selected = false,
             onClick = { open = true },
             label = { Text(label(current)) },
-            leadingIcon = { Icon(Icons.AutoMirrored.Filled.Sort, "Sort", Modifier.size(18.dp)) },
+            leadingIcon = { Icon(Icons.AutoMirrored.Filled.Sort, tr("Sort"), Modifier.size(18.dp)) },
             trailingIcon = { Icon(if (descending) Icons.Filled.ArrowDownward else Icons.Filled.ArrowUpward, null, Modifier.size(16.dp)) },
         )
         DropdownMenu(expanded = open, onDismissRequest = { open = false }, modifier = Modifier.heightIn(max = 520.dp)) {
@@ -105,7 +106,7 @@ fun <T> PhoneSortChip(
                         }
                     },
                     leadingIcon = { if (now) Icon(Icons.Filled.Check, null) else Spacer(Modifier.size(24.dp)) },
-                    trailingIcon = { if (now) Icon(if (descending) Icons.Filled.ArrowDownward else Icons.Filled.ArrowUpward, "Reverse order") },
+                    trailingIcon = { if (now) Icon(if (descending) Icons.Filled.ArrowDownward else Icons.Filled.ArrowUpward, tr("Reverse order")) },
                     onClick = { onPick(order); open = false },
                 )
             }
@@ -122,12 +123,12 @@ fun PhoneCollectionChip(collections: List<String>, current: String?, onPick: (St
         FilterChip(
             selected = current != null,
             onClick = { open = true },
-            label = { Text(current ?: "Collection") },
+            label = { Text(current ?: tr("Collection")) },
             leadingIcon = { Icon(Icons.Outlined.CollectionsBookmark, null, Modifier.size(18.dp)) },
             trailingIcon = { Icon(Icons.Filled.ArrowDropDown, null, Modifier.size(18.dp)) },
         )
         DropdownMenu(expanded = open, onDismissRequest = { open = false }, modifier = Modifier.heightIn(max = 420.dp)) {
-            DropdownMenuItem(text = { Text("All collections") }, onClick = { onPick(null); open = false })
+            DropdownMenuItem(text = { Text(tr("All collections")) }, onClick = { onPick(null); open = false })
             HorizontalDivider()
             collections.forEach { c ->
                 DropdownMenuItem(
@@ -151,9 +152,9 @@ fun PhoneTagsChip(tags: List<Pair<String, Int>>, chosen: Set<String>, matchAll: 
         label = {
             Text(
                 when (chosen.size) {
-                    0 -> "Tags"
+                    0 -> tr("Tags")
                     1 -> chosen.first()
-                    else -> "${chosen.size} tags (${if (matchAll) "all" else "any"})"
+                    else -> if (matchAll) tr("{0} tags (all)", chosen.size) else tr("{0} tags (any)", chosen.size)
                 }
             )
         },
@@ -176,12 +177,12 @@ fun PhoneTagsChip(tags: List<Pair<String, Int>>, chosen: Set<String>, matchAll: 
 fun PhoneNarrowedLine(shown: Int, total: Int, onClear: () -> Unit) {
     Row(Modifier.fillMaxWidth().padding(start = 20.dp, end = 8.dp), verticalAlignment = Alignment.CenterVertically) {
         Text(
-            if (shown == total) Fmt.plural(total, "book") else "$shown of ${Fmt.plural(total, "book")}",
+            if (shown == total) Fmt.plural(total, "book") else tr("{0} of {1}", shown, Fmt.plural(total, "book")),
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.weight(1f),
         )
-        TextButton(onClick = onClear) { Text("Clear filters") }
+        TextButton(onClick = onClear) { Text(tr("Clear filters")) }
     }
 }
 
@@ -198,15 +199,15 @@ fun PhoneListMenu(
 ) {
     var open by remember { mutableStateOf(false) }
     Box {
-        IconButton(onClick = { open = true }) { Icon(Icons.Filled.MoreVert, "More options") }
+        IconButton(onClick = { open = true }) { Icon(Icons.Filled.MoreVert, tr("More options")) }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
             DropdownMenuItem(
-                text = { Text("Select books") },
+                text = { Text(tr("Select books")) },
                 leadingIcon = { Icon(Icons.Outlined.Checklist, null) },
                 onClick = { open = false; onSelect() },
             )
             DropdownMenuItem(
-                text = { Text(if (grid) "Show as list" else "Show as grid") },
+                text = { Text(if (grid) tr("Show as list") else tr("Show as grid")) },
                 leadingIcon = { Icon(if (grid) Icons.AutoMirrored.Filled.ViewList else Icons.Filled.GridView, null) },
                 onClick = { open = false; onGrid(!grid) },
             )

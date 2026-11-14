@@ -1,0 +1,700 @@
+@fr
+225|Le doctype n’est pas fermé
+226|Le fichier n’a aucun contenu
+227|Le fichier se termine trop tôt
+228|Ce n’est pas un fichier zip
+229|Ce n’est pas un fichier zip (pas de répertoire)
+230|Le répertoire du zip est endommagé
+231|Élément de zip endommagé : {0}
+232|Montre toute la couverture, avec une copie floutée qui remplit l’espace vide.
+233|Agrandit la couverture pour remplir l’écran et coupe les bords qui dépassent.
+234|Envoie la couverture telle quelle. La Kobo affiche un espace vide autour.
+235|La base de données de la Kobo n’a pas de table « content », elle ne peut donc pas être lue.
+236|Impossible de lire la version de la base de données ({0}).
+237|Impossible de lire les notes de la Kobo ({0}).
+238|Il manque à la base de données de la Kobo les colonnes {0}.
+239|{0} lignes de livre n’avaient pas de ContentID et ont été ignorées.
+240|La base de données de cette Kobo n’a pas de table des collections.
+241|La table des collections n’a pas de colonne de nom.
+242|La table des livres des collections a des colonnes inattendues.
+243|La base de données de cette Kobo n’a pas de table des livres des collections.
+244|1 entrée de collection renvoie à une collection supprimée ou manquante (la Kobo l’ignore).
+245|Le dossier .kobo de la Kobo est introuvable. Est-elle toujours connectée ?
+246|La base de données de la Kobo est introuvable.
+247|La base de données de la Kobo a changé depuis sa lecture. Connectez d’abord la Kobo à nouveau.
+248|La base de données mise à jour n’a pas pu être réunie en un seul fichier, elle n’a donc pas été copiée sur la Kobo.
+249|La base de données mise à jour n’a pas passé la vérification ({0}), elle n’a donc pas été copiée sur la Kobo.
+250|La base de données mise à jour a disparu de la Kobo pendant son écriture.
+251|La base de données mise à jour n’a pas été relue correctement sur la Kobo, la base d’origine n’a donc pas été remplacée.
+252|La base de données mise à jour n’a pas pu remplacer l’ancienne sur la Kobo. N’éjectez pas encore. Connectez-vous à nouveau et vérifiez les livres de la Kobo.
+253|Une collection a besoin d’un nom.
+254|Kobo {0}
+255|Stockage amovible
+256|Vérification du stockage…
+257|Le stockage de la Kobo n’est pas disponible. Branchez la Kobo et touchez Connecter sur son écran.
+258|Ce stockage n’a pas de dossier .kobo, il ne ressemble donc pas à une Kobo. Choisissez le niveau supérieur du stockage appelé KOBOeReader.
+259|Chargement des informations de l’appareil…
+260|Le fichier de base de données de la Kobo (KoboReader.sqlite) est manquant. La Kobo a-t-elle terminé sa configuration ?
+261|Copie de la base de données de la Kobo… {0} %
+262|Chargement des livres et des collections…
+263|échec de la vérification : {0}
+264|La Kobo n’est plus connectée.
+265|La base de données de la Kobo est manquante.
+266|Android n’a pas autorisé la création d’un fichier sur la Kobo.
+267|Un fichier de test a été écrit, mais sa relecture est différente. L’écriture sur la Kobo n’est pas fiable.
+268|Un fichier de test a été écrit et relu, mais n’a pas pu être supprimé. Il est masqué et sans danger : {0}.
+269|L’écriture fonctionne : un fichier de test de 64 Ko a été écrit, relu et supprimé en {0} ms.
+270|La Kobo n’est plus accessible. Est-elle toujours connectée ?
+271|Android n’a pas donné à cette appli l’accès en écriture à la Kobo. Essayez « Oublier cette Kobo » et connectez-vous à nouveau.
+272|Échec du test d’écriture : {0} : {1}
+273|Kepub
+274|Le format propre à Kobo. Les pages se tournent plus vite et la Kobo affiche les statistiques de lecture.
+275|Le format standard. La Kobo l’ouvre dans son ancien lecteur, plus lent.
+276|Impossible de le convertir en kepub ({0}).
+277|Impossible d’écrire sur la Kobo.
+278|Android n’a pas autorisé l’écriture sur la Kobo.
+279|Rangés dans leurs collections sur la Kobo : {0}.
+280|Détails de {0} mis à jour sur la Kobo.
+281|Changements de collections copiés de la Kobo vers {0} de votre bibliothèque.
+282|Marqués comme supprimés de la Kobo : {0}.
+283|1 livre
+284|Impossible de lire le fichier : {0}
+285|Le fichier est vide.
+286|KoLib ne peut pas ouvrir ce type de fichier.
+287|Il n’a pas pu devenir un livre.
+288|Il est trop volumineux pour être converti sur cet appareil.
+289|Il n’a pas pu devenir un livre ({0}).
+290|Ce n’est pas un fichier EPUB.
+291|Les détails du livre n’ont pas pu être lus : {0}
+292|L’un des livres sélectionnés n’est plus dans la bibliothèque.
+293|Ce livre n’est plus dans la bibliothèque.
+294|{0} (copie {1})
+295|Le nouveau fichier n’est pas un EPUB.
+296|Impossible de remplacer le fichier.
+298|La base de données de la Kobo n’indique pas où se trouve le fichier de ce livre.
+299|Les livres de la boutique Kobo ne peuvent pas être copiés depuis la Kobo.
+300|Le fichier n’est plus sur la Kobo ({0}).
+303|La couverture d’origine de ce livre n’a pas été conservée, elle ne peut donc pas être rétablie.
+306|Le texte de ce livre n’a pas été modifié.
+307|Impossible de rétablir l’original
+309|PDF de pages numérisées ou d’images
+310|PDF, trop volumineux pour devenir un EPUB
+311|Fichier {0}, converti en EPUB
+312|Jaune
+313|Vert
+314|Bleu
+315|Rose
+316|\nSurlignages et notes,
+317|Note :
+318|Papier
+319|Blanc
+320|Sépia
+321|Nuit
+322|Noir
+333|Étroit
+334|Moyen
+335|Large
+336|À gauche
+337|Justifié
+338|Oui
+339|Non
+@de
+225|Der Doctype ist nicht geschlossen
+226|Die Datei hat keinen Inhalt
+227|Die Datei endet zu früh
+228|Keine ZIP-Datei
+229|Keine ZIP-Datei (kein Verzeichnis)
+230|Das Verzeichnis der ZIP-Datei ist beschädigt
+231|Beschädigter ZIP-Eintrag {0}
+232|Zeigt das ganze Cover, die leere Fläche füllt eine unscharfe Kopie davon.
+233|Vergrößert das Cover auf den ganzen Bildschirm und schneidet die überstehenden Ränder ab.
+234|Sendet das Cover unverändert. Der Kobo zeigt leeren Platz darum herum.
+235|Die Kobo-Datenbank hat keine Tabelle „content“ und kann daher nicht gelesen werden.
+236|Die Version der Datenbank konnte nicht gelesen werden ({0}).
+237|Die Bewertungen des Kobo konnten nicht gelesen werden ({0}).
+238|In der Kobo-Datenbank fehlen die Spalten {0}.
+239|{0} Buchzeilen hatten keine ContentID und wurden übersprungen.
+240|Die Datenbank dieses Kobo hat keine Sammlungstabelle.
+241|Die Sammlungstabelle hat keine Namensspalte.
+242|Die Tabelle der Sammlungseinträge hat unerwartete Spalten.
+243|Die Datenbank dieses Kobo hat keine Tabelle der Sammlungseinträge.
+244|1 Sammlungseintrag verweist auf eine gelöschte oder fehlende Sammlung (der Kobo ignoriert solche Einträge).
+245|Der .kobo-Ordner des Kobo ist nicht zu finden. Ist er noch angeschlossen?
+246|Die Datenbank des Kobo ist nicht zu finden.
+247|Die Datenbank des Kobo hat sich seit dem Lesen geändert. Verbinde den Kobo zuerst noch einmal.
+248|Die aktualisierte Datenbank konnte nicht zu einer einzigen Datei zusammengefasst werden und wurde daher nicht auf den Kobo kopiert.
+249|Die aktualisierte Datenbank hat die Prüfung nicht bestanden ({0}) und wurde daher nicht auf den Kobo kopiert.
+250|Die aktualisierte Datenbank ist während des Schreibens vom Kobo verschwunden.
+251|Die aktualisierte Datenbank wurde vom Kobo nicht korrekt zurückgelesen, daher wurde die ursprüngliche Datenbank des Kobo nicht ersetzt.
+252|Die aktualisierte Datenbank konnte die alte auf dem Kobo nicht ersetzen. Noch nicht auswerfen. Verbinde den Kobo erneut und prüfe seine Bücher.
+253|Eine Sammlung braucht einen Namen.
+254|Kobo {0}
+255|Wechseldatenträger
+256|Laufwerk wird geprüft…
+257|Das Laufwerk des Kobo ist nicht verfügbar. Schließe den Kobo an und tippe auf seinem Bildschirm auf „Verbinden“.
+258|Dieses Laufwerk hat keinen .kobo-Ordner und sieht daher nicht nach einem Kobo aus. Wähle die oberste Ebene des Laufwerks namens KOBOeReader.
+259|Gerätedetails werden geladen…
+260|Die Datenbankdatei des Kobo (KoboReader.sqlite) fehlt. Ist die Einrichtung des Kobo abgeschlossen?
+261|Datenbank des Kobo wird kopiert… {0} %
+262|Bücher und Sammlungen werden geladen…
+263|Prüfung fehlgeschlagen: {0}
+264|Der Kobo ist nicht mehr verbunden.
+265|Die Datenbank des Kobo fehlt.
+266|Android hat das Erstellen einer Datei auf dem Kobo nicht erlaubt.
+267|Eine Testdatei wurde geschrieben, aber anders zurückgelesen. Das Schreiben auf den Kobo ist nicht zuverlässig.
+268|Eine Testdatei wurde geschrieben und zurückgelesen, konnte aber nicht gelöscht werden. Sie ist versteckt und harmlos: {0}.
+269|Schreiben funktioniert: Eine 64-KB-Testdatei wurde in {0} ms geschrieben, zurückgelesen und gelöscht.
+270|Der Kobo ist nicht mehr erreichbar. Ist er noch angeschlossen?
+271|Android hat dieser App keinen Schreibzugriff auf den Kobo gegeben. Versuche „Diesen Kobo vergessen“ und verbinde ihn erneut.
+272|Schreibtest fehlgeschlagen: {0}: {1}
+273|Kepub
+274|Kobos eigenes Format. Seiten blättern schneller um und der Kobo zeigt Lesestatistiken.
+275|Das Standardformat. Der Kobo öffnet es in seinem älteren, langsameren Reader.
+276|Konnte nicht in kepub umgewandelt werden ({0}).
+277|Konnte nicht auf den Kobo schreiben.
+278|Android hat das Schreiben auf den Kobo nicht erlaubt.
+279|{0} auf dem Kobo in ihre Sammlungen eingeordnet.
+280|Details von {0} auf dem Kobo aktualisiert.
+281|Sammlungsänderungen vom Kobo auf {0} in deiner Bibliothek übernommen.
+282|{0} als vom Kobo gelöscht markiert.
+283|1 Buch
+284|Die Datei konnte nicht gelesen werden: {0}
+285|Die Datei ist leer.
+286|KoLib kann diese Art von Datei nicht öffnen.
+287|Es konnte kein Buch daraus gemacht werden.
+288|Es ist zu groß, um auf diesem Gerät umgewandelt zu werden.
+289|Es konnte kein Buch daraus gemacht werden ({0}).
+290|Das ist keine EPUB-Datei.
+291|Die Buchdetails konnten nicht gelesen werden: {0}
+292|Eines der ausgewählten Bücher ist nicht mehr in der Bibliothek.
+293|Dieses Buch ist nicht mehr in der Bibliothek.
+294|{0} (Kopie {1})
+295|Die neue Datei ist kein EPUB.
+296|Die Datei konnte nicht ersetzt werden.
+298|Die Datenbank des Kobo gibt nicht an, wo die Datei dieses Buchs ist.
+299|Bücher aus dem Kobo Store können nicht vom Kobo kopiert werden.
+300|Die Datei ist nicht mehr auf dem Kobo ({0}).
+303|Das ursprüngliche Cover dieses Buchs wurde nicht aufbewahrt und kann daher nicht wiederhergestellt werden.
+306|Der Text dieses Buchs wurde nicht geändert.
+307|Das Original konnte nicht wiederhergestellt werden
+309|PDF aus gescannten Seiten oder Bildern
+310|PDF, zu groß, um ein EPUB daraus zu machen
+311|{0}-Datei, in ein EPUB umgewandelt
+312|Gelb
+313|Grün
+314|Blau
+315|Rosa
+316|\nMarkierungen und Notizen,
+317|Notiz:
+318|Papier
+319|Weiß
+320|Sepia
+321|Nacht
+322|Schwarz
+333|Schmal
+334|Mittel
+335|Breit
+336|Linksbündig
+337|Blocksatz
+338|An
+339|Aus
+@es
+225|El doctype no está cerrado
+226|El archivo no tiene contenido
+227|El archivo termina antes de tiempo
+228|No es un archivo zip
+229|No es un archivo zip (no tiene directorio)
+230|El directorio del zip está dañado
+231|Entrada de zip dañada: {0}
+232|Muestra la portada entera, con una copia difuminada que llena el espacio vacío.
+233|Amplía la portada para llenar la pantalla y recorta los bordes que no caben.
+234|Envía la portada sin cambios. El Kobo muestra espacio vacío alrededor.
+235|La base de datos del Kobo no tiene tabla «content», así que no se puede leer.
+236|No se ha podido leer la versión de la base de datos ({0}).
+237|No se han podido leer las valoraciones del Kobo ({0}).
+238|A la base de datos del Kobo le faltan las columnas {0}.
+239|{0} filas de libros no tenían ContentID y se han omitido.
+240|La base de datos de este Kobo no tiene tabla de colecciones.
+241|La tabla de colecciones no tiene columna de nombre.
+242|La tabla de libros de las colecciones tiene columnas inesperadas.
+243|La base de datos de este Kobo no tiene tabla de libros de las colecciones.
+244|1 entrada de colección apunta a una colección eliminada o que falta (el Kobo las ignora).
+245|No se encuentra la carpeta .kobo del Kobo. ¿Sigue conectado?
+246|No se encuentra la base de datos del Kobo.
+247|La base de datos del Kobo ha cambiado desde que se leyó. Vuelve a conectar el Kobo primero.
+248|No se ha podido unir la base de datos actualizada en un solo archivo, así que no se ha copiado al Kobo.
+249|La base de datos actualizada no ha superado la comprobación ({0}), así que no se ha copiado al Kobo.
+250|La base de datos actualizada ha desaparecido del Kobo mientras se escribía.
+251|La base de datos actualizada no se ha podido volver a leer bien desde el Kobo, así que no se ha reemplazado la original.
+252|La base de datos actualizada no ha podido reemplazar a la antigua en el Kobo. No lo expulses todavía. Vuelve a conectarlo y revisa sus libros.
+253|Una colección necesita un nombre.
+254|Kobo {0}
+255|Unidad extraíble
+256|Comprobando la unidad…
+257|La unidad del Kobo no está disponible. Conecta el Kobo y toca Conectar en su pantalla.
+258|Esa unidad no tiene carpeta .kobo, así que no parece un Kobo. Elige el nivel superior de la unidad llamada KOBOeReader.
+259|Cargando los datos del dispositivo…
+260|Falta el archivo de base de datos del Kobo (KoboReader.sqlite). ¿Ha terminado el Kobo de configurarse?
+261|Copiando la base de datos del Kobo… {0} %
+262|Cargando libros y colecciones…
+263|la comprobación ha fallado: {0}
+264|El Kobo ya no está conectado.
+265|Falta la base de datos del Kobo.
+266|Android no ha permitido crear un archivo en el Kobo.
+267|Se ha escrito un archivo de prueba, pero al leerlo era distinto. La escritura en el Kobo no es fiable.
+268|Se ha escrito y leído un archivo de prueba, pero no se ha podido eliminar. Está oculto y no molesta: {0}.
+269|La escritura funciona: se ha escrito, leído y eliminado un archivo de prueba de 64 KB en {0} ms.
+270|No se puede acceder al Kobo. ¿Sigue conectado?
+271|Android no ha dado a esta app acceso de escritura al Kobo. Prueba «Olvidar este Kobo» y vuelve a conectarlo.
+272|La prueba de escritura ha fallado: {0}: {1}
+273|Kepub
+274|El formato propio de Kobo. Las páginas pasan más rápido y el Kobo muestra estadísticas de lectura.
+275|El formato estándar. El Kobo lo abre en su lector antiguo, más lento.
+276|No se ha podido convertir a kepub ({0}).
+277|No se ha podido escribir en el Kobo.
+278|Android no ha permitido escribir en el Kobo.
+279|Puestos en sus colecciones del Kobo: {0}.
+280|Se han actualizado los detalles de {0} en el Kobo.
+281|Se han copiado los cambios de colecciones del Kobo a {0} de tu biblioteca.
+282|Marcados como eliminados del Kobo: {0}.
+283|1 libro
+284|No se ha podido leer el archivo: {0}
+285|El archivo está vacío.
+286|KoLib no puede abrir este tipo de archivo.
+287|No se ha podido convertir en un libro.
+288|Es demasiado grande para convertirlo en este dispositivo.
+289|No se ha podido convertir en un libro ({0}).
+290|No es un archivo EPUB.
+291|No se han podido leer los detalles del libro: {0}
+292|Uno de los libros seleccionados ya no está en la biblioteca.
+293|Ese libro ya no está en la biblioteca.
+294|{0} (copia {1})
+295|El archivo nuevo no es un EPUB.
+296|No se ha podido reemplazar el archivo.
+298|La base de datos del Kobo no indica dónde está el archivo de este libro.
+299|Los libros de la tienda Kobo no se pueden copiar desde el Kobo.
+300|El archivo ya no está en el Kobo ({0}).
+303|No se guardó la portada original de este libro, así que no se puede restaurar.
+306|El texto de este libro no ha cambiado.
+307|No se ha podido restaurar el original
+309|PDF de páginas escaneadas o imágenes
+310|PDF, demasiado grande para convertirlo en EPUB
+311|Archivo {0}, convertido en EPUB
+312|Amarillo
+313|Verde
+314|Azul
+315|Rosa
+316|\nSubrayados y notas,
+317|Nota:
+318|Papel
+319|Blanco
+320|Sepia
+321|Noche
+322|Negro
+333|Estrecho
+334|Medio
+335|Ancho
+336|A la izquierda
+337|Justificado
+338|Sí
+339|No
+@it
+225|Il doctype non è chiuso
+226|Il file non ha contenuto
+227|Il file finisce troppo presto
+228|Non è un file zip
+229|Non è un file zip (nessuna directory)
+230|La directory dello zip è danneggiata
+231|Voce dello zip danneggiata: {0}
+232|Mostra tutta la copertina, con una copia sfocata che riempie lo spazio vuoto.
+233|Ingrandisce la copertina fino a riempire lo schermo e taglia i bordi che non ci stanno.
+234|Invia la copertina senza modifiche. Il Kobo mostra uno spazio vuoto intorno.
+235|Il database del Kobo non ha la tabella «content», quindi non può essere letto.
+236|Impossibile leggere la versione del database ({0}).
+237|Impossibile leggere le valutazioni del Kobo ({0}).
+238|Nel database del Kobo mancano le colonne {0}.
+239|{0} righe di libri non avevano un ContentID e sono state saltate.
+240|Il database di questo Kobo non ha la tabella delle raccolte.
+241|La tabella delle raccolte non ha la colonna del nome.
+242|La tabella dei libri nelle raccolte ha colonne inattese.
+243|Il database di questo Kobo non ha la tabella dei libri nelle raccolte.
+244|1 voce di raccolta rimanda a una raccolta eliminata o mancante (il Kobo la ignora).
+245|Impossibile trovare la cartella .kobo del Kobo. È ancora collegato?
+246|Impossibile trovare il database del Kobo.
+247|Il database del Kobo è cambiato da quando è stato letto. Prima collega di nuovo il Kobo.
+248|Il database aggiornato non è stato unito in un solo file, quindi non è stato copiato sul Kobo.
+249|Il database aggiornato non ha superato il controllo ({0}), quindi non è stato copiato sul Kobo.
+250|Il database aggiornato è sparito dal Kobo durante la scrittura.
+251|Il database aggiornato non è stato riletto correttamente dal Kobo, quindi il database originale del Kobo non è stato sostituito.
+252|Il database aggiornato non ha potuto sostituire quello vecchio sul Kobo. Non espellerlo ancora. Collegalo di nuovo e controlla i suoi libri.
+253|Una raccolta ha bisogno di un nome.
+254|Kobo {0}
+255|Unità rimovibile
+256|Controllo dell’unità…
+257|L’unità del Kobo non è disponibile. Collega il Kobo e tocca Connetti sul suo schermo.
+258|Quell’unità non ha la cartella .kobo, quindi non sembra un Kobo. Scegli il livello superiore dell’unità chiamata KOBOeReader.
+259|Caricamento dei dati del dispositivo…
+260|Manca il file del database del Kobo (KoboReader.sqlite). Il Kobo ha finito la configurazione?
+261|Copia del database del Kobo… {0}%
+262|Caricamento di libri e raccolte…
+263|controllo non riuscito: {0}
+264|Il Kobo non è più collegato.
+265|Manca il database del Kobo.
+266|Android non ha consentito di creare un file sul Kobo.
+267|È stato scritto un file di prova, ma rileggendolo era diverso. La scrittura sul Kobo non è affidabile.
+268|È stato scritto e riletto un file di prova, ma non è stato possibile eliminarlo. È nascosto e innocuo: {0}.
+269|La scrittura funziona: un file di prova di 64 KB è stato scritto, riletto ed eliminato in {0} ms.
+270|Il Kobo non è più raggiungibile. È ancora collegato?
+271|Android non ha dato a questa app l’accesso in scrittura al Kobo. Prova «Dimentica questo Kobo» e collegalo di nuovo.
+272|Prova di scrittura non riuscita: {0}: {1}
+273|Kepub
+274|Il formato proprio di Kobo. Le pagine girano più velocemente e il Kobo mostra le statistiche di lettura.
+275|Il formato standard. Il Kobo lo apre nel suo lettore più vecchio e lento.
+276|Impossibile convertirlo in kepub ({0}).
+277|Impossibile scrivere sul Kobo.
+278|Android non ha consentito di scrivere sul Kobo.
+279|Messi nelle loro raccolte sul Kobo: {0}.
+280|Dettagli di {0} aggiornati sul Kobo.
+281|Modifiche alle raccolte copiate dal Kobo a {0} nella tua libreria.
+282|Segnati come eliminati dal Kobo: {0}.
+283|1 libro
+284|Impossibile leggere il file: {0}
+285|Il file è vuoto.
+286|KoLib non può aprire questo tipo di file.
+287|Non è stato possibile ricavarne un libro.
+288|È troppo grande per essere convertito su questo dispositivo.
+289|Non è stato possibile ricavarne un libro ({0}).
+290|Non è un file EPUB.
+291|Impossibile leggere i dettagli del libro: {0}
+292|Uno dei libri selezionati non è più nella libreria.
+293|Quel libro non è più nella libreria.
+294|{0} (copia {1})
+295|Il nuovo file non è un EPUB.
+296|Impossibile sostituire il file.
+298|Il database del Kobo non indica dove si trova il file di questo libro.
+299|I libri del Kobo Store non possono essere copiati dal Kobo.
+300|Il file non è più sul Kobo ({0}).
+303|La copertina originale di questo libro non è stata conservata, quindi non può essere ripristinata.
+306|Il testo di questo libro non è stato modificato.
+307|Impossibile ripristinare l’originale
+309|PDF di pagine scansionate o immagini
+310|PDF, troppo grande per diventare un EPUB
+311|File {0}, convertito in EPUB
+312|Giallo
+313|Verde
+314|Blu
+315|Rosa
+316|\nEvidenziazioni e note,
+317|Nota:
+318|Carta
+319|Bianco
+320|Seppia
+321|Notte
+322|Nero
+333|Stretto
+334|Medio
+335|Largo
+336|A sinistra
+337|Giustificato
+338|Sì
+339|No
+@nl
+225|Het doctype is niet gesloten
+226|Het bestand heeft geen inhoud
+227|Het bestand houdt te vroeg op
+228|Geen zip-bestand
+229|Geen zip-bestand (geen map)
+230|De map van de zip is beschadigd
+231|Beschadigd zip-onderdeel {0}
+232|Toont de hele omslag, met een vervaagde kopie ervan in de lege ruimte.
+233|Vergroot de omslag tot hij het scherm vult en snijdt de randen af die niet passen.
+234|Stuurt de omslag ongewijzigd. De Kobo toont lege ruimte eromheen.
+235|De Kobo-database heeft geen tabel ‘content’ en kan dus niet worden gelezen.
+236|De versie van de database kon niet worden gelezen ({0}).
+237|De beoordelingen van de Kobo konden niet worden gelezen ({0}).
+238|In de Kobo-database ontbreken de kolommen {0}.
+239|{0} boekregels hadden geen ContentID en zijn overgeslagen.
+240|De database van deze Kobo heeft geen collectietabel.
+241|De collectietabel heeft geen naamkolom.
+242|De tabel met boeken in collecties heeft onverwachte kolommen.
+243|De database van deze Kobo heeft geen tabel met boeken in collecties.
+244|1 collectie-item verwijst naar een verwijderde of ontbrekende collectie (de Kobo negeert die).
+245|De .kobo-map van de Kobo is niet te vinden. Is hij nog aangesloten?
+246|De database van de Kobo is niet te vinden.
+247|De database van de Kobo is veranderd sinds hij werd gelezen. Verbind de Kobo eerst opnieuw.
+248|De bijgewerkte database kon niet tot één bestand worden samengevoegd en is dus niet naar de Kobo gekopieerd.
+249|De bijgewerkte database is niet door de controle gekomen ({0}) en is dus niet naar de Kobo gekopieerd.
+250|De bijgewerkte database is tijdens het schrijven van de Kobo verdwenen.
+251|De bijgewerkte database kon niet goed worden teruggelezen van de Kobo, dus de oorspronkelijke database is niet vervangen.
+252|De bijgewerkte database kon de oude op de Kobo niet vervangen. Werp hem nog niet uit. Verbind opnieuw en controleer de boeken op de Kobo.
+253|Een collectie heeft een naam nodig.
+254|Kobo {0}
+255|Verwisselbare schijf
+256|Schijf controleren…
+257|De schijf van de Kobo is niet beschikbaar. Sluit de Kobo aan en tik op het scherm op Verbinden.
+258|Die schijf heeft geen .kobo-map en lijkt dus geen Kobo. Kies het hoogste niveau van de schijf met de naam KOBOeReader.
+259|Apparaatgegevens laden…
+260|Het databasebestand van de Kobo (KoboReader.sqlite) ontbreekt. Is de Kobo klaar met instellen?
+261|Database van de Kobo kopiëren… {0}%
+262|Boeken en collecties laden…
+263|controle mislukt: {0}
+264|De Kobo is niet meer verbonden.
+265|De database van de Kobo ontbreekt.
+266|Android heeft niet toegestaan dat er een bestand op de Kobo werd gemaakt.
+267|Er is een testbestand geschreven, maar het kwam anders terug. Schrijven naar de Kobo is niet betrouwbaar.
+268|Er is een testbestand geschreven en teruggelezen, maar het kon niet worden verwijderd. Het is verborgen en onschadelijk: {0}.
+269|Schrijven werkt: een testbestand van 64 kB is in {0} ms geschreven, teruggelezen en verwijderd.
+270|De Kobo is niet meer bereikbaar. Is hij nog aangesloten?
+271|Android heeft deze app geen schrijftoegang tot de Kobo gegeven. Probeer ‘Deze Kobo vergeten’ en verbind opnieuw.
+272|Schrijftest mislukt: {0}: {1}
+273|Kepub
+274|Het eigen formaat van Kobo. Pagina’s slaan sneller om en de Kobo toont leesstatistieken.
+275|Het standaardformaat. De Kobo opent het in zijn oudere, tragere lezer.
+276|Kon niet worden omgezet naar kepub ({0}).
+277|Kon niet naar de Kobo schrijven.
+278|Android heeft schrijven naar de Kobo niet toegestaan.
+279|{0} in hun collecties op de Kobo gezet.
+280|Gegevens van {0} bijgewerkt op de Kobo.
+281|Collectiewijzigingen van de Kobo overgenomen voor {0} in je bibliotheek.
+282|{0} gemarkeerd als verwijderd van de Kobo.
+283|1 boek
+284|Het bestand kon niet worden gelezen: {0}
+285|Het bestand is leeg.
+286|KoLib kan dit soort bestand niet openen.
+287|Er kon geen boek van worden gemaakt.
+288|Het is te groot om op dit apparaat om te zetten.
+289|Er kon geen boek van worden gemaakt ({0}).
+290|Dit is geen EPUB-bestand.
+291|De boekgegevens konden niet worden gelezen: {0}
+292|Een van de geselecteerde boeken staat niet meer in de bibliotheek.
+293|Dat boek staat niet meer in de bibliotheek.
+294|{0} (kopie {1})
+295|Het nieuwe bestand is geen EPUB.
+296|Kon het bestand niet vervangen.
+298|De database van de Kobo zegt niet waar het bestand van dit boek staat.
+299|Boeken uit de Kobo Store kunnen niet van de Kobo worden gekopieerd.
+300|Het bestand staat niet meer op de Kobo ({0}).
+303|De oorspronkelijke omslag van dit boek is niet bewaard en kan dus niet worden hersteld.
+306|De tekst van dit boek is niet gewijzigd.
+307|Kon het origineel niet herstellen
+309|Pdf van gescande pagina’s of afbeeldingen
+310|Pdf, te groot om er een EPUB van te maken
+311|{0}-bestand, omgezet naar EPUB
+312|Geel
+313|Groen
+314|Blauw
+315|Roze
+316|\nMarkeringen en notities,
+317|Notitie:
+318|Papier
+319|Wit
+320|Sepia
+321|Nacht
+322|Zwart
+333|Smal
+334|Gemiddeld
+335|Breed
+336|Links
+337|Uitgevuld
+338|Aan
+339|Uit
+@pt
+225|O doctype não está fechado
+226|O arquivo não tem conteúdo
+227|O arquivo termina antes da hora
+228|Não é um arquivo zip
+229|Não é um arquivo zip (sem diretório)
+230|O diretório do zip está danificado
+231|Entrada do zip danificada: {0}
+232|Mostra a capa inteira, com uma cópia desfocada preenchendo o espaço vazio.
+233|Amplia a capa para preencher a tela e corta as bordas que não cabem.
+234|Envia a capa sem alterações. O Kobo mostra um espaço vazio em volta.
+235|O banco de dados do Kobo não tem a tabela “content”, então não pode ser lido.
+236|Não foi possível ler a versão do banco de dados ({0}).
+237|Não foi possível ler as avaliações do Kobo ({0}).
+238|Faltam as colunas {0} no banco de dados do Kobo.
+239|{0} linhas de livros não tinham ContentID e foram puladas.
+240|O banco de dados deste Kobo não tem tabela de coleções.
+241|A tabela de coleções não tem coluna de nome.
+242|A tabela de livros das coleções tem colunas inesperadas.
+243|O banco de dados deste Kobo não tem tabela de livros das coleções.
+244|1 entrada de coleção aponta para uma coleção excluída ou que falta (o Kobo ignora essas entradas).
+245|A pasta .kobo do Kobo não foi encontrada. Ele ainda está conectado?
+246|O banco de dados do Kobo não foi encontrado.
+247|O banco de dados do Kobo mudou desde que foi lido. Conecte o Kobo de novo primeiro.
+248|Não foi possível juntar o banco de dados atualizado em um só arquivo, então ele não foi copiado para o Kobo.
+249|O banco de dados atualizado não passou na verificação ({0}), então não foi copiado para o Kobo.
+250|O banco de dados atualizado sumiu do Kobo enquanto era gravado.
+251|O banco de dados atualizado não foi lido de volta corretamente do Kobo, então o banco de dados original do Kobo não foi substituído.
+252|O banco de dados atualizado não conseguiu substituir o antigo no Kobo. Não ejete ainda. Conecte de novo e confira os livros do Kobo.
+253|Uma coleção precisa de um nome.
+254|Kobo {0}
+255|Unidade removível
+256|Verificando a unidade…
+257|A unidade do Kobo não está disponível. Conecte o Kobo e toque em Conectar na tela dele.
+258|Essa unidade não tem a pasta .kobo, então não parece ser um Kobo. Escolha o nível mais alto da unidade chamada KOBOeReader.
+259|Carregando os detalhes do dispositivo…
+260|O arquivo de banco de dados do Kobo (KoboReader.sqlite) está faltando. O Kobo terminou a configuração?
+261|Copiando o banco de dados do Kobo… {0}%
+262|Carregando livros e coleções…
+263|a verificação falhou: {0}
+264|O Kobo não está mais conectado.
+265|O banco de dados do Kobo está faltando.
+266|O Android não permitiu criar um arquivo no Kobo.
+267|Um arquivo de teste foi gravado, mas foi lido de volta diferente. Gravar no Kobo não é confiável.
+268|Um arquivo de teste foi gravado e lido de volta, mas não pôde ser excluído. Ele está oculto e não faz mal: {0}.
+269|A gravação funciona: um arquivo de teste de 64 KB foi gravado, lido de volta e excluído em {0} ms.
+270|O Kobo não está mais acessível. Ele ainda está conectado?
+271|O Android não deu a este app acesso de gravação ao Kobo. Tente “Esquecer este Kobo” e conecte de novo.
+272|O teste de gravação falhou: {0}: {1}
+273|Kepub
+274|O formato próprio da Kobo. As páginas viram mais rápido e o Kobo mostra estatísticas de leitura.
+275|O formato padrão. O Kobo o abre no leitor antigo, mais lento.
+276|Não foi possível converter para kepub ({0}).
+277|Não foi possível gravar no Kobo.
+278|O Android não permitiu gravar no Kobo.
+279|Colocados nas coleções no Kobo: {0}.
+280|Detalhes de {0} atualizados no Kobo.
+281|Mudanças de coleções copiadas do Kobo para {0} na sua biblioteca.
+282|Marcados como excluídos do Kobo: {0}.
+283|1 livro
+284|Não foi possível ler o arquivo: {0}
+285|O arquivo está vazio.
+286|O KoLib não consegue abrir este tipo de arquivo.
+287|Não foi possível transformá-lo em um livro.
+288|É grande demais para converter neste dispositivo.
+289|Não foi possível transformá-lo em um livro ({0}).
+290|Este não é um arquivo EPUB.
+291|Não foi possível ler os detalhes do livro: {0}
+292|Um dos livros selecionados não está mais na biblioteca.
+293|Esse livro não está mais na biblioteca.
+294|{0} (cópia {1})
+295|O arquivo novo não é um EPUB.
+296|Não foi possível substituir o arquivo.
+298|O banco de dados do Kobo não diz onde está o arquivo deste livro.
+299|Livros da loja Kobo não podem ser copiados do Kobo.
+300|O arquivo não está mais no Kobo ({0}).
+303|A capa original deste livro não foi guardada, então não pode ser restaurada.
+306|O texto deste livro não foi alterado.
+307|Não foi possível restaurar o original
+309|PDF de páginas digitalizadas ou imagens
+310|PDF, grande demais para virar um EPUB
+311|Arquivo {0}, convertido em EPUB
+312|Amarelo
+313|Verde
+314|Azul
+315|Rosa
+316|\nDestaques e notas,
+317|Nota:
+318|Papel
+319|Branco
+320|Sépia
+321|Noite
+322|Preto
+333|Estreito
+334|Médio
+335|Largo
+336|À esquerda
+337|Justificado
+338|Sim
+339|Não
+@ja
+225|doctype が閉じていません
+226|ファイルに中身がありません
+227|ファイルが途中で終わっています
+228|zip ファイルではありません
+229|zip ファイルではありません（ディレクトリがありません）
+230|zip のディレクトリが壊れています
+231|zip の項目が壊れています: {0}
+232|表紙全体を表示し、空いた部分は表紙をぼかしたもので埋めます。
+233|表紙を画面いっぱいに拡大し、はみ出した端を切り取ります。
+234|表紙をそのまま送ります。Kobo では周りに余白が表示されます。
+235|Kobo のデータベースに「content」テーブルがないため、読み取れません。
+236|データベースのバージョンを読み取れませんでした（{0}）。
+237|Kobo の評価を読み取れませんでした（{0}）。
+238|Kobo のデータベースに列 {0} がありません。
+239|ContentID のない本の行が {0} 件あったため、スキップしました。
+240|この Kobo のデータベースにはコレクションのテーブルがありません。
+241|コレクションのテーブルに名前の列がありません。
+242|コレクションの本のテーブルに想定外の列があります。
+243|この Kobo のデータベースにはコレクションの本のテーブルがありません。
+244|コレクションの項目 1 件が、削除されたか見つからないコレクションを指しています（Kobo はこれを無視します）。
+245|Kobo の .kobo フォルダが見つかりません。まだ接続されていますか？
+246|Kobo のデータベースが見つかりません。
+247|Kobo のデータベースが読み込み後に変更されました。先に Kobo をもう一度接続してください。
+248|更新したデータベースを 1 つのファイルにまとめられなかったため、Kobo にコピーしませんでした。
+249|更新したデータベースがチェックに合格しなかったため（{0}）、Kobo にコピーしませんでした。
+250|書き込み中に、更新したデータベースが Kobo から消えました。
+251|更新したデータベースを Kobo から正しく読み戻せなかったため、Kobo の元のデータベースは置き換えていません。
+252|更新したデータベースで Kobo の古いデータベースを置き換えられませんでした。まだ取り出さないでください。もう一度接続して、Kobo の本を確認してください。
+253|コレクションには名前が必要です。
+254|Kobo {0}
+255|リムーバブルドライブ
+256|ドライブを確認しています…
+257|Kobo のドライブを使用できません。Kobo をつないで、画面の「接続」をタップしてください。
+258|そのドライブには .kobo フォルダがないため、Kobo ではないようです。KOBOeReader という名前のドライブの一番上を選んでください。
+259|端末の情報を読み込んでいます…
+260|Kobo のデータベースファイル（KoboReader.sqlite）がありません。Kobo のセットアップは終わっていますか？
+261|Kobo のデータベースをコピーしています… {0}%
+262|本とコレクションを読み込んでいます…
+263|チェックに失敗しました: {0}
+264|Kobo はもう接続されていません。
+265|Kobo のデータベースがありません。
+266|Android で Kobo へのファイル作成が許可されませんでした。
+267|テストファイルを書き込みましたが、読み戻した内容が違いました。Kobo への書き込みは信頼できません。
+268|テストファイルを書き込んで読み戻しましたが、削除できませんでした。非表示で害はありません: {0}。
+269|書き込みは正常です: 64 KB のテストファイルを {0} ms で書き込み、読み戻し、削除しました。
+270|Kobo にアクセスできなくなりました。まだ接続されていますか？
+271|Android でこのアプリに Kobo への書き込みが許可されていません。「この Kobo を削除」を試してから、もう一度接続してください。
+272|書き込みテストに失敗しました: {0}: {1}
+273|Kepub
+274|Kobo 独自の形式です。ページめくりが速く、Kobo で読書の統計が表示されます。
+275|標準の形式です。Kobo では古くて遅いリーダーで開かれます。
+276|kepub に変換できませんでした（{0}）。
+277|Kobo に書き込めませんでした。
+278|Android で Kobo への書き込みが許可されませんでした。
+279|{0} を Kobo のコレクションに入れました。
+280|Kobo で {0} の情報を更新しました。
+281|Kobo でのコレクションの変更を、ライブラリの {0} にコピーしました。
+282|{0} を Kobo から削除済みにしました。
+283|1 冊
+284|ファイルを読み取れませんでした: {0}
+285|ファイルが空です。
+286|KoLib ではこの種類のファイルを開けません。
+287|本にできませんでした。
+288|大きすぎて、この端末では変換できません。
+289|本にできませんでした（{0}）。
+290|EPUB ファイルではありません。
+291|本の情報を読み取れませんでした: {0}
+292|選んだ本の 1 冊がもうライブラリにありません。
+293|その本はもうライブラリにありません。
+294|{0}（コピー {1}）
+295|新しいファイルは EPUB ではありません。
+296|ファイルを置き換えられませんでした。
+298|Kobo のデータベースに、この本のファイルの場所が載っていません。
+299|Kobo ストアの本は Kobo からコピーできません。
+300|ファイルはもう Kobo にありません（{0}）。
+303|この本の元の表紙は保存されていないため、戻せません。
+306|この本の本文は変更されていません。
+307|元に戻せませんでした
+309|スキャンしたページや画像の PDF
+310|PDF（大きすぎて EPUB にできません）
+311|{0} ファイル（EPUB に変換済み）
+312|黄
+313|緑
+314|青
+315|ピンク
+316|\nハイライトとメモ、
+317|メモ:
+318|紙
+319|白
+320|セピア
+321|夜
+322|黒
+333|狭い
+334|中
+335|広い
+336|左揃え
+337|両端揃え
+338|オン
+339|オフ

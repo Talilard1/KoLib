@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.textedit
 
+import dev.kobolibrary.app.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -149,20 +150,20 @@ fun ChaptersPane(
     Column(modifier) {
         Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 8.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("Chapters", style = MaterialTheme.typography.titleMedium)
-                Text("Drag to reorder · ${Fmt.plural(chapters.size, "chapter")}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(tr("Chapters"), style = MaterialTheme.typography.titleMedium)
+                Text(tr("Drag to reorder · {0}", Fmt.plural(chapters.size, "chapter")), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             TextButton(onClick = { onAction(ChapterAction.Add(state.currentPath)) }) {
                 Icon(Icons.Filled.Add, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
-                Text("Add")
+                Text(tr("Add"))
             }
             var menu by remember { mutableStateOf(false) }
             Box {
-                IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, "Table of contents options") }
+                IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, tr("Table of contents options")) }
                 DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                     DropdownMenuItem(
-                        text = { Text("Rebuild contents from headings") },
+                        text = { Text(tr("Rebuild contents from headings")) },
                         leadingIcon = { Icon(Icons.Outlined.Toc, null) },
                         onClick = { menu = false; state.contentsFromHeadings() },
                     )
@@ -256,7 +257,7 @@ private fun ChapterRow(
     ) {
         Row(Modifier.padding(start = 2.dp, top = 6.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(handle.size(40.dp), contentAlignment = Alignment.Center) {
-                Icon(Icons.Filled.DragIndicator, "Drag to reorder", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                Icon(Icons.Filled.DragIndicator, tr("Drag to reorder"), tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Text("$number", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(26.dp))
             Column(Modifier.weight(1f)) {
@@ -270,40 +271,40 @@ private fun ChapterRow(
                 )
                 Text(
                     listOfNotNull(
-                        words?.let { if (it == 1) "1 word" else "%,d words".format(it) },
+                        words?.let { if (it == 1) tr("1 word") else tr("{0} words", "%,d".format(it)) },
                         if (!chapter.linear) "hidden" else null,
-                        if (isStart) "book opens here" else null,
+                        if (isStart) tr("book opens here") else null,
                     ).joinToString(" · "),
                     style = MaterialTheme.typography.labelSmall,
                     color = if (isStart) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
             Box {
-                IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, "Options for “${chapter.title}”") }
+                IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, tr("Options for “{0}”", chapter.title)) }
                 DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
-                    DropdownMenuItem(text = { Text("Rename…") }, leadingIcon = { Icon(Icons.Outlined.DriveFileRenameOutline, null) },
+                    DropdownMenuItem(text = { Text(tr("Rename…")) }, leadingIcon = { Icon(Icons.Outlined.DriveFileRenameOutline, null) },
                         onClick = { menu = false; onAction(ChapterAction.Rename(chapter)) })
-                    DropdownMenuItem(text = { Text("Add chapter after…") }, leadingIcon = { Icon(Icons.Filled.Add, null) },
+                    DropdownMenuItem(text = { Text(tr("Add chapter after…")) }, leadingIcon = { Icon(Icons.Filled.Add, null) },
                         onClick = { menu = false; onAction(ChapterAction.Add(chapter.path)) })
-                    DropdownMenuItem(text = { Text("Split into two…") }, leadingIcon = { Icon(Icons.Outlined.CallSplit, null) },
+                    DropdownMenuItem(text = { Text(tr("Split into two…")) }, leadingIcon = { Icon(Icons.Outlined.CallSplit, null) },
                         onClick = { menu = false; onAction(ChapterAction.Split(chapter)) })
-                    DropdownMenuItem(text = { Text("Join with previous chapter") }, leadingIcon = { Icon(Icons.Outlined.CallMerge, null) }, enabled = !first,
+                    DropdownMenuItem(text = { Text(tr("Join with previous chapter")) }, leadingIcon = { Icon(Icons.Outlined.CallMerge, null) }, enabled = !first,
                         onClick = { menu = false; onAction(ChapterAction.Merge(chapter)) })
-                    DropdownMenuItem(text = { Text("Move up") }, leadingIcon = { Icon(Icons.Outlined.ArrowUpward, null) }, enabled = !first,
+                    DropdownMenuItem(text = { Text(tr("Move up")) }, leadingIcon = { Icon(Icons.Outlined.ArrowUpward, null) }, enabled = !first,
                         onClick = { menu = false; onMove(-1) })
-                    DropdownMenuItem(text = { Text("Move down") }, leadingIcon = { Icon(Icons.Outlined.ArrowDownward, null) }, enabled = !last,
+                    DropdownMenuItem(text = { Text(tr("Move down")) }, leadingIcon = { Icon(Icons.Outlined.ArrowDownward, null) }, enabled = !last,
                         onClick = { menu = false; onMove(1) })
                     HorizontalDivider()
                     DropdownMenuItem(
-                        text = { Text(if (chapter.linear) "Hide (skipped when reading)" else "Show again") },
+                        text = { Text(if (chapter.linear) tr("Hide (skipped when reading)") else tr("Show again")) },
                         leadingIcon = { Icon(if (chapter.linear) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility, null) },
                         onClick = { menu = false; onHide() },
                     )
-                    DropdownMenuItem(text = { Text("Open the book here") }, leadingIcon = { Icon(Icons.Outlined.Flag, null) }, enabled = !isStart,
+                    DropdownMenuItem(text = { Text(tr("Open the book here")) }, leadingIcon = { Icon(Icons.Outlined.Flag, null) }, enabled = !isStart,
                         onClick = { menu = false; onStart() })
                     HorizontalDivider()
                     DropdownMenuItem(
-                        text = { Text("Delete…", color = MaterialTheme.colorScheme.error) },
+                        text = { Text(tr("Delete…"), color = MaterialTheme.colorScheme.error) },
                         leadingIcon = { Icon(Icons.Outlined.Delete, null, tint = MaterialTheme.colorScheme.error) },
                         onClick = { menu = false; onAction(ChapterAction.Delete(chapter)) },
                     )

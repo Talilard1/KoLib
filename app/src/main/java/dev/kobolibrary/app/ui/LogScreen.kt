@@ -2,6 +2,7 @@
 
 package dev.kobolibrary.app.ui
 
+import dev.kobolibrary.app.tr
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.graphics.Color
 import android.content.ClipData
@@ -63,18 +64,18 @@ fun LogScreen(onBack: () -> Unit, onMessage: (String) -> Unit) {
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
-                title = { Text("Log") },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
+                title = { Text(tr("Log")) },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Back")) } },
                 actions = {
-                    IconButton(onClick = { shareLog(context, onMessage) }) { Icon(Icons.Outlined.Share, "Share log file") }
-                    IconButton(onClick = { copyLog(context, onMessage) }) { Icon(Icons.Outlined.ContentCopy, "Copy log") }
-                    IconButton(onClick = { confirmClear = true }) { Icon(Icons.Outlined.DeleteSweep, "Clear log") }
+                    IconButton(onClick = { shareLog(context, onMessage) }) { Icon(Icons.Outlined.Share, tr("Share log file")) }
+                    IconButton(onClick = { copyLog(context, onMessage) }) { Icon(Icons.Outlined.ContentCopy, tr("Copy log")) }
+                    IconButton(onClick = { confirmClear = true }) { Icon(Icons.Outlined.DeleteSweep, tr("Clear log")) }
                 },
             )
         },
     ) { padding ->
         if (entries.isEmpty()) {
-            EmptyState(Icons.AutoMirrored.Outlined.Article, "The log is empty", "The app's activity will be recorded here.", Modifier.padding(padding))
+            EmptyState(Icons.AutoMirrored.Outlined.Article, tr("The log is empty"), tr("The app's activity will be recorded here."), Modifier.padding(padding))
         } else {
             SelectionContainer(Modifier.padding(padding)) {
                 LazyColumn(state = listState, contentPadding = PaddingValues(16.dp), modifier = Modifier.fillMaxSize()) {
@@ -101,10 +102,10 @@ fun LogScreen(onBack: () -> Unit, onMessage: (String) -> Unit) {
     if (confirmClear) {
         AlertDialog(
             onDismissRequest = { confirmClear = false },
-            title = { Text("Clear the log?") },
-            text = { Text("This deletes the whole log, including earlier sessions.") },
-            confirmButton = { TextButton(onClick = { confirmClear = false; AppLog.clear() }) { Text("Clear") } },
-            dismissButton = { TextButton(onClick = { confirmClear = false }) { Text("Cancel") } },
+            title = { Text(tr("Clear the log?")) },
+            text = { Text(tr("This deletes the whole log, including earlier sessions.")) },
+            confirmButton = { TextButton(onClick = { confirmClear = false; AppLog.clear() }) { Text(tr("Clear")) } },
+            dismissButton = { TextButton(onClick = { confirmClear = false }) { Text(tr("Cancel")) } },
         )
     }
 }
@@ -119,16 +120,16 @@ private fun shareLog(context: Context, onMessage: (String) -> Unit) {
             putExtra(Intent.EXTRA_SUBJECT, "KoLib log")
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        context.startActivity(Intent.createChooser(send, "Share log"))
+        context.startActivity(Intent.createChooser(send, tr("Share log")))
     } catch (e: Exception) {
         AppLog.e("Log", "Could not share the log", e)
-        onMessage("Couldn't share the log: ${e.message}")
+        onMessage(tr("Couldn't share the log: {0}", e.message))
     }
 }
 
 private fun copyLog(context: Context, onMessage: (String) -> Unit) {
     val text = AppLog.exportFile(context).readText().takeLast(200_000)
     val clipboard = context.getSystemService(ClipboardManager::class.java)
-    clipboard.setPrimaryClip(ClipData.newPlainText("KoLib log", text))
-    onMessage("Log copied.")
+    clipboard.setPrimaryClip(ClipData.newPlainText(tr("KoLib log"), text))
+    onMessage(tr("Log copied."))
 }

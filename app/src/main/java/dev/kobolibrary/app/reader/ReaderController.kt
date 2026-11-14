@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.reader
 
+import dev.kobolibrary.app.tr
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Handler
@@ -310,7 +311,7 @@ class ReaderController(
     }
 
     /** "Page 45", or with two pages showing, "Pages 45–46". */
-    fun pagesLabel(first: Int, last: Int?): String = if (last != null && last > first) "Pages $first–$last" else "Page $first"
+    fun pagesLabel(first: Int, last: Int?): String = if (last != null && last > first) tr("Pages {0}–{1}", first, last) else tr("Page {0}", first)
 
     /**
      * The pages on screen as their headings show them: their numbers through the book, which side of a

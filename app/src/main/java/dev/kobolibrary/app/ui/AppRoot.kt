@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui
 
+import dev.kobolibrary.app.tr
 import android.content.ActivityNotFoundException
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -193,7 +194,7 @@ fun AppRoot(
             treePicker.launch(vm.openTreeIntent(candidate))
         } catch (e: ActivityNotFoundException) {
             AppLog.e("Kobo", "No folder picker available", e)
-            localMessage = "This device has no folder picker. The app needs one to open the Kobo's storage."
+            localMessage = tr("This device has no folder picker. The app needs one to open the Kobo's storage.")
         }
     }
     val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
@@ -204,7 +205,7 @@ fun AppRoot(
             filePicker.launch(dev.kobolibrary.app.convert.BookFormats.mimeTypes)
         } catch (e: ActivityNotFoundException) {
             AppLog.e("Library", "No file picker available", e)
-            localMessage = "This device has no file picker."
+            localMessage = tr("This device has no file picker.")
         }
     }
     // A folder of books: looked through, then its books added.
@@ -216,7 +217,7 @@ fun AppRoot(
             folderPicker.launch(libraryVm.booksFolder)
         } catch (e: ActivityNotFoundException) {
             AppLog.e("Library", "No folder picker available", e)
-            localMessage = "This device has no folder picker."
+            localMessage = tr("This device has no folder picker.")
         }
     }
     val addFromKobo = {
@@ -248,11 +249,16 @@ fun AppRoot(
             val sent = p.kind == JobKind.SEND
             snackbar.showSnackbar(
                 listOfNotNull(
-                    "${Fmt.plural(p.succeeded, "book")} ${if (sent) "sent" else "added"}.",
-                    p.alreadyThere.takeIf { it > 0 && !sent }?.let { if (it == 1) "1 was already in the library." else "$it were already in the library." },
-                    p.failures.size.takeIf { it > 0 }?.let { "$it couldn't be ${if (sent) "sent" else "added"}. The log has the details." },
-                ).joinToString(" ") + (if (sent && p.succeeded > 0) " Eject the Kobo so it can add them." else "") +
-                    (if (sent && p.coversAfterRestart.isNotEmpty()) " Restart it to see the new covers." else "")
+                    when {
+                        sent && p.succeeded == 1 -> tr("1 book sent.")
+                        sent -> tr("{0} books sent.", p.succeeded)
+                        p.succeeded == 1 -> tr("1 book added.")
+                        else -> tr("{0} books added.", p.succeeded)
+                    },
+                    p.alreadyThere.takeIf { it > 0 && !sent }?.let { if (it == 1) tr("1 was already in the library.") else tr("{0} were already in the library.", it) },
+                    p.failures.size.takeIf { it > 0 }?.let { if (sent) tr("{0} couldn't be sent. The log has the details.", it) else tr("{0} couldn't be added. The log has the details.", it) },
+                ).joinToString(" ") + (if (sent && p.succeeded > 0) tr(" Eject the Kobo so it can add them.") else "") +
+                    (if (sent && p.coversAfterRestart.isNotEmpty()) tr(" Restart it to see the new covers.") else "")
             )
         }
     }
@@ -651,7 +657,7 @@ fun AppRoot(
                         }
                     } catch (e: ActivityNotFoundException) {
                         exporting = null
-                        localMessage = "This device has no way to choose where to save files."
+                        localMessage = tr("This device has no way to choose where to save files.")
                     }
                 },
                 onDismiss = { exportIds = null },
@@ -662,8 +668,8 @@ fun AppRoot(
         // saved (collections of books just sent, say) waits until next time. The Kobo screen has its own notice.
         val elsewhere = section != Section.KOBO || overlay != null
         val busy = making?.let { "$it…" }
-            ?: "Saving to the Kobo… Don't eject it yet.".takeIf { state.syncing && elsewhere }
-            ?: "Checking the Kobo… Don't eject it yet.".takeIf { state.afterConnectRunning && elsewhere }
+            ?: tr("Saving to the Kobo… Don't eject it yet.").takeIf { state.syncing && elsewhere }
+            ?: tr("Checking the Kobo… Don't eject it yet.").takeIf { state.afterConnectRunning && elsewhere }
         busy?.let { what ->
             Surface(
                 color = MaterialTheme.colorScheme.inverseSurface,
@@ -773,7 +779,7 @@ internal fun AppFrame(
                     containerColor = Color.Transparent,
                     header = {
                         Spacer(Modifier.height(10.dp))
-                        KoLibMark(Modifier.size(40.dp).semantics { contentDescription = "KoLib" }, glow = true)
+                        KoLibMark(Modifier.size(40.dp).semantics { contentDescription = tr("KoLib") }, glow = true)
                         Spacer(Modifier.height(18.dp))
                     },
                 ) {
@@ -786,14 +792,14 @@ internal fun AppFrame(
                         selected = section == Section.LIBRARY,
                         onClick = { onSection(Section.LIBRARY) },
                         icon = libraryIcon,
-                        label = { Text("Library") },
+                        label = { Text(tr("Library")) },
                         colors = itemColors,
                     )
                     NavigationRailItem(
                         selected = section == Section.KOBO,
                         onClick = { onSection(Section.KOBO) },
                         icon = koboIcon,
-                        label = { Text("Kobo") },
+                        label = { Text(tr("Kobo")) },
                         colors = itemColors,
                     )
                     if (onLook != null) {
@@ -802,7 +808,7 @@ internal fun AppFrame(
                             selected = false,
                             onClick = onLook,
                             icon = { Icon(Icons.Outlined.Palette, null) },
-                            label = { Text("Theme") },
+                            label = { Text(tr("Theme")) },
                             colors = itemColors,
                         )
                         Spacer(Modifier.height(12.dp))
@@ -847,14 +853,14 @@ internal fun AppFrame(
                                 selected = section == Section.LIBRARY,
                                 onClick = { onSection(Section.LIBRARY) },
                                 icon = libraryIcon,
-                                label = { Text("Library") },
+                                label = { Text(tr("Library")) },
                                 colors = itemColors,
                             )
                             NavigationBarItem(
                                 selected = section == Section.KOBO,
                                 onClick = { onSection(Section.KOBO) },
                                 icon = koboIcon,
-                                label = { Text("Kobo") },
+                                label = { Text(tr("Kobo")) },
                                 colors = itemColors,
                             )
                         }
@@ -883,7 +889,7 @@ fun LookDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Outlined.Palette, null) },
-        title = { Text("App theme") },
+        title = { Text(tr("App theme")) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 if (onLanguage != null) {
@@ -900,7 +906,7 @@ fun LookDialog(
                         Icon(Icons.Outlined.Language, null, Modifier.padding(horizontal = 10.dp))
                         Spacer(Modifier.width(4.dp))
                         Column(Modifier.weight(1f)) {
-                            Text("Language", style = MaterialTheme.typography.titleSmall)
+                            Text(tr("Language"), style = MaterialTheme.typography.titleSmall)
                             Text(language, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
@@ -927,21 +933,21 @@ fun LookDialog(
                 }
                 if (onOpening != null) {
                     HorizontalDivider(Modifier.padding(vertical = 10.dp))
-                    SwitchLine("Opening animation", "Plays when KoLib starts. Tap it to skip.", opening, onOpening)
+                    SwitchLine(tr("Opening animation"), tr("Plays when KoLib starts. Tap it to skip."), opening, onOpening)
                     SwitchLine(
-                        "Opening sound", "Plays with the animation, at your media volume.",
+                        tr("Opening sound"), tr("Plays with the animation, at your media volume."),
                         opening && openingSound, { onOpeningSound?.invoke(it) }, enabled = opening,
                     )
                     if (onOpeningLight != null) {
                         SwitchLine(
-                            "Performance mode", "A lighter animation that runs smoothly on phones. On by default on phones.",
+                            tr("Performance mode"), tr("A lighter animation that runs smoothly on phones. On by default on phones."),
                             opening && openingLight, onOpeningLight, enabled = opening,
                         )
                     }
                 }
             }
         },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Done") } },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(tr("Done")) } },
     )
 }
 

@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui
 
+import dev.kobolibrary.app.tr
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -100,77 +101,76 @@ private fun DeviceCard(view: KoboView) {
     val context = LocalContext.current
     val info = view.info
     SectionCard(info.displayName, icon = Icons.Outlined.TabletAndroid) {
-        InfoRow("Firmware", info.version?.firmware)
-        InfoRow("Serial number", info.version?.serial, selectable = true)
-        InfoRow("Model ID", info.version?.modelId?.takeLast(3))
-        InfoRow("USB ID", info.usbProductId?.let { "0x%04X".format(it) })
-        InfoRow("Database version", view.snapshot.dbVersion.takeIf { it > 0 }?.toString())
-        InfoRow("Drive", listOfNotNull(info.volumeDescription, info.volumeUuid).joinToString(" · ").ifEmpty { null })
+        InfoRow(tr("Firmware"), info.version?.firmware)
+        InfoRow(tr("Serial number"), info.version?.serial, selectable = true)
+        InfoRow(tr("Model ID"), info.version?.modelId?.takeLast(3))
+        InfoRow(tr("USB ID"), info.usbProductId?.let { "0x%04X".format(it) })
+        InfoRow(tr("Database version"), view.snapshot.dbVersion.takeIf { it > 0 }?.toString())
+        InfoRow(tr("Drive"), listOfNotNull(info.volumeDescription, info.volumeUuid).joinToString(" · ").ifEmpty { null })
         val space = if (info.freeBytes != null && info.totalBytes != null) {
-            "${Fmt.bytes(context, info.freeBytes)} free of ${Fmt.bytes(context, info.totalBytes)}"
+            tr("{0} free of {1}", Fmt.bytes(context, info.freeBytes), Fmt.bytes(context, info.totalBytes))
         } else {
-            "Not reported by Android"
+            tr("Not reported by Android")
         }
-        InfoRow(if (view.live) "Storage" else "Storage (when last connected)", space)
-        InfoRow(if (view.live) "Connected" else "Last connected", if (view.live) Fmt.time(view.readAtMillis) else Fmt.dateTime(view.readAtMillis))
+        InfoRow(if (view.live) tr("Storage") else tr("Storage (when last connected)"), space)
+        InfoRow(if (view.live) tr("Connected") else tr("Last connected"), if (view.live) Fmt.time(view.readAtMillis) else Fmt.dateTime(view.readAtMillis))
     }
 }
 
 @Composable
 private fun LibraryCard(view: KoboView) {
     val s = view.snapshot
-    SectionCard("On this Kobo", icon = Icons.Outlined.AutoStories) {
-        InfoRow("Books", "${s.books.size}")
-        InfoRow("Sideloaded", "${s.sideloadedCount}")
-        InfoRow("Kobo Store", "${s.purchasedOnDeviceCount}")
-        if (s.purchasedInCloudCount > 0) InfoRow("Kobo Store, not downloaded", "${s.purchasedInCloudCount}")
-        if (s.previewCount > 0) InfoRow("Previews", "${s.previewCount}")
-        InfoRow("Collections", "${s.collections.size}")
-        InfoRow("Not in any collection", "${s.booksWithoutCollection().size}")
+    SectionCard(tr("On this Kobo"), icon = Icons.Outlined.AutoStories) {
+        InfoRow(tr("Books"), "${s.books.size}")
+        InfoRow(tr("Sideloaded"), "${s.sideloadedCount}")
+        InfoRow(tr("Kobo Store"), "${s.purchasedOnDeviceCount}")
+        if (s.purchasedInCloudCount > 0) InfoRow(tr("Kobo Store, not downloaded"), "${s.purchasedInCloudCount}")
+        if (s.previewCount > 0) InfoRow(tr("Previews"), "${s.previewCount}")
+        InfoRow(tr("Collections"), "${s.collections.size}")
+        InfoRow(tr("Not in any collection"), "${s.booksWithoutCollection().size}")
     }
 }
 
 @Composable
 private fun DatabaseCard(view: KoboView, live: Boolean, state: UiState, onBackupNow: () -> Unit, onOpenBackups: () -> Unit) {
     val context = LocalContext.current
-    SectionCard("Database and backups", icon = Icons.Outlined.Storage) {
-        InfoRow("Size", Fmt.bytes(context, view.databaseBytes))
+    SectionCard(tr("Database and backups"), icon = Icons.Outlined.Storage) {
+        InfoRow(tr("Size"), Fmt.bytes(context, view.databaseBytes))
         val after = state.afterConnect.takeIf { live }
         if (live) InfoRow(
-            "Health check",
+            tr("Health check"),
             when {
-                state.afterConnectRunning -> "Checking…"
-                after == null -> "Not run"
-                after.integrity == "ok" -> "Passed"
+                state.afterConnectRunning -> tr("Checking…")
+                after == null -> tr("Not run")
+                after.integrity == "ok" -> tr("Passed")
                 else -> after.integrity
             },
         )
-        InfoRow("Write-ahead log", if (view.databaseHadWal) "Present" else "None")
+        InfoRow(tr("Write-ahead log"), if (view.databaseHadWal) tr("Present") else tr("None"))
         val latest = state.backups.firstOrNull()
         InfoRow(
-            "Latest backup",
+            tr("Latest backup"),
             when {
-                live && state.afterConnectRunning -> "Backing up…"
-                after?.backupError != null -> "Failed: ${after.backupError}"
-                after?.backup != null -> "Made when you connected (${Fmt.time(after.backup.createdMillis)}), ${Fmt.bytes(context, after.backup.sizeBytes)} zipped"
-                latest != null -> "${Fmt.dateTime(latest.createdMillis)} (no changes since)"
-                else -> "None yet"
+                live && state.afterConnectRunning -> tr("Backing up…")
+                after?.backupError != null -> tr("Failed: {0}", after.backupError)
+                after?.backup != null -> tr("Made when you connected ({0}), {1} zipped", Fmt.time(after.backup.createdMillis), Fmt.bytes(context, after.backup.sizeBytes))
+                latest != null -> tr("{0} (no changes since)", Fmt.dateTime(latest.createdMillis))
+                else -> tr("None yet")
             },
         )
         Spacer(Modifier.height(12.dp))
         Text(
-            "Whenever you connect and the Kobo's database has changed, a zipped copy is saved on this device. " +
-                "The newest ${dev.kobolibrary.app.backup.BackupManager.MAX_BACKUPS} are kept.",
+            tr("Whenever you connect and the Kobo's database has changed, a zipped copy is saved on this device. The newest {0} are kept.", dev.kobolibrary.app.backup.BackupManager.MAX_BACKUPS),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Spacer(Modifier.height(12.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            OutlinedButton(onClick = onBackupNow, enabled = live && state.busyMessage == null) { Text("Back up now") }
+            OutlinedButton(onClick = onBackupNow, enabled = live && state.busyMessage == null) { Text(tr("Back up now")) }
             OutlinedButton(onClick = onOpenBackups) {
                 Icon(Icons.Outlined.Restore, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Backups (${state.backups.size})")
+                Text(tr("Backups ({0})", state.backups.size))
             }
             if (state.busyMessage != null) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
         }
@@ -179,15 +179,14 @@ private fun DatabaseCard(view: KoboView, live: Boolean, state: UiState, onBackup
 
 @Composable
 private fun WriteCard(live: Boolean, state: UiState, onWriteCheck: () -> Unit) {
-    SectionCard("Write access check", icon = Icons.Outlined.EditNote) {
+    SectionCard(tr("Write access check"), icon = Icons.Outlined.EditNote) {
         Text(
-            "Sending books needs write access to the Kobo. " +
-                "This check writes a small hidden test file to the Kobo, reads it back and deletes it. Nothing else changes.",
+            tr("Sending books needs write access to the Kobo. This check writes a small hidden test file to the Kobo, reads it back and deletes it. Nothing else changes."),
             style = MaterialTheme.typography.bodyMedium,
         )
         Spacer(Modifier.height(12.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Button(onClick = onWriteCheck, enabled = live && !state.writeCheckRunning) { Text("Check write access") }
+            Button(onClick = onWriteCheck, enabled = live && !state.writeCheckRunning) { Text(tr("Check write access")) }
             if (state.writeCheckRunning) {
                 Spacer(Modifier.width(12.dp))
                 CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
@@ -210,16 +209,16 @@ private fun WriteCard(live: Boolean, state: UiState, onWriteCheck: () -> Unit) {
 
 @Composable
 private fun DiagnosticsCard(view: KoboView, onOpenLog: () -> Unit) {
-    SectionCard("Diagnostics", icon = Icons.Outlined.Troubleshoot) {
-        view.session?.let { InfoRow("Quick file lookups", if (it.tree.directIdsWork == true) "Working" else "Not used") }
-        InfoRow("Direct file access", if (view.info.directFileAccess) "Available" else "Not available (normal)")
-        InfoRow("Covers loaded", "${view.covers.loadedCount}")
+    SectionCard(tr("Diagnostics"), icon = Icons.Outlined.Troubleshoot) {
+        view.session?.let { InfoRow(tr("Quick file lookups"), if (it.tree.directIdsWork == true) tr("Working") else tr("Not used")) }
+        InfoRow(tr("Direct file access"), if (view.info.directFileAccess) tr("Available") else tr("Not available (normal)"))
+        InfoRow(tr("Covers loaded"), "${view.covers.loadedCount}")
         val warnings = view.snapshot.warnings
         if (warnings.isEmpty()) {
-            InfoRow("Database notes", "Nothing unusual")
+            InfoRow(tr("Database notes"), tr("Nothing unusual"))
         } else {
             Spacer(Modifier.height(6.dp))
-            Text("Database notes", style = MaterialTheme.typography.labelLarge)
+            Text(tr("Database notes"), style = MaterialTheme.typography.labelLarge)
             warnings.forEach {
                 Text("• $it", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 4.dp))
             }
@@ -228,7 +227,7 @@ private fun DiagnosticsCard(view: KoboView, onOpenLog: () -> Unit) {
         OutlinedButton(onClick = onOpenLog) {
             Icon(Icons.AutoMirrored.Outlined.Article, null, Modifier.size(18.dp))
             Spacer(Modifier.width(8.dp))
-            Text("Open log")
+            Text(tr("Open log"))
         }
     }
 }

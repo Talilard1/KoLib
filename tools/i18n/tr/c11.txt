@@ -1,0 +1,826 @@
+@fr
+1150|Aa
+1151|Luminosité
+1152|Faites glisser complètement à gauche pour aller plus sombre que le réglage le plus bas de l’écran. Vous pouvez aussi balayer vers le haut ou le bas le long du bord gauche de la page.
+1153|Utiliser la luminosité du système
+1154|Accorder les images à la couleur de la page
+1155|Titres courants
+1156|Choisissez ci-dessous où vont le numéro de page et les titres.
+1157|Le numéro de page dans le coin, le titre du livre sur les pages de gauche et le titre du chapitre sur les pages de droite, comme dans un livre imprimé.
+1158| Affichés seulement quand on tourne les pages.
+1159|Position du titre
+1160|Titre dans un recueil
+1161|Dans un livre qui en contient plusieurs, afficher le titre de celui que vous lisez, ou celui du recueil entier.
+1162|Infos autour de la page
+1163|Choisissez ce qui s’affiche autour du texte. Touchez une position pour la changer.
+1165|Barre de progression en bas
+1166|Montre la part du livre ou du chapitre que vous avez lue.
+1167|Couleur de la barre
+1168|Atténuée, elle aide à éviter le marquage des écrans OLED. La barre du minuteur du défilement automatique utilise la même couleur.
+1169|Mode de lecture
+1170|Faites défiler chaque chapitre vers le bas. À la fin, touchez Chapitre suivant ou continuez à tirer vers le haut.
+1171|Tournez les pages, comme dans un livre imprimé.
+1172|Pages côte à côte
+1173|Effet de tourne-page
+1174|Pages de titre des chapitres
+1175|Les afficher avec leur chapitre
+1176|Certains livres mettent le numéro ou l’image d’un chapitre sur une page à part. Ce réglage l’affiche plutôt en haut du chapitre.
+1177|Toucher pour tourner les pages
+1178|Touchez le milieu de la page pour ouvrir le menu.
+1179|Taille des zones de toucher sur les bords
+1180|Les boutons de volume tournent les pages
+1181|Garder l’écran allumé pendant la lecture
+1182|Balayer depuis les côtés pour ouvrir les panneaux
+1183|Balayez depuis la gauche pour la table des matières, ou depuis la droite pour les réglages de lecture. Désactivez cette option pour utiliser les côtés pour revenir en arrière.
+1184|Les côtés servent à revenir en arrière. La table des matières et les réglages de lecture sont dans le menu : touchez le milieu de la page.
+1185|Geste retour de KoLib
+1186|Balayez depuis un côté pour revenir en arrière, avec une flèche aux couleurs de l’appli. Relâchez quand la flèche est pleine.
+1187|Le geste retour d’Android est utilisé.
+1188|Rotation de l’écran
+1189|Recherche de mots
+1190|Quand vous rechercherez un mot, on vous demandera quelle appli utiliser.
+1191|Les mots sont recherchés dans {0}.
+1192|L’appli choisie pour rechercher les mots n’est plus installée.
+1193|Demander à chaque fois
+1194|Fait défiler la page pour vous, à votre vitesse de lecture.
+1195|Tourne la page pour vous, à votre vitesse de lecture.
+1196| Pour commencer : touchez le milieu de la page, puis Défilement automatique.
+1197|La plupart des gens lisent de 200 à 300 mots par minute.
+1198|À la fin d’un chapitre
+1199|Quand vous touchez la page
+1200|Ouvrir le menu le met toujours en pause jusqu’à ce que vous le fermiez.
+1201|Aller à la note
+1202|Cette image ne peut pas être affichée.
+1203|Fermer l’image
+1204|Dernière page du chapitre
+1205|1 page restante
+1206|{0} pages restantes
+1207|Moins d’une minute restante
+1208|Batterie
+1209|L’Œil du monde
+1210|Le Début
+1211|Chapitres
+1212|Faites glisser pour réordonner · {0}
+1213|Ajouter
+1214|Options de la table des matières
+1215|Refaire la table des matières à partir des titres
+1216|Faire glisser pour réordonner
+1217|le livre s’ouvre ici
+1218|Options pour « {0} »
+1219|Renommer…
+1220|Ajouter un chapitre après…
+1221|Diviser en deux…
+1222|Joindre au chapitre précédent
+1223|Monter
+1224|Descendre
+1225|Masquer (sauté à la lecture)
+1226|Afficher à nouveau
+1227|Ouvrir le livre ici
+1228|Supprimer…
+1229|Rechercher et remplacer
+1230|Relancer la recherche
+1231|Fermer Rechercher et remplacer
+1232|Nom à trouver
+1233|Rechercher
+1234|Remplacer par
+1235|Mode nom
+1236|Ce chapitre seulement
+1237|Respecter la casse
+1238|Mots entiers
+1239|Motif
+1240|Rouge : probablement le mot ordinaire, pas le nom. Orange : incertain. Balayez ceux que vous voulez ignorer.
+1241|Tout remplacer ({0})
+1242|Tapez quelque chose, puis touchez Rechercher.
+1243| · relancez la recherche pour inclure votre nouveau texte
+1244|Tout rétablir
+1245|Ignorer les {0} qui ne sont probablement pas le nom
+1246|Laisser celui-ci
+1247|Remplacé
+1248|Probablement pas le nom :
+1249|Incertain :
+1250|Cette recherche n’est pas valide.
+1251|Le texte à cet endroit a changé, la recherche a donc été relancée.
+1252|« {0} » remplacé par « {1} »
+1253|C’était le dernier.
+1255|Remplacements : {0}.
+1256| Ignorés car modifiés entre-temps : {0}.
+1257|Saisie dans « {0} »
+1258|Code de « {0} » modifié
+1259|Corrigez d’abord l’erreur dans le code, ou annulez-la. ({0})
+1260|En cours…
+1261|Cela n’a pas fonctionné : {0}
+1262|Quittez le code pour diviser au curseur.
+1263|Placez le curseur dans le paragraphe par lequel le nouveau chapitre doit commencer.
+1264|Ce chapitre n’a pas de texte à diviser.
+1398| Le haut est occupé par les titres courants.
+1399| Le bas est occupé par les titres courants.
+1400|{0} × « {1} » remplacé par « {2} »
+1401|Pages
+@de
+1150|Aa
+1151|Helligkeit
+1152|Schiebe ganz nach links, um dunkler als die niedrigste Einstellung des Bildschirms zu werden. Du kannst auch am linken Rand der Seite nach oben oder unten wischen.
+1153|Systemhelligkeit verwenden
+1154|Bilder an die Seitenfarbe anpassen
+1155|Kolumnentitel
+1156|Wähle unten, wo Seitenzahl und Titel stehen.
+1157|Die Seitenzahl in der Ecke, der Buchtitel auf linken Seiten und der Kapiteltitel auf rechten Seiten, wie in einem gedruckten Buch.
+1158| Nur beim Umblättern zu sehen.
+1159|Position des Titels
+1160|Titel in Sammelbänden
+1161|In einem Buch, das mehrere Bücher enthält, den Titel des Buchs zeigen, das du liest, oder den des ganzen Sammelbands.
+1162|Infos rund um die Seite
+1163|Wähle, was rund um den Text angezeigt wird. Tippe auf eine Position, um sie zu ändern.
+1165|Fortschrittsbalken unten
+1166|Zeigt, wie viel vom Buch oder Kapitel du gelesen hast.
+1167|Balkenfarbe
+1168|„Gedimmt“ hilft, Einbrennen auf OLED-Bildschirmen zu vermeiden. Der Zeitbalken des automatischen Scrollens nutzt dieselbe Farbe.
+1169|Lesemodus
+1170|Scrolle durch jedes Kapitel nach unten. Tippe am Ende auf „Nächstes Kapitel“ oder zieh weiter nach oben.
+1171|Blättere um wie in einem gedruckten Buch.
+1172|Seiten nebeneinander
+1173|Blättereffekt
+1174|Titelseiten von Kapiteln
+1175|Mit ihrem Kapitel zeigen
+1176|Manche Bücher setzen die Nummer oder das Bild eines Kapitels auf eine eigene Seite. Damit wird es stattdessen oben im Kapitel gezeigt.
+1177|Zum Umblättern tippen
+1178|Tippe auf die Mitte der Seite, um das Menü zu öffnen.
+1179|Größe der Tippbereiche an den Rändern
+1180|Lautstärketasten blättern um
+1181|Bildschirm beim Lesen anlassen
+1182|Von den Rändern hereinwischen, um Leisten zu öffnen
+1183|Wische von links herein für den Inhalt oder von rechts für die Leseeinstellungen. Schalte das aus, um die Ränder zum Zurückgehen zu nutzen.
+1184|Die Ränder sind zum Zurückgehen da. Inhalt und Leseeinstellungen sind im Menü: Tippe auf die Mitte der Seite.
+1185|Eigene Zurück-Geste von KoLib
+1186|Wische von einem der Ränder herein, um zurückzugehen, mit einem Pfeil in den Farben der App. Lass los, sobald der Pfeil gefüllt ist.
+1187|Die Zurück-Geste von Android wird verwendet.
+1188|Bildschirmdrehung
+1189|Wörter nachschlagen
+1190|Wenn du ein Wort nachschlägst, wirst du gefragt, welche App verwendet werden soll.
+1191|Wörter werden in {0} nachgeschlagen.
+1192|Die App, die du zum Nachschlagen gewählt hast, ist nicht mehr installiert.
+1193|Jedes Mal fragen
+1194|Scrollt die Seite für dich in deinem Lesetempo.
+1195|Blättert für dich in deinem Lesetempo um.
+1196| Zum Starten: Tippe auf die Mitte der Seite und dann auf „Automatisch scrollen“.
+1197|Die meisten Menschen lesen 200 bis 300 Wörter pro Minute.
+1198|Am Ende eines Kapitels
+1199|Wenn du die Seite berührst
+1200|Das Öffnen des Menüs pausiert es immer, bis du das Menü schließt.
+1201|Zur Anmerkung
+1202|Dieses Bild kann nicht angezeigt werden.
+1203|Bild schließen
+1204|Letzte Seite im Kapitel
+1205|Noch 1 Seite
+1206|Noch {0} Seiten
+1207|Weniger als eine Minute übrig
+1208|Akku
+1209|Das Auge der Welt
+1210|Der Anfang
+1211|Kapitel
+1212|Ziehen zum Umsortieren · {0}
+1213|Hinzufügen
+1214|Optionen für das Inhaltsverzeichnis
+1215|Inhalt aus Überschriften neu erstellen
+1216|Ziehen zum Umsortieren
+1217|Buch öffnet hier
+1218|Optionen für „{0}“
+1219|Umbenennen…
+1220|Kapitel danach hinzufügen…
+1221|In zwei teilen…
+1222|Mit vorherigem Kapitel verbinden
+1223|Nach oben
+1224|Nach unten
+1225|Ausblenden (beim Lesen übersprungen)
+1226|Wieder zeigen
+1227|Buch hier öffnen
+1228|Löschen…
+1229|Suchen und ersetzen
+1230|Erneut suchen
+1231|Suchen und ersetzen schließen
+1232|Gesuchter Name
+1233|Suchen
+1234|Ersetzen durch
+1235|Namensmodus
+1236|Nur dieses Kapitel
+1237|Groß-/Kleinschreibung beachten
+1238|Ganze Wörter
+1239|Muster
+1240|Rot: wahrscheinlich das normale Wort, nicht der Name. Gelb: unsicher. Wische die weg, die du überspringen willst.
+1241|Alle ersetzen ({0})
+1242|Gib etwas ein und tippe dann auf „Suchen“.
+1243| · erneut suchen, um deinen neuen Text einzubeziehen
+1244|Alle zurückholen
+1245|Die {0} überspringen, die wahrscheinlich nicht der Name sind
+1246|Diesen lassen
+1247|Ersetzt
+1248|Wahrscheinlich nicht der Name:
+1249|Unsicher:
+1250|Diese Suche ist ungültig.
+1251|Der Text dort hat sich geändert, deshalb wurde erneut gesucht.
+1252|„{0}“ durch „{1}“ ersetzt
+1253|Das war der letzte.
+1255|Ersetzt: {0}.
+1256| Übersprungen, weil inzwischen geändert: {0}.
+1257|Tippen in „{0}“
+1258|Code von „{0}“ bearbeitet
+1259|Behebe zuerst den Fehler im Code oder mach ihn rückgängig. ({0})
+1260|Wird ausgeführt…
+1261|Das hat nicht geklappt: {0}
+1262|Wechsle vom Code zurück, um am Cursor zu teilen.
+1263|Setze den Cursor in den Absatz, mit dem das neue Kapitel beginnen soll.
+1264|Dieses Kapitel hat keinen Text zum Teilen.
+1398| Oben stehen die Kolumnentitel.
+1399| Unten stehen die Kolumnentitel.
+1400|{0} × „{1}“ durch „{2}“ ersetzt
+1401|Seiten
+@es
+1150|Aa
+1151|Brillo
+1152|Desliza del todo a la izquierda para oscurecer más que el ajuste más bajo de la pantalla. También puedes deslizar hacia arriba o hacia abajo por el borde izquierdo de la página.
+1153|Usar el brillo del sistema
+1154|Adaptar las imágenes al color de la página
+1155|Encabezados de página
+1156|Elige abajo dónde van el número de página y los títulos.
+1157|El número de página en la esquina, el título del libro en las páginas de la izquierda y el título del capítulo en las de la derecha, como en un libro impreso.
+1158| Solo se muestran al pasar páginas.
+1159|Posición del título
+1160|Título en antologías
+1161|En un libro que contiene varios libros, mostrar el título del que estás leyendo o el de toda la antología.
+1162|Información alrededor de la página
+1163|Elige qué mostrar alrededor del texto. Toca una posición para cambiarla.
+1165|Barra de progreso abajo
+1166|Muestra cuánto has leído del libro o del capítulo.
+1167|Color de la barra
+1168|Atenuada ayuda a evitar marcas permanentes en pantallas OLED. La barra del temporizador del desplazamiento automático usa el mismo color.
+1169|Modo de lectura
+1170|Desplázate hacia abajo por cada capítulo. Al final, toca Capítulo siguiente o sigue tirando hacia arriba.
+1171|Pasa páginas, como en un libro impreso.
+1172|Páginas una al lado de otra
+1173|Efecto al pasar página
+1174|Páginas de título de capítulo
+1175|Mostrarlas con su capítulo
+1176|Algunos libros ponen el número o la imagen de un capítulo en una página aparte. Esto la muestra al principio del capítulo.
+1177|Tocar para pasar página
+1178|Toca el centro de la página para abrir el menú.
+1179|Tamaño de las zonas táctiles de los bordes
+1180|Los botones de volumen pasan página
+1181|Mantener la pantalla encendida al leer
+1182|Deslizar desde los lados para abrir paneles
+1183|Desliza desde la izquierda para el índice o desde la derecha para los ajustes de lectura. Desactívalo para usar los lados para volver atrás.
+1184|Los lados sirven para volver atrás. El índice y los ajustes de lectura están en el menú: toca el centro de la página.
+1185|Gesto para volver de KoLib
+1186|Desliza desde cualquier lado para volver atrás, con una flecha con los colores de la app. Suelta cuando la flecha se llene.
+1187|Se usa el gesto para volver de Android.
+1188|Rotación de la pantalla
+1189|Consultar palabras
+1190|Cuando consultes una palabra, se te preguntará qué app usar.
+1191|Las palabras se consultan en {0}.
+1192|La app que elegiste para consultar palabras ya no está instalada.
+1193|Preguntar cada vez
+1194|Desplaza la página por ti a tu velocidad de lectura.
+1195|Pasa la página por ti a tu velocidad de lectura.
+1196| Para empezar: toca el centro de la página y luego Desplazamiento automático.
+1197|La mayoría de la gente lee de 200 a 300 palabras por minuto.
+1198|Al final de un capítulo
+1199|Al tocar la página
+1200|Abrir el menú siempre lo pausa hasta que lo cierres.
+1201|Ir a la nota
+1202|Esta imagen no se puede mostrar.
+1203|Cerrar imagen
+1204|Última página del capítulo
+1205|Queda 1 página
+1206|Quedan {0} páginas
+1207|Queda menos de un minuto
+1208|Batería
+1209|El Ojo del Mundo
+1210|El comienzo
+1211|Capítulos
+1212|Arrastra para reordenar · {0}
+1213|Añadir
+1214|Opciones del índice
+1215|Rehacer el índice a partir de los títulos
+1216|Arrastrar para reordenar
+1217|el libro se abre aquí
+1218|Opciones de «{0}»
+1219|Cambiar nombre…
+1220|Añadir capítulo después…
+1221|Dividir en dos…
+1222|Unir con el capítulo anterior
+1223|Subir
+1224|Bajar
+1225|Ocultar (se omite al leer)
+1226|Volver a mostrar
+1227|Abrir el libro aquí
+1228|Eliminar…
+1229|Buscar y reemplazar
+1230|Volver a buscar
+1231|Cerrar buscar y reemplazar
+1232|Nombre que buscar
+1233|Buscar
+1234|Reemplazar por
+1235|Modo nombre
+1236|Solo este capítulo
+1237|Distinguir mayúsculas
+1238|Palabras completas
+1239|Patrón
+1240|Rojo: probablemente la palabra común, no el nombre. Ámbar: dudoso. Desliza los que quieras omitir.
+1241|Reemplazar todo ({0})
+1242|Escribe algo y toca Buscar.
+1243| · vuelve a buscar para incluir tu texto nuevo
+1244|Recuperar todos
+1245|Omitir los {0} que probablemente no son el nombre
+1246|Dejar este
+1247|Reemplazado
+1248|Probablemente no es el nombre:
+1249|Dudoso:
+1250|Esa búsqueda no es válida.
+1251|El texto de ahí ha cambiado, así que se ha vuelto a buscar.
+1252|Se ha reemplazado «{0}» por «{1}»
+1253|Era el último.
+1255|Reemplazos: {0}.
+1256| Omitidos porque habían cambiado: {0}.
+1257|Escritura en «{0}»
+1258|Código de «{0}» editado
+1259|Primero corrige el error del código o deshazlo. ({0})
+1260|Procesando…
+1261|No ha funcionado: {0}
+1262|Sal del código para dividir en el cursor.
+1263|Pon el cursor en el párrafo con el que debe empezar el nuevo capítulo.
+1264|Este capítulo no tiene texto que dividir.
+1398| La parte de arriba la ocupan los encabezados de página.
+1399| La parte de abajo la ocupan los encabezados de página.
+1400|Se han reemplazado {0} × «{1}» por «{2}»
+1401|Páginas
+@it
+1150|Aa
+1151|Luminosità
+1152|Scorri tutto a sinistra per scurire più dell’impostazione minima dello schermo. Puoi anche scorrere verso l’alto o il basso lungo il bordo sinistro della pagina.
+1153|Usa la luminosità di sistema
+1154|Adatta le immagini al colore della pagina
+1155|Titoli correnti
+1156|Scegli qui sotto dove vanno il numero di pagina e i titoli.
+1157|Il numero di pagina nell’angolo, il titolo del libro sulle pagine di sinistra e il titolo del capitolo su quelle di destra, come in un libro stampato.
+1158| Mostrati solo quando si girano le pagine.
+1159|Posizione del titolo
+1160|Titolo negli omnibus
+1161|In un libro che contiene più libri, mostra il titolo di quello che stai leggendo o quello dell’intero omnibus.
+1162|Informazioni intorno alla pagina
+1163|Scegli cosa mostrare intorno al testo. Tocca una posizione per cambiarla.
+1165|Barra di avanzamento in basso
+1166|Mostra quanto del libro o del capitolo hai letto.
+1167|Colore della barra
+1168|Attenuata aiuta a evitare il burn-in sugli schermi OLED. La barra del timer dello scorrimento automatico usa lo stesso colore.
+1169|Modalità di lettura
+1170|Scorri verso il basso ogni capitolo. Alla fine, tocca Capitolo successivo o continua a tirare verso l’alto.
+1171|Gira le pagine, come in un libro stampato.
+1172|Pagine affiancate
+1173|Effetto di cambio pagina
+1174|Pagine del titolo dei capitoli
+1175|Mostrale con il loro capitolo
+1176|Alcuni libri mettono il numero o l’immagine di un capitolo su una pagina a sé. Così viene mostrata invece all’inizio del capitolo.
+1177|Tocca per girare pagina
+1178|Tocca il centro della pagina per aprire il menu.
+1179|Dimensione delle aree di tocco ai bordi
+1180|I tasti del volume girano le pagine
+1181|Tieni lo schermo acceso durante la lettura
+1182|Scorri dai lati per aprire i pannelli
+1183|Scorri da sinistra per l’indice o da destra per le impostazioni di lettura. Disattiva questa opzione per usare i lati per tornare indietro.
+1184|I lati servono per tornare indietro. L’indice e le impostazioni di lettura sono nel menu: tocca il centro della pagina.
+1185|Gesto Indietro di KoLib
+1186|Scorri da uno dei lati per tornare indietro, con una freccia nei colori dell’app. Rilascia quando la freccia si riempie.
+1187|Viene usato il gesto Indietro di Android.
+1188|Rotazione dello schermo
+1189|Ricerca delle parole
+1190|Quando cerchi una parola, ti verrà chiesto quale app usare.
+1191|Le parole vengono cercate in {0}.
+1192|L’app scelta per cercare le parole non è più installata.
+1193|Chiedi ogni volta
+1194|Fa scorrere la pagina per te alla tua velocità di lettura.
+1195|Gira la pagina per te alla tua velocità di lettura.
+1196| Per iniziare: tocca il centro della pagina, poi Scorrimento automatico.
+1197|La maggior parte delle persone legge da 200 a 300 parole al minuto.
+1198|Alla fine di un capitolo
+1199|Quando tocchi la pagina
+1200|Aprire il menu lo mette sempre in pausa finché non chiudi il menu.
+1201|Vai alla nota
+1202|Questa immagine non può essere mostrata.
+1203|Chiudi immagine
+1204|Ultima pagina del capitolo
+1205|Manca 1 pagina
+1206|Mancano {0} pagine
+1207|Manca meno di un minuto
+1208|Batteria
+1209|L’Occhio del Mondo
+1210|L’inizio
+1211|Capitoli
+1212|Trascina per riordinare · {0}
+1213|Aggiungi
+1214|Opzioni dell’indice
+1215|Ricostruisci l’indice dai titoli
+1216|Trascina per riordinare
+1217|il libro si apre qui
+1218|Opzioni per «{0}»
+1219|Rinomina…
+1220|Aggiungi capitolo dopo…
+1221|Dividi in due…
+1222|Unisci al capitolo precedente
+1223|Sposta su
+1224|Sposta giù
+1225|Nascondi (saltato durante la lettura)
+1226|Mostra di nuovo
+1227|Apri il libro qui
+1228|Elimina…
+1229|Trova e sostituisci
+1230|Cerca di nuovo
+1231|Chiudi Trova e sostituisci
+1232|Nome da trovare
+1233|Trova
+1234|Sostituisci con
+1235|Modalità nome
+1236|Solo questo capitolo
+1237|Maiuscole/minuscole
+1238|Parole intere
+1239|Schema
+1240|Rosso: probabilmente la parola comune, non il nome. Ambra: incerto. Scorri via quelli che vuoi saltare.
+1241|Sostituisci tutti ({0})
+1242|Scrivi qualcosa, poi tocca Trova.
+1243| · cerca di nuovo per includere il nuovo testo
+1244|Ripristina tutti
+1245|Salta i {0} che probabilmente non sono il nome
+1246|Lascia questo
+1247|Sostituito
+1248|Probabilmente non è il nome:
+1249|Incerto:
+1250|Questa ricerca non è valida.
+1251|Il testo lì è cambiato, quindi la ricerca è stata ripetuta.
+1252|«{0}» sostituito con «{1}»
+1253|Era l’ultimo.
+1255|Sostituzioni: {0}.
+1256| Saltati perché cambiati nel frattempo: {0}.
+1257|Digitazione in «{0}»
+1258|Codice di «{0}» modificato
+1259|Prima correggi l’errore nel codice o annullalo. ({0})
+1260|Elaborazione…
+1261|Non ha funzionato: {0}
+1262|Torna dal codice al testo per dividere al cursore.
+1263|Metti il cursore nel paragrafo con cui deve iniziare il nuovo capitolo.
+1264|Questo capitolo non ha testo da dividere.
+1398| La parte in alto è occupata dai titoli correnti.
+1399| La parte in basso è occupata dai titoli correnti.
+1400|{0} × «{1}» sostituito con «{2}»
+1401|Pagine
+@nl
+1150|Aa
+1151|Helderheid
+1152|Schuif helemaal naar links om donkerder te gaan dan de laagste stand van het scherm. Je kunt ook langs de linkerrand van de pagina omhoog of omlaag vegen.
+1153|Systeemhelderheid gebruiken
+1154|Afbeeldingen aanpassen aan de paginakleur
+1155|Paginakoppen
+1156|Kies hieronder waar het paginanummer en de titels komen.
+1157|Het paginanummer in de hoek, de boektitel op linkerpagina’s en de hoofdstuktitel op rechterpagina’s, zoals in een gedrukt boek.
+1158| Alleen zichtbaar bij het omslaan van pagina’s.
+1159|Positie van de titel
+1160|Titel in omnibussen
+1161|In een boek met meerdere boeken de titel tonen van het boek dat je leest, of van de hele omnibus.
+1162|Info rond de pagina
+1163|Kies wat er rond de tekst wordt getoond. Tik op een positie om die te wijzigen.
+1165|Voortgangsbalk onderaan
+1166|Toont hoeveel je van het boek of hoofdstuk hebt gelezen.
+1167|Balkkleur
+1168|Gedimd helpt inbranden op oled-schermen te voorkomen. De timerbalk van automatisch scrollen gebruikt dezelfde kleur.
+1169|Leesmodus
+1170|Scroll omlaag door elk hoofdstuk. Tik aan het einde op Volgend hoofdstuk of blijf omhoog trekken.
+1171|Sla pagina’s om, zoals in een gedrukt boek.
+1172|Pagina’s naast elkaar
+1173|Effect bij omslaan
+1174|Titelpagina’s van hoofdstukken
+1175|Tonen bij hun hoofdstuk
+1176|Sommige boeken zetten het nummer of de afbeelding van een hoofdstuk op een eigen pagina. Dit toont die in plaats daarvan bovenaan het hoofdstuk.
+1177|Tikken om om te slaan
+1178|Tik op het midden van de pagina om het menu te openen.
+1179|Grootte van de tikgebieden aan de randen
+1180|Volumeknoppen slaan om
+1181|Scherm aan laten tijdens het lezen
+1182|Vanaf de zijkanten vegen om panelen te openen
+1183|Veeg vanaf links voor de inhoud, of vanaf rechts voor de leesinstellingen. Zet dit uit om de zijkanten te gebruiken om terug te gaan.
+1184|De zijkanten zijn om terug te gaan. De inhoud en leesinstellingen staan in het menu: tik op het midden van de pagina.
+1185|Eigen terugveeggebaar van KoLib
+1186|Veeg vanaf een van de zijkanten om terug te gaan, met een pijl in de kleuren van de app. Laat los zodra de pijl vol is.
+1187|Het terugveeggebaar van Android wordt gebruikt.
+1188|Schermrotatie
+1189|Woorden opzoeken
+1190|Als je een woord opzoekt, wordt gevraagd welke app je wilt gebruiken.
+1191|Woorden worden opgezocht in {0}.
+1192|De app die je koos om woorden op te zoeken, is niet meer geïnstalleerd.
+1193|Elke keer vragen
+1194|Scrollt de pagina voor je op je leessnelheid.
+1195|Slaat de pagina voor je om op je leessnelheid.
+1196| Om te beginnen: tik op het midden van de pagina en dan op Automatisch scrollen.
+1197|De meeste mensen lezen 200 tot 300 woorden per minuut.
+1198|Aan het einde van een hoofdstuk
+1199|Als je de pagina aanraakt
+1200|Het menu openen pauzeert het altijd tot je het menu sluit.
+1201|Naar de noot
+1202|Deze afbeelding kan niet worden getoond.
+1203|Afbeelding sluiten
+1204|Laatste pagina in hoofdstuk
+1205|Nog 1 pagina
+1206|Nog {0} pagina’s
+1207|Nog minder dan een minuut
+1208|Batterij
+1209|Het Oog van de Wereld
+1210|Het begin
+1211|Hoofdstukken
+1212|Sleep om te ordenen · {0}
+1213|Toevoegen
+1214|Opties voor inhoudsopgave
+1215|Inhoud opnieuw maken uit koppen
+1216|Slepen om te ordenen
+1217|boek opent hier
+1218|Opties voor ‘{0}’
+1219|Naam wijzigen…
+1220|Hoofdstuk toevoegen na…
+1221|In tweeën splitsen…
+1222|Samenvoegen met vorig hoofdstuk
+1223|Omhoog
+1224|Omlaag
+1225|Verbergen (overgeslagen bij lezen)
+1226|Weer tonen
+1227|Het boek hier openen
+1228|Verwijderen…
+1229|Zoeken en vervangen
+1230|Opnieuw zoeken
+1231|Zoeken en vervangen sluiten
+1232|Naam om te zoeken
+1233|Zoeken
+1234|Vervangen door
+1235|Naammodus
+1236|Alleen dit hoofdstuk
+1237|Hoofdlettergevoelig
+1238|Hele woorden
+1239|Patroon
+1240|Rood: waarschijnlijk het gewone woord, niet de naam. Oranje: onzeker. Veeg weg wat je wilt overslaan.
+1241|Alles vervangen ({0})
+1242|Typ iets en tik dan op Zoeken.
+1243| · zoek opnieuw om je nieuwe tekst mee te nemen
+1244|Alles terugzetten
+1245|De {0} overslaan die waarschijnlijk niet de naam zijn
+1246|Deze laten staan
+1247|Vervangen
+1248|Waarschijnlijk niet de naam:
+1249|Onzeker:
+1250|Die zoekopdracht is niet geldig.
+1251|De tekst daar is veranderd, dus er is opnieuw gezocht.
+1252|‘{0}’ vervangen door ‘{1}’
+1253|Dat was de laatste.
+1255|Vervangen: {0}.
+1256| Overgeslagen omdat ze intussen waren veranderd: {0}.
+1257|Typen in ‘{0}’
+1258|Code van ‘{0}’ bewerkt
+1259|Herstel eerst de fout in de code, of maak hem ongedaan. ({0})
+1260|Bezig…
+1261|Dat is niet gelukt: {0}
+1262|Ga terug van de code om bij de cursor te splitsen.
+1263|Zet de cursor in de alinea waarmee het nieuwe hoofdstuk moet beginnen.
+1264|Dit hoofdstuk heeft geen tekst om te splitsen.
+1398| De bovenkant wordt gebruikt door de paginakoppen.
+1399| De onderkant wordt gebruikt door de paginakoppen.
+1400|{0} × ‘{1}’ vervangen door ‘{2}’
+1401|Pagina’s
+@pt
+1150|Aa
+1151|Brilho
+1152|Deslize totalmente para a esquerda para escurecer mais que o nível mínimo da tela. Você também pode deslizar para cima ou para baixo na borda esquerda da página.
+1153|Usar o brilho do sistema
+1154|Ajustar as imagens à cor da página
+1155|Cabeçalhos de página
+1156|Escolha abaixo onde ficam o número da página e os títulos.
+1157|O número da página no canto, o título do livro nas páginas da esquerda e o título do capítulo nas da direita, como em um livro impresso.
+1158| Só aparecem ao virar páginas.
+1159|Posição do título
+1160|Título em coletâneas
+1161|Em um livro que reúne vários livros, mostrar o título do que você está lendo ou o da coletânea inteira.
+1162|Informações em volta da página
+1163|Escolha o que mostrar em volta do texto. Toque em uma posição para mudá-la.
+1165|Barra de progresso embaixo
+1166|Mostra quanto do livro ou do capítulo você já leu.
+1167|Cor da barra
+1168|Esmaecida ajuda a evitar marcas permanentes em telas OLED. A barra do timer da rolagem automática usa a mesma cor.
+1169|Modo de leitura
+1170|Role cada capítulo para baixo. No fim, toque em Próximo capítulo ou continue puxando para cima.
+1171|Vire as páginas, como em um livro impresso.
+1172|Páginas lado a lado
+1173|Efeito de virar página
+1174|Páginas de título de capítulo
+1175|Mostrar junto com o capítulo
+1176|Alguns livros colocam o número ou a imagem de um capítulo em uma página própria. Isso a mostra no início do capítulo.
+1177|Tocar para virar a página
+1178|Toque no meio da página para abrir o menu.
+1179|Tamanho das áreas de toque nas bordas
+1180|Os botões de volume viram a página
+1181|Manter a tela ligada durante a leitura
+1182|Deslizar das laterais para abrir painéis
+1183|Deslize da esquerda para o sumário ou da direita para as configurações de leitura. Desative para usar as laterais para voltar.
+1184|As laterais servem para voltar. O sumário e as configurações de leitura estão no menu: toque no meio da página.
+1185|Gesto de voltar do KoLib
+1186|Deslize de qualquer lateral para voltar, com uma seta nas cores do app. Solte quando a seta ficar cheia.
+1187|O gesto de voltar do Android é usado.
+1188|Rotação da tela
+1189|Consultar palavras
+1190|Quando você consultar uma palavra, vai ser perguntado qual app usar.
+1191|As palavras são consultadas no {0}.
+1192|O app que você escolheu para consultar palavras não está mais instalado.
+1193|Perguntar sempre
+1194|Rola a página para você na sua velocidade de leitura.
+1195|Vira a página para você na sua velocidade de leitura.
+1196| Para começar: toque no meio da página e depois em Rolagem automática.
+1197|A maioria das pessoas lê de 200 a 300 palavras por minuto.
+1198|No fim de um capítulo
+1199|Quando você toca na página
+1200|Abrir o menu sempre a pausa até você fechar o menu.
+1201|Ir para a nota
+1202|Esta imagem não pode ser mostrada.
+1203|Fechar imagem
+1204|Última página do capítulo
+1205|Falta 1 página
+1206|Faltam {0} páginas
+1207|Falta menos de um minuto
+1208|Bateria
+1209|O Olho do Mundo
+1210|O começo
+1211|Capítulos
+1212|Arraste para reordenar · {0}
+1213|Adicionar
+1214|Opções do sumário
+1215|Refazer o sumário a partir dos títulos
+1216|Arrastar para reordenar
+1217|o livro abre aqui
+1218|Opções de “{0}”
+1219|Renomear…
+1220|Adicionar capítulo depois…
+1221|Dividir em dois…
+1222|Juntar com o capítulo anterior
+1223|Mover para cima
+1224|Mover para baixo
+1225|Ocultar (pulado na leitura)
+1226|Mostrar de novo
+1227|Abrir o livro aqui
+1228|Excluir…
+1229|Localizar e substituir
+1230|Pesquisar de novo
+1231|Fechar localizar e substituir
+1232|Nome a localizar
+1233|Localizar
+1234|Substituir por
+1235|Modo nome
+1236|Só este capítulo
+1237|Diferenciar maiúsculas
+1238|Palavras inteiras
+1239|Padrão
+1240|Vermelho: provavelmente a palavra comum, não o nome. Âmbar: incerto. Deslize para tirar os que quiser pular.
+1241|Substituir todos ({0})
+1242|Digite algo e toque em Localizar.
+1243| · pesquise de novo para incluir o texto novo
+1244|Trazer todos de volta
+1245|Pular os {0} que provavelmente não são o nome
+1246|Deixar este
+1247|Substituído
+1248|Provavelmente não é o nome:
+1249|Incerto:
+1250|Essa pesquisa não é válida.
+1251|O texto ali mudou, então a pesquisa foi feita de novo.
+1252|“{0}” substituído por “{1}”
+1253|Esse era o último.
+1255|Substituições: {0}.
+1256| Pulados porque tinham mudado: {0}.
+1257|Digitação em “{0}”
+1258|Código de “{0}” editado
+1259|Corrija o erro no código primeiro, ou desfaça. ({0})
+1260|Processando…
+1261|Não funcionou: {0}
+1262|Saia do código para dividir no cursor.
+1263|Coloque o cursor no parágrafo com que o novo capítulo deve começar.
+1264|Este capítulo não tem texto para dividir.
+1398| A parte de cima é ocupada pelos cabeçalhos de página.
+1399| A parte de baixo é ocupada pelos cabeçalhos de página.
+1400|{0} × “{1}” substituído por “{2}”
+1401|Páginas
+@ja
+1150|Aa
+1151|明るさ
+1152|左端まで動かすと、画面の最低の明るさよりさらに暗くできます。ページの左端を上下にスワイプしても調整できます。
+1153|システムの明るさを使う
+1154|画像をページの色に合わせる
+1155|ページの柱
+1156|ページ番号やタイトルの位置は下で選べます。
+1157|ページ番号は角に、本のタイトルは左ページに、章のタイトルは右ページに表示します。印刷された本と同じです。
+1158| ページめくりのときだけ表示されます。
+1159|タイトルの位置
+1160|合本のタイトル
+1161|複数の本をまとめた本で、読んでいる本のタイトルと合本全体のタイトルのどちらを表示するかを選びます。
+1162|ページまわりの情報
+1163|本文のまわりに表示するものを選びます。位置をタップすると変更できます。
+1165|下部の進捗バー
+1166|本や章をどれだけ読んだかを表示します。
+1167|バーの色
+1168|「控えめ」にすると、有機 EL 画面の焼き付きを防ぎやすくなります。自動スクロールのタイマーバーも同じ色になります。
+1169|読み方
+1170|各章を下にスクロールして読みます。章の最後で「次の章」をタップするか、そのまま上に引き続けます。
+1171|印刷された本のようにページをめくって読みます。
+1172|2 ページ並べて表示
+1173|ページめくりの効果
+1174|章の扉ページ
+1175|章と一緒に表示する
+1176|章の番号や画像を独立したページに置いている本があります。これをオンにすると、章の先頭に表示します。
+1177|タップでページをめくる
+1178|ページの中央をタップするとメニューが開きます。
+1179|端のタップ領域の大きさ
+1180|音量ボタンでページをめくる
+1181|読書中は画面をオンのままにする
+1182|端からスワイプしてパネルを開く
+1183|左端からスワイプで目次、右端からスワイプで読書の設定が開きます。端を「戻る」操作に使うにはオフにしてください。
+1184|端は「戻る」操作に使います。目次と読書の設定はメニューにあります（ページの中央をタップ）。
+1185|KoLib の戻るスワイプ
+1186|左右どちらかの端からスワイプすると戻ります。アプリの色の矢印が表示され、矢印が満ちたら指を離します。
+1187|Android の戻るスワイプを使います。
+1188|画面の回転
+1189|単語を調べる
+1190|単語を調べるときに、使うアプリを毎回選びます。
+1191|単語は {0} で調べます。
+1192|単語を調べるために選んだアプリは、今はインストールされていません。
+1193|毎回確認する
+1194|読む速さに合わせてページを自動でスクロールします。
+1195|読む速さに合わせてページを自動でめくります。
+1196| 始めるには、ページの中央をタップしてから「自動スクロール」をタップします。
+1197|多くの人は 1 分間に 200～300 語を読みます。
+1198|章の最後で
+1199|ページに触れたとき
+1200|メニューを開くと、閉じるまで必ず一時停止します。
+1201|注へ移動
+1202|この画像は表示できません。
+1203|画像を閉じる
+1204|章の最後のページ
+1205|残り 1 ページ
+1206|残り {0} ページ
+1207|残り 1 分未満
+1208|バッテリー
+1209|世界の眼
+1210|はじまり
+1211|章
+1212|ドラッグで並べ替え · {0}
+1213|追加
+1214|目次のオプション
+1215|見出しから目次を作り直す
+1216|ドラッグで並べ替え
+1217|ここから開く
+1218|「{0}」のオプション
+1219|名前を変更…
+1220|後ろに章を追加…
+1221|2 つに分割…
+1222|前の章とつなげる
+1223|上へ移動
+1224|下へ移動
+1225|非表示（読書中は飛ばす）
+1226|再表示
+1227|ここから本を開くようにする
+1228|削除…
+1229|検索と置換
+1230|もう一度検索
+1231|検索と置換を閉じる
+1232|探す名前
+1233|検索
+1234|置換後の文字
+1235|名前モード
+1236|この章のみ
+1237|大文字と小文字を区別
+1238|単語単位
+1239|パターン
+1240|赤: 名前ではなく普通の単語の可能性が高いもの。黄: はっきりしないもの。飛ばしたいものはスワイプで外してください。
+1241|すべて置換（{0}）
+1242|何か入力してから「検索」をタップしてください。
+1243| · 新しく入力した文字も含めるにはもう一度検索
+1244|すべて戻す
+1245|名前ではなさそうな {0} 件を飛ばす
+1246|これはそのまま
+1247|置換済み
+1248|名前ではなさそう:
+1249|不明:
+1250|その検索は正しくありません。
+1251|その場所の文字が変わっていたため、もう一度検索しました。
+1252|「{0}」を「{1}」に置換
+1253|これが最後でした。
+1255|{0} 件を置換しました。
+1256| {0} 件は変更されていたため飛ばしました。
+1257|「{0}」への入力
+1258|「{0}」のコードを編集
+1259|先にコードの誤りを直すか、元に戻してください。（{0}）
+1260|処理しています…
+1261|うまくいきませんでした: {0}
+1262|カーソル位置で分割するには、コードから本文に戻ってください。
+1263|新しい章を始めたい段落にカーソルを置いてください。
+1264|この章には分割できる本文がありません。
+1398| 上部はページの柱が使っています。
+1399| 下部はページの柱が使っています。
+1400|「{1}」{0} 件を「{2}」に置換
+1401|ページめくり

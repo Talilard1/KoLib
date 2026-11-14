@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.library
 
+import dev.kobolibrary.app.tr
 import android.app.Activity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -48,29 +49,29 @@ fun FolderScanDialog(scan: FolderScan, onAdd: () -> Unit, onChooseAnother: () ->
                 is FolderScan.Looking -> Row(verticalAlignment = Alignment.CenterVertically) {
                     CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
                     Spacer(Modifier.width(12.dp))
-                    Text(if (scan.found == 0) "Looking for books…" else "Looking for books… ${Fmt.plural(scan.found, "book")} so far.")
+                    Text(if (scan.found == 0) tr("Looking for books…") else tr("Looking for books… {0} so far.", Fmt.plural(scan.found, "book")))
                 }
                 is FolderScan.Found -> Text(
                     when (scan.books.size) {
-                        0 -> "There are no books in this folder, or in the folders inside it."
-                        1 -> "There's 1 book in this folder. If it's in your library already, it's left as it is."
-                        else -> "There are ${scan.books.size} books in this folder and the folders inside it. Books already in your library are left as they are."
+                        0 -> tr("There are no books in this folder, or in the folders inside it.")
+                        1 -> tr("There's 1 book in this folder. If it's in your library already, it's left as it is.")
+                        else -> tr("There are {0} books in this folder and the folders inside it. Books already in your library are left as they are.", scan.books.size)
                     },
                 )
-                is FolderScan.Failed -> Text("KoLib couldn't look in this folder. Choose it again, or another one.")
+                is FolderScan.Failed -> Text(tr("KoLib couldn't look in this folder. Choose it again, or another one."))
                 is FolderScan.Adding -> Unit
             }
         },
         confirmButton = {
             when {
                 found != null && found.books.isNotEmpty() -> TextButton(onClick = onAdd) {
-                    Text(if (found.books.size == 1) "Add 1 book" else "Add ${found.books.size} books")
+                    Text(if (found.books.size == 1) tr("Add 1 book") else tr("Add {0} books", found.books.size))
                 }
                 scan is FolderScan.Looking -> Unit
-                else -> TextButton(onClick = onChooseAnother) { Text("Choose another folder") }
+                else -> TextButton(onClick = onChooseAnother) { Text(tr("Choose another folder")) }
             }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Cancel")) } },
     )
 }
 
@@ -83,7 +84,7 @@ fun LanguageDialog(onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Outlined.Language, null) },
-        title = { Text("Language") },
+        title = { Text(tr("Language")) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()).selectableGroup()) {
                 for (tag in AppLanguage.supported) {
@@ -113,6 +114,6 @@ fun LanguageDialog(onDismiss: () -> Unit) {
                 }
             }
         },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Done") } },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(tr("Done")) } },
     )
 }

@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.library
 
+import dev.kobolibrary.app.tr
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.runtime.getValue
@@ -12,25 +13,25 @@ import dev.kobolibrary.app.reader.ReadHere
 import dev.kobolibrary.app.ui.BookSorting
 
 enum class LibraryFilter(val label: String) {
-    ALL("All"),
-    ON_KOBO("On Kobo"),
-    NOT_ON_KOBO("Not on Kobo"),
-    CHANGED("Changed since sent"),
+    ALL(tr("All")),
+    ON_KOBO(tr("On Kobo")),
+    NOT_ON_KOBO(tr("Not on Kobo")),
+    CHANGED(tr("Changed since sent")),
 }
 
 /** Sort orders, each with the direction it starts in and how its two directions read. */
 enum class LibrarySort(val label: String, val startsDescending: Boolean, val ascending: String, val descending: String) {
-    TITLE("Title", false, "A to Z", "Z to A"),
-    AUTHOR("Author", false, "A to Z", "Z to A"),
-    SERIES("Series", false, "A to Z", "Z to A"),
-    PUBLISHED("Published", true, "oldest first", "newest first"),
-    ADDED("Date added", true, "oldest first", "newest first"),
-    EDITED("Last edited", true, "oldest first", "newest first"),
-    SIZE("File size", true, "smallest first", "largest first"),
-    PAGES("Pages", true, "shortest first", "longest first"),
-    RATING("Rating", true, "lowest first", "highest first"),
-    LAST_READ("Last read on Kobo", true, "least recent first", "most recent first"),
-    READ_HERE("Last read on this device", true, "least recent first", "most recent first"),
+    TITLE(tr("Title"), false, tr("A to Z"), tr("Z to A")),
+    AUTHOR(tr("Author"), false, tr("A to Z"), tr("Z to A")),
+    SERIES(tr("Series"), false, tr("A to Z"), tr("Z to A")),
+    PUBLISHED(tr("Published"), true, tr("oldest first"), tr("newest first")),
+    ADDED(tr("Date added"), true, tr("oldest first"), tr("newest first")),
+    EDITED(tr("Last edited"), true, tr("oldest first"), tr("newest first")),
+    SIZE(tr("File size"), true, tr("smallest first"), tr("largest first")),
+    PAGES(tr("Pages"), true, tr("shortest first"), tr("longest first")),
+    RATING(tr("Rating"), true, tr("lowest first"), tr("highest first")),
+    LAST_READ(tr("Last read on Kobo"), true, tr("least recent first"), tr("most recent first")),
+    READ_HERE(tr("Last read on this device"), true, tr("least recent first"), tr("most recent first")),
 }
 
 /** Library list settings and scroll positions, kept while moving around the app. */

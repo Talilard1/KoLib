@@ -2,6 +2,7 @@
 
 package dev.kobolibrary.app.ui.edit
 
+import dev.kobolibrary.app.tr
 import dev.kobolibrary.app.ui.components.GoldButton
 import androidx.compose.ui.graphics.Color
 import androidx.activity.compose.BackHandler
@@ -131,10 +132,10 @@ fun EditDetailsScreen(
         containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
-                navigationIcon = { IconButton(onClick = tryClose) { Icon(Icons.Filled.Close, "Close") } },
+                navigationIcon = { IconButton(onClick = tryClose) { Icon(Icons.Filled.Close, tr("Close")) } },
                 title = {
                     Column {
-                        Text("Edit details")
+                        Text(tr("Edit details"))
                         Text(
                             book.title,
                             style = MaterialTheme.typography.bodySmall,
@@ -153,7 +154,7 @@ fun EditDetailsScreen(
                         onClick = { onSave(draft.toMetadata(), draft.collectionList()) },
                         enabled = canSave,
                         modifier = Modifier.padding(end = 12.dp),
-                    ) { Text("Save") }
+                    ) { Text(tr("Save")) }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             )
@@ -186,7 +187,7 @@ fun EditDetailsScreen(
                             LibraryCover(book, covers, large = true, modifier = Modifier.fillMaxWidth())
                             Spacer(Modifier.height(10.dp))
                             Text(
-                                "To change the cover, tap Change cover on the book's page.",
+                                tr("To change the cover, tap Change cover on the book's page."),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -202,7 +203,7 @@ fun EditDetailsScreen(
                         DescriptionCard(draft.description, onEdit = { editingDescription = true })
                         book.meta.identifier?.let {
                             Text(
-                                "Book identifier: $it",
+                                tr("Book identifier: {0}", it),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(start = 4.dp, bottom = 24.dp),
@@ -243,15 +244,15 @@ fun EditDetailsScreen(
     if (confirmDiscard) {
         AlertDialog(
             onDismissRequest = { confirmDiscard = false },
-            title = { Text("Discard your changes?") },
-            text = { Text("The book's details won't change.") },
+            title = { Text(tr("Discard your changes?")) },
+            text = { Text(tr("The book's details won't change.")) },
             confirmButton = {
                 TextButton(onClick = {
                     confirmDiscard = false
                     onClose()
-                }) { Text("Discard") }
+                }) { Text(tr("Discard")) }
             },
-            dismissButton = { TextButton(onClick = { confirmDiscard = false }) { Text("Keep editing") } },
+            dismissButton = { TextButton(onClick = { confirmDiscard = false }) { Text(tr("Keep editing")) } },
         )
     }
 }
@@ -263,7 +264,7 @@ private fun ProblemBanner(problems: List<String>) {
             Icon(Icons.Outlined.ErrorOutline, null, tint = MaterialTheme.colorScheme.onErrorContainer)
             Spacer(Modifier.width(12.dp))
             Column {
-                Text("Fix these problems to save:", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onErrorContainer)
+                Text(tr("Fix these problems to save:"), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onErrorContainer)
                 problems.forEach { Text("• $it", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onErrorContainer) }
             }
         }
@@ -277,11 +278,11 @@ private fun Caption(text: String, modifier: Modifier = Modifier) {
 
 @Composable
 private fun TitleAndAuthors(draft: DetailsDraft, suggestions: EditSuggestions, onEditAuthor: (Int) -> Unit) {
-    SectionCard("Title and authors") {
+    SectionCard(tr("Title and authors")) {
         OutlinedTextField(
             value = draft.title,
             onValueChange = { draft.title = it },
-            label = { Text("Title") },
+            label = { Text(tr("Title")) },
             singleLine = true,
             isError = draft.titleProblem != null,
             supportingText = draft.titleProblem?.let { { Text(it) } },
@@ -291,8 +292,8 @@ private fun TitleAndAuthors(draft: DetailsDraft, suggestions: EditSuggestions, o
         val manualSort = draft.titleSort
         if (manualSort == null) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Caption("Sorted as “${Names.titleSort(draft.title)}”", Modifier.weight(1f, fill = false))
-                TextButton(onClick = { draft.titleSort = Names.titleSort(draft.title) }) { Text("Change") }
+                Caption(tr("Sorted as “{0}”", Names.titleSort(draft.title)), Modifier.weight(1f, fill = false))
+                TextButton(onClick = { draft.titleSort = Names.titleSort(draft.title) }) { Text(tr("Change")) }
             }
         } else {
             Spacer(Modifier.height(8.dp))
@@ -300,42 +301,42 @@ private fun TitleAndAuthors(draft: DetailsDraft, suggestions: EditSuggestions, o
                 OutlinedTextField(
                     value = manualSort,
                     onValueChange = { draft.titleSort = it },
-                    label = { Text("Sort as") },
+                    label = { Text(tr("Sort as")) },
                     singleLine = true,
                     modifier = Modifier.weight(1f),
                 )
-                TextButton(onClick = { draft.titleSort = null }, modifier = Modifier.padding(start = 8.dp)) { Text("Reset") }
+                TextButton(onClick = { draft.titleSort = null }, modifier = Modifier.padding(start = 8.dp)) { Text(tr("Reset")) }
             }
         }
         Spacer(Modifier.height(16.dp))
-        Text("Authors", style = MaterialTheme.typography.titleSmall)
+        Text(tr("Authors"), style = MaterialTheme.typography.titleSmall)
         Spacer(Modifier.height(8.dp))
         ChipsField(
             values = draft.authors,
             onAdd = { draft.authors.add(it) },
             onRemove = { draft.authors.removeAt(it) },
             suggestions = suggestions.authors,
-            addLabel = "Add an author",
-            newItemLabel = { "Add “$it”" },
+            addLabel = tr("Add an author"),
+            newItemLabel = { tr("Add “{0}”", it) },
             chipIcon = Icons.Outlined.Person,
-            emptyText = "No author. The Kobo will show “Unknown author”.",
+            emptyText = tr("No author. The Kobo will show “Unknown author”."),
             commitOnComma = false,
             onChipClick = onEditAuthor,
         )
         if (draft.authors.isNotEmpty()) {
-            Caption("Tap an author to edit their name, change how it's sorted, or make them the first author.", Modifier.padding(top = 6.dp))
+            Caption(tr("Tap an author to edit their name, change how it's sorted, or make them the first author."), Modifier.padding(top = 6.dp))
         }
     }
 }
 
 @Composable
 private fun SeriesCard(draft: DetailsDraft, suggestions: EditSuggestions, roomy: Boolean) {
-    SectionCard("Series") {
+    SectionCard(tr("Series")) {
         val name: @Composable (Modifier) -> Unit = { m ->
             SuggestField(
                 value = draft.series,
                 onValueChange = { draft.series = it },
-                label = "Series",
+                label = tr("Series"),
                 suggestions = suggestions.series,
                 modifier = m,
             )
@@ -359,27 +360,27 @@ private fun SeriesCard(draft: DetailsDraft, suggestions: EditSuggestions, roomy:
             Spacer(Modifier.height(8.dp))
             number()
         }
-        if (draft.series.isBlank()) Caption("Not in a series.", Modifier.padding(top = 4.dp))
+        if (draft.series.isBlank()) Caption(tr("Not in a series."), Modifier.padding(top = 4.dp))
     }
 }
 
 @Composable
 private fun CollectionsCard(draft: DetailsDraft, suggestions: EditSuggestions, onKobo: Boolean) {
-    SectionCard("Kobo collections", icon = Icons.Outlined.CollectionsBookmark) {
+    SectionCard(tr("Kobo collections"), icon = Icons.Outlined.CollectionsBookmark) {
         ChipsField(
             values = draft.collections,
             onAdd = { draft.collections.add(it) },
             onRemove = { draft.collections.removeAt(it) },
             suggestions = suggestions.collections,
-            addLabel = "Add to a collection",
-            newItemLabel = { "New collection “$it”" },
+            addLabel = tr("Add to a collection"),
+            newItemLabel = { tr("New collection “{0}”", it) },
             chipIcon = null,
-            emptyText = "Not in any collection yet.",
-            chipBadge = { i -> if (draft.collections[i].lowercase() !in suggestions.onKobo && suggestions.onKobo.isNotEmpty()) "new" else null },
+            emptyText = tr("Not in any collection yet."),
+            chipBadge = { i -> if (draft.collections[i].lowercase() !in suggestions.onKobo && suggestions.onKobo.isNotEmpty()) tr("not on the Kobo") else null },
         )
         Caption(
-            if (onKobo) "The book's collections on your Kobo. Changes are made on the Kobo when you send the book."
-            else "When you send the book to your Kobo, it's added to these collections. Pick existing ones, or type a new name.",
+            if (onKobo) tr("The book's collections on your Kobo. Changes are made on the Kobo when you send the book.")
+            else tr("When you send the book to your Kobo, it's added to these collections. KoLib can't make new collections on the Kobo, so make any that are missing there first."),
             Modifier.padding(top = 6.dp),
         )
     }
@@ -387,16 +388,16 @@ private fun CollectionsCard(draft: DetailsDraft, suggestions: EditSuggestions, o
 
 @Composable
 private fun TagsCard(draft: DetailsDraft, suggestions: EditSuggestions) {
-    SectionCard("Tags", icon = Icons.Outlined.LocalOffer) {
+    SectionCard(tr("Tags"), icon = Icons.Outlined.LocalOffer) {
         ChipsField(
             values = draft.tags,
             onAdd = { draft.tags.add(it) },
             onRemove = { draft.tags.removeAt(it) },
             suggestions = suggestions.tags,
-            addLabel = "Add a tag",
-            newItemLabel = { "New tag “$it”" },
+            addLabel = tr("Add a tag"),
+            newItemLabel = { tr("New tag “{0}”", it) },
             chipIcon = null,
-            emptyText = "No tags.",
+            emptyText = tr("No tags."),
         )
         Caption("Tags are saved inside the book file, where Calibre and other apps can see them. The Kobo doesn't use tags; it uses collections.", Modifier.padding(top = 6.dp))
     }
@@ -404,9 +405,9 @@ private fun TagsCard(draft: DetailsDraft, suggestions: EditSuggestions) {
 
 @Composable
 private fun MoreDetailsCard(draft: DetailsDraft, suggestions: EditSuggestions, roomy: Boolean) {
-    SectionCard("More details") {
+    SectionCard(tr("More details")) {
         val publisher: @Composable (Modifier) -> Unit = { m ->
-            SuggestField(draft.publisher, { draft.publisher = it }, "Publisher", suggestions.publishers, m)
+            SuggestField(draft.publisher, { draft.publisher = it }, tr("Publisher"), suggestions.publishers, m)
         }
         val published: @Composable (Modifier) -> Unit = { m ->
             PublishedField(draft.published, { draft.published = it }, draft.publishedProblem, m)
@@ -442,17 +443,17 @@ private fun MoreDetailsCard(draft: DetailsDraft, suggestions: EditSuggestions, r
             isbn(Modifier.fillMaxWidth())
         }
         Spacer(Modifier.height(12.dp))
-        Text("Your rating", style = MaterialTheme.typography.titleSmall)
+        Text(tr("Your rating"), style = MaterialTheme.typography.titleSmall)
         RatingField(draft.rating) { draft.rating = it }
     }
 }
 
 @Composable
 private fun DescriptionCard(html: String?, onEdit: () -> Unit) {
-    SectionCard("Description") {
+    SectionCard(tr("Description")) {
         val text = remember(html) { html?.let { descriptionText(it) } }
         if (text == null || text.isBlank()) {
-            Caption("No description yet.")
+            Caption(tr("No description yet."))
         } else {
             Text(text, style = MaterialTheme.typography.bodyMedium, maxLines = 12, overflow = TextOverflow.Ellipsis)
         }
@@ -460,7 +461,7 @@ private fun DescriptionCard(html: String?, onEdit: () -> Unit) {
         OutlinedButton(onClick = onEdit) {
             Icon(Icons.Outlined.Edit, null, Modifier.size(18.dp))
             Spacer(Modifier.width(8.dp))
-            Text(if (text == null || text.isBlank()) "Write a description" else "Edit description")
+            Text(if (text == null || text.isBlank()) tr("Write a description") else tr("Edit description"))
         }
     }
 }
@@ -480,7 +481,7 @@ private fun AuthorDialog(
     var sortFollowsName by remember { mutableStateOf(sortName == Names.authorSort(name)) }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Author") },
+        title = { Text(tr("Author")) },
         text = {
             Column {
                 OutlinedTextField(
@@ -489,7 +490,7 @@ private fun AuthorDialog(
                         newName = it
                         if (sortFollowsName) sort = Names.authorSort(it)
                     },
-                    label = { Text("Name") },
+                    label = { Text(tr("Name")) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
                     modifier = Modifier.fillMaxWidth(),
@@ -501,20 +502,20 @@ private fun AuthorDialog(
                         sort = it
                         sortFollowsName = false
                     },
-                    label = { Text("Sort as") },
-                    supportingText = { Text("Used when books are sorted by author, like “Doyle, Arthur Conan”.") },
+                    label = { Text(tr("Sort as")) },
+                    supportingText = { Text(tr("Used when books are sorted by author, like “Doyle, Arthur Conan”.")) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    if (!isFirst) TextButton(onClick = onMakeFirst) { Text("Make first author") }
-                    TextButton(onClick = onRemove) { Text("Remove", color = MaterialTheme.colorScheme.error) }
+                    if (!isFirst) TextButton(onClick = onMakeFirst) { Text(tr("Make first author")) }
+                    TextButton(onClick = onRemove) { Text(tr("Remove"), color = MaterialTheme.colorScheme.error) }
                 }
             }
         },
         confirmButton = {
-            TextButton(onClick = { onSave(newName, sort) }, enabled = newName.isNotBlank()) { Text("Done") }
+            TextButton(onClick = { onSave(newName, sort) }, enabled = newName.isNotBlank()) { Text(tr("Done")) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Cancel")) } },
     )
 }

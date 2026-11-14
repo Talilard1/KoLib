@@ -247,7 +247,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             repo.takePermission(uri)
         } catch (e: SecurityException) {
             AppLog.e("Kobo", "Android did not grant lasting access to $uri", e)
-            fail("Android didn't give permanent access to that drive. Try again, and tap “Use this folder”, then “Allow”.", null)
+            fail(tr("Android didn't give permanent access to that drive. Try again, and tap “Use this folder”, then “Allow”."), null)
             return
         }
         connect(uri, automatic = false, justPicked = true)
@@ -265,7 +265,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             val previous = _state.value.connection
             // Let an earlier backup finish before its files are replaced.
             afterConnectJob?.join()
-            _state.update { it.copy(connection = Connection.Working("Connecting…"), writeCheck = null) }
+            _state.update { it.copy(connection = Connection.Working(tr("Connecting…")), writeCheck = null) }
             try {
                 val session = repo.connect(treeUri) { step ->
                     _state.update { s -> s.copy(connection = Connection.Working(step)) }
@@ -296,9 +296,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                                 afterConnectRunning = false,
                                 backups = repo.backups.list(),
                                 message = when {
-                                    result.backupError != null -> "The database backup failed: ${result.backupError}"
-                                    result.integrity != "ok" -> "The Kobo's database failed its health check. The log has details."
-                                    result.backup != null -> "Backed up your Kobo's database."
+                                    result.backupError != null -> tr("The database backup failed: {0}", result.backupError)
+                                    result.integrity != "ok" -> tr("The Kobo's database failed its health check. The log has details.")
+                                    result.backup != null -> tr("Backed up your Kobo's database.")
                                     else -> it.message
                                 },
                             )
@@ -320,20 +320,20 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 AppLog.w("Kobo", "Connect failed: ${e.message}")
                 // A wrong folder was picked: don't keep a permission we have no use for.
                 if (justPicked) repo.releasePermission(treeUri)
-                fail(e.message ?: "That drive doesn't look like a Kobo.", null)
+                fail(e.message ?: tr("That drive doesn't look like a Kobo."), null)
             } catch (e: FileNotFoundException) {
                 AppLog.w("Kobo", "Connect failed: drive not reachable (${e.message})")
                 if (automatic && previous is Connection.Connected) {
                     _state.update { it.copy(connection = previous.copy(unplugged = true)) }
                 } else {
-                    fail("The Kobo was disconnected while it was being read. Plug it back in and tap Connect on the Kobo.", null)
+                    fail(tr("The Kobo was disconnected while it was being read. Plug it back in and tap Connect on the Kobo."), null)
                 }
             } catch (e: SecurityException) {
                 AppLog.e("Kobo", "Connect failed: permission", e)
-                fail("Android no longer allows access to this drive. Tap “Choose drive” to give access again.", null)
+                fail(tr("Android no longer allows access to this drive. Tap “Choose drive” to give access again."), null)
             } catch (e: Exception) {
                 AppLog.e("Kobo", "Connect failed", e)
-                fail("Something went wrong reading the Kobo: ${e.javaClass.simpleName}: ${e.message}. The log has details.", null)
+                fail(tr("Something went wrong reading the Kobo: {0}: {1}. The log has details.", e.javaClass.simpleName, e.message), null)
             }
         }
     }
@@ -368,7 +368,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             val books = session.snapshot.books.filter { b -> b.relativePath?.lowercase() !in libraryPaths }
             try {
                 val result = KoboTagReader.read(session, books, _state.value.koboTags) { done, total, found ->
-                    if (!stillConnected()) throw kotlinx.coroutines.CancellationException("The Kobo was disconnected")
+                    if (!stillConnected()) throw kotlinx.coroutines.CancellationException(tr("The Kobo was disconnected"))
                     _state.update { it.copy(readingTags = (done to total).takeIf { done < total }, koboTags = HashMap(found)) }
                     if (done % 200 == 0) repo.bookTags.save(found)
                 }
@@ -445,7 +445,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 _state.update { it.copy(message = e.message) }
             } catch (e: Exception) {
                 AppLog.e("Sync", "Updating the Kobo's database failed", e)
-                _state.update { it.copy(message = "Couldn't update the Kobo's collections and details: ${e.message ?: e.javaClass.simpleName}. No changes were made to the Kobo.") }
+                _state.update { it.copy(message = tr("Couldn't update the Kobo's collections and details: {0}. No changes were made to the Kobo.", e.message ?: e.javaClass.simpleName)) }
             } finally {
                 _state.update { it.copy(syncing = false) }
             }
@@ -461,7 +461,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         val c = _state.value.connection as? Connection.Connected ?: return
         if (c.unplugged) return
         viewModelScope.launch {
-            _state.update { it.copy(busyMessage = "Deleting from the Kobo…") }
+            _state.update { it.copy(busyMessage = tr("Deleting from the Kobo…")) }
             val deleted = sender.delete(c.session, books)
             val ids = _state.value.removedIds + deleted.map { it.contentId }
             saveRemoved(ids)
@@ -471,9 +471,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                     busyMessage = null,
                     removedIds = ids,
                     message = buildString {
-                        append(if (deleted.size == 1) "Deleted “${deleted[0].title}” from the Kobo." else "Deleted ${deleted.size} books from the Kobo.")
-                        if (failed > 0) append(" $failed couldn't be deleted. The log has the details.")
-                        if (deleted.isNotEmpty()) append(" Eject the Kobo so it can update its library.")
+                        append(if (deleted.size == 1) tr("Deleted “{0}” from the Kobo.", deleted[0].title) else tr("Deleted {0} books from the Kobo.", deleted.size))
+                        if (failed > 0) append(tr(" {0} couldn't be deleted. The log has the details.", failed))
+                        if (deleted.isNotEmpty()) append(tr(" Eject the Kobo so it can update its library."))
                     },
                 )
             }
@@ -507,13 +507,13 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     fun backupNow() {
         val session = (_state.value.connection as? Connection.Connected)?.session ?: return
         viewModelScope.launch {
-            _state.update { it.copy(busyMessage = "Backing up…") }
+            _state.update { it.copy(busyMessage = tr("Backing up…")) }
             val msg = try {
                 val b = repo.backupNow(session)
-                if (b != null) "Backed up the Kobo's database." else "Nothing has changed since the last backup."
+                if (b != null) tr("Backed up the Kobo's database.") else tr("Nothing has changed since the last backup.")
             } catch (e: Exception) {
                 AppLog.e("Backup", "Backup failed", e)
-                "Backup failed: ${e.message}"
+                tr("Backup failed: {0}", e.message)
             }
             _state.update { it.copy(busyMessage = null, message = msg, backups = repo.backups.list()) }
         }
@@ -524,10 +524,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             val msg = try {
                 val where = withContext(Dispatchers.IO) { repo.backups.exportToDownloads(backup) }
                 AppLog.i("Backup", "Exported ${backup.file.name} to $where.")
-                "Saved to $where."
+                tr("Saved to {0}.", where)
             } catch (e: Exception) {
                 AppLog.e("Backup", "Export failed", e)
-                "Couldn't save to Downloads: ${e.message}"
+                tr("Couldn't save to Downloads: {0}", e.message)
             }
             _state.update { it.copy(message = msg) }
         }
@@ -536,7 +536,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     fun deleteBackup(backup: DatabaseBackup) {
         repo.backups.delete(backup)
         AppLog.i("Backup", "Deleted backup ${backup.file.name}.")
-        _state.update { it.copy(backups = repo.backups.list(), message = "Backup deleted.") }
+        _state.update { it.copy(backups = repo.backups.list(), message = tr("Backup deleted.")) }
     }
 
     fun refreshBackups() = _state.update { it.copy(backups = repo.backups.list()) }

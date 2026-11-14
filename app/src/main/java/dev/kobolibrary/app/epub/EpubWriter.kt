@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.epub
 
+import dev.kobolibrary.app.tr
 import java.io.File
 import java.io.InputStream
 import java.util.zip.CRC32
@@ -141,7 +142,7 @@ object EpubWriter {
             EpubFile.open(tmp).close()
             if (!tmp.renameTo(file)) {
                 file.delete()
-                if (!tmp.renameTo(file)) throw java.io.IOException("Couldn't replace ${file.name}")
+                if (!tmp.renameTo(file)) throw java.io.IOException(tr("Couldn't replace {0}", file.name))
             }
         } finally {
             tmp.delete()

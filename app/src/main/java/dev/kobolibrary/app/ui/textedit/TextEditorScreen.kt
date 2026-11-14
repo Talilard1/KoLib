@@ -1,5 +1,7 @@
 package dev.kobolibrary.app.ui.textedit
 
+import dev.kobolibrary.app.ui.components.FittedText
+import dev.kobolibrary.app.tr
 import dev.kobolibrary.app.ui.components.GoldButton
 import android.net.Uri
 import androidx.activity.compose.BackHandler
@@ -134,7 +136,7 @@ fun TextEditorScreen(
         uri ?: return@rememberLauncherForActivityResult
         scope.launch {
             val bytes = withContext(Dispatchers.IO) { runCatching { context.contentResolver.openInputStream(uri)?.use { it.readBytes() } }.getOrNull() }
-            if (bytes == null) state.message = "That picture couldn't be opened."
+            if (bytes == null) state.message = tr("That picture couldn't be opened.")
             else if (state.toolbar.image != null) state.replacePicture(bytes) else state.insertPicture(bytes)
         }
     }
@@ -206,17 +208,17 @@ fun TextEditorScreen(
         is ChapterAction.Add -> AddChapterDialog(a, state, onDone = { action = null })
         is ChapterAction.Merge -> AlertDialog(
             onDismissRequest = { action = null },
-            title = { Text("Join “${a.chapter.title}” with the previous chapter?") },
-            text = { Text("Its text will be added to the end of “${state.structure.chapters.getOrNull(a.chapter.index - 1)?.title}”, and links to it will point there. You can undo this.") },
-            confirmButton = { TextButton(onClick = { state.mergeWithPrevious(a.chapter.path); action = null }) { Text("Join") } },
-            dismissButton = { TextButton(onClick = { action = null }) { Text("Cancel") } },
+            title = { Text(tr("Join “{0}” with the previous chapter?", a.chapter.title)) },
+            text = { Text(tr("Its text will be added to the end of “{0}”, and links to it will point there. You can undo this.", state.structure.chapters.getOrNull(a.chapter.index - 1)?.title)) },
+            confirmButton = { TextButton(onClick = { state.mergeWithPrevious(a.chapter.path); action = null }) { Text(tr("Join")) } },
+            dismissButton = { TextButton(onClick = { action = null }) { Text(tr("Cancel")) } },
         )
         is ChapterAction.Delete -> AlertDialog(
             onDismissRequest = { action = null },
-            title = { Text("Delete “${a.chapter.title}”?") },
-            text = { Text("The chapter and its entry in the contents will be deleted, and links to it will become plain text. You can undo this until you close the editor.") },
-            confirmButton = { TextButton(onClick = { state.delete(a.chapter.path); action = null }) { Text("Delete", color = MaterialTheme.colorScheme.error) } },
-            dismissButton = { TextButton(onClick = { action = null }) { Text("Cancel") } },
+            title = { Text(tr("Delete “{0}”?", a.chapter.title)) },
+            text = { Text(tr("The chapter and its entry in the contents will be deleted, and links to it will become plain text. You can undo this until you close the editor.")) },
+            confirmButton = { TextButton(onClick = { state.delete(a.chapter.path); action = null }) { Text(tr("Delete"), color = MaterialTheme.colorScheme.error) } },
+            dismissButton = { TextButton(onClick = { action = null }) { Text(tr("Cancel")) } },
         )
         null -> Unit
     }
@@ -226,13 +228,13 @@ fun TextEditorScreen(
     if (confirmClose) {
         AlertDialog(
             onDismissRequest = { confirmClose = false },
-            title = { Text("Save your changes?") },
-            text = { Text("The changes to “${state.title}” haven't been saved yet.") },
-            confirmButton = { TextButton(onClick = { confirmClose = false; state.save { onClose() } }) { Text("Save") } },
+            title = { Text(tr("Save your changes?")) },
+            text = { Text(tr("The changes to “{0}” haven't been saved yet.", state.title)) },
+            confirmButton = { TextButton(onClick = { confirmClose = false; state.save { onClose() } }) { Text(tr("Save")) } },
             dismissButton = {
                 Row {
-                    TextButton(onClick = { confirmClose = false; state.discardChanges(); onClose() }) { Text("Don't save", color = MaterialTheme.colorScheme.error) }
-                    TextButton(onClick = { confirmClose = false }) { Text("Keep editing") }
+                    TextButton(onClick = { confirmClose = false; state.discardChanges(); onClose() }) { Text(tr("Don't save"), color = MaterialTheme.colorScheme.error) }
+                    TextButton(onClick = { confirmClose = false }) { Text(tr("Keep editing")) }
                 }
             },
         )
@@ -242,29 +244,29 @@ fun TextEditorScreen(
         AlertDialog(
             onDismissRequest = { confirmRevert = false },
             icon = { Icon(Icons.Outlined.Restore, null) },
-            title = { Text("Restore the original text?") },
-            text = { Text("The book's text and chapters will go back to how they were before you first edited them. All your text edits will be lost. The details and cover won't change.") },
-            confirmButton = { TextButton(onClick = { confirmRevert = false; state.revert {} }) { Text("Restore original", color = MaterialTheme.colorScheme.error) } },
-            dismissButton = { TextButton(onClick = { confirmRevert = false }) { Text("Cancel") } },
+            title = { Text(tr("Restore the original text?")) },
+            text = { Text(tr("The book's text and chapters will go back to how they were before you first edited them. All your text edits will be lost. The details and cover won't change.")) },
+            confirmButton = { TextButton(onClick = { confirmRevert = false; state.revert {} }) { Text(tr("Restore original"), color = MaterialTheme.colorScheme.error) } },
+            dismissButton = { TextButton(onClick = { confirmRevert = false }) { Text(tr("Cancel")) } },
         )
     }
 
     state.refused?.let { problems ->
         AlertDialog(
             onDismissRequest = { state.refused = null },
-            title = { Text("Not saved: these changes would break the book") },
+            title = { Text(tr("Not saved: these changes would break the book")) },
             text = {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
-                    Text("Problems found:", style = MaterialTheme.typography.bodyMedium)
+                    Text(tr("Problems found:"), style = MaterialTheme.typography.bodyMedium)
                     Spacer(Modifier.height(8.dp))
                     problems.take(12).forEach { Text("• $it", style = MaterialTheme.typography.bodySmall) }
-                    if (problems.size > 12) Text("…and ${problems.size - 12} more.", style = MaterialTheme.typography.bodySmall)
+                    if (problems.size > 12) Text(tr("…and {0} more.", problems.size - 12), style = MaterialTheme.typography.bodySmall)
                     Spacer(Modifier.height(8.dp))
-                    Text("Fix them (the Code button can help), or undo the change that caused them. The saved book wasn't changed.", style = MaterialTheme.typography.bodyMedium)
+                    Text(tr("Fix them (the Code button can help), or undo the change that caused them. The saved book wasn't changed."), style = MaterialTheme.typography.bodyMedium)
                 }
             },
             confirmButton = { TextButton(onClick = { state.refused = null }) { Text("OK") } },
-            dismissButton = { TextButton(onClick = { state.refused = null; state.undo() }) { Text("Undo the last change") } },
+            dismissButton = { TextButton(onClick = { state.refused = null; state.undo() }) { Text(tr("Undo the last change")) } },
         )
     }
 
@@ -272,10 +274,18 @@ fun TextEditorScreen(
         AlertDialog(
             onDismissRequest = { state.checkResult = null },
             icon = { Icon(Icons.Outlined.FactCheck, null) },
-            title = { Text(if (problems.isEmpty()) "No problems found" else "${problems.size} problem${if (problems.size == 1) "" else "s"} found") },
+            title = {
+                Text(
+                    when (problems.size) {
+                        0 -> tr("No problems found")
+                        1 -> tr("1 problem found")
+                        else -> tr("{0} problems found", problems.size)
+                    },
+                )
+            },
             text = {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
-                    if (problems.isEmpty()) Text("Every chapter is valid XHTML, every file the book lists exists, and the reading order and contents are correct.")
+                    if (problems.isEmpty()) Text(tr("Every chapter is valid XHTML, every file the book lists exists, and the reading order and contents are correct."))
                     else problems.take(20).forEach { Text("• $it", style = MaterialTheme.typography.bodySmall) }
                 }
             },
@@ -294,40 +304,40 @@ private fun EditorTopBar(state: TextEditState, onBack: () -> Unit, onRead: () ->
             // On a phone the less used buttons move into the menu.
             val roomy = maxWidth >= 600.dp
             Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Close the editor") }
+                IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Close the editor")) }
                 Column(Modifier.weight(1f).padding(horizontal = 4.dp)) {
-                    Text("Edit text", style = MaterialTheme.typography.titleMedium, maxLines = 1)
+                    FittedText(dev.kobolibrary.app.trc("editor title", "Edit text"), style = MaterialTheme.typography.titleMedium, smallest = 0.7f)
                     Text(
-                        state.title + if (state.dirty) " · unsaved changes" else "",
+                        state.title + if (state.dirty) tr(" · unsaved changes") else "",
                         style = MaterialTheme.typography.bodySmall,
                         color = if (state.dirty) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
-                IconButton(onClick = { state.undo() }, enabled = state.canUndo) { Icon(Icons.AutoMirrored.Filled.Undo, state.undoLabel?.let { "Undo: $it" } ?: "Undo") }
-                IconButton(onClick = { state.redo() }, enabled = state.canRedo) { Icon(Icons.AutoMirrored.Filled.Redo, state.redoLabel?.let { "Redo: $it" } ?: "Redo") }
+                IconButton(onClick = { state.undo() }, enabled = state.canUndo) { Icon(Icons.AutoMirrored.Filled.Undo, state.undoLabel?.let { tr("Undo: {0}", it) } ?: tr("Undo")) }
+                IconButton(onClick = { state.redo() }, enabled = state.canRedo) { Icon(Icons.AutoMirrored.Filled.Redo, state.redoLabel?.let { tr("Redo: {0}", it) } ?: tr("Redo")) }
                 if (roomy) {
-                    IconButton(onClick = onFind) { Icon(Icons.Filled.Search, "Find & replace", tint = if (state.find.open) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface) }
-                    IconButton(onClick = onCleanups) { Icon(Icons.Outlined.AutoFixHigh, "Clean-ups") }
-                    IconButton(onClick = onRead) { Icon(Icons.AutoMirrored.Filled.MenuBook, "Preview in reader") }
+                    IconButton(onClick = onFind) { Icon(Icons.Filled.Search, tr("Find & replace"), tint = if (state.find.open) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface) }
+                    IconButton(onClick = onCleanups) { Icon(Icons.Outlined.AutoFixHigh, tr("Clean-ups")) }
+                    IconButton(onClick = onRead) { Icon(Icons.AutoMirrored.Filled.MenuBook, tr("Preview in reader")) }
                     Spacer(Modifier.width(4.dp))
                 }
-                GoldButton(onClick = { state.save() }, enabled = state.dirty && state.busy == null) { Text("Save") }
+                GoldButton(onClick = { state.save() }, enabled = state.dirty && state.busy == null) { Text(tr("Save")) }
                 var menu by remember { mutableStateOf(false) }
                 Box {
-                    IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, "More") }
+                    IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, tr("More")) }
                     DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                         if (!roomy) {
-                            DropdownMenuItem(text = { Text("Find & replace") }, leadingIcon = { Icon(Icons.Filled.Search, null) }, onClick = { menu = false; onFind() })
-                            DropdownMenuItem(text = { Text("Clean-ups") }, leadingIcon = { Icon(Icons.Outlined.AutoFixHigh, null) }, onClick = { menu = false; onCleanups() })
-                            DropdownMenuItem(text = { Text("Preview in reader") }, leadingIcon = { Icon(Icons.AutoMirrored.Filled.MenuBook, null) }, onClick = { menu = false; onRead() })
+                            DropdownMenuItem(text = { Text(tr("Find & replace")) }, leadingIcon = { Icon(Icons.Filled.Search, null) }, onClick = { menu = false; onFind() })
+                            DropdownMenuItem(text = { Text(tr("Clean-ups")) }, leadingIcon = { Icon(Icons.Outlined.AutoFixHigh, null) }, onClick = { menu = false; onCleanups() })
+                            DropdownMenuItem(text = { Text(tr("Preview in reader")) }, leadingIcon = { Icon(Icons.AutoMirrored.Filled.MenuBook, null) }, onClick = { menu = false; onRead() })
                             HorizontalDivider()
                         }
-                        DropdownMenuItem(text = { Text("Check for problems") }, leadingIcon = { Icon(Icons.Outlined.FactCheck, null) },
+                        DropdownMenuItem(text = { Text(tr("Check for problems")) }, leadingIcon = { Icon(Icons.Outlined.FactCheck, null) },
                             onClick = { menu = false; state.checkBook() })
                         DropdownMenuItem(
-                            text = { Text("Restore original text…") },
+                            text = { Text(tr("Restore original text…")) },
                             leadingIcon = { Icon(Icons.Outlined.Restore, null) },
                             enabled = state.hasOriginal,
                             onClick = { menu = false; onRevert() },
@@ -380,37 +390,37 @@ private fun EditorToolbar(state: TextEditState, onPicture: () -> Unit, onChapter
             ) {
                 if (onChapters != null) {
                     TextButton(onClick = onChapters) {
-                        Text(state.chapter?.title ?: "Chapters", maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.widthIn(max = 160.dp))
+                        Text(state.chapter?.title ?: tr("Chapters"), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.widthIn(max = 160.dp))
                     }
                 }
-                IconToggleButton(checked = t.bold && page, onCheckedChange = { state.command("bold") }, enabled = page, colors = on) { Icon(Icons.Outlined.FormatBold, "Bold") }
-                IconToggleButton(checked = t.italic && page, onCheckedChange = { state.command("italic") }, enabled = page, colors = on) { Icon(Icons.Outlined.FormatItalic, "Italic") }
+                IconToggleButton(checked = t.bold && page, onCheckedChange = { state.command("bold") }, enabled = page, colors = on) { Icon(Icons.Outlined.FormatBold, tr("Bold")) }
+                IconToggleButton(checked = t.italic && page, onCheckedChange = { state.command("italic") }, enabled = page, colors = on) { Icon(Icons.Outlined.FormatItalic, tr("Italic")) }
                 var headings by remember { mutableStateOf(false) }
                 Box {
                     TextButton(onClick = { headings = true }, enabled = page) {
                         Icon(Icons.Outlined.Title, null, Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
-                        Text(when (t.block) { "h1" -> "Heading 1"; "h2" -> "Heading 2"; "h3" -> "Heading 3"; "h4", "h5", "h6" -> "Heading"; else -> "Paragraph" })
+                        Text(when (t.block) { "h1" -> tr("Heading 1"); "h2" -> tr("Heading 2"); "h3" -> tr("Heading 3"); "h4", "h5", "h6" -> tr("Heading"); else -> tr("Paragraph") })
                     }
                     DropdownMenu(expanded = headings, onDismissRequest = { headings = false }) {
-                        listOf("p" to "Paragraph", "h1" to "Heading 1 (part)", "h2" to "Heading 2 (chapter)", "h3" to "Heading 3 (section)").forEach { (tag, label) ->
+                        listOf("p" to tr("Paragraph"), "h1" to tr("Heading 1 (part)"), "h2" to tr("Heading 2 (chapter)"), "h3" to tr("Heading 3 (section)")).forEach { (tag, label) ->
                             DropdownMenuItem(text = { Text(label) }, onClick = { headings = false; state.command("block", tag) })
                         }
                     }
                 }
-                IconButton(onClick = { state.command("scenebreak") }, enabled = page) { Icon(Icons.Outlined.HorizontalRule, "Scene break") }
+                IconButton(onClick = { state.command("scenebreak") }, enabled = page) { Icon(Icons.Outlined.HorizontalRule, tr("Scene break")) }
                 TextButton(onClick = onPicture, enabled = page) {
                     Icon(Icons.Outlined.Image, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text(if (t.image != null) "Replace picture" else "Picture")
+                    Text(if (t.image != null) tr("Replace picture") else tr("Picture"))
                 }
-                IconButton(onClick = { state.splitAtCursor() }, enabled = page) { Icon(Icons.Outlined.CallSplit, "Split the chapter here") }
+                IconButton(onClick = { state.splitAtCursor() }, enabled = page) { Icon(Icons.Outlined.CallSplit, tr("Split the chapter here")) }
             }
             VerticalDivider(Modifier.height(28.dp).padding(horizontal = 6.dp))
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { state.setCode(!state.showCode) }.padding(start = 4.dp, end = 2.dp)) {
                 Icon(Icons.Outlined.Code, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
-                Text("Code", style = MaterialTheme.typography.labelLarge)
+                Text(tr("Code"), style = MaterialTheme.typography.labelLarge)
                 Spacer(Modifier.width(6.dp))
                 Switch(checked = state.showCode, onCheckedChange = { state.setCode(it) })
             }
@@ -432,20 +442,20 @@ private fun RenameDialog(a: ChapterAction.Rename, state: TextEditState, onDone: 
     var alsoHeading by remember { mutableStateOf(headingText != null && headingText == a.chapter.title) }
     AlertDialog(
         onDismissRequest = onDone,
-        title = { Text("Rename chapter") },
+        title = { Text(tr("Rename chapter")) },
         text = {
             Column {
-                OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("Name in contents") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text(tr("Name in contents")) }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 if (headingText != null) {
                     Row(Modifier.fillMaxWidth().clickable { alsoHeading = !alsoHeading }.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(checked = alsoHeading, onCheckedChange = { alsoHeading = it })
-                        Text("Also change its heading (currently “$headingText”)", style = MaterialTheme.typography.bodyMedium)
+                        Text(tr("Also change its heading (currently “{0}”)", headingText), style = MaterialTheme.typography.bodyMedium)
                     }
                 }
             }
         },
-        confirmButton = { TextButton(onClick = { state.rename(a.chapter.path, title, alsoHeading); onDone() }, enabled = title.isNotBlank()) { Text("Rename") } },
-        dismissButton = { TextButton(onClick = onDone) { Text("Cancel") } },
+        confirmButton = { TextButton(onClick = { state.rename(a.chapter.path, title, alsoHeading); onDone() }, enabled = title.isNotBlank()) { Text(tr("Rename")) } },
+        dismissButton = { TextButton(onClick = onDone) { Text(tr("Cancel")) } },
     )
 }
 
@@ -463,7 +473,7 @@ internal fun nextChapterName(afterTitle: String?, chapters: Int): String {
         val n = m.groupValues[2].toIntOrNull()
         if (n != null && n < 100_000) return m.groupValues[1] + (n + 1)
     }
-    return "Chapter ${chapters + 1}"
+    return tr("Chapter {0}", chapters + 1)
 }
 
 @Composable
@@ -475,26 +485,26 @@ private fun AddChapterDialog(a: ChapterAction.Add, state: TextEditState, onDone:
     LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
     AlertDialog(
         onDismissRequest = onDone,
-        title = { Text("Add chapter") },
+        title = { Text(tr("Add chapter")) },
         text = {
             Column {
                 Text(
-                    if (after != null) "Adds an empty chapter after “${after.title}”. Its name is used as its heading and in the contents."
-                    else "Adds an empty chapter. Its name is used as its heading and in the contents.",
+                    if (after != null) tr("Adds an empty chapter after “{0}”. Its name is used as its heading and in the contents.", after.title)
+                    else tr("Adds an empty chapter. Its name is used as its heading and in the contents."),
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Spacer(Modifier.height(12.dp))
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("Name") },
+                    label = { Text(tr("Name")) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().focusRequester(focus),
                 )
             }
         },
-        confirmButton = { TextButton(onClick = { state.addChapter(after?.path, title); onDone() }, enabled = title.isNotBlank()) { Text("Add") } },
-        dismissButton = { TextButton(onClick = onDone) { Text("Cancel") } },
+        confirmButton = { TextButton(onClick = { state.addChapter(after?.path, title); onDone() }, enabled = title.isNotBlank()) { Text(tr("Add")) } },
+        dismissButton = { TextButton(onClick = onDone) { Text(tr("Cancel")) } },
     )
 }
 
@@ -507,19 +517,19 @@ private fun SplitDialog(a: ChapterAction.Split, state: TextEditState, onDone: ()
     var title by remember { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = onDone,
-        title = { Text("Split “${a.chapter.title}”") },
+        title = { Text(tr("Split “{0}”", a.chapter.title)) },
         text = {
             Column {
-                Text("Tap the paragraph where the new chapter should start. (When editing the page, the split button splits at the cursor.)", style = MaterialTheme.typography.bodyMedium)
+                Text(tr("Tap the paragraph where the new chapter should start. (When editing the page, the split button splits at the cursor.)"), style = MaterialTheme.typography.bodyMedium)
                 Spacer(Modifier.height(8.dp))
                 val list = points
                 if (list == null) CircularProgressIndicator(Modifier.padding(16.dp))
-                else if (list.isEmpty()) Text("This chapter can't be split.", style = MaterialTheme.typography.bodySmall)
+                else if (list.isEmpty()) Text(tr("This chapter can't be split."), style = MaterialTheme.typography.bodySmall)
                 else LazyColumn(Modifier.heightIn(max = 340.dp)) {
                     items(list) { p ->
                         val on = p == chosen
                         Text(
-                            (if (p.tag.startsWith("h")) "Heading: " else "") + p.text.ifBlank { "(empty ${p.tag})" },
+                            (if (p.tag.startsWith("h")) tr("Heading: ") else "") + p.text.ifBlank { tr("(empty {0})", p.tag) },
                             style = if (p.tag.startsWith("h")) MaterialTheme.typography.titleSmall else MaterialTheme.typography.bodySmall,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
@@ -535,13 +545,13 @@ private fun SplitDialog(a: ChapterAction.Split, state: TextEditState, onDone: ()
                     }
                 }
                 Spacer(Modifier.height(8.dp))
-                OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("Name of the new chapter (optional)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text(tr("Name of the new chapter (optional)")) }, singleLine = true, modifier = Modifier.fillMaxWidth())
             }
         },
         confirmButton = {
-            TextButton(onClick = { chosen?.let { state.split(a.chapter.path, it.offset, title.ifBlank { null }) }; onDone() }, enabled = chosen != null) { Text("Split here") }
+            TextButton(onClick = { chosen?.let { state.split(a.chapter.path, it.offset, title.ifBlank { null }) }; onDone() }, enabled = chosen != null) { Text(tr("Split here")) }
         },
-        dismissButton = { TextButton(onClick = onDone) { Text("Cancel") } },
+        dismissButton = { TextButton(onClick = onDone) { Text(tr("Cancel")) } },
     )
 }
 
@@ -556,12 +566,12 @@ private fun CleanupsDialog(state: TextEditState, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Outlined.AutoFixHigh, null) },
-        title = { Text("Clean-ups") },
+        title = { Text(tr("Clean-ups")) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                    SegmentedButton(selected = !thisChapter, onClick = { thisChapter = false }, shape = SegmentedButtonDefaults.itemShape(0, 2), icon = {}) { Text("Whole book") }
-                    SegmentedButton(selected = thisChapter, onClick = { thisChapter = true }, shape = SegmentedButtonDefaults.itemShape(1, 2), icon = {}) { Text("This chapter") }
+                    SegmentedButton(selected = !thisChapter, onClick = { thisChapter = false }, shape = SegmentedButtonDefaults.itemShape(0, 2), icon = {}) { Text(tr("Whole book")) }
+                    SegmentedButton(selected = thisChapter, onClick = { thisChapter = true }, shape = SegmentedButtonDefaults.itemShape(1, 2), icon = {}) { Text(tr("This chapter")) }
                 }
                 Spacer(Modifier.height(8.dp))
                 Cleanups.Kind.entries.forEach { k ->
@@ -572,19 +582,19 @@ private fun CleanupsDialog(state: TextEditState, onDismiss: () -> Unit) {
                             Text(k.label, style = MaterialTheme.typography.titleSmall)
                             Text(k.explanation, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text(
-                                when (n) { null -> "Checking…"; 0 -> "Nothing to fix"; else -> "Found ${k.describe(n)}" },
+                                when (n) { null -> tr("Checking…"); 0 -> tr("Nothing to fix"); else -> tr("Found {0}", k.describe(n)) },
                                 style = MaterialTheme.typography.labelMedium,
                                 color = if (n != null && n > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                         Spacer(Modifier.width(8.dp))
-                        FilledTonalButton(onClick = { state.cleanup(k, only) }, enabled = n != null && n > 0) { Text("Fix") }
+                        FilledTonalButton(onClick = { state.cleanup(k, only) }, enabled = n != null && n > 0) { Text(tr("Fix")) }
                     }
                     HorizontalDivider()
                 }
-                Text("You can undo each fix.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp))
+                Text(tr("You can undo each fix."), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp))
             }
         },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Done") } },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(tr("Done")) } },
     )
 }

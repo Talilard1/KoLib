@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.theme
 
+import dev.kobolibrary.app.tr
 import android.content.Context
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -7,11 +8,11 @@ import kotlinx.coroutines.flow.asStateFlow
 
 /** The looks the app offers. */
 enum class ThemeChoice(val label: String, val description: String) {
-    SYSTEM("System default", "Light or dark, matching your device's setting"),
-    LIGHT("Light", "Warm paper, ink and gold"),
-    DARK("Dark", "Gold on dark brown, like the opening. Easy on the eyes at night"),
-    OLED("OLED black", "Gold on pure black, for OLED screens. Saves battery"),
-    BOOKCASE("Bookcase", "Dark wood and brass, with your books on shelves"),
+    SYSTEM(tr("System default"), tr("Light or dark, matching your device's setting")),
+    LIGHT(tr("Light"), tr("Warm paper, ink and gold")),
+    DARK(tr("Dark"), tr("Gold on dark brown, like the opening. Easy on the eyes at night")),
+    OLED(tr("OLED black"), tr("Gold on pure black, for OLED screens. Saves battery")),
+    BOOKCASE(tr("Bookcase"), tr("Dark wood and brass, with your books on shelves")),
 }
 
 /** The chosen look, and how the opening animation plays (at all, with its sound, lighter), remembered between visits. */

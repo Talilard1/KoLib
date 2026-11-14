@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.kobo
 
+import dev.kobolibrary.app.tr
 import android.content.Context
 import android.content.Intent
 import android.database.sqlite.SQLiteDatabase
@@ -52,7 +53,7 @@ data class KoboDeviceInfo(
     /** Whether the tablet lets apps read the Kobo drive as ordinary files (not needed, just useful to know). */
     val directFileAccess: Boolean,
 ) {
-    val displayName: String get() = "Kobo $modelName"
+    val displayName: String get() = tr("Kobo {0}", modelName)
 }
 
 class KoboSession(
@@ -148,7 +149,7 @@ class KoboRepository(private val context: Context) {
                 val uuid = v.uuid
                 VolumeCandidate(
                     uuid = uuid,
-                    description = v.getDescription(context) ?: "Removable drive",
+                    description = v.getDescription(context) ?: tr("Removable drive"),
                     volume = v,
                     grantedTree = uuid?.let { id -> granted.firstOrNull { treeDocId(it) == "$id:" } },
                     isKnownKobo = uuid != null && uuid == known,
@@ -211,16 +212,16 @@ class KoboRepository(private val context: Context) {
         val tree = SafTree(resolver, treeUri)
         AppLog.i("Kobo", "Connecting via drive root '${tree.rootDocId}'.")
 
-        progress("Checking the drive…")
+        progress(tr("Checking the drive…"))
         if (tree.stat(tree.rootDocId) == null) {
-            throw KoboNotFoundException("The Kobo's drive isn't available. Plug the Kobo in and tap Connect on its screen.")
+            throw KoboNotFoundException(tr("The Kobo's drive isn't available. Plug the Kobo in and tap Connect on its screen."))
         }
         val koboDir = tree.child(tree.rootDocId, ".kobo")
             ?: throw KoboNotFoundException(
-                "That drive has no .kobo folder, so it doesn't look like a Kobo. Choose the top level of the drive called KOBOeReader."
+                tr("That drive has no .kobo folder, so it doesn't look like a Kobo. Choose the top level of the drive called KOBOeReader.")
             )
 
-        progress("Loading device details…")
+        progress(tr("Loading device details…"))
         val version = tree.child(koboDir.docId, "version")?.let { entry ->
             runCatching { tree.openInput(entry.docId).use { it.readBytes().toString(Charsets.UTF_8) } }
                 .onFailure { AppLog.w("Kobo", "Could not read .kobo/version: ${it.message}") }
@@ -252,7 +253,7 @@ class KoboRepository(private val context: Context) {
 
         val dbEntry = tree.child(koboDir.docId, "KoboReader.sqlite")
             ?: recoverInterruptedSwap(tree, koboDir.docId)
-            ?: throw KoboNotFoundException("The Kobo's database file (KoboReader.sqlite) is missing. Has the Kobo finished setting up?")
+            ?: throw KoboNotFoundException(tr("The Kobo's database file (KoboReader.sqlite) is missing. Has the Kobo finished setting up?"))
         // Each connection gets its own folder, so a backup still running from an earlier one is never disturbed.
         val base = File(context.cacheDir, "kobo").apply { mkdirs() }
         base.listFiles()?.filter { it.lastModified() < started - 60_000 }?.forEach { it.deleteRecursively() }
@@ -275,7 +276,7 @@ class KoboRepository(private val context: Context) {
                         val percent = (copied * 100 / totalBytes).toInt().coerceIn(0, 100)
                         if (percent != lastPercent) {
                             lastPercent = percent
-                            progress("Copying the Kobo's database… $percent%")
+                            progress(tr("Copying the Kobo's database… {0}%", percent))
                         }
                     }
                 }
@@ -290,7 +291,7 @@ class KoboRepository(private val context: Context) {
                 ". Direct path lookups ${if (tree.directIdsWork == true) "work" else "not used"}."
         )
 
-        progress("Loading books and collections…")
+        progress(tr("Loading books and collections…"))
         // Read from a second copy: opening a database can change its file, and the backup must be exact.
         val workDb = File(work, "read.sqlite")
         pristine.copyTo(workDb, overwrite = true)
@@ -353,7 +354,7 @@ class KoboRepository(private val context: Context) {
             SQLiteDatabase.openDatabase(session.workDb.path, null, SQLiteDatabase.OPEN_READONLY or SQLiteDatabase.NO_LOCALIZED_COLLATORS).use { db ->
                 db.rawQuery("PRAGMA quick_check", null).use { c -> if (c.moveToFirst()) c.getString(0) else "no result" }
             }
-        }.getOrElse { "check failed: ${it.message}" }
+        }.getOrElse { tr("check failed: {0}", it.message) }
         AppLog.i("Kobo", "Database health check: $integrity.")
         AfterConnect(backup, error, integrity)
     }
@@ -361,8 +362,8 @@ class KoboRepository(private val context: Context) {
     /** Makes a fresh copy of the database and backs it up if it changed. */
     suspend fun backupNow(session: KoboSession): DatabaseBackup? = withContext(Dispatchers.IO) {
         val tree = session.tree
-        val koboDir = tree.child(tree.rootDocId, ".kobo") ?: throw KoboNotFoundException("The Kobo is no longer connected.")
-        val dbEntry = tree.child(koboDir.docId, "KoboReader.sqlite") ?: throw KoboNotFoundException("The Kobo's database is missing.")
+        val koboDir = tree.child(tree.rootDocId, ".kobo") ?: throw KoboNotFoundException(tr("The Kobo is no longer connected."))
+        val dbEntry = tree.child(koboDir.docId, "KoboReader.sqlite") ?: throw KoboNotFoundException(tr("The Kobo's database is missing."))
         val work = File(context.cacheDir, "kobo-backup").apply { mkdirs() }
         val db = File(work, "KoboReader.sqlite")
         val wal = File(work, "KoboReader.sqlite-wal").apply { delete() }
@@ -383,7 +384,7 @@ class KoboRepository(private val context: Context) {
         try {
             tree.child(tree.rootDocId, name)?.let { tree.delete(it.docId) }
             val id = tree.createFile(tree.rootDocId, "application/octet-stream", name)
-                ?: return@withContext WriteCheckResult(false, "Android didn't allow creating a file on the Kobo.")
+                ?: return@withContext WriteCheckResult(false, tr("Android didn't allow creating a file on the Kobo."))
             val data = Random.nextBytes(64 * 1024)
             tree.openOutput(id, "w").use { it.write(data) }
             val back = tree.openInput(id).use { it.readBytes() }
@@ -392,21 +393,21 @@ class KoboRepository(private val context: Context) {
             val created = tree.stat(id)?.name
             when {
                 !back.contentEquals(data) ->
-                    WriteCheckResult(false, "A test file was written, but it read back differently. Writing to the Kobo isn't reliable.")
+                    WriteCheckResult(false, tr("A test file was written, but it read back differently. Writing to the Kobo isn't reliable."))
                 !deleted ->
-                    WriteCheckResult(false, "A test file was written and read back, but couldn't be deleted. It's hidden and harmless: ${created ?: name}.")
+                    WriteCheckResult(false, tr("A test file was written and read back, but couldn't be deleted. It's hidden and harmless: {0}.", created ?: name))
                 else ->
-                    WriteCheckResult(true, "Writing works: a 64 KB test file was written, read back and deleted in $ms ms.")
+                    WriteCheckResult(true, tr("Writing works: a 64 KB test file was written, read back and deleted in {0} ms.", ms))
             }.also { AppLog.i("WriteCheck", it.message) }
         } catch (e: FileNotFoundException) {
             AppLog.e("WriteCheck", "Write check failed", e)
-            WriteCheckResult(false, "The Kobo isn't reachable any more. Is it still connected?")
+            WriteCheckResult(false, tr("The Kobo isn't reachable any more. Is it still connected?"))
         } catch (e: SecurityException) {
             AppLog.e("WriteCheck", "Write check failed", e)
-            WriteCheckResult(false, "Android didn't give this app write access to the Kobo. Try “Forget this Kobo” and connect again.")
+            WriteCheckResult(false, tr("Android didn't give this app write access to the Kobo. Try “Forget this Kobo” and connect again."))
         } catch (e: Exception) {
             AppLog.e("WriteCheck", "Write check failed", e)
-            WriteCheckResult(false, "Write check failed: ${e.javaClass.simpleName}: ${e.message}")
+            WriteCheckResult(false, tr("Write check failed: {0}: {1}", e.javaClass.simpleName, e.message))
         }
     }
 

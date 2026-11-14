@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.opening
 
+import dev.kobolibrary.app.tr
 import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.BlurMaskFilter
@@ -219,7 +220,7 @@ fun OpeningAnimation(sound: Boolean, light: Boolean = false, clock: OpeningClock
     Box(
         Modifier
             .fillMaxSize()
-            .semantics { contentDescription = "KoLib. Tap to skip." }
+            .semantics { contentDescription = tr("KoLib. Tap to skip.") }
             .pointerInput(Unit) { detectTapGestures { clock.skipping = true } }
     ) {
         OpeningScene({ clock.time }, { fade }, light)

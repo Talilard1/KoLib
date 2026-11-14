@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.kobo
 
+import dev.kobolibrary.app.tr
 import dev.kobolibrary.app.kobo.db.SqlRow
 import dev.kobolibrary.app.kobo.db.SqlSource
 import java.util.TreeSet
@@ -20,7 +21,7 @@ class KoboDatabaseReader(private val db: SqlSource) {
         val warnings = mutableListOf<String>()
         val tables = tables()
         if ("content" !in tables) {
-            throw KoboDatabaseException("The Kobo database has no 'content' table, so it can't be read.")
+            throw KoboDatabaseException(tr("The Kobo database has no 'content' table, so it can't be read."))
         }
 
         val dbVersion = readDbVersion(warnings)
@@ -48,7 +49,7 @@ class KoboDatabaseReader(private val db: SqlSource) {
     private fun readDbVersion(warnings: MutableList<String>): Int = try {
         db.query("SELECT version FROM DbVersion").firstOrNull()?.long("version")?.toInt() ?: 0
     } catch (e: Exception) {
-        warnings += "Could not read the database version (${e.message})."
+        warnings += tr("Could not read the database version ({0}).", e.message)
         0
     }
 
@@ -62,7 +63,7 @@ class KoboDatabaseReader(private val db: SqlSource) {
             id to stars
         }.toMap()
     } catch (e: Exception) {
-        warnings += "Could not read the Kobo's ratings (${e.message})."
+        warnings += tr("Could not read the Kobo's ratings ({0}).", e.message)
         emptyMap()
     }
 
@@ -71,7 +72,7 @@ class KoboDatabaseReader(private val db: SqlSource) {
         val required = listOf("ContentID", "ContentType")
         val missing = required.filter { it !in available }
         if (missing.isNotEmpty()) {
-            throw KoboDatabaseException("The Kobo database is missing column(s) ${missing.joinToString()}.")
+            throw KoboDatabaseException(tr("The Kobo database is missing column(s) {0}.", missing.joinToString()))
         }
         val selected = BOOK_COLUMNS.filter { it in available }
         val where = buildString {
@@ -86,7 +87,7 @@ class KoboDatabaseReader(private val db: SqlSource) {
             val book = parseBook(row)
             if (book == null) skipped++ else books += book
         }
-        if (skipped > 0) warnings += "$skipped book row(s) had no ContentID and were skipped."
+        if (skipped > 0) warnings += tr("{0} book row(s) had no ContentID and were skipped.", skipped)
         return books
     }
 
@@ -149,14 +150,14 @@ class KoboDatabaseReader(private val db: SqlSource) {
         warnings: MutableList<String>,
     ): Pair<List<KoboCollection>, Map<String, List<String>>> {
         if ("Shelf" !in tables) {
-            warnings += "This Kobo's database has no collections table."
+            warnings += tr("This Kobo's database has no collections table.")
             return emptyList<KoboCollection>() to emptyMap()
         }
 
         val shelfCols = columns("Shelf")
         val shelfSelected = SHELF_COLUMNS.filter { it in shelfCols }
         if ("Name" !in shelfCols && "InternalName" !in shelfCols) {
-            warnings += "The collections table has no name column."
+            warnings += tr("The collections table has no name column.")
             return emptyList<KoboCollection>() to emptyMap()
         }
 
@@ -220,18 +221,22 @@ class KoboDatabaseReader(private val db: SqlSource) {
                     byBook.getOrPut(contentId) { mutableListOf() } += shelf.name
                 }
             } else {
-                warnings += "The collection membership table has unexpected columns."
+                warnings += tr("The collection membership table has unexpected columns.")
             }
         } else {
-            warnings += "This Kobo's database has no collection membership table."
+            warnings += tr("This Kobo's database has no collection membership table.")
         }
 
         if (unknownShelfEntries > 0) {
-            warnings += "$unknownShelfEntries collection entr${if (unknownShelfEntries == 1) "y points" else "ies point"} to a deleted or missing collection (the Kobo ignores these)."
+            warnings += if (unknownShelfEntries == 1) tr("1 collection entry points to a deleted or missing collection (the Kobo ignores these).")
+            else tr("{0} collection entries point to a deleted or missing collection (the Kobo ignores these).", unknownShelfEntries)
         }
         if (missingBookEntries > 0) {
-            warnings += "$missingBookEntries collection entr${if (missingBookEntries == 1) "y points" else "ies point"} to a book that isn't in the database yet. " +
-                "Books you've just sent are added when you eject the Kobo."
+            warnings += if (missingBookEntries == 1) {
+                tr("1 collection entry points to a book that isn't in the database yet. Books you've just sent are added when you eject the Kobo.")
+            } else {
+                tr("{0} collection entries point to a book that isn't in the database yet. Books you've just sent are added when you eject the Kobo.", missingBookEntries)
+            }
         }
 
         val collections = shelves

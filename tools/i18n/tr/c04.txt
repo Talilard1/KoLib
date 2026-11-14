@@ -1,0 +1,840 @@
+@fr
+340|Deux en paysage
+341|Toujours une
+342|Toujours deux
+343|Automatique
+344|Tourne avec l’appareil.
+345|Portrait
+346|Toujours droit, quelle que soit la façon dont vous tenez l’appareil.
+347|Paysage
+348|Toujours couché, quelle que soit la façon dont vous tenez l’appareil.
+349|À gauche pour reculer, à droite pour avancer
+350|Les deux côtés pour avancer
+351|Pratique pour lire d’une main. Balayez vers la droite pour reculer.
+352|En haut pour reculer, en bas pour avancer
+353|Les côtés gauche et droit fonctionnent aussi.
+354|Balayez, ou utilisez les boutons de volume, pour tourner les pages.
+355|Petit
+356|Grand
+357|Les images restent comme dans le livre.
+358|Ornements
+359|Les ornements et graphiques en noir et blanc prennent la couleur de la page. Sur les pages sombres, ils deviennent clairs. Les images encadrées gardent leur fond blanc.
+360|Toutes les images
+361|Toutes les images prennent la couleur de la page. Sur les pages sombres, les photos ressemblent à des négatifs.
+362|Livre
+363|Chapitre
+364|Comme le texte
+365|Atténuée
+366|Défilement
+367|Passer directement au chapitre suivant
+368|Attendre 3 secondes, puis continuer
+369|Attendre 10 secondes, puis continuer
+370|Continuer
+371|Pause de 2 secondes
+372|Pause de 5 secondes
+373|Glisser
+374|Corner
+375|Balayage
+376|Fondu
+377|Immédiat
+378|En haut à gauche
+379|En haut au centre
+380|En haut à droite
+381|En bas à gauche
+382|En bas au centre
+383|En bas à droite
+384|En haut
+385|En bas
+386|Centré
+387|Près de la reliure
+388|Livre en cours
+389|Tout le recueil
+390|Titre du livre
+391|Titre du chapitre
+392|1 Le Début
+393|Page dans le chapitre
+394|Page 3 sur 12
+395|Page dans le livre
+396|Page 45 sur 380
+397|Pages restantes du chapitre
+398|Encore 9 pages
+399|Temps de lecture restant du chapitre
+400|Encore 12 min
+401|Horloge
+402|Pourcentage du livre lu
+403|Surligner
+404|Le stockage n’a pas répondu en listant {0}
+405|Impossible d’ouvrir {0} en lecture
+406|Impossible d’ouvrir {0} en écriture
+407|Impossible de créer le dossier {0} sur le stockage
+408|Impossible de créer le dossier {0}, car un fichier porte déjà ce nom
+409|Android n’a pas pu créer {0} sur le stockage
+410|Le stockage a renommé {0} en {1}
+411|{0} a été écrit, mais sa taille sur le stockage est fausse ({1} au lieu de {2} octets)
+412|Les livres envoyés en kepub sont convertis selon la méthode de kepubify.
+413|=
+414|=
+415|=
+416|Le lettrage des couvertures créées par l’appli.
+417|=
+418|=
+419|=
+420|=
+421|Les couvertures créées par l’appli, pour les alphabets que Lora et Poppins n’ont pas.
+422|=
+423|=
+424|Une police pour lire, et pour les titres de l’appli et des livres.
+425|=
+426|=
+427|Une police pour lire.
+428|=
+429|=
+430|=
+431|=
+432|=
+433|=
+434|Les écrans, commandes et icônes de l’appli (AndroidX, Jetpack Compose, icônes Material).
+435|=
+436|=
+437|Le langage dans lequel l’appli est écrite, avec kotlinx.coroutines.
+438|=
+439|À propos
+440|Retour
+441|Une bibliothèque pour votre liseuse Kobo
+442|Version {0}
+443|Vos livres, et tout ce que vous en faites, restent sur cet appareil et sur votre Kobo. KoLib ne se connecte à Internet que lorsque vous cherchez une couverture, et n’envoie alors que les mots que vous cherchez.
+444|Kobo est une marque de Rakuten Kobo Inc. Cette appli n’est ni créée ni approuvée par Rakuten Kobo.
+445|Revoir l’introduction
+446|Logiciels et polices open source
+447|Lire la licence
+448|La licence n’a pas pu être lue.
+449|Cet appareil n’a pas de sélecteur de dossiers. L’appli en a besoin pour ouvrir le stockage de la Kobo.
+450|Cet appareil n’a pas de sélecteur de fichiers.
+451|Cet appareil n’a pas de sélecteur de dossiers.
+452|1 était déjà dans la bibliothèque.
+453|{0} étaient déjà dans la bibliothèque.
+455| Éjectez la Kobo pour qu’elle les ajoute.
+456| Redémarrez-la pour voir les nouvelles couvertures.
+457|Cet appareil ne permet pas de choisir où enregistrer les fichiers.
+458|Enregistrement sur la Kobo… Ne l’éjectez pas encore.
+459|Vérification de la Kobo… Ne l’éjectez pas encore.
+@de
+340|Zwei im Querformat
+341|Immer eine
+342|Immer zwei
+343|Automatisch
+344|Dreht sich mit dem Gerät.
+345|Hochformat
+346|Immer aufrecht, wie auch immer du das Gerät hältst.
+347|Querformat
+348|Immer quer, wie auch immer du das Gerät hältst.
+349|Links zurück, rechts vor
+350|Beide Seiten vor
+351|Praktisch zum Lesen mit einer Hand. Zum Zurückblättern nach rechts wischen.
+352|Oben zurück, unten vor
+353|Die linke und rechte Seite funktionieren auch.
+354|Wische oder nutze die Lautstärketasten zum Umblättern.
+355|Klein
+356|Groß
+357|Bilder sehen aus wie im Buch.
+358|Verzierungen
+359|Schwarz-weiße Verzierungen und Diagramme nehmen die Seitenfarbe an. Auf dunklen Seiten werden sie hell. Gerahmte Bilder behalten ihren weißen Hintergrund.
+360|Alle Bilder
+361|Jedes Bild nimmt die Seitenfarbe an. Auf dunklen Seiten sehen Fotos aus wie Negative.
+362|Buch
+363|Kapitel
+364|Wie der Text
+365|Gedimmt
+366|Scrollen
+367|Direkt zum nächsten Kapitel
+368|3 Sekunden warten, dann weiter
+369|10 Sekunden warten, dann weiter
+370|Weiterlaufen
+371|2 Sekunden Pause
+372|5 Sekunden Pause
+373|Schieben
+374|Umblättern
+375|Wischen
+376|Überblenden
+377|Sofort
+378|Oben links
+379|Oben Mitte
+380|Oben rechts
+381|Unten links
+382|Unten Mitte
+383|Unten rechts
+384|Oben
+385|Unten
+386|Mittig
+387|Nah am Bund
+388|Aktuelles Buch
+389|Ganzer Sammelband
+390|Buchtitel
+391|Kapiteltitel
+392|1 Der Anfang
+393|Seitenzahl im Kapitel
+394|Seite 3 von 12
+395|Seitenzahl im Buch
+396|Seite 45 von 380
+397|Restliche Seiten im Kapitel
+398|Noch 9 Seiten
+399|Restliche Lesezeit im Kapitel
+400|Noch 12 Min.
+401|Uhr
+402|Gelesener Anteil des Buchs in Prozent
+403|Markieren
+404|Das Laufwerk hat beim Auflisten von {0} nicht geantwortet
+405|{0} konnte nicht zum Lesen geöffnet werden
+406|{0} konnte nicht zum Schreiben geöffnet werden
+407|Der Ordner {0} konnte auf dem Laufwerk nicht erstellt werden
+408|Der Ordner {0} kann nicht erstellt werden, weil es schon eine Datei mit diesem Namen gibt
+409|Android konnte {0} auf dem Laufwerk nicht erstellen
+410|Das Laufwerk hat {0} in {1} umbenannt
+411|{0} wurde geschrieben, aber die Größe auf dem Laufwerk stimmt nicht ({1} statt {2} Byte)
+412|Bücher, die als kepub gesendet werden, werden nach der Methode von kepubify umgewandelt.
+413|=
+414|=
+415|=
+416|Die Schrift auf den Covern, die die App erstellt.
+417|=
+418|=
+419|=
+420|=
+421|Cover, die die App erstellt, für Alphabete, die Lora und Poppins nicht haben.
+422|=
+423|=
+424|Eine Schrift zum Lesen und für die Überschriften der App und die Buchtitel.
+425|=
+426|=
+427|Eine Schrift zum Lesen.
+428|=
+429|=
+430|=
+431|=
+432|=
+433|=
+434|Die Bildschirme, Bedienelemente und Symbole der App (AndroidX, Jetpack Compose, Material-Symbole).
+435|=
+436|=
+437|Die Sprache, in der die App geschrieben ist, mit kotlinx.coroutines.
+438|=
+439|Über
+440|Zurück
+441|Eine Bibliothek für deinen Kobo-eReader
+442|Version {0}
+443|Deine Bücher und alles, was du mit ihnen machst, bleiben auf diesem Gerät und deinem Kobo. KoLib geht nur online, wenn du nach einem Cover suchst, und sendet dann nur die Wörter, nach denen du suchst.
+444|Kobo ist eine Marke von Rakuten Kobo Inc. Diese App wird von Rakuten Kobo weder erstellt noch unterstützt.
+445|Einführung noch einmal zeigen
+446|Open-Source-Software und Schriften
+447|Lizenz lesen
+448|Die Lizenz konnte nicht gelesen werden.
+449|Dieses Gerät hat keine Ordnerauswahl. Die App braucht eine, um den Speicher des Kobo zu öffnen.
+450|Dieses Gerät hat keine Dateiauswahl.
+451|Dieses Gerät hat keine Ordnerauswahl.
+452|1 war schon in der Bibliothek.
+453|{0} waren schon in der Bibliothek.
+455| Wirf den Kobo aus, damit er sie hinzufügt.
+456| Starte ihn neu, um die neuen Cover zu sehen.
+457|Auf diesem Gerät kann nicht gewählt werden, wo Dateien gespeichert werden.
+458|Wird auf dem Kobo gespeichert… Noch nicht auswerfen.
+459|Kobo wird geprüft… Noch nicht auswerfen.
+@es
+340|Dos en horizontal
+341|Siempre una
+342|Siempre dos
+343|Automático
+344|Gira con el dispositivo.
+345|Vertical
+346|Siempre en vertical, sostengas como sostengas el dispositivo.
+347|Horizontal
+348|Siempre en horizontal, sostengas como sostengas el dispositivo.
+349|La izquierda retrocede, la derecha avanza
+350|Ambos lados avanzan
+351|Útil para leer con una mano. Desliza hacia la derecha para retroceder.
+352|Arriba retrocede, abajo avanza
+353|Los lados izquierdo y derecho también funcionan.
+354|Desliza o usa los botones de volumen para pasar páginas.
+355|Pequeño
+356|Grande
+357|Las imágenes se ven igual que en el libro.
+358|Adornos
+359|Los adornos y gráficos en blanco y negro toman el color de la página. En páginas oscuras se vuelven claros. Las imágenes enmarcadas conservan su fondo blanco.
+360|Todas las imágenes
+361|Todas las imágenes toman el color de la página. En páginas oscuras, las fotos parecen negativos.
+362|Libro
+363|Capítulo
+364|Igual que el texto
+365|Atenuada
+366|Desplazamiento
+367|Ir directamente al capítulo siguiente
+368|Esperar 3 segundos y continuar
+369|Esperar 10 segundos y continuar
+370|Seguir
+371|Pausa de 2 segundos
+372|Pausa de 5 segundos
+373|Deslizar
+374|Doblar
+375|Barrido
+376|Fundido
+377|Instantáneo
+378|Arriba a la izquierda
+379|Arriba en el centro
+380|Arriba a la derecha
+381|Abajo a la izquierda
+382|Abajo en el centro
+383|Abajo a la derecha
+384|Arriba
+385|Abajo
+386|Centrado
+387|Cerca del lomo
+388|Libro actual
+389|Toda la antología
+390|Título del libro
+391|Título del capítulo
+392|1 El comienzo
+393|Página en el capítulo
+394|Página 3 de 12
+395|Página en el libro
+396|Página 45 de 380
+397|Páginas que quedan del capítulo
+398|Quedan 9 páginas
+399|Tiempo de lectura que queda del capítulo
+400|Quedan 12 min
+401|Reloj
+402|Porcentaje del libro leído
+403|Subrayar
+404|La unidad no ha respondido al listar {0}
+405|No se ha podido abrir {0} para leer
+406|No se ha podido abrir {0} para escribir
+407|No se ha podido crear la carpeta {0} en la unidad
+408|No se puede crear la carpeta {0} porque ya hay un archivo con ese nombre
+409|Android no ha podido crear {0} en la unidad
+410|La unidad ha renombrado {0} como {1}
+411|Se ha escrito {0}, pero su tamaño en la unidad no es correcto ({1} en lugar de {2} bytes)
+412|Los libros enviados como kepub se convierten con el método de kepubify.
+413|=
+414|=
+415|=
+416|Las letras de las portadas que crea la app.
+417|=
+418|=
+419|=
+420|=
+421|Las portadas que crea la app, para alfabetos que Lora y Poppins no tienen.
+422|=
+423|=
+424|Una tipografía para leer, y para los títulos de la app y de los libros.
+425|=
+426|=
+427|Una tipografía para leer.
+428|=
+429|=
+430|=
+431|=
+432|=
+433|=
+434|Las pantallas, los controles y los iconos de la app (AndroidX, Jetpack Compose, iconos Material).
+435|=
+436|=
+437|El lenguaje en el que está escrita la app, con kotlinx.coroutines.
+438|=
+439|Información
+440|Atrás
+441|Una biblioteca para tu lector Kobo
+442|Versión {0}
+443|Tus libros, y todo lo que haces con ellos, se quedan en este dispositivo y en tu Kobo. KoLib solo se conecta a internet cuando buscas una portada, y entonces solo envía las palabras que buscas.
+444|Kobo es una marca de Rakuten Kobo Inc. Esta app no está hecha ni respaldada por Rakuten Kobo.
+445|Ver la introducción otra vez
+446|Software y fuentes de código abierto
+447|Leer la licencia
+448|No se ha podido leer la licencia.
+449|Este dispositivo no tiene selector de carpetas. La app lo necesita para abrir el almacenamiento del Kobo.
+450|Este dispositivo no tiene selector de archivos.
+451|Este dispositivo no tiene selector de carpetas.
+452|1 ya estaba en la biblioteca.
+453|{0} ya estaban en la biblioteca.
+455| Expulsa el Kobo para que los añada.
+456| Reinícialo para ver las portadas nuevas.
+457|Este dispositivo no permite elegir dónde guardar archivos.
+458|Guardando en el Kobo… No lo expulses todavía.
+459|Comprobando el Kobo… No lo expulses todavía.
+@it
+340|Due in orizzontale
+341|Sempre una
+342|Sempre due
+343|Automatico
+344|Ruota con il dispositivo.
+345|Verticale
+346|Sempre dritto, in qualunque modo tieni il dispositivo.
+347|Orizzontale
+348|Sempre di lato, in qualunque modo tieni il dispositivo.
+349|Sinistra indietro, destra avanti
+350|Entrambi i lati avanti
+351|Comodo per leggere con una mano. Scorri verso destra per tornare indietro.
+352|In alto indietro, in basso avanti
+353|Funzionano anche i lati sinistro e destro.
+354|Scorri, o usa i tasti del volume, per girare le pagine.
+355|Piccolo
+356|Grande
+357|Le immagini restano come nel libro.
+358|Decorazioni
+359|Decorazioni e grafici in bianco e nero prendono il colore della pagina. Sulle pagine scure diventano chiari. Le immagini incorniciate mantengono lo sfondo bianco.
+360|Tutte le immagini
+361|Ogni immagine prende il colore della pagina. Sulle pagine scure, le foto sembrano negativi.
+362|Libro
+363|Capitolo
+364|Come il testo
+365|Attenuata
+366|Scorrimento
+367|Passa subito al capitolo successivo
+368|Attendi 3 secondi, poi continua
+369|Attendi 10 secondi, poi continua
+370|Continua
+371|Pausa di 2 secondi
+372|Pausa di 5 secondi
+373|Scorri
+374|Piega
+375|Spazzata
+376|Dissolvenza
+377|Istantaneo
+378|In alto a sinistra
+379|In alto al centro
+380|In alto a destra
+381|In basso a sinistra
+382|In basso al centro
+383|In basso a destra
+384|In alto
+385|In basso
+386|Centrato
+387|Vicino alla rilegatura
+388|Libro attuale
+389|Intera raccolta
+390|Titolo del libro
+391|Titolo del capitolo
+392|1 L’inizio
+393|Numero di pagina nel capitolo
+394|Pagina 3 di 12
+395|Numero di pagina nel libro
+396|Pagina 45 di 380
+397|Pagine rimaste nel capitolo
+398|Mancano 9 pagine
+399|Tempo di lettura rimasto nel capitolo
+400|Mancano 12 min
+401|Orologio
+402|Percentuale del libro letta
+403|Evidenzia
+404|L’unità non ha risposto elencando {0}
+405|Impossibile aprire {0} in lettura
+406|Impossibile aprire {0} in scrittura
+407|Impossibile creare la cartella {0} sull’unità
+408|Impossibile creare la cartella {0}, perché esiste già un file con quel nome
+409|Android non è riuscito a creare {0} sull’unità
+410|L’unità ha rinominato {0} in {1}
+411|{0} è stato scritto, ma la sua dimensione sull’unità è sbagliata ({1} invece di {2} byte)
+412|I libri inviati come kepub vengono convertiti con il metodo di kepubify.
+413|=
+414|=
+415|=
+416|Le scritte sulle copertine create dall’app.
+417|=
+418|=
+419|=
+420|=
+421|Le copertine create dall’app, per gli alfabeti che Lora e Poppins non hanno.
+422|=
+423|=
+424|Un carattere per leggere, e per i titoli dell’app e dei libri.
+425|=
+426|=
+427|Un carattere per leggere.
+428|=
+429|=
+430|=
+431|=
+432|=
+433|=
+434|Le schermate, i comandi e le icone dell’app (AndroidX, Jetpack Compose, icone Material).
+435|=
+436|=
+437|Il linguaggio in cui è scritta l’app, con kotlinx.coroutines.
+438|=
+439|Informazioni
+440|Indietro
+441|Una libreria per il tuo e-reader Kobo
+442|Versione {0}
+443|I tuoi libri, e tutto quello che ci fai, restano su questo dispositivo e sul tuo Kobo. KoLib va online solo quando cerchi una copertina, e in quel caso invia solo le parole che cerchi.
+444|Kobo è un marchio di Rakuten Kobo Inc. Questa app non è realizzata né approvata da Rakuten Kobo.
+445|Mostra di nuovo l’introduzione
+446|Software e caratteri open source
+447|Leggi la licenza
+448|Impossibile leggere la licenza.
+449|Questo dispositivo non ha un selettore di cartelle. L’app ne ha bisogno per aprire la memoria del Kobo.
+450|Questo dispositivo non ha un selettore di file.
+451|Questo dispositivo non ha un selettore di cartelle.
+452|1 era già nella libreria.
+453|{0} erano già nella libreria.
+455| Espelli il Kobo perché li aggiunga.
+456| Riavvialo per vedere le nuove copertine.
+457|Questo dispositivo non permette di scegliere dove salvare i file.
+458|Salvataggio sul Kobo… Non espellerlo ancora.
+459|Controllo del Kobo… Non espellerlo ancora.
+@nl
+340|Twee in liggende stand
+341|Altijd één
+342|Altijd twee
+343|Automatisch
+344|Draait mee met het apparaat.
+345|Staand
+346|Altijd rechtop, hoe je het apparaat ook vasthoudt.
+347|Liggend
+348|Altijd op zijn kant, hoe je het apparaat ook vasthoudt.
+349|Links gaat terug, rechts gaat verder
+350|Beide kanten gaan verder
+351|Handig om met één hand te lezen. Veeg naar rechts om terug te gaan.
+352|Boven gaat terug, onder gaat verder
+353|De linker- en rechterkant werken ook.
+354|Veeg, of gebruik de volumeknoppen, om pagina’s om te slaan.
+355|Klein
+356|Groot
+357|Afbeeldingen zien er net zo uit als in het boek.
+358|Versieringen
+359|Zwart-witte versieringen en grafieken nemen de paginakleur aan. Op donkere pagina’s worden ze licht. Ingelijste afbeeldingen houden hun witte achtergrond.
+360|Alle afbeeldingen
+361|Elke afbeelding neemt de paginakleur aan. Op donkere pagina’s lijken foto’s negatieven.
+362|Boek
+363|Hoofdstuk
+364|Zoals de tekst
+365|Gedimd
+366|Scrollen
+367|Meteen door naar het volgende hoofdstuk
+368|3 seconden wachten, dan verder
+369|10 seconden wachten, dan verder
+370|Doorgaan
+371|2 seconden pauzeren
+372|5 seconden pauzeren
+373|Schuiven
+374|Omkrullen
+375|Vegen
+376|Vervagen
+377|Direct
+378|Linksboven
+379|Midden boven
+380|Rechtsboven
+381|Linksonder
+382|Midden onder
+383|Rechtsonder
+384|Boven
+385|Onder
+386|Gecentreerd
+387|Dicht bij de rug
+388|Huidig boek
+389|Hele omnibus
+390|Boektitel
+391|Hoofdstuktitel
+392|1 Het begin
+393|Paginanummer in hoofdstuk
+394|Pagina 3 van 12
+395|Paginanummer in boek
+396|Pagina 45 van 380
+397|Resterende pagina’s in hoofdstuk
+398|Nog 9 pagina’s
+399|Resterende leestijd in hoofdstuk
+400|Nog 12 min
+401|Klok
+402|Percentage van het boek gelezen
+403|Markeren
+404|De schijf reageerde niet bij het opvragen van {0}
+405|Kon {0} niet openen om te lezen
+406|Kon {0} niet openen om te schrijven
+407|Kon de map {0} niet maken op de schijf
+408|Kan de map {0} niet maken, omdat er al een bestand met die naam is
+409|Android kon {0} niet maken op de schijf
+410|De schijf heeft {0} hernoemd naar {1}
+411|{0} is geschreven, maar de grootte op de schijf klopt niet ({1} in plaats van {2} bytes)
+412|Boeken die als kepub worden verstuurd, worden omgezet volgens de methode van kepubify.
+413|=
+414|=
+415|=
+416|De letters op de omslagen die de app maakt.
+417|=
+418|=
+419|=
+420|=
+421|Omslagen die de app maakt, voor alfabetten die Lora en Poppins niet hebben.
+422|=
+423|=
+424|Een lettertype om te lezen, en voor de koppen van de app en de boektitels.
+425|=
+426|=
+427|Een lettertype om te lezen.
+428|=
+429|=
+430|=
+431|=
+432|=
+433|=
+434|De schermen, bedieningselementen en pictogrammen van de app (AndroidX, Jetpack Compose, Material-pictogrammen).
+435|=
+436|=
+437|De taal waarin de app is geschreven, met kotlinx.coroutines.
+438|=
+439|Over
+440|Terug
+441|Een bibliotheek voor je Kobo-e-reader
+442|Versie {0}
+443|Je boeken, en alles wat je ermee doet, blijven op dit apparaat en je Kobo. KoLib gaat alleen online als je een omslag zoekt, en stuurt dan alleen de woorden die je zoekt.
+444|Kobo is een handelsmerk van Rakuten Kobo Inc. Deze app is niet gemaakt of goedgekeurd door Rakuten Kobo.
+445|Introductie opnieuw tonen
+446|Opensourcesoftware en lettertypen
+447|Licentie lezen
+448|De licentie kon niet worden gelezen.
+449|Dit apparaat heeft geen mapkiezer. De app heeft er een nodig om de opslag van de Kobo te openen.
+450|Dit apparaat heeft geen bestandskiezer.
+451|Dit apparaat heeft geen mapkiezer.
+452|1 stond al in de bibliotheek.
+453|{0} stonden al in de bibliotheek.
+455| Werp de Kobo uit zodat hij ze toevoegt.
+456| Start hem opnieuw op om de nieuwe omslagen te zien.
+457|Op dit apparaat kun je niet kiezen waar bestanden worden opgeslagen.
+458|Opslaan op de Kobo… Werp hem nog niet uit.
+459|De Kobo controleren… Werp hem nog niet uit.
+@pt
+340|Duas na horizontal
+341|Sempre uma
+342|Sempre duas
+343|Automática
+344|Gira com o dispositivo.
+345|Retrato
+346|Sempre em pé, do jeito que você segurar o dispositivo.
+347|Paisagem
+348|Sempre deitado, do jeito que você segurar o dispositivo.
+349|A esquerda volta, a direita avança
+350|Os dois lados avançam
+351|Prático para ler com uma mão. Deslize para a direita para voltar.
+352|Em cima volta, embaixo avança
+353|Os lados esquerdo e direito também funcionam.
+354|Deslize, ou use os botões de volume, para virar as páginas.
+355|Pequeno
+356|Grande
+357|As imagens ficam iguais às do livro.
+358|Enfeites
+359|Enfeites e gráficos em preto e branco ficam com a cor da página. Em páginas escuras, eles ficam claros. Imagens com moldura mantêm o fundo branco.
+360|Todas as imagens
+361|Todas as imagens ficam com a cor da página. Em páginas escuras, as fotos parecem negativos.
+362|Livro
+363|Capítulo
+364|Igual ao texto
+365|Esmaecida
+366|Rolagem
+367|Ir direto para o próximo capítulo
+368|Esperar 3 segundos e continuar
+369|Esperar 10 segundos e continuar
+370|Continuar
+371|Pausar por 2 segundos
+372|Pausar por 5 segundos
+373|Deslizar
+374|Dobrar
+375|Varrer
+376|Esmaecer
+377|Instantâneo
+378|Em cima à esquerda
+379|Em cima no centro
+380|Em cima à direita
+381|Embaixo à esquerda
+382|Embaixo no centro
+383|Embaixo à direita
+384|Em cima
+385|Embaixo
+386|Centralizado
+387|Perto da lombada
+388|Livro atual
+389|Coletânea inteira
+390|Título do livro
+391|Título do capítulo
+392|1 O começo
+393|Número da página no capítulo
+394|Página 3 de 12
+395|Número da página no livro
+396|Página 45 de 380
+397|Páginas restantes no capítulo
+398|Faltam 9 páginas
+399|Tempo de leitura restante no capítulo
+400|Faltam 12 min
+401|Relógio
+402|Porcentagem lida do livro
+403|Destacar
+404|A unidade não respondeu ao listar {0}
+405|Não foi possível abrir {0} para leitura
+406|Não foi possível abrir {0} para gravação
+407|Não foi possível criar a pasta {0} na unidade
+408|Não é possível criar a pasta {0}, porque já existe um arquivo com esse nome
+409|O Android não conseguiu criar {0} na unidade
+410|A unidade renomeou {0} para {1}
+411|{0} foi gravado, mas o tamanho na unidade está errado ({1} em vez de {2} bytes)
+412|Os livros enviados como kepub são convertidos pelo método do kepubify.
+413|=
+414|=
+415|=
+416|As letras das capas que o app cria.
+417|=
+418|=
+419|=
+420|=
+421|Capas que o app cria, para alfabetos que Lora e Poppins não têm.
+422|=
+423|=
+424|Uma fonte para ler, e para os títulos do app e dos livros.
+425|=
+426|=
+427|Uma fonte para ler.
+428|=
+429|=
+430|=
+431|=
+432|=
+433|=
+434|As telas, os controles e os ícones do app (AndroidX, Jetpack Compose, ícones Material).
+435|=
+436|=
+437|A linguagem em que o app foi escrito, com kotlinx.coroutines.
+438|=
+439|Sobre
+440|Voltar
+441|Uma biblioteca para o seu leitor Kobo
+442|Versão {0}
+443|Seus livros, e tudo o que você faz com eles, ficam neste dispositivo e no seu Kobo. O KoLib só acessa a internet quando você procura uma capa, e só envia as palavras que você procurou.
+444|Kobo é uma marca da Rakuten Kobo Inc. Este app não é feito nem endossado pela Rakuten Kobo.
+445|Ver a introdução de novo
+446|Software e fontes de código aberto
+447|Ler a licença
+448|Não foi possível ler a licença.
+449|Este dispositivo não tem seletor de pastas. O app precisa de um para abrir o armazenamento do Kobo.
+450|Este dispositivo não tem seletor de arquivos.
+451|Este dispositivo não tem seletor de pastas.
+452|1 já estava na biblioteca.
+453|{0} já estavam na biblioteca.
+455| Ejete o Kobo para ele adicioná-los.
+456| Reinicie-o para ver as capas novas.
+457|Este dispositivo não permite escolher onde salvar arquivos.
+458|Salvando no Kobo… Não ejete ainda.
+459|Verificando o Kobo… Não ejete ainda.
+@ja
+340|横向きでは 2 ページ
+341|常に 1 ページ
+342|常に 2 ページ
+343|自動
+344|端末の向きに合わせて回転します。
+345|縦向き
+346|端末の持ち方にかかわらず、常に縦向きです。
+347|横向き
+348|端末の持ち方にかかわらず、常に横向きです。
+349|左で戻る、右で進む
+350|左右どちらでも進む
+351|片手で読むときに便利です。右にスワイプすると戻ります。
+352|上で戻る、下で進む
+353|左右でも操作できます。
+354|スワイプか音量ボタンでページをめくります。
+355|小
+356|大
+357|画像は本のとおりに表示されます。
+358|装飾
+359|白黒の装飾や図表がページの色になじみます。暗いページでは明るい色になります。枠のある画像は白い背景のままです。
+360|すべての画像
+361|すべての画像がページの色になじみます。暗いページでは写真がネガのように見えます。
+362|本
+363|章
+364|文字と同じ
+365|控えめ
+366|スクロール
+367|すぐ次の章へ進む
+368|3 秒待ってから続ける
+369|10 秒待ってから続ける
+370|そのまま続ける
+371|2 秒止める
+372|5 秒止める
+373|スライド
+374|カール
+375|スイープ
+376|フェード
+377|すぐに
+378|左上
+379|上中央
+380|右上
+381|左下
+382|下中央
+383|右下
+384|上
+385|下
+386|中央
+387|のど側
+388|今の本
+389|合本全体
+390|本のタイトル
+391|章のタイトル
+392|1 はじまり
+393|章のページ番号
+394|3 / 12 ページ
+395|本のページ番号
+396|45 / 380 ページ
+397|章の残りページ数
+398|残り 9 ページ
+399|章を読み終えるまでの時間
+400|残り 12 分
+401|時計
+402|本の読了率
+403|ハイライト
+404|{0} の一覧を取得中にドライブが応答しませんでした
+405|{0} を読み込み用に開けませんでした
+406|{0} を書き込み用に開けませんでした
+407|ドライブにフォルダ {0} を作成できませんでした
+408|同じ名前のファイルがあるため、フォルダ {0} を作成できません
+409|Android がドライブに {0} を作成できませんでした
+410|ドライブが {0} の名前を {1} に変えました
+411|{0} を書き込みましたが、ドライブ上のサイズが違います（{2} バイトのはずが {1} バイト）
+412|kepub として送る本は、kepubify の方法で変換しています。
+413|=
+414|=
+415|=
+416|アプリが作る表紙の文字。
+417|=
+418|=
+419|=
+420|=
+421|アプリが作る表紙で、Lora と Poppins にない文字に使います。
+422|=
+423|=
+424|読書用の書体です。アプリの見出しや本のタイトルにも使っています。
+425|=
+426|=
+427|読書用の書体です。
+428|=
+429|=
+430|=
+431|=
+432|=
+433|=
+434|アプリの画面、操作部品、アイコン（AndroidX、Jetpack Compose、Material アイコン）。
+435|=
+436|=
+437|アプリを書いている言語です。kotlinx.coroutines も使っています。
+438|=
+439|このアプリについて
+440|戻る
+441|Kobo 電子書籍リーダーのためのライブラリ
+442|バージョン {0}
+443|本と、本に対して行うことはすべて、この端末と Kobo の中にとどまります。KoLib がインターネットに接続するのは表紙を探すときだけで、そのとき送るのは検索した言葉だけです。
+444|Kobo は Rakuten Kobo Inc. の商標です。このアプリは Rakuten Kobo が作成または承認したものではありません。
+445|紹介をもう一度見る
+446|オープンソースのソフトウェアとフォント
+447|ライセンスを読む
+448|ライセンスを読み込めませんでした。
+449|この端末にはフォルダ選択画面がありません。Kobo のストレージを開くために必要です。
+450|この端末にはファイル選択画面がありません。
+451|この端末にはフォルダ選択画面がありません。
+452|1 冊はすでにライブラリにありました。
+453|{0} 冊はすでにライブラリにありました。
+455| Kobo を取り出すと、Kobo に追加されます。
+456| 新しい表紙を見るには Kobo を再起動してください。
+457|この端末では、ファイルの保存先を選べません。
+458|Kobo に保存しています… まだ取り出さないでください。
+459|Kobo を確認しています… まだ取り出さないでください。

@@ -47,20 +47,19 @@ object AppLanguage {
     fun current(context: Context): String = chosen(context) ?: deviceLanguage()
 
     /**
-     * Shows KoLib in [tag] from now on; null (or the device's own language) follows the device. The
-     * screens are made again in the new language.
+     * Shows KoLib in [tag] from now on; null (or the device's own language) follows the device. KoLib
+     * starts again, so that everything is in the new language.
      */
     fun choose(activity: Activity, tag: String?) {
         val keep = tag?.takeIf { it != deviceLanguage() }
-        if (keep == chosen(activity)) return
+        if (keep == chosen(activity) && (keep ?: deviceLanguage()) == L10n.language) return
+        // Kept by KoLib before Android 13; Android keeps it from 13 on (and shows it in its own settings).
+        activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(KEY, keep).commit()
         if (Build.VERSION.SDK_INT >= 33) {
-            // Android makes the screens again itself.
             activity.getSystemService(LocaleManager::class.java)?.applicationLocales =
                 if (keep == null) LocaleList.getEmptyLocaleList() else LocaleList.forLanguageTags(keep)
-        } else {
-            activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(KEY, keep).commit()
-            activity.recreate()
         }
+        RestartActivity.restart(activity)
     }
 
     /** Before Android 13: [base] in the language chosen in KoLib, for an activity or the app to use. */

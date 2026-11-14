@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.convert
 
+import dev.kobolibrary.app.tr
 import dev.kobolibrary.app.epub.BookMetadata
 import dev.kobolibrary.app.epub.TocNode
 import java.io.ByteArrayOutputStream
@@ -26,11 +27,11 @@ internal class Pdb(val data: ByteArray) {
     val offsets: IntArray
 
     init {
-        if (data.size < 78) throw ConversionException("This file is too short to be a Kindle book.")
+        if (data.size < 78) throw ConversionException(tr("This file is too short to be a Kindle book."))
         name = String(data, 0, 32, Charsets.ISO_8859_1).substringBefore('\u0000')
         type = String(data, 60, 8, Charsets.ISO_8859_1)
         val n = u16(data, 76)
-        if (n == 0 || 78 + n * 8 > data.size) throw ConversionException("This Kindle book is damaged.")
+        if (n == 0 || 78 + n * 8 > data.size) throw ConversionException(tr("This Kindle book is damaged."))
         offsets = IntArray(n) { i -> u32(data, 78 + i * 8).toInt() }
     }
 
@@ -107,7 +108,7 @@ internal class MobiHeader(val pdb: Pdb, val base: Int) {
 
     /** The book's text, every text record uncompressed and joined. */
     fun text(): ByteArray {
-        if (encryption != 0) throw ConversionException("This book is locked with DRM, so it can't be opened.")
+        if (encryption != 0) throw ConversionException(tr("This book is locked with DRM, so it can't be opened."))
         val huff = if (compression == 0x4448) HuffCdic(pdb, huffRecord, huffCount) else null
         val out = ByteArrayOutputStream(textLength + 4096)
         for (i in 1..textRecords) {
@@ -117,7 +118,7 @@ internal class MobiHeader(val pdb: Pdb, val base: Int) {
                 1 -> out.write(rec)
                 2 -> out.write(PalmDoc.decompress(rec))
                 0x4448 -> out.write(huff!!.unpack(rec))
-                else -> throw ConversionException("This Kindle book is compressed in a way that can't be read.")
+                else -> throw ConversionException(tr("This Kindle book is compressed in a way that can't be read."))
             }
         }
         val all = out.toByteArray()
@@ -187,9 +188,9 @@ internal class HuffCdic(pdb: Pdb, first: Int, count: Int) {
     private val maxFor = LongArray(256)
 
     init {
-        if (first < 0 || count < 2) throw ConversionException("This Kindle book's compression tables are missing.")
+        if (first < 0 || count < 2) throw ConversionException(tr("This Kindle book's compression tables are missing."))
         val huff = pdb.record(first)
-        if (String(huff, 0, 4, Charsets.ISO_8859_1) != "HUFF") throw ConversionException("This Kindle book's compression tables are damaged.")
+        if (String(huff, 0, 4, Charsets.ISO_8859_1) != "HUFF") throw ConversionException(tr("This Kindle book's compression tables are damaged."))
         val off1 = Pdb.u32(huff, 8).toInt()
         val off2 = Pdb.u32(huff, 12).toInt()
         for (i in 0 until 256) {
@@ -229,7 +230,7 @@ internal class HuffCdic(pdb: Pdb, first: Int, count: Int) {
     }
 
     private fun unpackInto(src: ByteArray, out: ByteArrayOutputStream, depth: Int) {
-        if (depth > 32) throw ConversionException("This Kindle book's text is damaged.")
+        if (depth > 32) throw ConversionException(tr("This Kindle book's text is damaged."))
         val data = src.copyOf(src.size + 8)
         var bitsLeft = src.size.toLong() * 8
         var pos = 0
@@ -282,7 +283,7 @@ internal class MobiIndex(private val pdb: Pdb, private val first: Int) {
 
     init {
         val header = pdb.record(first)
-        if (header.size < 0xC0 || String(header, 0, 4, Charsets.ISO_8859_1) != "INDX") throw ConversionException("An index in this Kindle book is damaged.")
+        if (header.size < 0xC0 || String(header, 0, 4, Charsets.ISO_8859_1) != "INDX") throw ConversionException(tr("An index in this Kindle book is damaged."))
         val hdrLen = Pdb.u32(header, 4).toInt()
         val count = Pdb.u32(header, 24).toInt()
         val code = Pdb.u32(header, 28).toInt()
@@ -430,8 +431,8 @@ internal class MobiBook(bytes: ByteArray) {
     }
 
     init {
-        if (!pdb.type.startsWith("BOOKMOBI") && !pdb.type.startsWith("TEXtREAd")) throw ConversionException("This isn't a Kindle book.")
-        if (first.encryption != 0) throw ConversionException("This book is locked with DRM, so it can't be opened.")
+        if (!pdb.type.startsWith("BOOKMOBI") && !pdb.type.startsWith("TEXtREAd")) throw ConversionException(tr("This isn't a Kindle book."))
+        if (first.encryption != 0) throw ConversionException(tr("This book is locked with DRM, so it can't be opened."))
     }
 
     fun metadata(fallbackTitle: String): BookMetadata {
@@ -470,7 +471,7 @@ internal class MobiBook(bytes: ByteArray) {
             } catch (e: ConversionException) {
                 if (kf8 === first) throw e
             } catch (e: Exception) {
-                if (kf8 === first) throw ConversionException("This Kindle book couldn't be read: ${e.message}")
+                if (kf8 === first) throw ConversionException(tr("This Kindle book couldn't be read: {0}", e.message))
             }
         }
         Mobi6(first, out).write()
@@ -509,7 +510,7 @@ internal class MobiBook(bytes: ByteArray) {
             val pieces = body.substringBefore("</body>").split(Regex("""<mbp:pagebreak\s*/?>|</mbp:pagebreak>""", RegexOption.IGNORE_CASE))
             val docs = pieces.map { HtmlSoup.parse(it) }.map { d -> d.children.filterIsInstance<HtmlSoup.Element>().firstOrNull { it.name == "body" } ?: d }
                 .filter { b -> b.text().isNotBlank() || b.elements().any { it.name == "img" } }
-            if (docs.isEmpty()) throw ConversionException("There's no text in this Kindle book.")
+            if (docs.isEmpty()) throw ConversionException(tr("There's no text in this Kindle book."))
             val paths = docs.indices.map { out.nextPagePath("part%04d.xhtml".format(it + 1)).substringAfterLast('/') }
             val idFile = HashMap<String, String>()
             docs.forEachIndexed { i, b -> b.elements().forEach { e -> e.attrs["id"]?.let { idFile[it] = paths[i] } } }
@@ -617,7 +618,7 @@ internal class MobiBook(bytes: ByteArray) {
                 }
             }
             if (flows.isEmpty()) flows += 0 until raw.size
-            if (h.skelIndex < 0 || h.fragIndex < 0) throw ConversionException("This Kindle book's page index is missing.")
+            if (h.skelIndex < 0 || h.fragIndex < 0) throw ConversionException(tr("This Kindle book's page index is missing."))
             val skelIdx = MobiIndex(pdb, h.skelIndex)
             val fragIdx = MobiIndex(pdb, h.fragIndex)
             for (e in fragIdx.entries) {
@@ -646,7 +647,7 @@ internal class MobiBook(bytes: ByteArray) {
                 partEnd += basePtr
                 parts += file
             }
-            if (parts.isEmpty()) throw ConversionException("There's no text in this Kindle book.")
+            if (parts.isEmpty()) throw ConversionException(tr("There's no text in this Kindle book."))
             val names = parts.indices.map { "part%04d.xhtml".format(it) }
             // Links into the book: to the page and the element nearest before the place.
             val wantedAids = HashMap<Int, HashSet<String>>()

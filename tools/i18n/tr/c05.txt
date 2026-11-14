@@ -1,0 +1,805 @@
+@fr
+460|=
+461|Bibliothèque
+462|=
+463|Thème
+464|Thème de l’appli
+465|Langue
+466|Animation d’ouverture
+467|Se joue au démarrage de KoLib. Touchez-la pour la passer.
+468|Son d’ouverture
+469|Se joue avec l’animation, au volume multimédia.
+470|Mode performance
+471|Une animation plus légère, fluide sur les téléphones. Activé par défaut sur les téléphones.
+472|OK
+473|Sauvegardes de la base de données
+474|Pas encore de sauvegarde
+475|Une sauvegarde de la base de données de la Kobo est faite automatiquement à la première connexion.
+476|Chaque sauvegarde est une copie zippée du fichier de base de données de la Kobo (KoboReader.sqlite). Elle contient la bibliothèque, les collections et la progression de lecture de la Kobo. Une nouvelle sauvegarde est faite à chaque connexion quand quelque chose a changé. Les {0} plus récentes sont conservées. Pour copier une sauvegarde dans Downloads/{1}, touchez son bouton de téléchargement.
+477|avec le journal d’écriture anticipée
+478|Enregistrer dans Téléchargements
+479|Supprimer la sauvegarde
+480|Supprimer cette sauvegarde ?
+481|La sauvegarde du {0} sera supprimée de cet appareil. Rien ne change sur la Kobo.
+482|Supprimer
+483|Annuler
+484|Touchez un livre
+485|Ses détails de la Kobo s’afficheront ici.
+486|Connectez votre Kobo pour ajouter ou supprimer des livres
+487|Supprimer de la Kobo
+488|Ajouter à la bibliothèque
+489|Aucun livre sur cette Kobo
+490|Les livres que vous ajoutez à la Kobo apparaîtront ici.
+491|Aucun livre correspondant
+492|Essayez une autre recherche ou effacez les filtres.
+493|Supprimer « {0} » de la Kobo ?
+494|Supprimer {0} livres de la Kobo ?
+495|Leurs fichiers seront supprimés de la Kobo, avec la progression de lecture et les surlignages. Les copies dans votre bibliothèque sur cet appareil ne seront pas supprimées. Les livres de la boutique Kobo ne peuvent pas être supprimés ici.
+496|\n\nAucun des livres sélectionnés ne peut être supprimé, car ils viennent de la boutique Kobo.
+497|Annuler la sélection
+498|Touchez des livres pour les sélectionner
+499|Tout sélectionner
+500|%.1f Mo
+501|1 page
+502|%,d pages
+503|Terminé
+504|{0} % lu
+505|Rechercher titres, auteurs, étiquettes…
+506|Effacer la recherche
+507|Comment rechercher
+508|Sélectionner
+509|Trier
+510|Inverser l’ordre
+511|Afficher en liste
+512|Afficher en grille
+513|Collection
+514|Toutes les collections
+515|Étiquettes
+517| · trié par {0}
+518| · lecture des étiquettes des fichiers : {0} sur {1}
+519|Effacer la recherche et les filtres
+520|Dans la bibliothèque
+521|Non lus
+522|Le fichier du livre sera supprimé de la Kobo, avec votre progression de lecture et vos surlignages.
+523|La copie dans votre bibliothèque ne sera pas supprimée.
+524|Il n’est pas dans votre bibliothèque : ajoutez-le d’abord à votre bibliothèque si vous voulez le garder.
+525|Tous les livres
+526|Ajoutés à la main
+527|Boutique Kobo
+528|Dans votre bibliothèque
+529|Collections sur la Kobo
+530|Dans aucune collection.
+531|Détails
+532|Dernière lecture
+533|Ajouté
+534|Publié
+535|Éditeur
+536|Longueur
+537|Environ {0}
+538|Fichier
+539|Taille
+540|Description
+541|Ces détails viennent de la Kobo. Pour changer les détails ou la couverture, ajoutez le livre à votre bibliothèque et modifiez-le là.
+542|Tous
+543|En cours
+544|Titre
+545|De A à Z
+546|De Z à A
+547|Auteur
+548|Série
+549|les plus anciens d’abord
+550|les plus récents d’abord
+551|Date d’ajout
+552|Taille du fichier
+553|les plus petits d’abord
+554|les plus gros d’abord
+555|Pages
+556|les plus courts d’abord
+557|les plus longs d’abord
+558|Note
+559|les moins bien notés d’abord
+560|les mieux notés d’abord
+561|les moins récents d’abord
+562|les plus récents d’abord
+563|Progression
+564|les moins avancés d’abord
+565|les plus avancés d’abord
+566|Dans aucune collection
+567|Touchez une collection
+568|Ses livres s’afficheront ici.
+569|Cette Kobo n’a pas encore de collection.
+570|{0} sur cette Kobo
+571| · masquée sur la Kobo
+572|Retour aux collections
+573|Tout ajouter à la bibliothèque
+574|Ajouter {0} à la bibliothèque
+@de
+460|=
+461|Bibliothek
+462|=
+463|Design
+464|App-Design
+465|Sprache
+466|Startanimation
+467|Läuft, wenn KoLib startet. Tippe darauf, um sie zu überspringen.
+468|Startton
+469|Läuft mit der Animation, in deiner Medienlautstärke.
+470|Leistungsmodus
+471|Eine leichtere Animation, die auf Handys flüssig läuft. Auf Handys standardmäßig an.
+472|Fertig
+473|Datenbanksicherungen
+474|Noch keine Sicherungen
+475|Beim ersten Verbinden wird automatisch eine Sicherung der Kobo-Datenbank erstellt.
+476|Jede Sicherung ist eine gezippte Kopie der Datenbankdatei des Kobo (KoboReader.sqlite). Sie enthält die Bibliothek, die Sammlungen und den Lesefortschritt des Kobo. Eine neue Sicherung wird erstellt, wenn du verbindest und sich etwas geändert hat. Die neuesten {0} werden behalten. Um eine Sicherung nach Downloads/{1} zu kopieren, tippe auf ihre Download-Schaltfläche.
+477|mit Write-Ahead-Log
+478|In „Downloads“ speichern
+479|Sicherung löschen
+480|Diese Sicherung löschen?
+481|Die Sicherung vom {0} wird von diesem Gerät gelöscht. Auf dem Kobo ändert sich nichts.
+482|Löschen
+483|Abbrechen
+484|Tippe auf ein Buch
+485|Seine Details vom Kobo werden hier angezeigt.
+486|Verbinde deinen Kobo, um Bücher hinzuzufügen oder zu löschen
+487|Vom Kobo löschen
+488|Zur Bibliothek hinzufügen
+489|Keine Bücher auf diesem Kobo
+490|Bücher, die du auf den Kobo kopierst, erscheinen hier.
+491|Keine passenden Bücher
+492|Versuche eine andere Suche oder lösche die Filter.
+493|„{0}“ vom Kobo löschen?
+494|{0} Bücher vom Kobo löschen?
+495|Damit werden ihre Dateien vom Kobo gelöscht, mit Lesefortschritt und Markierungen. Kopien in deiner Bibliothek auf diesem Gerät werden nicht gelöscht. Bücher aus dem Kobo Store können hier nicht gelöscht werden.
+496|\n\nKeines der ausgewählten Bücher kann gelöscht werden, weil sie aus dem Kobo Store sind.
+497|Auswahl aufheben
+498|Tippe auf Bücher, um sie auszuwählen
+499|Alle auswählen
+500|=
+501|1 Seite
+502|%,d Seiten
+503|Gelesen
+504|{0} % gelesen
+505|Titel, Autoren, Schlagwörter suchen…
+506|Suche löschen
+507|So suchst du
+508|Auswählen
+509|Sortieren
+510|Reihenfolge umkehren
+511|Als Liste anzeigen
+512|Als Raster anzeigen
+513|Sammlung
+514|Alle Sammlungen
+515|Schlagwörter
+517| · sortiert nach {0}
+518| · Schlagwörter werden aus Buchdateien gelesen: {0} von {1}
+519|Suche und Filter löschen
+520|In der Bibliothek
+521|Ungelesen
+522|Damit wird die Datei des Buchs vom Kobo gelöscht, mit deinem Lesefortschritt und deinen Markierungen.
+523|Die Kopie in deiner Bibliothek wird nicht gelöscht.
+524|Es ist nicht in deiner Bibliothek. Füge es also erst deiner Bibliothek hinzu, wenn du es behalten willst.
+525|Alle Bücher
+526|Selbst hinzugefügt
+527|Kobo Store
+528|In deiner Bibliothek
+529|Sammlungen auf dem Kobo
+530|In keiner Sammlung.
+531|Details
+532|Zuletzt gelesen
+533|Hinzugefügt
+534|Erschienen
+535|Verlag
+536|Länge
+537|Etwa {0}
+538|Datei
+539|Größe
+540|Beschreibung
+541|Diese Details stammen vom Kobo. Um Details oder Cover zu ändern, füge das Buch deiner Bibliothek hinzu und bearbeite es dort.
+542|Alle
+543|Am Lesen
+544|Titel
+545|A bis Z
+546|Z bis A
+547|Autor
+548|Reihe
+549|älteste zuerst
+550|neueste zuerst
+551|Hinzugefügt am
+552|Dateigröße
+553|kleinste zuerst
+554|größte zuerst
+555|Seiten
+556|kürzeste zuerst
+557|längste zuerst
+558|Bewertung
+559|niedrigste zuerst
+560|höchste zuerst
+561|am längsten nicht gelesen zuerst
+562|zuletzt gelesen zuerst
+563|Fortschritt
+564|am wenigsten gelesen zuerst
+565|am meisten gelesen zuerst
+566|In keiner Sammlung
+567|Tippe auf eine Sammlung
+568|Ihre Bücher werden hier angezeigt.
+569|Dieser Kobo hat noch keine Sammlungen.
+570|{0} auf diesem Kobo
+571| · auf dem Kobo ausgeblendet
+572|Zurück zu den Sammlungen
+573|Alle zur Bibliothek hinzufügen
+574|{0} zur Bibliothek hinzufügen
+@es
+460|=
+461|Biblioteca
+462|=
+463|Tema
+464|Tema de la app
+465|Idioma
+466|Animación de inicio
+467|Se reproduce al abrir KoLib. Tócala para saltarla.
+468|Sonido de inicio
+469|Suena con la animación, al volumen multimedia.
+470|Modo rendimiento
+471|Una animación más ligera que va fluida en móviles. Activado de forma predeterminada en móviles.
+472|Listo
+473|Copias de seguridad de la base de datos
+474|Aún no hay copias de seguridad
+475|La primera vez que conectas el Kobo se hace automáticamente una copia de seguridad de su base de datos.
+476|Cada copia de seguridad es una copia comprimida del archivo de base de datos del Kobo (KoboReader.sqlite). Contiene la biblioteca, las colecciones y el progreso de lectura del Kobo. Se hace una nueva copia cada vez que conectas y algo ha cambiado. Se conservan las {0} más recientes. Para copiar una a Downloads/{1}, toca su botón de descarga.
+477|incluye el registro de escritura anticipada
+478|Guardar en Descargas
+479|Eliminar copia de seguridad
+480|¿Eliminar esta copia de seguridad?
+481|La copia de seguridad del {0} se eliminará de este dispositivo. No cambia nada en el Kobo.
+482|Eliminar
+483|Cancelar
+484|Toca un libro
+485|Sus detalles del Kobo aparecerán aquí.
+486|Conecta tu Kobo para añadir o eliminar libros
+487|Eliminar del Kobo
+488|Añadir a la biblioteca
+489|No hay libros en este Kobo
+490|Los libros que añadas al Kobo aparecerán aquí.
+491|No hay libros que coincidan
+492|Prueba otra búsqueda o borra los filtros.
+493|¿Eliminar «{0}» del Kobo?
+494|¿Eliminar {0} libros del Kobo?
+495|Se eliminarán sus archivos del Kobo, con el progreso de lectura y los subrayados. Las copias de tu biblioteca en este dispositivo no se eliminarán. Los libros de la tienda Kobo no se pueden eliminar aquí.
+496|\n\nNo se puede eliminar ninguno de los libros seleccionados, porque son de la tienda Kobo.
+497|Cancelar la selección
+498|Toca libros para seleccionarlos
+499|Seleccionar todo
+500|=
+501|1 página
+502|%,d páginas
+503|Terminado
+504|{0} % leído
+505|Buscar títulos, autores, etiquetas…
+506|Borrar la búsqueda
+507|Cómo buscar
+508|Seleccionar
+509|Ordenar
+510|Invertir el orden
+511|Ver como lista
+512|Ver como cuadrícula
+513|Colección
+514|Todas las colecciones
+515|Etiquetas
+517| · ordenado por {0}
+518| · leyendo etiquetas de los archivos: {0} de {1}
+519|Borrar la búsqueda y los filtros
+520|En la biblioteca
+521|Sin leer
+522|Se eliminará el archivo del libro del Kobo, con tu progreso de lectura y tus subrayados.
+523|La copia de tu biblioteca no se eliminará.
+524|No está en tu biblioteca, así que añádelo primero a tu biblioteca si quieres conservarlo.
+525|Todos los libros
+526|Añadidos a mano
+527|Tienda Kobo
+528|En tu biblioteca
+529|Colecciones en el Kobo
+530|No está en ninguna colección.
+531|Detalles
+532|Última lectura
+533|Añadido
+534|Publicado
+535|Editorial
+536|Extensión
+537|Unas {0}
+538|Archivo
+539|Tamaño
+540|Descripción
+541|Estos detalles vienen del Kobo. Para cambiar los detalles o la portada, añade el libro a tu biblioteca y edítalo allí.
+542|Todos
+543|Leyendo
+544|Título
+545|De la A a la Z
+546|De la Z a la A
+547|Autor
+548|Serie
+549|los más antiguos primero
+550|los más recientes primero
+551|Fecha en que se añadió
+552|Tamaño del archivo
+553|los más pequeños primero
+554|los más grandes primero
+555|Páginas
+556|los más cortos primero
+557|los más largos primero
+558|Valoración
+559|los peor valorados primero
+560|los mejor valorados primero
+561|los leídos hace más tiempo primero
+562|los leídos más recientemente primero
+563|Progreso
+564|los menos leídos primero
+565|los más leídos primero
+566|No está en ninguna colección
+567|Toca una colección
+568|Sus libros aparecerán aquí.
+569|Este Kobo aún no tiene colecciones.
+570|{0} en este Kobo
+571| · oculta en el Kobo
+572|Volver a las colecciones
+573|Añadir todo a la biblioteca
+574|Añadir {0} a la biblioteca
+@it
+460|=
+461|Libreria
+462|=
+463|Tema
+464|Tema dell’app
+465|Lingua
+466|Animazione di apertura
+467|Parte all’avvio di KoLib. Toccala per saltarla.
+468|Suono di apertura
+469|Suona con l’animazione, al volume dei contenuti multimediali.
+470|Modalità prestazioni
+471|Un’animazione più leggera, fluida sui telefoni. Attiva per impostazione predefinita sui telefoni.
+472|Fine
+473|Backup del database
+474|Ancora nessun backup
+475|La prima volta che colleghi il Kobo viene fatto automaticamente un backup del suo database.
+476|Ogni backup è una copia compressa del file di database del Kobo (KoboReader.sqlite). Contiene la libreria, le raccolte e i progressi di lettura del Kobo. Un nuovo backup viene fatto ogni volta che colleghi il Kobo e qualcosa è cambiato. Vengono conservati i {0} più recenti. Per copiare un backup in Downloads/{1}, tocca il suo pulsante di download.
+477|include il registro write-ahead
+478|Salva in Download
+479|Elimina backup
+480|Eliminare questo backup?
+481|Il backup del {0} verrà eliminato da questo dispositivo. Sul Kobo non cambia nulla.
+482|Elimina
+483|Annulla
+484|Tocca un libro
+485|I suoi dettagli dal Kobo appariranno qui.
+486|Collega il tuo Kobo per aggiungere o eliminare libri
+487|Elimina dal Kobo
+488|Aggiungi alla libreria
+489|Nessun libro su questo Kobo
+490|I libri che aggiungi al Kobo appariranno qui.
+491|Nessun libro corrispondente
+492|Prova un’altra ricerca o cancella i filtri.
+493|Eliminare «{0}» dal Kobo?
+494|Eliminare {0} libri dal Kobo?
+495|I loro file verranno eliminati dal Kobo, con i progressi di lettura e le evidenziazioni. Le copie nella tua libreria su questo dispositivo non verranno eliminate. I libri del Kobo Store non possono essere eliminati qui.
+496|\n\nNessuno dei libri selezionati può essere eliminato, perché provengono dal Kobo Store.
+497|Annulla selezione
+498|Tocca i libri per selezionarli
+499|Seleziona tutto
+500|=
+501|1 pagina
+502|%,d pagine
+503|Finito
+504|{0}% letto
+505|Cerca titoli, autori, tag…
+506|Cancella ricerca
+507|Come cercare
+508|Seleziona
+509|Ordina
+510|Inverti ordine
+511|Mostra come elenco
+512|Mostra come griglia
+513|Raccolta
+514|Tutte le raccolte
+515|Tag
+517| · ordinati per {0}
+518| · lettura dei tag dai file: {0} di {1}
+519|Cancella ricerca e filtri
+520|Nella libreria
+521|Non letti
+522|Il file del libro verrà eliminato dal Kobo, con i tuoi progressi di lettura e le evidenziazioni.
+523|La copia nella tua libreria non verrà eliminata.
+524|Non è nella tua libreria, quindi aggiungilo prima alla libreria se vuoi tenerlo.
+525|Tutti i libri
+526|Caricati da te
+527|Kobo Store
+528|Nella tua libreria
+529|Raccolte sul Kobo
+530|Non è in nessuna raccolta.
+531|Dettagli
+532|Ultima lettura
+533|Aggiunto
+534|Pubblicato
+535|Editore
+536|Lunghezza
+537|Circa {0}
+538|File
+539|Dimensione
+540|Descrizione
+541|Questi dettagli vengono dal Kobo. Per cambiare dettagli o copertina, aggiungi il libro alla tua libreria e modificalo lì.
+542|Tutti
+543|In lettura
+544|Titolo
+545|Dalla A alla Z
+546|Dalla Z alla A
+547|Autore
+548|Serie
+549|prima i più vecchi
+550|prima i più recenti
+551|Data di aggiunta
+552|Dimensione del file
+553|prima i più piccoli
+554|prima i più grandi
+555|Pagine
+556|prima i più brevi
+557|prima i più lunghi
+558|Valutazione
+559|prima i meno votati
+560|prima i più votati
+561|prima i letti meno di recente
+562|prima i letti più di recente
+563|Progressi
+564|prima i meno letti
+565|prima i più letti
+566|In nessuna raccolta
+567|Tocca una raccolta
+568|I suoi libri appariranno qui.
+569|Questo Kobo non ha ancora raccolte.
+570|{0} su questo Kobo
+571| · nascosta sul Kobo
+572|Torna alle raccolte
+573|Aggiungi tutto alla libreria
+574|Aggiungi {0} alla libreria
+@nl
+460|=
+461|Bibliotheek
+462|=
+463|Thema
+464|App-thema
+465|Taal
+466|Openingsanimatie
+467|Speelt af als KoLib start. Tik erop om hem over te slaan.
+468|Openingsgeluid
+469|Speelt af met de animatie, op je mediavolume.
+470|Prestatiemodus
+471|Een lichtere animatie die soepel loopt op telefoons. Standaard aan op telefoons.
+472|Klaar
+473|Databaseback-ups
+474|Nog geen back-ups
+475|De eerste keer dat je verbinding maakt, wordt automatisch een back-up van de database van de Kobo gemaakt.
+476|Elke back-up is een gezipte kopie van het databasebestand van de Kobo (KoboReader.sqlite). Daarin staan de bibliotheek, de collecties en de leesvoortgang van de Kobo. Een nieuwe back-up wordt gemaakt als je verbinding maakt en er iets is veranderd. De nieuwste {0} worden bewaard. Tik op de downloadknop van een back-up om hem naar Downloads/{1} te kopiëren.
+477|met write-ahead-logboek
+478|Opslaan in Downloads
+479|Back-up verwijderen
+480|Deze back-up verwijderen?
+481|De back-up van {0} wordt van dit apparaat verwijderd. Op de Kobo verandert niets.
+482|Verwijderen
+483|Annuleren
+484|Tik op een boek
+485|De gegevens van de Kobo verschijnen hier.
+486|Verbind je Kobo om boeken toe te voegen of te verwijderen
+487|Verwijderen van Kobo
+488|Toevoegen aan bibliotheek
+489|Geen boeken op deze Kobo
+490|Boeken die je aan de Kobo toevoegt, verschijnen hier.
+491|Geen boeken gevonden
+492|Probeer een andere zoekopdracht of wis de filters.
+493|‘{0}’ van de Kobo verwijderen?
+494|{0} boeken van de Kobo verwijderen?
+495|Hiermee worden hun bestanden van de Kobo verwijderd, met leesvoortgang en markeringen. Kopieën in je bibliotheek op dit apparaat worden niet verwijderd. Boeken uit de Kobo Store kunnen hier niet worden verwijderd.
+496|\n\nGeen van de geselecteerde boeken kan worden verwijderd, omdat ze uit de Kobo Store komen.
+497|Selectie annuleren
+498|Tik op boeken om ze te selecteren
+499|Alles selecteren
+500|=
+501|1 pagina
+502|%,d pagina’s
+503|Uitgelezen
+504|{0}% gelezen
+505|Zoek titels, auteurs, labels…
+506|Zoekopdracht wissen
+507|Zo zoek je
+508|Selecteren
+509|Sorteren
+510|Volgorde omdraaien
+511|Als lijst tonen
+512|Als raster tonen
+513|Collectie
+514|Alle collecties
+515|Labels
+517| · gesorteerd op {0}
+518| · labels lezen uit boekbestanden: {0} van {1}
+519|Zoekopdracht en filters wissen
+520|In bibliotheek
+521|Ongelezen
+522|Hiermee wordt het bestand van het boek van de Kobo verwijderd, met je leesvoortgang en markeringen.
+523|De kopie in je bibliotheek wordt niet verwijderd.
+524|Het staat niet in je bibliotheek, dus voeg het eerst toe aan je bibliotheek als je het wilt houden.
+525|Alle boeken
+526|Zelf toegevoegd
+527|Kobo Store
+528|In je bibliotheek
+529|Collecties op de Kobo
+530|In geen enkele collectie.
+531|Gegevens
+532|Laatst gelezen
+533|Toegevoegd
+534|Uitgegeven
+535|Uitgever
+536|Lengte
+537|Ongeveer {0}
+538|Bestand
+539|Grootte
+540|Beschrijving
+541|Deze gegevens komen van de Kobo. Voeg het boek toe aan je bibliotheek en bewerk het daar om de gegevens of de omslag te wijzigen.
+542|Alle
+543|Bezig
+544|Titel
+545|A tot Z
+546|Z tot A
+547|Auteur
+548|Reeks
+549|oudste eerst
+550|nieuwste eerst
+551|Datum toegevoegd
+552|Bestandsgrootte
+553|kleinste eerst
+554|grootste eerst
+555|Pagina’s
+556|kortste eerst
+557|langste eerst
+558|Beoordeling
+559|laagste eerst
+560|hoogste eerst
+561|langst niet gelezen eerst
+562|laatst gelezen eerst
+563|Voortgang
+564|minst gelezen eerst
+565|meest gelezen eerst
+566|In geen enkele collectie
+567|Tik op een collectie
+568|De boeken verschijnen hier.
+569|Deze Kobo heeft nog geen collecties.
+570|{0} op deze Kobo
+571| · verborgen op de Kobo
+572|Terug naar de collecties
+573|Alles toevoegen aan bibliotheek
+574|{0} toevoegen aan bibliotheek
+@pt
+460|=
+461|Biblioteca
+462|=
+463|Tema
+464|Tema do app
+465|Idioma
+466|Animação de abertura
+467|Toca quando o KoLib abre. Toque nela para pular.
+468|Som de abertura
+469|Toca com a animação, no volume de mídia.
+470|Modo de desempenho
+471|Uma animação mais leve, que roda bem em celulares. Ativado por padrão em celulares.
+472|Concluído
+473|Backups do banco de dados
+474|Nenhum backup ainda
+475|Um backup do banco de dados do Kobo é feito automaticamente na primeira vez que você conecta.
+476|Cada backup é uma cópia compactada do arquivo de banco de dados do Kobo (KoboReader.sqlite). Ele contém a biblioteca, as coleções e o progresso de leitura do Kobo. Um novo backup é feito sempre que você conecta e algo mudou. Os {0} mais recentes são mantidos. Para copiar um backup para Downloads/{1}, toque no botão de download dele.
+477|inclui o log de gravação antecipada
+478|Salvar em Downloads
+479|Excluir backup
+480|Excluir este backup?
+481|O backup de {0} será excluído deste dispositivo. Nada muda no Kobo.
+482|Excluir
+483|Cancelar
+484|Toque em um livro
+485|Os detalhes dele no Kobo vão aparecer aqui.
+486|Conecte seu Kobo para adicionar ou excluir livros
+487|Excluir do Kobo
+488|Adicionar à biblioteca
+489|Nenhum livro neste Kobo
+490|Os livros que você adicionar ao Kobo vão aparecer aqui.
+491|Nenhum livro encontrado
+492|Tente outra pesquisa ou limpe os filtros.
+493|Excluir “{0}” do Kobo?
+494|Excluir {0} livros do Kobo?
+495|Isso exclui os arquivos deles do Kobo, com o progresso de leitura e os destaques. As cópias na sua biblioteca neste dispositivo não serão excluídas. Livros da loja Kobo não podem ser excluídos aqui.
+496|\n\nNenhum dos livros selecionados pode ser excluído, porque são da loja Kobo.
+497|Cancelar seleção
+498|Toque nos livros para selecioná-los
+499|Selecionar tudo
+500|=
+501|1 página
+502|%,d páginas
+503|Concluído
+504|{0}% lido
+505|Pesquisar títulos, autores, tags…
+506|Limpar pesquisa
+507|Como pesquisar
+508|Selecionar
+509|Ordenar
+510|Inverter a ordem
+511|Mostrar como lista
+512|Mostrar como grade
+513|Coleção
+514|Todas as coleções
+515|Tags
+517| · ordenado por {0}
+518| · lendo tags dos arquivos: {0} de {1}
+519|Limpar pesquisa e filtros
+520|Na biblioteca
+521|Não lidos
+522|Isso exclui o arquivo do livro do Kobo, com seu progresso de leitura e seus destaques.
+523|A cópia na sua biblioteca não será excluída.
+524|Ele não está na sua biblioteca, então adicione-o à biblioteca primeiro se quiser guardá-lo.
+525|Todos os livros
+526|Adicionados por você
+527|Loja Kobo
+528|Na sua biblioteca
+529|Coleções no Kobo
+530|Não está em nenhuma coleção.
+531|Detalhes
+532|Última leitura
+533|Adicionado
+534|Publicado
+535|Editora
+536|Tamanho
+537|Cerca de {0}
+538|Arquivo
+539|Tamanho do arquivo
+540|Descrição
+541|Esses detalhes vêm do Kobo. Para mudar os detalhes ou a capa, adicione o livro à sua biblioteca e edite-o lá.
+542|Todos
+543|Lendo
+544|Título
+545|De A a Z
+546|De Z a A
+547|Autor
+548|Série
+549|mais antigos primeiro
+550|mais recentes primeiro
+551|Data em que foi adicionado
+552|Tamanho do arquivo
+553|menores primeiro
+554|maiores primeiro
+555|Páginas
+556|mais curtos primeiro
+557|mais longos primeiro
+558|Avaliação
+559|pior avaliados primeiro
+560|melhor avaliados primeiro
+561|lidos há mais tempo primeiro
+562|lidos mais recentemente primeiro
+563|Progresso
+564|menos lidos primeiro
+565|mais lidos primeiro
+566|Não está em nenhuma coleção
+567|Toque em uma coleção
+568|Os livros dela vão aparecer aqui.
+569|Este Kobo ainda não tem coleções.
+570|{0} neste Kobo
+571| · oculta no Kobo
+572|Voltar às coleções
+573|Adicionar tudo à biblioteca
+574|Adicionar {0} à biblioteca
+@ja
+460|=
+461|ライブラリ
+462|=
+463|テーマ
+464|アプリのテーマ
+465|言語
+466|起動アニメーション
+467|KoLib の起動時に再生されます。タップするとスキップできます。
+468|起動音
+469|アニメーションと一緒に、メディアの音量で鳴ります。
+470|パフォーマンスモード
+471|スマートフォンでもなめらかに動く軽いアニメーションです。スマートフォンでは最初からオンです。
+472|完了
+473|データベースのバックアップ
+474|バックアップはまだありません
+475|初めて接続したときに、Kobo のデータベースのバックアップが自動で作成されます。
+476|バックアップは、Kobo のデータベースファイル（KoboReader.sqlite）を zip にしたコピーです。Kobo のライブラリ、コレクション、読書の進み具合が入っています。接続したときに変更があれば、新しいバックアップが作成されます。新しいものから {0} 件を残します。バックアップを Downloads/{1} にコピーするには、ダウンロードボタンをタップしてください。
+477|先行書き込みログを含む
+478|ダウンロードに保存
+479|バックアップを削除
+480|このバックアップを削除しますか？
+481|{0} のバックアップをこの端末から削除します。Kobo では何も変わりません。
+482|削除
+483|キャンセル
+484|本をタップしてください
+485|Kobo にある本の情報がここに表示されます。
+486|本を追加や削除するには Kobo を接続してください
+487|Kobo から削除
+488|ライブラリに追加
+489|この Kobo には本がありません
+490|Kobo に追加した本がここに表示されます。
+491|一致する本がありません
+492|別の言葉で検索するか、絞り込みを解除してください。
+493|「{0}」を Kobo から削除しますか？
+494|{0} 冊を Kobo から削除しますか？
+495|Kobo からファイルを削除します。読書の進み具合やハイライトも消えます。この端末のライブラリにあるコピーは削除されません。Kobo ストアの本はここでは削除できません。
+496|\n\n選んだ本はすべて Kobo ストアの本のため、削除できません。
+497|選択を解除
+498|本をタップして選択
+499|すべて選択
+500|=
+501|1 ページ
+502|%,d ページ
+503|読了
+504|{0}% 読了
+505|タイトル、著者、タグを検索…
+506|検索をクリア
+507|検索のしかた
+508|選択
+509|並べ替え
+510|順番を逆にする
+511|リスト表示
+512|グリッド表示
+513|コレクション
+514|すべてのコレクション
+515|タグ
+517| · 並び順: {0}
+518| · 本のファイルからタグを読み込み中: {0}/{1}
+519|検索と絞り込みをクリア
+520|ライブラリにある本
+521|未読
+522|Kobo から本のファイルを削除します。読書の進み具合やハイライトも消えます。
+523|ライブラリにあるコピーは削除されません。
+524|この本はライブラリにありません。残したい場合は、先にライブラリに追加してください。
+525|すべての本
+526|自分で入れた本
+527|Kobo ストア
+528|ライブラリにある本
+529|Kobo のコレクション
+530|どのコレクションにも入っていません。
+531|詳細
+532|最後に読んだ日
+533|追加日
+534|発行日
+535|出版社
+536|長さ
+537|約 {0}
+538|ファイル
+539|サイズ
+540|説明
+541|この情報は Kobo にあるものです。情報や表紙を変えるには、本をライブラリに追加してそこで編集してください。
+542|すべて
+543|読書中
+544|タイトル
+545|A から Z
+546|Z から A
+547|著者
+548|シリーズ
+549|古い順
+550|新しい順
+551|追加日
+552|ファイルサイズ
+553|小さい順
+554|大きい順
+555|ページ数
+556|短い順
+557|長い順
+558|評価
+559|低い順
+560|高い順
+561|読んだのが古い順
+562|読んだのが新しい順
+563|進み具合
+564|読んだ量が少ない順
+565|読んだ量が多い順
+566|どのコレクションにも入っていない本
+567|コレクションをタップしてください
+568|そのコレクションの本がここに表示されます。
+569|この Kobo にはまだコレクションがありません。
+570|この Kobo の {0}
+571| · Kobo で非表示
+572|コレクションに戻る
+573|すべてライブラリに追加
+574|{0} をライブラリに追加

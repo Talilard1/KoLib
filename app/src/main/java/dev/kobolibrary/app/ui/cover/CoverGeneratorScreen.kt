@@ -2,6 +2,7 @@
 
 package dev.kobolibrary.app.ui.cover
 
+import dev.kobolibrary.app.tr
 import dev.kobolibrary.app.ui.components.GoldButton
 import android.graphics.Bitmap
 import androidx.activity.compose.BackHandler
@@ -114,8 +115,8 @@ fun CoverGeneratorScreen(
         containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
-                navigationIcon = { IconButton(onClick = onCancel) { Icon(Icons.Filled.Close, "Cancel") } },
-                title = { Text("Make a cover") },
+                navigationIcon = { IconButton(onClick = onCancel) { Icon(Icons.Filled.Close, tr("Cancel")) } },
+                title = { Text(tr("Make a cover")) },
                 actions = {
                     if (making) {
                         CircularProgressIndicator(Modifier.size(22.dp), strokeWidth = 2.dp)
@@ -132,7 +133,7 @@ fun CoverGeneratorScreen(
                         },
                         enabled = !making,
                         modifier = Modifier.padding(end = 12.dp),
-                    ) { Text("Use this cover") }
+                    ) { Text(tr("Use this cover")) }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             )
@@ -151,7 +152,7 @@ fun CoverGeneratorScreen(
                             .background(Color.White),
                         contentAlignment = Alignment.Center,
                     ) {
-                        preview?.let { Image(it, contentDescription = "The cover", modifier = Modifier.fillMaxSize()) } ?: CircularProgressIndicator()
+                        preview?.let { Image(it, contentDescription = tr("The cover"), modifier = Modifier.fillMaxSize()) } ?: CircularProgressIndicator()
                     }
                 }
             }
@@ -172,9 +173,9 @@ fun CoverGeneratorScreen(
                     }) {
                         Icon(Icons.Filled.Casino, null, Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text("Surprise me")
+                        Text(tr("Surprise me"))
                     }
-                    Text("Style", style = MaterialTheme.typography.titleSmall)
+                    Text(tr("Style"), style = MaterialTheme.typography.titleSmall)
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         CoverStyle.entries.forEach { s ->
                             val on = s == style
@@ -211,19 +212,19 @@ fun CoverGeneratorScreen(
                         }
                     }
                     HorizontalDivider()
-                    Text("Colour", style = MaterialTheme.typography.titleSmall)
+                    Text(tr("Colour"), style = MaterialTheme.typography.titleSmall)
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         CoverColors.themes.forEachIndexed { i, theme ->
                             Swatch(theme, selected = themeIndex == i, label = theme.name) { themeIndex = i }
                         }
-                        Swatch(CoverColors.fromHue(hue, strength, dark), selected = themeIndex == null, label = "Your colour") { themeIndex = null }
+                        Swatch(CoverColors.fromHue(hue, strength, dark), selected = themeIndex == null, label = tr("Your colour")) { themeIndex = null }
                     }
                     if (themeIndex == null) {
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            FilterChip(selected = dark, onClick = { dark = true }, label = { Text("Dark cover") })
-                            FilterChip(selected = !dark, onClick = { dark = false }, label = { Text("Light cover") })
+                            FilterChip(selected = dark, onClick = { dark = true }, label = { Text(tr("Dark cover")) })
+                            FilterChip(selected = !dark, onClick = { dark = false }, label = { Text(tr("Light cover")) })
                         }
-                        Text("Colour", style = MaterialTheme.typography.labelLarge)
+                        Text(tr("Colour"), style = MaterialTheme.typography.labelLarge)
                         Box(
                             Modifier
                                 .fillMaxWidth()
@@ -232,11 +233,11 @@ fun CoverGeneratorScreen(
                                 .background(Brush.horizontalGradient((0..12).map { Color.hsv(it * 30f % 360f, 0.55f, 0.85f) }))
                         )
                         Slider(value = hue, onValueChange = { hue = it }, valueRange = 0f..360f)
-                        Text("Strength", style = MaterialTheme.typography.labelLarge)
+                        Text(tr("Strength"), style = MaterialTheme.typography.labelLarge)
                         Slider(value = strength, onValueChange = { strength = it }, valueRange = 0.1f..1f)
                     }
                     Text(
-                        "The cover shows the book's title, series and authors. It's made at 1072 × 1448 pixels, the size of the Kobo Clara's screen.",
+                        tr("The cover shows the book's title, series and authors. It's made at 1072 × 1448 pixels, the size of the Kobo Clara's screen."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

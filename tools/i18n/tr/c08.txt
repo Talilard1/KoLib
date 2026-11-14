@@ -1,0 +1,889 @@
+@fr
+805|Classer comme
+806|Réinitialiser
+807|Auteurs
+808|Ajouter un auteur
+809|Ajouter « {0} »
+810|Aucun auteur. La Kobo affichera « Auteur inconnu ».
+811|Touchez un auteur pour modifier son nom, changer son classement ou en faire le premier auteur.
+812|Ne fait pas partie d’une série.
+813|Collections Kobo
+814|Ajouter à une collection
+815|Nouvelle collection « {0} »
+816|Dans aucune collection pour l’instant.
+817|Les collections du livre sur votre Kobo. Les changements sont faits sur la Kobo quand vous envoyez le livre.
+819|Ajouter une étiquette
+820|Nouvelle étiquette « {0} »
+821|Aucune étiquette.
+822|Plus de détails
+823|Votre note
+824|Pas encore de description.
+825|Écrire une description
+826|Modifier la description
+827|Nom
+828|Utilisé quand les livres sont triés par auteur, comme « Doyle, Arthur Conan ».
+829|En faire le premier auteur
+830|Retirer
+831|Retirer {0}
+832|Effacer {0}
+833|Numéro
+834|Un de moins
+835|Un de plus
+836|1 étoile
+837|Pas noté
+838|{0} sur 5
+839|{0}½ sur 5
+840|Effacer
+841|Non défini
+842|2005 ou 2005-07-17
+843|Choisir une date
+844|Déjà dans la bibliothèque
+845|{0} livres déjà dans la bibliothèque
+846|1 autre livre a été ajouté.
+847|{0} autres livres ont été ajoutés.
+848|Livres non ajoutés : {0}. Le journal donne les détails.
+849|Choisir pour tous
+850|Remplacer : utiliser le nouveau fichier pour ce livre. Ses collections ne changent pas.\nGarder les deux : ajouter le nouveau fichier comme un livre à part.\nIgnorer : ne pas ajouter le nouveau fichier.
+851|Nouveau fichier : {0}\nLe livre correspondant a depuis été retiré de votre bibliothèque.
+852|Nouveau fichier : {0}\nDans votre bibliothèque : {1}
+853|, ajouté le {0}
+854|, sur la Kobo
+855|, dans {0}
+856|Recherche de livres…
+857|Recherche de livres… {0} pour l’instant.
+858|Il n’y a aucun livre dans ce dossier ni dans les dossiers qu’il contient.
+859|Il y a 1 livre dans ce dossier. S’il est déjà dans votre bibliothèque, il reste tel quel.
+860|Il y a {0} livres dans ce dossier et dans les dossiers qu’il contient. Les livres déjà dans votre bibliothèque restent tels quels.
+861|KoLib n’a pas pu regarder dans ce dossier. Choisissez-le à nouveau, ou un autre.
+862|Ajouter 1 livre
+863|Ajouter {0} livres
+864|Choisir un autre dossier
+865|Arrêté
+866|Envoi terminé
+867|Laissez la Kobo branchée jusqu’à la fin de l’envoi. Vous pouvez masquer cette fenêtre en attendant.
+868|Vous pouvez masquer cette fenêtre et continuer à utiliser l’appli. La progression s’affiche en haut de la bibliothèque.
+869|1 d’entre eux était déjà sur la Kobo et a été mis à jour.
+870|{0} d’entre eux étaient déjà sur la Kobo et ont été mis à jour.
+871|Livres non envoyés : {0}.
+872|Livres non ajoutés : {0}.
+873|1 a été ignoré parce que vous avez arrêté.
+874|{0} ont été ignorés parce que vous avez arrêté.
+875|Éjectez maintenant la Kobo. Une fois débranchée, elle ajoute les nouveaux livres à sa bibliothèque. Cela prend un moment.
+879|Comment éjecter
+880|Les livres qui n’ont pas pu être convertis en kepub peuvent être envoyés en EPUB à la place.
+881|Masquer
+882|Arrêter
+883|Les envoyer en EPUB
+884|Ouvrir la bibliothèque
+885|Pas sur la Kobo
+886|Modifié depuis l’envoi
+887|Dernière modification
+888|Dernière lecture sur la Kobo
+889|Dernière lecture sur cet appareil
+891|À propos et licences
+892|Ajouter des livres
+893|Fichiers de cet appareil
+894|Un dossier de livres
+895|Livres de la Kobo
+896|Livres de la Kobo (connectez-la d’abord)
+897|Écrire un nouveau livre
+898|Ses détails s’afficheront ici. Pour agir sur plusieurs livres à la fois, touchez Sélectionner, ou appuyez longuement sur un livre.
+899|Touchez des livres pour les sélectionner ou les désélectionner. Utilisez ensuite les boutons au-dessus de la liste pour les envoyer, les enregistrer, les dupliquer, les combiner ou les retirer.
+900|{0} : {1} sur {2}
+901|Votre bibliothèque est vide
+902|Ajoutez des livres de votre Kobo, ou des fichiers de cet appareil : EPUB, PDF, MOBI, fichiers Word et plus encore. Vous pourrez ensuite modifier ici leurs détails et leurs couvertures. Les livres de la Kobo arrivent avec leurs collections.
+903|Ajouter depuis la Kobo
+904|Connecter la Kobo
+905|Ajouter des fichiers
+906|Enregistrer en fichiers
+907|Dupliquer
+908|Combiner
+909|Envoyer sur la Kobo
+910|Essayez une autre recherche, ou effacez les filtres.
+911|{0} % lu sur la Kobo
+912|Retirer ce livre de la bibliothèque ?
+913|Retirer {0} livres de la bibliothèque ?
+914|Cela supprime de la bibliothèque le livre et vos modifications. S’il est sur la Kobo, la copie qui s’y trouve ne sera pas supprimée.
+915|Cela supprime de la bibliothèque les livres et vos modifications. Les copies sur la Kobo ne seront pas supprimées.
+916|Livres dont une étiquette contient « history »
+917|Livres avec exactement l’étiquette « History »
+918|Utilisez des guillemets pour chercher une expression
+919|Étiquette « history », mais pas « greece »
+1376|Pour voir la nouvelle couverture de « {0} », redémarrez la Kobo après l’avoir éjectée. Elle affiche l’ancienne couverture d’un livre jusqu’à son redémarrage.
+1377|Pour voir les nouvelles couvertures de {0} livres, redémarrez la Kobo après l’avoir éjectée. Elle affiche l’ancienne couverture d’un livre jusqu’à son redémarrage.
+1378|1 livre sur cet appareil
+1379|{0} livres sur cet appareil
+1380|L’image est enregistrée dans le fichier du livre à sa propre taille ({0} × {1} pixels) et envoyée sur la Kobo telle quelle.
+1381|L’image est enregistrée dans le fichier du livre à sa propre taille et envoyée sur la Kobo telle quelle.
+1382|1 entrée de collection renvoie à un livre qui n’est pas encore dans la base de données. Les livres que vous venez d’envoyer sont ajoutés quand vous éjectez la Kobo.
+1383|{0} entrées de collection renvoient à un livre qui n’est pas encore dans la base de données. Les livres que vous venez d’envoyer sont ajoutés quand vous éjectez la Kobo.
+1384|Sauvegarde supprimée.
+1385|Les parenthèses regroupent des termes ; une espace équivaut à « and »
+1386|Ce fichier FictionBook ne contient pas de texte.
+1387|Le fichier de paquet du livre n’a pas d’élément <package>.
+1388|Le fichier de paquet du livre n’a pas de section de métadonnées.
+1389|Le livre n’a pas de manifeste.
+1390|pas sur la Kobo
+1391|Quand vous envoyez le livre sur votre Kobo, il est ajouté à ces collections. KoLib ne peut pas créer de collections sur la Kobo : créez d’abord sur la Kobo celles qui manquent.
+@de
+805|Einsortieren als
+806|Zurücksetzen
+807|Autoren
+808|Autor hinzufügen
+809|„{0}“ hinzufügen
+810|Kein Autor. Der Kobo zeigt „Unbekannter Autor“.
+811|Tippe auf einen Autor, um den Namen zu bearbeiten, die Sortierung zu ändern oder ihn zum ersten Autor zu machen.
+812|Gehört zu keiner Reihe.
+813|Kobo-Sammlungen
+814|Zu einer Sammlung hinzufügen
+815|Neue Sammlung „{0}“
+816|Noch in keiner Sammlung.
+817|Die Sammlungen des Buchs auf deinem Kobo. Änderungen werden auf dem Kobo gemacht, wenn du das Buch sendest.
+819|Schlagwort hinzufügen
+820|Neues Schlagwort „{0}“
+821|Keine Schlagwörter.
+822|Weitere Details
+823|Deine Bewertung
+824|Noch keine Beschreibung.
+825|Beschreibung schreiben
+826|Beschreibung bearbeiten
+827|Name
+828|Wird verwendet, wenn Bücher nach Autor sortiert werden, etwa „Doyle, Arthur Conan“.
+829|Zum ersten Autor machen
+830|Entfernen
+831|{0} entfernen
+832|{0} löschen
+833|Nummer
+834|Eins weniger
+835|Eins mehr
+836|1 Stern
+837|Nicht bewertet
+838|{0} von 5
+839|{0}½ von 5
+840|Löschen
+841|Nicht festgelegt
+842|2005 oder 2005-07-17
+843|Datum wählen
+844|Schon in der Bibliothek
+845|{0} Bücher schon in der Bibliothek
+846|1 weiteres Buch wurde hinzugefügt.
+847|{0} weitere Bücher wurden hinzugefügt.
+848|Nicht hinzugefügt: {0}. Details stehen im Protokoll.
+849|Für alle wählen
+850|Ersetzen: Die neue Datei wird für dieses Buch verwendet. Seine Sammlungen ändern sich nicht.\nBeide behalten: Die neue Datei wird als eigenes Buch hinzugefügt.\nÜberspringen: Die neue Datei wird nicht hinzugefügt.
+851|Neue Datei: {0}\nDas passende Buch wurde inzwischen aus deiner Bibliothek entfernt.
+852|Neue Datei: {0}\nIn deiner Bibliothek: {1}
+853|, hinzugefügt am {0}
+854|, auf dem Kobo
+855|, in {0}
+856|Suche nach Büchern…
+857|Suche nach Büchern… bisher {0}.
+858|In diesem Ordner und den Ordnern darin sind keine Bücher.
+859|In diesem Ordner ist 1 Buch. Wenn es schon in deiner Bibliothek ist, bleibt es, wie es ist.
+860|In diesem Ordner und den Ordnern darin sind {0} Bücher. Bücher, die schon in deiner Bibliothek sind, bleiben, wie sie sind.
+861|KoLib konnte nicht in diesen Ordner schauen. Wähle ihn noch einmal oder einen anderen.
+862|1 Buch hinzufügen
+863|{0} Bücher hinzufügen
+864|Anderen Ordner wählen
+865|Angehalten
+866|Gesendet
+867|Lass den Kobo angeschlossen, bis das Senden fertig ist. Du kannst dieses Fenster in der Zwischenzeit ausblenden.
+868|Du kannst dieses Fenster ausblenden und die App weiter nutzen. Der Fortschritt wird oben in der Bibliothek angezeigt.
+869|1 davon war schon auf dem Kobo und wurde aktualisiert.
+870|{0} davon waren schon auf dem Kobo und wurden aktualisiert.
+871|Nicht gesendet: {0}.
+872|Nicht hinzugefügt: {0}.
+873|1 wurde übersprungen, weil du gestoppt hast.
+874|{0} wurden übersprungen, weil du gestoppt hast.
+875|Wirf jetzt den Kobo aus. Sobald er getrennt ist, fügt er die neuen Bücher seiner Bibliothek hinzu. Das dauert einen Moment.
+879|So wirfst du ihn aus
+880|Bücher, die nicht in kepub umgewandelt werden konnten, können stattdessen als EPUB gesendet werden.
+881|Ausblenden
+882|Stoppen
+883|Als EPUB senden
+884|Bibliothek öffnen
+885|Nicht auf dem Kobo
+886|Seit dem Senden geändert
+887|Zuletzt bearbeitet
+888|Zuletzt auf dem Kobo gelesen
+889|Zuletzt auf diesem Gerät gelesen
+891|Info und Lizenzen
+892|Bücher hinzufügen
+893|Dateien von diesem Gerät
+894|Ein Ordner mit Büchern
+895|Bücher vom Kobo
+896|Bücher vom Kobo (zuerst verbinden)
+897|Neues Buch schreiben
+898|Hier erscheinen seine Details. Um mit mehreren Büchern auf einmal zu arbeiten, tippe auf „Auswählen“ oder halte ein Buch gedrückt.
+899|Tippe auf Bücher, um sie aus- oder abzuwählen. Nutze dann die Schaltflächen über der Liste, um sie zu senden, zu speichern, zu duplizieren, zusammenzufügen oder zu entfernen.
+900|{0}: {1} von {2}
+901|Deine Bibliothek ist leer
+902|Füge Bücher von deinem Kobo oder Dateien von diesem Gerät hinzu: EPUBs, PDFs, MOBIs, Word-Dateien und mehr. Dann kannst du hier ihre Details und Cover bearbeiten. Bücher vom Kobo bringen ihre Sammlungen mit.
+903|Vom Kobo hinzufügen
+904|Kobo verbinden
+905|Dateien hinzufügen
+906|Als Dateien speichern
+907|Duplizieren
+908|Zusammenfügen
+909|An den Kobo senden
+910|Versuche eine andere Suche oder lösche die Filter.
+911|{0} % auf dem Kobo gelesen
+912|Dieses Buch aus der Bibliothek entfernen?
+913|{0} Bücher aus der Bibliothek entfernen?
+914|Damit werden das Buch und deine Änderungen daran aus der Bibliothek gelöscht. Wenn es auf dem Kobo ist, wird die Kopie dort nicht gelöscht.
+915|Damit werden die Bücher und deine Änderungen daran aus der Bibliothek gelöscht. Kopien auf dem Kobo werden nicht gelöscht.
+916|Bücher mit einem Schlagwort, das „history“ enthält
+917|Bücher mit genau dem Schlagwort „History“
+918|Mit Anführungszeichen suchst du nach einer Wortgruppe
+919|Schlagwort „history“, aber nicht „greece“
+1376|Um das neue Cover von „{0}“ zu sehen, starte den Kobo nach dem Auswerfen neu. Er zeigt das alte Cover eines Buchs, bis er neu gestartet wird.
+1377|Um die neuen Cover von {0} Büchern zu sehen, starte den Kobo nach dem Auswerfen neu. Er zeigt das alte Cover eines Buchs, bis er neu gestartet wird.
+1378|1 Buch auf diesem Gerät
+1379|{0} Bücher auf diesem Gerät
+1380|Das Bild wird in seiner eigenen Größe ({0} × {1} Pixel) in der Buchdatei gespeichert und unverändert an den Kobo gesendet.
+1381|Das Bild wird in seiner eigenen Größe in der Buchdatei gespeichert und unverändert an den Kobo gesendet.
+1382|1 Sammlungseintrag verweist auf ein Buch, das noch nicht in der Datenbank ist. Gerade gesendete Bücher werden hinzugefügt, wenn du den Kobo auswirfst.
+1383|{0} Sammlungseinträge verweisen auf ein Buch, das noch nicht in der Datenbank ist. Gerade gesendete Bücher werden hinzugefügt, wenn du den Kobo auswirfst.
+1384|Sicherung gelöscht.
+1385|Klammern fassen Begriffe zusammen; ein Leerzeichen bedeutet „and“
+1386|Diese FictionBook-Datei enthält keinen Text.
+1387|Die Paketdatei des Buchs hat kein <package>-Element.
+1388|Die Paketdatei des Buchs hat keinen Metadatenbereich.
+1389|Das Buch hat kein Manifest.
+1390|nicht auf dem Kobo
+1391|Wenn du das Buch an deinen Kobo sendest, wird es diesen Sammlungen hinzugefügt. KoLib kann auf dem Kobo keine neuen Sammlungen anlegen, also lege fehlende dort zuerst an.
+@es
+805|Ordenar como
+806|Restablecer
+807|Autores
+808|Añadir un autor
+809|Añadir «{0}»
+810|Sin autor. El Kobo mostrará «Autor desconocido».
+811|Toca un autor para editar su nombre, cambiar cómo se ordena o hacerlo primer autor.
+812|No pertenece a ninguna serie.
+813|Colecciones del Kobo
+814|Añadir a una colección
+815|Nueva colección «{0}»
+816|Todavía no está en ninguna colección.
+817|Las colecciones del libro en tu Kobo. Los cambios se hacen en el Kobo cuando envías el libro.
+819|Añadir una etiqueta
+820|Nueva etiqueta «{0}»
+821|Sin etiquetas.
+822|Más detalles
+823|Tu valoración
+824|Aún no hay descripción.
+825|Escribir una descripción
+826|Editar la descripción
+827|Nombre
+828|Se usa cuando los libros se ordenan por autor, como «Doyle, Arthur Conan».
+829|Hacer primer autor
+830|Quitar
+831|Quitar {0}
+832|Borrar {0}
+833|Número
+834|Uno menos
+835|Uno más
+836|1 estrella
+837|Sin valorar
+838|{0} de 5
+839|{0}½ de 5
+840|Borrar
+841|Sin definir
+842|2005 o 2005-07-17
+843|Elegir una fecha
+844|Ya está en la biblioteca
+845|{0} libros ya están en la biblioteca
+846|Se ha añadido 1 libro más.
+847|Se han añadido {0} libros más.
+848|Libros no añadidos: {0}. Los detalles están en el registro.
+849|Elegir para todos
+850|Reemplazar: usar el archivo nuevo para este libro. Sus colecciones no cambian.\nConservar ambos: añadir el archivo nuevo como un libro aparte.\nOmitir: no añadir el archivo nuevo.
+851|Archivo nuevo: {0}\nDesde entonces, el libro coincidente se ha quitado de tu biblioteca.
+852|Archivo nuevo: {0}\nEn tu biblioteca: {1}
+853|, añadido el {0}
+854|, en el Kobo
+855|, en {0}
+856|Buscando libros…
+857|Buscando libros… {0} hasta ahora.
+858|No hay libros en esta carpeta ni en las carpetas que contiene.
+859|Hay 1 libro en esta carpeta. Si ya está en tu biblioteca, se deja como está.
+860|Hay {0} libros en esta carpeta y en las carpetas que contiene. Los libros que ya están en tu biblioteca se dejan como están.
+861|KoLib no ha podido mirar en esta carpeta. Vuelve a elegirla o elige otra.
+862|Añadir 1 libro
+863|Añadir {0} libros
+864|Elegir otra carpeta
+865|Detenido
+866|Envío terminado
+867|Mantén el Kobo conectado hasta que termine el envío. Mientras tanto, puedes ocultar esta ventana.
+868|Puedes ocultar esta ventana y seguir usando la app. El progreso se muestra en la parte superior de la biblioteca.
+869|1 de ellos ya estaba en el Kobo y se ha actualizado.
+870|{0} de ellos ya estaban en el Kobo y se han actualizado.
+871|Libros no enviados: {0}.
+872|Libros no añadidos: {0}.
+873|Se ha omitido 1 porque lo has detenido.
+874|Se han omitido {0} porque lo has detenido.
+875|Ahora expulsa el Kobo. Cuando esté desconectado, añadirá los libros nuevos a su biblioteca. Tarda un momento.
+879|Cómo expulsarlo
+880|Los libros que no se han podido convertir a kepub se pueden enviar como EPUB.
+881|Ocultar
+882|Detener
+883|Enviarlos como EPUB
+884|Abrir la biblioteca
+885|No está en el Kobo
+886|Cambiado desde el envío
+887|Última edición
+888|Última lectura en el Kobo
+889|Última lectura en este dispositivo
+891|Acerca de y licencias
+892|Añadir libros
+893|Archivos de este dispositivo
+894|Una carpeta de libros
+895|Libros del Kobo
+896|Libros del Kobo (conéctalo primero)
+897|Escribir un libro nuevo
+898|Aquí se mostrarán sus detalles. Para trabajar con varios libros a la vez, toca Seleccionar o mantén pulsado un libro.
+899|Toca libros para seleccionarlos o deseleccionarlos. Luego usa los botones de encima de la lista para enviarlos, guardarlos, duplicarlos, combinarlos o quitarlos.
+900|{0}: {1} de {2}
+901|Tu biblioteca está vacía
+902|Añade libros de tu Kobo o archivos de este dispositivo: EPUB, PDF, MOBI, archivos de Word y más. Luego podrás editar aquí sus detalles y portadas. Los libros del Kobo llegan con sus colecciones.
+903|Añadir desde el Kobo
+904|Conectar el Kobo
+905|Añadir archivos
+906|Guardar como archivos
+907|Duplicar
+908|Combinar
+909|Enviar al Kobo
+910|Prueba otra búsqueda o borra los filtros.
+911|{0} % leído en el Kobo
+912|¿Quitar este libro de la biblioteca?
+913|¿Quitar {0} libros de la biblioteca?
+914|Se eliminan de la biblioteca el libro y tus cambios. Si está en el Kobo, la copia de allí no se eliminará.
+915|Se eliminan de la biblioteca los libros y tus cambios. Las copias del Kobo no se eliminarán.
+916|Libros con una etiqueta que contiene «history»
+917|Libros con exactamente la etiqueta «History»
+918|Usa comillas para buscar una frase
+919|Etiqueta «history», pero no «greece»
+1376|Para ver la nueva portada de «{0}», reinicia el Kobo después de expulsarlo. Muestra la portada antigua de un libro hasta que se reinicia.
+1377|Para ver las nuevas portadas de {0} libros, reinicia el Kobo después de expulsarlo. Muestra la portada antigua de un libro hasta que se reinicia.
+1378|1 libro en este dispositivo
+1379|{0} libros en este dispositivo
+1380|La imagen se guarda en el archivo del libro con su propio tamaño ({0} × {1} píxeles) y se envía al Kobo sin cambios.
+1381|La imagen se guarda en el archivo del libro con su propio tamaño y se envía al Kobo sin cambios.
+1382|1 entrada de colección apunta a un libro que aún no está en la base de datos. Los libros que acabas de enviar se añaden cuando expulsas el Kobo.
+1383|{0} entradas de colección apuntan a un libro que aún no está en la base de datos. Los libros que acabas de enviar se añaden cuando expulsas el Kobo.
+1384|Copia de seguridad eliminada.
+1385|Los paréntesis agrupan términos; un espacio equivale a «and»
+1386|Este archivo FictionBook no tiene texto.
+1387|El archivo de paquete del libro no tiene elemento <package>.
+1388|El archivo de paquete del libro no tiene sección de metadatos.
+1389|El libro no tiene manifiesto.
+1390|no está en el Kobo
+1391|Cuando envíes el libro a tu Kobo, se añadirá a estas colecciones. KoLib no puede crear colecciones nuevas en el Kobo, así que crea primero allí las que falten.
+@it
+805|Ordina come
+806|Ripristina
+807|Autori
+808|Aggiungi un autore
+809|Aggiungi «{0}»
+810|Nessun autore. Il Kobo mostrerà «Autore sconosciuto».
+811|Tocca un autore per modificarne il nome, cambiare come viene ordinato o renderlo primo autore.
+812|Non fa parte di una serie.
+813|Raccolte del Kobo
+814|Aggiungi a una raccolta
+815|Nuova raccolta «{0}»
+816|Ancora in nessuna raccolta.
+817|Le raccolte del libro sul tuo Kobo. Le modifiche vengono fatte sul Kobo quando invii il libro.
+819|Aggiungi un tag
+820|Nuovo tag «{0}»
+821|Nessun tag.
+822|Altri dettagli
+823|Il tuo voto
+824|Ancora nessuna descrizione.
+825|Scrivi una descrizione
+826|Modifica la descrizione
+827|Nome
+828|Usato quando i libri sono ordinati per autore, come «Doyle, Arthur Conan».
+829|Rendi primo autore
+830|Rimuovi
+831|Rimuovi {0}
+832|Cancella {0}
+833|Numero
+834|Uno in meno
+835|Uno in più
+836|1 stella
+837|Nessun voto
+838|{0} su 5
+839|{0}½ su 5
+840|Cancella
+841|Non impostato
+842|2005 o 2005-07-17
+843|Scegli una data
+844|Già nella libreria
+845|{0} libri già nella libreria
+846|È stato aggiunto 1 altro libro.
+847|Sono stati aggiunti altri {0} libri.
+848|Libri non aggiunti: {0}. I dettagli sono nel registro.
+849|Scegli per tutti
+850|Sostituisci: usa il nuovo file per questo libro. Le sue raccolte non cambiano.\nTieni entrambi: aggiungi il nuovo file come libro separato.\nSalta: non aggiungere il nuovo file.
+851|Nuovo file: {0}\nNel frattempo il libro corrispondente è stato rimosso dalla tua libreria.
+852|Nuovo file: {0}\nNella tua libreria: {1}
+853|, aggiunto il {0}
+854|, sul Kobo
+855|, in {0}
+856|Ricerca di libri…
+857|Ricerca di libri… finora {0}.
+858|Non ci sono libri in questa cartella né nelle cartelle al suo interno.
+859|C’è 1 libro in questa cartella. Se è già nella tua libreria, resta com’è.
+860|Ci sono {0} libri in questa cartella e nelle cartelle al suo interno. I libri già nella tua libreria restano come sono.
+861|KoLib non è riuscito a guardare in questa cartella. Sceglila di nuovo, o scegline un’altra.
+862|Aggiungi 1 libro
+863|Aggiungi {0} libri
+864|Scegli un’altra cartella
+865|Interrotto
+866|Invio completato
+867|Tieni il Kobo collegato finché l’invio non finisce. Nel frattempo puoi nascondere questa finestra.
+868|Puoi nascondere questa finestra e continuare a usare l’app. L’avanzamento è mostrato in cima alla libreria.
+869|1 di questi era già sul Kobo ed è stato aggiornato.
+870|{0} di questi erano già sul Kobo e sono stati aggiornati.
+871|Libri non inviati: {0}.
+872|Libri non aggiunti: {0}.
+873|1 è stato saltato perché hai interrotto.
+874|{0} sono stati saltati perché hai interrotto.
+875|Ora espelli il Kobo. Una volta scollegato, aggiunge i nuovi libri alla sua libreria. Ci vuole un momento.
+879|Come espellerlo
+880|I libri che non è stato possibile convertire in kepub possono essere inviati come EPUB.
+881|Nascondi
+882|Interrompi
+883|Inviali come EPUB
+884|Apri la libreria
+885|Non sul Kobo
+886|Modificato dopo l’invio
+887|Ultima modifica
+888|Ultima lettura sul Kobo
+889|Ultima lettura su questo dispositivo
+891|Informazioni e licenze
+892|Aggiungi libri
+893|File da questo dispositivo
+894|Una cartella di libri
+895|Libri dal Kobo
+896|Libri dal Kobo (prima collegalo)
+897|Scrivi un nuovo libro
+898|Qui verranno mostrati i suoi dettagli. Per lavorare su più libri insieme, tocca Seleziona o tieni premuto un libro.
+899|Tocca i libri per selezionarli o deselezionarli. Poi usa i pulsanti sopra l’elenco per inviarli, salvarli, duplicarli, unirli o rimuoverli.
+900|{0}: {1} di {2}
+901|La tua libreria è vuota
+902|Aggiungi libri dal tuo Kobo o file da questo dispositivo: EPUB, PDF, MOBI, file Word e altro. Poi potrai modificarne qui dettagli e copertine. I libri dal Kobo arrivano con le loro raccolte.
+903|Aggiungi dal Kobo
+904|Collega il Kobo
+905|Aggiungi file
+906|Salva come file
+907|Duplica
+908|Unisci
+909|Invia al Kobo
+910|Prova un’altra ricerca o cancella i filtri.
+911|{0}% letto sul Kobo
+912|Rimuovere questo libro dalla libreria?
+913|Rimuovere {0} libri dalla libreria?
+914|Il libro e le tue modifiche vengono eliminati dalla libreria. Se è sul Kobo, la copia lì non verrà eliminata.
+915|I libri e le tue modifiche vengono eliminati dalla libreria. Le copie sul Kobo non verranno eliminate.
+916|Libri con un tag che contiene «history»
+917|Libri con esattamente il tag «History»
+918|Usa le virgolette per cercare una frase
+919|Tag «history», ma non «greece»
+1376|Per vedere la nuova copertina di «{0}», riavvia il Kobo dopo averlo espulso. Continua a mostrare la vecchia copertina di un libro finché non viene riavviato.
+1377|Per vedere le nuove copertine di {0} libri, riavvia il Kobo dopo averlo espulso. Continua a mostrare la vecchia copertina di un libro finché non viene riavviato.
+1378|1 libro su questo dispositivo
+1379|{0} libri su questo dispositivo
+1380|L’immagine viene salvata nel file del libro nelle sue dimensioni ({0} × {1} pixel) e inviata al Kobo senza modifiche.
+1381|L’immagine viene salvata nel file del libro nelle sue dimensioni e inviata al Kobo senza modifiche.
+1382|1 voce di raccolta rimanda a un libro che non è ancora nel database. I libri appena inviati vengono aggiunti quando espelli il Kobo.
+1383|{0} voci di raccolta rimandano a un libro che non è ancora nel database. I libri appena inviati vengono aggiunti quando espelli il Kobo.
+1384|Backup eliminato.
+1385|Le parentesi raggruppano i termini; uno spazio equivale ad «and»
+1386|Questo file FictionBook non contiene testo.
+1387|Il file di pacchetto del libro non ha l’elemento <package>.
+1388|Il file di pacchetto del libro non ha una sezione di metadati.
+1389|Il libro non ha un manifest.
+1390|non è sul Kobo
+1391|Quando invii il libro al tuo Kobo, viene aggiunto a queste raccolte. KoLib non può creare nuove raccolte sul Kobo, quindi crea prima lì quelle che mancano.
+@nl
+805|Sorteren als
+806|Herstellen
+807|Auteurs
+808|Auteur toevoegen
+809|‘{0}’ toevoegen
+810|Geen auteur. De Kobo toont ‘Onbekende auteur’.
+811|Tik op een auteur om de naam te bewerken, de sortering te wijzigen of hem de eerste auteur te maken.
+812|Hoort niet bij een reeks.
+813|Kobo-collecties
+814|Aan een collectie toevoegen
+815|Nieuwe collectie ‘{0}’
+816|Nog in geen enkele collectie.
+817|De collecties van het boek op je Kobo. Wijzigingen worden op de Kobo gemaakt als je het boek verstuurt.
+819|Label toevoegen
+820|Nieuw label ‘{0}’
+821|Geen labels.
+822|Meer gegevens
+823|Jouw beoordeling
+824|Nog geen beschrijving.
+825|Beschrijving schrijven
+826|Beschrijving bewerken
+827|Naam
+828|Gebruikt als boeken op auteur worden gesorteerd, zoals ‘Doyle, Arthur Conan’.
+829|Eerste auteur maken
+830|Verwijderen
+831|{0} verwijderen
+832|{0} wissen
+833|Nummer
+834|Eén minder
+835|Eén meer
+836|1 ster
+837|Niet beoordeeld
+838|{0} van 5
+839|{0}½ van 5
+840|Wissen
+841|Niet ingesteld
+842|2005 of 2005-07-17
+843|Datum kiezen
+844|Al in de bibliotheek
+845|{0} boeken al in de bibliotheek
+846|Er is 1 ander boek toegevoegd.
+847|Er zijn {0} andere boeken toegevoegd.
+848|Niet toegevoegd: {0}. Details staan in het logboek.
+849|Voor alle kiezen
+850|Vervangen: het nieuwe bestand gebruiken voor dit boek. De collecties veranderen niet.\nBeide houden: het nieuwe bestand als apart boek toevoegen.\nOverslaan: het nieuwe bestand niet toevoegen.
+851|Nieuw bestand: {0}\nHet overeenkomende boek is intussen uit je bibliotheek verwijderd.
+852|Nieuw bestand: {0}\nIn je bibliotheek: {1}
+853|, toegevoegd op {0}
+854|, op de Kobo
+855|, in {0}
+856|Boeken zoeken…
+857|Boeken zoeken… tot nu toe {0}.
+858|Er staan geen boeken in deze map of in de mappen erin.
+859|Er staat 1 boek in deze map. Als het al in je bibliotheek staat, blijft het zoals het is.
+860|Er staan {0} boeken in deze map en de mappen erin. Boeken die al in je bibliotheek staan, blijven zoals ze zijn.
+861|KoLib kon niet in deze map kijken. Kies hem opnieuw, of een andere.
+862|1 boek toevoegen
+863|{0} boeken toevoegen
+864|Andere map kiezen
+865|Gestopt
+866|Verstuurd
+867|Laat de Kobo aangesloten tot het versturen klaar is. Je kunt dit venster intussen verbergen.
+868|Je kunt dit venster verbergen en de app blijven gebruiken. De voortgang staat boven aan de bibliotheek.
+869|1 ervan stond al op de Kobo en is bijgewerkt.
+870|{0} ervan stonden al op de Kobo en zijn bijgewerkt.
+871|Niet verstuurd: {0}.
+872|Niet toegevoegd: {0}.
+873|1 is overgeslagen omdat je bent gestopt.
+874|{0} zijn overgeslagen omdat je bent gestopt.
+875|Werp nu de Kobo uit. Zodra hij is losgekoppeld, voegt hij de nieuwe boeken aan zijn bibliotheek toe. Dat duurt even.
+879|Zo werp je hem uit
+880|Boeken die niet naar kepub konden worden omgezet, kunnen in plaats daarvan als EPUB worden verstuurd.
+881|Verbergen
+882|Stoppen
+883|Als EPUB versturen
+884|Bibliotheek openen
+885|Niet op Kobo
+886|Gewijzigd sinds versturen
+887|Laatst bewerkt
+888|Laatst gelezen op Kobo
+889|Laatst gelezen op dit apparaat
+891|Over en licenties
+892|Boeken toevoegen
+893|Bestanden van dit apparaat
+894|Een map met boeken
+895|Boeken van de Kobo
+896|Boeken van de Kobo (eerst verbinden)
+897|Een nieuw boek schrijven
+898|Hier verschijnen de gegevens. Tik op Selecteren of houd een boek ingedrukt om met meerdere boeken tegelijk te werken.
+899|Tik op boeken om ze te selecteren of deselecteren. Gebruik dan de knoppen boven de lijst om ze te versturen, op te slaan, te dupliceren, samen te voegen of te verwijderen.
+900|{0}: {1} van {2}
+901|Je bibliotheek is leeg
+902|Voeg boeken van je Kobo toe, of bestanden van dit apparaat: EPUB’s, PDF’s, MOBI’s, Word-bestanden en meer. Daarna kun je hier hun gegevens en omslagen bewerken. Boeken van de Kobo komen met hun collecties.
+903|Toevoegen van Kobo
+904|Kobo verbinden
+905|Bestanden toevoegen
+906|Opslaan als bestanden
+907|Dupliceren
+908|Samenvoegen
+909|Naar Kobo sturen
+910|Probeer een andere zoekopdracht of wis de filters.
+911|{0}% gelezen op Kobo
+912|Dit boek uit de bibliotheek verwijderen?
+913|{0} boeken uit de bibliotheek verwijderen?
+914|Hiermee verwijder je het boek en je wijzigingen eraan uit de bibliotheek. Als het op de Kobo staat, wordt het exemplaar daar niet verwijderd.
+915|Hiermee verwijder je de boeken en je wijzigingen eraan uit de bibliotheek. Exemplaren op de Kobo worden niet verwijderd.
+916|Boeken met een label dat ‘history’ bevat
+917|Boeken met precies het label ‘History’
+918|Gebruik aanhalingstekens om op een woordgroep te zoeken
+919|Label ‘history’, maar niet ‘greece’
+1376|Start de Kobo na het uitwerpen opnieuw op om de nieuwe omslag van ‘{0}’ te zien. Hij blijft de oude omslag van een boek tonen tot hij opnieuw is opgestart.
+1377|Start de Kobo na het uitwerpen opnieuw op om de nieuwe omslagen van {0} boeken te zien. Hij blijft de oude omslag van een boek tonen tot hij opnieuw is opgestart.
+1378|1 boek op dit apparaat
+1379|{0} boeken op dit apparaat
+1380|De afbeelding wordt op zijn eigen formaat ({0} × {1} pixels) in het boekbestand opgeslagen en ongewijzigd naar de Kobo gestuurd.
+1381|De afbeelding wordt op zijn eigen formaat in het boekbestand opgeslagen en ongewijzigd naar de Kobo gestuurd.
+1382|1 collectie-item verwijst naar een boek dat nog niet in de database staat. Boeken die je net hebt verstuurd, worden toegevoegd als je de Kobo uitwerpt.
+1383|{0} collectie-items verwijzen naar een boek dat nog niet in de database staat. Boeken die je net hebt verstuurd, worden toegevoegd als je de Kobo uitwerpt.
+1384|Back-up verwijderd.
+1385|Haakjes groeperen termen; een spatie betekent ‘and’
+1386|Dit FictionBook-bestand bevat geen tekst.
+1387|Het pakketbestand van het boek heeft geen <package>-element.
+1388|Het pakketbestand van het boek heeft geen metadatagedeelte.
+1389|Het boek heeft geen manifest.
+1390|niet op de Kobo
+1391|Als je het boek naar je Kobo stuurt, wordt het aan deze collecties toegevoegd. KoLib kan geen nieuwe collecties op de Kobo maken, dus maak ontbrekende collecties daar eerst aan.
+@pt
+805|Ordenar como
+806|Redefinir
+807|Autores
+808|Adicionar um autor
+809|Adicionar “{0}”
+810|Sem autor. O Kobo vai mostrar “Autor desconhecido”.
+811|Toque em um autor para editar o nome, mudar como ele é ordenado ou torná-lo o primeiro autor.
+812|Não faz parte de uma série.
+813|Coleções do Kobo
+814|Adicionar a uma coleção
+815|Nova coleção “{0}”
+816|Ainda não está em nenhuma coleção.
+817|As coleções do livro no seu Kobo. As mudanças são feitas no Kobo quando você envia o livro.
+819|Adicionar uma tag
+820|Nova tag “{0}”
+821|Sem tags.
+822|Mais detalhes
+823|Sua avaliação
+824|Ainda não há descrição.
+825|Escrever uma descrição
+826|Editar a descrição
+827|Nome
+828|Usado quando os livros são ordenados por autor, como “Doyle, Arthur Conan”.
+829|Tornar primeiro autor
+830|Remover
+831|Remover {0}
+832|Limpar {0}
+833|Número
+834|Um a menos
+835|Um a mais
+836|1 estrela
+837|Sem avaliação
+838|{0} de 5
+839|{0}½ de 5
+840|Limpar
+841|Não definido
+842|2005 ou 2005-07-17
+843|Escolher uma data
+844|Já está na biblioteca
+845|{0} livros já estão na biblioteca
+846|Mais 1 livro foi adicionado.
+847|Mais {0} livros foram adicionados.
+848|Livros não adicionados: {0}. Os detalhes estão no registro.
+849|Escolher para todos
+850|Substituir: usar o arquivo novo para este livro. As coleções dele não mudam.\nManter os dois: adicionar o arquivo novo como um livro separado.\nPular: não adicionar o arquivo novo.
+851|Arquivo novo: {0}\nO livro correspondente foi removido da sua biblioteca desde então.
+852|Arquivo novo: {0}\nNa sua biblioteca: {1}
+853|, adicionado em {0}
+854|, no Kobo
+855|, em {0}
+856|Procurando livros…
+857|Procurando livros… {0} até agora.
+858|Não há livros nesta pasta nem nas pastas dentro dela.
+859|Há 1 livro nesta pasta. Se ele já estiver na sua biblioteca, fica como está.
+860|Há {0} livros nesta pasta e nas pastas dentro dela. Os livros que já estão na sua biblioteca ficam como estão.
+861|O KoLib não conseguiu olhar nesta pasta. Escolha-a de novo, ou outra.
+862|Adicionar 1 livro
+863|Adicionar {0} livros
+864|Escolher outra pasta
+865|Interrompido
+866|Envio concluído
+867|Deixe o Kobo conectado até o envio terminar. Enquanto isso, você pode ocultar esta janela.
+868|Você pode ocultar esta janela e continuar usando o app. O progresso aparece no topo da biblioteca.
+869|1 deles já estava no Kobo e foi atualizado.
+870|{0} deles já estavam no Kobo e foram atualizados.
+871|Livros não enviados: {0}.
+872|Livros não adicionados: {0}.
+873|1 foi pulado porque você interrompeu.
+874|{0} foram pulados porque você interrompeu.
+875|Agora ejete o Kobo. Depois de desconectado, ele adiciona os livros novos à biblioteca dele. Isso leva um momento.
+879|Como ejetar
+880|Os livros que não puderam ser convertidos em kepub podem ser enviados como EPUB.
+881|Ocultar
+882|Parar
+883|Enviar como EPUB
+884|Abrir a biblioteca
+885|Fora do Kobo
+886|Alterado desde o envio
+887|Última edição
+888|Última leitura no Kobo
+889|Última leitura neste dispositivo
+891|Sobre e licenças
+892|Adicionar livros
+893|Arquivos deste dispositivo
+894|Uma pasta de livros
+895|Livros do Kobo
+896|Livros do Kobo (conecte-o primeiro)
+897|Escrever um livro novo
+898|Os detalhes aparecem aqui. Para trabalhar com vários livros de uma vez, toque em Selecionar ou toque e segure um livro.
+899|Toque nos livros para selecioná-los ou desmarcá-los. Depois, use os botões acima da lista para enviá-los, salvá-los, duplicá-los, combiná-los ou removê-los.
+900|{0}: {1} de {2}
+901|Sua biblioteca está vazia
+902|Adicione livros do seu Kobo ou arquivos deste dispositivo: EPUBs, PDFs, MOBIs, arquivos do Word e mais. Depois, você pode editar aqui os detalhes e as capas. Os livros do Kobo vêm com as coleções deles.
+903|Adicionar do Kobo
+904|Conectar o Kobo
+905|Adicionar arquivos
+906|Salvar como arquivos
+907|Duplicar
+908|Combinar
+909|Enviar ao Kobo
+910|Tente outra pesquisa ou limpe os filtros.
+911|{0}% lido no Kobo
+912|Remover este livro da biblioteca?
+913|Remover {0} livros da biblioteca?
+914|Isso exclui da biblioteca o livro e as suas edições nele. Se ele estiver no Kobo, a cópia de lá não será excluída.
+915|Isso exclui da biblioteca os livros e as suas edições neles. As cópias no Kobo não serão excluídas.
+916|Livros com uma tag que contém “history”
+917|Livros com exatamente a tag “History”
+918|Use aspas para pesquisar uma frase
+919|Tag “history”, mas não “greece”
+1376|Para ver a nova capa de “{0}”, reinicie o Kobo depois de ejetá-lo. Ele continua mostrando a capa antiga de um livro até ser reiniciado.
+1377|Para ver as novas capas de {0} livros, reinicie o Kobo depois de ejetá-lo. Ele continua mostrando a capa antiga de um livro até ser reiniciado.
+1378|1 livro neste dispositivo
+1379|{0} livros neste dispositivo
+1380|A imagem é salva no arquivo do livro no tamanho dela ({0} × {1} pixels) e enviada ao Kobo sem alterações.
+1381|A imagem é salva no arquivo do livro no tamanho dela e enviada ao Kobo sem alterações.
+1382|1 entrada de coleção aponta para um livro que ainda não está no banco de dados. Os livros que você acabou de enviar são adicionados quando você ejeta o Kobo.
+1383|{0} entradas de coleção apontam para um livro que ainda não está no banco de dados. Os livros que você acabou de enviar são adicionados quando você ejeta o Kobo.
+1384|Backup excluído.
+1385|Parênteses agrupam termos; um espaço equivale a “and”
+1386|Este arquivo FictionBook não tem texto.
+1387|O arquivo de pacote do livro não tem o elemento <package>.
+1388|O arquivo de pacote do livro não tem seção de metadados.
+1389|O livro não tem manifesto.
+1390|não está no Kobo
+1391|Quando você envia o livro ao seu Kobo, ele é adicionado a estas coleções. O KoLib não pode criar coleções novas no Kobo, então crie primeiro lá as que estiverem faltando.
+@ja
+805|並び順
+806|リセット
+807|著者
+808|著者を追加
+809|「{0}」を追加
+810|著者がいません。Kobo には「著者不明」と表示されます。
+811|著者をタップすると、名前の編集、並び順の変更、最初の著者への変更ができます。
+812|シリーズに属していません。
+813|Kobo のコレクション
+814|コレクションに追加
+815|新しいコレクション「{0}」
+816|まだどのコレクションにも入っていません。
+817|Kobo でのこの本のコレクションです。変更は本を送るときに Kobo に反映されます。
+819|タグを追加
+820|新しいタグ「{0}」
+821|タグはありません。
+822|その他の情報
+823|あなたの評価
+824|まだ説明がありません。
+825|説明を書く
+826|説明を編集
+827|名前
+828|本を著者順に並べるときに使います（例: 「Doyle, Arthur Conan」）。
+829|最初の著者にする
+830|削除
+831|{0} を削除
+832|{0} をクリア
+833|番号
+834|1 つ減らす
+835|1 つ増やす
+836|星 1 つ
+837|評価なし
+838|5 段階中 {0}
+839|5 段階中 {0}½
+840|クリア
+841|未設定
+842|2005 または 2005-07-17
+843|日付を選ぶ
+844|すでにライブラリにあります
+845|{0} 冊がすでにライブラリにあります
+846|ほかに 1 冊を追加しました。
+847|ほかに {0} 冊を追加しました。
+848|{0} 冊を追加できませんでした。詳しくはログをご覧ください。
+849|すべてに同じ選択をする
+850|置き換える: この本に新しいファイルを使います。コレクションは変わりません。\n両方残す: 新しいファイルを別の本として追加します。\nスキップ: 新しいファイルを追加しません。
+851|新しいファイル: {0}\n一致した本は、その後ライブラリから削除されています。
+852|新しいファイル: {0}\nライブラリ内: {1}
+853|、{0} に追加
+854|、Kobo にあり
+855|、{0}に所属
+856|本を探しています…
+857|本を探しています… これまでに {0}。
+858|このフォルダとその中のフォルダには本がありません。
+859|このフォルダには本が 1 冊あります。すでにライブラリにある場合は、そのままにします。
+860|このフォルダとその中のフォルダには本が {0} 冊あります。すでにライブラリにある本は、そのままにします。
+861|KoLib はこのフォルダの中を見られませんでした。もう一度選ぶか、別のフォルダを選んでください。
+862|1 冊を追加
+863|{0} 冊を追加
+864|別のフォルダを選ぶ
+865|中止しました
+866|送信しました
+867|送信が終わるまで Kobo をつないだままにしてください。その間、このウィンドウは隠せます。
+868|このウィンドウを隠して、アプリを使い続けられます。進み具合はライブラリの上部に表示されます。
+869|そのうち 1 冊はすでに Kobo にあったため、更新しました。
+870|そのうち {0} 冊はすでに Kobo にあったため、更新しました。
+871|{0} 冊を送信できませんでした。
+872|{0} 冊を追加できませんでした。
+873|中止したため、1 冊をスキップしました。
+874|中止したため、{0} 冊をスキップしました。
+875|Kobo を取り出してください。外すと、Kobo が新しい本をライブラリに追加します。少し時間がかかります。
+879|取り出し方
+880|kepub に変換できなかった本は、代わりに EPUB として送れます。
+881|隠す
+882|中止
+883|EPUB として送る
+884|ライブラリを開く
+885|Kobo にない
+886|送信後に変更あり
+887|最終編集日
+888|Kobo で最後に読んだ日
+889|この端末で最後に読んだ日
+891|情報とライセンス
+892|本を追加
+893|この端末のファイル
+894|本のフォルダ
+895|Kobo の本
+896|Kobo の本（先に接続してください）
+897|新しい本を書く
+898|ここに本の情報が表示されます。複数の本をまとめて扱うには、「選択」をタップするか、本を長押ししてください。
+899|本をタップして選択・選択解除します。リストの上のボタンで、送る、保存、複製、結合、削除ができます。
+900|{0}: {1}/{2}
+901|ライブラリは空です
+902|Kobo の本や、この端末のファイル（EPUB、PDF、MOBI、Word ファイルなど）を追加しましょう。追加した本の情報や表紙はここで編集できます。Kobo の本はコレクションごと追加されます。
+903|Kobo から追加
+904|Kobo を接続
+905|ファイルを追加
+906|ファイルに保存
+907|複製
+908|結合
+909|Kobo に送る
+910|別の言葉で検索するか、絞り込みを解除してください。
+911|Kobo で {0}% 読了
+912|この本をライブラリから削除しますか？
+913|{0} 冊をライブラリから削除しますか？
+914|本とその編集内容をライブラリから削除します。Kobo にある場合も、Kobo の本は削除されません。
+915|本とその編集内容をライブラリから削除します。Kobo にある本は削除されません。
+916|タグに「history」を含む本
+917|タグが「History」と完全に一致する本
+918|引用符で囲むとフレーズで検索します
+919|タグ「history」があり、「greece」はない本
+1376|「{0}」の新しい表紙を表示するには、取り出したあとで Kobo を再起動してください。再起動するまで、Kobo は本の古い表紙を表示し続けます。
+1377|{0} 冊の新しい表紙を表示するには、取り出したあとで Kobo を再起動してください。再起動するまで、Kobo は本の古い表紙を表示し続けます。
+1378|この端末に 1 冊
+1379|この端末に {0} 冊
+1380|画像は元のサイズ（{0} × {1} ピクセル）のまま本のファイルに保存され、そのまま Kobo に送られます。
+1381|画像は元のサイズのまま本のファイルに保存され、そのまま Kobo に送られます。
+1382|コレクションの項目 1 件が、まだデータベースにない本を指しています。送ったばかりの本は、Kobo を取り出したときに追加されます。
+1383|コレクションの項目 {0} 件が、まだデータベースにない本を指しています。送ったばかりの本は、Kobo を取り出したときに追加されます。
+1384|バックアップを削除しました。
+1385|かっこで条件をまとめます。スペースは「and」と同じ意味です
+1386|この FictionBook ファイルには本文がありません。
+1387|本のパッケージファイルに <package> 要素がありません。
+1388|本のパッケージファイルにメタデータの部分がありません。
+1389|本にマニフェストがありません。
+1390|Kobo にありません
+1391|本を Kobo に送ると、これらのコレクションに追加されます。KoLib は Kobo に新しいコレクションを作れないため、足りないコレクションは先に Kobo で作ってください。

@@ -1,14 +1,15 @@
 package dev.kobolibrary.app.reader
 
+import dev.kobolibrary.app.tr
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.UUID
 
 enum class HighlightColor(val js: String, val argb: Long, val label: String) {
-    YELLOW("yellow", 0xFFFFD400, "Yellow"),
-    GREEN("green", 0xFF64C85A, "Green"),
-    BLUE("blue", 0xFF5AA0FF, "Blue"),
-    PINK("pink", 0xFFFF6EAA, "Pink"),
+    YELLOW("yellow", 0xFFFFD400, tr("Yellow")),
+    GREEN("green", 0xFF64C85A, tr("Green")),
+    BLUE("blue", 0xFF5AA0FF, tr("Blue")),
+    PINK("pink", 0xFFFF6EAA, tr("Pink")),
 }
 
 enum class HighlightStyle(val js: String) { HIGHLIGHT("highlight"), UNDERLINE("underline") }
@@ -101,17 +102,17 @@ data class Annotation(
         fun export(title: String, author: String?, list: List<Annotation>, chapterOrder: (String) -> Int, date: String): String = buildString {
             append(title)
             if (!author.isNullOrBlank()) append(" — ").append(author)
-            append("\nHighlights and notes, ").append(date).append('\n')
+            append(tr("\nHighlights and notes, ")).append(date).append('\n')
             var chapter: String? = null
             for (a in ordered(list, chapterOrder)) {
-                val c = a.chapterTitle.ifBlank { "Untitled chapter" }
+                val c = a.chapterTitle.ifBlank { tr("Untitled chapter") }
                 if (c != chapter) {
                     append("\n## ").append(c).append('\n')
                     chapter = c
                 }
                 append('\n')
                 a.text.replace(Regex("\\s+"), " ").trim().let { append("> ").append(it).append('\n') }
-                if (a.hasNote) append("Note: ").append(a.note.trim()).append('\n')
+                if (a.hasNote) append(tr("Note: ")).append(a.note.trim()).append('\n')
             }
         }
     }

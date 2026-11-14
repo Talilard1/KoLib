@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.onboarding
 
+import dev.kobolibrary.app.tr
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -98,7 +99,7 @@ fun GlobeArt(modifier: Modifier = Modifier) = Art(modifier) {
         line(p, width = 2.6f)
         label(text, l + w / 2, t + h / 2 + 11f, 30f)
     }
-    bubble(272f, 42f, 82f, 52f, tailLeft = true, text = "Aa")
+    bubble(272f, 42f, 82f, 52f, tailLeft = true, text = tr("Aa"))
     bubble(46f, 70f, 78f, 52f, tailLeft = false, text = "あ")
     bubble(286f, 200f, 72f, 48f, tailLeft = true, text = "Ç")
 }
@@ -162,7 +163,7 @@ fun KoboArt(modifier: Modifier = Modifier, connected: Boolean = false) {
             line(Path().apply { moveTo(294f, 131f); lineTo(303f, 141f); lineTo(321f, 120f) }, width = 3.6f)
         } else {
             line(roundRect(272f, 116f, 342f, 150f, 8f), width = 2.4f)
-            label("Connect", 307f, 139f, 17f, bold = true)
+            label(tr("Connect"), 307f, 139f, 17f, bold = true)
             // Rings going out from it, as a tap.
             val ring = 10f + 26f * pulse
             drawCircle(KoLibGold.light, radius = ring, center = Offset(330f, 146f), alpha = (1f - pulse) * 0.6f, style = Stroke(2f))
@@ -178,10 +179,10 @@ fun CollectionsArt(modifier: Modifier = Modifier) {
     Art(modifier) {
         line(roundRect(124f, 20f, 276f, 284f, 14f))
         line(roundRect(136f, 32f, 264f, 250f, 4f), width = 1.8f, glow = false, alpha = 0.6f)
-        label("Collections", 144f, 58f, 12.5f, bold = true, left = true)
+        label(tr("Collections"), 144f, 58f, 12.5f, bold = true, left = true)
         // New collection, glowing.
         line(roundRect(220f, 45f, 257f, 63f, 9f), width = 2f, alpha = glow)
-        label("+ New", 238.5f, 58.5f, 11f, color = KoLibGold.spark.copy(alpha = glow), bold = true)
+        label(tr("+ New"), 238.5f, 58.5f, 11f, color = KoLibGold.spark.copy(alpha = glow), bold = true)
         // The collections: a little stack of covers and a name.
         for ((i, y) in listOf(86f, 132f, 178f).withIndex()) {
             line(roundRect(148f, y, 172f, y + 32f, 2f), width = 2f, glow = false)

@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.reader
 
+import dev.kobolibrary.app.tr
 import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.Image
@@ -150,7 +151,7 @@ fun AnnotationCard(controller: ReaderController, settings: ReaderSettings, onSet
                             controller.updateAnnotation(a.copy(style = st))
                             onSettings(settings.copy(highlightStyle = st))
                         },
-                    ) { Icon(Icons.Outlined.FormatUnderlined, "Underline instead") }
+                    ) { Icon(Icons.Outlined.FormatUnderlined, tr("Underline instead")) }
                 }
                 if (a.hasNote) {
                     Text(
@@ -169,23 +170,23 @@ fun AnnotationCard(controller: ReaderController, settings: ReaderSettings, onSet
                 }
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                    CardAction(Icons.Outlined.EditNote, if (a.hasNote) "Note" else "Add note") {
+                    CardAction(Icons.Outlined.EditNote, if (a.hasNote) tr("Note") else tr("Add note")) {
                         controller.openAnnotation = null
                         controller.editingNote = a
                     }
-                    CardAction(Icons.Outlined.ContentCopy, "Copy") {
+                    CardAction(Icons.Outlined.ContentCopy, tr("Copy")) {
                         clipboard.setText(AnnotatedString(a.text.trim()))
                         controller.openAnnotation = null
                     }
-                    CardAction(Icons.Outlined.IosShare, "Share") {
+                    CardAction(Icons.Outlined.IosShare, tr("Share")) {
                         shareText(context, quoteFor(a, controller), controller.bookTitle)
                         controller.openAnnotation = null
                     }
-                    CardAction(Icons.AutoMirrored.Outlined.MenuBook, "Look up") {
+                    CardAction(Icons.AutoMirrored.Outlined.MenuBook, tr("Look up")) {
                         controller.openAnnotation = null
                         controller.lookUpText = a.text.trim()
                     }
-                    CardAction(Icons.Outlined.Delete, "Remove") { controller.removeAnnotation(a.id) }
+                    CardAction(Icons.Outlined.Delete, tr("Remove")) { controller.removeAnnotation(a.id) }
                 }
             }
         }
@@ -225,7 +226,7 @@ fun NoteDialog(controller: ReaderController) {
     var text by remember(a.id) { mutableStateOf(a.note) }
     AlertDialog(
         onDismissRequest = { controller.editingNote = null },
-        title = { Text(if (a.hasNote) "Note" else "Add a note") },
+        title = { Text(if (a.hasNote) tr("Note") else tr("Add a note")) },
         text = {
             Column {
                 Text(
@@ -240,7 +241,7 @@ fun NoteDialog(controller: ReaderController) {
                 OutlinedTextField(
                     value = text,
                     onValueChange = { text = it },
-                    placeholder = { Text("Your note") },
+                    placeholder = { Text(tr("Your note")) },
                     minLines = 4,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -250,15 +251,15 @@ fun NoteDialog(controller: ReaderController) {
             TextButton(onClick = {
                 controller.annotation(a.id)?.let { controller.updateAnnotation(it.copy(note = text.trim())) }
                 controller.editingNote = null
-            }) { Text("Save") }
+            }) { Text(tr("Save")) }
         },
         dismissButton = {
             Row {
                 if (a.hasNote) TextButton(onClick = {
                     controller.annotation(a.id)?.let { controller.updateAnnotation(it.copy(note = "")) }
                     controller.editingNote = null
-                }) { Text("Delete note") }
-                TextButton(onClick = { controller.editingNote = null }) { Text("Cancel") }
+                }) { Text(tr("Delete note")) }
+                TextButton(onClick = { controller.editingNote = null }) { Text(tr("Cancel")) }
             }
         },
     )
@@ -287,7 +288,7 @@ fun LookUpSheet(controller: ReaderController, settings: ReaderSettings, onSettin
     ModalBottomSheet(onDismissRequest = { controller.lookUpText = null }, sheetState = sheet) {
         Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(bottom = 12.dp)) {
             Text(
-                "Look up “${text.replace(Regex("\\s+"), " ").take(60)}”",
+                tr("Look up “{0}”", text.replace(Regex("\\s+"), " ").take(60)),
                 style = MaterialTheme.typography.titleMedium,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
@@ -295,8 +296,7 @@ fun LookUpSheet(controller: ReaderController, settings: ReaderSettings, onSettin
             )
             if (apps.isEmpty()) {
                 Text(
-                    "No dictionary or translation apps found. Install one that can look up selected text, such as ColorDict " +
-                        "or Google Translate, and it will appear here.",
+                    tr("No dictionary or translation apps found. Install one that can look up selected text, such as ColorDict or Google Translate, and it will appear here."),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
@@ -315,15 +315,15 @@ fun LookUpSheet(controller: ReaderController, settings: ReaderSettings, onSettin
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Checkbox(checked = always, onCheckedChange = { always = it })
-                    Text("Remember my choice", style = MaterialTheme.typography.bodyMedium)
+                    Text(tr("Remember my choice"), style = MaterialTheme.typography.bodyMedium)
                 }
             }
             HorizontalDivider(Modifier.padding(vertical = 6.dp))
-            SheetRow("Wikipedia", icon = { Icon(Icons.Outlined.Language, null) }) {
+            SheetRow(tr("Wikipedia"), icon = { Icon(Icons.Outlined.Language, null) }) {
                 LookUp.wikipedia(context, text, language)
                 controller.lookUpText = null
             }
-            SheetRow(if (text.trim().contains(' ')) "Search the web" else "Define on the web", icon = { Icon(Icons.Outlined.Search, null) }) {
+            SheetRow(if (text.trim().contains(' ')) tr("Search the web") else tr("Define on the web"), icon = { Icon(Icons.Outlined.Search, null) }) {
                 LookUp.webSearch(context, LookUp.defineQuery(text))
                 controller.lookUpText = null
             }
@@ -361,7 +361,7 @@ fun HighlightsList(controller: ReaderController, onPicked: () -> Unit) {
     Column(Modifier.fillMaxSize()) {
         if (all.isEmpty()) {
             Text(
-                "No highlights yet. To add one, press and hold a word, drag to select the text, then tap Highlight or Note.",
+                tr("No highlights yet. To add one, press and hold a word, drag to select the text, then tap Highlight or Note."),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(24.dp),
@@ -370,8 +370,8 @@ fun HighlightsList(controller: ReaderController, onPicked: () -> Unit) {
         }
         Row(Modifier.fillMaxWidth().padding(start = 12.dp, end = 4.dp, top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
             Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                FilterChip(selected = filter == null, onClick = { filter = null }, label = { Text("All") })
-                FilterChip(selected = filter == "notes", onClick = { filter = if (filter == "notes") null else "notes" }, label = { Text("Notes") })
+                FilterChip(selected = filter == null, onClick = { filter = null }, label = { Text(tr("All")) })
+                FilterChip(selected = filter == "notes", onClick = { filter = if (filter == "notes") null else "notes" }, label = { Text(tr("Notes")) })
                 HighlightColor.entries.filter { c -> all.any { it.color == c } }.forEach { c ->
                     Box(
                         Modifier
@@ -385,8 +385,8 @@ fun HighlightsList(controller: ReaderController, onPicked: () -> Unit) {
             }
             IconButton(onClick = {
                 val text = Annotation.export(controller.bookTitle, controller.bookAuthor, shown, controller::chapterOrder, Fmt.date(System.currentTimeMillis()).orEmpty())
-                shareText(context, text, "${controller.bookTitle}: highlights and notes")
-            }) { Icon(Icons.Outlined.IosShare, "Share highlights and notes") }
+                shareText(context, text, tr("{0}: highlights and notes", controller.bookTitle))
+            }) { Icon(Icons.Outlined.IosShare, tr("Share highlights and notes")) }
         }
         LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(vertical = 6.dp)) {
             items(shown, key = { it.id }) { a ->
@@ -433,7 +433,7 @@ private fun AnnotationRow(a: Annotation, onOpen: () -> Unit, onNote: () -> Unit,
                 }
             }
             Text(
-                listOf(a.chapterTitle.ifBlank { "Untitled chapter" }, "${(a.bookProgress * 100).roundToInt()}%", Fmt.date(a.modified).orEmpty()).joinToString(" · "),
+                listOf(a.chapterTitle.ifBlank { tr("Untitled chapter") }, "${(a.bookProgress * 100).roundToInt()}%", Fmt.date(a.modified).orEmpty()).joinToString(" · "),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
@@ -442,12 +442,12 @@ private fun AnnotationRow(a: Annotation, onOpen: () -> Unit, onNote: () -> Unit,
             )
         }
         Box {
-            IconButton(onClick = { menu = true }) { Icon(Icons.Outlined.MoreVert, "More") }
+            IconButton(onClick = { menu = true }) { Icon(Icons.Outlined.MoreVert, tr("More")) }
             DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
-                DropdownMenuItem(text = { Text(if (a.hasNote) "Edit note" else "Add note") }, leadingIcon = { Icon(Icons.Outlined.EditNote, null) }, onClick = { menu = false; onNote() })
-                DropdownMenuItem(text = { Text("Copy") }, leadingIcon = { Icon(Icons.Outlined.ContentCopy, null) }, onClick = { menu = false; onCopy() })
-                DropdownMenuItem(text = { Text("Share") }, leadingIcon = { Icon(Icons.Outlined.IosShare, null) }, onClick = { menu = false; onShare() })
-                DropdownMenuItem(text = { Text("Remove") }, leadingIcon = { Icon(Icons.Outlined.Delete, null) }, onClick = { menu = false; onRemove() })
+                DropdownMenuItem(text = { Text(if (a.hasNote) tr("Edit note") else tr("Add note")) }, leadingIcon = { Icon(Icons.Outlined.EditNote, null) }, onClick = { menu = false; onNote() })
+                DropdownMenuItem(text = { Text(tr("Copy")) }, leadingIcon = { Icon(Icons.Outlined.ContentCopy, null) }, onClick = { menu = false; onCopy() })
+                DropdownMenuItem(text = { Text(tr("Share")) }, leadingIcon = { Icon(Icons.Outlined.IosShare, null) }, onClick = { menu = false; onShare() })
+                DropdownMenuItem(text = { Text(tr("Remove")) }, leadingIcon = { Icon(Icons.Outlined.Delete, null) }, onClick = { menu = false; onRemove() })
             }
         }
     }

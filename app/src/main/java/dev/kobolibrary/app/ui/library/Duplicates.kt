@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.library
 
+import dev.kobolibrary.app.tr
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -62,13 +63,13 @@ fun DuplicatesDialog(
         onDismissRequest = skipAll,
         properties = DialogProperties(dismissOnClickOutside = false),
         icon = { Icon(Icons.Outlined.ContentCopy, null) },
-        title = { Text(if (single != null) "Already in the library" else "${held.size} books already in the library") },
+        title = { Text(if (single != null) tr("Already in the library") else tr("{0} books already in the library", held.size)) },
         text = {
             Column(Modifier.fillMaxWidth()) {
                 job?.takeIf { it.finished }?.let { p ->
                     val others = listOfNotNull(
-                        p.succeeded.takeIf { it > 0 }?.let { if (it == 1) "1 other book was added." else "$it other books were added." },
-                        p.failures.size.takeIf { it > 0 }?.let { "$it couldn't be added. The log has the details." },
+                        p.succeeded.takeIf { it > 0 }?.let { if (it == 1) tr("1 other book was added.") else tr("{0} other books were added.", it) },
+                        p.failures.size.takeIf { it > 0 }?.let { tr("{0} couldn't be added. The log has the details.", it) },
                     )
                     if (others.isNotEmpty()) {
                         Text(others.joinToString(" "), style = MaterialTheme.typography.bodyMedium)
@@ -81,7 +82,7 @@ fun DuplicatesDialog(
                     Explanation()
                 } else {
                     val all = held.map(choiceOf).distinct().singleOrNull()
-                    Text("Choose for all", style = MaterialTheme.typography.titleSmall)
+                    Text(tr("Choose for all"), style = MaterialTheme.typography.titleSmall)
                     Spacer(Modifier.height(6.dp))
                     ChoiceRow(all) { c -> held.forEach { choices[it.key] = c } }
                     Spacer(Modifier.height(8.dp))
@@ -100,12 +101,12 @@ fun DuplicatesDialog(
         confirmButton = {
             if (single != null) {
                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    TextButton(onClick = skipAll) { Text("Skip") }
-                    TextButton(onClick = { onDone(mapOf(single.key to DuplicateChoice.KEEP_BOTH)) }) { Text("Keep both") }
-                    TextButton(onClick = { onDone(mapOf(single.key to DuplicateChoice.REPLACE)) }) { Text("Replace") }
+                    TextButton(onClick = skipAll) { Text(tr("Skip")) }
+                    TextButton(onClick = { onDone(mapOf(single.key to DuplicateChoice.KEEP_BOTH)) }) { Text(tr("Keep both")) }
+                    TextButton(onClick = { onDone(mapOf(single.key to DuplicateChoice.REPLACE)) }) { Text(tr("Replace")) }
                 }
             } else {
-                TextButton(onClick = { onDone(held.associate { it.key to choiceOf(it) }) }) { Text("Done") }
+                TextButton(onClick = { onDone(held.associate { it.key to choiceOf(it) }) }) { Text(tr("Done")) }
             }
         },
     )
@@ -114,9 +115,7 @@ fun DuplicatesDialog(
 @Composable
 private fun Explanation() {
     Text(
-        "Replace: use the new file for this book. Its collections won't change.\n" +
-            "Keep both: add the new file as a separate book.\n" +
-            "Skip: don't add the new file.",
+        tr("Replace: use the new file for this book. Its collections won't change.\nKeep both: add the new file as a separate book.\nSkip: don't add the new file."),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
@@ -152,7 +151,7 @@ private fun DuplicateRow(
         }
         Column(Modifier.weight(1f)) {
             Text(
-                "“${d.title}”" + if (d.authors.isNotBlank()) " by ${d.authors}" else "",
+                "“${d.title}”" + if (d.authors.isNotBlank()) tr(" by {0}", d.authors) else "",
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 2,
@@ -168,12 +167,12 @@ private fun DuplicateRow(
             Spacer(Modifier.height(4.dp))
             val newSize = Fmt.bytes(context, d.size)
             Text(
-                if (book == null) "New file: $newSize\nThe matching book has since been removed from your library."
+                if (book == null) tr("New file: {0}\nThe matching book has since been removed from your library.", newSize)
                 else buildString {
-                    append("New file: $newSize\nIn your library: ${Fmt.bytes(context, book.fileSize)}")
-                    Fmt.date(book.addedAt)?.let { append(", added $it") }
-                    if (book.koboPath != null) append(", on the Kobo")
-                    if (book.collections.isNotEmpty()) append(", in ${Fmt.plural(book.collections.size, "collection")}")
+                    append(tr("New file: {0}\nIn your library: {1}", newSize, Fmt.bytes(context, book.fileSize)))
+                    Fmt.date(book.addedAt)?.let { append(tr(", added {0}", it)) }
+                    if (book.koboPath != null) append(tr(", on the Kobo"))
+                    if (book.collections.isNotEmpty()) append(tr(", in {0}", Fmt.plural(book.collections.size, "collection")))
                 },
                 style = MaterialTheme.typography.bodySmall,
             )

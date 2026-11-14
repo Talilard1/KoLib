@@ -2,6 +2,7 @@
 
 package dev.kobolibrary.app.ui.cover
 
+import dev.kobolibrary.app.tr
 import dev.kobolibrary.app.ui.components.GoldButton
 import android.net.Uri
 import androidx.activity.compose.BackHandler
@@ -138,7 +139,7 @@ fun CoverEditorScreen(
     LaunchedEffect(book.id) {
         if (initialPicture != null) return@LaunchedEffect
         val picture = withContext(Dispatchers.Default) {
-            runCatching { loadOriginal()?.let { bytes -> CoverRendering.decode(bytes)?.let { CoverRendering.prepare(it, "The book's cover", bytes) } } }
+            runCatching { loadOriginal()?.let { bytes -> CoverRendering.decode(bytes)?.let { CoverRendering.prepare(it, tr("The book's cover"), bytes) } } }
                 .onFailure { AppLog.w("Cover", "Couldn't read the book's cover", it) }
                 .getOrNull()
         }
@@ -149,7 +150,7 @@ fun CoverEditorScreen(
     LaunchedEffect(book.id, book.coverVersion) {
         if (initialFirstCover != null) return@LaunchedEffect
         val picture = withContext(Dispatchers.Default) {
-            runCatching { loadFirstCover()?.let { bytes -> CoverRendering.decode(bytes)?.let { CoverRendering.prepare(it, "The original cover", bytes) } } }
+            runCatching { loadFirstCover()?.let { bytes -> CoverRendering.decode(bytes)?.let { CoverRendering.prepare(it, tr("The original cover"), bytes) } } }
                 .onFailure { AppLog.w("Cover", "Couldn't read the book's original cover", it) }
                 .getOrNull()
         }
@@ -184,7 +185,7 @@ fun CoverEditorScreen(
                     .getOrNull()
             }
             if (picture == null) {
-                problem = "That picture couldn't be opened. Try a JPEG or PNG."
+                problem = tr("That picture couldn't be opened. Try a JPEG or PNG.")
             } else {
                 shown = ShownPicture(picture)
                 crop = CoverCrop(fit = crop.fit)
@@ -204,7 +205,7 @@ fun CoverEditorScreen(
                     .getOrNull()
             }
             if (picture == null) {
-                problem = "That picture couldn't be opened. Try another."
+                problem = tr("That picture couldn't be opened. Try another.")
             } else {
                 shown = ShownPicture(picture)
                 crop = CoverCrop(fit = crop.fit)
@@ -213,8 +214,8 @@ fun CoverEditorScreen(
         }
     }
 
-    val photoPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { open(it, "Picture from Photos") }
-    val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { open(it, "Picture from Files") }
+    val photoPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { open(it, tr("Picture from Photos")) }
+    val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { open(it, tr("Picture from Files")) }
 
     val changed = shown !== original || crop != startCrop
     val tryClose = { if (changed) confirmDiscard = true else onClose() }
@@ -236,7 +237,7 @@ fun CoverEditorScreen(
         CoverGeneratorScreen(
             text = coverText,
             onUse = { bitmap, design ->
-                shown = ShownPicture(CoverRendering.prepare(bitmap, "Made here, in the ${design.style.label} design"))
+                shown = ShownPicture(CoverRendering.prepare(bitmap, tr("Made here, in the {0} design", design.style.label)))
                 crop = CoverCrop()
                 problem = null
                 generating = false
@@ -251,10 +252,10 @@ fun CoverEditorScreen(
         containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
-                navigationIcon = { IconButton(onClick = tryClose) { Icon(Icons.Filled.Close, "Close") } },
+                navigationIcon = { IconButton(onClick = tryClose) { Icon(Icons.Filled.Close, tr("Close")) } },
                 title = {
                     Column {
-                        Text("Change cover")
+                        Text(tr("Change cover"))
                         Text(book.title, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                 },
@@ -278,7 +279,7 @@ fun CoverEditorScreen(
                         },
                         enabled = shown != null && !saving && !rendering,
                         modifier = Modifier.padding(end = 12.dp),
-                    ) { Text("Save cover") }
+                    ) { Text(tr("Save cover")) }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             )
@@ -314,11 +315,11 @@ fun CoverEditorScreen(
                     },
                     onPhotos = {
                         runCatching { photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
-                            .onFailure { problem = "This device has no photo picker. Use Files instead." }
+                            .onFailure { problem = tr("This device has no photo picker. Use Files instead.") }
                     },
                     onFiles = {
                         runCatching { filePicker.launch(arrayOf("image/*")) }
-                            .onFailure { problem = "This device has no file picker." }
+                            .onFailure { problem = tr("This device has no file picker.") }
                     },
                     onGenerate = { generating = true },
                     onFind = { findingOnline = true },
@@ -349,29 +350,29 @@ fun CoverEditorScreen(
     if (confirmRestore && onRestoreFirstCover != null) {
         AlertDialog(
             onDismissRequest = { confirmRestore = false },
-            title = { Text("Restore the original cover?") },
-            text = { Text("The book will get back the cover it came with. You can change it again later.") },
+            title = { Text(tr("Restore the original cover?")) },
+            text = { Text(tr("The book will get back the cover it came with. You can change it again later.")) },
             confirmButton = {
                 TextButton(onClick = {
                     confirmRestore = false
                     onRestoreFirstCover()
-                }) { Text("Restore") }
+                }) { Text(tr("Restore")) }
             },
-            dismissButton = { TextButton(onClick = { confirmRestore = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { confirmRestore = false }) { Text(tr("Cancel")) } },
         )
     }
     if (confirmDiscard) {
         AlertDialog(
             onDismissRequest = { confirmDiscard = false },
-            title = { Text("Discard the new cover?") },
-            text = { Text("The book's cover won't change.") },
+            title = { Text(tr("Discard the new cover?")) },
+            text = { Text(tr("The book's cover won't change.")) },
             confirmButton = {
                 TextButton(onClick = {
                     confirmDiscard = false
                     onClose()
-                }) { Text("Discard") }
+                }) { Text(tr("Discard")) }
             },
-            dismissButton = { TextButton(onClick = { confirmDiscard = false }) { Text("Keep editing") } },
+            dismissButton = { TextButton(onClick = { confirmDiscard = false }) { Text(tr("Keep editing")) } },
         )
     }
 }
@@ -447,7 +448,7 @@ private fun CoverFrame(
                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(24.dp)) {
                     Icon(Icons.Outlined.AutoStories, null, tint = Color(0xFF9E9E9E), modifier = Modifier.size(48.dp))
                     Spacer(Modifier.height(12.dp))
-                    Text("No cover yet. Choose a picture.", color = Color(0xFF616161), textAlign = TextAlign.Center)
+                    Text(tr("No cover yet. Choose a picture."), color = Color(0xFF616161), textAlign = TextAlign.Center)
                 }
             }
             if (loading && shown != null) CircularProgressIndicator()
@@ -482,14 +483,14 @@ private fun CoverControls(
             .padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        Text("Picture", style = MaterialTheme.typography.titleSmall)
+        Text(tr("Picture"), style = MaterialTheme.typography.titleSmall)
         if (hasOriginal || hasFirst) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (hasOriginal) {
                     FilterChip(
                         selected = showingOriginal,
                         onClick = onUseOriginal,
-                        label = { Text(if (hasFirst) "Current cover" else "The book's cover") },
+                        label = { Text(if (hasFirst) tr("Current cover") else tr("The book's cover")) },
                     )
                 }
                 if (hasFirst) {
@@ -497,43 +498,43 @@ private fun CoverControls(
                         selected = showingFirst,
                         onClick = onUseFirst,
                         leadingIcon = { Icon(Icons.Outlined.History, null, Modifier.size(18.dp)) },
-                        label = { Text("Original cover") },
+                        label = { Text(tr("Original cover")) },
                     )
                 }
             }
         }
         if (showingFirst && onRestoreFirst != null) {
             Text(
-                "This is the cover the book came with. You can fit it to the Kobo's screen like any other picture, or restore it unchanged.",
+                tr("This is the cover the book came with. You can fit it to the Kobo's screen like any other picture, or restore it unchanged."),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             TextButton(onClick = onRestoreFirst, contentPadding = PaddingValues(horizontal = 0.dp, vertical = 4.dp)) {
                 Icon(Icons.Outlined.Restore, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Restore it unchanged")
+                Text(tr("Restore it unchanged"))
             }
         }
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = onPhotos) {
                 Icon(Icons.Outlined.PhotoLibrary, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Photos")
+                Text(tr("Photos"))
             }
             OutlinedButton(onClick = onFiles) {
                 Icon(Icons.Outlined.FolderOpen, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Files")
+                Text(tr("Files"))
             }
             OutlinedButton(onClick = onFind) {
                 Icon(Icons.Outlined.TravelExplore, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Find online")
+                Text(tr("Find online"))
             }
             OutlinedButton(onClick = onGenerate) {
                 Icon(Icons.Outlined.AutoAwesome, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Make a cover")
+                Text(tr("Make a cover"))
             }
         }
         if (shown != null) {
@@ -547,7 +548,7 @@ private fun CoverControls(
                     Icon(Icons.Outlined.WarningAmber, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.secondary)
                     Spacer(Modifier.width(6.dp))
                     Text(
-                        "This picture is much smaller than the Kobo's screen, so it may look blurry.",
+                        tr("This picture is much smaller than the Kobo's screen, so it may look blurry."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.secondary,
                     )
@@ -557,7 +558,7 @@ private fun CoverControls(
         problem?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error) }
 
         HorizontalDivider(Modifier.padding(vertical = 6.dp))
-        Text("Fit", style = MaterialTheme.typography.titleSmall)
+        Text(tr("Fit"), style = MaterialTheme.typography.titleSmall)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             CoverFit.entries.forEach { f ->
                 FilterChip(
@@ -573,11 +574,11 @@ private fun CoverControls(
 
         HorizontalDivider(Modifier.padding(vertical = 6.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Zoom", style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
+            Text(tr("Zoom"), style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
             TextButton(onClick = { onCrop(CoverCrop(fit = crop.fit)) }, enabled = shown != null && crop.fit != CoverFit.AS_IS && crop != CoverCrop(fit = crop.fit)) {
                 Icon(Icons.Outlined.RestartAlt, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
-                Text("Reset")
+                Text(tr("Reset"))
             }
         }
         Slider(
@@ -589,8 +590,8 @@ private fun CoverControls(
             enabled = shown != null && crop.fit != CoverFit.AS_IS,
         )
         Text(
-            if (crop.fit == CoverFit.AS_IS) "Moving and zooming are off while the picture is left unchanged."
-            else "Drag the picture to move it, pinch to zoom, or double-tap to zoom in and out.",
+            if (crop.fit == CoverFit.AS_IS) tr("Moving and zooming are off while the picture is left unchanged.")
+            else tr("Drag the picture to move it, pinch to zoom, or double-tap to zoom in and out."),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -598,18 +599,18 @@ private fun CoverControls(
         HorizontalDivider(Modifier.padding(vertical = 6.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("Black and white preview", style = MaterialTheme.typography.titleSmall)
-                Text("About how it will look on the Kobo's screen.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(tr("Black and white preview"), style = MaterialTheme.typography.titleSmall)
+                Text(tr("About how it will look on the Kobo's screen."), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Switch(checked = greyscale, onCheckedChange = onGreyscale)
         }
         Spacer(Modifier.height(4.dp))
         Text(
             if (crop.fit == CoverFit.AS_IS) {
-                "The picture is saved in the book file at its own size" +
-                    (shown?.let { " (${it.width} × ${it.height} pixels)" } ?: "") + " and sent to the Kobo unchanged."
+                shown?.let { tr("The picture is saved in the book file at its own size ({0} × {1} pixels) and sent to the Kobo unchanged.", it.width, it.height) }
+                    ?: tr("The picture is saved in the book file at its own size and sent to the Kobo unchanged.")
             } else {
-                "The cover is saved inside the book file at ${CoverCrop.OUT_WIDTH} × ${CoverCrop.OUT_HEIGHT} pixels, the size of the Kobo Clara's screen."
+                tr("The cover is saved inside the book file at {0} × {1} pixels, the size of the Kobo Clara's screen.", CoverCrop.OUT_WIDTH, CoverCrop.OUT_HEIGHT)
             },
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,

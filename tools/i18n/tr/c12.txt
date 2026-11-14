@@ -1,0 +1,861 @@
+@fr
+1265|L’endroit où diviser est introuvable.
+1266|Cette image n’a pas pu être lue.
+1267|Cette image n’a pas pu être utilisée.
+1268|Image remplacée
+1269|Le code contient une erreur, votre modification n’est donc pas encore dans le livre. Corrigez-la ou annulez-la d’abord.
+1270|Enregistrement et vérification du livre…
+1271|Rien à enregistrer.
+1272|Enregistré. Le livre a été vérifié et n’a pas de nouveau problème.
+1273| (Il avait déjà 1 problème avant vos modifications. Celui-ci n’a pas changé.)
+1274| (Il avait déjà {0} problèmes avant vos modifications. Ceux-ci n’ont pas changé.)
+1275|Enregistrement impossible : {0}. Le livre n’a pas été modifié.
+1276|Vérification du livre…
+1277|Restauration du texte d’origine…
+1278|Le texte d’origine a été restauré. Les détails et la couverture n’ont pas changé.
+1279|Impossible de restaurer le texte d’origine : {0}
+1280|Cette image n’a pas pu être ouverte.
+1281|Joindre « {0} » au chapitre précédent ?
+1282|Son texte sera ajouté à la fin de « {0} », et les liens vers lui pointeront là. Vous pouvez annuler.
+1283|Joindre
+1284|Supprimer « {0} » ?
+1285|Le chapitre et son entrée dans la table des matières seront supprimés, et les liens vers lui deviendront du texte simple. Vous pouvez annuler tant que l’éditeur est ouvert.
+1286|Enregistrer vos modifications ?
+1287|Les modifications de « {0} » ne sont pas encore enregistrées.
+1288|Ne pas enregistrer
+1289|Restaurer le texte d’origine ?
+1290|Le texte et les chapitres du livre reviendront à leur état d’avant votre première modification. Toutes vos modifications du texte seront perdues. Les détails et la couverture ne changeront pas.
+1291|Restaurer l’original
+1292|Non enregistré : ces modifications casseraient le livre
+1293|Problèmes trouvés :
+1294|…et {0} de plus.
+1295|Corrigez-les (le bouton Code peut aider), ou annulez la modification qui les a causés. Le livre enregistré n’a pas changé.
+1296|Annuler la dernière modification
+1297|Aucun problème trouvé
+1298|1 problème trouvé
+1299|{0} problèmes trouvés
+1300|Chaque chapitre est en XHTML valide, chaque fichier listé par le livre existe, et l’ordre de lecture et la table des matières sont corrects.
+1301|Fermer l’éditeur
+1302| · modifications non enregistrées
+1303|Annuler : {0}
+1304|Rétablir : {0}
+1305|Nettoyages
+1306|Aperçu dans le lecteur
+1307|Rechercher des problèmes
+1308|Restaurer le texte d’origine…
+1309|Titre 1
+1310|Titre 2
+1311|Titre 3
+1312|Titre
+1313|Paragraphe
+1314|Titre 1 (partie)
+1315|Titre 2 (chapitre)
+1316|Titre 3 (section)
+1317|Séparateur de scène
+1318|Remplacer l’image
+1319|Image
+1320|Diviser le chapitre ici
+1321|Code
+1322|Renommer le chapitre
+1323|Nom dans la table des matières
+1324|Changer aussi son titre (actuellement « {0} »)
+1325|Renommer
+1326|Chapitre {0}
+1327|Ajouter un chapitre
+1328|Ajoute un chapitre vide après « {0} ». Son nom sert de titre et apparaît dans la table des matières.
+1329|Ajoute un chapitre vide. Son nom sert de titre et apparaît dans la table des matières.
+1330|Touchez le paragraphe où le nouveau chapitre doit commencer. (Quand vous modifiez la page, le bouton de division divise au curseur.)
+1331|Ce chapitre ne peut pas être divisé.
+1332|Titre :
+1333|({0} vide)
+1334|Nom du nouveau chapitre (facultatif)
+1335|Diviser ici
+1336|Tout le livre
+1337|Ce chapitre
+1338|Rien à corriger
+1339|Trouvé : {0}
+1340|Corriger
+1341|Vous pouvez annuler chaque correction.
+1342|Selon le système
+1343|Clair ou sombre, selon le réglage de votre appareil
+1344|Clair
+1345|Papier chaud, encre et or
+1346|Sombre
+1347|Or sur brun foncé, comme l’animation d’ouverture. Reposant pour les yeux la nuit
+1348|Noir OLED
+1349|Or sur noir pur, pour les écrans OLED. Économise la batterie
+1350|Étagères
+1351|Bois sombre et laiton, avec vos livres sur des étagères
+1352|Livres non envoyés : {0}. Le journal donne les détails.
+1356|{0} sur {1}
+1357|{0} étoiles
+1358| de {0}
+1359|Rechercher « {0} »
+1360|1 résultat
+1361|{0} résultats
+1362|Restants : {0}
+1363|Remplacés : {0}
+1364|Ignorés : {0}
+1365|{0} (copie)
+1366|Pages {0}–{1}
+1367|{0} entrées de collection renvoient à une collection supprimée ou absente (la Kobo les ignore).
+1369|La base de données de la Kobo a changé depuis sa lecture ({0} octets, {1} attendus). Connectez d’abord la Kobo à nouveau.
+1370|{0} (suite)
+1371|Le fichier de paquet du livre est endommagé ({0}).
+1372|Référence de caractère inconnue &{0};
+1373|{0} étiquettes (toutes)
+1374|{0} étiquettes (au moins une)
+1402|1 livre envoyé.
+1403|{0} livres envoyés.
+1404|1 livre ajouté.
+1405|{0} livres ajoutés.
+1406|1 livre sélectionné
+1407|{0} livres sélectionnés
+1408|1 ligne vide
+1409|{0} lignes vides
+1410|1 guillemet
+1411|{0} guillemets
+1412|1 ligne coupée
+1413|{0} lignes coupées
+1414|1 tiret
+1415|{0} tirets
+1416|1 police
+1417|{0} polices
+@de
+1265|Die Stelle zum Teilen wurde nicht gefunden.
+1266|Dieses Bild konnte nicht gelesen werden.
+1267|Dieses Bild konnte nicht verwendet werden.
+1268|Bild ersetzt
+1269|Der Code hat einen Fehler, deine Änderung ist also noch nicht im Buch. Behebe ihn zuerst oder mach ihn rückgängig.
+1270|Buch wird gespeichert und geprüft…
+1271|Nichts zu speichern.
+1272|Gespeichert. Das Buch wurde geprüft und hat keine neuen Probleme.
+1273| (Es hatte schon vor deiner Bearbeitung 1 Problem. Das wurde nicht geändert.)
+1274| (Es hatte schon vor deiner Bearbeitung {0} Probleme. Die wurden nicht geändert.)
+1275|Speichern nicht möglich: {0}. Das Buch wurde nicht geändert.
+1276|Buch wird geprüft…
+1277|Ursprünglicher Text wird wiederhergestellt…
+1278|Der ursprüngliche Text wurde wiederhergestellt. Details und Cover wurden nicht geändert.
+1279|Der ursprüngliche Text konnte nicht wiederhergestellt werden: {0}
+1280|Dieses Bild konnte nicht geöffnet werden.
+1281|„{0}“ mit dem vorherigen Kapitel verbinden?
+1282|Sein Text wird am Ende von „{0}“ angefügt, und Links darauf zeigen dann dorthin. Du kannst das rückgängig machen.
+1283|Verbinden
+1284|„{0}“ löschen?
+1285|Das Kapitel und sein Eintrag im Inhaltsverzeichnis werden gelöscht, und Links darauf werden zu normalem Text. Du kannst das rückgängig machen, bis du den Editor schließt.
+1286|Änderungen speichern?
+1287|Die Änderungen an „{0}“ sind noch nicht gespeichert.
+1288|Nicht speichern
+1289|Ursprünglichen Text wiederherstellen?
+1290|Text und Kapitel des Buchs werden auf den Stand vor deiner ersten Bearbeitung zurückgesetzt. Alle Textänderungen gehen verloren. Details und Cover ändern sich nicht.
+1291|Original wiederherstellen
+1292|Nicht gespeichert: Diese Änderungen würden das Buch beschädigen
+1293|Gefundene Probleme:
+1294|…und {0} weitere.
+1295|Behebe sie (die Schaltfläche „Code“ kann helfen) oder mach die Änderung rückgängig, die sie verursacht hat. Das gespeicherte Buch wurde nicht geändert.
+1296|Letzte Änderung rückgängig machen
+1297|Keine Probleme gefunden
+1298|1 Problem gefunden
+1299|{0} Probleme gefunden
+1300|Jedes Kapitel ist gültiges XHTML, jede vom Buch aufgeführte Datei ist vorhanden, und Lesereihenfolge und Inhaltsverzeichnis stimmen.
+1301|Editor schließen
+1302| · ungespeicherte Änderungen
+1303|Rückgängig: {0}
+1304|Wiederholen: {0}
+1305|Aufräumen
+1306|Vorschau im Reader
+1307|Auf Probleme prüfen
+1308|Ursprünglichen Text wiederherstellen…
+1309|Überschrift 1
+1310|Überschrift 2
+1311|Überschrift 3
+1312|Überschrift
+1313|Absatz
+1314|Überschrift 1 (Teil)
+1315|Überschrift 2 (Kapitel)
+1316|Überschrift 3 (Abschnitt)
+1317|Szenenwechsel
+1318|Bild ersetzen
+1319|Bild
+1320|Kapitel hier teilen
+1321|Code
+1322|Kapitel umbenennen
+1323|Name im Inhaltsverzeichnis
+1324|Auch die Überschrift ändern (derzeit „{0}“)
+1325|Umbenennen
+1326|Kapitel {0}
+1327|Kapitel hinzufügen
+1328|Fügt nach „{0}“ ein leeres Kapitel hinzu. Sein Name wird als Überschrift und im Inhaltsverzeichnis verwendet.
+1329|Fügt ein leeres Kapitel hinzu. Sein Name wird als Überschrift und im Inhaltsverzeichnis verwendet.
+1330|Tippe auf den Absatz, mit dem das neue Kapitel beginnen soll. (Beim Bearbeiten der Seite teilt die Teilen-Schaltfläche am Cursor.)
+1331|Dieses Kapitel kann nicht geteilt werden.
+1332|Überschrift:
+1333|(leeres {0})
+1334|Name des neuen Kapitels (optional)
+1335|Hier teilen
+1336|Ganzes Buch
+1337|Dieses Kapitel
+1338|Nichts zu beheben
+1339|Gefunden: {0}
+1340|Beheben
+1341|Du kannst jede Korrektur rückgängig machen.
+1342|Systemstandard
+1343|Hell oder dunkel, passend zur Einstellung deines Geräts
+1344|Hell
+1345|Warmes Papier, Tinte und Gold
+1346|Dunkel
+1347|Gold auf Dunkelbraun, wie beim Start. Schont nachts die Augen
+1348|OLED-Schwarz
+1349|Gold auf reinem Schwarz, für OLED-Bildschirme. Spart Akku
+1350|Bücherregal
+1351|Dunkles Holz und Messing, mit deinen Büchern in Regalen
+1352|Nicht gesendet: {0}. Details stehen im Protokoll.
+1356|{0} von {1}
+1357|{0} Sterne
+1358| von {0}
+1359|„{0}“ nachschlagen
+1360|1 Treffer
+1361|{0} Treffer
+1362|{0} übrig
+1363|{0} ersetzt
+1364|{0} übersprungen
+1365|{0} (Kopie)
+1366|Seiten {0}–{1}
+1367|{0} Sammlungseinträge verweisen auf eine gelöschte oder fehlende Sammlung (der Kobo ignoriert sie).
+1369|Die Datenbank des Kobo hat sich seit dem Lesen geändert ({0} Bytes, erwartet {1}). Verbinde den Kobo zuerst noch einmal.
+1370|{0} (Fortsetzung)
+1371|Die Paketdatei des Buchs ist beschädigt ({0}).
+1372|Unbekannter Zeichenverweis &{0};
+1373|{0} Schlagwörter (alle)
+1374|{0} Schlagwörter (eines davon)
+1402|1 Buch gesendet.
+1403|{0} Bücher gesendet.
+1404|1 Buch hinzugefügt.
+1405|{0} Bücher hinzugefügt.
+1406|1 Buch ausgewählt
+1407|{0} Bücher ausgewählt
+1408|1 Leerzeile
+1409|{0} Leerzeilen
+1410|1 Anführungszeichen
+1411|{0} Anführungszeichen
+1412|1 umbrochene Zeile
+1413|{0} umbrochene Zeilen
+1414|1 Strich
+1415|{0} Striche
+1416|1 Schrift
+1417|{0} Schriften
+@es
+1265|No se ha encontrado el lugar donde dividir.
+1266|No se ha podido leer esa imagen.
+1267|No se ha podido usar esa imagen.
+1268|Imagen reemplazada
+1269|El código tiene un error, así que tu cambio aún no está en el libro. Corrígelo o deshazlo primero.
+1270|Guardando y comprobando el libro…
+1271|No hay nada que guardar.
+1272|Guardado. El libro se ha comprobado y no tiene problemas nuevos.
+1273| (Ya tenía 1 problema antes de que lo editaras. No se ha cambiado.)
+1274| (Ya tenía {0} problemas antes de que lo editaras. No se han cambiado.)
+1275|No se ha podido guardar: {0}. El libro no ha cambiado.
+1276|Comprobando el libro…
+1277|Restaurando el texto original…
+1278|Se ha restaurado el texto original. Los detalles y la portada no han cambiado.
+1279|No se ha podido restaurar el texto original: {0}
+1280|No se ha podido abrir esa imagen.
+1281|¿Unir «{0}» con el capítulo anterior?
+1282|Su texto se añadirá al final de «{0}», y los enlaces a él apuntarán allí. Puedes deshacerlo.
+1283|Unir
+1284|¿Eliminar «{0}»?
+1285|Se eliminarán el capítulo y su entrada en el índice, y los enlaces a él se convertirán en texto normal. Puedes deshacerlo hasta que cierres el editor.
+1286|¿Guardar los cambios?
+1287|Los cambios en «{0}» aún no se han guardado.
+1288|No guardar
+1289|¿Restaurar el texto original?
+1290|El texto y los capítulos del libro volverán a como estaban antes de tu primera edición. Se perderán todas tus ediciones del texto. Los detalles y la portada no cambiarán.
+1291|Restaurar original
+1292|No guardado: estos cambios romperían el libro
+1293|Problemas encontrados:
+1294|…y {0} más.
+1295|Corrígelos (el botón Código puede ayudar) o deshaz el cambio que los causó. El libro guardado no ha cambiado.
+1296|Deshacer el último cambio
+1297|No se han encontrado problemas
+1298|1 problema encontrado
+1299|{0} problemas encontrados
+1300|Todos los capítulos son XHTML válido, todos los archivos que el libro enumera existen, y el orden de lectura y el índice son correctos.
+1301|Cerrar el editor
+1302| · cambios sin guardar
+1303|Deshacer: {0}
+1304|Rehacer: {0}
+1305|Limpiezas
+1306|Vista previa en el lector
+1307|Buscar problemas
+1308|Restaurar el texto original…
+1309|Título 1
+1310|Título 2
+1311|Título 3
+1312|Título
+1313|Párrafo
+1314|Título 1 (parte)
+1315|Título 2 (capítulo)
+1316|Título 3 (sección)
+1317|Cambio de escena
+1318|Reemplazar imagen
+1319|Imagen
+1320|Dividir el capítulo aquí
+1321|Código
+1322|Cambiar nombre del capítulo
+1323|Nombre en el índice
+1324|Cambiar también su título (ahora «{0}»)
+1325|Cambiar nombre
+1326|Capítulo {0}
+1327|Añadir capítulo
+1328|Añade un capítulo vacío después de «{0}». Su nombre se usa como título y en el índice.
+1329|Añade un capítulo vacío. Su nombre se usa como título y en el índice.
+1330|Toca el párrafo donde debe empezar el nuevo capítulo. (Al editar la página, el botón de dividir divide en el cursor.)
+1331|Este capítulo no se puede dividir.
+1332|Título:
+1333|({0} vacío)
+1334|Nombre del nuevo capítulo (opcional)
+1335|Dividir aquí
+1336|Todo el libro
+1337|Este capítulo
+1338|Nada que corregir
+1339|Encontrado: {0}
+1340|Corregir
+1341|Puedes deshacer cada corrección.
+1342|Predeterminado del sistema
+1343|Claro u oscuro, según el ajuste de tu dispositivo
+1344|Claro
+1345|Papel cálido, tinta y oro
+1346|Oscuro
+1347|Oro sobre marrón oscuro, como la animación de inicio. Descansa la vista de noche
+1348|Negro OLED
+1349|Oro sobre negro puro, para pantallas OLED. Ahorra batería
+1350|Estantería
+1351|Madera oscura y latón, con tus libros en estantes
+1352|Libros no enviados: {0}. Los detalles están en el registro.
+1356|{0} de {1}
+1357|{0} estrellas
+1358| de {0}
+1359|Consultar «{0}»
+1360|1 coincidencia
+1361|{0} coincidencias
+1362|Pendientes: {0}
+1363|Reemplazados: {0}
+1364|Omitidos: {0}
+1365|{0} (copia)
+1366|Páginas {0}–{1}
+1367|{0} entradas de colección apuntan a una colección eliminada o que no existe (el Kobo las ignora).
+1369|La base de datos del Kobo ha cambiado desde que se leyó ({0} bytes, se esperaban {1}). Primero vuelve a conectar el Kobo.
+1370|{0} (continuación)
+1371|El archivo de paquete del libro está dañado ({0}).
+1372|Referencia de carácter desconocida &{0};
+1373|{0} etiquetas (todas)
+1374|{0} etiquetas (cualquiera)
+1402|1 libro enviado.
+1403|{0} libros enviados.
+1404|1 libro añadido.
+1405|{0} libros añadidos.
+1406|1 libro seleccionado
+1407|{0} libros seleccionados
+1408|1 línea en blanco
+1409|{0} líneas en blanco
+1410|1 comilla
+1411|{0} comillas
+1412|1 línea cortada
+1413|{0} líneas cortadas
+1414|1 guion
+1415|{0} guiones
+1416|1 fuente
+1417|{0} fuentes
+@it
+1265|Impossibile trovare il punto in cui dividere.
+1266|Impossibile leggere quell’immagine.
+1267|Impossibile usare quell’immagine.
+1268|Immagine sostituita
+1269|Il codice contiene un errore, quindi la tua modifica non è ancora nel libro. Prima correggilo o annullalo.
+1270|Salvataggio e controllo del libro…
+1271|Niente da salvare.
+1272|Salvato. Il libro è stato controllato e non ha nuovi problemi.
+1273| (Aveva già 1 problema prima delle tue modifiche. Non è stato cambiato.)
+1274| (Aveva già {0} problemi prima delle tue modifiche. Non sono stati cambiati.)
+1275|Impossibile salvare: {0}. Il libro non è stato modificato.
+1276|Controllo del libro…
+1277|Ripristino del testo originale…
+1278|Il testo originale è stato ripristinato. Dettagli e copertina non sono cambiati.
+1279|Impossibile ripristinare il testo originale: {0}
+1280|Impossibile aprire quell’immagine.
+1281|Unire «{0}» al capitolo precedente?
+1282|Il suo testo verrà aggiunto alla fine di «{0}» e i link verso di esso punteranno lì. Puoi annullare.
+1283|Unisci
+1284|Eliminare «{0}»?
+1285|Il capitolo e la sua voce nell’indice verranno eliminati, e i link verso di esso diventeranno testo semplice. Puoi annullare finché non chiudi l’editor.
+1286|Salvare le modifiche?
+1287|Le modifiche a «{0}» non sono ancora state salvate.
+1288|Non salvare
+1289|Ripristinare il testo originale?
+1290|Il testo e i capitoli del libro torneranno com’erano prima della tua prima modifica. Tutte le modifiche al testo andranno perse. Dettagli e copertina non cambieranno.
+1291|Ripristina originale
+1292|Non salvato: queste modifiche danneggerebbero il libro
+1293|Problemi trovati:
+1294|…e altri {0}.
+1295|Correggili (il pulsante Codice può aiutare) o annulla la modifica che li ha causati. Il libro salvato non è cambiato.
+1296|Annulla l’ultima modifica
+1297|Nessun problema trovato
+1298|1 problema trovato
+1299|{0} problemi trovati
+1300|Ogni capitolo è XHTML valido, ogni file elencato dal libro esiste, e l’ordine di lettura e l’indice sono corretti.
+1301|Chiudi l’editor
+1302| · modifiche non salvate
+1303|Annulla: {0}
+1304|Ripeti: {0}
+1305|Pulizie
+1306|Anteprima nel lettore
+1307|Cerca problemi
+1308|Ripristina il testo originale…
+1309|Titolo 1
+1310|Titolo 2
+1311|Titolo 3
+1312|Titolo
+1313|Paragrafo
+1314|Titolo 1 (parte)
+1315|Titolo 2 (capitolo)
+1316|Titolo 3 (sezione)
+1317|Cambio di scena
+1318|Sostituisci immagine
+1319|Immagine
+1320|Dividi il capitolo qui
+1321|Codice
+1322|Rinomina capitolo
+1323|Nome nell’indice
+1324|Cambia anche il titolo (ora «{0}»)
+1325|Rinomina
+1326|Capitolo {0}
+1327|Aggiungi capitolo
+1328|Aggiunge un capitolo vuoto dopo «{0}». Il suo nome è usato come titolo e nell’indice.
+1329|Aggiunge un capitolo vuoto. Il suo nome è usato come titolo e nell’indice.
+1330|Tocca il paragrafo da cui deve iniziare il nuovo capitolo. (Quando modifichi la pagina, il pulsante di divisione divide al cursore.)
+1331|Questo capitolo non può essere diviso.
+1332|Titolo:
+1333|({0} vuoto)
+1334|Nome del nuovo capitolo (facoltativo)
+1335|Dividi qui
+1336|Tutto il libro
+1337|Questo capitolo
+1338|Niente da correggere
+1339|Trovati: {0}
+1340|Correggi
+1341|Puoi annullare ogni correzione.
+1342|Predefinito di sistema
+1343|Chiaro o scuro, secondo l’impostazione del dispositivo
+1344|Chiaro
+1345|Carta calda, inchiostro e oro
+1346|Scuro
+1347|Oro su marrone scuro, come l’animazione iniziale. Riposante per gli occhi di notte
+1348|Nero OLED
+1349|Oro su nero puro, per schermi OLED. Fa risparmiare batteria
+1350|Scaffale
+1351|Legno scuro e ottone, con i tuoi libri sugli scaffali
+1352|Libri non inviati: {0}. I dettagli sono nel registro.
+1356|{0} di {1}
+1357|{0} stelle
+1358| di {0}
+1359|Cerca «{0}»
+1360|1 risultato
+1361|{0} risultati
+1362|Rimanenti: {0}
+1363|Sostituiti: {0}
+1364|Saltati: {0}
+1365|{0} (copia)
+1366|Pagine {0}–{1}
+1367|{0} voci di raccolta rimandano a una raccolta eliminata o mancante (il Kobo le ignora).
+1369|Il database del Kobo è cambiato da quando è stato letto ({0} byte, attesi {1}). Prima collega di nuovo il Kobo.
+1370|{0} (continua)
+1371|Il file di pacchetto del libro è danneggiato ({0}).
+1372|Riferimento a carattere sconosciuto &{0};
+1373|{0} tag (tutti)
+1374|{0} tag (almeno uno)
+1402|1 libro inviato.
+1403|{0} libri inviati.
+1404|1 libro aggiunto.
+1405|{0} libri aggiunti.
+1406|1 libro selezionato
+1407|{0} libri selezionati
+1408|1 riga vuota
+1409|{0} righe vuote
+1410|1 virgoletta
+1411|{0} virgolette
+1412|1 riga spezzata
+1413|{0} righe spezzate
+1414|1 trattino
+1415|{0} trattini
+1416|1 font
+1417|{0} font
+@nl
+1265|De plek om te splitsen is niet gevonden.
+1266|Die afbeelding kon niet worden gelezen.
+1267|Die afbeelding kon niet worden gebruikt.
+1268|Afbeelding vervangen
+1269|De code bevat een fout, dus je wijziging staat nog niet in het boek. Herstel de fout of maak hem eerst ongedaan.
+1270|Boek opslaan en controleren…
+1271|Niets om op te slaan.
+1272|Opgeslagen. Het boek is gecontroleerd en heeft geen nieuwe problemen.
+1273| (Het had al 1 probleem voordat je het bewerkte. Dat is niet veranderd.)
+1274| (Het had al {0} problemen voordat je het bewerkte. Die zijn niet veranderd.)
+1275|Opslaan mislukt: {0}. Het boek is niet gewijzigd.
+1276|Boek controleren…
+1277|Oorspronkelijke tekst herstellen…
+1278|De oorspronkelijke tekst is hersteld. De gegevens en omslag zijn niet gewijzigd.
+1279|Kon de oorspronkelijke tekst niet herstellen: {0}
+1280|Die afbeelding kon niet worden geopend.
+1281|‘{0}’ samenvoegen met het vorige hoofdstuk?
+1282|De tekst wordt toegevoegd aan het einde van ‘{0}’, en links ernaar verwijzen dan daarheen. Je kunt dit ongedaan maken.
+1283|Samenvoegen
+1284|‘{0}’ verwijderen?
+1285|Het hoofdstuk en het item in de inhoudsopgave worden verwijderd, en links ernaar worden gewone tekst. Je kunt dit ongedaan maken tot je de editor sluit.
+1286|Wijzigingen opslaan?
+1287|De wijzigingen in ‘{0}’ zijn nog niet opgeslagen.
+1288|Niet opslaan
+1289|Oorspronkelijke tekst herstellen?
+1290|De tekst en hoofdstukken van het boek gaan terug naar hoe ze waren voordat je ze voor het eerst bewerkte. Al je tekstwijzigingen gaan verloren. De gegevens en omslag veranderen niet.
+1291|Origineel herstellen
+1292|Niet opgeslagen: deze wijzigingen zouden het boek beschadigen
+1293|Gevonden problemen:
+1294|…en nog {0}.
+1295|Los ze op (de knop Code kan helpen) of maak de wijziging ongedaan die ze veroorzaakte. Het opgeslagen boek is niet gewijzigd.
+1296|Laatste wijziging ongedaan maken
+1297|Geen problemen gevonden
+1298|1 probleem gevonden
+1299|{0} problemen gevonden
+1300|Elk hoofdstuk is geldige XHTML, elk bestand dat het boek noemt bestaat, en de leesvolgorde en inhoudsopgave kloppen.
+1301|Editor sluiten
+1302| · niet-opgeslagen wijzigingen
+1303|Ongedaan maken: {0}
+1304|Opnieuw: {0}
+1305|Opschonen
+1306|Voorbeeld in lezer
+1307|Controleren op problemen
+1308|Oorspronkelijke tekst herstellen…
+1309|Kop 1
+1310|Kop 2
+1311|Kop 3
+1312|Kop
+1313|Alinea
+1314|Kop 1 (deel)
+1315|Kop 2 (hoofdstuk)
+1316|Kop 3 (paragraaf)
+1317|Scènewissel
+1318|Afbeelding vervangen
+1319|Afbeelding
+1320|Hoofdstuk hier splitsen
+1321|Code
+1322|Hoofdstuk hernoemen
+1323|Naam in inhoudsopgave
+1324|Ook de kop wijzigen (nu ‘{0}’)
+1325|Hernoemen
+1326|Hoofdstuk {0}
+1327|Hoofdstuk toevoegen
+1328|Voegt een leeg hoofdstuk toe na ‘{0}’. De naam wordt gebruikt als kop en in de inhoudsopgave.
+1329|Voegt een leeg hoofdstuk toe. De naam wordt gebruikt als kop en in de inhoudsopgave.
+1330|Tik op de alinea waar het nieuwe hoofdstuk moet beginnen. (Bij het bewerken van de pagina splitst de splitsknop bij de cursor.)
+1331|Dit hoofdstuk kan niet worden gesplitst.
+1332|Kop:
+1333|(lege {0})
+1334|Naam van het nieuwe hoofdstuk (optioneel)
+1335|Hier splitsen
+1336|Hele boek
+1337|Dit hoofdstuk
+1338|Niets te herstellen
+1339|Gevonden: {0}
+1340|Herstellen
+1341|Je kunt elke correctie ongedaan maken.
+1342|Systeemstandaard
+1343|Licht of donker, volgens de instelling van je apparaat
+1344|Licht
+1345|Warm papier, inkt en goud
+1346|Donker
+1347|Goud op donkerbruin, zoals bij het openen. Prettig voor de ogen in het donker
+1348|OLED-zwart
+1349|Goud op puur zwart, voor oled-schermen. Bespaart batterij
+1350|Boekenkast
+1351|Donker hout en messing, met je boeken op planken
+1352|Niet verstuurd: {0}. Details staan in het logboek.
+1356|{0} van {1}
+1357|{0} sterren
+1358| door {0}
+1359|‘{0}’ opzoeken
+1360|1 resultaat
+1361|{0} resultaten
+1362|{0} over
+1363|{0} vervangen
+1364|{0} overgeslagen
+1365|{0} (kopie)
+1366|Pagina’s {0}–{1}
+1367|{0} collectie-items verwijzen naar een verwijderde of ontbrekende collectie (de Kobo negeert die).
+1369|De database van de Kobo is veranderd sinds hij is gelezen ({0} bytes, verwacht {1}). Verbind de Kobo eerst opnieuw.
+1370|{0} (vervolg)
+1371|Het pakketbestand van het boek is beschadigd ({0}).
+1372|Onbekende tekenverwijzing &{0};
+1373|{0} labels (alle)
+1374|{0} labels (een ervan)
+1402|1 boek verstuurd.
+1403|{0} boeken verstuurd.
+1404|1 boek toegevoegd.
+1405|{0} boeken toegevoegd.
+1406|1 boek geselecteerd
+1407|{0} boeken geselecteerd
+1408|1 lege regel
+1409|{0} lege regels
+1410|1 aanhalingsteken
+1411|{0} aanhalingstekens
+1412|1 afgebroken regel
+1413|{0} afgebroken regels
+1414|1 streepje
+1415|{0} streepjes
+1416|1 lettertype
+1417|{0} lettertypen
+@pt
+1265|Não foi possível encontrar o ponto para dividir.
+1266|Não foi possível ler essa imagem.
+1267|Não foi possível usar essa imagem.
+1268|Imagem substituída
+1269|O código tem um erro, então sua mudança ainda não está no livro. Corrija ou desfaça primeiro.
+1270|Salvando e verificando o livro…
+1271|Nada para salvar.
+1272|Salvo. O livro foi verificado e não tem problemas novos.
+1273| (Ele já tinha 1 problema antes da sua edição. Isso não foi mudado.)
+1274| (Ele já tinha {0} problemas antes da sua edição. Eles não foram mudados.)
+1275|Não foi possível salvar: {0}. O livro não foi alterado.
+1276|Verificando o livro…
+1277|Restaurando o texto original…
+1278|O texto original foi restaurado. Os detalhes e a capa não mudaram.
+1279|Não foi possível restaurar o texto original: {0}
+1280|Não foi possível abrir essa imagem.
+1281|Juntar “{0}” com o capítulo anterior?
+1282|O texto dele será adicionado ao fim de “{0}”, e os links para ele vão apontar para lá. Você pode desfazer.
+1283|Juntar
+1284|Excluir “{0}”?
+1285|O capítulo e a entrada dele no sumário serão excluídos, e os links para ele virarão texto simples. Você pode desfazer até fechar o editor.
+1286|Salvar as mudanças?
+1287|As mudanças em “{0}” ainda não foram salvas.
+1288|Não salvar
+1289|Restaurar o texto original?
+1290|O texto e os capítulos do livro voltarão a ser como eram antes da sua primeira edição. Todas as suas edições de texto serão perdidas. Os detalhes e a capa não vão mudar.
+1291|Restaurar original
+1292|Não salvo: essas mudanças quebrariam o livro
+1293|Problemas encontrados:
+1294|…e mais {0}.
+1295|Corrija-os (o botão Código pode ajudar) ou desfaça a mudança que os causou. O livro salvo não mudou.
+1296|Desfazer a última mudança
+1297|Nenhum problema encontrado
+1298|1 problema encontrado
+1299|{0} problemas encontrados
+1300|Todo capítulo é XHTML válido, todo arquivo listado pelo livro existe, e a ordem de leitura e o sumário estão corretos.
+1301|Fechar o editor
+1302| · mudanças não salvas
+1303|Desfazer: {0}
+1304|Refazer: {0}
+1305|Limpezas
+1306|Prévia no leitor
+1307|Procurar problemas
+1308|Restaurar o texto original…
+1309|Título 1
+1310|Título 2
+1311|Título 3
+1312|Título
+1313|Parágrafo
+1314|Título 1 (parte)
+1315|Título 2 (capítulo)
+1316|Título 3 (seção)
+1317|Quebra de cena
+1318|Substituir imagem
+1319|Imagem
+1320|Dividir o capítulo aqui
+1321|Código
+1322|Renomear capítulo
+1323|Nome no sumário
+1324|Mudar também o título (agora “{0}”)
+1325|Renomear
+1326|Capítulo {0}
+1327|Adicionar capítulo
+1328|Adiciona um capítulo vazio depois de “{0}”. O nome dele é usado como título e no sumário.
+1329|Adiciona um capítulo vazio. O nome dele é usado como título e no sumário.
+1330|Toque no parágrafo onde o novo capítulo deve começar. (Ao editar a página, o botão de dividir divide no cursor.)
+1331|Este capítulo não pode ser dividido.
+1332|Título:
+1333|({0} vazio)
+1334|Nome do novo capítulo (opcional)
+1335|Dividir aqui
+1336|Livro inteiro
+1337|Este capítulo
+1338|Nada para corrigir
+1339|Encontrado: {0}
+1340|Corrigir
+1341|Você pode desfazer cada correção.
+1342|Padrão do sistema
+1343|Claro ou escuro, conforme a configuração do seu dispositivo
+1344|Claro
+1345|Papel quente, tinta e dourado
+1346|Escuro
+1347|Dourado sobre marrom-escuro, como a abertura. Confortável para os olhos à noite
+1348|Preto OLED
+1349|Dourado sobre preto puro, para telas OLED. Economiza bateria
+1350|Estante
+1351|Madeira escura e latão, com seus livros nas prateleiras
+1352|Livros não enviados: {0}. Os detalhes estão no registro.
+1356|{0} de {1}
+1357|{0} estrelas
+1358| de {0}
+1359|Consultar “{0}”
+1360|1 resultado
+1361|{0} resultados
+1362|Restantes: {0}
+1363|Substituídos: {0}
+1364|Pulados: {0}
+1365|{0} (cópia)
+1366|Páginas {0}–{1}
+1367|{0} entradas de coleção apontam para uma coleção excluída ou que não existe (o Kobo as ignora).
+1369|O banco de dados do Kobo mudou desde que foi lido ({0} bytes, esperado {1}). Conecte o Kobo de novo primeiro.
+1370|{0} (continuação)
+1371|O arquivo de pacote do livro está danificado ({0}).
+1372|Referência de caractere desconhecida &{0};
+1373|{0} tags (todas)
+1374|{0} tags (qualquer uma)
+1402|1 livro enviado.
+1403|{0} livros enviados.
+1404|1 livro adicionado.
+1405|{0} livros adicionados.
+1406|1 livro selecionado
+1407|{0} livros selecionados
+1408|1 linha em branco
+1409|{0} linhas em branco
+1410|1 aspa
+1411|{0} aspas
+1412|1 linha quebrada
+1413|{0} linhas quebradas
+1414|1 travessão
+1415|{0} travessões
+1416|1 fonte
+1417|{0} fontes
+@ja
+1265|分割する場所が見つかりませんでした。
+1266|その画像を読み込めませんでした。
+1267|その画像は使えませんでした。
+1268|画像を置き換え
+1269|コードに誤りがあるため、変更はまだ本に反映されていません。先に誤りを直すか、元に戻してください。
+1270|本を保存して確認しています…
+1271|保存するものはありません。
+1272|保存しました。本を確認し、新しい問題はありませんでした。
+1273| （編集前から問題が 1 件ありました。それは変更していません。）
+1274| （編集前から問題が {0} 件ありました。それらは変更していません。）
+1275|保存できませんでした: {0}。本は変更されていません。
+1276|本を確認しています…
+1277|元の本文に戻しています…
+1278|元の本文に戻しました。情報と表紙は変わっていません。
+1279|元の本文に戻せませんでした: {0}
+1280|その画像を開けませんでした。
+1281|「{0}」を前の章とつなげますか？
+1282|本文が「{0}」の最後に追加され、この章へのリンクはそこを指すようになります。元に戻せます。
+1283|つなげる
+1284|「{0}」を削除しますか？
+1285|章と目次の項目が削除され、この章へのリンクは普通の文字になります。エディタを閉じるまでは元に戻せます。
+1286|変更を保存しますか？
+1287|「{0}」の変更はまだ保存されていません。
+1288|保存しない
+1289|元の本文に戻しますか？
+1290|本の本文と章が、最初に編集する前の状態に戻ります。本文の編集はすべて失われます。情報と表紙は変わりません。
+1291|元に戻す
+1292|保存していません: この変更を加えると本が壊れます
+1293|見つかった問題:
+1294|…ほか {0} 件。
+1295|問題を直すか（「コード」ボタンが役立ちます）、原因になった変更を元に戻してください。保存された本は変わっていません。
+1296|最後の変更を元に戻す
+1297|問題は見つかりませんでした
+1298|問題が 1 件見つかりました
+1299|問題が {0} 件見つかりました
+1300|どの章も正しい XHTML で、本に記載されたファイルはすべて存在し、読む順番と目次も正しいです。
+1301|エディタを閉じる
+1302| · 未保存の変更あり
+1303|元に戻す: {0}
+1304|やり直す: {0}
+1305|整形
+1306|リーダーでプレビュー
+1307|問題を確認
+1308|元の本文に戻す…
+1309|見出し 1
+1310|見出し 2
+1311|見出し 3
+1312|見出し
+1313|段落
+1314|見出し 1（部）
+1315|見出し 2（章）
+1316|見出し 3（節）
+1317|場面転換
+1318|画像を置き換える
+1319|画像
+1320|ここで章を分割
+1321|コード
+1322|章の名前を変更
+1323|目次での名前
+1324|見出しも変更する（現在は「{0}」）
+1325|名前を変更
+1326|第 {0} 章
+1327|章を追加
+1328|「{0}」の後ろに空の章を追加します。名前は見出しと目次に使われます。
+1329|空の章を追加します。名前は見出しと目次に使われます。
+1330|新しい章を始めたい段落をタップしてください。（ページの編集中は、分割ボタンでカーソル位置で分割します。）
+1331|この章は分割できません。
+1332|見出し:
+1333|（空の {0}）
+1334|新しい章の名前（任意）
+1335|ここで分割
+1336|本全体
+1337|この章
+1338|直すものはありません
+1339|見つかったもの: {0}
+1340|直す
+1341|直した内容は 1 つずつ元に戻せます。
+1342|システムのデフォルト
+1343|端末の設定に合わせてライトかダーク
+1344|ライト
+1345|温かみのある紙、インク、金
+1346|ダーク
+1347|濃い茶色に金。起動時のアニメーションと同じです。夜でも目にやさしい
+1348|有機 EL ブラック
+1349|真っ黒に金。有機 EL 画面向け。バッテリーを節約します
+1350|本棚
+1351|濃い色の木と真鍮。本が棚に並びます
+1352|{0} 冊を送信できませんでした。詳しくはログをご覧ください。
+1356|{1}中 {0}
+1357|星 {0} つ
+1358| · {0}
+1359|「{0}」を調べる
+1360|1 件見つかりました
+1361|{0} 件見つかりました
+1362|残り {0} 件
+1363|置換済み {0} 件
+1364|スキップ {0} 件
+1365|{0}（コピー）
+1366|{0}～{1} ページ
+1367|コレクションの項目 {0} 件が、削除されたか存在しないコレクションを指しています（Kobo はこれらを無視します）。
+1369|読み込んだあとで Kobo のデータベースが変わりました（{0} バイト、想定は {1} バイト）。先に Kobo をもう一度接続してください。
+1370|{0}（続き）
+1371|本のパッケージファイルが壊れています（{0}）。
+1372|不明な文字参照 &{0};
+1373|タグ {0} 個（すべてに一致）
+1374|タグ {0} 個（いずれかに一致）
+1402|1 冊を送信しました。
+1403|{0} 冊を送信しました。
+1404|1 冊を追加しました。
+1405|{0} 冊を追加しました。
+1406|1 冊を選択中
+1407|{0} 冊を選択中
+1408|空行 1 行
+1409|空行 {0} 行
+1410|引用符 1 個
+1411|引用符 {0} 個
+1412|途中で切れた行 1 行
+1413|途中で切れた行 {0} 行
+1414|ダッシュ 1 個
+1415|ダッシュ {0} 個
+1416|フォント 1 個
+1417|フォント {0} 個

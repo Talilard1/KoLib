@@ -73,6 +73,7 @@ import kotlinx.coroutines.Dispatchers
 import dev.kobolibrary.app.ui.theme.ThemeChoice
 import kotlinx.coroutines.runBlocking
 import org.junit.Assume.assumeTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -107,7 +108,27 @@ class PhoneShots {
 
     private val art = File("/home/claude/advert")
     private val home = File("/home/claude/phone")
-    private val out: File get() = File(home, File(home, "variant.txt").takeIf { it.exists() }?.readText()?.trim()?.ifEmpty { null } ?: "after")
+
+    /** The language to take the pictures in (fr, de, ja...), from language.txt there; English if there's none. */
+    private val language: String? = File(home, "language.txt").takeIf { it.exists() }?.readText()?.trim()?.ifEmpty { null }
+
+    private val out: File get() = language?.let { File(home, "lang_$it") }
+        ?: File(home, File(home, "variant.txt").takeIf { it.exists() }?.readText()?.trim()?.ifEmpty { null } ?: "after")
+
+    @Before
+    fun inLanguage() {
+        val lang = language ?: return
+        val table = HashMap<String, String>()
+        File("src/main/assets/i18n/$lang.json").reader(Charsets.UTF_8).use { input ->
+            android.util.JsonReader(input).use { r ->
+                r.beginObject()
+                while (r.hasNext()) table[r.nextName()] = r.nextString()
+                r.endObject()
+            }
+        }
+        L10n.use(lang, table)
+        java.util.Locale.setDefault(java.util.Locale.forLanguageTag(lang))
+    }
 
     private fun B(
         title: String, author: String, cover: String, status: Int = 0, percent: Int = 0, lastRead: String? = null,
@@ -278,7 +299,7 @@ class PhoneShots {
         compose.mainClock.autoAdvance = true
         compose.setContent { AppSurface(ThemeChoice.BOOKCASE) { LibraryPage(lib, covers, LibraryBrowseState()) } }
         compose.waitForIdle()
-        compose.onNodeWithContentDescription("Add books").performClick()
+        compose.onNodeWithContentDescription(tr("Add books")).performClick()
         compose.waitForIdle()
         compose.mainClock.autoAdvance = false
         compose.mainClock.advanceTimeBy(800)
@@ -292,7 +313,7 @@ class PhoneShots {
         compose.mainClock.autoAdvance = true
         compose.setContent { AppSurface(ThemeChoice.BOOKCASE) { LibraryPage(lib, covers, LibraryBrowseState()) } }
         compose.waitForIdle()
-        compose.onNodeWithContentDescription("Sort").performClick()
+        compose.onNodeWithContentDescription(tr("Sort")).performClick()
         compose.waitForIdle()
         compose.mainClock.autoAdvance = false
         compose.mainClock.advanceTimeBy(800)
@@ -411,7 +432,7 @@ class PhoneShots {
         compose.mainClock.autoAdvance = true
         compose.setContent { AppSurface(ThemeChoice.BOOKCASE) { LibraryPage(lib, covers, LibraryBrowseState()) } }
         compose.waitForIdle()
-        compose.onNodeWithContentDescription("More options").performClick()
+        compose.onNodeWithContentDescription(tr("More options")).performClick()
         compose.waitForIdle()
         compose.mainClock.autoAdvance = false
         compose.mainClock.advanceTimeBy(800)
@@ -435,7 +456,7 @@ class PhoneShots {
             }
         }
         compose.waitForIdle()
-        compose.onNodeWithContentDescription("More").performClick()
+        compose.onNodeWithContentDescription(tr("More")).performClick()
         compose.waitForIdle()
         compose.mainClock.autoAdvance = false
         compose.mainClock.advanceTimeBy(800)
@@ -448,7 +469,7 @@ class PhoneShots {
         val (lib, _) = library()
         val book = lib.titled("Moby Dick")
         val bytes = runBlocking { lib.originalCover(book.id) }!!
-        val picture = CoverRendering.prepare(CoverRendering.decode(bytes)!!, "The book's cover", bytes)
+        val picture = CoverRendering.prepare(CoverRendering.decode(bytes)!!, tr("The book's cover"), bytes)
         compose.mainClock.autoAdvance = true
         compose.setContent {
             AppSurface(ThemeChoice.BOOKCASE) {
@@ -466,7 +487,7 @@ class PhoneShots {
         compose.mainClock.autoAdvance = true
         compose.setContent {
             AppSurface(ThemeChoice.BOOKCASE) {
-                CoverGeneratorScreen(text, onUse = { _, _ -> }, onCancel = {}, initial = CoverDesign(CoverStyle.CLASSIC, CoverColors.themes.first { it.name == "Midnight" }))
+                CoverGeneratorScreen(text, onUse = { _, _ -> }, onCancel = {}, initial = CoverDesign(CoverStyle.CLASSIC, CoverColors.themes.first { it.name == tr("Midnight") }))
             }
         }
         repeat(12) { compose.waitForIdle(); Thread.sleep(250) }

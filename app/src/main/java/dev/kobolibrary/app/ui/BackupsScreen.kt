@@ -2,6 +2,7 @@
 
 package dev.kobolibrary.app.ui
 
+import dev.kobolibrary.app.tr
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.PaddingValues
@@ -54,16 +55,16 @@ fun BackupsScreen(
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
-                title = { Text("Database backups") },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
+                title = { Text(tr("Database backups")) },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Back")) } },
             )
         },
     ) { padding ->
         if (backups.isEmpty()) {
             EmptyState(
                 Icons.Outlined.Restore,
-                "No backups yet",
-                "A backup of the Kobo's database is made automatically the first time you connect.",
+                tr("No backups yet"),
+                tr("A backup of the Kobo's database is made automatically the first time you connect."),
                 Modifier.padding(padding),
             )
             return@Scaffold
@@ -71,9 +72,7 @@ fun BackupsScreen(
         LazyColumn(Modifier.padding(padding).fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp)) {
             item {
                 Text(
-                    "Each backup is a zipped copy of the Kobo's database file (KoboReader.sqlite). It contains the Kobo's library, collections and reading progress. " +
-                        "A new backup is made whenever you connect and something has changed. The newest ${BackupManager.MAX_BACKUPS} are kept. " +
-                        "To copy a backup to Downloads/${BackupManager.EXPORT_FOLDER}, tap its download button.",
+                    tr("Each backup is a zipped copy of the Kobo's database file (KoboReader.sqlite). It contains the Kobo's library, collections and reading progress. A new backup is made whenever you connect and something has changed. The newest {0} are kept. To copy a backup to Downloads/{1}, tap its download button.", BackupManager.MAX_BACKUPS, BackupManager.EXPORT_FOLDER),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
@@ -88,15 +87,15 @@ fun BackupsScreen(
                                 b.deviceLabel,
                                 Fmt.bytes(context, b.sizeBytes),
                                 if (b.isCompressed) "zipped" else null,
-                                if (b.hasWal) "includes write-ahead log" else null,
+                                if (b.hasWal) tr("includes write-ahead log") else null,
                             ).joinToString(" · ")
                         )
                     },
                     leadingContent = { Icon(Icons.Outlined.Storage, null) },
                     trailingContent = {
                         Row {
-                            IconButton(onClick = { onExport(b) }) { Icon(Icons.Outlined.Download, "Save to Downloads") }
-                            IconButton(onClick = { toDelete = b }) { Icon(Icons.Outlined.Delete, "Delete backup") }
+                            IconButton(onClick = { onExport(b) }) { Icon(Icons.Outlined.Download, tr("Save to Downloads")) }
+                            IconButton(onClick = { toDelete = b }) { Icon(Icons.Outlined.Delete, tr("Delete backup")) }
                         }
                     },
                 )
@@ -107,10 +106,10 @@ fun BackupsScreen(
     toDelete?.let { b ->
         AlertDialog(
             onDismissRequest = { toDelete = null },
-            title = { Text("Delete this backup?") },
-            text = { Text("The backup from ${Fmt.dateTime(b.createdMillis)} will be deleted from this device. Nothing on the Kobo changes.") },
-            confirmButton = { TextButton(onClick = { toDelete = null; onDelete(b) }) { Text("Delete") } },
-            dismissButton = { TextButton(onClick = { toDelete = null }) { Text("Cancel") } },
+            title = { Text(tr("Delete this backup?")) },
+            text = { Text(tr("The backup from {0} will be deleted from this device. Nothing on the Kobo changes.", Fmt.dateTime(b.createdMillis))) },
+            confirmButton = { TextButton(onClick = { toDelete = null; onDelete(b) }) { Text(tr("Delete")) } },
+            dismissButton = { TextButton(onClick = { toDelete = null }) { Text(tr("Cancel")) } },
         )
     }
 }

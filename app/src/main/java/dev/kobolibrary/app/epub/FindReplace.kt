@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.epub
 
+import dev.kobolibrary.app.tr
 import java.util.regex.Pattern
 import java.util.regex.PatternSyntaxException
 
@@ -72,9 +73,9 @@ object FindReplace {
         val regex = try {
             Pattern.compile(src, flags).toRegex()
         } catch (e: PatternSyntaxException) {
-            throw BadPattern(e.description ?: "That pattern isn't valid.")
+            throw BadPattern(e.description ?: tr("That pattern isn't valid."))
         }
-        if (regex.matches("")) throw BadPattern("That pattern would match empty text, so it can't be used.")
+        if (regex.matches("")) throw BadPattern(tr("That pattern would match empty text, so it can't be used."))
         return regex
     }
 
@@ -193,28 +194,28 @@ object FindReplace {
     /** Whether a match looks like the name, and if not why. */
     fun nameFlag(name: String, matched: String, block: String, start: Int, end: Int, inHeading: Boolean): Pair<Flag, String?> {
         val first = matched.firstOrNull() ?: return Flag.UNSURE to null
-        if (!first.isUpperCase()) return Flag.NOT_NAME to "lower case"
+        if (!first.isUpperCase()) return Flag.NOT_NAME to tr("lower case")
         // The word before it.
         var k = start - 1
         while (k >= 0 && block[k].isWhitespace()) k--
         val wordEnd = k + 1
         while (k >= 0 && (block[k].isLetter() || block[k] == '\'' || block[k] == '’')) k--
         val previous = block.substring(k + 1, wordEnd).lowercase()
-        if (previous.isNotEmpty() && previous in determiners) return Flag.NOT_NAME to "after “$previous”"
-        if (previous.isNotEmpty() && previous in ambiguous) return Flag.UNSURE to "after “$previous”"
+        if (previous.isNotEmpty() && previous in determiners) return Flag.NOT_NAME to tr("after “{0}”", previous)
+        if (previous.isNotEmpty() && previous in ambiguous) return Flag.UNSURE to tr("after “{0}”", previous)
         // Joined to another word: "Rose-bush", "Hope-filled".
         if ((start > 0 && block[start - 1] == '-') || (end < block.length && block[end] == '-' && end + 1 < block.length && block[end + 1].isLetter())) {
-            return Flag.UNSURE to "part of a hyphenated word"
+            return Flag.UNSURE to tr("part of a hyphenated word")
         }
         val allCaps = matched.length > 1 && matched.none { it.isLowerCase() } && name.any { it.isLowerCase() }
-        if (allCaps) return Flag.UNSURE to "all capitals"
-        if (inHeading) return Flag.UNSURE to "in a heading"
+        if (allCaps) return Flag.UNSURE to tr("all capitals")
+        if (inHeading) return Flag.UNSURE to tr("in a heading")
         // At the start of a sentence a capital letter says nothing.
         var j = start - 1
         while (j >= 0 && (block[j].isWhitespace() || block[j] in openers)) j--
-        if (j < 0) return Flag.UNSURE to "starts a paragraph"
+        if (j < 0) return Flag.UNSURE to tr("starts a paragraph")
         if (block[j] in sentenceEnd || (block[j] in setOf('"', '”', '’') && j > 0 && block[j - 1] in sentenceEnd)) {
-            return Flag.UNSURE to "starts a sentence"
+            return Flag.UNSURE to tr("starts a sentence")
         }
         return Flag.NAME to null
     }

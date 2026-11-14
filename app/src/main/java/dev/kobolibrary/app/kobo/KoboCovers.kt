@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.kobo
 
+import dev.kobolibrary.app.tr
 import android.graphics.Bitmap
 import dev.kobolibrary.app.epub.EpubFile
 import dev.kobolibrary.app.log.AppLog
@@ -14,16 +15,16 @@ import kotlin.math.roundToInt
 /** What happens, when sending, to covers that aren't the shape of the Kobo's screen. */
 enum class CoverFitting(val label: String, val explanation: String) {
     BLUR(
-        "Blur the gaps",
-        "Shows the whole cover, with a blurred copy of it filling the empty space.",
+        tr("Blur the gaps"),
+        tr("Shows the whole cover, with a blurred copy of it filling the empty space."),
     ),
     FILL(
-        "Crop to fill",
-        "Enlarges the cover to fill the screen and cuts off the edges that don't fit.",
+        tr("Crop to fill"),
+        tr("Enlarges the cover to fill the screen and cuts off the edges that don't fit."),
     ),
     AS_IS(
-        "Leave unchanged",
-        "Sends the cover unchanged. The Kobo shows blank space around it.",
+        tr("Leave unchanged"),
+        tr("Sends the cover unchanged. The Kobo shows blank space around it."),
     ),
 }
 

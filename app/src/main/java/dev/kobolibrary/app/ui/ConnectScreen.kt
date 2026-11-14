@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui
 
+import dev.kobolibrary.app.tr
 import dev.kobolibrary.app.ui.components.GoldButton
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -71,10 +72,10 @@ fun ConnectScreen(
                 }
             }
             Spacer(Modifier.height(20.dp))
-            Text("Connect your Kobo", style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
+            Text(tr("Connect your Kobo"), style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
             Spacer(Modifier.height(8.dp))
             Text(
-                "KoLib reads your Kobo's books and collections over a USB-C cable.",
+                tr("KoLib reads your Kobo's books and collections over a USB-C cable."),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -86,9 +87,9 @@ fun ConnectScreen(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
             ) {
                 Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                    Step(1, "Plug the Kobo into this device with a USB-C data cable.")
-                    Step(2, "On the Kobo's screen, tap Connect.")
-                    Step(3, "The first time only: allow access to the Kobo's drive below.")
+                    Step(1, tr("Plug the Kobo into this device with a USB-C data cable."))
+                    Step(2, tr("On the Kobo's screen, tap Connect."))
+                    Step(3, tr("The first time only: allow access to the Kobo's drive below."))
                 }
             }
             Spacer(Modifier.height(24.dp))
@@ -100,19 +101,19 @@ fun ConnectScreen(
                 TextButton(onClick = { onChooseDrive(null) }) {
                     Icon(Icons.Outlined.FolderOpen, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("Choose the Kobo's drive manually")
+                    Text(tr("Choose the Kobo's drive manually"))
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 TextButton(onClick = onOpenBackups) {
                     Icon(Icons.Outlined.Restore, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text(if (backupCount > 0) "Database backups ($backupCount)" else "Database backups")
+                    Text(if (backupCount > 0) tr("Database backups ({0})", backupCount) else tr("Database backups"))
                 }
                 TextButton(onClick = onOpenLog) {
                     Icon(Icons.AutoMirrored.Outlined.Article, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("Log")
+                    Text(tr("Log"))
                 }
             }
         }
@@ -143,25 +144,25 @@ private fun StatusArea(
             CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
             Spacer(Modifier.width(12.dp))
             Text(
-                if (connection.usbKoboAttached) "Kobo detected. Tap Connect on the Kobo's screen."
-                else "Waiting for the Kobo…",
+                if (connection.usbKoboAttached) tr("Kobo detected. Tap Connect on the Kobo's screen.")
+                else tr("Waiting for the Kobo…"),
                 style = MaterialTheme.typography.bodyLarge,
             )
         }
 
         is Connection.NeedsAccess -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                "Found “${connection.candidate.description}”.",
+                tr("Found “{0}”.", connection.candidate.description),
                 style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(12.dp))
             GoldButton(onClick = { onChooseDrive(connection.candidate) }) {
-                Text("Allow access to the Kobo")
+                Text(tr("Allow access to the Kobo"))
             }
             Spacer(Modifier.height(10.dp))
             Text(
-                "Android will open its folder picker on the Kobo's drive. Tap “Use this folder”, then “Allow”.",
+                tr("Android will open its folder picker on the Kobo's drive. Tap “Use this folder”, then “Allow”."),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -186,8 +187,8 @@ private fun StatusArea(
                 }
                 Spacer(Modifier.height(16.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Button(onClick = onRetry) { Text("Try again") }
-                    OutlinedButton(onClick = { onChooseDrive(connection.candidate) }) { Text("Choose drive") }
+                    Button(onClick = onRetry) { Text(tr("Try again")) }
+                    OutlinedButton(onClick = { onChooseDrive(connection.candidate) }) { Text(tr("Choose drive")) }
                 }
             }
         }
@@ -202,14 +203,14 @@ fun ConnectHelpDialog(connection: Connection, onChooseDrive: (VolumeCandidate?) 
     dev.kobolibrary.app.ui.components.AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Outlined.Usb, null) },
-        title = { Text("Connect your Kobo") },
+        title = { Text(tr("Connect your Kobo")) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                Step(1, "Plug the Kobo into this device with a USB-C data cable.")
-                Step(2, "On the Kobo's screen, tap Connect.")
-                Step(3, "The app finds it automatically and loads it again.")
+                Step(1, tr("Plug the Kobo into this device with a USB-C data cable."))
+                Step(2, tr("On the Kobo's screen, tap Connect."))
+                Step(3, tr("The app finds it automatically and loads it again."))
                 if (connection is Connection.Waiting && connection.usbKoboAttached) {
-                    Text("The Kobo is plugged in. Tap Connect on its screen.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
+                    Text(tr("The Kobo is plugged in. Tap Connect on its screen."), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
                 }
             }
         },
@@ -218,7 +219,7 @@ fun ConnectHelpDialog(connection: Connection, onChooseDrive: (VolumeCandidate?) 
             TextButton(onClick = {
                 onDismiss()
                 onChooseDrive(null)
-            }) { Text("Choose the drive manually") }
+            }) { Text(tr("Choose the drive manually")) }
         },
     )
 }

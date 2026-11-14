@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.reader
 
+import dev.kobolibrary.app.tr
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -63,7 +64,7 @@ fun BookReader(
                     files to BookStructure(files)
                 }
                 if (opened.second.chapters.isEmpty()) {
-                    error = "This book has no chapters to read."
+                    error = tr("This book has no chapters to read.")
                     return@launch
                 }
                 controller = ReaderController(
@@ -79,7 +80,7 @@ fun BookReader(
                 )
             } catch (e: Exception) {
                 AppLog.e("Reader", "The book couldn't be opened", e)
-                error = e.message ?: "The book couldn't be opened."
+                error = e.message ?: tr("The book couldn't be opened.")
             }
         }
         onDispose {
@@ -97,7 +98,7 @@ fun BookReader(
         error != null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(error!!, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(24.dp))
-                TextButton(onClick = onClose) { Text("Back") }
+                TextButton(onClick = onClose) { Text(tr("Back")) }
             }
         }
         else -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }

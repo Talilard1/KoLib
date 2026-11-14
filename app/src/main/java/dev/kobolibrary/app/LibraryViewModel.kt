@@ -81,9 +81,9 @@ data class HeldDuplicate(
 )
 
 enum class DuplicateChoice(val label: String) {
-    REPLACE("Replace"),
-    KEEP_BOTH("Keep both"),
-    SKIP("Skip"),
+    REPLACE(tr("Replace")),
+    KEEP_BOTH(tr("Keep both")),
+    SKIP(tr("Skip")),
 }
 
 /** One step's result, whatever the job. */
@@ -153,14 +153,14 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
     fun importUris(uris: List<Uri>) {
         if (uris.isEmpty()) return
         val resolver = getApplication<Application>().contentResolver
-        startJob(JobKind.ADD_FILES, "Adding books", uris.size) { report ->
+        startJob(JobKind.ADD_FILES, tr("Adding books"), uris.size) { report ->
             for (uri in uris) {
                 if (!isActive) break
                 val name = displayName(uri) ?: uri.lastPathSegment ?: "book"
                 report(name) { _ ->
                     val outcome = library.import(
                         name = name,
-                        open = { resolver.openInputStream(uri) ?: throw FileNotFoundException("Can't open $name") },
+                        open = { resolver.openInputStream(uri) ?: throw FileNotFoundException(tr("Can't open {0}", name)) },
                         source = BookSource.FILE,
                         hold = true,
                     )
@@ -231,18 +231,18 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         val scan = _folderScan.value as? dev.kobolibrary.app.library.FolderScan.Found ?: return
         if (scan.books.isEmpty()) return
         if (runningJob?.isActive == true) {
-            _message.value = "Wait until the books being added or sent are finished, then add the folder."
+            _message.value = tr("Wait until the books being added or sent are finished, then add the folder.")
             return
         }
         _folderScan.value = dev.kobolibrary.app.library.FolderScan.Adding(scan.folder, scan.books.size)
         val resolver = getApplication<Application>().contentResolver
-        startJob(JobKind.ADD_FILES, if (scan.books.size == 1) "Adding a book" else "Adding ${scan.books.size} books", scan.books.size) { report ->
+        startJob(JobKind.ADD_FILES, if (scan.books.size == 1) tr("Adding a book") else tr("Adding {0} books", scan.books.size), scan.books.size) { report ->
             for (b in scan.books) {
                 if (!isActive) break
                 report(b.name) { _ ->
                     library.import(
                         name = b.name,
-                        open = { resolver.openInputStream(b.uri) ?: throw FileNotFoundException("Can't open ${b.name}") },
+                        open = { resolver.openInputStream(b.uri) ?: throw FileNotFoundException(tr("Can't open {0}", b.name)) },
                         source = BookSource.FILE,
                     ).toStep()
                 }
@@ -268,7 +268,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         val held = _duplicates.value
         if (held.isEmpty()) return
         _making.value?.let { busy ->
-            _message.value = "Wait for “$busy” to finish first."
+            _message.value = tr("Wait for “{0}” to finish first.", busy)
             return
         }
         _duplicates.value = emptyList()
@@ -276,12 +276,19 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         val chosen = held.map { it to (choices[it.key] ?: DuplicateChoice.SKIP) }
         if (chosen.all { it.second == DuplicateChoice.SKIP }) {
             held.forEach { library.discardHeld(it.file) }
-            _message.value = if (held.size == 1) "Skipped “${held[0].title}”." else "Skipped ${held.size} books."
+            _message.value = if (held.size == 1) tr("Skipped “{0}”.", held[0].title) else tr("Skipped {0} books.", held.size)
             return
         }
         val doing = chosen.map { it.second }.filter { it != DuplicateChoice.SKIP }
-        val verb = if (doing.all { it == DuplicateChoice.REPLACE }) "Replacing" else "Adding"
-        making(if (doing.size == 1) "$verb the book" else "$verb the books") {
+        val replacing = doing.all { it == DuplicateChoice.REPLACE }
+        making(
+            when {
+                replacing && doing.size == 1 -> tr("Replacing the book")
+                replacing -> tr("Replacing the books")
+                doing.size == 1 -> tr("Adding the book")
+                else -> tr("Adding the books")
+            },
+        ) {
             var replaced = 0
             var added = 0
             val failed = ArrayList<String>()
@@ -321,27 +328,27 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
             }
             val only = last.takeIf { replaced + added == 1 && failed.isEmpty() }
             _message.value = when {
-                only != null && replaced == 1 -> "Replaced “${only.title}” with the new file."
-                only != null -> "Added “${only.title}” again as a separate book."
+                only != null && replaced == 1 -> tr("Replaced “{0}” with the new file.", only.title)
+                only != null -> tr("Added “{0}” again as a separate book.", only.title)
                 else -> listOfNotNull(
-                    replaced.takeIf { it > 0 }?.let { "Replaced ${Fmt.plural(it, "book")} with ${if (it == 1) "the new file" else "the new files"}." },
-                    added.takeIf { it > 0 }?.let { if (it == 1) "Added 1 book again as a separate book." else "Added $it books again as separate books." },
-                    failed.size.takeIf { it > 0 }?.let { "$it couldn't be done. The log has the details." },
+                    replaced.takeIf { it > 0 }?.let { if (it == 1) tr("Replaced 1 book with the new file.") else tr("Replaced {0} books with the new files.", it) },
+                    added.takeIf { it > 0 }?.let { if (it == 1) tr("Added 1 book again as a separate book.") else tr("Added {0} books again as separate books.", it) },
+                    failed.size.takeIf { it > 0 }?.let { tr("{0} couldn't be done. The log has the details.", it) },
                 ).joinToString(" ")
             }
         }
     }
 
     /** Copies of [ids] in the library, each called "Title (copy)"; [onDone] gets their ids. */
-    fun duplicate(ids: List<String>, onDone: (List<String>) -> Unit) = making(if (ids.size == 1) "Duplicating the book" else "Duplicating the books") {
+    fun duplicate(ids: List<String>, onDone: (List<String>) -> Unit) = making(if (ids.size == 1) tr("Duplicating the book") else tr("Duplicating the books")) {
         val made = ArrayList<LibraryBook>()
         for ((i, id) in ids.withIndex()) {
             if (library.book(id) == null) continue
-            if (ids.size > 1) _making.value = "Duplicating (${i + 1} of ${ids.size})"
+            if (ids.size > 1) _making.value = tr("Duplicating ({0} of {1})", i + 1, ids.size)
             made += library.duplicate(id)
         }
         if (made.isEmpty()) return@making
-        _message.value = if (made.size == 1) "Duplicated as “${made[0].title}”." else "Duplicated ${made.size} books."
+        _message.value = if (made.size == 1) tr("Duplicated as “{0}”.", made[0].title) else tr("Duplicated {0} books.", made.size)
         onDone(made.map { it.id })
     }
 
@@ -349,15 +356,15 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
     fun importFromKobo(session: KoboSession, books: List<KoboBook>) {
         val wanted = books.filter { it.isSideloaded && it.relativePath != null }
         if (wanted.isEmpty()) {
-            _message.value = "Only books you put on the Kobo yourself can be added. Kobo Store purchases can't."
+            _message.value = tr("Only books you put on the Kobo yourself can be added. Kobo Store purchases can't.")
             return
         }
         val needed = wanted.sumOf { it.fileSize ?: 0L }
         if (needed > 0 && needed > library.freeSpaceBytes() - 200L * 1024 * 1024) {
-            _message.value = "Not enough free space on this device for ${wanted.size} books."
+            _message.value = tr("Not enough free space on this device for {0} books.", wanted.size)
             return
         }
-        startJob(JobKind.ADD_FROM_KOBO, "Adding books from the Kobo", wanted.size) { report ->
+        startJob(JobKind.ADD_FROM_KOBO, tr("Adding books from the Kobo"), wanted.size) { report ->
             for (book in wanted) {
                 if (!isActive) break
                 report(book.title) { _ -> library.importFromKobo(session, book).toStep() }
@@ -379,7 +386,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         val needed = chosen.sumOf { it.fileSize } + chosen.size * 64L * 1024
         val free = session.info.freeBytes
         if (free != null && needed > free - 20L * 1024 * 1024) {
-            _message.value = "Not enough space on the Kobo. These books need about ${needed / (1024 * 1024)} MB, and the Kobo has ${free / (1024 * 1024)} MB free."
+            _message.value = tr("Not enough space on the Kobo. These books need about {0} MB, and the Kobo has {1} MB free.", needed / (1024 * 1024), free / (1024 * 1024))
             return
         }
         val requests = chosen.map { SendRequest(it.id, session, format, covers, pdfs) }
@@ -393,9 +400,9 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
                     AppLog.i("Library", "${fresh.size} more book(s) added to the send that's running.")
                 }
                 _message.value = when {
-                    fresh.isEmpty() -> "Those are already being sent."
-                    fresh.size == 1 -> "Added to the books being sent."
-                    else -> "${fresh.size} books added to the ones being sent."
+                    fresh.isEmpty() -> tr("Those are already being sent.")
+                    fresh.size == 1 -> tr("Added to the books being sent.")
+                    else -> tr("{0} books added to the ones being sent.", fresh.size)
                 }
                 return
             }
@@ -409,7 +416,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
                     sendToKobo(session, ids, format, covers, pdfs)
                 }
             } else {
-                _message.value = "Wait until the books being added to the library are finished, then send."
+                _message.value = tr("Wait until the books being added to the library are finished, then send.")
             }
             return
         }
@@ -428,10 +435,10 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
                             if (it == null) sendRunning = false
                         }
                     } ?: break
-                    val title = library.book(next.id)?.title ?: "A book"
+                    val title = library.book(next.id)?.title ?: tr("A book")
                     report(title) { fraction ->
                         // The book may have been edited since it was chosen.
-                        val current = library.book(next.id) ?: return@report Step.Failed(title, "It's no longer in the library.")
+                        val current = library.book(next.id) ?: return@report Step.Failed(title, tr("It's no longer in the library."))
                         val place = placeOnKobo(current, next.session.snapshot, next.format)
                         // A cover set to "Leave unchanged" is never fitted to the screen.
                         val covers = if (current.coverAsIs) CoverFitting.AS_IS else next.covers
@@ -467,7 +474,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
                 savingAsked = true
                 val saved = CompletableDeferred<Unit>()
                 koboApp.koboSyncRequests.tryEmit(saved)
-                _job.update { it?.copy(current = "Saving collections and book details to the Kobo") }
+                _job.update { it?.copy(current = tr("Saving collections and book details to the Kobo")) }
                 if (withTimeoutOrNull(3 * 60_000L) { saved.await() } == null) {
                     AppLog.w("Library", "Saving to the Kobo's database is taking a long time; not waiting for it any more.")
                 }
@@ -482,7 +489,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    private fun sendTitle(n: Int) = if (n == 1) "Sending to the Kobo" else "Sending $n books to the Kobo"
+    private fun sendTitle(n: Int) = if (n == 1) tr("Sending to the Kobo") else tr("Sending {0} books to the Kobo", n)
 
     /** Places on the Kobo (as [KoboPaths.stem]s) that library books other than [book] are linked to. */
     private fun takenBesides(book: LibraryBook): Set<String> =
@@ -526,7 +533,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         work: suspend CoroutineScope.(report: suspend (String, suspend ((Float) -> Unit) -> Step) -> Unit) -> Unit,
     ) {
         if (runningJob?.isActive == true) {
-            _message.value = "Another task is still running. Wait for it to finish first."
+            _message.value = tr("Another task is still running. Wait for it to finish first.")
             return
         }
         _job.value = JobProgress(kind, title, total)
@@ -578,13 +585,13 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
             _saving.value = true
             val ok = try {
                 val saved = library.updateDetails(id, meta, collections)
-                _message.value = "Saved."
+                _message.value = tr("Saved.")
                 // Collections of a book on the Kobo are updated there too (if it's connected).
                 if (saved.koboPath != null) koboApp.koboSyncRequests.tryEmit(null)
                 true
             } catch (e: Exception) {
                 AppLog.e("Library", "Saving details failed", e)
-                _message.value = "Couldn't save: ${e.message}"
+                _message.value = tr("Couldn't save: {0}", e.message)
                 false
             }
             _saving.value = false
@@ -597,11 +604,11 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
             _saving.value = true
             val ok = try {
                 library.updateCover(id, cover.bytes, cover.mediaType, cover.width, cover.height, cover.asIs)
-                _message.value = if (cover.asIs) "Cover saved. It will be sent to the Kobo unchanged." else "Cover saved."
+                _message.value = if (cover.asIs) tr("Cover saved. It will be sent to the Kobo unchanged.") else tr("Cover saved.")
                 true
             } catch (e: Exception) {
                 AppLog.e("Library", "Saving the cover failed", e)
-                _message.value = "Couldn't save the cover: ${e.message}"
+                _message.value = tr("Couldn't save the cover: {0}", e.message)
                 false
             }
             _saving.value = false
@@ -619,7 +626,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
                 ids.mapNotNull { id -> runCatching { id to ReaderStore.markFinished(library.bookDir(id)) }.getOrNull() }
             }
             done.forEach { (id, here) -> koboApp.readingHere.set(id, here) }
-            _message.value = if (ids.size == 1) "Marked as finished." else "Marked ${ids.size} books as finished."
+            _message.value = if (ids.size == 1) tr("Marked as finished.") else tr("Marked {0} books as finished.", ids.size)
         }
     }
 
@@ -628,7 +635,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) { ids.forEach { id -> runCatching { ReaderStore.markUnread(library.bookDir(id)) } } }
             koboApp.readingHere.forget(ids)
-            _message.value = if (ids.size == 1) "Marked as unread." else "Marked ${ids.size} books as unread."
+            _message.value = if (ids.size == 1) tr("Marked as unread.") else tr("Marked {0} books as unread.", ids.size)
         }
     }
 
@@ -636,7 +643,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             library.delete(ids)
             koboApp.readingHere.forget(ids)
-            _message.value = if (ids.size == 1) "Removed from the library." else "Removed ${ids.size} books from the library."
+            _message.value = if (ids.size == 1) tr("Removed from the library.") else tr("Removed {0} books from the library.", ids.size)
         }
     }
 
@@ -650,11 +657,11 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
             _saving.value = true
             val ok = try {
                 library.restoreOriginalCover(id)
-                _message.value = "Original cover restored."
+                _message.value = tr("Original cover restored.")
                 true
             } catch (e: Exception) {
                 AppLog.e("Library", "Putting back the original cover failed", e)
-                _message.value = "Couldn't restore the original cover: ${e.message}"
+                _message.value = tr("Couldn't restore the original cover: {0}", e.message)
                 false
             }
             _saving.value = false
@@ -685,7 +692,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
     private fun making(what: String, block: suspend () -> Unit) {
         // One at a time: marked as under way straight away, so a second tap can't start another.
         _making.value?.let { busy ->
-            _message.value = "Wait for “$busy” to finish first."
+            _message.value = tr("Wait for “{0}” to finish first.", busy)
             return
         }
         _making.value = what
@@ -704,19 +711,19 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     /** A new, empty book, opened in the editor once it's made ([onDone] gets its id). */
-    fun createBook(title: String, author: String, onDone: (String) -> Unit) = making("Creating the book") {
+    fun createBook(title: String, author: String, onDone: (String) -> Unit) = making(tr("Creating the book")) {
         val meta = dev.kobolibrary.app.epub.BookMetadata(
-            title = title.trim().ifEmpty { "Untitled" },
+            title = title.trim().ifEmpty { tr("Untitled") },
             authors = author.split('&').map { it.trim() }.filter { it.isNotEmpty() },
             language = java.util.Locale.getDefault().toLanguageTag(),
         )
         val book = withCover(library.createBook(meta))
-        _message.value = "Created “${book.title}”."
+        _message.value = tr("Created “{0}”.", book.title)
         onDone(book.id)
     }
 
     /** [ids] put together in that order as one book; the books themselves stay as they are. */
-    fun mergeBooks(ids: List<String>, title: String, author: String, coverFrom: Int?, onDone: (String) -> Unit) = making("Combining the books") {
+    fun mergeBooks(ids: List<String>, title: String, author: String, coverFrom: Int?, onDone: (String) -> Unit) = making(tr("Combining the books")) {
         val books = ids.mapNotNull { library.book(it) }
         val first = books.firstOrNull() ?: return@making
         val publishers = books.mapNotNull { it.meta.publisher?.takeIf { p -> p.isNotBlank() } }.distinct()
@@ -729,7 +736,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
             description = "<p>Contains:</p><ul>" + books.joinToString("") { "<li>" + android.text.TextUtils.htmlEncode(it.title) + "</li>" } + "</ul>",
         )
         val book = withCover(library.mergeBooks(ids, meta, coverFrom))
-        _message.value = "Combined ${books.size} books into “${book.title}”."
+        _message.value = tr("Combined {0} books into “{1}”.", books.size, book.title)
         onDone(book.id)
     }
 
@@ -739,11 +746,11 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
      * [id] cut into books at [cuts], titled [titles]; numbered as a series called [series] if it's
      * given. The book itself stays as it is.
      */
-    fun splitBook(id: String, cuts: List<Int>, titles: List<String>, series: String?, onDone: (List<String>) -> Unit) = making("Splitting the book") {
+    fun splitBook(id: String, cuts: List<Int>, titles: List<String>, series: String?, onDone: (List<String>) -> Unit) = making(tr("Splitting the book")) {
         val source = library.book(id) ?: return@making
         val metas = titles.mapIndexed { k, t ->
             source.meta.copy(
-                title = t.trim().ifEmpty { "${source.title} (part ${k + 1})" },
+                title = t.trim().ifEmpty { tr("{0} (part {1})", source.title, k + 1) },
                 titleSort = null,
                 identifier = null,
                 isbn = null,
@@ -753,7 +760,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
             )
         }
         val made = library.splitBook(id, cuts, metas).map { withCover(it) }
-        _message.value = "Split “${source.title}” into ${made.size} books."
+        _message.value = tr("Split “{0}” into {1} books.", source.title, made.size)
         onDone(made.map { it.id })
     }
 
@@ -763,7 +770,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
     fun exportName(id: String, format: dev.kobolibrary.app.kobo.SendFormat?): String {
         val ending = format?.extension ?: library.sourceFile(id)?.let { ".${it.extension}" } ?: ".epub"
         val b = library.book(id) ?: return "book$ending"
-        return dev.kobolibrary.app.kobo.KoboPaths.component("${b.title} - ${b.meta.authors.joinToString(" & ").ifBlank { "Unknown" }}", 110) + ending
+        return dev.kobolibrary.app.kobo.KoboPaths.component("${b.title} - ${b.meta.authors.joinToString(" & ").ifBlank { tr("Unknown") }}", 110) + ending
     }
 
     /** What kind of file [book] was added as ("PDF"), when it wasn't an EPUB. */
@@ -794,36 +801,36 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     /** Saves [id] as [format] to [uri], a file chosen in Android's save picker. */
-    fun exportBook(id: String, format: dev.kobolibrary.app.kobo.SendFormat?, uri: Uri) = making("Saving the file") {
+    fun exportBook(id: String, format: dev.kobolibrary.app.kobo.SendFormat?, uri: Uri) = making(tr("Saving the file")) {
         val book = library.book(id) ?: return@making
         withContext(Dispatchers.IO) {
             val resolver = getApplication<Application>().contentResolver
-            (resolver.openOutputStream(uri, "wt") ?: throw java.io.IOException("Can't save to the chosen location.")).use { writeCopy(id, format, it) }
+            (resolver.openOutputStream(uri, "wt") ?: throw java.io.IOException(tr("Can't save to the chosen location."))).use { writeCopy(id, format, it) }
         }
         AppLog.i("Library", "Saved a copy of '${book.title}' as ${format?.label ?: "the file it was added as"}.")
         _message.value = when (format) {
-            null -> "Saved “${book.title}”."
-            dev.kobolibrary.app.kobo.SendFormat.KEPUB -> "Saved “${book.title}” as a kepub."
-            else -> "Saved “${book.title}” as an EPUB."
+            null -> tr("Saved “{0}”.", book.title)
+            dev.kobolibrary.app.kobo.SendFormat.KEPUB -> tr("Saved “{0}” as a kepub.", book.title)
+            else -> tr("Saved “{0}” as an EPUB.", book.title)
         }
     }
 
     /** Saves [ids] as [format] into [tree], a folder chosen in Android's folder picker, each as "Title - Author". */
-    fun exportBooks(ids: List<String>, format: dev.kobolibrary.app.kobo.SendFormat?, tree: Uri) = making("Saving the files") {
+    fun exportBooks(ids: List<String>, format: dev.kobolibrary.app.kobo.SendFormat?, tree: Uri) = making(tr("Saving the files")) {
         val resolver = getApplication<Application>().contentResolver
         val folder = android.provider.DocumentsContract.buildDocumentUriUsingTree(tree, android.provider.DocumentsContract.getTreeDocumentId(tree))
         var saved = 0
         val failed = ArrayList<String>()
         for ((i, id) in ids.withIndex()) {
             val book = library.book(id) ?: continue
-            _making.value = "Saving files (${i + 1} of ${ids.size})"
+            _making.value = tr("Saving files ({0} of {1})", i + 1, ids.size)
             try {
                 withContext(Dispatchers.IO) {
                     val name = exportName(id, format)
                     val mime = if (name.endsWith(".epub")) "application/epub+zip" else "application/octet-stream"
                     val file = android.provider.DocumentsContract.createDocument(resolver, folder, mime, name)
-                        ?: throw java.io.IOException("Couldn't create a file in that folder.")
-                    (resolver.openOutputStream(file, "wt") ?: throw java.io.IOException("Couldn't write the new file.")).use { writeCopy(id, format, it) }
+                        ?: throw java.io.IOException(tr("Couldn't create a file in that folder."))
+                    (resolver.openOutputStream(file, "wt") ?: throw java.io.IOException(tr("Couldn't write the new file."))).use { writeCopy(id, format, it) }
                 }
                 saved++
             } catch (e: Exception) {
@@ -832,8 +839,8 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
             }
         }
         AppLog.i("Library", "Saved copies of $saved books as ${format?.label ?: "the files they were added as"}.")
-        _message.value = "Saved ${Fmt.plural(saved, "book")}${format?.let { " as ${it.label}" } ?: ""}." +
-            if (failed.isNotEmpty()) " ${failed.size} couldn't be saved. The log has the details." else ""
+        _message.value = (format?.let { tr("Saved {0} as {1}.", Fmt.plural(saved, "book"), it.label) } ?: tr("Saved {0}.", Fmt.plural(saved, "book"))) +
+            if (failed.isNotEmpty()) tr(" {0} couldn't be saved. The log has the details.", failed.size) else ""
     }
 
     // ---- reading and editing the text --------------------------------------------------------------
@@ -853,7 +860,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
             TextEditState(bookId, book.title, library, viewModelScope, getApplication<Application>().assets, path).also { textEdit = it }
         } catch (e: Exception) {
             AppLog.e("Editor", "The book couldn't be opened for editing", e)
-            _message.value = "This book can't be edited: ${e.message}"
+            _message.value = tr("This book can't be edited: {0}", e.message)
             null
         }
     }

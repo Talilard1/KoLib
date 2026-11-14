@@ -2,6 +2,8 @@
 
 package dev.kobolibrary.app.ui.library
 
+import androidx.compose.ui.text.rememberTextMeasurer
+import dev.kobolibrary.app.tr
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.ui.semantics.contentDescription
@@ -246,15 +248,15 @@ internal fun PhoneLibraryScreen(
                 ) {
                     KoLibMark(Modifier.size(34.dp), glow = true)
                     Spacer(Modifier.width(10.dp))
-                    Text("Library", style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+                    Text(tr("Library"), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
                     var menu by remember { mutableStateOf(false) }
                     Box {
-                        IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, "More options") }
+                        IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, tr("More options")) }
                         DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                             onTheme?.let { theme ->
-                                DropdownMenuItem(text = { Text("App theme") }, leadingIcon = { Icon(Icons.Outlined.Palette, null) }, onClick = { menu = false; theme() })
+                                DropdownMenuItem(text = { Text(tr("App theme")) }, leadingIcon = { Icon(Icons.Outlined.Palette, null) }, onClick = { menu = false; theme() })
                             }
-                            DropdownMenuItem(text = { Text("About KoLib") }, leadingIcon = { Icon(Icons.Outlined.Info, null) }, onClick = { menu = false; onAbout() })
+                            DropdownMenuItem(text = { Text(tr("About KoLib")) }, leadingIcon = { Icon(Icons.Outlined.Info, null) }, onClick = { menu = false; onAbout() })
                         }
                     }
                 }
@@ -265,12 +267,12 @@ internal fun PhoneLibraryScreen(
                         .padding(start = 12.dp, end = 4.dp, top = 8.dp, bottom = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    KoLibMark(Modifier.size(34.dp).semantics { contentDescription = "KoLib" }, glow = true)
+                    KoLibMark(Modifier.size(34.dp).semantics { contentDescription = tr("KoLib") }, glow = true)
                     Spacer(Modifier.width(10.dp))
                     PhoneSearchField(
                         query = browse.query,
                         onQuery = { browse.query = it },
-                        placeholder = if (books.isEmpty()) "Search the library" else "Search ${Fmt.plural(books.size, "book")}",
+                        placeholder = if (books.isEmpty()) tr("Search the library") else tr("Search {0}", Fmt.plural(books.size, "book")),
                         onHelp = { showHelp = true },
                         modifier = Modifier.weight(1f),
                     )
@@ -279,8 +281,8 @@ internal fun PhoneLibraryScreen(
                         onSelect = { browse.selecting = true },
                         onGrid = { browse.grid = it },
                         more = listOfNotNull(
-                            onTheme?.let { MenuEntry("App theme", Icons.Outlined.Palette, it) },
-                            MenuEntry("About KoLib", Icons.Outlined.Info, onAbout),
+                            onTheme?.let { MenuEntry(tr("App theme"), Icons.Outlined.Palette, it) },
+                            MenuEntry(tr("About KoLib"), Icons.Outlined.Info, onAbout),
                         ),
                     )
                 }
@@ -293,7 +295,7 @@ internal fun PhoneLibraryScreen(
             PhoneLibraryFilters(books, browse)
             if (browse.narrowed) PhoneNarrowedLine(visible.size, books.size) { browse.clearFilters() }
             if (visible.isEmpty()) {
-                EmptyState(Icons.Outlined.SearchOff, "No matching books", "Try a different search, or clear the filters.")
+                EmptyState(Icons.Outlined.SearchOff, tr("No matching books"), tr("Try a different search, or clear the filters."))
                 return@Column
             }
             // Room under the last row, so the Add books button (or the bar for chosen books) doesn't cover it.
@@ -338,7 +340,7 @@ internal fun PhoneLibraryScreen(
 
         if (!browse.selecting && books.isNotEmpty()) {
             GoldFab(
-                text = "Add books",
+                text = tr("Add books"),
                 icon = Icons.Filled.Add,
                 expanded = atTop,
                 onClick = { addSheet = true },
@@ -350,11 +352,11 @@ internal fun PhoneLibraryScreen(
         if (browse.selecting) {
             val any = browse.picked.isNotEmpty()
             PhoneActionBar(Modifier.align(Alignment.BottomCenter)) {
-                PhoneAction(Icons.AutoMirrored.Filled.Send, "Send", { onSend(chosen()) }, enabled = any, main = true)
-                PhoneAction(Icons.Outlined.SaveAlt, "Save", { onExport(chosen()) }, enabled = any)
-                PhoneAction(Icons.Outlined.ContentCopy, "Duplicate", { onDuplicate(chosen()) }, enabled = any)
-                PhoneAction(Icons.Outlined.Merge, "Combine", { onMerge(chosen()) }, enabled = browse.picked.size >= 2)
-                PhoneAction(Icons.Outlined.Delete, "Remove", { confirmRemove = chosen() }, enabled = any, destructive = true)
+                PhoneAction(Icons.AutoMirrored.Filled.Send, tr("Send"), { onSend(chosen()) }, enabled = any, main = true)
+                PhoneAction(Icons.Outlined.SaveAlt, tr("Save"), { onExport(chosen()) }, enabled = any)
+                PhoneAction(Icons.Outlined.ContentCopy, tr("Duplicate"), { onDuplicate(chosen()) }, enabled = any)
+                PhoneAction(Icons.Outlined.Merge, tr("Combine"), { onMerge(chosen()) }, enabled = browse.picked.size >= 2)
+                PhoneAction(Icons.Outlined.Delete, tr("Remove"), { confirmRemove = chosen() }, enabled = any, destructive = true)
             }
         }
     }
@@ -419,11 +421,11 @@ private fun AddBooksSheet(
 ) {
     val state = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = state) {
-        Text("Add books", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(start = 24.dp, end = 24.dp, bottom = 8.dp))
-        SheetItem(Icons.Outlined.FileOpen, "Files from this device", "EPUB, PDF, MOBI, Word and more") { onDismiss(); onAddFiles() }
-        SheetItem(Icons.Outlined.FolderOpen, "A folder of books", "Every book in it, and in the folders inside it") { onDismiss(); onAddFolder() }
-        SheetItem(Icons.Outlined.Usb, "Books from the Kobo", if (koboConnected) null else "Connect your Kobo first") { onDismiss(); onAddFromKobo() }
-        SheetItem(Icons.AutoMirrored.Outlined.NoteAdd, "Write a new book") { onDismiss(); onNewBook() }
+        Text(tr("Add books"), style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(start = 24.dp, end = 24.dp, bottom = 8.dp))
+        SheetItem(Icons.Outlined.FileOpen, tr("Files from this device"), tr("EPUB, PDF, MOBI, Word and more")) { onDismiss(); onAddFiles() }
+        SheetItem(Icons.Outlined.FolderOpen, tr("A folder of books"), tr("Every book in it, and in the folders inside it")) { onDismiss(); onAddFolder() }
+        SheetItem(Icons.Outlined.Usb, tr("Books from the Kobo"), if (koboConnected) null else tr("Connect your Kobo first")) { onDismiss(); onAddFromKobo() }
+        SheetItem(Icons.AutoMirrored.Outlined.NoteAdd, tr("Write a new book")) { onDismiss(); onNewBook() }
         Spacer(Modifier.height(16.dp))
         Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
     }
@@ -481,13 +483,13 @@ internal fun PhoneBookPage(
     Column(Modifier.fillMaxSize()) {
         TopAppBar(
             title = { if (titleGone) Text(meta.title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-            navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back to the library") } },
+            navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Back to the library")) } },
             actions = {
                 Box {
-                    IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, "More options") }
+                    IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, tr("More options")) }
                     DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                         DropdownMenuItem(
-                            text = { Text("Remove from library", color = MaterialTheme.colorScheme.error) },
+                            text = { Text(tr("Remove from library"), color = MaterialTheme.colorScheme.error) },
                             leadingIcon = { Icon(Icons.Outlined.Delete, null, tint = MaterialTheme.colorScheme.error) },
                             onClick = { menu = false; confirmDelete = true },
                         )
@@ -541,9 +543,9 @@ internal fun PhoneBookPage(
                     Spacer(Modifier.width(8.dp))
                     Text(
                         when {
-                            finished -> "Read again"
-                            readHere != null && readHere > 0.005f -> "Read · ${(readHere * 100).roundToInt()}%"
-                            else -> "Read"
+                            finished -> tr("Read again")
+                            readHere != null && readHere > 0.005f -> tr("Read · {0}%", (readHere * 100).roundToInt())
+                            else -> tr("Read")
                         },
                         maxLines = 1,
                     )
@@ -557,9 +559,9 @@ internal fun PhoneBookPage(
                     Spacer(Modifier.width(8.dp))
                     Text(
                         when {
-                            book.changedSinceOnKobo -> "Update on Kobo"
-                            book.koboPath != null -> "Send again"
-                            else -> "Send to Kobo"
+                            book.changedSinceOnKobo -> tr("Update on Kobo")
+                            book.koboPath != null -> tr("Send again")
+                            else -> tr("Send to Kobo")
                         },
                         textAlign = TextAlign.Center,
                         maxLines = 2,
@@ -573,14 +575,14 @@ internal fun PhoneBookPage(
                     Icon(Icons.Outlined.WarningAmber, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.error)
                     Spacer(Modifier.width(6.dp))
                     Text(
-                        "Changed since you sent it. Tap Update on Kobo to send the new version.",
+                        tr("Changed since you sent it. Tap Update on Kobo to send the new version."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
             } else if (!koboConnected && book.koboPath == null) {
                 Text(
-                    "Connect your Kobo to send this book.",
+                    tr("Connect your Kobo to send this book."),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 8.dp),
@@ -589,12 +591,12 @@ internal fun PhoneBookPage(
 
             Spacer(Modifier.height(16.dp))
             val tiles = listOf(
-                Triple(Icons.Outlined.Edit, "Edit details", onEdit),
-                Triple(Icons.Outlined.Image, "Change cover", onCover),
-                Triple(Icons.Outlined.EditNote, "Edit text", onEditText),
-                Triple(Icons.AutoMirrored.Outlined.CallSplit, "Split into books", onSplit),
-                Triple(Icons.Outlined.SaveAlt, "Save as file", onExport),
-                Triple(Icons.Outlined.ContentCopy, "Duplicate", onDuplicate),
+                Triple(Icons.Outlined.Edit, tr("Edit details"), onEdit),
+                Triple(Icons.Outlined.Image, tr("Change cover"), onCover),
+                Triple(Icons.Outlined.EditNote, tr("Edit text"), onEditText),
+                Triple(Icons.AutoMirrored.Outlined.CallSplit, tr("Split into books"), onSplit),
+                Triple(Icons.Outlined.SaveAlt, tr("Save as file"), onExport),
+                Triple(Icons.Outlined.ContentCopy, tr("Duplicate"), onDuplicate),
             )
             tiles.chunked(3).forEach { row ->
                 Row(Modifier.fillMaxWidth().padding(bottom = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -603,10 +605,10 @@ internal fun PhoneBookPage(
             }
 
             Spacer(Modifier.height(16.dp))
-            Text("Kobo collections", style = MaterialTheme.typography.titleSmall)
+            Text(tr("Kobo collections"), style = MaterialTheme.typography.titleSmall)
             Spacer(Modifier.height(6.dp))
             if (book.collections.isEmpty()) {
-                Text("Not in any collection. To add it to one, tap Edit details.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(tr("Not in any collection. To add it to one, tap Edit details."), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     book.collections.forEach { name ->
@@ -620,7 +622,7 @@ internal fun PhoneBookPage(
             }
             if (meta.tags.isNotEmpty()) {
                 Spacer(Modifier.height(16.dp))
-                Text("Tags", style = MaterialTheme.typography.titleSmall)
+                Text(tr("Tags"), style = MaterialTheme.typography.titleSmall)
                 Spacer(Modifier.height(6.dp))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     meta.tags.forEach { t ->
@@ -630,24 +632,24 @@ internal fun PhoneBookPage(
             }
 
             Spacer(Modifier.height(20.dp))
-            SectionCard("Details") {
-                InfoRow("Publisher", meta.publisher)
-                InfoRow("Published", Fmt.publication(meta.published))
-                InfoRow("Language", meta.language?.let { languageName(it) })
+            SectionCard(tr("Details")) {
+                InfoRow(tr("Publisher"), meta.publisher)
+                InfoRow(tr("Published"), Fmt.publication(meta.published))
+                InfoRow(tr("Language"), meta.language?.let { languageName(it) })
                 InfoRow("ISBN", meta.isbn, selectable = true)
-                InfoRow("Length", book.pages?.let { p -> "About ${Fmt.plural(p, "page")} (${"%,d".format(book.words)} words)" })
-                InfoRow("File on the Kobo", book.koboPath ?: "Not sent yet")
-                InfoRow("Last sent", Fmt.dateTime(book.sentAt))
-                InfoRow("Added", Fmt.date(book.addedAt))
-                InfoRow("Last edited", Fmt.dateTime(book.modifiedAt).takeIf { book.modifiedAt > book.addedAt + 1000 })
-                InfoRow("Added as", book.addedAs)
-                InfoRow("File size", Fmt.bytes(context, book.fileSize))
+                InfoRow(tr("Length"), book.pages?.let { p -> tr("About {0} ({1} words)", Fmt.plural(p, "page"), "%,d".format(book.words)) })
+                InfoRow(tr("File on the Kobo"), book.koboPath ?: tr("Not sent yet"))
+                InfoRow(tr("Last sent"), Fmt.dateTime(book.sentAt))
+                InfoRow(tr("Added"), Fmt.date(book.addedAt))
+                InfoRow(tr("Last edited"), Fmt.dateTime(book.modifiedAt).takeIf { book.modifiedAt > book.addedAt + 1000 })
+                InfoRow(tr("Added as"), book.addedAs)
+                InfoRow(tr("File size"), Fmt.bytes(context, book.fileSize))
             }
             meta.description?.let { html ->
                 val text = remember(html) { descriptionText(html) }
                 if (text.isNotBlank()) {
                     Spacer(Modifier.height(16.dp))
-                    SectionCard("Description") { Text(text, style = MaterialTheme.typography.bodyMedium) }
+                    SectionCard(tr("Description")) { Text(text, style = MaterialTheme.typography.bodyMedium) }
                 }
             }
             Spacer(Modifier.height(32.dp))
@@ -656,15 +658,15 @@ internal fun PhoneBookPage(
     if (confirmDelete) {
         dev.kobolibrary.app.ui.components.AlertDialog(
             onDismissRequest = { confirmDelete = false },
-            title = { Text("Remove “${meta.title}”?") },
+            title = { Text(tr("Remove “{0}”?", meta.title)) },
             text = {
                 Text(
-                    "This deletes the book and your edits to it from the library." +
-                        if (book.koboPath != null) " The copy on the Kobo won't be deleted." else ""
+                    tr("This deletes the book and your edits to it from the library.") +
+                        if (book.koboPath != null) tr(" The copy on the Kobo won't be deleted.") else ""
                 )
             },
-            confirmButton = { TextButton(onClick = { confirmDelete = false; onDelete() }) { Text("Remove", color = MaterialTheme.colorScheme.error) } },
-            dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text("Cancel") } },
+            confirmButton = { TextButton(onClick = { confirmDelete = false; onDelete() }) { Text(tr("Remove"), color = MaterialTheme.colorScheme.error) } },
+            dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text(tr("Cancel")) } },
         )
     }
 }
@@ -693,16 +695,25 @@ internal fun ReadStateButtons(
             Text(text, maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis)
         }
     }
+    // Whether both names fit side by side depends on the language they're in, so it's measured.
+    val measurer = rememberTextMeasurer()
+    val labelStyle = MaterialTheme.typography.labelLarge
+    val density = LocalDensity.current
     BoxWithConstraints(modifier.fillMaxWidth()) {
-        if (canFinish && canUnread && maxWidth < 316.dp) {
+        val widest = with(density) {
+            listOf(tr("Mark as finished"), tr("Mark as unread")).maxOf { measurer.measure(it, labelStyle, maxLines = 1).size.width }.toDp()
+        }
+        // The text, plus the icon, the gap after it, the button's padding and its border.
+        val each = widest + 16.dp + 6.dp + 16.dp + 4.dp
+        if (canFinish && canUnread && each * 2 + 12.dp > maxWidth) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                button(Icons.Outlined.TaskAlt, "Mark as finished", onMarkFinished!!, Modifier.fillMaxWidth())
-                button(Icons.Outlined.RestartAlt, "Mark as unread", onMarkUnread!!, Modifier.fillMaxWidth())
+                button(Icons.Outlined.TaskAlt, tr("Mark as finished"), onMarkFinished!!, Modifier.fillMaxWidth())
+                button(Icons.Outlined.RestartAlt, tr("Mark as unread"), onMarkUnread!!, Modifier.fillMaxWidth())
             }
         } else {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                if (canFinish) button(Icons.Outlined.TaskAlt, "Mark as finished", onMarkFinished!!, Modifier.weight(1f))
-                if (canUnread) button(Icons.Outlined.RestartAlt, "Mark as unread", onMarkUnread!!, Modifier.weight(1f))
+                if (canFinish) button(Icons.Outlined.TaskAlt, tr("Mark as finished"), onMarkFinished!!, Modifier.weight(1f))
+                if (canUnread) button(Icons.Outlined.RestartAlt, tr("Mark as unread"), onMarkUnread!!, Modifier.weight(1f))
             }
         }
     }

@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.onboarding
 
+import dev.kobolibrary.app.tr
 import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
@@ -140,7 +141,7 @@ fun Onboarding(
                     Row(Modifier.fillMaxWidth().padding(start = 20.dp, end = 8.dp, top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                         KoLibMark(Modifier.size(30.dp), glow = true)
                         Spacer(Modifier.width(10.dp))
-                        Text("KoLib", style = MaterialTheme.typography.titleLarge, color = KoLibGold.light)
+                        Text(tr("KoLib"), style = MaterialTheme.typography.titleLarge, color = KoLibGold.light)
                         Spacer(Modifier.weight(1f))
                         if (page == Intro.FOLDER || page == Intro.KOBO) {
                             TextButton(onClick = { go(pager.currentPage + 1) }) { Text(stringResource(R.string.intro_skip), color = KoLibGold.light) }

@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.components
 
+import dev.kobolibrary.app.tr
 import android.graphics.Bitmap
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontStyle
@@ -144,11 +145,11 @@ fun BookCover(
                     drawStopIndicator = {},
                     gapSize = 0.dp,
                 )
-                ReadStatus.FINISHED -> CornerBadge("Read", BadgeDots.read, Alignment.TopEnd)
+                ReadStatus.FINISHED -> CornerBadge(dev.kobolibrary.app.trc("badge", "Read"), BadgeDots.read, Alignment.TopEnd)
                 ReadStatus.UNREAD -> Unit
             }
         }
-        if (inLibrary) CornerBadge("In library", BadgeDots.gold, Alignment.BottomStart)
+        if (inLibrary) CornerBadge(tr("In library"), BadgeDots.gold, Alignment.BottomStart)
         if (selected != null) SelectionMark(selected)
     }
 }
@@ -178,9 +179,9 @@ fun LibraryCover(
     ) {
         if (onKobo && !large) {
             when {
-                book.changedSinceOnKobo -> CornerBadge("Changed", BadgeDots.changed, Alignment.TopEnd)
-                reading?.readStatus == ReadStatus.FINISHED -> CornerBadge("Read", BadgeDots.read, Alignment.TopEnd)
-                else -> CornerBadge("On Kobo", BadgeDots.gold, Alignment.TopEnd)
+                book.changedSinceOnKobo -> CornerBadge(tr("Changed"), BadgeDots.changed, Alignment.TopEnd)
+                reading?.readStatus == ReadStatus.FINISHED -> CornerBadge(dev.kobolibrary.app.trc("badge", "Read"), BadgeDots.read, Alignment.TopEnd)
+                else -> CornerBadge(tr("On Kobo"), BadgeDots.gold, Alignment.TopEnd)
             }
         }
         val koboBar = reading?.readStatus == ReadStatus.READING
@@ -211,7 +212,7 @@ private fun BoxScope.ReadHereBadge(percent: Int?, aboveBar: Boolean) {
             .clip(RoundedCornerShape(50))
             .background(style.badge)
             .padding(start = if (small) 4.dp else 5.dp, end = if (small) 5.dp else 6.dp, top = 1.dp, bottom = 1.dp)
-            .semantics(mergeDescendants = true) { contentDescription = if (percent == null) "Finished on this device" else "$percent% read on this device" },
+            .semantics(mergeDescendants = true) { contentDescription = if (percent == null) tr("Finished on this device") else tr("{0}% read on this device", percent) },
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
@@ -220,7 +221,7 @@ private fun BoxScope.ReadHereBadge(percent: Int?, aboveBar: Boolean) {
             modifier = Modifier.size(if (small) 10.dp else 11.dp),
         )
         Spacer(Modifier.width(3.dp))
-        Text(if (percent == null) "Finished" else "$percent%", color = style.onBadge, fontSize = if (small) 9.sp else 10.sp, fontWeight = FontWeight.SemiBold)
+        Text(if (percent == null) tr("Finished") else "$percent%", color = style.onBadge, fontSize = if (small) 9.sp else 10.sp, fontWeight = FontWeight.SemiBold)
     }
 }
 
@@ -265,7 +266,7 @@ private fun BoxScope.SelectionMark(selected: Boolean) {
             .border(2.dp, Color.White, CircleShape),
         contentAlignment = Alignment.Center,
     ) {
-        if (selected) Icon(Icons.Filled.Check, contentDescription = "Selected", tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(18.dp))
+        if (selected) Icon(Icons.Filled.Check, contentDescription = tr("Selected"), tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(18.dp))
     }
 }
 

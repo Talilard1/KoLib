@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.epub
 
+import dev.kobolibrary.app.tr
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -29,15 +30,15 @@ class OpfDocument(val source: String) {
     val doc: XDocument = try {
         Xml.parse(source)
     } catch (e: XmlException) {
-        throw EpubException("The book's package file is damaged (${e.message}).")
+        throw EpubException(tr("The book's package file is damaged ({0}).", e.message))
     }
     val pkg: XElement = doc.root.also {
-        if (!it.localName.equals("package", ignoreCase = true)) throw EpubException("The book's package file has no <package> element.")
+        if (!it.localName.equals("package", ignoreCase = true)) throw EpubException(tr("The book's package file has no <package> element."))
     }
     val version: String = pkg.attributes["version"]?.trim().orEmpty().ifEmpty { "2.0" }
     val isEpub3: Boolean = version.startsWith("3")
     val metadataElement: XElement = pkg.elements().firstOrNull { it.localName.equals("metadata", true) }
-        ?: throw EpubException("The book's package file has no metadata section.")
+        ?: throw EpubException(tr("The book's package file has no metadata section."))
     val manifestElement: XElement? = pkg.elements().firstOrNull { it.localName.equals("manifest", true) }
     val spineElement: XElement? = pkg.elements().firstOrNull { it.localName.equals("spine", true) }
     val guideElement: XElement? = pkg.elements().firstOrNull { it.localName.equals("guide", true) }
@@ -447,7 +448,7 @@ class OpfDocument(val source: String) {
             if (props.isEmpty()) attrs.remove("properties") else attrs["properties"] = props.joinToString(" ")
             edits.replace(it.element.start, it.element.startTagEnd, Xml.startTag(it.element.name, attrs, it.element.selfClosing))
         }
-        val manifest = manifestElement ?: throw EpubException("The book has no manifest.")
+        val manifest = manifestElement ?: throw EpubException(tr("The book has no manifest."))
         if (existing != null) {
             val attrs = LinkedHashMap(existing.element.attributes)
             attrs["media-type"] = mediaType

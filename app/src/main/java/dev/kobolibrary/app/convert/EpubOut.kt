@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.convert
 
+import dev.kobolibrary.app.tr
 import dev.kobolibrary.app.epub.BookAssembly
 import dev.kobolibrary.app.epub.BookMetadata
 import dev.kobolibrary.app.epub.TocNode
@@ -170,7 +171,7 @@ class EpubOut(var meta: BookMetadata) {
     }
 
     fun write(target: File) {
-        if (spine.isEmpty()) throw ConversionException("There's no text in it to make a book from.")
+        if (spine.isEmpty()) throw ConversionException(tr("There's no text in it to make a book from."))
         val finalToc = flattened(toc).ifEmpty { listOf(TocNode(meta.title.ifBlank { "Start" }, spine.first().path, null)) }
         BookAssembly.write(target, meta.copy(title = meta.title.ifBlank { "Untitled" }), parts, spine, finalToc)
     }

@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.convert
 
+import dev.kobolibrary.app.tr
 import dev.kobolibrary.app.epub.BookMetadata
 import dev.kobolibrary.app.epub.XElement
 import dev.kobolibrary.app.epub.XText
@@ -18,7 +19,7 @@ internal fun unzip(bytes: ByteArray, limit: Long = 400L * 1024 * 1024): Map<Stri
             if (e.isDirectory) continue
             val data = z.readBytes()
             total += data.size
-            if (total > limit) throw ConversionException("The file is too big to open.")
+            if (total > limit) throw ConversionException(tr("The file is too big to open."))
             out[e.name.replace('\\', '/').trimStart('/')] = data
         }
     }
@@ -29,11 +30,11 @@ private fun XElement.kids(name: String) = elements().filter { it.localName == na
 private fun XElement.kid(name: String) = elements().firstOrNull { it.localName == name }
 private fun XElement.at(name: String): String? = attributes[name] ?: attributes.entries.firstOrNull { it.key.substringAfter(':') == name.substringAfter(':') }?.value
 private fun parseXml(bytes: ByteArray?, what: String): XElement {
-    bytes ?: throw ConversionException("The document's $what is missing.")
+    bytes ?: throw ConversionException(tr("The document's {0} is missing.", what))
     return try {
         Xml.parse(TextDecoding.decode(bytes)).root
     } catch (e: Exception) {
-        throw ConversionException("The document's $what is damaged.")
+        throw ConversionException(tr("The document's {0} is damaged.", what))
     }
 }
 
@@ -127,7 +128,7 @@ object DocxConverter {
         }
         val out = EpubOut(meta)
         val ctx = Ctx(rels, styles, files, out, noteTexts = noteTexts)
-        val body = document.kid("body") ?: throw ConversionException("There's no text in this document.")
+        val body = document.kid("body") ?: throw ConversionException(tr("There's no text in this document."))
         val paras = ArrayList<Para>()
         var list: StringBuilder? = null
         fun endList() {
@@ -331,7 +332,7 @@ object OdtConverter {
         read(content)
         val out = EpubOut(meta)
         val ctx = Ctx(styles, files, out)
-        val text = content.kid("body")?.kid("text") ?: throw ConversionException("There's no text in this document.")
+        val text = content.kid("body")?.kid("text") ?: throw ConversionException(tr("There's no text in this document."))
         val paras = ArrayList<Para>()
         blocks(text, paras, ctx)
         writePages(out, paras, ctx.notes.toString().ifBlank { null })

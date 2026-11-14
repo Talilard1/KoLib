@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui
 
+import dev.kobolibrary.app.tr
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.runtime.getValue
@@ -15,26 +16,26 @@ import dev.kobolibrary.app.library.LibraryBook
 import dev.kobolibrary.app.ui.library.LibraryQuery
 import dev.kobolibrary.app.ui.library.SearchFacts
 
-enum class SourceFilter(val label: String) { ALL("All"), SIDELOADED("Sideloaded"), STORE("Kobo Store") }
+enum class SourceFilter(val label: String) { ALL(tr("All")), SIDELOADED(tr("Sideloaded")), STORE(tr("Kobo Store")) }
 
 enum class StatusFilter(val label: String, val status: ReadStatus) {
-    UNREAD("Unread", ReadStatus.UNREAD),
-    READING("Reading", ReadStatus.READING),
-    FINISHED("Finished", ReadStatus.FINISHED),
+    UNREAD(tr("Unread"), ReadStatus.UNREAD),
+    READING(tr("Reading"), ReadStatus.READING),
+    FINISHED(tr("Finished"), ReadStatus.FINISHED),
 }
 
 /** The Kobo's sort orders: the library's, plus reading progress. Each starts in the direction that's usually wanted. */
 enum class KoboSort(val label: String, val startsDescending: Boolean, val ascending: String, val descending: String) {
-    TITLE("Title", false, "A to Z", "Z to A"),
-    AUTHOR("Author", false, "A to Z", "Z to A"),
-    SERIES("Series", false, "A to Z", "Z to A"),
-    PUBLISHED("Published", true, "oldest first", "newest first"),
-    ADDED("Date added", true, "oldest first", "newest first"),
-    SIZE("File size", true, "smallest first", "largest first"),
-    PAGES("Pages", true, "shortest first", "longest first"),
-    RATING("Rating", true, "lowest first", "highest first"),
-    LAST_READ("Last read", true, "least recent first", "most recent first"),
-    PROGRESS("Progress", true, "least read first", "most read first"),
+    TITLE(tr("Title"), false, tr("A to Z"), tr("Z to A")),
+    AUTHOR(tr("Author"), false, tr("A to Z"), tr("Z to A")),
+    SERIES(tr("Series"), false, tr("A to Z"), tr("Z to A")),
+    PUBLISHED(tr("Published"), true, tr("oldest first"), tr("newest first")),
+    ADDED(tr("Date added"), true, tr("oldest first"), tr("newest first")),
+    SIZE(tr("File size"), true, tr("smallest first"), tr("largest first")),
+    PAGES(tr("Pages"), true, tr("shortest first"), tr("longest first")),
+    RATING(tr("Rating"), true, tr("lowest first"), tr("highest first")),
+    LAST_READ(tr("Last read"), true, tr("least recent first"), tr("most recent first")),
+    PROGRESS(tr("Progress"), true, tr("least read first"), tr("most read first")),
 }
 
 /** Book list settings and scroll positions, kept while switching tabs. */

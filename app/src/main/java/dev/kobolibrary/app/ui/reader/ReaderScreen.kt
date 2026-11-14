@@ -1,5 +1,7 @@
 package dev.kobolibrary.app.ui.reader
 
+import dev.kobolibrary.app.ui.components.FittedText
+import dev.kobolibrary.app.tr
 import dev.kobolibrary.app.ui.components.phoneLayout
 import androidx.compose.material.icons.outlined.Toc
 import androidx.compose.material.icons.outlined.BorderColor
@@ -369,7 +371,7 @@ internal fun ReaderScreen(
                     Icon(if (v < 0.01f) Icons.Outlined.BrightnessLow else Icons.Outlined.BrightnessHigh, null, tint = MaterialTheme.colorScheme.inverseOnSurface)
                     Spacer(Modifier.width(10.dp))
                     Text(
-                        if (v < 0.01f) "Extra dim ${((-v / ReaderSettings.MAX_DIM) * 100).roundToInt().coerceAtLeast(1)}%" else "Brightness ${(v * 100).roundToInt()}%",
+                        if (v < 0.01f) tr("Extra dim {0}%", ((-v / ReaderSettings.MAX_DIM) * 100).roundToInt().coerceAtLeast(1)) else tr("Brightness {0}%", (v * 100).roundToInt()),
                         color = MaterialTheme.colorScheme.inverseOnSurface,
                         style = MaterialTheme.typography.labelLarge,
                     )
@@ -402,10 +404,10 @@ internal fun ReaderScreen(
                     TextButton(onClick = { controller.goBack() }) {
                         Icon(Icons.AutoMirrored.Filled.Undo, null, Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
-                        Text("Back to ${from.chapterTitle.ifBlank { "where you were" }.take(40)}")
+                        Text(tr("Back to {0}", from.chapterTitle.ifBlank { tr("where you were") }.take(40)))
                     }
                     IconButton(onClick = { controller.jumpedFrom = null }, modifier = Modifier.size(32.dp)) {
-                        Icon(Icons.Filled.Close, "Dismiss", Modifier.size(16.dp))
+                        Icon(Icons.Filled.Close, tr("Dismiss"), Modifier.size(16.dp))
                     }
                 }
             }
@@ -471,8 +473,8 @@ internal fun ReaderScreen(
         controller.externalLink?.let { url ->
             AlertDialog(
                 onDismissRequest = { controller.externalLink = null },
-                title = { Text("Open this link?") },
-                text = { Text("This link opens a web page outside the book:\n\n$url") },
+                title = { Text(tr("Open this link?")) },
+                text = { Text(tr("This link opens a web page outside the book:\n\n{0}", url)) },
                 confirmButton = {
                     TextButton(onClick = {
                         controller.externalLink = null
@@ -480,18 +482,18 @@ internal fun ReaderScreen(
                             context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
                         } catch (_: ActivityNotFoundException) {
                         }
-                    }) { Text("Open") }
+                    }) { Text(tr("Open")) }
                 },
-                dismissButton = { TextButton(onClick = { controller.externalLink = null }) { Text("Cancel") } },
+                dismissButton = { TextButton(onClick = { controller.externalLink = null }) { Text(tr("Cancel")) } },
             )
         }
         if (controller.atEnd) {
             AlertDialog(
                 onDismissRequest = { controller.dismissEnd() },
-                title = { Text("The end") },
-                text = { Text("You've reached the end of “${controller.bookTitle}”.") },
-                confirmButton = { TextButton(onClick = { controller.dismissEnd(); onClose() }) { Text("Back to library") } },
-                dismissButton = { TextButton(onClick = { controller.dismissEnd() }) { Text("Stay on this page") } },
+                title = { Text(tr("The end")) },
+                text = { Text(tr("You've reached the end of “{0}”.", controller.bookTitle)) },
+                confirmButton = { TextButton(onClick = { controller.dismissEnd(); onClose() }) { Text(tr("Back to library")) } },
+                dismissButton = { TextButton(onClick = { controller.dismissEnd() }) { Text(tr("Stay on this page")) } },
             )
         }
 
@@ -519,24 +521,24 @@ private fun ReaderTopBar(
             Modifier.statusBarsPadding().padding(horizontal = 4.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            IconButton(onClick = onClose) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Close the book") }
+            IconButton(onClick = onClose) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Close the book")) }
             // The contents on the left, where their panel opens.
-            IconButton(onClick = onContents) { Icon(Icons.AutoMirrored.Filled.List, "Contents and bookmarks") }
+            IconButton(onClick = onContents) { Icon(Icons.AutoMirrored.Filled.List, tr("Contents and bookmarks")) }
             Column(Modifier.weight(1f).padding(horizontal = 4.dp)) {
                 Text(controller.bookTitle, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 controller.chapterTitle.takeIf { it.isNotBlank() }?.let {
                     Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
-            IconButton(onClick = onSearch) { Icon(Icons.Filled.Search, "Search the book") }
+            IconButton(onClick = onSearch) { Icon(Icons.Filled.Search, tr("Search the book")) }
             val marked = controller.currentBookmark != null
             IconButton(onClick = { controller.toggleBookmark() }) {
-                Icon(if (marked) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder, if (marked) "Remove bookmark" else "Bookmark this page",
+                Icon(if (marked) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder, if (marked) tr("Remove bookmark") else tr("Bookmark this page"),
                     tint = if (marked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
             }
-            IconButton(onClick = onLook) { Icon(Icons.Outlined.Settings, "Reading settings") }
-            if (onPdf != null) IconButton(onClick = onPdf) { Icon(Icons.Outlined.PictureAsPdf, "Read as PDF") }
-            if (onEdit != null) IconButton(onClick = onEdit) { Icon(Icons.Outlined.EditNote, "Edit this chapter's text") }
+            IconButton(onClick = onLook) { Icon(Icons.Outlined.Settings, tr("Reading settings")) }
+            if (onPdf != null) IconButton(onClick = onPdf) { Icon(Icons.Outlined.PictureAsPdf, tr("Read as PDF")) }
+            if (onEdit != null) IconButton(onClick = onEdit) { Icon(Icons.Outlined.EditNote, tr("Edit this chapter's text")) }
         }
     }
 }
@@ -552,7 +554,7 @@ private fun ReaderBottomBar(controller: ReaderController, onSettings: (ReaderSet
         Column(Modifier.navigationBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp)) {
             AutoscrollRow(controller, onSettings)
             Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = { controller.previousChapter() }) { Icon(Icons.AutoMirrored.Filled.NavigateBefore, "Previous chapter") }
+                IconButton(onClick = { controller.previousChapter() }) { Icon(Icons.AutoMirrored.Filled.NavigateBefore, tr("Previous chapter")) }
                 Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
                     // Where chapters start.
                     val marks = controller.chapterMarks
@@ -590,7 +592,7 @@ private fun ReaderBottomBar(controller: ReaderController, onSettings: (ReaderSet
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                IconButton(onClick = { controller.nextChapter() }) { Icon(Icons.AutoMirrored.Filled.NavigateNext, "Next chapter") }
+                IconButton(onClick = { controller.nextChapter() }) { Icon(Icons.AutoMirrored.Filled.NavigateNext, tr("Next chapter")) }
             }
             // Pages are counted through the whole book, at the text size and page size being read at. Its
             // numbers are all one width, so they don't shift about as they change.
@@ -603,7 +605,7 @@ private fun ReaderBottomBar(controller: ReaderController, onSettings: (ReaderSet
                 val total = book.total.toString()
                 val shown = dragAt.toString().padStart(total.length, '\u2007')
                 Row(Modifier.fillMaxWidth().padding(bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text("Page $shown of $total", style = footStyle, color = footColor, maxLines = 1, textAlign = TextAlign.End, modifier = Modifier.weight(1f))
+                    Text(tr("Page {0} of {1}", shown, total), style = footStyle, color = footColor, maxLines = 1, textAlign = TextAlign.End, modifier = Modifier.weight(1f))
                     Text("  ·  ", style = footStyle, color = footColor, maxLines = 1)
                     Text(
                         controller.chapterTitleAt(value), style = footStyle, color = footColor,
@@ -611,14 +613,14 @@ private fun ReaderBottomBar(controller: ReaderController, onSettings: (ReaderSet
                     )
                 }
             } else {
-                val details = if (dragging) "Go to ${(value * 100).roundToInt()}%" else listOfNotNull(
+                val details = if (dragging) tr("Go to {0}%", (value * 100).roundToInt()) else listOfNotNull(
                     controller.chapterTitle.ifBlank { null },
-                    controller.bookPage?.let { "${controller.pagesLabel(it, controller.bookPageLast)} of ${book?.total}" }
-                        ?: if (controller.chapterPages > 1) "${controller.pagesLabel(controller.firstShown + 1, controller.lastShown + 1)} of ${controller.chapterPages} in chapter" else null,
+                    controller.bookPage?.let { tr("{0} of {1}", controller.pagesLabel(it, controller.bookPageLast), book?.total) }
+                        ?: if (controller.chapterPages > 1) tr("{0} of {1} in chapter", controller.pagesLabel(controller.firstShown + 1, controller.lastShown + 1), controller.chapterPages) else null,
                     // The book's page numbers show once every chapter is counted, so they never change.
-                    if (controller.countingPages && book == null) "Counting pages…" else null,
-                    controller.minutesLeftInChapter.takeIf { it > 0 }?.let { "$it min left in chapter" },
-                    "${(controller.bookProgress * 100).roundToInt()}% of book read",
+                    if (controller.countingPages && book == null) tr("Counting pages…") else null,
+                    controller.minutesLeftInChapter.takeIf { it > 0 }?.let { tr("{0} min left in chapter", it) },
+                    tr("{0}% of book read", (controller.bookProgress * 100).roundToInt()),
                 ).joinToString(" · ")
                 Text(
                     details,
@@ -640,7 +642,7 @@ private fun ReaderBottomBar(controller: ReaderController, onSettings: (ReaderSet
  */
 @Composable
 private fun BarReturnButton(controller: ReaderController, back: ReaderPosition, compact: Boolean, modifier: Modifier = Modifier) {
-    val label = controller.barReturnBookPage?.let { "Back to page $it" } ?: "Back to ${(back.bookProgress * 100).roundToInt()}%"
+    val label = controller.barReturnBookPage?.let { tr("Back to page {0}", it) } ?: tr("Back to {0}%", (back.bookProgress * 100).roundToInt())
     if (compact) {
         FilledTonalIconButton(onClick = { controller.swapWithBarReturn() }, modifier = modifier) {
             Icon(Icons.AutoMirrored.Filled.Undo, label, Modifier.size(20.dp))
@@ -677,30 +679,30 @@ private fun AutoscrollRow(controller: ReaderController, onSettings: (ReaderSetti
             }) {
                 Icon(if (on) Icons.Filled.Pause else Icons.Filled.PlayArrow, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text(if (on) "Pause autoscroll" else "Autoscroll")
+                Text(if (on) tr("Pause autoscroll") else tr("Autoscroll"))
             }
             Spacer(Modifier.weight(1f))
             if (phone && back != null) {
                 BarReturnButton(controller, back, compact = true)
                 Spacer(Modifier.weight(1f))
             }
-            if (!phone) Text("Speed", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (!phone) Text(tr("Speed"), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
             IconButton(
                 onClick = { onSettings(s.copy(autoWpm = (s.autoWpm - 10).coerceAtLeast(ReaderSettings.MIN_WPM))) },
                 enabled = s.autoWpm > ReaderSettings.MIN_WPM,
-            ) { Icon(Icons.Outlined.Remove, "Slower") }
+            ) { Icon(Icons.Outlined.Remove, tr("Slower")) }
             if (phone) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("${s.autoWpm}", style = MaterialTheme.typography.titleSmall)
-                    Text("words per minute", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(tr("words per minute"), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             } else {
-                Text("${s.autoWpm} words per minute", style = MaterialTheme.typography.labelLarge)
+                Text(tr("{0} words per minute", s.autoWpm), style = MaterialTheme.typography.labelLarge)
             }
             IconButton(
                 onClick = { onSettings(s.copy(autoWpm = (s.autoWpm + 10).coerceAtMost(ReaderSettings.MAX_WPM))) },
                 enabled = s.autoWpm < ReaderSettings.MAX_WPM,
-            ) { Icon(Icons.Outlined.Add, "Faster") }
+            ) { Icon(Icons.Outlined.Add, tr("Faster")) }
         }
         // After moving with the progress bar: back to where the reader was, in the middle of the bar.
         if (!phone && back != null) BarReturnButton(controller, back, compact = false, modifier = Modifier.align(Alignment.Center).padding(bottom = 2.dp))
@@ -832,7 +834,7 @@ private fun DrawerHeader(title: String, subtitle: String? = null, onClose: () ->
                 Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
-        IconButton(onClick = onClose) { Icon(Icons.Filled.Close, "Close") }
+        IconButton(onClick = onClose) { Icon(Icons.Filled.Close, tr("Close")) }
     }
 }
 
@@ -862,12 +864,11 @@ private fun DrawerTabs(tabs: List<DrawerTab>, pager: PagerState) {
                     Icon(t.icon, null, Modifier.size(22.dp))
                 }
                 Spacer(Modifier.height(4.dp))
-                Text(
+                FittedText(
                     t.label,
-                    maxLines = 1,
-                    softWrap = false,
                     style = MaterialTheme.typography.labelMedium.copy(letterSpacing = 0.sp),
                     modifier = Modifier.padding(horizontal = 2.dp),
+                    textAlign = TextAlign.Center,
                 )
             }
         }
@@ -882,7 +883,7 @@ private fun ContentsPanel(controller: ReaderController, wide: Boolean, onPicked:
         if (wide) {
             PrimaryTabRow(selectedTabIndex = pager.currentPage, containerColor = Color.Transparent) {
                 val scope = rememberCoroutineScope()
-                listOf("Contents", "Bookmarks (${controller.bookmarks.size})", "Highlights (${controller.annotations.size})").forEachIndexed { i, label ->
+                listOf(tr("Contents"), tr("Bookmarks ({0})", controller.bookmarks.size), tr("Highlights ({0})", controller.annotations.size)).forEachIndexed { i, label ->
                     Tab(
                         selected = i == pager.currentPage,
                         onClick = { scope.launch { pager.animateScrollToPage(i) } },
@@ -895,14 +896,14 @@ private fun ContentsPanel(controller: ReaderController, wide: Boolean, onPicked:
         } else {
             DrawerHeader(
                 controller.bookTitle,
-                subtitle = controller.bookAuthor?.takeIf { it.isNotBlank() } ?: "${(controller.bookProgress * 100).roundToInt()}% read",
+                subtitle = controller.bookAuthor?.takeIf { it.isNotBlank() } ?: tr("{0}% read", (controller.bookProgress * 100).roundToInt()),
                 onClose = onClose,
             )
             DrawerTabs(
                 listOf(
-                    DrawerTab("Contents", Icons.Outlined.Toc),
-                    DrawerTab("Bookmarks", Icons.Outlined.BookmarkBorder, controller.bookmarks.size),
-                    DrawerTab("Highlights", Icons.Outlined.BorderColor, controller.annotations.size),
+                    DrawerTab(tr("Contents"), Icons.Outlined.Toc),
+                    DrawerTab(tr("Bookmarks"), Icons.Outlined.BookmarkBorder, controller.bookmarks.size),
+                    DrawerTab(tr("Highlights"), Icons.Outlined.BorderColor, controller.annotations.size),
                 ),
                 pager,
             )
@@ -955,7 +956,7 @@ private fun BookmarksList(controller: ReaderController, onPicked: () -> Unit) {
     Column(Modifier.fillMaxSize()) {
         if (controller.bookmarks.isEmpty()) {
             Text(
-                "No bookmarks yet. To bookmark a page, tap the middle of the page, then tap the bookmark icon at the top.",
+                tr("No bookmarks yet. To bookmark a page, tap the middle of the page, then tap the bookmark icon at the top."),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(24.dp),
@@ -981,7 +982,7 @@ private fun ContentsRow(title: String, level: Int, current: Boolean, onClick: ()
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            title.ifBlank { "Untitled" },
+            title.ifBlank { tr("Untitled") },
             style = if (level == 0) MaterialTheme.typography.titleSmall else MaterialTheme.typography.bodyMedium,
             fontWeight = if (current) FontWeight.SemiBold else null,
             modifier = Modifier.weight(1f),
@@ -999,7 +1000,7 @@ private fun BookmarkRow(b: ReaderPosition, onOpen: () -> Unit, onDelete: () -> U
         Spacer(Modifier.width(14.dp))
         Column(Modifier.weight(1f)) {
             Text(
-                "${b.chapterTitle.ifBlank { "Bookmark" }} · ${(b.bookProgress * 100).roundToInt()}%",
+                "${b.chapterTitle.ifBlank { tr("Bookmark") }} · ${(b.bookProgress * 100).roundToInt()}%",
                 style = MaterialTheme.typography.titleSmall,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -1008,7 +1009,7 @@ private fun BookmarkRow(b: ReaderPosition, onOpen: () -> Unit, onDelete: () -> U
                 Text(b.snippet, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
         }
-        IconButton(onClick = onDelete) { Icon(Icons.Outlined.Delete, "Remove bookmark") }
+        IconButton(onClick = onDelete) { Icon(Icons.Outlined.Delete, tr("Remove bookmark")) }
     }
 }
 
@@ -1029,15 +1030,15 @@ private fun SearchPanel(controller: ReaderController, wide: Boolean, onPicked: (
     }
     Column(Modifier.fillMaxSize().padding(top = if (wide) 12.dp else 0.dp)) {
         if (!wide) {
-            DrawerHeader("Search", subtitle = controller.bookTitle, onClose = onClose)
+            DrawerHeader(tr("Search"), subtitle = controller.bookTitle, onClose = onClose)
             Spacer(Modifier.height(6.dp))
         }
         OutlinedTextField(
             value = query,
             onValueChange = { query = it },
-            placeholder = { Text("Search in book") },
+            placeholder = { Text(tr("Search in book")) },
             leadingIcon = { Icon(Icons.Filled.Search, null) },
-            trailingIcon = { if (query.isNotEmpty()) IconButton(onClick = { query = ""; hits = emptyList() }) { Icon(Icons.Filled.Close, "Clear") } },
+            trailingIcon = { if (query.isNotEmpty()) IconButton(onClick = { query = ""; hits = emptyList() }) { Icon(Icons.Filled.Close, tr("Clear")) } },
             singleLine = true,
             keyboardActions = androidx.compose.foundation.text.KeyboardActions(onSearch = { run() }),
             keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(imeAction = androidx.compose.ui.text.input.ImeAction.Search),
@@ -1052,11 +1053,11 @@ private fun SearchPanel(controller: ReaderController, wide: Boolean, onPicked: (
         }
         Text(
             when {
-                searching -> "Searching…"
-                query.isBlank() -> "Type a word or phrase to find it in the book."
-                hits.isEmpty() -> "No matches found."
-                hits.size >= 2000 -> "Showing the first 2,000 matches"
-                else -> "${hits.size} match${if (hits.size == 1) "" else "es"}"
+                searching -> tr("Searching…")
+                query.isBlank() -> tr("Type a word or phrase to find it in the book.")
+                hits.isEmpty() -> tr("No matches found.")
+                hits.size >= 2000 -> tr("Showing the first 2,000 matches")
+                else -> if (hits.size == 1) tr("1 match") else tr("{0} matches", hits.size)
             },
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -1096,11 +1097,11 @@ internal fun HitRow(hit: ReaderHit, onClick: () -> Unit) {
 
 /** The reading settings, in groups: a tab for each. */
 internal enum class LookTab(val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector) {
-    TEXT("Text", Icons.Outlined.TextFields),
-    PAGE("Page", Icons.Outlined.Palette),
-    LAYOUT("Layout", Icons.Outlined.AutoStories),
-    CONTROLS("Controls", Icons.Outlined.TouchApp),
-    AUTOSCROLL("Autoscroll", Icons.Outlined.Speed),
+    TEXT(tr("Text"), Icons.Outlined.TextFields),
+    PAGE(tr("Page"), Icons.Outlined.Palette),
+    LAYOUT(tr("Layout"), Icons.Outlined.AutoStories),
+    CONTROLS(tr("Controls"), Icons.Outlined.TouchApp),
+    AUTOSCROLL(dev.kobolibrary.app.trc("tab", "Autoscroll"), Icons.Outlined.Speed),
 }
 
 @Composable
@@ -1121,18 +1122,17 @@ private fun LookPanel(s: ReaderSettings, onChange: (ReaderSettings) -> Unit, tab
                         unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.height(48.dp),
                     ) {
-                        Text(
+                        FittedText(
                             t.label,
-                            maxLines = 1,
-                            softWrap = false,
                             style = MaterialTheme.typography.labelLarge.copy(letterSpacing = 0.sp),
                             modifier = Modifier.padding(horizontal = 2.dp),
+                            textAlign = TextAlign.Center,
                         )
                     }
                 }
             }
         } else {
-            DrawerHeader("Reading settings", onClose = onClose)
+            DrawerHeader(tr("Reading settings"), onClose = onClose)
             DrawerTabs(tabs.map { DrawerTab(it.label, it.icon) }, pager)
         }
         // Swipe left or right for the next tab; each starts at its top.
@@ -1180,18 +1180,18 @@ private fun Help(text: String) {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun TextSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) {
-    Heading("Font", first = true)
+    Heading(tr("Font"), first = true)
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp)) {
         ReaderFont.entries.forEach { f ->
             FilterChip(selected = s.font == f, onClick = { onChange(s.copy(font = f)) }, label = { Text(f.label) })
         }
     }
 
-    Heading("Text size")
+    Heading(tr("Text size"))
     val scales = ReaderSettings.FONT_SCALES
     val at = scales.indexOfFirst { it >= s.fontScale - 0.001f }.let { if (it < 0) scales.size - 1 else it }
     Row(verticalAlignment = Alignment.CenterVertically) {
-        IconButton(onClick = { onChange(s.copy(fontScale = scales[(at - 1).coerceAtLeast(0)])) }, enabled = at > 0) { Icon(Icons.Outlined.Remove, "Smaller") }
+        IconButton(onClick = { onChange(s.copy(fontScale = scales[(at - 1).coerceAtLeast(0)])) }, enabled = at > 0) { Icon(Icons.Outlined.Remove, tr("Smaller")) }
         Slider(
             value = at.toFloat(),
             onValueChange = { onChange(s.copy(fontScale = scales[it.roundToInt().coerceIn(0, scales.size - 1)])) },
@@ -1199,40 +1199,40 @@ private fun TextSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) 
             steps = scales.size - 2,
             modifier = Modifier.weight(1f),
         )
-        IconButton(onClick = { onChange(s.copy(fontScale = scales[(at + 1).coerceAtMost(scales.size - 1)])) }, enabled = at < scales.size - 1) { Icon(Icons.Outlined.Add, "Bigger") }
+        IconButton(onClick = { onChange(s.copy(fontScale = scales[(at + 1).coerceAtMost(scales.size - 1)])) }, enabled = at < scales.size - 1) { Icon(Icons.Outlined.Add, tr("Bigger")) }
         Text("${(s.fontScale * 100).roundToInt()}%", style = MaterialTheme.typography.labelLarge, modifier = Modifier.width(48.dp), textAlign = TextAlign.End)
     }
 
-    Heading("Line spacing")
+    Heading(tr("Line spacing"))
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp)) {
         ReaderSettings.LINE_SPACINGS.forEach { v ->
             FilterChip(
                 selected = s.lineSpacing == v,
                 onClick = { onChange(s.copy(lineSpacing = v)) },
-                label = { Text(if (v == 0f) "Book default" else "%.1f".format(v)) },
+                label = { Text(if (v == 0f) tr("Book default") else "%.1f".format(v)) },
             )
         }
     }
 
-    Heading("Margins")
+    Heading(tr("Margins"))
     Choices(ReaderMargins.entries, s.margins, { it.label }) { onChange(s.copy(margins = it)) }
 
-    Heading("Alignment")
+    Heading(tr("Alignment"))
     Choices(ReaderAlign.entries, s.align, { it.label }) { onChange(s.copy(align = it)) }
 
-    Heading("Hyphens at line ends")
+    Heading(tr("Hyphens at line ends"))
     Choices(ReaderHyphens.entries, s.hyphens, { it.label }) { onChange(s.copy(hyphens = it)) }
 
     Spacer(Modifier.height(14.dp))
     TextButton(onClick = {
         onChange(s.copy(font = ReaderFont.BOOK, fontScale = 1f, lineSpacing = 0f, margins = ReaderMargins.MEDIUM, align = ReaderAlign.BOOK, hyphens = ReaderHyphens.BOOK))
-    }) { Text("Reset to book defaults") }
+    }) { Text(tr("Reset to book defaults")) }
 }
 
 /** The page's colour and brightness, its pictures, and what shows around it. */
 @Composable
 private fun PageSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) {
-    Heading("Page colour", first = true)
+    Heading(tr("Page colour"), first = true)
     Spacer(Modifier.height(10.dp))
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         ReaderTheme.entries.forEach { t ->
@@ -1246,14 +1246,14 @@ private fun PageSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) 
                         .clickable { onChange(s.copy(theme = t)) },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text("Aa", color = Color(t.fg), style = MaterialTheme.typography.labelLarge)
+                    Text(tr("Aa"), color = Color(t.fg), style = MaterialTheme.typography.labelLarge)
                 }
                 Text(t.label, style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(top = 4.dp))
             }
         }
     }
 
-    Heading("Brightness")
+    Heading(tr("Brightness"))
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(Icons.Outlined.BrightnessLow, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         Slider(
@@ -1265,35 +1265,38 @@ private fun PageSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) 
         )
         Icon(Icons.Outlined.BrightnessHigh, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
     }
-    Help("Slide all the way left to go darker than the screen's lowest setting. You can also swipe up or down the left edge of the page.")
-    SwitchRow("Use the system brightness", s.level == null) { system ->
+    Help(tr("Slide all the way left to go darker than the screen's lowest setting. You can also swipe up or down the left edge of the page."))
+    SwitchRow(tr("Use the system brightness"), s.level == null) { system ->
         onChange(if (system) s.copy(brightness = -1f, dim = 0f) else s.copy(brightness = 0.5f, dim = 0f))
     }
 
-    Heading("Match pictures to the page colour")
+    Heading(tr("Match pictures to the page colour"))
     Choices(PictureBlend.entries, s.pictures, { it.label }) { onChange(s.copy(pictures = it)) }
     Help(s.pictures.help)
 
-    Heading("Page headings")
+    Heading(tr("Page headings"))
     Choices(RunningHeads.entries, s.runningHeads, { it.label }) { onChange(s.withHeads(it)) }
     Help(
-        if (s.runningHeads == RunningHeads.OFF) "Choose where the page number and titles go, below."
-        else "The page number in the corner, the book title on left pages and the chapter title on right pages, like a printed book." +
-            if (s.scrolling) " Only shown when turning pages." else ""
+        if (s.runningHeads == RunningHeads.OFF) tr("Choose where the page number and titles go, below.")
+        else tr("The page number in the corner, the book title on left pages and the chapter title on right pages, like a printed book.") +
+            if (s.scrolling) tr(" Only shown when turning pages.") else ""
     )
     if (s.runningHeads != RunningHeads.OFF) {
-        Heading("Title position")
+        Heading(tr("Title position"))
         Choices(HeadTitlePlace.entries, s.headTitlePlace, { it.label }) { onChange(s.copy(headTitlePlace = it)) }
     }
 
-    Heading("Omnibus title")
+    Heading(tr("Omnibus title"))
     Choices(CollectionTitle.entries, s.collectionTitle, { it.label }) { onChange(s.copy(collectionTitle = it)) }
-    Help("In a book that holds several books, show the title of the one you're reading, or of the whole omnibus.")
+    Help(tr("In a book that holds several books, show the title of the one you're reading, or of the whole omnibus."))
 
-    Heading("Info around the page")
+    Heading(tr("Info around the page"))
     Help(
-        "Choose what to show around the text. Tap a position to change it." +
-            if (s.runningHeads != RunningHeads.OFF) " Page headings use the ${if (s.runningHeads.top) "top" else "bottom"}." else ""
+        tr("Choose what to show around the text. Tap a position to change it.") + when {
+            s.runningHeads == RunningHeads.OFF -> ""
+            s.runningHeads.top -> tr(" The top is taken by the page headings.")
+            else -> tr(" The bottom is taken by the page headings.")
+        }
     )
     Spacer(Modifier.height(8.dp))
     MarginPreview(s)
@@ -1305,83 +1308,83 @@ private fun PageSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) 
         }
     }
 
-    Heading("Progress bar at the bottom")
+    Heading(tr("Progress bar at the bottom"))
     Choices(ProgressLine.entries, s.progressLine, { it.label }) { onChange(s.copy(progressLine = it)) }
-    Help("Shows how much of the book or chapter you've read.")
+    Help(tr("Shows how much of the book or chapter you've read."))
 
-    Heading("Bar colour")
+    Heading(tr("Bar colour"))
     Choices(BarShade.entries, s.barShade, { it.label }) { onChange(s.copy(barShade = it)) }
-    Help("Dimmed helps prevent burn-in on OLED screens. Autoscroll's timer bar uses the same colour.")
+    Help(tr("Dimmed helps prevent burn-in on OLED screens. Autoscroll's timer bar uses the same colour."))
 }
 
 /** Pages or scrolling, and how pages turn. */
 @Composable
 private fun LayoutSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) {
-    Heading("Reading mode", first = true)
+    Heading(tr("Reading mode"), first = true)
     Choices(ReaderFlow.entries, s.flow, { it.label }) { onChange(s.copy(flow = it)) }
     Help(
-        if (s.scrolling) "Scroll down through each chapter. At the end, tap Next chapter or keep pulling up."
-        else "Turn pages, like a printed book."
+        if (s.scrolling) tr("Scroll down through each chapter. At the end, tap Next chapter or keep pulling up.")
+        else tr("Turn pages, like a printed book.")
     )
 
     if (!s.scrolling) {
-        Heading("Pages side by side")
+        Heading(tr("Pages side by side"))
         Choices(ReaderSpread.entries, s.spread, { it.label }) { onChange(s.copy(spread = it)) }
 
-        Heading("Page turn effect")
+        Heading(tr("Page turn effect"))
         Choices(PageTurn.entries, s.pageTurn, { it.label }) { onChange(s.copy(pageTurn = it)) }
     }
 
-    Heading("Chapter title pages")
-    SwitchRow("Show them with their chapter", s.joinOpenings) { onChange(s.copy(joinOpenings = it)) }
-    Help("Some books put a chapter's number or picture on a page of its own. This shows it at the top of the chapter instead.")
+    Heading(tr("Chapter title pages"))
+    SwitchRow(tr("Show them with their chapter"), s.joinOpenings) { onChange(s.copy(joinOpenings = it)) }
+    Help(tr("Some books put a chapter's number or picture on a page of its own. This shows it at the top of the chapter instead."))
 }
 
 /** Taps, buttons, the screen, and looking words up. */
 @Composable
 private fun ControlSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) {
-    Heading("Tap to turn pages", first = true)
+    Heading(tr("Tap to turn pages"), first = true)
     RadioChoices(TapZones.entries, s.taps, { it.label }) { onChange(s.copy(taps = it)) }
-    Help(listOf(s.taps.help, "Tap the middle of the page to open the menu.").filter { it.isNotEmpty() }.joinToString(" "))
+    Help(listOf(s.taps.help, tr("Tap the middle of the page to open the menu.")).filter { it.isNotEmpty() }.joinToString(" "))
     if (s.taps != TapZones.OFF) {
-        Heading("Size of the tap areas at the edges")
+        Heading(tr("Size of the tap areas at the edges"))
         Choices(TapWidth.entries, s.tapWidth, { it.label }) { onChange(s.copy(tapWidth = it)) }
     }
 
     Spacer(Modifier.height(10.dp))
-    SwitchRow("Volume buttons turn pages", s.volumeKeys) { onChange(s.copy(volumeKeys = it)) }
-    SwitchRow("Keep the screen on while reading", s.keepScreenOn) { onChange(s.copy(keepScreenOn = it)) }
-    SwitchRow("Swipe in from the sides to open panels", s.edgePanels) { onChange(s.copy(edgePanels = it)) }
+    SwitchRow(tr("Volume buttons turn pages"), s.volumeKeys) { onChange(s.copy(volumeKeys = it)) }
+    SwitchRow(tr("Keep the screen on while reading"), s.keepScreenOn) { onChange(s.copy(keepScreenOn = it)) }
+    SwitchRow(tr("Swipe in from the sides to open panels"), s.edgePanels) { onChange(s.copy(edgePanels = it)) }
     Help(
-        if (s.edgePanels) "Swipe in from the left for the contents, or from the right for reading settings. Turn this off to use the sides for going back."
-        else "The sides are for going back. The contents and reading settings are in the menu: tap the middle of the page."
+        if (s.edgePanels) tr("Swipe in from the left for the contents, or from the right for reading settings. Turn this off to use the sides for going back.")
+        else tr("The sides are for going back. The contents and reading settings are in the menu: tap the middle of the page.")
     )
     if (!s.edgePanels) {
-        SwitchRow("KoLib's own back swipe", s.edgeBack) { onChange(s.copy(edgeBack = it)) }
+        SwitchRow(tr("KoLib's own back swipe"), s.edgeBack) { onChange(s.copy(edgeBack = it)) }
         Help(
-            if (s.edgeBack) "Swipe in from either side to go back, with an arrow in the app's colours. Let go once the arrow fills in."
-            else "Android's own back swipe is used."
+            if (s.edgeBack) tr("Swipe in from either side to go back, with an arrow in the app's colours. Let go once the arrow fills in.")
+            else tr("Android's own back swipe is used.")
         )
     }
 
-    Heading("Screen rotation")
+    Heading(tr("Screen rotation"))
     Choices(ReaderRotation.entries, s.rotation, { it.label }) { onChange(s.copy(rotation = it)) }
     Help(s.rotation.help)
 
-    Heading("Looking up words")
+    Heading(tr("Looking up words"))
     val key = s.dictionary
     if (key == null) {
-        Help("When you look up a word, you'll be asked which app to use.")
+        Help(tr("When you look up a word, you'll be asked which app to use."))
     } else {
         val context = LocalContext.current
         val app = remember(key) { dev.kobolibrary.app.reader.LookUp.app(context, key) }
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                if (app != null) "Words are looked up in ${app.label}." else "The app you chose for looking up words isn't installed now.",
+                if (app != null) tr("Words are looked up in {0}.", app.label) else tr("The app you chose for looking up words isn't installed now."),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f),
             )
-            TextButton(onClick = { onChange(s.copy(dictionary = null)) }) { Text("Ask each time") }
+            TextButton(onClick = { onChange(s.copy(dictionary = null)) }) { Text(tr("Ask each time")) }
         }
     }
 }
@@ -1390,15 +1393,15 @@ private fun ControlSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Uni
 @Composable
 private fun AutoscrollSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) {
     Help(
-        (if (s.scrolling) "Scrolls the page for you at your reading speed." else "Turns the page for you at your reading speed.") +
-            " To start: tap the middle of the page, then tap Autoscroll."
+        (if (s.scrolling) tr("Scrolls the page for you at your reading speed.") else tr("Turns the page for you at your reading speed.")) +
+            tr(" To start: tap the middle of the page, then tap Autoscroll.")
     )
-    Heading("Speed")
+    Heading(tr("Speed"))
     Row(verticalAlignment = Alignment.CenterVertically) {
         IconButton(
             onClick = { onChange(s.copy(autoWpm = (s.autoWpm - 10).coerceAtLeast(ReaderSettings.MIN_WPM))) },
             enabled = s.autoWpm > ReaderSettings.MIN_WPM,
-        ) { Icon(Icons.Outlined.Remove, "Slower") }
+        ) { Icon(Icons.Outlined.Remove, tr("Slower")) }
         Slider(
             value = s.autoWpm.toFloat(),
             onValueChange = { onChange(s.copy(autoWpm = ((it / 10f).roundToInt() * 10).coerceIn(ReaderSettings.MIN_WPM, ReaderSettings.MAX_WPM))) },
@@ -1408,17 +1411,17 @@ private fun AutoscrollSettings(s: ReaderSettings, onChange: (ReaderSettings) -> 
         IconButton(
             onClick = { onChange(s.copy(autoWpm = (s.autoWpm + 10).coerceAtMost(ReaderSettings.MAX_WPM))) },
             enabled = s.autoWpm < ReaderSettings.MAX_WPM,
-        ) { Icon(Icons.Outlined.Add, "Faster") }
+        ) { Icon(Icons.Outlined.Add, tr("Faster")) }
     }
-    Text("${s.autoWpm} words per minute", style = MaterialTheme.typography.bodyMedium)
-    Help("Most people read 200 to 300 words per minute.")
+    Text(tr("{0} words per minute", s.autoWpm), style = MaterialTheme.typography.bodyMedium)
+    Help(tr("Most people read 200 to 300 words per minute."))
 
-    Heading("At the end of a chapter")
+    Heading(tr("At the end of a chapter"))
     RadioChoices(AutoEnd.entries, s.autoEnd, { it.label }) { onChange(s.copy(autoEnd = it)) }
 
-    Heading("When you touch the page")
+    Heading(tr("When you touch the page"))
     RadioChoices(AutoResume.entries, s.autoResume, { it.label }) { onChange(s.copy(autoResume = it)) }
-    Help("Opening the menu always pauses it until you close the menu.")
+    Help(tr("Opening the menu always pauses it until you close the menu."))
 }
 
 @Composable
@@ -1430,7 +1433,7 @@ private fun <T> Choices(options: List<T>, selected: T, label: (T) -> String, onP
                 onClick = { onPick(o) },
                 shape = SegmentedButtonDefaults.itemShape(i, options.size),
                 icon = {},
-            ) { Text(label(o), maxLines = 1, style = MaterialTheme.typography.labelMedium) }
+            ) { FittedText(label(o), style = MaterialTheme.typography.labelMedium, smallest = 0.7f) }
         }
     }
 }
@@ -1474,12 +1477,12 @@ private fun NoteSheet(html: String, onClose: () -> Unit, onGoTo: () -> Unit) {
             modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().heightIn(max = 420.dp),
         ) {
             Column(Modifier.navigationBarsPadding().padding(horizontal = 24.dp, vertical = 16.dp)) {
-                Text("Note", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+                Text(tr("Note"), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
                 Spacer(Modifier.height(8.dp))
                 Text(text, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()))
                 Row(Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.End) {
-                    TextButton(onClick = onGoTo) { Text("Go to the note") }
-                    TextButton(onClick = onClose) { Text("Close") }
+                    TextButton(onClick = onGoTo) { Text(tr("Go to the note")) }
+                    TextButton(onClick = onClose) { Text(tr("Close")) }
                 }
             }
         }
@@ -1515,10 +1518,10 @@ private fun ImageViewer(controller: ReaderController, src: String, onClose: () -
                     .graphicsLayer(scaleX = scale, scaleY = scale, translationX = offset.x, translationY = offset.y),
             )
         } else {
-            Text("This picture can't be shown.", color = Color.White, modifier = Modifier.align(Alignment.Center))
+            Text(tr("This picture can't be shown."), color = Color.White, modifier = Modifier.align(Alignment.Center))
         }
         IconButton(onClick = onClose, modifier = Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(8.dp)) {
-            Icon(Icons.Filled.Close, "Close picture", tint = Color.White)
+            Icon(Icons.Filled.Close, tr("Close picture"), tint = Color.White)
         }
     }
 }
@@ -1548,13 +1551,13 @@ private sealed interface MarginPiece {
 private fun marginPiece(item: MarginItem, c: ReaderController, time: String, battery: Pair<Int, Boolean>?): MarginPiece? = when (item) {
     MarginItem.BOOK -> MarginPiece.Words(c.headBookTitle, stretch = true)
     MarginItem.CHAPTER -> c.chapterTitle.takeIf { it.isNotBlank() }?.let { MarginPiece.Words(it, stretch = true) }
-    MarginItem.PAGE -> if (c.chapterPages > 1) MarginPiece.Words("${c.pagesLabel(c.firstShown + 1, c.lastShown + 1)} of ${c.chapterPages}") else null
-    MarginItem.BOOK_PAGE -> c.bookPage?.let { n -> c.bookPages?.let { MarginPiece.Words("${c.pagesLabel(n, c.bookPageLast)} of ${it.total}") } }
+    MarginItem.PAGE -> if (c.chapterPages > 1) MarginPiece.Words(tr("{0} of {1}", c.pagesLabel(c.firstShown + 1, c.lastShown + 1), c.chapterPages)) else null
+    MarginItem.BOOK_PAGE -> c.bookPage?.let { n -> c.bookPages?.let { MarginPiece.Words(tr("{0} of {1}", c.pagesLabel(n, c.bookPageLast), it.total)) } }
     MarginItem.PAGES_LEFT -> if (c.chapterPages > 1) (c.chapterPages - c.lastShown - 1).let { n ->
-        MarginPiece.Words(when (n) { 0 -> "Last page in chapter"; 1 -> "1 page left"; else -> "$n pages left" })
+        MarginPiece.Words(when (n) { 0 -> tr("Last page in chapter"); 1 -> tr("1 page left"); else -> tr("{0} pages left", n) })
     } else null
     MarginItem.TIME_LEFT -> if (c.chapterWordsKnown) c.minutesLeftInChapter.let { m ->
-        MarginPiece.Words(if (m < 1) "Under a minute left" else "$m min left in chapter")
+        MarginPiece.Words(if (m < 1) tr("Under a minute left") else tr("{0} min left in chapter", m))
     } else null
     MarginItem.CLOCK -> MarginPiece.Words(time)
     MarginItem.BATTERY -> battery?.let { MarginPiece.Battery(it.first, it.second) }
@@ -1624,7 +1627,7 @@ private fun BoxWithConstraintsScope.Margins(controller: ReaderController, s: Rea
                             pct >= 8 -> Icons.Outlined.Battery1Bar
                             else -> Icons.Outlined.Battery0Bar
                         }
-                        Icon(icon, "Battery", tint = color, modifier = Modifier.size(14.dp).rotate(90f))
+                        Icon(icon, tr("Battery"), tint = color, modifier = Modifier.size(14.dp).rotate(90f))
                         Spacer(Modifier.width(3.dp))
                         Text("$pct%", color = color, style = style)
                     }
@@ -1791,7 +1794,7 @@ private fun MarginPreview(s: ReaderSettings) {
                     .padding(top = if (s.runningHeads.top) 7.dp else 0.dp, bottom = if (s.runningHeads.top) 0.dp else if (bar) 8.dp else 5.dp),
                 horizontalArrangement = Arrangement.spacedBy(28.dp),
             ) {
-                listOf(Triple("44", "The Eye of the World", true), Triple("45", "The Hook", false)).forEach { (n, t, left) ->
+                listOf(Triple("44", tr("The Eye of the World"), true), Triple("45", tr("The Hook"), false)).forEach { (n, t, left) ->
                     Box(Modifier.weight(1f).height(12.dp)) {
                         Text(n, style = numberStyle, color = ink.copy(alpha = 0.7f), modifier = Modifier.align(if (left) Alignment.CenterStart else Alignment.CenterEnd))
                         HeadTitleLine(

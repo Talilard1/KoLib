@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.reader
 
+import dev.kobolibrary.app.tr
 import android.content.Context
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -8,16 +9,16 @@ import org.json.JSONObject
 
 /** Page colours. Tinted and dark ones recolour the book's text too, so it stays readable. */
 enum class ReaderTheme(val label: String, val bg: Long, val fg: Long, val link: Long, val recolor: Boolean, val dark: Boolean) {
-    PAPER("Paper", 0xFFFBF8F1, 0xFF1F1C18, 0xFF1D4F91, false, false),
-    WHITE("White", 0xFFFFFFFF, 0xFF141414, 0xFF1A4FA0, false, false),
-    SEPIA("Sepia", 0xFFF2E6CE, 0xFF3A2D1F, 0xFF7A4A12, true, false),
-    SLATE("Slate", 0xFF3B3D41, 0xFFE6E3DE, 0xFFA9C8FF, true, true),
-    NIGHT("Night", 0xFF1E1D1B, 0xFFD8D2C8, 0xFF94B6EE, true, true),
-    BLACK("Black", 0xFF000000, 0xFFC4C0B8, 0xFF8FB0E6, true, true),
+    PAPER(tr("Paper"), 0xFFFBF8F1, 0xFF1F1C18, 0xFF1D4F91, false, false),
+    WHITE(tr("White"), 0xFFFFFFFF, 0xFF141414, 0xFF1A4FA0, false, false),
+    SEPIA(tr("Sepia"), 0xFFF2E6CE, 0xFF3A2D1F, 0xFF7A4A12, true, false),
+    SLATE(tr("Slate"), 0xFF3B3D41, 0xFFE6E3DE, 0xFFA9C8FF, true, true),
+    NIGHT(tr("Night"), 0xFF1E1D1B, 0xFFD8D2C8, 0xFF94B6EE, true, true),
+    BLACK(tr("Black"), 0xFF000000, 0xFFC4C0B8, 0xFF8FB0E6, true, true),
 }
 
 enum class ReaderFont(val label: String, val css: String) {
-    BOOK("Book default", ""),
+    BOOK(tr("Book default"), ""),
     LITERATA("Literata", "'Literata', serif"),
     GARAMOND("Garamond", "'EB Garamond', serif"),
     SERIF("Noto Serif", "'Noto Serif', serif"),
@@ -27,63 +28,63 @@ enum class ReaderFont(val label: String, val css: String) {
 }
 
 enum class ReaderMargins(val label: String, val fraction: Float) {
-    NARROW("Narrow", 0.035f),
-    MEDIUM("Medium", 0.065f),
-    WIDE("Wide", 0.11f),
+    NARROW(tr("Narrow"), 0.035f),
+    MEDIUM(tr("Medium"), 0.065f),
+    WIDE(tr("Wide"), 0.11f),
 }
 
 enum class ReaderAlign(val label: String, val js: String) {
-    BOOK("Book default", "book"),
-    LEFT("Left", "left"),
-    JUSTIFY("Justified", "justify"),
+    BOOK(tr("Book default"), "book"),
+    LEFT(tr("Left"), "left"),
+    JUSTIFY(tr("Justified"), "justify"),
 }
 
 enum class ReaderHyphens(val label: String, val js: String) {
-    BOOK("Book default", "book"),
-    ON("On", "on"),
-    OFF("Off", "off"),
+    BOOK(tr("Book default"), "book"),
+    ON(tr("On"), "on"),
+    OFF(tr("Off"), "off"),
 }
 
 enum class ReaderSpread(val label: String, val columns: Int) {
-    AUTO("Two in landscape", 0),
-    ONE("Always one", 1),
-    TWO("Always two", 2),
+    AUTO(tr("Two in landscape"), 0),
+    ONE(tr("Always one"), 1),
+    TWO(tr("Always two"), 2),
 }
 
 /** Which way the screen faces while reading. */
 enum class ReaderRotation(val label: String, val help: String) {
-    AUTO("Automatic", "Turns with the device."),
-    PORTRAIT("Portrait", "Always upright, however you hold the device."),
-    LANDSCAPE("Landscape", "Always sideways, however you hold the device."),
+    AUTO(tr("Automatic"), tr("Turns with the device.")),
+    PORTRAIT(tr("Portrait"), tr("Always upright, however you hold the device.")),
+    LANDSCAPE(tr("Landscape"), tr("Always sideways, however you hold the device.")),
 }
 
 /** What taps on the page do. The middle always brings up the controls. */
 enum class TapZones(val label: String, val js: String, val help: String) {
-    SIDES("Left goes back, right goes forward", "sides", ""),
-    FORWARD("Both sides go forward", "forward", "Handy for reading with one hand. Swipe right to go back."),
-    TOP_BOTTOM("Top goes back, bottom goes forward", "topbottom", "The left and right sides work too."),
-    OFF("Off", "none", "Swipe, or use the volume buttons, to turn pages."),
+    SIDES(tr("Left goes back, right goes forward"), "sides", ""),
+    FORWARD(tr("Both sides go forward"), "forward", tr("Handy for reading with one hand. Swipe right to go back.")),
+    TOP_BOTTOM(tr("Top goes back, bottom goes forward"), "topbottom", tr("The left and right sides work too.")),
+    OFF(tr("Off"), "none", tr("Swipe, or use the volume buttons, to turn pages.")),
 }
 
 /** How far in from the screen's edges a tap turns the page. */
 enum class TapWidth(val label: String, val fraction: Float) {
-    NARROW("Small", 0.12f),
-    MEDIUM("Medium", 0.2f),
-    WIDE("Large", 0.28f),
+    NARROW(tr("Small"), 0.12f),
+    MEDIUM(tr("Medium"), 0.2f),
+    WIDE(tr("Large"), 0.28f),
 }
 
 /** What's done with pictures so they sit on the page's colour rather than in a white box. */
 enum class PictureBlend(val label: String, val js: String, val help: String) {
-    OFF("Off", "off", "Pictures look the same as in the book."),
-    ORNAMENTS("Decorations", "ornaments", "Black-and-white decorations and charts take the page colour. On dark pages they turn light. Framed pictures keep their white background."),
-    ALL("All pictures", "all", "Every picture takes the page colour. On dark pages, photos look like negatives."),
+    OFF(tr("Off"), "off", tr("Pictures look the same as in the book.")),
+    ORNAMENTS(tr("Decorations"), "ornaments", tr("Black-and-white decorations and charts take the page colour. On dark pages they turn light. Framed pictures keep their white background.")),
+    ALL(tr("All pictures"), "all", tr("Every picture takes the page colour. On dark pages, photos look like negatives.")),
 }
 
 /** The thin line along the foot of the page that grows as you read, as a Kobo has. */
 enum class ProgressLine(val label: String) {
-    BOOK("Book"),
-    CHAPTER("Chapter"),
-    OFF("Off"),
+    BOOK(tr("Book")),
+    CHAPTER(tr("Chapter")),
+    OFF(tr("Off")),
 }
 
 /**
@@ -91,52 +92,52 @@ enum class ProgressLine(val label: String) {
  * the page's, which wears an OLED screen less where the bar always is.
  */
 enum class BarShade(val label: String, val strength: Float) {
-    TEXT("Same as text", 1f),
-    DIM("Dimmed", 0.35f),
+    TEXT(tr("Same as text"), 1f),
+    DIM(tr("Dimmed"), 0.35f),
 }
 
 /** How a chapter is laid out: as pages to turn, or as one long page to scroll down. */
 enum class ReaderFlow(val label: String, val js: String) {
-    PAGES("Pages", "pages"),
-    SCROLL("Scrolling", "scroll"),
+    PAGES(dev.kobolibrary.app.trc("reading mode", "Pages"), "pages"),
+    SCROLL(tr("Scrolling"), "scroll"),
 }
 
 /** What autoscroll does when it gets to the end of a chapter. */
 enum class AutoEnd(val label: String, val seconds: Int) {
-    GO_ON("Go straight to the next chapter", 0),
-    WAIT("Wait 3 seconds, then continue", 3),
-    WAIT_LONG("Wait 10 seconds, then continue", 10),
-    STOP("Stop", -1),
+    GO_ON(tr("Go straight to the next chapter"), 0),
+    WAIT(tr("Wait 3 seconds, then continue"), 3),
+    WAIT_LONG(tr("Wait 10 seconds, then continue"), 10),
+    STOP(tr("Stop"), -1),
 }
 
 /** What autoscroll does after you touch the page (opening the controls or a menu always pauses it). */
 enum class AutoResume(val label: String, val seconds: Int) {
-    KEEP_GOING("Keep going", 0),
-    SOON("Pause for 2 seconds", 2),
-    LATER("Pause for 5 seconds", 5),
-    STOP("Stop", -1),
+    KEEP_GOING(tr("Keep going"), 0),
+    SOON(tr("Pause for 2 seconds"), 2),
+    LATER(tr("Pause for 5 seconds"), 5),
+    STOP(tr("Stop"), -1),
 }
 
 /** How a page turns. Curl and Fade are drawn by the app over the page; Slide is the page itself moving. */
 enum class PageTurn(val label: String, val js: String) {
-    SLIDE("Slide", "slide"),
-    CURL("Curl", "curl"),
+    SLIDE(tr("Slide"), "slide"),
+    CURL(tr("Curl"), "curl"),
     /** The new page swept in from the top corner, across to the opposite one. */
-    SWEEP("Sweep", "sweep"),
-    FADE("Fade", "fade"),
+    SWEEP(tr("Sweep"), "sweep"),
+    FADE(tr("Fade"), "fade"),
     /** Stored under its old name. */
-    INSTANT("Instant", "none"),
+    INSTANT(tr("Instant"), "none"),
 }
 
 /** A place in the page's margins for something to show while reading, or nowhere. */
 enum class MarginSpot(val label: String, val top: Boolean, val align: Int) {
-    OFF("Off", false, 0),
-    TOP_LEFT("Top left", true, -1),
-    TOP_CENTER("Top centre", true, 0),
-    TOP_RIGHT("Top right", true, 1),
-    BOTTOM_LEFT("Bottom left", false, -1),
-    BOTTOM_CENTER("Bottom centre", false, 0),
-    BOTTOM_RIGHT("Bottom right", false, 1);
+    OFF(tr("Off"), false, 0),
+    TOP_LEFT(tr("Top left"), true, -1),
+    TOP_CENTER(tr("Top centre"), true, 0),
+    TOP_RIGHT(tr("Top right"), true, 1),
+    BOTTOM_LEFT(tr("Bottom left"), false, -1),
+    BOTTOM_CENTER(tr("Bottom centre"), false, 0),
+    BOTTOM_RIGHT(tr("Bottom right"), false, 1);
 
     /** The same place at the other end of the page (top for bottom, bottom for top). */
     fun otherEnd(): MarginSpot = when (this) {
@@ -156,35 +157,35 @@ enum class MarginSpot(val label: String, val top: Boolean, val align: Int) {
  * side are a left and a right; one page at a time, even pages are left-hand pages and odd ones right-hand.
  */
 enum class RunningHeads(val label: String, val top: Boolean) {
-    TOP("Top", true),
-    BOTTOM("Bottom", false),
-    OFF("Off", false),
+    TOP(tr("Top"), true),
+    BOTTOM(tr("Bottom"), false),
+    OFF(tr("Off"), false),
 }
 
 /** Where a page heading's title sits: in the middle of its page, or nearer the spine, as some printed books have it. */
 enum class HeadTitlePlace(val label: String) {
-    CENTRED("Centred"),
-    SPINE("Near the spine"),
+    CENTRED(tr("Centred")),
+    SPINE(tr("Near the spine")),
 }
 
 /** In a book that holds several (an omnibus, a box set), the title over left-hand pages and in the margins. */
 enum class CollectionTitle(val label: String) {
-    BOOK("Current book"),
-    COLLECTION("Whole omnibus"),
+    BOOK(tr("Current book")),
+    COLLECTION(tr("Whole omnibus")),
 }
 
 /** What the margins can show while reading, in the order they're shown when they share a place. */
 enum class MarginItem(val label: String, val example: String, val default: MarginSpot) {
-    BOOK("Book title", "The Eye of the World", MarginSpot.OFF),
+    BOOK(tr("Book title"), tr("The Eye of the World"), MarginSpot.OFF),
     // The chapter's title and the page number are in the page headings, which are on to start with.
-    CHAPTER("Chapter title", "1 The Hook", MarginSpot.OFF),
-    PAGE("Page number in chapter", "Page 3 of 12", MarginSpot.OFF),
-    BOOK_PAGE("Page number in book", "Page 45 of 380", MarginSpot.OFF),
-    PAGES_LEFT("Pages left in chapter", "9 pages left", MarginSpot.OFF),
-    TIME_LEFT("Reading time left in chapter", "12 min left", MarginSpot.OFF),
-    CLOCK("Clock", "3:42", MarginSpot.BOTTOM_CENTER),
-    BATTERY("Battery", "70%", MarginSpot.BOTTOM_CENTER),
-    PERCENT("Percent of book read", "34%", MarginSpot.BOTTOM_RIGHT);
+    CHAPTER(tr("Chapter title"), tr("1 The Hook"), MarginSpot.OFF),
+    PAGE(tr("Page number in chapter"), tr("Page 3 of 12"), MarginSpot.OFF),
+    BOOK_PAGE(tr("Page number in book"), tr("Page 45 of 380"), MarginSpot.OFF),
+    PAGES_LEFT(tr("Pages left in chapter"), tr("9 pages left"), MarginSpot.OFF),
+    TIME_LEFT(tr("Reading time left in chapter"), tr("12 min left"), MarginSpot.OFF),
+    CLOCK(tr("Clock"), "3:42", MarginSpot.BOTTOM_CENTER),
+    BATTERY(tr("Battery"), "70%", MarginSpot.BOTTOM_CENTER),
+    PERCENT(tr("Percent of book read"), "34%", MarginSpot.BOTTOM_RIGHT);
 
     companion object {
         val DEFAULTS: Map<MarginItem, MarginSpot> = entries.associateWith { it.default }

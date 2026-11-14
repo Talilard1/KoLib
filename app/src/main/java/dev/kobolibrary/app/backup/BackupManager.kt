@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.backup
 
+import dev.kobolibrary.app.tr
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
@@ -43,7 +44,7 @@ class BackupManager(private val context: Context) {
                 DatabaseBackup(
                     file = f,
                     createdMillis = f.lastModified(),
-                    deviceLabel = sidecar(f, "label")?.readText()?.trim() ?: "Kobo",
+                    deviceLabel = sidecar(f, "label")?.readText()?.trim() ?: tr("Kobo"),
                     hasWal = sidecar(f, "wal") != null || File(f.path + "-wal").exists(),
                 )
             }
@@ -72,7 +73,7 @@ class BackupManager(private val context: Context) {
                     zip.closeEntry()
                 }
             }
-            if (!partial.renameTo(target)) throw IOException("Couldn't finish the backup file")
+            if (!partial.renameTo(target)) throw IOException(tr("Couldn't finish the backup file"))
         } finally {
             partial.delete()
         }
@@ -140,10 +141,10 @@ class BackupManager(private val context: Context) {
             put(MediaStore.Downloads.IS_PENDING, 1)
         }
         val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
-            ?: throw IOException("Android couldn't create $displayName in Downloads")
+            ?: throw IOException(tr("Android couldn't create {0} in Downloads", displayName))
         try {
             resolver.openOutputStream(uri)?.use { out -> source.inputStream().use { it.copyTo(out) } }
-                ?: throw IOException("Could not write $displayName to Downloads")
+                ?: throw IOException(tr("Could not write {0} to Downloads", displayName))
             values.clear()
             values.put(MediaStore.Downloads.IS_PENDING, 0)
             resolver.update(uri, values, null, null)

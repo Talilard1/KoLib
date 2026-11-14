@@ -10,6 +10,8 @@ import java.text.Normalizer
  *  - **Collections**, both ways. Each book remembers the collections both sides last agreed on, so a
  *    difference shows which side changed: added in the app → added on the Kobo, taken out on the Kobo →
  *    taken out in the app, and so on. A book never compared before keeps every collection either side has.
+ *    Books only go into collections the Kobo has: KoLib can't make collections there, so one it doesn't
+ *    have stays in the library ([Plan.missingOnKobo]) and the book goes in once it's made on the Kobo.
  *  - **Details** (title, author, series, description…), one way: for books the app sent and that haven't
  *    been edited since, the Kobo's record is made to match the book. The Kobo reads a book's details only
  *    when it first sees the file, so a book sent again would otherwise keep its old details there.
@@ -43,6 +45,8 @@ object KoboSync {
         val changes: List<BookChange>,
         /** Books the library thinks are on the Kobo that its database doesn't list (new, or deleted there). */
         val notListed: List<LibraryBook>,
+        /** Collections books should go into that the Kobo doesn't have (yet), as the library spells them. */
+        val missingOnKobo: List<String> = emptyList(),
     ) {
         val koboChanges: List<BookChange> get() = changes.filter { it.touchesKobo }
     }
@@ -53,6 +57,8 @@ object KoboSync {
     fun plan(books: List<LibraryBook>, snapshot: KoboSnapshot): Plan {
         val changes = mutableListOf<BookChange>()
         val notListed = mutableListOf<LibraryBook>()
+        val exists = existsOn(snapshot)
+        val missing = LinkedHashMap<String, String>()
         for (book in books) {
             val path = book.koboPath ?: continue
             val contentId = KoboPaths.contentId(path)
@@ -61,7 +67,8 @@ object KoboSync {
                 if (onKobo == null) notListed += book
                 continue
             }
-            val merged = mergeCollections(book.collections, snapshot.collectionsByBook[contentId].orEmpty(), book.koboCollections)
+            val merged = mergeCollections(book.collections, snapshot.collectionsByBook[contentId].orEmpty(), book.koboCollections, exists)
+            merged.missingOnKobo.forEach { missing.putIfAbsent(key(it), it) }
             val details = if (book.sentAt != null && !book.changedSinceOnKobo) detailsFor(book.meta, onKobo) else emptyMap()
             val agreementChanged = book.koboCollections == null || keys(book.koboCollections) != keys(merged.agreed)
             val change = BookChange(
@@ -77,7 +84,13 @@ object KoboSync {
             )
             if (change.touchesKobo || change.touchesLibrary) changes += change
         }
-        return Plan(changes, notListed)
+        return Plan(changes, notListed, missing.values.toList())
+    }
+
+    /** Whether the Kobo has a collection of that name (any case), not counting ones deleted there. */
+    fun existsOn(snapshot: KoboSnapshot): (String) -> Boolean {
+        val names = snapshot.collections.flatMap { listOfNotNull(it.name, it.internalName) }.map(::key).toSet()
+        return { key(it) in names }
     }
 
     /**
@@ -85,14 +98,19 @@ object KoboSync {
      * database doesn't list them): their collections as the library has them. Nothing is recorded as
      * agreed until the Kobo lists the books, so if it didn't keep these, they're simply put in again.
      */
-    fun waitingChanges(waiting: List<LibraryBook>, snapshot: KoboSnapshot): List<BookChange> = waiting.mapNotNull { book ->
-        val contentId = KoboPaths.contentId(book.koboPath ?: return@mapNotNull null)
-        val wanted = book.collections.map { it.trim() }.filter { it.isNotEmpty() && key(it) !in reserved }.distinctBy(::key)
+    fun waitingChanges(waiting: List<LibraryBook>, snapshot: KoboSnapshot): List<BookChange> {
+        val exists = existsOn(snapshot)
+        return waiting.mapNotNull { book -> waitingChange(book, snapshot, exists) }
+    }
+
+    private fun waitingChange(book: LibraryBook, snapshot: KoboSnapshot, exists: (String) -> Boolean): BookChange? {
+        val contentId = KoboPaths.contentId(book.koboPath ?: return null)
+        val wanted = book.collections.map { it.trim() }.filter { it.isNotEmpty() && key(it) !in reserved && exists(it) }.distinctBy(::key)
         val there = snapshot.collectionsByBook[contentId].orEmpty()
         val add = wanted.filter { w -> there.none { key(it) == key(w) } }
         val remove = there.filter { t -> wanted.none { key(it) == key(t) } }
-        if (add.isEmpty() && remove.isEmpty()) return@mapNotNull null
-        BookChange(
+        if (add.isEmpty() && remove.isEmpty()) return null
+        return BookChange(
             bookId = book.id,
             title = book.title,
             contentId = contentId,
@@ -105,14 +123,30 @@ object KoboSync {
         )
     }
 
-    data class Merge(val addOnKobo: List<String>, val removeOnKobo: List<String>, val library: List<String>?, val agreed: List<String>)
+    /** Collections [books] are in (in the library) that the Kobo doesn't have, as the library spells them. */
+    fun missingCollections(books: List<LibraryBook>, snapshot: KoboSnapshot): List<String> {
+        val exists = existsOn(snapshot)
+        return books.flatMap { it.collections }.map { it.trim() }
+            .filter { it.isNotEmpty() && key(it) !in reserved && !exists(it) }
+            .distinctBy(::key)
+    }
+
+    data class Merge(
+        val addOnKobo: List<String>,
+        val removeOnKobo: List<String>,
+        val library: List<String>?,
+        val agreed: List<String>,
+        /** Collections the book should be put in that the Kobo doesn't have. */
+        val missingOnKobo: List<String> = emptyList(),
+    )
 
     /**
      * A three-way merge of one book's collections: [library] and [kobo] now, and [base], what they last
      * agreed on (null if never compared, when nothing is taken out on either side). Names match whatever
-     * their case.
+     * their case. A collection the Kobo doesn't have ([exists] says) stays in the library but isn't put on
+     * the Kobo or counted as agreed, so it goes onto the Kobo the first time it's there.
      */
-    fun mergeCollections(library: List<String>, kobo: List<String>, base: List<String>?): Merge {
+    fun mergeCollections(library: List<String>, kobo: List<String>, base: List<String>?, exists: (String) -> Boolean = { true }): Merge {
         val lib = library.map { it.trim() }.filter { it.isNotEmpty() }.distinctBy(::key)
         val onKobo = kobo.map { it.trim() }.filter { it.isNotEmpty() }.distinctBy(::key)
         val baseKeys = base?.map(::key)?.toSet() ?: emptySet()
@@ -124,12 +158,14 @@ object KoboSync {
         val spelled = LinkedHashMap<String, String>()
         (lib + onKobo + base.orEmpty()).forEach { spelled.putIfAbsent(key(it), it.trim()) }
         val result = spelled.filterKeys { it in resultKeys }.values.toList()
-        val addOnKobo = result.filter { key(it) !in koboKeys && key(it) !in reserved }
+        val wanted = result.filter { key(it) !in koboKeys && key(it) !in reserved }
+        val addOnKobo = wanted.filter(exists)
         val removeOnKobo = onKobo.filter { key(it) !in resultKeys }
         val newLibrary = result.takeIf { r -> r.map(::key) != lib.map(::key) }
-        // A name the Kobo keeps for itself stays in the library but never goes onto the Kobo.
-        val agreed = result.filter { key(it) !in reserved || key(it) in koboKeys }
-        return Merge(addOnKobo, removeOnKobo, newLibrary, agreed)
+        // A name the Kobo keeps for itself, or a collection it doesn't have, stays in the library but
+        // isn't on the Kobo afterwards, so it isn't agreed: next time it's still to be put there.
+        val agreed = result.filter { key(it) in koboKeys || (key(it) !in reserved && exists(it)) }
+        return Merge(addOnKobo, removeOnKobo, newLibrary, agreed, missingOnKobo = wanted.filterNot(exists))
     }
 
     /** The Kobo's record of a book changed to match [meta]: only what differs, column by column. */

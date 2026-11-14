@@ -237,7 +237,7 @@ object PdfConverter {
                     }
                     prevLine = l
                 }
-            } else for (p in 20 until pages.size step 20) cuts += startOf(p, null) to "Pages ${p + 1}–${minOf(p + 20, pages.size)}"
+            } else for (p in 20 until pages.size step 20) cuts += startOf(p, null) to tr("Pages {0}–{1}", p + 1, minOf(p + 20, pages.size))
         }
         val sortedCuts = cuts.distinctBy { it.first }.sortedBy { it.first }
         val firstCut = sortedCuts.firstOrNull()?.first ?: items.size

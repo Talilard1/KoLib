@@ -115,7 +115,7 @@ object Xml {
         var current: XElement? = null
         var i = 0
         val n = source.length
-        if (n > 0 && source[0] == '﻿') i = 1
+        if (n > 0 && source[0] == '\uFEFF') i = 1
 
         fun addChild(node: XNode) {
             current?.children?.add(node)
@@ -203,7 +203,7 @@ object Xml {
         var selfClosing = false
         while (j < n) {
             while (j < n && s[j].isWhitespace()) j++
-            if (j >= n) throw XmlException("Unclosed tag <$name")
+            if (j >= n) throw XmlException(tr("Unclosed tag <{0}>", name))
             val c = s[j]
             if (c == '>') {
                 j++
@@ -224,7 +224,7 @@ object Xml {
                 if (j < n && (s[j] == '"' || s[j] == '\'')) {
                     val q = s[j]
                     val close = s.indexOf(q, j + 1)
-                    if (close < 0) throw XmlException("Unclosed attribute in <$name")
+                    if (close < 0) throw XmlException(tr("Unclosed attribute in <{0}>", name))
                     attrs[attrName] = unescape(s.substring(j + 1, close))
                     j = close + 1
                 } else {

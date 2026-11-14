@@ -75,9 +75,12 @@ fun FolderScanDialog(scan: FolderScan, onAdd: () -> Unit, onChooseAnother: () ->
     )
 }
 
-/** The language KoLib is in: the device's, or another. */
+/**
+ * The language KoLib is in: the device's, or another. KoLib restarts to change it, so it can't be changed
+ * while it's [busy] sending or adding books, or saving to the Kobo.
+ */
 @Composable
-fun LanguageDialog(onDismiss: () -> Unit) {
+fun LanguageDialog(onDismiss: () -> Unit, busy: Boolean = false) {
     val context = LocalContext.current
     val current = remember { AppLanguage.current(context) }
     val device = remember { AppLanguage.deviceLanguage() }
@@ -87,11 +90,19 @@ fun LanguageDialog(onDismiss: () -> Unit) {
         title = { Text(tr("Language")) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()).selectableGroup()) {
+                if (busy) {
+                    Text(
+                        tr("KoLib restarts to change its language, so wait until it has finished sending or adding books."),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(bottom = 8.dp),
+                    )
+                }
                 for (tag in AppLanguage.supported) {
                     val selected = tag == current
                     Row(
                         Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
-                            .selectable(selected = selected, role = Role.RadioButton) {
+                            .selectable(selected = selected, enabled = !busy, role = Role.RadioButton) {
                                 onDismiss()
                                 generateSequence(context) { (it as? android.content.ContextWrapper)?.baseContext }
                                     .filterIsInstance<Activity>().firstOrNull()?.let { AppLanguage.choose(it, tag) }
@@ -99,7 +110,7 @@ fun LanguageDialog(onDismiss: () -> Unit) {
                             .padding(vertical = 8.dp, horizontal = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        RadioButton(selected = selected, onClick = null)
+                        RadioButton(selected = selected, onClick = null, enabled = !busy)
                         Spacer(Modifier.width(12.dp))
                         Column {
                             Text(AppLanguage.nativeName(tag), style = MaterialTheme.typography.titleSmall)

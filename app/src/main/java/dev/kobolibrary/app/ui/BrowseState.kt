@@ -80,7 +80,7 @@ class BrowseState {
         }
     }
 
-    val sortDescription: String get() = "${sort.label.lowercase()}, ${if (descending) sort.descending else sort.ascending}"
+    val sortDescription: String get() = "${dev.kobolibrary.app.L10n.midSentence(sort.label)}, ${if (descending) sort.descending else sort.ascending}"
 
     val narrowed: Boolean
         get() = query.isNotBlank() || source != SourceFilter.ALL || status != null || collection != null || tags.isNotEmpty()

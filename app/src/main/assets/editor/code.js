@@ -77,7 +77,7 @@
       CSS.highlights && CSS.highlights.delete('c-error');
       return;
     }
-    msg.textContent = 'Line ' + e.line + ': ' + e.message + '. Your change won\'t be saved to the chapter until this is fixed.';
+    msg.textContent = e.text || ('Line ' + e.line + ': ' + e.message + '. Your change won\'t be saved to the chapter until this is fixed.');
     bar.hidden = false;
     var src = text();
     var s = lineStart(src, e.line);

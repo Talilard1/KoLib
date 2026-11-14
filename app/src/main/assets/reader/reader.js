@@ -1374,22 +1374,28 @@
    * Under a scrolled chapter: where it ends, and the way on to the next one. It's tall enough for the
    * last lines to be scrolled up to where the eye reads. Outside the body, so the chapter is unchanged.
    */
+  /** The reader's own words, in the language KoLib is in (sent with the chapter), or the English. */
+  var words = {};
+  function word(key, english) { return (words && words[key]) || english; }
+
   function addChapterEnd() {
     if (document.getElementById('kl-end')) return;
     var box = document.createElementNS(XHTML, 'div');
     box.id = 'kl-end';
     var label = document.createElementNS(XHTML, 'div');
     label.className = 'kl-end-label';
-    label.textContent = isLast ? 'End of book' : 'End of chapter';
+    label.textContent = isLast ? word('endOfBook', 'End of book') : word('endOfChapter', 'End of chapter');
     box.appendChild(label);
     if (!isLast) {
       var go = document.createElementNS(XHTML, 'div');
       go.id = 'kl-end-go';
-      go.textContent = nextTitle ? 'Next chapter: ' + nextTitle : 'Next chapter';
+      go.textContent = nextTitle
+        ? word('nextChapterTitled', 'Next chapter: {0}').replace('{0}', function () { return nextTitle; })
+        : word('nextChapter', 'Next chapter');
       box.appendChild(go);
       var hint = document.createElementNS(XHTML, 'div');
       hint.className = 'kl-end-hint';
-      hint.textContent = 'Tap the button or pull up to keep reading';
+      hint.textContent = word('keepReading', 'Tap the button or pull up to keep reading');
       box.appendChild(hint);
     }
     root.appendChild(box);
@@ -1432,8 +1438,8 @@
     var far = pull.dist >= pullThreshold();
     el.className = 'kl-on ' + (pull.dir > 0 ? 'kl-bottom' : 'kl-top');
     el.textContent = pull.dir > 0
-      ? (far ? 'Let go to open the next chapter' : 'Pull up for the next chapter')
-      : (far ? 'Let go to open the previous chapter' : 'Pull down for the previous chapter');
+      ? (far ? word('letGoNext', 'Let go to open the next chapter') : word('pullNext', 'Pull up for the next chapter'))
+      : (far ? word('letGoPrevious', 'Let go to open the previous chapter') : word('pullPrevious', 'Pull down for the previous chapter'));
   }
 
   /** Runs [done] once the WebView has a size (it can load a page before it's been laid out). */
@@ -1454,6 +1460,7 @@
     try { keepPictureShapes(); } catch (e) { log(e); }
     try { centrePictures(); } catch (e) { log(e); }
     try { keepOpeningTogether(); } catch (e) { log(e); }
+    words = st.words || {};
     var around = st.chapters || {};
     nextTitle = around.next || null;
     isLast = around.hasNext === false;
@@ -1496,6 +1503,7 @@
     try { keepPictureShapes(); } catch (e) { log(e); }
     try { centrePictures(); } catch (e) { log(e); }
     try { keepOpeningTogether(); } catch (e) { log(e); }
+    words = st.words || {};
     var around = st.chapters || {};
     nextTitle = around.next || null;
     isLast = around.hasNext === false;

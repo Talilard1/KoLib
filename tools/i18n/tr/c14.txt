@@ -1,0 +1,259 @@
+@fr
+1420|KoLib redémarre pour changer de langue : attendez la fin de l’envoi ou de l’ajout des livres.
+1421|« {0} »
+1422|Ligne {0} : {1}. Votre modification ne sera pas enregistrée dans le chapitre tant que ce ne sera pas corrigé.
+1423|Fin du livre
+1424|Fin du chapitre
+1425|Chapitre suivant : {0}
+1426|Touchez le bouton ou tirez vers le haut pour continuer à lire
+1427|Relâchez pour ouvrir le chapitre suivant
+1428|Tirez vers le haut pour le chapitre suivant
+1429|Relâchez pour ouvrir le chapitre précédent
+1430|Tirez vers le bas pour le chapitre précédent
+1431|La Kobo n’a pas de collection « {0} », les livres n’y ont donc pas été mis. Créez-la sur la Kobo, puis reconnectez la Kobo.
+1432|La Kobo n’a pas ces collections, les livres n’y ont donc pas été mis : {0}. Créez-les sur la Kobo, puis reconnectez la Kobo.
+1433|Balise <{0}> non fermée
+1434|Attribut non fermé dans <{0}>
+1435|« & » doit s’écrire &amp;
+1436|« < » isolé
+1437|« ]]> » n’est pas autorisé dans le texte
+1438|La déclaration <?xml …?> doit venir en premier
+1439|La balise de fin </{0}> n’est pas bien fermée
+1440|</{0}> ne correspond à aucune balise ouverte
+1441|</{0}> trouvé, mais </{1}> attendu
+1442|« < » doit s’écrire &lt;
+1443|Un deuxième élément racine <{0}>
+1444|La balise <{0}> n’est pas fermée
+1445|« / » inattendu dans <{0}>
+1446|Les attributs de <{0}> doivent être séparés par des espaces
+1447|« {0} » inattendu dans <{1}>
+1448|L’attribut {0} apparaît deux fois dans <{1}>
+1449|L’attribut {0} de <{1}> n’a pas de valeur
+1450|La valeur de {0} dans <{1}> doit être entre guillemets
+1451|La valeur de {0} dans <{1}> n’est pas fermée
+1452|« < » n’est pas autorisé dans une valeur d’attribut
+1453|<{0}> n’est jamais fermé
+@de
+1420|KoLib startet neu, um die Sprache zu ändern. Warte also, bis das Senden oder Hinzufügen der Bücher fertig ist.
+1421|„{0}“
+1422|Zeile {0}: {1}. Deine Änderung wird erst im Kapitel gespeichert, wenn das behoben ist.
+1423|Ende des Buchs
+1424|Ende des Kapitels
+1425|Nächstes Kapitel: {0}
+1426|Tippe auf die Schaltfläche oder zieh nach oben, um weiterzulesen
+1427|Loslassen, um das nächste Kapitel zu öffnen
+1428|Nach oben ziehen für das nächste Kapitel
+1429|Loslassen, um das vorherige Kapitel zu öffnen
+1430|Nach unten ziehen für das vorherige Kapitel
+1431|Der Kobo hat keine Sammlung namens „{0}“, deshalb wurden keine Bücher hineingelegt. Lege sie auf dem Kobo an und verbinde ihn dann erneut.
+1432|Der Kobo hat diese Sammlungen nicht, deshalb wurden keine Bücher hineingelegt: {0}. Lege sie auf dem Kobo an und verbinde ihn dann erneut.
+1433|Nicht geschlossenes Tag <{0}>
+1434|Nicht geschlossenes Attribut in <{0}>
+1435|„&“ muss als &amp; geschrieben werden
+1436|Einzelnes „<“
+1437|„]]>“ ist im Text nicht erlaubt
+1438|Die <?xml …?>-Deklaration muss am Anfang stehen
+1439|Das End-Tag </{0}> ist nicht richtig geschlossen
+1440|</{0}> passt zu keinem offenen Tag
+1441|</{0}> gefunden, aber </{1}> erwartet
+1442|„<“ muss als &lt; geschrieben werden
+1443|Ein zweites Wurzelelement <{0}>
+1444|Das Tag <{0}> ist nicht geschlossen
+1445|Unerwartetes „/“ in <{0}>
+1446|Die Attribute in <{0}> brauchen Leerzeichen dazwischen
+1447|Unerwartetes „{0}“ in <{1}>
+1448|Das Attribut {0} kommt in <{1}> zweimal vor
+1449|Das Attribut {0} in <{1}> hat keinen Wert
+1450|Der Wert von {0} in <{1}> braucht Anführungszeichen
+1451|Der Wert von {0} in <{1}> ist nicht geschlossen
+1452|„<“ ist in einem Attributwert nicht erlaubt
+1453|<{0}> wird nie geschlossen
+@es
+1420|KoLib se reinicia para cambiar de idioma, así que espera a que termine de enviar o añadir libros.
+1421|«{0}»
+1422|Línea {0}: {1}. Tu cambio no se guardará en el capítulo hasta que se corrija.
+1423|Fin del libro
+1424|Fin del capítulo
+1425|Capítulo siguiente: {0}
+1426|Toca el botón o tira hacia arriba para seguir leyendo
+1427|Suelta para abrir el capítulo siguiente
+1428|Tira hacia arriba para el capítulo siguiente
+1429|Suelta para abrir el capítulo anterior
+1430|Tira hacia abajo para el capítulo anterior
+1431|El Kobo no tiene ninguna colección llamada «{0}», así que no se han puesto libros en ella. Créala en el Kobo y vuelve a conectarlo.
+1432|El Kobo no tiene estas colecciones, así que no se han puesto libros en ellas: {0}. Créalas en el Kobo y vuelve a conectarlo.
+1433|Etiqueta <{0}> sin cerrar
+1434|Atributo sin cerrar en <{0}>
+1435|«&» se debe escribir como &amp;
+1436|«<» suelto
+1437|«]]>» no está permitido en el texto
+1438|La declaración <?xml …?> debe ir primero
+1439|La etiqueta de cierre </{0}> no está bien cerrada
+1440|</{0}> no corresponde a ninguna etiqueta abierta
+1441|Se ha encontrado </{0}>, pero se esperaba </{1}>
+1442|«<» se debe escribir como &lt;
+1443|Un segundo elemento raíz <{0}>
+1444|La etiqueta <{0}> no está cerrada
+1445|«/» inesperado en <{0}>
+1446|Los atributos de <{0}> necesitan espacios entre ellos
+1447|«{0}» inesperado en <{1}>
+1448|El atributo {0} aparece dos veces en <{1}>
+1449|El atributo {0} de <{1}> no tiene valor
+1450|El valor de {0} en <{1}> necesita comillas
+1451|El valor de {0} en <{1}> no está cerrado
+1452|«<» no está permitido en el valor de un atributo
+1453|<{0}> nunca se cierra
+@it
+1420|KoLib si riavvia per cambiare lingua, quindi attendi che finisca di inviare o aggiungere libri.
+1421|«{0}»
+1422|Riga {0}: {1}. La modifica non verrà salvata nel capitolo finché non sarà corretto.
+1423|Fine del libro
+1424|Fine del capitolo
+1425|Capitolo successivo: {0}
+1426|Tocca il pulsante o tira verso l’alto per continuare a leggere
+1427|Rilascia per aprire il capitolo successivo
+1428|Tira verso l’alto per il capitolo successivo
+1429|Rilascia per aprire il capitolo precedente
+1430|Tira verso il basso per il capitolo precedente
+1431|Il Kobo non ha una raccolta chiamata «{0}», quindi i libri non sono stati messi lì. Creala sul Kobo, poi collegalo di nuovo.
+1432|Il Kobo non ha queste raccolte, quindi i libri non sono stati messi lì: {0}. Creale sul Kobo, poi collegalo di nuovo.
+1433|Tag <{0}> non chiuso
+1434|Attributo non chiuso in <{0}>
+1435|«&» va scritto come &amp;
+1436|«<» isolato
+1437|«]]>» non è consentito nel testo
+1438|La dichiarazione <?xml …?> deve venire per prima
+1439|Il tag di chiusura </{0}> non è chiuso correttamente
+1440|</{0}> non corrisponde a nessun tag aperto
+1441|Trovato </{0}>, ma era atteso </{1}>
+1442|«<» va scritto come &lt;
+1443|Un secondo elemento radice <{0}>
+1444|Il tag <{0}> non è chiuso
+1445|«/» inatteso in <{0}>
+1446|Gli attributi in <{0}> devono essere separati da spazi
+1447|«{0}» inatteso in <{1}>
+1448|L’attributo {0} compare due volte in <{1}>
+1449|L’attributo {0} in <{1}> non ha un valore
+1450|Il valore di {0} in <{1}> deve essere tra virgolette
+1451|Il valore di {0} in <{1}> non è chiuso
+1452|«<» non è consentito in un valore di attributo
+1453|<{0}> non viene mai chiuso
+@nl
+1420|KoLib start opnieuw om de taal te wijzigen, dus wacht tot het versturen of toevoegen van boeken klaar is.
+1421|‘{0}’
+1422|Regel {0}: {1}. Je wijziging wordt pas in het hoofdstuk opgeslagen als dit is opgelost.
+1423|Einde van het boek
+1424|Einde van het hoofdstuk
+1425|Volgend hoofdstuk: {0}
+1426|Tik op de knop of trek omhoog om verder te lezen
+1427|Laat los om het volgende hoofdstuk te openen
+1428|Trek omhoog voor het volgende hoofdstuk
+1429|Laat los om het vorige hoofdstuk te openen
+1430|Trek omlaag voor het vorige hoofdstuk
+1431|De Kobo heeft geen collectie met de naam ‘{0}’, dus er zijn geen boeken in gezet. Maak hem op de Kobo aan en verbind de Kobo dan opnieuw.
+1432|De Kobo heeft deze collecties niet, dus er zijn geen boeken in gezet: {0}. Maak ze op de Kobo aan en verbind de Kobo dan opnieuw.
+1433|Niet-afgesloten tag <{0}>
+1434|Niet-afgesloten attribuut in <{0}>
+1435|‘&’ moet als &amp; worden geschreven
+1436|Losse ‘<’
+1437|‘]]>’ is niet toegestaan in tekst
+1438|De <?xml …?>-declaratie moet eerst komen
+1439|De eindtag </{0}> is niet goed afgesloten
+1440|</{0}> hoort bij geen enkele open tag
+1441|</{0}> gevonden, maar </{1}> verwacht
+1442|‘<’ moet als &lt; worden geschreven
+1443|Een tweede hoofdelement <{0}>
+1444|De tag <{0}> is niet afgesloten
+1445|Onverwachte ‘/’ in <{0}>
+1446|De attributen in <{0}> moeten door spaties gescheiden zijn
+1447|Onverwachte ‘{0}’ in <{1}>
+1448|Het attribuut {0} komt twee keer voor in <{1}>
+1449|Het attribuut {0} in <{1}> heeft geen waarde
+1450|De waarde van {0} in <{1}> moet tussen aanhalingstekens
+1451|De waarde van {0} in <{1}> is niet afgesloten
+1452|‘<’ is niet toegestaan in een attribuutwaarde
+1453|<{0}> wordt nooit afgesloten
+@pt
+1420|O KoLib reinicia para mudar o idioma, então espere ele terminar de enviar ou adicionar livros.
+1421|“{0}”
+1422|Linha {0}: {1}. Sua mudança não será salva no capítulo até isso ser corrigido.
+1423|Fim do livro
+1424|Fim do capítulo
+1425|Próximo capítulo: {0}
+1426|Toque no botão ou puxe para cima para continuar lendo
+1427|Solte para abrir o próximo capítulo
+1428|Puxe para cima para o próximo capítulo
+1429|Solte para abrir o capítulo anterior
+1430|Puxe para baixo para o capítulo anterior
+1431|O Kobo não tem uma coleção chamada “{0}”, então os livros não foram colocados nela. Crie-a no Kobo e depois conecte de novo.
+1432|O Kobo não tem estas coleções, então os livros não foram colocados nelas: {0}. Crie-as no Kobo e depois conecte de novo.
+1433|Tag <{0}> não fechada
+1434|Atributo não fechado em <{0}>
+1435|“&” deve ser escrito como &amp;
+1436|“<” solto
+1437|“]]>” não é permitido no texto
+1438|A declaração <?xml …?> deve vir primeiro
+1439|A tag de fechamento </{0}> não está fechada corretamente
+1440|</{0}> não corresponde a nenhuma tag aberta
+1441|Encontrado </{0}>, mas era esperado </{1}>
+1442|“<” deve ser escrito como &lt;
+1443|Um segundo elemento raiz <{0}>
+1444|A tag <{0}> não está fechada
+1445|“/” inesperado em <{0}>
+1446|Os atributos em <{0}> precisam de espaços entre eles
+1447|“{0}” inesperado em <{1}>
+1448|O atributo {0} aparece duas vezes em <{1}>
+1449|O atributo {0} em <{1}> não tem valor
+1450|O valor de {0} em <{1}> precisa de aspas
+1451|O valor de {0} em <{1}> não está fechado
+1452|“<” não é permitido no valor de um atributo
+1453|<{0}> nunca é fechado
+@ja
+1420|言語を変えると KoLib が再起動するため、本の送信や追加が終わるまでお待ちください。
+1421|「{0}」
+1422|{0} 行目: {1}。これを直すまで、変更は章に保存されません。
+1423|本の終わり
+1424|章の終わり
+1425|次の章: {0}
+1426|ボタンをタップするか、上に引くと続きを読めます
+1427|指を離すと次の章を開きます
+1428|上に引くと次の章
+1429|指を離すと前の章を開きます
+1430|下に引くと前の章
+1431|Kobo に「{0}」というコレクションがないため、本を入れられませんでした。Kobo でコレクションを作ってから、もう一度接続してください。
+1432|Kobo に次のコレクションがないため、本を入れられませんでした: {0}。Kobo でコレクションを作ってから、もう一度接続してください。
+1433|閉じていないタグ <{0}>
+1434|<{0}> の属性が閉じていません
+1435|「&」は &amp; と書く必要があります
+1436|余分な「<」
+1437|本文に「]]>」は使えません
+1438|<?xml …?> 宣言は先頭に置く必要があります
+1439|終了タグ </{0}> が正しく閉じていません
+1440|</{0}> に対応する開始タグがありません
+1441|</{1}> があるべき場所に </{0}> があります
+1442|「<」は &lt; と書く必要があります
+1443|2 つ目のルート要素 <{0}>
+1444|タグ <{0}> が閉じていません
+1445|<{0}> に予期しない「/」があります
+1446|<{0}> の属性の間にはスペースが必要です
+1447|<{1}> に予期しない「{0}」があります
+1448|<{1}> に属性 {0} が 2 回あります
+1449|<{1}> の属性 {0} に値がありません
+1450|<{1}> の {0} の値は引用符で囲む必要があります
+1451|<{1}> の {0} の値が閉じていません
+1452|属性の値に「<」は使えません
+1453|<{0}> が閉じられていません
+@fr
+1454|masqué
+@de
+1454|ausgeblendet
+@es
+1454|oculto
+@it
+1454|nascosto
+@nl
+1454|verborgen
+@pt
+1454|oculto
+@ja
+1454|非表示

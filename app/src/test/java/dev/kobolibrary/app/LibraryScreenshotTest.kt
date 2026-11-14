@@ -52,6 +52,7 @@ import dev.kobolibrary.app.ui.theme.AppSurface
 import dev.kobolibrary.app.ui.theme.KoboLibraryTheme
 import dev.kobolibrary.app.ui.theme.ThemeChoice
 import kotlinx.coroutines.runBlocking
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -82,11 +83,14 @@ class LibraryScreenshotTest {
     @get:Rule
     val compose = createComposeRule()
 
+    @Before
+    fun inLanguage() = TestLanguage.apply()
+
     private fun shot(name: String, theme: ThemeChoice = ThemeChoice.SYSTEM, content: @Composable () -> Unit) {
         compose.mainClock.autoAdvance = false
         compose.setContent { AppSurface(theme) { content() } }
         compose.mainClock.advanceTimeBy(1_000)
-        compose.onRoot().captureRoboImage("build/outputs/roborazzi/$name.png")
+        compose.onRoot().captureRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/$name.png")
     }
 
     /** The fake Kobo the library was filled from, for its reading progress. */
@@ -230,7 +234,7 @@ class LibraryScreenshotTest {
         val book = lib.titled("The Histories").copy(coverAsIs = asIs)
         val picture = runBlocking { lib.originalCover(book.id) }!!
             .let { CoverRendering.decode(it)!! }
-            .let { CoverRendering.prepare(it, "The book's cover") }
+            .let { CoverRendering.prepare(it, tr("The book's cover")) }
         shot(name) {
             CoverEditorScreen(book, loadOriginal = { null }, saving = false, onSave = {}, onClose = {}, initialPicture = picture)
         }
@@ -262,8 +266,8 @@ class LibraryScreenshotTest {
         compose.mainClock.autoAdvance = false
         compose.setContent { KoboLibraryTheme { AppRoot(vm, libraryVm) } }
         compose.mainClock.advanceTimeBy(1_000)
-        compose.onNodeWithText("Your library is empty").assertExists()
-        compose.onRoot().captureRoboImage("build/outputs/roborazzi/32_app_start.png")
+        compose.onNodeWithText(tr("Your library is empty")).assertExists()
+        compose.onRoot().captureRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/32_app_start.png")
 
         // Taps need the clock running; it is paused again for the picture (the Kobo screen has a spinner).
         compose.mainClock.autoAdvance = true
@@ -271,8 +275,8 @@ class LibraryScreenshotTest {
         compose.waitForIdle()
         compose.mainClock.autoAdvance = false
         compose.mainClock.advanceTimeBy(500)
-        compose.onNodeWithText("Connect your Kobo").assertExists()
-        compose.onRoot().captureRoboImage("build/outputs/roborazzi/33_app_kobo_section.png")
+        compose.onNodeWithText(tr("Connect your Kobo")).assertExists()
+        compose.onRoot().captureRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/33_app_kobo_section.png")
 
         compose.mainClock.autoAdvance = true
         compose.onNodeWithText("Library").performClick()
@@ -348,10 +352,10 @@ class LibraryScreenshotTest {
     fun addBooksMenu() {
         libraryScreen("65_library_selected", configure = { selectedId = it.titled("Dracula").id })
         compose.mainClock.autoAdvance = true
-        compose.onNodeWithText("Add books").performClick()
+        compose.onNodeWithText(tr("Add books")).performClick()
         compose.waitForIdle()
-        compose.onNodeWithText("Write a new book").assertExists()
-        captureScreenRoboImage("build/outputs/roborazzi/66_add_books_menu.png")
+        compose.onNodeWithText(tr("Write a new book")).assertExists()
+        captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/66_add_books_menu.png")
     }
 
     @Test
@@ -440,7 +444,7 @@ class LibraryScreenshotTest {
     fun allGeneratedCovers() {
         val gen = CoverGenerator(context)
         val text = CoverText("The Count of Monte Cristo", listOf("Alexandre Dumas", "Robin Buss"), "Penguin Classics", 12.0)
-        val dir = File("build/outputs/roborazzi/covers").apply { mkdirs() }
+        val dir = File("${TestLanguage.folder("build/outputs/roborazzi")}/covers").apply { mkdirs() }
         val custom = listOf(CoverColors.fromHue(350f, 0.8f).copy(name = "custom-dark"), CoverColors.fromHue(160f, 0.7f, dark = false).copy(name = "custom-light"))
         for (style in CoverStyle.entries) for (colors in CoverColors.themes + custom) {
             val bmp = gen.render(text, CoverDesign(style, colors), 536, 724)
@@ -502,7 +506,7 @@ class LibraryScreenshotTest {
         val book = lib.titled("The Histories")
         val current = CoverRendering.prepare(android.graphics.Bitmap.createBitmap(1072, 1448, android.graphics.Bitmap.Config.ARGB_8888).apply {
             eraseColor(0xFF2C4A6E.toInt())
-        }, "The book's cover")
+        }, tr("The book's cover"))
         val squareBytes = FakeKobo.drawCover(FakeKobo.books.first { it.title == "The Iliad" }, 900, 960)
         val first = CoverRendering.prepare(CoverRendering.decode(squareBytes)!!, "The original cover")
         compose.mainClock.autoAdvance = true
@@ -514,12 +518,12 @@ class LibraryScreenshotTest {
                 )
             }
         }
-        compose.onNodeWithText("Original cover").performClick()
+        compose.onNodeWithText(tr("Original cover")).performClick()
         compose.waitForIdle()
-        compose.onNodeWithText("Restore it unchanged").assertExists()
+        compose.onNodeWithText(tr("Restore it unchanged")).assertExists()
         compose.mainClock.autoAdvance = false
         compose.mainClock.advanceTimeBy(500)
-        compose.onRoot().captureRoboImage("build/outputs/roborazzi/47_cover_editor_original.png")
+        compose.onRoot().captureRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/47_cover_editor_original.png")
     }
 
     @Test

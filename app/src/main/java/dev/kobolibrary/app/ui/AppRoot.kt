@@ -701,7 +701,10 @@ fun AppRoot(
                 showLanguage = true
             },
         )
-        if (showLanguage) dev.kobolibrary.app.ui.library.LanguageDialog(onDismiss = { showLanguage = false })
+        if (showLanguage) dev.kobolibrary.app.ui.library.LanguageDialog(
+            onDismiss = { showLanguage = false },
+            busy = job?.finished == false || state.syncing,
+        )
         // A folder chosen from Add books: what's in it, to add (the introduction shows this itself).
         folderScan?.takeIf { introSeen && it !is dev.kobolibrary.app.library.FolderScan.Adding }?.let { scan ->
             dev.kobolibrary.app.ui.library.FolderScanDialog(

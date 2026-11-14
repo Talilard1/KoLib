@@ -1,5 +1,6 @@
 package dev.kobolibrary.app
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -111,6 +112,7 @@ class MainActivity : ComponentActivity() {
     }
 
     /** The volume buttons turn pages while a book is open. */
+    @SuppressLint("RestrictedApi") // Calling the activity's own dispatchKeyEvent from its override is fine.
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (ReaderKeys.handler?.invoke(event) == true) return true
         return super.dispatchKeyEvent(event)

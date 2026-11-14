@@ -17,12 +17,19 @@ android {
     namespace = "dev.kobolibrary.app"
     compileSdk = 36
 
+    // KoLib can be switched to any of its languages, so an app bundle must keep them all.
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
+
     defaultConfig {
         applicationId = "dev.kobolibrary.app"
         minSdk = 29
         targetSdk = 36
-        versionCode = 49
-        versionName = "0.9.22-preview"
+        versionCode = 50
+        versionName = "0.9.23-preview"
     }
 
     signingConfigs {

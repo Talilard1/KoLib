@@ -570,8 +570,8 @@ private fun CleanupsDialog(state: TextEditState, onDismiss: () -> Unit) {
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                    SegmentedButton(selected = !thisChapter, onClick = { thisChapter = false }, shape = SegmentedButtonDefaults.itemShape(0, 2), icon = {}) { Text(tr("Whole book")) }
-                    SegmentedButton(selected = thisChapter, onClick = { thisChapter = true }, shape = SegmentedButtonDefaults.itemShape(1, 2), icon = {}) { Text(tr("This chapter")) }
+                    SegmentedButton(selected = !thisChapter, onClick = { thisChapter = false }, shape = SegmentedButtonDefaults.itemShape(0, 2), icon = {}) { FittedText(tr("Whole book"), style = MaterialTheme.typography.labelLarge, smallest = 0.7f) }
+                    SegmentedButton(selected = thisChapter, onClick = { thisChapter = true }, shape = SegmentedButtonDefaults.itemShape(1, 2), icon = {}) { FittedText(tr("This chapter"), style = MaterialTheme.typography.labelLarge, smallest = 0.7f) }
                 }
                 Spacer(Modifier.height(8.dp))
                 Cleanups.Kind.entries.forEach { k ->

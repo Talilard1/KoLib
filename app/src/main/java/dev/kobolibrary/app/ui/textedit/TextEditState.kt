@@ -176,7 +176,7 @@ class TextEditState(
                 put("text", text)
                 put("dark", dark)
                 put("scrollY", scrollY)
-                error?.let { put("error", JSONObject().put("line", it.line).put("message", it.message)) }
+                error?.let { put("error", errorJs(it)) }
             }.toString()
             v.loadUrl(BookServer.APP + "editor/code.html?v=$version")
         } else {
@@ -228,12 +228,18 @@ class TextEditState(
         if (edit.apply(tr("Typing in “{0}”", chapterTitle(path)), mapOf(path to newText.toByteArray(Charsets.UTF_8)), coalesceKey = key)) bump()
     }
 
+    /** A mistake in the code, for the code view: where it is, and what to show. */
+    private fun errorJs(e: XmlCheck.Problem): JSONObject = JSONObject()
+        .put("line", e.line)
+        .put("message", e.message)
+        .put("text", tr("Line {0}: {1}. Your change won't be saved to the chapter until this is fixed.", e.line, e.message))
+
     private fun codeChanged(path: String, typed: String) {
         val old = edit.text(path) ?: return
         val text = if (old.endsWith("\n") && !typed.endsWith("\n")) typed + "\n" else typed
         val error = XmlCheck.check(text, htmlEntities = XmlCheck.hasXhtmlDoctype(text))
         codeError = error
-        js("KLCD.error(${JSONObject.quote(error?.let { JSONObject().put("line", it.line).put("message", it.message).toString() } ?: "null")})")
+        js("KLCD.error(${JSONObject.quote(error?.let { errorJs(it).toString() } ?: "null")})")
         if (error != null) return
         if (edit.apply(tr("Edited the code of “{0}”", chapterTitle(path)), mapOf(path to text.toByteArray(Charsets.UTF_8)), coalesceKey = "code:$path")) bump()
     }

@@ -2,6 +2,7 @@
 
 package dev.kobolibrary.app.ui.library
 
+import dev.kobolibrary.app.ui.components.FittedText
 import dev.kobolibrary.app.tr
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -846,8 +847,8 @@ internal fun TagPickerDialog(
         text = {
             Column {
                 SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                    SegmentedButton(selected = all, onClick = { all = true }, shape = SegmentedButtonDefaults.itemShape(0, 2)) { Text(tr("Match all")) }
-                    SegmentedButton(selected = !all, onClick = { all = false }, shape = SegmentedButtonDefaults.itemShape(1, 2)) { Text(tr("Match any")) }
+                    SegmentedButton(selected = all, onClick = { all = true }, shape = SegmentedButtonDefaults.itemShape(0, 2)) { FittedText(tr("Match all"), style = MaterialTheme.typography.labelLarge, smallest = 0.7f) }
+                    SegmentedButton(selected = !all, onClick = { all = false }, shape = SegmentedButtonDefaults.itemShape(1, 2)) { FittedText(tr("Match any"), style = MaterialTheme.typography.labelLarge, smallest = 0.7f) }
                 }
                 Spacer(Modifier.height(8.dp))
                 if (tags.size > 12) {

@@ -14,7 +14,6 @@ import java.security.MessageDigest
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
-import java.util.UUID
 
 /** The Kobo's database isn't as the app last read it, so writing it back could lose something. */
 class KoboDatabaseChangedException(message: String) : IOException(message)
@@ -207,40 +206,6 @@ class KoboDbEditor(private val db: SQLiteDatabase, private val now: String = tim
         return found.sortedWith(compareBy<Shelf> { it.deleted }.thenBy { it.name != name }).firstOrNull()
     }
 
-    /**
-     * The collection called [name] (any case), made if the Kobo doesn't have it and brought back if it
-     * was deleted. Returns the name its books are filed under, and whether anything changed.
-     */
-    fun ensureCollection(name: String): Pair<String, Boolean> {
-        val clean = name.trim()
-        require(clean.isNotEmpty()) { tr("A collection needs a name.") }
-        val cols = columns("Shelf")
-        findShelf(clean)?.let { shelf ->
-            if (!shelf.deleted) return shelf.key to false
-            val values = ContentValues().apply {
-                if ("_IsDeleted" in cols) put("_IsDeleted", "false")
-                if ("_IsVisible" in cols) put("_IsVisible", "true")
-                if ("_IsSynced" in cols) put("_IsSynced", "false")
-                if ("LastModified" in cols) put("LastModified", now)
-            }
-            db.update("Shelf", values, "rowid = ?", arrayOf(shelf.rowId.toString()))
-            return shelf.key to true
-        }
-        val values = ContentValues().apply {
-            if ("CreationDate" in cols) put("CreationDate", now)
-            if ("Id" in cols) put("Id", UUID.randomUUID().toString())
-            if ("InternalName" in cols) put("InternalName", clean)
-            if ("LastModified" in cols) put("LastModified", now)
-            if ("Name" in cols) put("Name", clean)
-            if ("Type" in cols) put("Type", "UserTag")
-            if ("_IsDeleted" in cols) put("_IsDeleted", "false")
-            if ("_IsVisible" in cols) put("_IsVisible", "true")
-            if ("_IsSynced" in cols) put("_IsSynced", "false")
-        }
-        db.insertOrThrow("Shelf", null, values)
-        return clean to true
-    }
-
     private fun touchShelf(key: String) {
         val cols = columns("Shelf")
         if ("LastModified" !in cols) return
@@ -252,9 +217,14 @@ class KoboDbEditor(private val db: SQLiteDatabase, private val now: String = tim
         db.update("Shelf", values, "\"$nameCol\" = ?", arrayOf(key))
     }
 
-    /** Puts the book [contentId] in the collection [name], making the collection if needed. Returns true if it changed. */
+    /**
+     * Puts the book [contentId] in the collection [name] (any case). Returns true if it changed. Only a
+     * collection the Kobo has can be used: collections made this way don't show on the Kobo, so one it
+     * doesn't have (or that was deleted there) is left for the person to make on the Kobo first.
+     */
     fun addToCollection(name: String, contentId: String): Boolean {
-        val (key, shelfChanged) = ensureCollection(name)
+        val shelf = findShelf(name.trim())?.takeIf { !it.deleted } ?: return false
+        val key = shelf.key
         val cols = columns("ShelfContent")
         val deletedCol = if ("_IsDeleted" in cols) "_IsDeleted" else "NULL"
         val existing = db.rawQuery(
@@ -285,7 +255,7 @@ class KoboDbEditor(private val db: SQLiteDatabase, private val now: String = tim
             else -> false
         }
         if (changed) touchShelf(key)
-        return changed || shelfChanged
+        return changed
     }
 
     /** Takes the book [contentId] out of the collection [name]. Returns true if it was in it. */

@@ -25,15 +25,23 @@ class KoboSyncRunner(
         val noLongerOnKobo: Int,
         /** Books sent again whose record the Kobo keeps (reading progress, highlights, collections). */
         val recordsKept: Int = 0,
+        /** Collections books should be in that the Kobo doesn't have, so they weren't put in them. */
+        val missingCollections: List<String> = emptyList(),
     ) {
         val anything: Boolean get() = collectionsOnKobo + detailsOnKobo + collectionsInLibrary + noLongerOnKobo + recordsKept > 0
 
-        fun describe(): String? {
+        /** What was done, to show; [mentionMissing] says whether to tell of collections the Kobo doesn't have. */
+        fun describe(mentionMissing: Boolean = true): String? {
             val parts = buildList {
                 if (collectionsOnKobo > 0) add(tr("Put {0} in their collections on the Kobo.", plural(collectionsOnKobo)))
                 if (detailsOnKobo > 0) add(tr("Updated the details of {0} on the Kobo.", plural(detailsOnKobo)))
                 if (collectionsInLibrary > 0) add(tr("Copied collection changes from the Kobo to {0} in your library.", plural(collectionsInLibrary)))
                 if (noLongerOnKobo > 0) add(tr("Marked {0} as deleted from the Kobo.", plural(noLongerOnKobo)))
+                when (if (mentionMissing) missingCollections.size else 0) {
+                    0 -> Unit
+                    1 -> add(tr("The Kobo has no collection called “{0}”, so books weren't put in it. Make it on the Kobo, then connect again.", missingCollections[0]))
+                    else -> add(tr("The Kobo doesn't have these collections, so books weren't put in them: {0}. Make them on the Kobo, then connect again.", missingCollections.joinToString(", ")))
+                }
             }
             if (parts.isEmpty()) return null
             return parts.joinToString(" ")
@@ -65,6 +73,8 @@ class KoboSyncRunner(
         }
 
         val forKobo = plan.koboChanges + KoboSync.waitingChanges(waiting, session.snapshot)
+        val missing = (plan.missingOnKobo + KoboSync.missingCollections(waiting, session.snapshot)).distinctBy { it.lowercase() }
+        if (missing.isNotEmpty()) AppLog.i("Sync", "Not on the Kobo, so no books were put in them: ${missing.joinToString { "'$it'" }}.")
         var after = session
         if (records.isNotEmpty()) {
             AppLog.i("Sync", "Keeping the Kobo's record of ${records.size} book(s) sent again: their new size and cover pictures.")
@@ -104,6 +114,7 @@ class KoboSyncRunner(
             collectionsInLibrary = plan.changes.count { it.libraryCollections != null },
             noLongerOnKobo = gone.size,
             recordsKept = records.size,
+            missingCollections = missing,
         )
     }
 }

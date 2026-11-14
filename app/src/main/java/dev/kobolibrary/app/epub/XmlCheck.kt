@@ -24,7 +24,7 @@ object XmlCheck {
     fun check(source: String, htmlEntities: Boolean = false): Problem? {
         val s = source
         val n = s.length
-        var i = if (n > 0 && s[0] == '﻿') 1 else 0
+        var i = if (n > 0 && s[0] == '\uFEFF') 1 else 0
         val stack = ArrayList<String>()
         var rootSeen = false
         var rootClosed = false
@@ -40,7 +40,7 @@ object XmlCheck {
 
         fun checkReference(amp: Int, limit: Int): Problem? {
             val semi = s.indexOf(';', amp + 1)
-            if (semi < 0 || semi > limit || semi - amp > 40) return problem("“&” must be written as &amp;", amp)
+            if (semi < 0 || semi > limit || semi - amp > 40) return problem(tr("“&” must be written as &amp;"), amp)
             val name = s.substring(amp + 1, semi)
             val ok = when {
                 name.startsWith("#x") || name.startsWith("#X") -> name.length > 2 && name.substring(2).toIntOrNull(16)?.let { Character.isValidCodePoint(it) && it != 0 } == true
@@ -57,9 +57,9 @@ object XmlCheck {
             while (k < to) {
                 val c = s[k]
                 if (c == '&') checkReference(k, to)?.let { return it }
-                else if (c == '<') return problem("Stray “<”", k)
+                else if (c == '<') return problem(tr("Stray “<”"), k)
                 else if (c.code < 0x20 && c != '\t' && c != '\n' && c != '\r') return problem(tr("A control character (code {0}) isn't allowed", c.code), k)
-                else if (c == ']' && s.startsWith("]]>", k)) return problem("“]]>” isn't allowed in text", k)
+                else if (c == ']' && s.startsWith("]]>", k)) return problem(tr("“]]>” isn't allowed in text"), k)
                 k++
             }
             return null
@@ -95,8 +95,8 @@ object XmlCheck {
                     val close = s.indexOf("?>", lt + 2)
                     if (close < 0) return problem(tr("A processing instruction isn't closed"), lt)
                     val target = s.substring(lt + 2, close).trimStart().takeWhile { !it.isWhitespace() }
-                    if (target.equals("xml", true) && lt != (if (n > 0 && s[0] == '﻿') 1 else 0)) {
-                        return problem("The <?xml …?> declaration must come first", lt)
+                    if (target.equals("xml", true) && lt != (if (n > 0 && s[0] == '\uFEFF') 1 else 0)) {
+                        return problem(tr("The <?xml …?> declaration must come first"), lt)
                     }
                     i = close + 2
                 }
@@ -123,20 +123,20 @@ object XmlCheck {
                     while (j < n && isNameChar(s[j])) j++
                     val name = s.substring(lt + 2, j)
                     while (j < n && s[j].isWhitespace()) j++
-                    if (j >= n || s[j] != '>') return problem("The end tag </$name> isn't closed properly", lt)
-                    if (stack.isEmpty()) return problem("</$name> doesn't match any open tag", lt)
+                    if (j >= n || s[j] != '>') return problem(tr("The end tag </{0}> isn't closed properly", name), lt)
+                    if (stack.isEmpty()) return problem(tr("</{0}> doesn't match any open tag", name), lt)
                     val open = stack.removeAt(stack.size - 1)
-                    if (open != name) return problem("Found </$name>, but expected </$open>", lt)
+                    if (open != name) return problem(tr("Found </{0}>, but expected </{1}>", name, open), lt)
                     if (stack.isEmpty()) rootClosed = true
                     i = j + 1
                 }
                 else -> {
                     var j = lt + 1
-                    if (j >= n || !isNameStart(s[j])) return problem("“<” must be written as &lt;", lt)
+                    if (j >= n || !isNameStart(s[j])) return problem(tr("“<” must be written as &lt;"), lt)
                     while (j < n && isNameChar(s[j])) j++
                     val name = s.substring(lt + 1, j)
                     if (stack.isEmpty()) {
-                        if (rootClosed) return problem("A second root element <$name>", lt)
+                        if (rootClosed) return problem(tr("A second root element <{0}>", name), lt)
                         rootSeen = true
                     }
                     val seen = HashSet<String>()
@@ -144,28 +144,28 @@ object XmlCheck {
                     while (true) {
                         val ws = j
                         while (j < n && s[j].isWhitespace()) j++
-                        if (j >= n) return problem("The tag <$name> isn't closed", lt)
+                        if (j >= n) return problem(tr("The tag <{0}> isn't closed", name), lt)
                         if (s[j] == '>') { j++; break }
                         if (s[j] == '/') {
                             if (j + 1 < n && s[j + 1] == '>') { selfClosing = true; j += 2; break }
-                            return problem("Unexpected “/” in <$name>", j)
+                            return problem(tr("Unexpected “/” in <{0}>", name), j)
                         }
-                        if (j == ws) return problem("Attributes in <$name> need spaces between them", j)
-                        if (!isNameStart(s[j])) return problem("Unexpected “${s[j]}” in <$name>", j)
+                        if (j == ws) return problem(tr("Attributes in <{0}> need spaces between them", name), j)
+                        if (!isNameStart(s[j])) return problem(tr("Unexpected “{0}” in <{1}>", s[j], name), j)
                         val an = j
                         while (j < n && isNameChar(s[j])) j++
                         val attr = s.substring(an, j)
-                        if (!seen.add(attr)) return problem("The attribute $attr appears twice in <$name>", an)
+                        if (!seen.add(attr)) return problem(tr("The attribute {0} appears twice in <{1}>", attr, name), an)
                         while (j < n && s[j].isWhitespace()) j++
-                        if (j >= n || s[j] != '=') return problem("The attribute $attr in <$name> has no value", an)
+                        if (j >= n || s[j] != '=') return problem(tr("The attribute {0} in <{1}> has no value", attr, name), an)
                         j++
                         while (j < n && s[j].isWhitespace()) j++
-                        if (j >= n || (s[j] != '"' && s[j] != '\'')) return problem("The value of $attr in <$name> needs quotes", j)
+                        if (j >= n || (s[j] != '"' && s[j] != '\'')) return problem(tr("The value of {0} in <{1}> needs quotes", attr, name), j)
                         val q = s[j]
                         val close = s.indexOf(q, j + 1)
-                        if (close < 0) return problem("The value of $attr in <$name> isn't closed", j)
+                        if (close < 0) return problem(tr("The value of {0} in <{1}> isn't closed", attr, name), j)
                         val lt2 = s.indexOf('<', j + 1)
-                        if (lt2 in (j + 1) until close) return problem("“<” isn't allowed in an attribute value", lt2)
+                        if (lt2 in (j + 1) until close) return problem(tr("“<” isn't allowed in an attribute value"), lt2)
                         var k = j + 1
                         while (k < close) {
                             if (s[k] == '&') checkReference(k, close)?.let { return it }
@@ -179,7 +179,7 @@ object XmlCheck {
                 }
             }
         }
-        if (stack.isNotEmpty()) return problem("<${stack.last()}> is never closed", n)
+        if (stack.isNotEmpty()) return problem(tr("<{0}> is never closed", stack.last()), n)
         if (!rootSeen) return problem(tr("The file has no content"), 0)
         return null
     }

@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.cover
 
+import android.annotation.SuppressLint
 import dev.kobolibrary.app.tr
 import android.content.Context
 import android.content.res.Resources
@@ -216,6 +217,7 @@ class CoverGenerator(context: Context) {
      * long even then is cut short with an ellipsis. [pitch] is the distance between lines and
      * [tracking] the extra space between letters, both in ems.
      */
+    @SuppressLint("WrongConstant") // Layout's break strategy is the same value as LineBreaker's
     private fun fit(
         text: String?, face: Typeface, largest: Float, smallest: Float, width: Float, height: Float,
         align: Layout.Alignment = Layout.Alignment.ALIGN_CENTER, pitch: Float = 1.18f, tracking: Float = 0f,

@@ -57,7 +57,12 @@ class LibraryFacts(val book: LibraryBook, private val onKoboAs: KoboBook?) : Sea
     override val changedSinceOnKobo get() = book.changedSinceOnKobo
     override val readStatus get() = onKoboAs?.readStatus
     override val inLibrary get() = true
-    override val format get() = "EPUB"
+    /** What the book was added as ("PDF", "MOBI"...), or EPUB. */
+    override val format get() = when (book.sourceFormat) {
+        null -> "EPUB"
+        dev.kobolibrary.app.convert.BookFormats.PDF_SCAN, dev.kobolibrary.app.convert.BookFormats.PDF_ONLY -> "PDF"
+        else -> book.sourceFormat
+    }
 }
 
 /** [reading] gives the book as the Kobo has it (for its reading progress), if it's there. */

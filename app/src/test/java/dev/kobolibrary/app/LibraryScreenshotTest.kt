@@ -277,7 +277,7 @@ class LibraryScreenshotTest {
         compose.mainClock.autoAdvance = true
         compose.onNodeWithText("Library").performClick()
         compose.waitForIdle()
-        compose.onNodeWithText("Add EPUB files").assertExists()
+        compose.onNodeWithText("Add files").assertExists()
     }
 
     @Test
@@ -388,7 +388,7 @@ class LibraryScreenshotTest {
         // Moby-Dick's cover is set to "As it is".
         val books = listOf(lib.titled("The Histories"), lib.titled("Moby-Dick").copy(coverAsIs = true), lib.titled("Dracula"))
         shot("36_send_dialog") {
-            SendDialog(books, connected = true, freeBytes = 9_800_000_000, initialFormat = SendFormat.KEPUB, onSend = { _, _ -> }, onConnect = {}, onDismiss = {})
+            SendDialog(books, connected = true, freeBytes = 9_800_000_000, initialFormat = SendFormat.KEPUB, onSend = { _, _, _ -> }, onConnect = {}, onDismiss = {})
         }
     }
 

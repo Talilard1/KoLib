@@ -15,6 +15,8 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Switch
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import dev.kobolibrary.app.ui.components.phoneLayout
@@ -56,7 +58,9 @@ fun SendDialog(
     freeBytes: Long?,
     initialFormat: SendFormat,
     initialCovers: CoverFitting = CoverFitting.BLUR,
-    onSend: (SendFormat, CoverFitting) -> Unit,
+    /** Whether books added as PDFs go as the PDF, as chosen last time. */
+    initialPdfs: Boolean = false,
+    onSend: (SendFormat, CoverFitting, Boolean) -> Unit,
     onConnect: () -> Unit,
     onDismiss: () -> Unit,
     /** Where each book already is on the Kobo, if it is. */
@@ -65,9 +69,14 @@ fun SendDialog(
     val context = LocalContext.current
     var format by remember { mutableStateOf(initialFormat) }
     var covers by remember { mutableStateOf(initialCovers) }
-    val onKobo = remember(books) { books.mapNotNull { pathOnKobo(it) } }
-    val switching = onKobo.count { SendFormat.of(it) != format }
+    var pdfs by remember { mutableStateOf(initialPdfs) }
+    val onKobo = remember(books) { books.mapNotNull { b -> pathOnKobo(b)?.let { b to it } } }
+    // What each book goes as: "kepub", "EPUB" or "PDF", the way KoboPaths.kindOf names them.
+    val goesAs = { b: LibraryBook -> if (b.goesAsPdf(pdfs)) "PDF" else if (format == SendFormat.KEPUB) "kepub" else "EPUB" }
+    val switching = onKobo.count { (b, path) -> dev.kobolibrary.app.kobo.KoboPaths.kindOf(path) != goesAs(b) }
     val replacing = onKobo.size - switching
+    val textPdfs = books.count { it.isPdf && !it.isScan }
+    val scans = books.count { it.isScan }
     val size = books.sumOf { it.fileSize }
     // A phone's dialog is too narrow for the choices side by side, so they go one under another.
     val phone = phoneLayout()
@@ -95,6 +104,43 @@ fun SendDialog(
                 }
                 Spacer(Modifier.height(8.dp))
                 Text(format.explanation, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (textPdfs > 0) {
+                    Spacer(Modifier.height(12.dp))
+                    Row(
+                        Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp))
+                            .toggleable(value = pdfs, role = Role.Switch, onValueChange = { pdfs = it })
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            when {
+                                books.size == 1 -> "Send the PDF"
+                                else -> "Send PDFs as PDFs"
+                            },
+                            style = MaterialTheme.typography.titleSmall,
+                            modifier = Modifier.weight(1f),
+                        )
+                        Switch(checked = pdfs, onCheckedChange = null)
+                    }
+                    Text(
+                        if (pdfs) "The pages look exactly as they were printed. Text can't be made bigger, so they're best on a large screen."
+                        else "${if (books.size == 1) "It goes" else "PDFs go"} as ${if (format == SendFormat.KEPUB) "kepub" else "EPUB"}, so the text fits the Kobo's screen and you can change its size.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                if (scans > 0) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        when {
+                            books.size == 1 -> "This book can only go as a PDF: ${if (books[0].sourceFormat == dev.kobolibrary.app.convert.BookFormats.PDF_SCAN) "its pages are pictures, with no text to convert." else "it's too big to convert on this device."}"
+                            scans == 1 -> "1 book can only go as a PDF: its pages are pictures, or it's too big to convert on this device."
+                            else -> "$scans books can only go as PDFs: their pages are pictures, or they're too big to convert on this device."
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
                 Spacer(Modifier.height(16.dp))
                 Text("Covers that don't fit the Kobo's screen", style = MaterialTheme.typography.titleSmall)
                 Spacer(Modifier.height(8.dp))
@@ -144,7 +190,7 @@ fun SendDialog(
                     Note(
                         Icons.Outlined.WarningAmber,
                         when {
-                            books.size == 1 -> "This book is on the Kobo as ${if (format == SendFormat.KEPUB) "EPUB" else "kepub"}, so it will change format. " +
+                            books.size == 1 -> "This book is on the Kobo as ${onKobo.firstOrNull()?.let { dev.kobolibrary.app.kobo.KoboPaths.kindOf(it.second) } ?: "EPUB"}, so it will change format. " +
                                 "The Kobo will treat it as a new book, so your reading progress in it will start over."
                             switching == 1 -> "1 book will change format. The Kobo will treat it as a new book, " +
                                 "so your reading progress in it will start over."
@@ -162,7 +208,7 @@ fun SendDialog(
             }
         },
         confirmButton = {
-            if (connected) TextButton(onClick = { onSend(format, covers) }) { Text("Send") }
+            if (connected) TextButton(onClick = { onSend(format, covers, pdfs) }) { Text("Send") }
             else TextButton(onClick = onConnect) { Text("Go to Kobo") }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },

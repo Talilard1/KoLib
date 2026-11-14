@@ -450,18 +450,21 @@ fun SplitBookDialog(
 }
 
 /**
- * Before saving copies of books as files: plain EPUB or kepub. One book goes to a file chosen next in
- * Android's save picker; several go into a folder chosen in its folder picker.
+ * Before saving copies of books as files: plain EPUB, kepub, or the file a book was added as (null). One
+ * book goes to a file chosen next in Android's save picker; several go into a folder chosen in its folder picker.
  */
 @Composable
 fun ExportDialog(
     count: Int,
     title: String?,
     initial: dev.kobolibrary.app.kobo.SendFormat,
-    onSave: (dev.kobolibrary.app.kobo.SendFormat) -> Unit,
+    /** How many of the books were added as another kind of file, and for one book, what kind ("PDF"). */
+    addedAsOther: Int = 0,
+    addedAsLabel: String? = null,
+    onSave: (dev.kobolibrary.app.kobo.SendFormat?) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    var format by remember { mutableStateOf(initial) }
+    var format by remember { mutableStateOf<dev.kobolibrary.app.kobo.SendFormat?>(initial) }
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Outlined.SaveAlt, null) },
@@ -478,6 +481,17 @@ fun ExportDialog(
                     text = "Kepub: Kobo's own format, the same as when sending to the Kobo",
                     onClick = { format = dev.kobolibrary.app.kobo.SendFormat.KEPUB },
                 )
+                if (addedAsOther > 0) {
+                    CoverChoice(
+                        selected = format == null,
+                        text = when {
+                            count == 1 && addedAsLabel != null -> "$addedAsLabel: the file it was added as"
+                            addedAsOther == count -> "As they were added: the PDF, MOBI or other file each one came as"
+                            else -> "As they were added: books that came as PDFs, MOBIs and so on are saved as those, the rest as EPUBs"
+                        },
+                        onClick = { format = null },
+                    )
+                }
                 Spacer(Modifier.height(12.dp))
                 Text(
                     if (count == 1) "Next, you'll choose where to save it." else "Next, you'll choose a folder. Each book is saved there as “Title - Author”.",

@@ -94,6 +94,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.EditNote
+import androidx.compose.material.icons.outlined.PictureAsPdf
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Remove
 import androidx.compose.material.icons.outlined.Add
@@ -227,6 +228,8 @@ internal fun ReaderScreen(
     onClose: () -> Unit,
     /** Opens the text editor at a chapter; null when reading from the editor itself. */
     onEdit: ((String) -> Unit)? = null,
+    /** For a book added as a PDF: reads the PDF instead. */
+    onReadAsPdf: (() -> Unit)? = null,
     /** Shown instead of the page in screenshots, where a WebView can't draw. */
     pagePreview: (@Composable () -> Unit)? = null,
     initialPanel: Panel = Panel.NONE,
@@ -421,6 +424,7 @@ internal fun ReaderScreen(
                 onSearch = { panel = Panel.SEARCH },
                 onLook = { panel = Panel.LOOK },
                 onEdit = onEdit?.let { edit -> { controller.chapter?.let { edit(it.path) } } },
+                onPdf = onReadAsPdf,
             )
         }
         AnimatedVisibility(controller.controlsVisible, enter = fadeIn() + slideInVertically { it }, exit = fadeOut() + slideOutVertically { it }, modifier = Modifier.align(Alignment.BottomCenter)) {
@@ -508,6 +512,7 @@ private fun ReaderTopBar(
     onSearch: () -> Unit,
     onLook: () -> Unit,
     onEdit: (() -> Unit)?,
+    onPdf: (() -> Unit)? = null,
 ) {
     Surface(color = MaterialTheme.colorScheme.surfaceContainer, shadowElevation = 4.dp, modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -530,6 +535,7 @@ private fun ReaderTopBar(
                     tint = if (marked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
             }
             IconButton(onClick = onLook) { Icon(Icons.Outlined.Settings, "Reading settings") }
+            if (onPdf != null) IconButton(onClick = onPdf) { Icon(Icons.Outlined.PictureAsPdf, "Read as PDF") }
             if (onEdit != null) IconButton(onClick = onEdit) { Icon(Icons.Outlined.EditNote, "Edit this chapter's text") }
         }
     }

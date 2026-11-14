@@ -42,7 +42,8 @@ class LibraryDb(context: Context, name: String? = "library.db") : SQLiteOpenHelp
                 sent_at INTEGER,
                 words INTEGER,
                 kobo_collections TEXT,
-                cover_as_is INTEGER NOT NULL DEFAULT 0
+                cover_as_is INTEGER NOT NULL DEFAULT 0,
+                source_format TEXT
             )"""
         )
         db.execSQL("CREATE INDEX books_kobo_path ON books(kobo_path)")
@@ -59,6 +60,9 @@ class LibraryDb(context: Context, name: String? = "library.db") : SQLiteOpenHelp
         }
         if (oldVersion < 4) {
             db.execSQL("ALTER TABLE books ADD COLUMN cover_as_is INTEGER NOT NULL DEFAULT 0")
+        }
+        if (oldVersion < 5) {
+            db.execSQL("ALTER TABLE books ADD COLUMN source_format TEXT")
         }
     }
 
@@ -126,6 +130,7 @@ class LibraryDb(context: Context, name: String? = "library.db") : SQLiteOpenHelp
         put("words", words)
         put("kobo_collections", koboCollections?.let { JSONArray(it).toString() })
         put("cover_as_is", if (coverAsIs) 1 else 0)
+        put("source_format", sourceFormat)
     }
 
     private fun Cursor.toBook(): LibraryBook {
@@ -170,10 +175,11 @@ class LibraryDb(context: Context, name: String? = "library.db") : SQLiteOpenHelp
             words = lng("words")?.toInt(),
             koboCollections = listOrNull("kobo_collections"),
             coverAsIs = (lng("cover_as_is") ?: 0) != 0L,
+            sourceFormat = str("source_format"),
         )
     }
 
     private companion object {
-        const val VERSION = 4
+        const val VERSION = 5
     }
 }

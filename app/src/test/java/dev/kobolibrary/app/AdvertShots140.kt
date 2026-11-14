@@ -236,7 +236,7 @@ class AdvertShots140 {
         }
         shot("ad_send") {
             LibraryPage(lib, covers, browse)
-            SendDialog(picked, connected = true, freeBytes = 9_800_000_000, initialFormat = SendFormat.KEPUB, onSend = { _, _ -> }, onConnect = {}, onDismiss = {}, pathOnKobo = { null })
+            SendDialog(picked, connected = true, freeBytes = 9_800_000_000, initialFormat = SendFormat.KEPUB, onSend = { _, _, _ -> }, onConnect = {}, onDismiss = {}, pathOnKobo = { null })
         }
     }
 

@@ -28,6 +28,7 @@ import dev.kobolibrary.app.ui.NO_COLLECTION_KEY
 import dev.kobolibrary.app.ui.theme.AppSurface
 import dev.kobolibrary.app.ui.theme.ThemeChoice
 import kotlinx.coroutines.runBlocking
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -67,6 +68,9 @@ class ScreenshotTest {
     @get:Rule
     val compose = createComposeRule()
 
+    @Before
+    fun inLanguage() = TestLanguage.apply()
+
     /**
      * The clock is paused so endless animations (progress spinners) can't keep the UI from settling;
      * it is then moved on a second so everything has laid out.
@@ -76,7 +80,7 @@ class ScreenshotTest {
         // The same root as the app's own (theme and surface), so colours come out as they do on the tablet.
         compose.setContent { AppSurface(theme) { content() } }
         compose.mainClock.advanceTimeBy(1_000)
-        compose.onRoot().captureRoboImage("build/outputs/roborazzi/$name.png")
+        compose.onRoot().captureRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/$name.png")
     }
 
     private fun libraryCopies(vararg paths: String, tags: List<String> = emptyList()) = paths.map { p ->
@@ -103,7 +107,7 @@ class ScreenshotTest {
             connection = Connection.Connected(s, unplugged),
             backups = repo.backups.list(),
             afterConnect = after,
-            writeCheck = WriteCheckResult(true, "Writing works: a 64 KB test file was written, read back and deleted in 41 ms."),
+            writeCheck = WriteCheckResult(true, tr("Writing works: a 64 KB test file was written, read back and deleted in {0} ms.", 41)),
             syncing = syncing,
         )
         shot(name, theme) {

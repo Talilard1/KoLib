@@ -73,6 +73,7 @@ import dev.kobolibrary.app.ui.theme.ThemeChoice
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -98,9 +99,12 @@ class ReaderEditorScreenshotTest {
     @get:Rule
     val compose = createComposeRule()
 
+    @Before
+    fun inLanguage() = TestLanguage.apply()
+
     private fun capture(name: String) {
         compose.mainClock.advanceTimeBy(1_000)
-        compose.onRoot().captureRoboImage("build/outputs/roborazzi/$name.png")
+        compose.onRoot().captureRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/$name.png")
     }
 
     private fun shot(name: String, theme: ThemeChoice = ThemeChoice.SYSTEM, content: @Composable () -> Unit) {
@@ -307,9 +311,9 @@ class ReaderEditorScreenshotTest {
         compose.mainClock.autoAdvance = true
         compose.setContent { AppSurface(ThemeChoice.SYSTEM) { ReaderScreen(c, onSettings = {}, onClose = {}, onEdit = {}, pagePreview = { FakeScrolledPage(ReaderTheme.PAPER) }, initialPanel = Panel.LOOK) } }
         compose.waitForIdle()
-        compose.onNodeWithText("When you touch the page").performScrollTo()
+        compose.onNodeWithText(tr("When you touch the page")).performScrollTo()
         compose.waitForIdle()
-        captureScreenRoboImage("build/outputs/roborazzi/74_reader_scroll_settings.png")
+        captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/74_reader_scroll_settings.png")
     }
 
     private val gardenNotes = listOf(
@@ -332,7 +336,7 @@ class ReaderEditorScreenshotTest {
         compose.mainClock.autoAdvance = true
         compose.setContent { AppSurface(ThemeChoice.SYSTEM) { ReaderScreen(c, onSettings = {}, onClose = {}, onEdit = {}, pagePreview = { FakePage(ReaderTheme.PAPER, 2) }, initialPanel = panel) } }
         compose.waitForIdle()
-        captureScreenRoboImage("build/outputs/roborazzi/$name.png")
+        captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/$name.png")
     }
 
     @Test
@@ -377,9 +381,9 @@ class ReaderEditorScreenshotTest {
         dev.kobolibrary.app.ui.reader.LookTab.entries.forEachIndexed { i, tab ->
             c.lookTab = i
             compose.waitForIdle()
-            captureScreenRoboImage("build/outputs/roborazzi/77_reader_settings_${i + 1}_${tab.name.lowercase()}.png")
+            captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/77_reader_settings_${i + 1}_${tab.name.lowercase()}.png")
         }
-        compose.onNodeWithText("Controls").performClick()
+        compose.onNodeWithText(tr("Controls")).performClick()
         compose.waitForIdle()
         assertEquals(dev.kobolibrary.app.ui.reader.LookTab.CONTROLS.ordinal, c.lookTab)
     }
@@ -406,7 +410,7 @@ class ReaderEditorScreenshotTest {
         compose.onRoot().performTouchInput { swipe(androidx.compose.ui.geometry.Offset(900f, 450f), androidx.compose.ui.geometry.Offset(1220f, 450f), 250) }
         compose.waitForIdle()
         assertEquals("and back", 1, c.lookTab)
-        compose.onNodeWithText("Page colour").assertExists()
+        compose.onNodeWithText(tr("Page colour")).assertExists()
     }
 
     @Test
@@ -424,9 +428,9 @@ class ReaderEditorScreenshotTest {
         compose.onRoot().performTouchInput { swipe(androidx.compose.ui.geometry.Offset(380f, 450f), androidx.compose.ui.geometry.Offset(60f, 450f), 250) }
         compose.waitForIdle()
         assertEquals("on to the bookmarks", 1, c.contentsTab)
-        compose.onNodeWithText("No bookmarks yet", substring = true).assertExists()
+        compose.onNodeWithText(tr("No bookmarks yet. To bookmark a page, tap the middle of the page, then tap the bookmark icon at the top."), substring = true).assertExists()
         // A tap on a tab still works.
-        compose.onNodeWithText("Contents").performClick()
+        compose.onNodeWithText(tr("Contents")).performClick()
         compose.waitForIdle()
         assertEquals(0, c.contentsTab)
     }
@@ -442,9 +446,9 @@ class ReaderEditorScreenshotTest {
         compose.mainClock.autoAdvance = true
         compose.setContent { AppSurface(ThemeChoice.SYSTEM) { ReaderScreen(c, onSettings = {}, onClose = {}, onEdit = {}, pagePreview = { FakePage(ReaderTheme.PAPER, 2) }, initialPanel = Panel.LOOK) } }
         compose.waitForIdle()
-        compose.onNodeWithText("Dimmed").performScrollTo()
+        compose.onNodeWithText(tr("Dimmed")).performScrollTo()
         compose.waitForIdle()
-        captureScreenRoboImage("build/outputs/roborazzi/69_reader_margin_settings.png")
+        captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/69_reader_margin_settings.png")
     }
 
     @Test
@@ -502,7 +506,7 @@ class ReaderEditorScreenshotTest {
             compose.runOnIdle { state.find.select(state.find.entries.first { it.match.flag == dev.kobolibrary.app.epub.FindReplace.Flag.NAME }) }
         }
         compose.waitForIdle()
-        compose.onRoot().captureRoboImage("build/outputs/roborazzi/$name.png")
+        compose.onRoot().captureRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/$name.png")
     }
 
     @Test
@@ -528,8 +532,8 @@ class ReaderEditorScreenshotTest {
         compose.mainClock.autoAdvance = true
         compose.setContent { AppSurface(ThemeChoice.SYSTEM) { TextEditorScreen(state, onClose = {}, onRead = {}, pagePreview = { FakeEditorPage() }) } }
         compose.waitForIdle()
-        compose.onNodeWithText("Add").performClick()
+        compose.onNodeWithText(tr("Add")).performClick()
         compose.waitForIdle()
-        captureScreenRoboImage("build/outputs/roborazzi/64_editor_add_chapter.png")
+        captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/64_editor_add_chapter.png")
     }
 }

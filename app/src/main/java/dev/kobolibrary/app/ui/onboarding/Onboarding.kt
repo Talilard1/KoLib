@@ -351,7 +351,8 @@ private fun Languages() {
 /** What's happening with the folder of books: being looked through, what's in it, being added. */
 @Composable
 private fun FolderStatus(scan: FolderScan?) {
-    AnimatedContent(scan?.javaClass, transitionSpec = { fadeIn() togetherWith fadeOut() }, label = "folder") { _ ->
+    // Each stage fades into the next, and the one fading out keeps showing what it said.
+    AnimatedContent(scan, contentKey = { it?.javaClass }, transitionSpec = { fadeIn() togetherWith fadeOut() }, label = "folder") { scan ->
         when (scan) {
             null -> Unit
             is FolderScan.Looking -> Row(verticalAlignment = Alignment.CenterVertically) {

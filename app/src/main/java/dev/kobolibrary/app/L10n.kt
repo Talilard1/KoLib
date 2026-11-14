@@ -47,6 +47,13 @@ object L10n {
     }
 
     internal fun lookUp(english: String): String = words[english] ?: english
+
+    /**
+     * A label ("Title", "Last read") as it's written in the middle of a sentence ("sorted by title"):
+     * in small letters, except in German, where nouns keep their capital.
+     */
+    fun midSentence(label: String): String =
+        if (language == "de") label else label.lowercase(java.util.Locale.forLanguageTag(language))
 }
 
 /** [english] in the language KoLib is shown in. */

@@ -419,6 +419,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         synchronized(syncWaiters) { syncWaiters.toList().also { syncWaiters.clear() } }.forEach { it.complete(Unit) }
     }
 
+    /** The collections the Kobo was last said not to have, and the connection that was in. */
+    private var missingTold: Pair<Long, List<String>>? = null
+
     private suspend fun sync() {
         syncLock.withLock {
             val conn = _state.value.connection as? Connection.Connected ?: return@withLock
@@ -439,7 +442,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                     }
                     runCatching { library.rememberKoboCollections(outcome.session.snapshot.collections.map { it.name }) }
                 }
-                outcome.describe()?.let { msg -> _state.update { it.copy(message = msg) } }
+                // Collections the Kobo doesn't have are told of once a connection, not after every change.
+                val mention = outcome.missingCollections.isNotEmpty() && missingTold != session.connectedAtMillis to outcome.missingCollections
+                if (outcome.missingCollections.isNotEmpty()) missingTold = session.connectedAtMillis to outcome.missingCollections
+                outcome.describe(mentionMissing = mention)?.let { msg -> _state.update { it.copy(message = msg) } }
             } catch (e: KoboDatabaseChangedException) {
                 AppLog.w("Sync", e.message ?: "The Kobo's database changed")
                 _state.update { it.copy(message = e.message) }

@@ -115,7 +115,7 @@ body{font-family:sans-serif;font-size:17px;line-height:1.55;color:${css(text)};-
 p{margin:0 0 .8em 0} ul,ol{margin:0 0 .8em 0;padding-left:1.6em} li{margin:0 0 .2em 0}
 blockquote{margin:0 0 .8em 0;padding-left:1em;border-left:3px solid ${css(hint)}}
 </style></head>
-<body><div id="ed" contenteditable="true" data-placeholder="$placeholder"></div>
+<body><div id="ed" contenteditable="true" data-placeholder="${placeholder.replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;")}"></div>
 <script>
 var ed = document.getElementById('ed');
 document.execCommand('defaultParagraphSeparator', false, 'p');

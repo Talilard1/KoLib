@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.library
 
+import dev.kobolibrary.app.ui.components.FittedText
 import dev.kobolibrary.app.tr
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -99,7 +100,7 @@ fun SendDialog(
                                 selected = format == f,
                                 onClick = { format = f },
                                 shape = SegmentedButtonDefaults.itemShape(i, SendFormat.entries.size),
-                            ) { Text(formatLabel(f)) }
+                            ) { FittedText(formatLabel(f), style = MaterialTheme.typography.labelLarge, smallest = 0.7f) }
                         }
                     }
                 }
@@ -157,7 +158,7 @@ fun SendDialog(
                                 selected = covers == c,
                                 onClick = { covers = c },
                                 shape = SegmentedButtonDefaults.itemShape(i, CoverFitting.entries.size),
-                            ) { Text(c.label, maxLines = 1) }
+                            ) { FittedText(c.label, style = MaterialTheme.typography.labelLarge, smallest = 0.65f) }
                         }
                     }
                 }

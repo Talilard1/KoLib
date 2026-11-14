@@ -72,7 +72,7 @@ class LibraryBrowseState {
         }
     }
 
-    val sortDescription: String get() = "${sort.label.lowercase()}, ${if (descending) sort.descending else sort.ascending}"
+    val sortDescription: String get() = "${dev.kobolibrary.app.L10n.midSentence(sort.label)}, ${if (descending) sort.descending else sort.ascending}"
 
     val narrowed: Boolean get() = query.isNotBlank() || filter != LibraryFilter.ALL || collection != null || tags.isNotEmpty()
 

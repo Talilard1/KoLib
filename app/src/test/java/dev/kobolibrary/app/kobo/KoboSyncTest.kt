@@ -80,6 +80,21 @@ class KoboSyncTest {
         assertNull(again.library)
     }
 
+    @Test
+    fun aCollectionTheKoboDoesntHaveWaitsInTheLibraryUntilItDoes() {
+        // "B" was added in the app, but the Kobo has no collection called B: KoLib can't make one there.
+        val m = KoboSync.mergeCollections(listOf("A", "B"), listOf("A"), base = listOf("A"), exists = { it != "B" })
+        assertEquals(emptyList<String>(), m.addOnKobo)
+        assertEquals(listOf("B"), m.missingOnKobo)
+        assertNull("the library keeps it", m.library)
+        assertEquals("not agreed, so it isn't taken out next time", listOf("A"), m.agreed)
+        // Once the collection is made on the Kobo, the book goes into it.
+        val later = KoboSync.mergeCollections(listOf("A", "B"), listOf("A"), base = m.agreed)
+        assertEquals(listOf("B"), later.addOnKobo)
+        assertEquals(emptyList<String>(), later.missingOnKobo)
+        assertEquals(listOf("A", "B"), later.agreed)
+    }
+
     // ---- details --------------------------------------------------------------------------------
 
     private fun kobo(
@@ -129,6 +144,16 @@ class KoboSyncTest {
 
     // ---- end to end on the fake Kobo -----------------------------------------------------------
 
+    /** A collection made on the Kobo itself, as the person would. */
+    private fun makeCollectionOnKobo(dbFile: File, name: String) {
+        SQLiteDatabase.openDatabase(dbFile.path, null, SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.NO_LOCALIZED_COLLATORS).use { db ->
+            db.execSQL(
+                "INSERT INTO Shelf VALUES ('2026-03-01T00:00:00Z', ?, ?, '2026-03-01T00:00:00Z', ?, 'UserTag', 'false', 'true', 'false', NULL, NULL)",
+                arrayOf("id-$name", name, name),
+            )
+        }
+    }
+
     @Test
     fun theLibraryAndTheKoboEndUpAgreeing() = runBlocking {
         val drive = File(context.cacheDir, "sync-" + UUID.randomUUID()).also { FakeKobo.create(it) }
@@ -167,10 +192,14 @@ class KoboSyncTest {
         assertEquals(2, outcome.collectionsInLibrary)
         assertEquals(1, outcome.noLongerOnKobo)
         assertTrue(outcome.describe()!!.startsWith("Put 1 book in their collections on the Kobo"))
+        // The Kobo has no "Greek History", and KoLib can't make it there: the person is told.
+        assertEquals(listOf("Greek History"), outcome.missingCollections)
+        assertTrue(outcome.describe()!!.contains("The Kobo has no collection called “Greek History”"))
 
         val after = outcome.session.snapshot
         val historiesId = KoboPaths.contentId(histories.koboPath!!)
-        assertEquals(setOf("Classics", "History", "Greek History"), after.collectionsByBook[historiesId].orEmpty().toSet())
+        assertEquals(setOf("Classics", "History"), after.collectionsByBook[historiesId].orEmpty().toSet())
+        assertFalse(after.collections.any { it.name == "Greek History" })
         val onKobo = after.booksById[KoboPaths.contentId(republic.koboPath!!)]!!
         assertEquals("Dialogues", onKobo.series)
         assertEquals("Dialogues", onKobo.seriesId)
@@ -178,8 +207,8 @@ class KoboSyncTest {
 
         assertEquals(setOf("Classics", "Favourites"), libBook("The Odyssey").collections.toSet())
         assertEquals(listOf("Classics"), libBook("Meditations").collections)
-        assertEquals(setOf("Classics", "History", "Greek History"), libBook("The Histories").collections.toSet())
-        assertEquals(libBook("The Histories").collections.toSet(), libBook("The Histories").koboCollections.orEmpty().toSet())
+        assertEquals("the library keeps it", setOf("Classics", "History", "Greek History"), libBook("The Histories").collections.toSet())
+        assertEquals(setOf("Classics", "History"), libBook("The Histories").koboCollections.orEmpty().toSet())
         assertNull(libBook("Frankenstein").koboPath)
         assertFalse("syncing isn't an edit", libBook("The Odyssey").changedSinceOnKobo)
 
@@ -188,6 +217,14 @@ class KoboSyncTest {
         val again = runner.run(outcome.session)
         assertFalse(again.anything)
         assertArrayEquals(before, dbFile.readBytes())
+
+        // Once "Greek History" is made on the Kobo, the book goes into it the next time it's connected.
+        makeCollectionOnKobo(dbFile, "Greek History")
+        val made = runner.run(repo.connect(FakeDocumentsProvider.install(drive)) {})
+        assertEquals(1, made.collectionsOnKobo)
+        assertEquals(emptyList<String>(), made.missingCollections)
+        assertEquals(setOf("Classics", "History", "Greek History"), made.session.snapshot.collectionsByBook[historiesId].orEmpty().toSet())
+        assertEquals(setOf("Classics", "History", "Greek History"), libBook("The Histories").koboCollections.orEmpty().toSet())
     }
 
     // ---- books just sent, and books sent again -------------------------------------------------------
@@ -213,6 +250,10 @@ class KoboSyncTest {
         val copy = lib.duplicate(added.book.id)
         lib.updateDetails(copy.id, copy.meta, copy.collections + "Copies")
 
+        // The person made two of them on the Kobo; "Copies" isn't there.
+        makeCollectionOnKobo(dbFile, "Greek History")
+        makeCollectionOnKobo(dbFile, "Favourites")
+
         val session = repo.connect(FakeDocumentsProvider.install(drive)) {}
         val sent = KoboSender(context).send(session, copy.title, lib.book(copy.id)!!.meta, null, lib.epubFile(copy.id), SendFormat.KEPUB) as SendOutcome.Sent
         lib.markSent(copy.id, sent.path)
@@ -221,9 +262,9 @@ class KoboSyncTest {
 
         val outcome = runner.run(session)
         assertEquals(1, outcome.collectionsOnKobo)
-        assertEquals(listOf("Copies", "Favourites", "Greek History"), shelfRows(dbFile, contentId))
-        // The new collections exist on the Kobo now.
-        assertTrue(outcome.session.snapshot.collections.map { it.name }.containsAll(listOf("Copies", "Greek History", "Favourites")))
+        assertEquals(listOf("Favourites", "Greek History"), shelfRows(dbFile, contentId))
+        assertEquals(listOf("Copies"), outcome.missingCollections)
+        assertFalse(outcome.session.snapshot.collections.any { it.name == "Copies" })
         assertNull("nothing is agreed until the Kobo lists the book", lib.book(copy.id)!!.koboCollections)
 
         // Taken out of one before the Kobo is unplugged: it comes out there too.
@@ -231,7 +272,7 @@ class KoboSyncTest {
         lib.updateDetails(now.id, now.meta, now.collections - "Favourites")
         val again = runner.run(outcome.session)
         assertEquals(1, again.collectionsOnKobo)
-        assertEquals(listOf("Copies", "Greek History"), shelfRows(dbFile, contentId))
+        assertEquals(listOf("Greek History"), shelfRows(dbFile, contentId))
 
         // The Kobo takes it in (with the collections it found); next time they agree.
         SQLiteDatabase.openDatabase(dbFile.path, null, SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.NO_LOCALIZED_COLLATORS).use { db ->
@@ -243,7 +284,8 @@ class KoboSyncTest {
         val later = runner.run(repo.connect(FakeDocumentsProvider.install(drive)) {})
         assertEquals(0, later.collectionsOnKobo)
         assertEquals(0, later.collectionsInLibrary)
-        assertEquals(setOf("Copies", "Greek History"), lib.book(copy.id)!!.koboCollections.orEmpty().toSet())
+        assertEquals(setOf("Greek History"), lib.book(copy.id)!!.koboCollections.orEmpty().toSet())
+        assertEquals("the library keeps the one the Kobo doesn't have", setOf("Copies", "Greek History"), lib.book(copy.id)!!.collections.toSet())
     }
 
     @Test
@@ -252,6 +294,7 @@ class KoboSyncTest {
         // keep them): it took the book in without them. Nothing has to be added again.
         val drive = File(context.cacheDir, "sync-" + UUID.randomUUID()).also { FakeKobo.create(it) }
         val dbFile = File(drive, ".kobo/KoboReader.sqlite")
+        makeCollectionOnKobo(dbFile, "Greek History")
         val repo = KoboRepository(context)
         val lib = Library(context, File(context.filesDir, "sync-" + UUID.randomUUID()), null).apply { load() }
         val runner = KoboSyncRunner(repo, lib, PendingKoboRecords())

@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.library
 
+import dev.kobolibrary.app.ui.components.FittedText
 import dev.kobolibrary.app.tr
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -129,7 +130,7 @@ private fun ChoiceRow(selected: DuplicateChoice?, onChoose: (DuplicateChoice) ->
                 selected = selected == c,
                 onClick = { onChoose(c) },
                 shape = SegmentedButtonDefaults.itemShape(i, DuplicateChoice.entries.size),
-            ) { Text(c.label, maxLines = 1) }
+            ) { FittedText(c.label, style = MaterialTheme.typography.labelLarge, smallest = 0.7f) }
         }
     }
 }

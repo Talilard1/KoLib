@@ -59,7 +59,7 @@ class KoboDatabaseWriterTest {
 
         val after = repo.writeDatabase(session) { e ->
             var n = 0
-            if (e.addToCollection("Epics", iliad.contentId)) n++
+            if (e.addToCollection("Philosophy", iliad.contentId)) n++
             if (e.addToCollection("history", iliad.contentId)) n++ // the Kobo's "History", whatever the case
             if (e.removeFromCollection("To Read", iliad.contentId)) n++
             if (e.addToCollection("Classics", iliad.contentId)) n++ // already in it: no change
@@ -73,17 +73,14 @@ class KoboDatabaseWriterTest {
         assertNotNull(after)
         after!!
         // The connection now reads the new database.
-        assertEquals(setOf("Classics", "Epics", "History"), after.snapshot.collectionsByBook[iliad.contentId].orEmpty().toSet())
+        assertEquals(setOf("Classics", "History", "Philosophy"), after.snapshot.collectionsByBook[iliad.contentId].orEmpty().toSet())
         assertEquals("Dialogues #2", after.snapshot.booksById[republic.contentId]!!.seriesLabel)
-        assertTrue(after.snapshot.collections.any { it.name == "Epics" })
 
         onDrive { db ->
             assertEquals("ok", db.one("PRAGMA integrity_check"))
             assertEquals("true", db.one("SELECT _IsDeleted FROM ShelfContent WHERE ShelfName = 'To Read' AND ContentId = ?", iliad.contentId))
             assertEquals("false", db.one("SELECT _IsDeleted FROM ShelfContent WHERE ShelfName = 'History' AND ContentId = ?", iliad.contentId))
-            assertEquals("UserTag", db.one("SELECT Type FROM Shelf WHERE Name = 'Epics' AND InternalName = 'Epics' AND _IsDeleted = 'false'"))
-            val id = db.one("SELECT Id FROM Shelf WHERE Name = 'Epics'")!!
-            assertEquals(id, UUID.fromString(id).toString())
+            assertEquals("false", db.one("SELECT _IsDeleted FROM ShelfContent WHERE ShelfName = 'Philosophy' AND ContentId = ?", iliad.contentId))
             assertEquals("Dialogues", db.one("SELECT SeriesID FROM content WHERE ContentID = ?", republic.contentId))
             assertEquals("real", db.one("SELECT typeof(SeriesNumberFloat) FROM content WHERE ContentID = ?", republic.contentId))
             assertEquals(2.0, db.one("SELECT SeriesNumberFloat FROM content WHERE ContentID = ?", republic.contentId)!!.toDouble(), 0.0)
@@ -118,7 +115,7 @@ class KoboDatabaseWriterTest {
         val changed = dbOnDrive.readBytes()
         val iliad = session.snapshot.books.first { it.title == "The Iliad" }
         try {
-            repo.writeDatabase(session) { e -> if (e.addToCollection("Epics", iliad.contentId)) 1 else 0 }
+            repo.writeDatabase(session) { e -> if (e.addToCollection("Philosophy", iliad.contentId)) 1 else 0 }
             fail("expected the write to be refused")
         } catch (e: KoboDatabaseChangedException) {
             assertTrue(e.message!!, e.message!!.contains("changed since it was read"))
@@ -151,18 +148,18 @@ class KoboDatabaseWriterTest {
         val iliad = session.snapshot.books.first { it.title == "The Iliad" }
         assertEquals("the change in the -wal file was read", 99, iliad.percentRead)
 
-        val after = repo.writeDatabase(session) { e -> if (e.addToCollection("Epics", iliad.contentId)) 1 else 0 }!!
+        val after = repo.writeDatabase(session) { e -> if (e.addToCollection("Philosophy", iliad.contentId)) 1 else 0 }!!
         assertFalse("the old -wal file is gone", wal.exists())
         assertFalse(after.databaseHadWal)
         onDrive { db ->
             assertEquals("99", db.one("SELECT ___PercentRead FROM content WHERE ContentID = ?", iliad.contentId))
-            assertEquals("false", db.one("SELECT _IsDeleted FROM ShelfContent WHERE ShelfName = 'Epics' AND ContentId = ?", iliad.contentId))
+            assertEquals("false", db.one("SELECT _IsDeleted FROM ShelfContent WHERE ShelfName = 'Philosophy' AND ContentId = ?", iliad.contentId))
             assertEquals("ok", db.one("PRAGMA integrity_check"))
         }
         assertEquals(emptyList<String>(), leftovers().filter { !it.endsWith("-shm") })
 
         // A second write starts from the first one's result.
-        val third = repo.writeDatabase(after) { e -> if (e.removeFromCollection("Epics", iliad.contentId)) 1 else 0 }!!
+        val third = repo.writeDatabase(after) { e -> if (e.removeFromCollection("Philosophy", iliad.contentId)) 1 else 0 }!!
         assertEquals(setOf("Classics", "To Read"), third.snapshot.collectionsByBook[iliad.contentId].orEmpty().toSet())
     }
 
@@ -177,7 +174,19 @@ class KoboDatabaseWriterTest {
     }
 
     @Test
-    fun aDeletedCollectionComesBackRatherThanBeingMadeTwice() = runBlocking {
+    fun aCollectionTheKoboDoesntHaveIsntMade() = runBlocking {
+        // Collections made in the database don't show on the Kobo, so books only go into ones it has.
+        FakeKobo.create(drive)
+        val (repo, session) = connect()
+        val before = dbOnDrive.readBytes()
+        val iliad = session.snapshot.books.first { it.title == "The Iliad" }
+        assertNull(repo.writeDatabase(session) { e -> if (e.addToCollection("Epics", iliad.contentId)) 1 else 0 })
+        assertArrayEquals(before, dbOnDrive.readBytes())
+        onDrive { db -> assertEquals("0", db.one("SELECT COUNT(*) FROM Shelf WHERE Name = 'Epics'")) }
+    }
+
+    @Test
+    fun aCollectionDeletedOnTheKoboIsntBroughtBack() = runBlocking {
         FakeKobo.create(drive)
         SQLiteDatabase.openDatabase(dbOnDrive.path, null, SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.NO_LOCALIZED_COLLATORS).use { db ->
             db.execSQL("UPDATE Shelf SET _IsDeleted = 'true' WHERE Name = 'Gothic'")
@@ -185,8 +194,7 @@ class KoboDatabaseWriterTest {
         val (repo, session) = connect()
         assertFalse(session.snapshot.collections.any { it.name == "Gothic" })
         val dracula = session.snapshot.books.first { it.title == "Dracula" }
-        val after = repo.writeDatabase(session) { e -> if (e.addToCollection("Gothic", dracula.contentId)) 1 else 0 }!!
-        assertTrue(after.snapshot.collections.any { it.name == "Gothic" })
-        onDrive { db -> assertEquals("1", db.one("SELECT COUNT(*) FROM Shelf WHERE Name = 'Gothic'")) }
+        assertNull(repo.writeDatabase(session) { e -> if (e.addToCollection("Gothic", dracula.contentId)) 1 else 0 })
+        onDrive { db -> assertEquals("true", db.one("SELECT _IsDeleted FROM Shelf WHERE Name = 'Gothic'")) }
     }
 }

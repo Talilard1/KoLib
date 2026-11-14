@@ -208,7 +208,7 @@ private fun CardAction(icon: androidx.compose.ui.graphics.vector.ImageVector, la
 }
 
 private fun quoteFor(a: Annotation, controller: ReaderController): String = buildString {
-    append('“').append(a.text.replace(Regex("\\s+"), " ").trim()).append('”')
+    append(tr("“{0}”", a.text.replace(Regex("\\s+"), " ").trim()))
     append("\n— ").append(controller.bookTitle)
     controller.bookAuthor?.takeIf { it.isNotBlank() }?.let { append(", ").append(it) }
     if (a.hasNote) append("\n\n").append(a.note.trim())
@@ -230,7 +230,7 @@ fun NoteDialog(controller: ReaderController) {
         text = {
             Column {
                 Text(
-                    "“" + a.text.replace(Regex("\\s+"), " ").trim() + "”",
+                    tr("“{0}”", a.text.replace(Regex("\\s+"), " ").trim()),
                     style = MaterialTheme.typography.bodyMedium,
                     fontStyle = FontStyle.Italic,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

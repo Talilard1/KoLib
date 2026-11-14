@@ -272,7 +272,7 @@ private fun ChapterRow(
                 Text(
                     listOfNotNull(
                         words?.let { if (it == 1) tr("1 word") else tr("{0} words", "%,d".format(it)) },
-                        if (!chapter.linear) "hidden" else null,
+                        if (!chapter.linear) tr("hidden") else null,
                         if (isStart) tr("book opens here") else null,
                     ).joinToString(" · "),
                     style = MaterialTheme.typography.labelSmall,

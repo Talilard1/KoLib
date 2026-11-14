@@ -454,6 +454,7 @@ class ReaderController(
                     val start = JSONObject()
                         .put("settings", JSONObject(settingsJs(settings)))
                         .put("chapters", aroundJs(i))
+                        .put("words", wordsJs())
                         .toString()
                     val got = withTimeoutOrNull(20_000) {
                         try {
@@ -648,6 +649,7 @@ class ReaderController(
             .put("target", target)
             .put("annotations", annotationsJs(c.path))
             .put("chapters", aroundJs(index))
+            .put("words", wordsJs())
             .apply { if (autoscroll) put("auto", autoJs().put("startDelay", 1500)) }
             .apply { runCatching { pageKind(index).place }.getOrNull()?.let { put("place", it) } }
             .toString()
@@ -659,6 +661,18 @@ class ReaderController(
         loading = true
         main.post { webView?.loadUrl(server.urlFor(c.path)) }
     }
+
+    /** The words the reader's script shows itself (at the end of a scrolled chapter), in KoLib's language. */
+    private fun wordsJs(): JSONObject = JSONObject()
+        .put("endOfBook", tr("End of book"))
+        .put("endOfChapter", tr("End of chapter"))
+        .put("nextChapterTitled", tr("Next chapter: {0}"))
+        .put("nextChapter", tr("Next chapter"))
+        .put("keepReading", tr("Tap the button or pull up to keep reading"))
+        .put("letGoNext", tr("Let go to open the next chapter"))
+        .put("pullNext", tr("Pull up for the next chapter"))
+        .put("letGoPrevious", tr("Let go to open the previous chapter"))
+        .put("pullPrevious", tr("Pull down for the previous chapter"))
 
     fun nextPage() = js("KLR.next()")
     fun previousPage() = js("KLR.prev()")

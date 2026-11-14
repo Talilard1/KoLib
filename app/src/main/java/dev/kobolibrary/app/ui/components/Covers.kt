@@ -1,6 +1,11 @@
 package dev.kobolibrary.app.ui.components
 
 import android.graphics.Bitmap
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.text.font.FontStyle
+import dev.kobolibrary.app.ui.theme.Garamond
+import dev.kobolibrary.app.ui.theme.KoLibGold
+import dev.kobolibrary.app.ui.theme.LocalKoLibStyle
 import androidx.compose.foundation.Image
 import dev.kobolibrary.app.reader.ReadHere
 import androidx.compose.ui.semantics.semantics
@@ -89,9 +94,12 @@ fun CoverImage(
     var bitmap by remember(cacheKey) { mutableStateOf(cached()) }
     val bmp = bitmap
     val ratio = if (large && bmp != null && bmp.height > 0) bmp.width.toFloat() / bmp.height else COVER_ASPECT
+    val shadow = LocalKoLibStyle.current.shadow
     BoxWithConstraints(
         modifier
             .aspectRatio(ratio)
+            // A book's shadow, so the cover stands off the page as a book does.
+            .shadow(if (large) 10.dp else 3.dp, shape, clip = false, ambientColor = shadow, spotColor = shadow)
             .clip(shape)
             .border(0.5.dp, MaterialTheme.colorScheme.outlineVariant, shape)
     ) {
@@ -136,11 +144,11 @@ fun BookCover(
                     drawStopIndicator = {},
                     gapSize = 0.dp,
                 )
-                ReadStatus.FINISHED -> CornerBadge("Read", MaterialTheme.colorScheme.tertiary, MaterialTheme.colorScheme.onTertiary, Alignment.TopEnd)
+                ReadStatus.FINISHED -> CornerBadge("Read", BadgeDots.read, Alignment.TopEnd)
                 ReadStatus.UNREAD -> Unit
             }
         }
-        if (inLibrary) CornerBadge("In library", MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.onPrimary, Alignment.BottomStart)
+        if (inLibrary) CornerBadge("In library", BadgeDots.gold, Alignment.BottomStart)
         if (selected != null) SelectionMark(selected)
     }
 }
@@ -170,9 +178,9 @@ fun LibraryCover(
     ) {
         if (onKobo && !large) {
             when {
-                book.changedSinceOnKobo -> CornerBadge("Changed", MaterialTheme.colorScheme.error, MaterialTheme.colorScheme.onError, Alignment.TopEnd)
-                reading?.readStatus == ReadStatus.FINISHED -> CornerBadge("Read", MaterialTheme.colorScheme.tertiary, MaterialTheme.colorScheme.onTertiary, Alignment.TopEnd)
-                else -> CornerBadge("On Kobo", MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.onSecondary, Alignment.TopEnd)
+                book.changedSinceOnKobo -> CornerBadge("Changed", BadgeDots.changed, Alignment.TopEnd)
+                reading?.readStatus == ReadStatus.FINISHED -> CornerBadge("Read", BadgeDots.read, Alignment.TopEnd)
+                else -> CornerBadge("On Kobo", BadgeDots.gold, Alignment.TopEnd)
             }
         }
         val koboBar = reading?.readStatus == ReadStatus.READING
@@ -195,34 +203,50 @@ fun LibraryCover(
 private fun BoxScope.ReadHereBadge(percent: Int?, aboveBar: Boolean) {
     // A phone's covers are smaller, so their badges are too.
     val small = phoneLayout()
+    val style = LocalKoLibStyle.current
     Row(
         Modifier
             .align(Alignment.BottomStart)
             .padding(start = if (small) 4.dp else 5.dp, bottom = if (aboveBar) 9.dp else if (small) 4.dp else 5.dp)
             .clip(RoundedCornerShape(50))
-            .background(Color.Black.copy(alpha = 0.66f))
+            .background(style.badge)
             .padding(start = if (small) 4.dp else 5.dp, end = if (small) 5.dp else 6.dp, top = 1.dp, bottom = 1.dp)
             .semantics(mergeDescendants = true) { contentDescription = if (percent == null) "Finished on this device" else "$percent% read on this device" },
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(if (percent == null) Icons.Filled.Check else Icons.Outlined.TabletAndroid, null, tint = Color.White, modifier = Modifier.size(if (small) 10.dp else 11.dp))
+        Icon(
+            if (percent == null) Icons.Filled.Check else Icons.Outlined.TabletAndroid, null,
+            tint = if (percent == null) BadgeDots.read else BadgeDots.gold,
+            modifier = Modifier.size(if (small) 10.dp else 11.dp),
+        )
         Spacer(Modifier.width(3.dp))
-        Text(if (percent == null) "Finished" else "$percent%", color = Color.White, fontSize = if (small) 9.sp else 10.sp, fontWeight = FontWeight.SemiBold)
+        Text(if (percent == null) "Finished" else "$percent%", color = style.onBadge, fontSize = if (small) 9.sp else 10.sp, fontWeight = FontWeight.SemiBold)
     }
 }
 
+/** The dots on the badges: gold for the Kobo, green for read, red for changed. Bright, for the dark film they're on. */
+private object BadgeDots {
+    val gold = KoLibGold.gold
+    val read = Color(0xFFB5D49C)
+    val changed = Color(0xFFF59C86)
+}
+
 @Composable
-private fun BoxScope.CornerBadge(text: String, background: Color, content: Color, alignment: Alignment) {
+private fun BoxScope.CornerBadge(text: String, dot: Color, alignment: Alignment) {
     val small = phoneLayout()
-    Box(
+    val style = LocalKoLibStyle.current
+    Row(
         Modifier
             .align(alignment)
             .padding(if (small) 4.dp else 5.dp)
             .clip(RoundedCornerShape(50))
-            .background(background)
-            .padding(horizontal = if (small) 5.dp else 6.dp, vertical = if (small) 0.5.dp else 1.dp)
+            .background(style.badge)
+            .padding(start = if (small) 4.dp else 5.dp, end = if (small) 5.dp else 6.dp, top = if (small) 0.5.dp else 1.dp, bottom = if (small) 0.5.dp else 1.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(text, color = content, fontSize = if (small) 9.sp else 10.sp, fontWeight = FontWeight.SemiBold)
+        Box(Modifier.size(if (small) 5.dp else 6.dp).clip(CircleShape).background(dot))
+        Spacer(Modifier.width(if (small) 3.dp else 4.dp))
+        Text(text, color = style.onBadge, fontSize = if (small) 9.sp else 10.sp, fontWeight = FontWeight.SemiBold)
     }
 }
 
@@ -259,21 +283,26 @@ private val coverPalettes = listOf(
 @Composable
 fun GeneratedCover(title: String, author: String?, large: Boolean) {
     val (top, bottom) = coverPalettes[abs(title.hashCode()) % coverPalettes.size]
+    val gilt = KoLibGold.light
+    // Like a cloth binding, with its title stamped in gold inside a gilt frame.
     Column(
         Modifier
             .fillMaxSize()
             .background(Brush.verticalGradient(listOf(top, bottom)))
-            .padding(if (large) 20.dp else 8.dp),
+            .padding(if (large) 10.dp else 5.dp)
+            .border(if (large) 1.dp else 0.75.dp, gilt.copy(alpha = 0.55f), RoundedCornerShape(if (large) 4.dp else 2.dp))
+            .padding(if (large) 12.dp else 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(Modifier.weight(0.6f))
         Text(
             title,
-            color = Color.White,
+            color = Color(0xFFF8E9CC),
+            fontFamily = Garamond,
             fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.Center,
-            fontSize = if (large) 22.sp else 13.sp,
-            lineHeight = if (large) 26.sp else 15.sp,
+            fontSize = if (large) 25.sp else 14.5.sp,
+            lineHeight = if (large) 28.sp else 16.sp,
             maxLines = if (large) 6 else 5,
             overflow = TextOverflow.Ellipsis,
         )
@@ -281,9 +310,12 @@ fun GeneratedCover(title: String, author: String?, large: Boolean) {
         if (author != null) {
             Text(
                 author,
-                color = Color.White.copy(alpha = 0.85f),
+                color = gilt.copy(alpha = 0.9f),
+                fontFamily = Garamond,
+                fontStyle = FontStyle.Italic,
                 textAlign = TextAlign.Center,
-                fontSize = if (large) 15.sp else 10.sp,
+                fontSize = if (large) 16.sp else 11.sp,
+                lineHeight = if (large) 19.sp else 12.5.sp,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )

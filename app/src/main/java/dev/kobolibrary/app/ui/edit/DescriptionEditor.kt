@@ -2,6 +2,7 @@
 
 package dev.kobolibrary.app.ui.edit
 
+import dev.kobolibrary.app.ui.components.GoldButton
 import android.annotation.SuppressLint
 import android.os.Handler
 import android.os.Looper
@@ -166,6 +167,7 @@ fun DescriptionEditor(initialHtml: String, bookTitle: String, onDone: (String?) 
     }
 
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 navigationIcon = { IconButton(onClick = tryCancel) { Icon(Icons.Filled.Close, "Cancel") } },
@@ -176,7 +178,7 @@ fun DescriptionEditor(initialHtml: String, bookTitle: String, onDone: (String?) 
                     }
                 },
                 actions = {
-                    Button(
+                    GoldButton(
                         onClick = {
                             when {
                                 !changed -> onDone(null)
@@ -187,7 +189,7 @@ fun DescriptionEditor(initialHtml: String, bookTitle: String, onDone: (String?) 
                         modifier = Modifier.padding(end = 12.dp),
                     ) { Text("Done") }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             )
         },
     ) { padding ->

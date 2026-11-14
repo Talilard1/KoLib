@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocalLibrary
 import androidx.compose.material.icons.filled.Usb
-import androidx.compose.material.icons.outlined.AutoStories
 import androidx.compose.material.icons.outlined.LocalLibrary
 import androidx.compose.material.icons.outlined.Usb
 import androidx.compose.material3.Badge
@@ -83,7 +82,16 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.graphics.Color
 import dev.kobolibrary.app.ui.theme.ThemeChoice
+import dev.kobolibrary.app.ui.theme.LocalKoLibStyle
+import dev.kobolibrary.app.ui.theme.appBackdrop
+import dev.kobolibrary.app.ui.components.KoLibMark
+import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.NavigationRailItemDefaults
+import androidx.compose.material3.NavigationBarItemDefaults
 import dev.kobolibrary.app.ui.library.DuplicatesDialog
 import dev.kobolibrary.app.ui.library.JobDialog
 import dev.kobolibrary.app.ui.library.SendDialog
@@ -253,7 +261,7 @@ fun AppRoot(
     Box(
         Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .appBackdrop()
     ) {
         val current = overlay
         when {
@@ -661,25 +669,33 @@ internal fun AppFrame(
         LaunchedEffect(wide) { onNarrow(!wide) }
         if (wide) {
             Row(Modifier.fillMaxSize()) {
+                // The rail lies on the screen's backdrop, set off from the page by a fine gold line.
                 NavigationRail(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                    containerColor = Color.Transparent,
                     header = {
-                        Spacer(Modifier.height(8.dp))
-                        Icon(Icons.Outlined.AutoStories, "KoLib", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(28.dp))
-                        Spacer(Modifier.height(16.dp))
+                        Spacer(Modifier.height(10.dp))
+                        KoLibMark(Modifier.size(40.dp).semantics { contentDescription = "KoLib" }, glow = true)
+                        Spacer(Modifier.height(18.dp))
                     },
                 ) {
+                    val itemColors = NavigationRailItemDefaults.colors(
+                        selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                        indicatorColor = MaterialTheme.colorScheme.secondaryContainer,
+                    )
                     NavigationRailItem(
                         selected = section == Section.LIBRARY,
                         onClick = { onSection(Section.LIBRARY) },
                         icon = libraryIcon,
                         label = { Text("Library") },
+                        colors = itemColors,
                     )
                     NavigationRailItem(
                         selected = section == Section.KOBO,
                         onClick = { onSection(Section.KOBO) },
                         icon = koboIcon,
                         label = { Text("Kobo") },
+                        colors = itemColors,
                     )
                     if (onLook != null) {
                         Spacer(Modifier.weight(1f))
@@ -688,10 +704,12 @@ internal fun AppFrame(
                             onClick = onLook,
                             icon = { Icon(Icons.Outlined.Palette, null) },
                             label = { Text("Theme") },
+                            colors = itemColors,
                         )
                         Spacer(Modifier.height(12.dp))
                     }
                 }
+                VerticalDivider(color = LocalKoLibStyle.current.hairline)
                 Box(
                     Modifier
                         .weight(1f)
@@ -718,19 +736,29 @@ internal fun AppFrame(
                     enter = expandVertically(expandFrom = Alignment.Top),
                     exit = shrinkVertically(shrinkTowards = Alignment.Top),
                 ) {
-                    NavigationBar {
-                        NavigationBarItem(
-                            selected = section == Section.LIBRARY,
-                            onClick = { onSection(Section.LIBRARY) },
-                            icon = libraryIcon,
-                            label = { Text("Library") },
-                        )
-                        NavigationBarItem(
-                            selected = section == Section.KOBO,
-                            onClick = { onSection(Section.KOBO) },
-                            icon = koboIcon,
-                            label = { Text("Kobo") },
-                        )
+                    Column {
+                        HorizontalDivider(color = LocalKoLibStyle.current.hairline)
+                        NavigationBar(containerColor = MaterialTheme.colorScheme.surfaceContainerLow) {
+                            val itemColors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                selectedTextColor = MaterialTheme.colorScheme.primary,
+                                indicatorColor = MaterialTheme.colorScheme.secondaryContainer,
+                            )
+                            NavigationBarItem(
+                                selected = section == Section.LIBRARY,
+                                onClick = { onSection(Section.LIBRARY) },
+                                icon = libraryIcon,
+                                label = { Text("Library") },
+                                colors = itemColors,
+                            )
+                            NavigationBarItem(
+                                selected = section == Section.KOBO,
+                                onClick = { onSection(Section.KOBO) },
+                                icon = koboIcon,
+                                label = { Text("Kobo") },
+                                colors = itemColors,
+                            )
+                        }
                     }
                 }
             }

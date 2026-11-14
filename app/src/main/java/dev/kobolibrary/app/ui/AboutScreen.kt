@@ -2,6 +2,8 @@
 
 package dev.kobolibrary.app.ui
 
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.graphics.Color
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -57,7 +59,7 @@ object Notices {
         Notice("Lora", "Lettering on the covers the app makes.", OFL, "© 2011 The Lora Project Authors", "lora-OFL.txt"),
         Notice("Poppins", "Lettering on the covers the app makes.", OFL, "© 2020 The Poppins Project Authors", "poppins-OFL.txt"),
         Notice("Liberation Serif and Sans", "Covers the app makes, for alphabets Lora and Poppins don't have.", OFL, "© 2010 Google Corporation, © 2012 Red Hat, Inc.", "liberation-fonts.txt"),
-        Notice("EB Garamond", "A typeface for reading.", OFL, "© 2017 The EB Garamond Project Authors", "eb-garamond-OFL.txt"),
+        Notice("EB Garamond", "A typeface for reading, and for the app's headings and book titles.", OFL, "© 2017 The EB Garamond Project Authors", "eb-garamond-OFL.txt"),
         Notice("Literata", "A typeface for reading.", OFL, "© 2017 The Literata Project Authors", "literata-OFL.txt"),
         Notice("Atkinson Hyperlegible", "A typeface for reading.", OFL, "© 2020 Braille Institute of America, Inc.", "atkinson-hyperlegible-OFL.txt"),
         Notice("OpenDyslexic", "A typeface for reading.", OFL, "© 2012–2019 Abbie Gonzalez", "opendyslexic-OFL.txt"),
@@ -77,8 +79,10 @@ fun AboutScreen(onBack: () -> Unit) {
         return
     }
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
                 title = { Text("About") },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
             )
@@ -94,12 +98,17 @@ fun AboutScreen(onBack: () -> Unit) {
                     Modifier.widthIn(max = 640.dp).fillMaxWidth().padding(24.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    // The app's mark, in its own brass colours.
-                    androidx.compose.foundation.Image(
-                        androidx.compose.ui.res.painterResource(dev.kobolibrary.app.R.drawable.kolib_mark), null, Modifier.size(48.dp),
-                    )
+                    // The app's mark and name, in gold, as at the end of the opening.
+                    dev.kobolibrary.app.ui.components.KoLibMark(Modifier.size(64.dp), glow = true)
                     Column {
-                        Text(stringResource(R.string.app_name), style = MaterialTheme.typography.headlineSmall)
+                        Text(
+                            stringResource(R.string.app_name),
+                            style = MaterialTheme.typography.headlineLarge.copy(
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                                letterSpacing = 0.5.sp,
+                                brush = androidx.compose.ui.graphics.Brush.linearGradient(dev.kobolibrary.app.ui.theme.LocalKoLibStyle.current.markGold),
+                            ),
+                        )
                         Text("A library for your Kobo e-reader", style = MaterialTheme.typography.bodyMedium)
                         Text("Version ${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
@@ -142,8 +151,10 @@ internal fun LicenceText(notice: Notice, onBack: () -> Unit) {
             .getOrElse { "The licence couldn't be read." }
     }
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
                 title = {
                     Column {
                         Text(notice.name)

@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui
 
+import dev.kobolibrary.app.ui.components.GoldButton
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -155,7 +156,7 @@ private fun StatusArea(
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(12.dp))
-            Button(onClick = { onChooseDrive(connection.candidate) }) {
+            GoldButton(onClick = { onChooseDrive(connection.candidate) }) {
                 Text("Allow access to the Kobo")
             }
             Spacer(Modifier.height(10.dp))

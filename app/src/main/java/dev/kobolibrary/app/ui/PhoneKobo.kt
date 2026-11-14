@@ -2,6 +2,7 @@
 
 package dev.kobolibrary.app.ui
 
+import androidx.compose.ui.graphics.Color
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -73,6 +74,7 @@ import dev.kobolibrary.app.kobo.KoboBook
 import dev.kobolibrary.app.kobo.KoboCoverLoader
 import dev.kobolibrary.app.kobo.KoboView
 import dev.kobolibrary.app.kobo.ReadStatus
+import dev.kobolibrary.app.ui.components.SeriesStyle
 import dev.kobolibrary.app.ui.components.AlertDialog
 import dev.kobolibrary.app.ui.components.BookCover
 import dev.kobolibrary.app.ui.components.EmptyState
@@ -319,7 +321,7 @@ internal fun PhoneKoboBookPage(
                     }
                 }
             },
-            colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
         )
         Column(
             Modifier
@@ -329,7 +331,7 @@ internal fun PhoneKoboBookPage(
         ) {
             Spacer(Modifier.height(4.dp))
             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                BookCover(book, covers, CoverSize.FULL, Modifier.width(184.dp).shadow(10.dp, RoundedCornerShape(10.dp)), showProgress = false)
+                BookCover(book, covers, CoverSize.FULL, Modifier.width(184.dp), showProgress = false)
             }
             Spacer(Modifier.height(20.dp))
             Text(book.title, style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
@@ -341,7 +343,7 @@ internal fun PhoneKoboBookPage(
                 Text(it, style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
             }
             book.seriesLabel?.let {
-                Text(it, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.secondary, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                Text(it, style = SeriesStyle(), color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
             }
             if (stars > 0) {
                 Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.Center) {

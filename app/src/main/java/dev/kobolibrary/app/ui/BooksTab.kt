@@ -68,6 +68,7 @@ import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
+import dev.kobolibrary.app.ui.components.SeriesStyle
 import dev.kobolibrary.app.ui.components.AlertDialog
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material.icons.outlined.Delete
@@ -718,7 +719,7 @@ fun BookDetailPane(
                 Spacer(Modifier.height(6.dp))
                 book.author?.let { Text(it, style = MaterialTheme.typography.titleMedium) }
                 book.seriesLabel?.let {
-                    Text(it, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.secondary)
+                    Text(it, style = SeriesStyle(), color = MaterialTheme.colorScheme.primary)
                 }
                 if (stars > 0) {
                     Row(Modifier.padding(top = 6.dp)) {

@@ -2,6 +2,7 @@
 
 package dev.kobolibrary.app.ui
 
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -133,6 +134,7 @@ fun DeviceScreen(
     val choosing = phone && tab == 0 && browse.selecting
 
     Scaffold(
+        containerColor = Color.Transparent,
         contentWindowInsets = if (choosing) WindowInsets(0, 0, 0, 0) else ScaffoldDefaults.contentWindowInsets,
         topBar = {
             if (!choosing) TopAppBar(
@@ -213,7 +215,7 @@ fun DeviceScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             )
         },
     ) { padding ->
@@ -229,7 +231,7 @@ fun DeviceScreen(
                     state.syncing -> SyncingBanner()
                 }
                 // A phone has the counts in the bar above, so the tabs fit on one line.
-                PrimaryTabRow(selectedTabIndex = tab) {
+                PrimaryTabRow(selectedTabIndex = tab, containerColor = Color.Transparent) {
                     Tab(selected = tab == 0, onClick = { tab = 0 }, text = { Text(if (phone) "Books" else "Books (${snapshot.books.size})") })
                     Tab(selected = tab == 1, onClick = { tab = 1 }, text = { Text(if (phone) "Collections" else "Collections (${snapshot.collections.size})") })
                     Tab(selected = tab == 2, onClick = { tab = 2 }, text = { Text("Device") })

@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.textedit
 
+import dev.kobolibrary.app.ui.components.GoldButton
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -312,7 +313,7 @@ private fun EditorTopBar(state: TextEditState, onBack: () -> Unit, onRead: () ->
                     IconButton(onClick = onRead) { Icon(Icons.AutoMirrored.Filled.MenuBook, "Preview in reader") }
                     Spacer(Modifier.width(4.dp))
                 }
-                Button(onClick = { state.save() }, enabled = state.dirty && state.busy == null) { Text("Save") }
+                GoldButton(onClick = { state.save() }, enabled = state.dirty && state.busy == null) { Text("Save") }
                 var menu by remember { mutableStateOf(false) }
                 Box {
                     IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, "More") }

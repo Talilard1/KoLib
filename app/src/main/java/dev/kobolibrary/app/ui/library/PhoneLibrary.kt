@@ -2,6 +2,8 @@
 
 package dev.kobolibrary.app.ui.library
 
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -64,7 +66,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -106,6 +107,10 @@ import dev.kobolibrary.app.ui.PhoneNarrowedLine
 import dev.kobolibrary.app.ui.PhoneSortChip
 import dev.kobolibrary.app.ui.PhoneTagsChip
 import dev.kobolibrary.app.ui.PhoneToggleChip
+import dev.kobolibrary.app.ui.components.KoLibMark
+import dev.kobolibrary.app.ui.components.GoldButton
+import dev.kobolibrary.app.ui.components.GoldFab
+import dev.kobolibrary.app.ui.components.SeriesStyle
 import dev.kobolibrary.app.ui.components.ActionTile
 import dev.kobolibrary.app.ui.components.EmptyState
 import dev.kobolibrary.app.ui.components.Fmt
@@ -235,6 +240,8 @@ internal fun PhoneLibraryScreen(
                         .padding(start = 20.dp, end = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    KoLibMark(Modifier.size(34.dp), glow = true)
+                    Spacer(Modifier.width(10.dp))
                     Text("Library", style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
                     var menu by remember { mutableStateOf(false) }
                     Box {
@@ -251,9 +258,11 @@ internal fun PhoneLibraryScreen(
                 Row(
                     Modifier
                         .windowInsetsPadding(TopInsets)
-                        .padding(start = 16.dp, end = 4.dp, top = 8.dp, bottom = 4.dp),
+                        .padding(start = 12.dp, end = 4.dp, top = 8.dp, bottom = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    KoLibMark(Modifier.size(34.dp).semantics { contentDescription = "KoLib" }, glow = true)
+                    Spacer(Modifier.width(10.dp))
                     PhoneSearchField(
                         query = browse.query,
                         onQuery = { browse.query = it },
@@ -324,12 +333,11 @@ internal fun PhoneLibraryScreen(
         }
 
         if (!browse.selecting && books.isNotEmpty()) {
-            ExtendedFloatingActionButton(
-                onClick = { addSheet = true },
+            GoldFab(
+                text = "Add books",
+                icon = Icons.Filled.Add,
                 expanded = atTop,
-                // The label isn't read out by itself (it hides when shrunk), so the icon carries the name.
-                icon = { Icon(Icons.Filled.Add, "Add books") },
-                text = { Text("Add books") },
+                onClick = { addSheet = true },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp),
@@ -479,7 +487,7 @@ internal fun PhoneBookPage(
                     }
                 }
             },
-            colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
         )
         Column(
             Modifier
@@ -491,9 +499,7 @@ internal fun PhoneBookPage(
             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 LibraryCover(
                     book, covers, large = true,
-                    modifier = Modifier
-                        .width(184.dp)
-                        .shadow(10.dp, RoundedCornerShape(10.dp)),
+                    modifier = Modifier.width(184.dp),
                 )
             }
             Spacer(Modifier.height(20.dp))
@@ -503,14 +509,14 @@ internal fun PhoneBookPage(
                 Text(it, style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
             }
             meta.seriesLabel?.let {
-                Text(it, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.secondary, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                Text(it, style = SeriesStyle(), color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
             }
             meta.rating?.takeIf { it > 0 }?.let { r ->
                 Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.Center) {
                     repeat(5) { i ->
                         Icon(
                             Icons.Filled.Star, null,
-                            tint = if (i < (r + 1) / 2) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.outlineVariant,
+                            tint = if (i < (r + 1) / 2) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
                             modifier = Modifier.size(18.dp),
                         )
                     }
@@ -519,7 +525,7 @@ internal fun PhoneBookPage(
 
             Spacer(Modifier.height(20.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Button(
+                GoldButton(
                     onClick = onRead,
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
                     modifier = Modifier.weight(1f).heightIn(min = 52.dp),

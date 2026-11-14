@@ -1,0 +1,112 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
+package dev.kobolibrary.app.ui
+
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.Restore
+import androidx.compose.material.icons.outlined.Storage
+import dev.kobolibrary.app.ui.components.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import dev.kobolibrary.app.backup.DatabaseBackup
+import dev.kobolibrary.app.backup.BackupManager
+import dev.kobolibrary.app.ui.components.EmptyState
+import dev.kobolibrary.app.ui.components.Fmt
+
+@Composable
+fun BackupsScreen(
+    backups: List<DatabaseBackup>,
+    onExport: (DatabaseBackup) -> Unit,
+    onDelete: (DatabaseBackup) -> Unit,
+    onBack: () -> Unit,
+) {
+    val context = LocalContext.current
+    var toDelete by remember { mutableStateOf<DatabaseBackup?>(null) }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Database backups") },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
+            )
+        },
+    ) { padding ->
+        if (backups.isEmpty()) {
+            EmptyState(
+                Icons.Outlined.Restore,
+                "No backups yet",
+                "A backup of the Kobo's database is made automatically the first time you connect.",
+                Modifier.padding(padding),
+            )
+            return@Scaffold
+        }
+        LazyColumn(Modifier.padding(padding).fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp)) {
+            item {
+                Text(
+                    "Each backup is a zipped copy of the Kobo's database file (KoboReader.sqlite). It contains the Kobo's library, collections and reading progress. " +
+                        "A new backup is made whenever you connect and something has changed. The newest ${BackupManager.MAX_BACKUPS} are kept. " +
+                        "To copy a backup to Downloads/${BackupManager.EXPORT_FOLDER}, tap its download button.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
+                )
+            }
+            items(backups, key = { it.file.name }) { b ->
+                ListItem(
+                    headlineContent = { Text(Fmt.dateTime(b.createdMillis) ?: b.file.name) },
+                    supportingContent = {
+                        Text(
+                            listOfNotNull(
+                                b.deviceLabel,
+                                Fmt.bytes(context, b.sizeBytes),
+                                if (b.isCompressed) "zipped" else null,
+                                if (b.hasWal) "includes write-ahead log" else null,
+                            ).joinToString(" · ")
+                        )
+                    },
+                    leadingContent = { Icon(Icons.Outlined.Storage, null) },
+                    trailingContent = {
+                        Row {
+                            IconButton(onClick = { onExport(b) }) { Icon(Icons.Outlined.Download, "Save to Downloads") }
+                            IconButton(onClick = { toDelete = b }) { Icon(Icons.Outlined.Delete, "Delete backup") }
+                        }
+                    },
+                )
+            }
+        }
+    }
+
+    toDelete?.let { b ->
+        AlertDialog(
+            onDismissRequest = { toDelete = null },
+            title = { Text("Delete this backup?") },
+            text = { Text("The backup from ${Fmt.dateTime(b.createdMillis)} will be deleted from this device. Nothing on the Kobo changes.") },
+            confirmButton = { TextButton(onClick = { toDelete = null; onDelete(b) }) { Text("Delete") } },
+            dismissButton = { TextButton(onClick = { toDelete = null }) { Text("Cancel") } },
+        )
+    }
+}

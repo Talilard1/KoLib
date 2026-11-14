@@ -1,0 +1,655 @@
+package dev.kobolibrary.app.ui.textedit
+
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.res.AssetManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.os.Handler
+import android.os.Looper
+import android.view.View
+import android.webkit.JavascriptInterface
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import dev.kobolibrary.app.epub.BookCheck
+import dev.kobolibrary.app.epub.BookEdit
+import dev.kobolibrary.app.epub.BookStructure
+import dev.kobolibrary.app.epub.ChapterOps
+import dev.kobolibrary.app.epub.Cleanups
+import dev.kobolibrary.app.epub.EpubFile
+import dev.kobolibrary.app.epub.OverlayFiles
+import dev.kobolibrary.app.epub.TextMap
+import dev.kobolibrary.app.epub.Xml
+import dev.kobolibrary.app.epub.XmlCheck
+import dev.kobolibrary.app.epub.XmlException
+import dev.kobolibrary.app.library.Library
+import dev.kobolibrary.app.log.AppLog
+import dev.kobolibrary.app.reader.BookServer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.ByteArrayOutputStream
+import kotlin.coroutines.resume
+
+/** What the formatting toolbar shows for where the cursor is. */
+data class ToolbarState(val bold: Boolean = false, val italic: Boolean = false, val block: String? = null, val image: String? = null)
+
+/**
+ * A book's text being edited: the chapters, the page or code open in the editor, find & replace,
+ * clean-ups, and saving. Everything goes through one [BookEdit], so it can all be undone.
+ */
+class TextEditState(
+    val bookId: String,
+    val title: String,
+    private val library: Library,
+    private val scope: CoroutineScope,
+    private val assets: AssetManager,
+    initialPath: String?,
+) {
+    val edit = BookEdit(library.epubFile(bookId))
+    private val main = Handler(Looper.getMainLooper())
+    private val server = BookServer(assets, edit).apply { inject = EDITOR_HEAD }
+
+    /** Bumped with every change, so the screen looks again. */
+    var version by mutableIntStateOf(edit.version)
+        private set
+    var currentPath by mutableStateOf(initialPath?.takeIf { p -> edit.structure.chapters.any { it.path == p } }
+        ?: edit.structure.chapters.firstOrNull { it.linear }?.path ?: edit.structure.chapters.firstOrNull()?.path)
+        private set
+    var showCode by mutableStateOf(false)
+        private set
+    var busy by mutableStateOf<String?>(null)
+        private set
+    var message by mutableStateOf<String?>(null)
+    /** Changes that would damage the book, found when saving. */
+    var refused by mutableStateOf<List<BookCheck.Problem>?>(null)
+    var checkResult by mutableStateOf<List<BookCheck.Problem>?>(null)
+    var toolbar by mutableStateOf(ToolbarState())
+        private set
+    /** A mistake in the code being typed; the chapter keeps its last good version meanwhile. */
+    var codeError by mutableStateOf<XmlCheck.Problem?>(null)
+        private set
+    var hasOriginal by mutableStateOf(library.hasOriginalText(bookId))
+        private set
+    var pageReady by mutableStateOf(false)
+        private set
+
+    val find = FindState(this)
+
+    val structure: BookStructure get() = edit.structure
+    val dirty: Boolean get() = version.let { edit.dirty }
+    val canUndo: Boolean get() = version.let { edit.canUndo }
+    val canRedo: Boolean get() = version.let { edit.canRedo }
+    val undoLabel: String? get() = version.let { edit.undoLabel }
+    val redoLabel: String? get() = version.let { edit.redoLabel }
+    val chapter get() = version.let { structure.chapters.firstOrNull { it.path == currentPath } }
+
+    private var webView: WebView? = null
+    @Volatile
+    private var startJson = "{}"
+    @Volatile
+    private var codeStartJson = "{}"
+    private var scrollY = 0
+    /** The next commit from the page joins this change (adding a picture, then putting it in). */
+    @Volatile
+    private var joinNext: String? = null
+    private var pendingFind: JSONObject? = null
+    /** Whether the page open now came as a whole document (it wasn't valid XHTML), so it goes back whole. */
+    private var loadedWhole = false
+
+    fun bump() {
+        version = edit.version
+    }
+
+    private var lastJob: kotlinx.coroutines.Job? = null
+
+    private fun go(block: suspend CoroutineScope.() -> Unit): kotlinx.coroutines.Job = scope.launch(block = block).also { lastJob = it }
+
+    /** Waits for the last piece of work to finish (for tests). */
+    internal fun awaitWork() = kotlinx.coroutines.runBlocking { lastJob?.join() }
+
+    // ---- the WebView ----------------------------------------------------------------------------
+
+    @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface")
+    fun createView(context: Context, dark: Boolean): WebView = WebView(context).apply {
+        this@TextEditState.dark = dark
+        // Without this the WebView treats the page as having no height (100vh = 0).
+        layoutParams = android.view.ViewGroup.LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.MATCH_PARENT)
+        settings.javaScriptEnabled = true
+        settings.allowFileAccess = false
+        settings.allowContentAccess = false
+        settings.domStorageEnabled = false
+        settings.textZoom = 100
+        settings.setSupportZoom(false)
+        settings.builtInZoomControls = false
+        settings.displayZoomControls = false
+        settings.useWideViewPort = true
+        settings.loadWithOverviewMode = false
+        overScrollMode = View.OVER_SCROLL_NEVER
+        setBackgroundColor(if (dark) 0xFF121110.toInt() else 0xFFE7E3DA.toInt())
+        webViewClient = object : WebViewClient() {
+            override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? =
+                server.respond(request.url.toString())
+
+            override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean = true
+        }
+        addJavascriptInterface(PageBridge(), "KLE")
+        addJavascriptInterface(CodeBridge(), "KLC")
+        webView = this
+        load(keepScroll = true)
+    }
+
+    var dark = false
+
+    fun releaseView() {
+        webView?.let {
+            it.stopLoading()
+            it.removeJavascriptInterface("KLE")
+            it.removeJavascriptInterface("KLC")
+            it.destroy()
+        }
+        webView = null
+    }
+
+    private fun load(keepScroll: Boolean = false) {
+        val path = currentPath ?: return
+        val v = webView ?: return
+        pageReady = false
+        if (!keepScroll) scrollY = 0
+        if (showCode) {
+            val text = edit.text(path).orEmpty()
+            val error = XmlCheck.check(text, htmlEntities = XmlCheck.hasXhtmlDoctype(text))
+            codeError = error
+            codeStartJson = JSONObject().apply {
+                put("text", text)
+                put("dark", dark)
+                put("scrollY", scrollY)
+                error?.let { put("error", JSONObject().put("line", it.line).put("message", it.message)) }
+            }.toString()
+            v.loadUrl(BookServer.APP + "editor/code.html?v=$version")
+        } else {
+            loadedWhole = !servedAsXhtml(path)
+            startJson = JSONObject().apply {
+                put("whole", loadedWhole)
+                put("dark", dark)
+                put("scrollY", scrollY)
+                pendingFind?.let { put("find", it) }
+            }.toString()
+            pendingFind = null
+            v.loadUrl(server.urlFor(path) + "?v=$version")
+        }
+    }
+
+    private fun servedAsXhtml(path: String): Boolean {
+        val text = edit.text(path) ?: return false
+        return BookServer.prepare(text, "").first == "application/xhtml+xml"
+    }
+
+    private fun js(code: String, result: ((String?) -> Unit)? = null) {
+        main.post { webView?.evaluateJavascript(code, result) ?: result?.invoke(null) }
+    }
+
+    /** Takes in anything typed but not yet sent from the page or code. */
+    suspend fun flush() {
+        val path = currentPath ?: return
+        if (webView == null || !pageReady) return
+        // A page that doesn't answer (it's still loading, say) has nothing new to give.
+        val raw = withTimeoutOrNull(3_000) {
+            suspendCancellableCoroutine<String?> { cont ->
+                js(if (showCode) "KLCD.flush()" else "KLED.flush()") { r -> if (cont.isActive) cont.resume(r) }
+            }
+        }
+        val value = raw?.let { runCatching { JSONArray("[$it]").optString(0) }.getOrNull() }.orEmpty()
+        if (value.isEmpty()) return
+        if (showCode) codeChanged(path, value) else pageChanged(path, value, whole = loadedWhole)
+    }
+
+    // ---- changes from the page and the code -----------------------------------------------------
+
+    private fun pageChanged(path: String, markup: String, whole: Boolean) {
+        val text = edit.text(path) ?: return
+        val newText = if (whole) {
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<!DOCTYPE html>\n" + markup + "\n"
+        } else withBody(text, markup) ?: return
+        val key = joinNext ?: "type:$path"
+        joinNext = null
+        if (edit.apply("Typing in “${chapterTitle(path)}”", mapOf(path to newText.toByteArray(Charsets.UTF_8)), coalesceKey = key)) bump()
+    }
+
+    private fun codeChanged(path: String, typed: String) {
+        val old = edit.text(path) ?: return
+        val text = if (old.endsWith("\n") && !typed.endsWith("\n")) typed + "\n" else typed
+        val error = XmlCheck.check(text, htmlEntities = XmlCheck.hasXhtmlDoctype(text))
+        codeError = error
+        js("KLCD.error(${JSONObject.quote(error?.let { JSONObject().put("line", it.line).put("message", it.message).toString() } ?: "null")})")
+        if (error != null) return
+        if (edit.apply("Edited the code of “${chapterTitle(path)}”", mapOf(path to text.toByteArray(Charsets.UTF_8)), coalesceKey = "code:$path")) bump()
+    }
+
+    private fun chapterTitle(path: String) = structure.chapters.firstOrNull { it.path == path }?.title ?: path.substringAfterLast('/')
+
+    private inner class PageBridge {
+        @JavascriptInterface
+        fun start(): String = startJson
+
+        @JavascriptInterface
+        fun ready(json: String) = main.post { pageReady = true }
+
+        @JavascriptInterface
+        fun changed(markup: String) = main.post {
+            val path = currentPath ?: return@post
+            if (!showCode) pageChanged(path, markup, whole = loadedWhole)
+        }
+
+        @JavascriptInterface
+        fun state(json: String) = main.post {
+            val o = runCatching { JSONObject(json) }.getOrNull() ?: return@post
+            toolbar = ToolbarState(o.optBoolean("bold"), o.optBoolean("italic"), o.optString("block").takeIf { it.isNotEmpty() && it != "null" },
+                o.optString("image").takeIf { it.isNotEmpty() && it != "null" })
+            scrollY = o.optInt("scrollY", scrollY)
+        }
+
+        @JavascriptInterface
+        fun undo() {
+            main.post { this@TextEditState.undo() }
+        }
+
+        @JavascriptInterface
+        fun redo() {
+            main.post { this@TextEditState.redo() }
+        }
+
+        @JavascriptInterface
+        fun log(m: String) = AppLog.d("Editor", m)
+    }
+
+    private inner class CodeBridge {
+        @JavascriptInterface
+        fun start(): String = codeStartJson
+
+        @JavascriptInterface
+        fun ready() = main.post { pageReady = true }
+
+        @JavascriptInterface
+        fun changed(text: String) = main.post {
+            val path = currentPath ?: return@post
+            if (showCode) codeChanged(path, text)
+        }
+    }
+
+    // ---- moving around and undoing --------------------------------------------------------------
+
+    fun open(path: String, then: JSONObject? = null) {
+        go {
+            flush()
+            if (path == currentPath && then != null && !showCode && pageReady) {
+                js("KLED.find(${JSONObject.quote(then.toString())})")
+                return@go
+            }
+            currentPath = path
+            pendingFind = then
+            load()
+        }
+    }
+
+    /** Switches between the page and its code. Code with a mistake in it isn't taken back to the page. */
+    fun setCode(on: Boolean, discardBadCode: Boolean = false) {
+        if (on == showCode) return
+        go {
+            if (showCode && codeError != null && !discardBadCode) {
+                flush()
+                if (codeError != null) {
+                    message = "Fix the mistake in the code first, or undo it. (${codeError})"
+                    return@go
+                }
+            } else flush()
+            codeError = null
+            showCode = on
+            load()
+        }
+    }
+
+    fun undo() {
+        go {
+            flush()
+            val touched = edit.undo()
+            afterHistory(touched)
+        }
+    }
+
+    fun redo() {
+        go {
+            flush()
+            val touched = edit.redo()
+            afterHistory(touched)
+        }
+    }
+
+    private fun afterHistory(touched: Set<String>) {
+        bump()
+        val current = currentPath
+        if (current == null || !edit.has(current)) {
+            currentPath = structure.chapters.firstOrNull()?.path
+            load()
+        } else if (current in touched) {
+            load(keepScroll = true)
+        }
+        find.bookChanged()
+    }
+
+    // ---- chapter operations ---------------------------------------------------------------------
+
+    /** Runs a change to the book's chapters as one undoable step, and opens [ChapterOps.Result.focus]. */
+    fun change(work: suspend () -> ChapterOps.Result?) {
+        go {
+            flush()
+            busy = "Working…"
+            try {
+                val result = withContext(Dispatchers.Default) { work() } ?: return@go
+                if (edit.apply(result.label, result.changes)) {
+                    bump()
+                    val focus = result.focus?.takeIf { edit.has(it) }
+                    val current = currentPath
+                    when {
+                        focus != null && focus != current -> { currentPath = focus; load() }
+                        current == null || !edit.has(current) -> { currentPath = structure.chapters.firstOrNull()?.path; load() }
+                        current in result.changes.keys -> load(keepScroll = true)
+                    }
+                    find.bookChanged()
+                }
+            } catch (e: ChapterOps.OpError) {
+                message = e.message
+            } catch (e: Exception) {
+                AppLog.e("Editor", "A change to the book failed", e)
+                message = "That didn't work: ${e.message ?: e.javaClass.simpleName}"
+            } finally {
+                busy = null
+            }
+        }
+    }
+
+    fun rename(path: String, title: String, alsoHeading: Boolean) = change { ChapterOps.rename(edit, structure, path, title, alsoHeading) }
+    fun reorder(order: List<String>) = change { ChapterOps.reorder(edit, structure, order) }
+    fun mergeWithPrevious(path: String) = change { ChapterOps.mergeWithPrevious(edit, structure, path) }
+    fun delete(path: String) = change { ChapterOps.delete(edit, structure, path) }
+    fun setHidden(path: String, hidden: Boolean) = change { ChapterOps.setHidden(edit, structure, path, hidden) }
+    fun setStart(path: String) = change { ChapterOps.setStart(edit, structure, path) }
+    fun contentsFromHeadings() = change { ChapterOps.contentsFromHeadings(edit, structure) }
+    fun split(path: String, offset: Int, title: String?) = change { ChapterOps.split(edit, structure, path, offset, title) }
+    fun addChapter(after: String?, title: String) = change { ChapterOps.addChapter(edit, structure, after, title) }
+
+    val startPath: String? get() = version.let { runCatching { ChapterOps.startPath(structure) }.getOrNull() }
+
+    fun splitPoints(path: String): List<ChapterOps.SplitPoint> =
+        edit.text(path)?.let { runCatching { ChapterOps.splitPoints(it) }.getOrNull() }.orEmpty()
+
+    /** Splits the chapter open in the page editor at the paragraph the cursor is in. */
+    fun splitAtCursor() {
+        val path = currentPath ?: return
+        if (showCode) {
+            message = "Switch back from the code to split at the cursor."
+            return
+        }
+        js("KLED.splitHere()") { raw ->
+            val marked = raw?.let { runCatching { JSONArray("[$it]").optString(0) }.getOrNull() }.orEmpty()
+            if (marked.isEmpty()) {
+                message = "Put the cursor in the paragraph the new chapter should start with."
+                return@js
+            }
+            change {
+                val text = edit.text(path) ?: return@change null
+                val whole = loadedWhole
+                val withMarker = if (whole) "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<!DOCTYPE html>\n$marked\n" else {
+                    withBody(text, marked) ?: throw ChapterOps.OpError("This chapter has no text to split.")
+                }
+                val doc = Xml.parse(withMarker)
+                val target = doc.root.descendants().firstOrNull { it.attributes.containsKey("data-kl-split") }
+                    ?: throw ChapterOps.OpError("The place to split couldn't be found.")
+                val attrs = LinkedHashMap(target.attributes).apply { remove("data-kl-split") }
+                val clean = withMarker.substring(0, target.start) + Xml.startTag(target.name, attrs, target.selfClosing) + withMarker.substring(target.startTagEnd)
+                val overlay = OverlayFiles(edit, mapOf(path to clean.toByteArray(Charsets.UTF_8)))
+                val r = ChapterOps.split(overlay, BookStructure(overlay), path, target.start, null)
+                r.copy(changes = mapOf(path to clean.toByteArray(Charsets.UTF_8)) + r.changes)
+            }
+        }
+    }
+
+    // ---- formatting ----------------------------------------------------------------------------
+
+    fun command(name: String, arg: String? = null) {
+        if (showCode) return
+        js("KLED.cmd(${JSONObject.quote(name)}, ${arg?.let { JSONObject.quote(it) } ?: "null"})")
+    }
+
+    /** Adds a picture to the book and puts it in the page where the cursor is. */
+    fun insertPicture(bytes: ByteArray) {
+        val path = currentPath ?: return
+        go {
+            flush()
+            val prepared = withContext(Dispatchers.Default) { preparePicture(bytes, null) }
+            if (prepared == null) {
+                message = "That picture couldn't be read."
+                return@go
+            }
+            val (data, type) = prepared
+            val ext = if (type == "image/png") "png" else "jpg"
+            val picPath = ChapterOps.newPicturePath(edit, structure, ext)
+            val r = ChapterOps.addFile(edit, structure, picPath, data, type)
+            val key = "pic:$path:${System.nanoTime()}"
+            if (edit.apply(r.label, r.changes, coalesceKey = key)) {
+                bump()
+                joinNext = key
+                command("image", EpubFile.relativeHref(path, picPath))
+            }
+        }
+    }
+
+    /** Replaces the picture picked in the page (everywhere it's used), keeping its file and type. */
+    fun replacePicture(bytes: ByteArray) {
+        val path = currentPath ?: return
+        val src = toolbar.image ?: return
+        go {
+            flush()
+            val picPath = EpubFile.resolvePath(path.substringBeforeLast('/', ""), src)
+            val oldType = BookServer.mediaType(picPath)
+            val prepared = withContext(Dispatchers.Default) { preparePicture(bytes, oldType) }
+            if (prepared == null || !edit.has(picPath)) {
+                message = "That picture couldn't be used."
+                return@go
+            }
+            if (edit.apply("Replaced a picture", mapOf(picPath to prepared.first))) {
+                bump()
+                command("reloadImage", src)
+            }
+        }
+    }
+
+    /** A picture as JPEG or PNG, at most 2400 pixels across, or as [keepType] when replacing one. */
+    private fun preparePicture(bytes: ByteArray, keepType: String?): Pair<ByteArray, String>? {
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
+        if (bounds.outWidth <= 0) return null
+        val isJpeg = bounds.outMimeType == "image/jpeg"
+        val isPng = bounds.outMimeType == "image/png"
+        val wantType = keepType?.takeIf { it == "image/jpeg" || it == "image/png" } ?: if (isPng) "image/png" else "image/jpeg"
+        val small = maxOf(bounds.outWidth, bounds.outHeight) <= 2400
+        if (small && ((wantType == "image/jpeg" && isJpeg) || (wantType == "image/png" && isPng))) return bytes to wantType
+        var sample = 1
+        while (maxOf(bounds.outWidth, bounds.outHeight) / (sample * 2) >= 2400) sample *= 2
+        val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, BitmapFactory.Options().apply { inSampleSize = sample }) ?: return null
+        val out = ByteArrayOutputStream()
+        bmp.compress(if (wantType == "image/png") Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG, 90, out)
+        return out.toByteArray() to wantType
+    }
+
+    // ---- clean-ups --------------------------------------------------------------------------------
+
+    suspend fun cleanupCounts(only: Set<String>?): Map<Cleanups.Kind, Int> {
+        flush()
+        return withContext(Dispatchers.Default) {
+            Cleanups.Kind.entries.associateWith { k -> runCatching { Cleanups.run(k, edit, structure, only).count }.getOrDefault(0) }
+        }
+    }
+
+    fun cleanup(kind: Cleanups.Kind, only: Set<String>?) = change {
+        val r = Cleanups.run(kind, edit, structure, only)
+        if (r.count == 0) null else ChapterOps.Result("${kind.label} (${kind.describe(r.count)})", r.changes, currentPath)
+    }
+
+    // ---- saving --------------------------------------------------------------------------------
+
+    fun save(onSaved: (() -> Unit)? = null) {
+        go {
+            flush()
+            if (codeError != null) {
+                message = "The code has a mistake, so your change isn't in the book yet. Fix it or undo it first."
+                return@go
+            }
+            busy = "Saving and checking the book…"
+            try {
+                val result = withContext(Dispatchers.IO) { edit.save(library.originalTextFile(bookId)) }
+                when (result) {
+                    BookEdit.SaveResult.NothingToSave -> message = "Nothing to save."
+                    is BookEdit.SaveResult.Saved -> {
+                        bump()
+                        hasOriginal = true
+                        library.afterTextEdit(bookId)
+                        message = "Saved. The book was checked and has no new problems." +
+                            if (result.problemsBefore > 0) " (It already had ${result.problemsBefore} problem${if (result.problemsBefore == 1) "" else "s"} before you edited it. Those weren't changed.)" else ""
+                        onSaved?.invoke()
+                    }
+                    is BookEdit.SaveResult.Refused -> refused = result.problems
+                }
+            } catch (e: Exception) {
+                AppLog.e("Editor", "Saving the text failed", e)
+                message = "Couldn't save: ${e.message ?: e.javaClass.simpleName}. The book wasn't changed."
+            } finally {
+                busy = null
+            }
+        }
+    }
+
+    fun discardChanges() {
+        edit.discardUnsaved()
+        bump()
+        if (currentPath?.let { edit.has(it) } != true) currentPath = structure.chapters.firstOrNull()?.path
+        load(keepScroll = true)
+        find.bookChanged()
+    }
+
+    fun checkBook() {
+        go {
+            flush()
+            busy = "Checking the book…"
+            checkResult = withContext(Dispatchers.Default) { BookCheck.run(edit) }
+            busy = null
+        }
+    }
+
+    fun revert(onDone: () -> Unit) {
+        go {
+            busy = "Restoring the original text…"
+            try {
+                library.revertText(bookId)
+                withContext(Dispatchers.IO) { edit.reload() }
+                hasOriginal = false
+                bump()
+                if (currentPath?.let { edit.has(it) } != true) currentPath = structure.chapters.firstOrNull()?.path
+                load()
+                find.bookChanged()
+                message = "The original text has been restored. The details and cover weren't changed."
+                onDone()
+            } catch (e: Exception) {
+                AppLog.e("Editor", "Reverting failed", e)
+                message = "Couldn't restore the original text: ${e.message}"
+            } finally {
+                busy = null
+            }
+        }
+    }
+
+    fun close() {
+        releaseView()
+        edit.close()
+    }
+
+    /** Shows a find match in the page (opening its chapter, or going back from the code, if needed). */
+    fun showMatch(current: JSONObject, all: JSONArray, reload: Boolean = false) {
+        val o = JSONObject().put("current", current).put("all", all).put("smooth", true)
+        val path = current.optString("path")
+        if (!reload && !showCode && path == currentPath && pageReady) {
+            js("KLED.find(${JSONObject.quote(o.toString())})")
+            return
+        }
+        go {
+            flush()
+            if (showCode && codeError != null) {
+                message = "Fix the mistake in the code first, or undo it. (${codeError})"
+                return@go
+            }
+            showCode = false
+            codeError = null
+            val same = path == currentPath
+            currentPath = path
+            pendingFind = o
+            load(keepScroll = same)
+        }
+    }
+
+    /** Shows the page again after the book changed under it, with [find] highlighted. */
+    fun refreshPage(find: JSONObject?) {
+        if (showCode) return
+        pendingFind = find
+        load(keepScroll = true)
+    }
+
+    val scopeForFind: CoroutineScope get() = scope
+
+    fun clearMatches() = js("if (window.KLED) KLED.clearFind()")
+
+    companion object {
+        private val nsDecl = Regex("""\s+xmlns(?::([A-Za-z_][\w.-]*))?\s*=\s*"([^"]*)"""")
+
+        /** Namespace declarations in effect inside the body (on html and body). */
+        private fun declaredNamespaces(body: dev.kobolibrary.app.epub.XElement): Map<String, String> {
+            val out = HashMap<String, String>()
+            var e: dev.kobolibrary.app.epub.XElement? = body
+            while (e != null) {
+                for ((k, v) in e.attributes) {
+                    if (k == "xmlns") out.putIfAbsent("", v)
+                    else if (k.startsWith("xmlns:")) out.putIfAbsent(k.removePrefix("xmlns:"), v)
+                }
+                e = e.parent
+            }
+            return out
+        }
+
+        /**
+         * [text] with its body's content replaced by [markup] from the browser. The browser repeats namespace
+         * declarations on each element it writes out; ones the chapter already has are dropped.
+         */
+        fun withBody(text: String, markup: String): String? {
+            val doc = try { Xml.parse(text) } catch (e: XmlException) { return null }
+            val body = TextMap.body(doc)
+            if (body === doc.root || body.selfClosing) return null
+            val declared = declaredNamespaces(body)
+            val clean = nsDecl.replace(markup) { m -> if (declared[m.groupValues[1]] == m.groupValues[2]) "" else m.value }
+            return text.substring(0, body.startTagEnd) + clean + text.substring(body.endTagStart)
+        }
+
+        val EDITOR_HEAD =
+            "<link data-kl=\"\" rel=\"stylesheet\" type=\"text/css\" href=\"${BookServer.APP}editor/editor.css\"/>" +
+                "<script data-kl=\"\" type=\"text/javascript\" src=\"${BookServer.APP}editor/editor.js\"></script>"
+    }
+}

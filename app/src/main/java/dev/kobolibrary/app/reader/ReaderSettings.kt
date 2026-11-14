@@ -1,0 +1,398 @@
+package dev.kobolibrary.app.reader
+
+import android.content.Context
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import org.json.JSONObject
+
+/** Page colours. Tinted and dark ones recolour the book's text too, so it stays readable. */
+enum class ReaderTheme(val label: String, val bg: Long, val fg: Long, val link: Long, val recolor: Boolean, val dark: Boolean) {
+    PAPER("Paper", 0xFFFBF8F1, 0xFF1F1C18, 0xFF1D4F91, false, false),
+    WHITE("White", 0xFFFFFFFF, 0xFF141414, 0xFF1A4FA0, false, false),
+    SEPIA("Sepia", 0xFFF2E6CE, 0xFF3A2D1F, 0xFF7A4A12, true, false),
+    SLATE("Slate", 0xFF3B3D41, 0xFFE6E3DE, 0xFFA9C8FF, true, true),
+    NIGHT("Night", 0xFF1E1D1B, 0xFFD8D2C8, 0xFF94B6EE, true, true),
+    BLACK("Black", 0xFF000000, 0xFFC4C0B8, 0xFF8FB0E6, true, true),
+}
+
+enum class ReaderFont(val label: String, val css: String) {
+    BOOK("Book default", ""),
+    LITERATA("Literata", "'Literata', serif"),
+    GARAMOND("Garamond", "'EB Garamond', serif"),
+    SERIF("Noto Serif", "'Noto Serif', serif"),
+    SANS("Roboto", "Roboto, 'Noto Sans', sans-serif"),
+    HYPERLEGIBLE("Atkinson", "'Atkinson Hyperlegible', sans-serif"),
+    DYSLEXIC("OpenDyslexic", "'OpenDyslexic', sans-serif"),
+}
+
+enum class ReaderMargins(val label: String, val fraction: Float) {
+    NARROW("Narrow", 0.035f),
+    MEDIUM("Medium", 0.065f),
+    WIDE("Wide", 0.11f),
+}
+
+enum class ReaderAlign(val label: String, val js: String) {
+    BOOK("Book default", "book"),
+    LEFT("Left", "left"),
+    JUSTIFY("Justified", "justify"),
+}
+
+enum class ReaderHyphens(val label: String, val js: String) {
+    BOOK("Book default", "book"),
+    ON("On", "on"),
+    OFF("Off", "off"),
+}
+
+enum class ReaderSpread(val label: String, val columns: Int) {
+    AUTO("Two in landscape", 0),
+    ONE("Always one", 1),
+    TWO("Always two", 2),
+}
+
+/** Which way the screen faces while reading. */
+enum class ReaderRotation(val label: String, val help: String) {
+    AUTO("Automatic", "Turns with the device."),
+    PORTRAIT("Portrait", "Always upright, however you hold the device."),
+    LANDSCAPE("Landscape", "Always sideways, however you hold the device."),
+}
+
+/** What taps on the page do. The middle always brings up the controls. */
+enum class TapZones(val label: String, val js: String, val help: String) {
+    SIDES("Left goes back, right goes forward", "sides", ""),
+    FORWARD("Both sides go forward", "forward", "Handy for reading with one hand. Swipe right to go back."),
+    TOP_BOTTOM("Top goes back, bottom goes forward", "topbottom", "The left and right sides work too."),
+    OFF("Off", "none", "Swipe, or use the volume buttons, to turn pages."),
+}
+
+/** How far in from the screen's edges a tap turns the page. */
+enum class TapWidth(val label: String, val fraction: Float) {
+    NARROW("Small", 0.12f),
+    MEDIUM("Medium", 0.2f),
+    WIDE("Large", 0.28f),
+}
+
+/** What's done with pictures so they sit on the page's colour rather than in a white box. */
+enum class PictureBlend(val label: String, val js: String, val help: String) {
+    OFF("Off", "off", "Pictures look the same as in the book."),
+    ORNAMENTS("Decorations", "ornaments", "Black-and-white decorations and charts take the page colour. On dark pages they turn light. Framed pictures keep their white background."),
+    ALL("All pictures", "all", "Every picture takes the page colour. On dark pages, photos look like negatives."),
+}
+
+/** The thin line along the foot of the page that grows as you read, as a Kobo has. */
+enum class ProgressLine(val label: String) {
+    BOOK("Book"),
+    CHAPTER("Chapter"),
+    OFF("Off"),
+}
+
+/**
+ * How strongly the progress bar (and autoscroll's bar) is drawn: in the text's colour, or dimmed toward
+ * the page's, which wears an OLED screen less where the bar always is.
+ */
+enum class BarShade(val label: String, val strength: Float) {
+    TEXT("Same as text", 1f),
+    DIM("Dimmed", 0.35f),
+}
+
+/** How a chapter is laid out: as pages to turn, or as one long page to scroll down. */
+enum class ReaderFlow(val label: String, val js: String) {
+    PAGES("Pages", "pages"),
+    SCROLL("Scrolling", "scroll"),
+}
+
+/** What autoscroll does when it gets to the end of a chapter. */
+enum class AutoEnd(val label: String, val seconds: Int) {
+    GO_ON("Go straight to the next chapter", 0),
+    WAIT("Wait 3 seconds, then continue", 3),
+    WAIT_LONG("Wait 10 seconds, then continue", 10),
+    STOP("Stop", -1),
+}
+
+/** What autoscroll does after you touch the page (opening the controls or a menu always pauses it). */
+enum class AutoResume(val label: String, val seconds: Int) {
+    KEEP_GOING("Keep going", 0),
+    SOON("Pause for 2 seconds", 2),
+    LATER("Pause for 5 seconds", 5),
+    STOP("Stop", -1),
+}
+
+/** How a page turns. Curl and Fade are drawn by the app over the page; Slide is the page itself moving. */
+enum class PageTurn(val label: String, val js: String) {
+    SLIDE("Slide", "slide"),
+    CURL("Curl", "curl"),
+    /** The new page swept in from the top corner, across to the opposite one. */
+    SWEEP("Sweep", "sweep"),
+    FADE("Fade", "fade"),
+    /** Stored under its old name. */
+    INSTANT("Instant", "none"),
+}
+
+/** A place in the page's margins for something to show while reading, or nowhere. */
+enum class MarginSpot(val label: String, val top: Boolean, val align: Int) {
+    OFF("Off", false, 0),
+    TOP_LEFT("Top left", true, -1),
+    TOP_CENTER("Top centre", true, 0),
+    TOP_RIGHT("Top right", true, 1),
+    BOTTOM_LEFT("Bottom left", false, -1),
+    BOTTOM_CENTER("Bottom centre", false, 0),
+    BOTTOM_RIGHT("Bottom right", false, 1),
+}
+
+/** What the margins can show while reading, in the order they're shown when they share a place. */
+enum class MarginItem(val label: String, val example: String, val default: MarginSpot) {
+    BOOK("Book title", "The Eye of the World", MarginSpot.OFF),
+    CHAPTER("Chapter title", "1 The Hook", MarginSpot.TOP_CENTER),
+    PAGE("Page number in chapter", "Page 3 of 12", MarginSpot.BOTTOM_LEFT),
+    BOOK_PAGE("Page number in book", "Page 45 of 380", MarginSpot.OFF),
+    PAGES_LEFT("Pages left in chapter", "9 pages left", MarginSpot.OFF),
+    TIME_LEFT("Reading time left in chapter", "12 min left", MarginSpot.OFF),
+    CLOCK("Clock", "3:42", MarginSpot.BOTTOM_CENTER),
+    BATTERY("Battery", "70%", MarginSpot.BOTTOM_CENTER),
+    PERCENT("Percent of book read", "34%", MarginSpot.BOTTOM_RIGHT);
+
+    companion object {
+        val DEFAULTS: Map<MarginItem, MarginSpot> = entries.associateWith { it.default }
+
+        /** As stored: "CHAPTER=TOP_CENTER,PAGE=BOTTOM_LEFT,..." (anything not named keeps its usual place). */
+        fun parse(stored: String?): Map<MarginItem, MarginSpot> {
+            val out = DEFAULTS.toMutableMap()
+            stored?.split(',')?.forEach { pair ->
+                val item = entries.firstOrNull { it.name == pair.substringBefore('=') } ?: return@forEach
+                val spot = MarginSpot.entries.firstOrNull { it.name == pair.substringAfter('=') } ?: return@forEach
+                out[item] = spot
+            }
+            return out
+        }
+
+        fun write(map: Map<MarginItem, MarginSpot>): String = entries.joinToString(",") { "${it.name}=${(map[it] ?: it.default).name}" }
+    }
+}
+
+data class ReaderSettings(
+    val theme: ReaderTheme = ReaderTheme.PAPER,
+    val font: ReaderFont = ReaderFont.BOOK,
+    /** Text size, 1 = as the book sets it. */
+    val fontScale: Float = 1f,
+    /** Line spacing; 0 = as the book sets it. */
+    val lineSpacing: Float = 0f,
+    val margins: ReaderMargins = ReaderMargins.MEDIUM,
+    val align: ReaderAlign = ReaderAlign.BOOK,
+    val hyphens: ReaderHyphens = ReaderHyphens.BOOK,
+    val spread: ReaderSpread = ReaderSpread.AUTO,
+    val pageTurn: PageTurn = PageTurn.SLIDE,
+    val volumeKeys: Boolean = true,
+    /**
+     * A swipe in from the left side opens the contents, from the right the reading settings. Off, the
+     * sides are left to Android's back swipe.
+     */
+    val edgePanels: Boolean = true,
+    /** With [edgePanels] off: KoLib's own back swipe at the sides, rather than Android's. */
+    val edgeBack: Boolean = false,
+    /** Where the chapter, page number, time and the rest show in the margins (or don't). */
+    val marginItems: Map<MarginItem, MarginSpot> = MarginItem.DEFAULTS,
+    /** The screen stays on while reading. */
+    val keepScreenOn: Boolean = true,
+    /** Screen brightness while reading, 0 to 1; below 0, the tablet's own. */
+    val brightness: Float = -1f,
+    /** The colour and style new highlights get (the last ones chosen). */
+    val highlightColor: HighlightColor = HighlightColor.YELLOW,
+    val highlightStyle: HighlightStyle = HighlightStyle.HIGHLIGHT,
+    /** The app words are looked up in ("package/activity"), once chosen. */
+    val dictionary: String? = null,
+    /** Darker than the screen goes: a shade over the page, 0 to 0.7. */
+    val dim: Float = 0f,
+    val rotation: ReaderRotation = ReaderRotation.AUTO,
+    val taps: TapZones = TapZones.SIDES,
+    val tapWidth: TapWidth = TapWidth.NARROW,
+    val pictures: PictureBlend = PictureBlend.ORNAMENTS,
+    /** A chapter's opening page (its number, an ornament) shown with its text, when a book keeps it in a file of its own. */
+    val joinOpenings: Boolean = true,
+    /** Pages to turn, or one long page to scroll. */
+    val flow: ReaderFlow = ReaderFlow.PAGES,
+    /** Autoscroll's speed, in words a minute. */
+    val autoWpm: Int = 230,
+    val autoEnd: AutoEnd = AutoEnd.WAIT,
+    val autoResume: AutoResume = AutoResume.SOON,
+    /** How much of the book (or the chapter) has been read, as a line along the foot of the page. */
+    val progressLine: ProgressLine = ProgressLine.BOOK,
+    /** How strongly that line, and autoscroll's, is drawn. */
+    val barShade: BarShade = BarShade.TEXT,
+) {
+    val scrolling: Boolean get() = flow == ReaderFlow.SCROLL
+
+    /**
+     * The bars' colour, as one solid colour: the text's, or part way from the page's colour to it. Solid,
+     * so where a bar's parts overlap (its hairline under the thicker part) the overlap doesn't show.
+     */
+    val barColor: Long get() {
+        val k = barShade.strength
+        fun mix(shift: Int): Long {
+            val bg = (theme.bg shr shift) and 0xFF
+            val fg = (theme.fg shr shift) and 0xFF
+            return Math.round(bg + (fg - bg) * k.toDouble()).coerceIn(0L, 255L)
+        }
+        return (0xFFL shl 24) or (mix(16) shl 16) or (mix(8) shl 8) or mix(0)
+    }
+
+    fun spotOf(item: MarginItem): MarginSpot = marginItems[item] ?: item.default
+
+    /**
+     * Brightness as one number, for the slider and the swipe down the left edge: 1 is the brightest,
+     * 0 the screen's dimmest, and below that the page is shaded darker still. Null: the tablet's own.
+     */
+    val level: Float? get() = when {
+        dim > 0f -> -dim
+        brightness < 0f -> null
+        else -> brightness
+    }
+
+    fun withLevel(v: Float): ReaderSettings =
+        if (v >= 0.01f) copy(brightness = v.coerceAtMost(1f), dim = 0f)
+        else copy(brightness = 0.01f, dim = (-v).coerceIn(0f, MAX_DIM))
+
+    /**
+     * Just what the page itself shows: the rest (keys, brightness, highlight colour...) changes nothing
+     * there. When scrolling, the margins do: their items show over the text, in bands it scrolls under.
+     */
+    fun pageOnly(): ReaderSettings = copy(
+        volumeKeys = true, edgePanels = true, edgeBack = false, marginItems = if (scrolling) marginItems else MarginItem.DEFAULTS, keepScreenOn = true, brightness = -1f,
+        highlightColor = HighlightColor.YELLOW, highlightStyle = HighlightStyle.HIGHLIGHT, dictionary = null,
+        dim = 0f, rotation = ReaderRotation.AUTO, autoWpm = 230, autoEnd = AutoEnd.WAIT, autoResume = AutoResume.SOON,
+        progressLine = ProgressLine.BOOK,
+    )
+
+    /** When scrolling, the bands the margins' items show in, top and bottom (none where nothing shows). */
+    val bandTop: Int get() = if (scrolling && marginItems.values.any { it.top }) BAND else 0
+    val bandBottom: Int get() = if (scrolling && marginItems.values.any { !it.top && it != MarginSpot.OFF }) BAND else 0
+
+    /** What reader.js is told. */
+    fun toJs(language: String?): String = JSONObject().apply {
+        put("bg", css(theme.bg))
+        put("fg", css(theme.fg))
+        put("link", css(theme.link))
+        put("recolor", theme.recolor)
+        put("dimImages", theme.dark)
+        put("sel", if (theme.dark) "rgba(120, 160, 255, 0.35)" else "rgba(255, 196, 0, 0.35)")
+        put("hl", if (theme.dark) "rgba(255, 196, 0, 0.35)" else "rgba(255, 196, 0, 0.55)")
+        put("fontScale", fontScale.toDouble())
+        put("font", font.css)
+        put("line", lineSpacing.toDouble())
+        put("align", align.js)
+        put("hyphens", hyphens.js)
+        put("marginFrac", margins.fraction.toDouble())
+        put("columns", spread.columns)
+        put("flow", flow.js)
+        put("bandTop", bandTop)
+        put("bandBottom", bandBottom)
+        put("animate", pageTurn == PageTurn.SLIDE)
+        put("turn", if (scrolling) PageTurn.SLIDE.js else pageTurn.js)
+        put("taps", taps.js)
+        put("tapWidth", tapWidth.fraction.toDouble())
+        put("blend", pictures.js)
+        put("barColor", css(barColor))
+        language?.let { put("lang", it) }
+    }.toString()
+
+    companion object {
+        fun css(argb: Long): String = "#%06x".format(argb and 0xFFFFFF)
+        val FONT_SCALES = listOf(0.7f, 0.8f, 0.9f, 1f, 1.1f, 1.2f, 1.3f, 1.45f, 1.6f, 1.8f, 2f, 2.3f, 2.6f)
+        val LINE_SPACINGS = listOf(0f, 1.2f, 1.4f, 1.6f, 1.8f, 2f)
+        const val MAX_DIM = 0.7f
+        /** How tall the bands are that margin items show in when scrolling, in dp (the page's pixels). */
+        const val BAND = 36
+        const val MIN_WPM = 80
+        const val MAX_WPM = 600
+    }
+}
+
+/** The reader's settings, the same for every book. */
+class ReaderSettingsStore(context: Context) {
+    private val prefs = context.getSharedPreferences("reader", Context.MODE_PRIVATE)
+    private val _settings = MutableStateFlow(load())
+    val settings: StateFlow<ReaderSettings> = _settings.asStateFlow()
+
+    fun update(change: (ReaderSettings) -> ReaderSettings) {
+        val next = change(_settings.value)
+        _settings.value = next
+        prefs.edit()
+            .putString("theme", next.theme.name)
+            .putString("font", next.font.name)
+            .putFloat("fontScale", next.fontScale)
+            .putFloat("line", next.lineSpacing)
+            .putString("margins", next.margins.name)
+            .putString("align", next.align.name)
+            .putString("hyphens", next.hyphens.name)
+            .putString("spread", next.spread.name)
+            .putString("turn", next.pageTurn.name)
+            .putBoolean("volume", next.volumeKeys)
+            .putBoolean("edgePanels", next.edgePanels)
+            .putBoolean("edgeBack", next.edgeBack)
+            .putString("marginItems", MarginItem.write(next.marginItems))
+            .putBoolean("awake", next.keepScreenOn)
+            .putFloat("brightness", next.brightness)
+            .putString("hlColor", next.highlightColor.name)
+            .putString("hlStyle", next.highlightStyle.name)
+            .putString("dictionary", next.dictionary)
+            .putFloat("dim", next.dim)
+            .putBoolean("openings", next.joinOpenings)
+            .putString("rotation", next.rotation.name)
+            .putString("taps", next.taps.name)
+            .putString("tapWidth", next.tapWidth.name)
+            .putString("pictures", next.pictures.name)
+            .putString("flow", next.flow.name)
+            .putInt("autoWpm", next.autoWpm)
+            .putString("autoEnd", next.autoEnd.name)
+            .putString("autoResume", next.autoResume.name)
+            .putString("progressBar", next.progressLine.name)
+            .putString("barShade", next.barShade.name)
+            .apply()
+    }
+
+    /** From the two switches there were before each item had a place of its own. */
+    private fun marginsBefore(): Map<MarginItem, MarginSpot> {
+        val out = MarginItem.DEFAULTS.toMutableMap()
+        if (!prefs.getBoolean("status", true)) listOf(MarginItem.CHAPTER, MarginItem.PAGE, MarginItem.PERCENT).forEach { out[it] = MarginSpot.OFF }
+        if (!prefs.getBoolean("clock", true)) listOf(MarginItem.CLOCK, MarginItem.BATTERY).forEach { out[it] = MarginSpot.OFF }
+        return out
+    }
+
+    private inline fun <reified E : Enum<E>> enumOf(key: String, default: E): E =
+        prefs.getString(key, null)?.let { v -> enumValues<E>().firstOrNull { it.name == v } } ?: default
+
+    private fun load(): ReaderSettings {
+        val d = ReaderSettings()
+        return ReaderSettings(
+            theme = enumOf("theme", d.theme),
+            font = enumOf("font", d.font),
+            fontScale = prefs.getFloat("fontScale", d.fontScale),
+            lineSpacing = prefs.getFloat("line", d.lineSpacing),
+            margins = enumOf("margins", d.margins),
+            align = enumOf("align", d.align),
+            hyphens = enumOf("hyphens", d.hyphens),
+            spread = enumOf("spread", d.spread),
+            pageTurn = enumOf("turn", d.pageTurn),
+            volumeKeys = prefs.getBoolean("volume", d.volumeKeys),
+            edgePanels = prefs.getBoolean("edgePanels", d.edgePanels),
+            edgeBack = prefs.getBoolean("edgeBack", d.edgeBack),
+            brightness = prefs.getFloat("brightness", d.brightness),
+            highlightColor = enumOf("hlColor", d.highlightColor),
+            highlightStyle = enumOf("hlStyle", d.highlightStyle),
+            dictionary = prefs.getString("dictionary", null),
+            dim = prefs.getFloat("dim", d.dim),
+            joinOpenings = prefs.getBoolean("openings", d.joinOpenings),
+            rotation = enumOf("rotation", d.rotation),
+            taps = enumOf("taps", d.taps),
+            tapWidth = enumOf("tapWidth", d.tapWidth),
+            pictures = enumOf("pictures", d.pictures),
+            flow = enumOf("flow", d.flow),
+            autoWpm = prefs.getInt("autoWpm", d.autoWpm).coerceIn(ReaderSettings.MIN_WPM, ReaderSettings.MAX_WPM),
+            autoEnd = enumOf("autoEnd", d.autoEnd),
+            autoResume = enumOf("autoResume", d.autoResume),
+            progressLine = enumOf("progressBar", d.progressLine),
+            barShade = enumOf("barShade", d.barShade),
+            marginItems = prefs.getString("marginItems", null)?.let { MarginItem.parse(it) } ?: marginsBefore(),
+            keepScreenOn = prefs.getBoolean("awake", d.keepScreenOn),
+        )
+    }
+}

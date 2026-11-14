@@ -3,6 +3,10 @@ package dev.kobolibrary.app.library
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import dev.kobolibrary.app.convert.AndroidPdfPages
+import dev.kobolibrary.app.convert.BookFormats
+import dev.kobolibrary.app.convert.ConversionException
+import dev.kobolibrary.app.convert.SourceFormat
 import dev.kobolibrary.app.epub.BookMetadata
 import dev.kobolibrary.app.epub.BookAssembly
 import dev.kobolibrary.app.epub.EpubEditor
@@ -68,6 +72,9 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
     fun bookDir(id: String) = File(root, id)
     fun epubFile(id: String) = File(bookDir(id), "book.epub")
     fun coverFile(id: String) = File(bookDir(id), "cover.jpg")
+
+    /** The file a book was added as, when that wasn't an EPUB (a PDF, a MOBI...): kept with it, as it was. */
+    fun sourceFile(id: String): File? = bookDir(id).listFiles()?.firstOrNull { it.name.startsWith("$SOURCE.") }
     fun book(id: String): LibraryBook? = _books.value.firstOrNull { it.id == id }
     fun byKoboPath(path: String): LibraryBook? = _books.value.firstOrNull { it.koboPath.equals(path, ignoreCase = true) }
 
@@ -96,17 +103,47 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
         /** A book made here on purpose (new, merged, split, a copy): never mistaken for one already there. */
         made: Boolean = false,
         hold: Boolean = false,
+        /** The file this EPUB was made from (see [sourceFile]) and what kind it is, to keep with it. */
+        attach: Pair<File, String>? = null,
     ): ImportOutcome = withContext(Dispatchers.IO) {
         if (koboPath != null) byKoboPath(koboPath)?.let { return@withContext ImportOutcome.AlreadyThere(name, it) }
         incoming.mkdirs()
         val temp = File(incoming, UUID.randomUUID().toString() + ".epub")
+        val raw = File(incoming, UUID.randomUUID().toString() + ".in")
+        // Added as another kind of file: the file itself, kept with the book, and what kind it is.
+        var origin: Pair<File, String>? = attach
         try {
             try {
-                open().use { input -> temp.outputStream().use { input.copyTo(it, 256 * 1024) } }
+                open().use { input -> raw.outputStream().use { input.copyTo(it, 256 * 1024) } }
             } catch (e: IOException) {
                 return@withContext ImportOutcome.Failed(name, "Couldn't read the file: ${e.message}")
             }
-            if (temp.length() == 0L) return@withContext ImportOutcome.Failed(name, "The file is empty.")
+            if (raw.length() == 0L) return@withContext ImportOutcome.Failed(name, "The file is empty.")
+            val format = if (attach != null) SourceFormat.EPUB else runCatching { BookFormats.detect(raw, name) }.getOrNull()
+                ?: return@withContext ImportOutcome.Failed(name, "KoLib can't open this kind of file.")
+            if (format == SourceFormat.EPUB) {
+                if (!raw.renameTo(temp)) raw.copyTo(temp, overwrite = true)
+            } else {
+                // Made into an EPUB, so it reads, edits and goes to the Kobo like any other book.
+                val made0 = System.currentTimeMillis()
+                val result = try {
+                    val pages = if (format == SourceFormat.PDF) runCatching { AndroidPdfPages(raw) }.getOrNull() else null
+                    try {
+                        BookFormats.toEpub(format, raw, name, temp, pages)
+                    } finally {
+                        pages?.close()
+                    }
+                } catch (e: ConversionException) {
+                    return@withContext ImportOutcome.Failed(name, e.message ?: "It couldn't be made into a book.")
+                } catch (e: OutOfMemoryError) {
+                    return@withContext ImportOutcome.Failed(name, "It's too big to convert on this device.")
+                } catch (e: Exception) {
+                    AppLog.e("Library", "Converting '$name' failed", e)
+                    return@withContext ImportOutcome.Failed(name, "It couldn't be made into a book (${e.message ?: e.javaClass.simpleName}).")
+                }
+                origin = raw to (result.kind ?: format.name)
+                AppLog.i("Library", "Made '$name' (${format.label}) into an EPUB in ${System.currentTimeMillis() - made0} ms.")
+            }
 
             try {
                 EpubFile.open(temp).close()
@@ -136,6 +173,8 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
             lock.withLock {
                 if (!made) findDuplicate(meta, koboPath)?.let { existing ->
                     val kept = if (hold) keepAside(temp) else null
+                    // The file it was made from goes aside with it.
+                    if (kept != null) origin?.let { (file, kind) -> runCatching { file.copyTo(File(held, "${kept.name}.$SOURCE.$kind.${extensionOf(name, kind)}"), overwrite = true) } }
                     return@withContext ImportOutcome.AlreadyThere(name, existing, kept, meta)
                 }
                 val id = UUID.randomUUID().toString()
@@ -146,6 +185,7 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
                     temp.delete()
                 }
                 val hasCover = coverBytes?.let { writeThumbnail(it, coverFile(id)) } ?: false
+                origin?.let { (file, kind) -> file.copyTo(File(dir, "$SOURCE.${extensionOf(name, kind)}"), overwrite = true) }
                 val now = System.currentTimeMillis()
                 val book = LibraryBook(
                     id = id,
@@ -162,6 +202,7 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
                     words = words,
                     // Taken from the Kobo, so both sides agree on them to start with.
                     koboCollections = if (koboPath != null) collections.distinctBy { it.lowercase() } else null,
+                    sourceFormat = origin?.second,
                 )
                 db.upsert(book)
                 _books.update { it + book }
@@ -170,7 +211,26 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
             }
         } finally {
             temp.delete()
+            raw.delete()
         }
+    }
+
+    /** A file's own ending ("azw3", "pdf"), or the usual one for [kind]. */
+    private fun extensionOf(name: String, kind: String): String {
+        val ext = name.lowercase().substringAfterLast('.', "").filter { it.isLetterOrDigit() }.take(8)
+        return ext.ifEmpty { if (kind == BookFormats.PDF_SCAN || kind == BookFormats.PDF_ONLY) "pdf" else SourceFormat.entries.firstOrNull { it.name == kind }?.extension ?: "bin" }
+    }
+
+    /** The file a held book was made from, kept aside with it, and what kind it is. */
+    fun heldSource(file: File): Pair<File, String>? =
+        file.parentFile?.listFiles()?.firstOrNull { it.name.startsWith("${file.name}.$SOURCE.") }?.let { f ->
+            f to f.name.removePrefix("${file.name}.$SOURCE.").substringBefore('.')
+        }
+
+    /** Lets go of a book that was held, and the file it was made from. */
+    fun discardHeld(file: File) {
+        heldSource(file)?.first?.delete()
+        file.delete()
     }
 
     /**
@@ -239,10 +299,21 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
             epubFile(id).copyTo(file, overwrite = true)
             EpubEditor.writeMetadata(file, source.meta.copy(title = title, titleSort = source.meta.titleSort?.let { "$it (copy)" }))
         }
-        val copy = takeMade(file, source.collections)
+        var copy = takeMade(file, source.collections)
+        sourceFile(id)?.let { f ->
+            withContext(Dispatchers.IO) { f.copyTo(File(bookDir(copy.id), f.name), overwrite = true) }
+            copy = updateBook(copy.copy(sourceFormat = source.sourceFormat))
+        }
         AppLog.i("Library", "Made a copy of '${source.title}', '${copy.title}'.")
         // The copy's cover is the same picture, to be treated the same way.
         return if (source.coverAsIs) setCoverAsIs(copy.id, true) ?: copy else copy
+    }
+
+    /** Saves [b] as it now is. */
+    private suspend fun updateBook(b: LibraryBook): LibraryBook = withContext(Dispatchers.IO) {
+        db.upsert(b)
+        _books.update { list -> list.map { if (it.id == b.id) b else it } }
+        b
     }
 
     /** "Title (copy)", or "Title (copy 2)" and so on when the library has that already. */
@@ -295,13 +366,17 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
             }
             originalTextFile(id).delete()
             bookDir(id).listFiles()?.filter { it.name.startsWith(ORIGINAL_COVER) }?.forEach { it.delete() }
-            refreshFromFile(id, "Replaced the file of") { it.copy(originalName = name, source = BookSource.FILE, coverAsIs = false) }
+            // The file it was made from now: the new one's, if it had one.
+            sourceFile(id)?.delete()
+            val newSource = heldSource(file)
+            newSource?.let { (f, kind) -> f.copyTo(File(bookDir(id), "$SOURCE.${extensionOf(name, kind)}"), overwrite = true) }
+            refreshFromFile(id, "Replaced the file of") { it.copy(originalName = name, source = BookSource.FILE, coverAsIs = false, sourceFormat = newSource?.second) }
         }
     }
 
     /** Adds [file] (a book being added: [ImportOutcome.AlreadyThere.held]) as a book of its own, beside the one it matched. */
     suspend fun addAnyway(file: File, name: String): LibraryBook =
-        when (val r = import(name, { file.inputStream() }, BookSource.FILE, made = true)) {
+        when (val r = import(name, { file.inputStream() }, BookSource.FILE, made = true, attach = heldSource(file))) {
             is ImportOutcome.Added -> r.book.also { AppLog.i("Library", "Added '${it.title}' again, as a book of its own.") }
             is ImportOutcome.AlreadyThere -> r.existing
             is ImportOutcome.Failed -> throw IOException(r.reason)
@@ -636,6 +711,8 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
     companion object {
         private const val ORIGINAL_COVER = "original-cover"
         private const val ORIGINAL_TEXT = "original.epub"
+        /** The start of the name of the file a book was made from: "source.pdf". */
+        private const val SOURCE = "source"
         private const val THUMB_WIDTH = 600
 
         fun stripExtension(name: String): String {

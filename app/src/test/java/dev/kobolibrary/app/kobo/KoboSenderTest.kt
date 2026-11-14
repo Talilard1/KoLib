@@ -452,4 +452,37 @@ class KoboSenderTest {
         assertEquals(SendFormat.EPUB, SendFormat.of("x/Y.epub"))
         assertEquals("file:///mnt/onboard/A/B.epub", KoboPaths.contentId("/A/B.epub"))
     }
+
+    @Test
+    fun aPdfGoesAsItIsInPlaceOfTheBookInAnotherFormat() = runBlocking {
+        val session = connect()
+        val (file, meta) = histories()
+        val first = sender.send(session, meta.title, meta, null, file, SendFormat.KEPUB) as SendOutcome.Sent
+        assertTrue(File(drive, first.path).exists())
+        val pdf = File(context.cacheDir, "$name/The Histories.pdf").apply { writeBytes("%PDF-1.4\n% a stand-in for a real PDF\n%%EOF\n".toByteArray()) }
+        var lastProgress = 0f
+        val second = sender.send(session, meta.title, meta, first.path, file, SendFormat.KEPUB, onProgress = { lastProgress = it }, pdf = pdf)
+        assertTrue(second.toString(), second is SendOutcome.Sent)
+        second as SendOutcome.Sent
+        assertEquals(first.path.removeSuffix(".kepub.epub") + ".pdf", second.path)
+        assertEquals(first.path, second.movedFrom)
+        assertFalse("the kepub has gone", File(drive, first.path).exists())
+        assertArrayEquals(pdf.readBytes(), File(drive, second.path).readBytes())
+        assertEquals(1f, lastProgress, 0.001f)
+        // And back again: the kepub takes the PDF's place.
+        val third = sender.send(session, meta.title, meta, second.path, file, SendFormat.KEPUB) as SendOutcome.Sent
+        assertEquals(first.path, third.path)
+        assertFalse(File(drive, second.path).exists())
+    }
+
+    @Test
+    fun aBookIsTheSameBookInAnyFormat() {
+        assertEquals(KoboPaths.stem("A/B - C.kepub.epub"), KoboPaths.stem("A/B - C.pdf"))
+        assertEquals(KoboPaths.stem("A/B - C.epub"), KoboPaths.stem("a/b - c.PDF"))
+        assertEquals("A/B - C.pdf", KoboPaths.asPdf("A/B - C.kepub.epub"))
+        assertEquals("A/B - C.kepub.epub", KoboPaths.withFormat("A/B - C.pdf", SendFormat.KEPUB))
+        assertEquals("PDF", KoboPaths.kindOf("x.pdf"))
+        assertEquals("kepub", KoboPaths.kindOf("x.kepub.epub"))
+        assertEquals("EPUB", KoboPaths.kindOf("x.epub"))
+    }
 }

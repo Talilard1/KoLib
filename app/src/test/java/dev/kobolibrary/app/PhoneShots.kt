@@ -313,12 +313,12 @@ class PhoneShots {
 
     @Test @Config(qualifiers = PHONE)
     fun send() = overBook("p20_send") { _, _, book ->
-        SendDialog(listOf(book), connected = true, freeBytes = 9_800_000_000, initialFormat = SendFormat.KEPUB, onSend = { _, _ -> }, onConnect = {}, onDismiss = {}, pathOnKobo = { null })
+        SendDialog(listOf(book), connected = true, freeBytes = 9_800_000_000, initialFormat = SendFormat.KEPUB, onSend = { _, _, _ -> }, onConnect = {}, onDismiss = {}, pathOnKobo = { null })
     }
 
     @Test @Config(qualifiers = SMALL)
     fun sendSmall() = overBook("s20_send") { _, _, book ->
-        SendDialog(listOf(book), connected = true, freeBytes = 9_800_000_000, initialFormat = SendFormat.KEPUB, onSend = { _, _ -> }, onConnect = {}, onDismiss = {}, pathOnKobo = { null })
+        SendDialog(listOf(book), connected = true, freeBytes = 9_800_000_000, initialFormat = SendFormat.KEPUB, onSend = { _, _, _ -> }, onConnect = {}, onDismiss = {}, pathOnKobo = { null })
     }
 
     @Test @Config(qualifiers = PHONE)

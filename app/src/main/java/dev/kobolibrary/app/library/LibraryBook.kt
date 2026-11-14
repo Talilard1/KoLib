@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.library
 
+import dev.kobolibrary.app.convert.BookFormats
 import dev.kobolibrary.app.epub.BookMetadata
 
 enum class BookSource { FILE, KOBO }
@@ -34,7 +35,32 @@ data class LibraryBook(
      * to the Kobo's screen when the book is sent; the Kobo shows it the way it shows any cover.
      */
     val coverAsIs: Boolean = false,
+    /**
+     * The kind of file the book was added as, when it wasn't an EPUB ("PDF", "MOBI"...): it was made into
+     * one, and the file it came as is kept with it. A PDF reads and can be sent as it is; "SCAN" is a PDF of
+     * scanned pages, which only reads and goes to the Kobo as the PDF.
+     */
+    val sourceFormat: String? = null,
 ) {
+    /** Added as a PDF, which is kept to read and send as it is. */
+    val isPdf: Boolean get() = sourceFormat == "PDF" || isScan
+
+    /**
+     * A PDF that's only read and sent as the PDF: scanned pages, which have no text, or one too big to
+     * make into an EPUB on the device. Its EPUB is a stand-in.
+     */
+    val isScan: Boolean get() = sourceFormat == BookFormats.PDF_SCAN || sourceFormat == BookFormats.PDF_ONLY
+
+    /** Goes to the Kobo as its PDF: when [pdfs] are sent as PDFs, and always for scanned pages. */
+    fun goesAsPdf(pdfs: Boolean): Boolean = isScan || (pdfs && isPdf)
+
+    /** What kind of file the book was added as, for its details: "PDF file, made into an EPUB". */
+    val addedAs: String? get() = when (sourceFormat) {
+        null -> null
+        BookFormats.PDF_SCAN -> "PDF of scanned pages or pictures"
+        BookFormats.PDF_ONLY -> "PDF, too big to make into an EPUB"
+        else -> dev.kobolibrary.app.convert.SourceFormat.entries.firstOrNull { it.name == sourceFormat }?.let { "${it.label} file, made into an EPUB" }
+    }
     val title: String get() = meta.title
     val authorLine: String? get() = meta.authors.takeIf { it.isNotEmpty() }?.joinToString(", ")
 

@@ -648,7 +648,7 @@ class AdvertShots {
 
     @Test @Config(qualifiers = TAB)
     fun sendDialog() = overLibrary("send_dialog") { book ->
-        SendDialog(listOf(book), connected = true, freeBytes = 9_800_000_000, initialFormat = SendFormat.KEPUB, onSend = { _, _ -> }, onConnect = {}, onDismiss = {}, pathOnKobo = { null })
+        SendDialog(listOf(book), connected = true, freeBytes = 9_800_000_000, initialFormat = SendFormat.KEPUB, onSend = { _, _, _ -> }, onConnect = {}, onDismiss = {}, pathOnKobo = { null })
     }
 
     @Test @Config(qualifiers = TAB)

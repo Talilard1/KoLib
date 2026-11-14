@@ -66,11 +66,22 @@ object KoboPaths {
     private fun base(path: String): String = when {
         path.lowercase().endsWith(".kepub.epub") -> path.dropLast(".kepub.epub".length)
         path.lowercase().endsWith(".epub") -> path.dropLast(".epub".length)
+        path.lowercase().endsWith(".pdf") -> path.dropLast(".pdf".length)
         else -> path
     }
 
     /** The same path with the other format's ending. */
     fun withFormat(path: String, format: SendFormat): String = base(path) + format.extension
+
+    /** The same path, for the book sent as a PDF. */
+    fun asPdf(path: String): String = base(path) + ".pdf"
+
+    /** What a book on the Kobo at [path] is, as people say it: "kepub", "EPUB" or "PDF". */
+    fun kindOf(path: String): String = when {
+        path.lowercase().endsWith(".kepub.epub") -> "kepub"
+        path.lowercase().endsWith(".pdf") -> "PDF"
+        else -> "EPUB"
+    }
 
     /** The path without its format's ending, in lower case: the same for a book in either format. */
     fun stem(path: String): String = base(path).lowercase()
@@ -153,8 +164,11 @@ class KoboSender(private val context: Context) {
         covers: CoverFitting = CoverFitting.BLUR,
         /** A place no other book has, for a book that has to go to the Kobo as a new one. */
         freshPlace: ((SendFormat) -> String)? = null,
+        /** A PDF to send as it is, in place of [file]. */
+        pdf: File? = null,
         onProgress: (Float) -> Unit = {},
     ): SendOutcome = withContext(Dispatchers.IO) {
+        if (pdf != null) return@withContext sendPdf(session, title, meta, koboPath, pdf, onProgress)
         var target = targetPath(meta, koboPath, format)
         var oldPath = koboPath?.takeIf { !it.equals(target, ignoreCase = true) }
         val temps = mutableListOf<File>()
@@ -272,6 +286,44 @@ class KoboSender(private val context: Context) {
             SendOutcome.Failed(title, "Android didn't allow writing to the Kobo.")
         } finally {
             temps.forEach { it.delete() }
+        }
+    }
+
+    /**
+     * Sends a PDF as it is. The Kobo makes its own cover pictures for PDFs, from the first page. Sent again
+     * unchanged, the Kobo keeps its record of it; changed, it takes it in as a new book.
+     */
+    private fun sendPdf(session: KoboSession, title: String, meta: BookMetadata, koboPath: String?, pdf: File, onProgress: (Float) -> Unit): SendOutcome {
+        val target = KoboPaths.asPdf(koboPath ?: KoboPaths.forBook(meta, SendFormat.EPUB))
+        val oldPath = koboPath?.takeIf { !it.equals(target, ignoreCase = true) }
+        return try {
+            val contentId = KoboPaths.contentId(target)
+            val record = session.snapshot.booksById[contentId]?.takeIf { it.isSideloaded }
+            val before = session.tree.resolve(target)?.size
+            val unchanged = record != null && before == pdf.length()
+            val total = pdf.length().coerceAtLeast(1)
+            val replaced = session.tree.writeFile(target, pdf) { copied -> onProgress(copied.toFloat() / total) }
+            if (replaced && !unchanged) clearPictures(session, setOfNotNull(KoboImages.imageIdFromContentId(contentId), record?.imageId))
+            if (oldPath != null) {
+                runCatching {
+                    if (session.tree.deleteIfExists(oldPath)) {
+                        val oldId = KoboPaths.contentId(oldPath)
+                        clearPictures(session, setOfNotNull(KoboImages.imageIdFromContentId(oldId), session.snapshot.booksById[oldId]?.imageId))
+                    }
+                }.onFailure { AppLog.w("Send", "Couldn't delete the old copy at $oldPath", it) }
+            }
+            AppLog.i("Send", "Sent '$title' to $target as a PDF${if (replaced) " (replaced)" else ""}.")
+            SendOutcome.Sent(
+                title, target, SendFormat.EPUB, replaced, oldPath, 0,
+                keptRecord = if (unchanged) SendOutcome.KeptRecord(contentId, pdf.length()) else null,
+                koboStartsAfresh = record != null && !unchanged,
+            )
+        } catch (e: IOException) {
+            AppLog.e("Send", "Sending '$title' failed", e)
+            SendOutcome.Failed(title, e.message ?: "Couldn't write to the Kobo.")
+        } catch (e: SecurityException) {
+            AppLog.e("Send", "Sending '$title' failed", e)
+            SendOutcome.Failed(title, "Android didn't allow writing to the Kobo.")
         }
     }
 

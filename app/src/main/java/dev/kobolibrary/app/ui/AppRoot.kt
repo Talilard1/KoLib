@@ -101,6 +101,7 @@ import dev.kobolibrary.app.ui.reader.BookReader
 import dev.kobolibrary.app.ui.reader.PreviewReader
 import dev.kobolibrary.app.ui.textedit.TextEditorScreen
 import dev.kobolibrary.app.ui.components.HideStatusBar
+import dev.kobolibrary.app.ui.reader.PdfBookReader
 import androidx.compose.foundation.layout.width
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -154,8 +155,14 @@ fun AppRoot(
     var splitId by remember { mutableStateOf<String?>(null) }
     /** Books waiting in the save-a-copy dialog, then the format they're saved as while a picker is open. */
     var exportIds by remember { mutableStateOf<List<String>?>(null) }
-    var exporting by remember { mutableStateOf<Pair<List<String>, SendFormat>?>(null) }
+    var exporting by remember { mutableStateOf<Pair<List<String>, SendFormat?>?>(null) }
     val saveOne = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/epub+zip")) { uri ->
+        val e = exporting
+        exporting = null
+        if (uri != null && e != null) libraryVm.exportBook(e.first.first(), e.second, uri)
+    }
+    // The file a book was added as: a PDF, a MOBI... Android adds no ending of its own to these.
+    val saveOriginal = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
         val e = exporting
         exporting = null
         if (uri != null && e != null) libraryVm.exportBook(e.first.first(), e.second, uri)
@@ -187,7 +194,7 @@ fun AppRoot(
     }
     val addFiles = {
         try {
-            filePicker.launch(arrayOf("application/epub+zip", "application/octet-stream"))
+            filePicker.launch(dev.kobolibrary.app.convert.BookFormats.mimeTypes)
         } catch (e: ActivityNotFoundException) {
             AppLog.e("Library", "No file picker available", e)
             localMessage = "This device has no file picker."
@@ -296,14 +303,36 @@ fun AppRoot(
                 if (book == null) {
                     LaunchedEffect(Unit) { overlay = null }
                 } else {
-                    BookReader(
-                        book = book,
-                        library = libraryVm.library,
-                        settings = libraryVm.readerSettings,
-                        onClose = { overlay = null },
-                        onEdit = { path -> overlay = "text:${book.id}|$path" },
-                        readingHere = libraryVm.readingHere,
-                    )
+                    // A book added as a PDF reads as the PDF, or as the text made from it, whichever was used last.
+                    val dir = libraryVm.library.bookDir(book.id)
+                    var asText by remember(book.id) {
+                        mutableStateOf(book.isPdf && !book.isScan && dev.kobolibrary.app.reader.ReaderStore.pdfPlace(dir)?.asText == true)
+                    }
+                    val readAs = { text: Boolean ->
+                        val place = dev.kobolibrary.app.reader.ReaderStore.pdfPlace(dir) ?: dev.kobolibrary.app.reader.PdfPlace(0, 0)
+                        dev.kobolibrary.app.reader.ReaderStore.savePdfPlace(dir, place.copy(asText = text))
+                        asText = text
+                    }
+                    if (book.isPdf && !asText) {
+                        PdfBookReader(
+                            book = book,
+                            library = libraryVm.library,
+                            settings = libraryVm.readerSettings,
+                            onClose = { overlay = null },
+                            onReadAsText = if (book.isScan) null else ({ readAs(true) }),
+                            readingHere = libraryVm.readingHere,
+                        )
+                    } else {
+                        BookReader(
+                            book = book,
+                            library = libraryVm.library,
+                            settings = libraryVm.readerSettings,
+                            onClose = { overlay = null },
+                            onEdit = { path -> overlay = "text:${book.id}|$path" },
+                            readingHere = libraryVm.readingHere,
+                            onReadAsPdf = if (book.isPdf) ({ readAs(false) }) else null,
+                        )
+                    }
                 }
             }
             current?.startsWith("text:") == true -> {
@@ -512,8 +541,9 @@ fun AppRoot(
                     freeBytes = liveSession?.info?.freeBytes,
                     initialFormat = libraryVm.sendFormat,
                     initialCovers = libraryVm.coverFitting,
-                    onSend = { format, covers ->
-                        liveSession?.let { libraryVm.sendToKobo(it, ids, format, covers) }
+                    initialPdfs = libraryVm.sendPdfs,
+                    onSend = { format, covers, pdfs ->
+                        liveSession?.let { libraryVm.sendToKobo(it, ids, format, covers, pdfs) }
                         sendIds = null
                         libraryBrowse.stopSelecting()
                     },
@@ -575,15 +605,23 @@ fun AppRoot(
             }
         }
         exportIds?.let { ids ->
+            val chosen = books.filter { it.id in ids }
             ExportDialog(
                 count = ids.size,
                 title = books.firstOrNull { it.id == ids.first() }?.title,
                 initial = libraryVm.sendFormat,
+                addedAsOther = chosen.count { it.sourceFormat != null },
+                addedAsLabel = chosen.singleOrNull()?.let { b -> libraryVm.addedAsLabel(b) },
                 onSave = { format ->
                     exportIds = null
                     exporting = ids to format
                     try {
-                        if (ids.size == 1) saveOne.launch(libraryVm.exportName(ids.first(), format)) else saveMany.launch(null)
+                        val name = libraryVm.exportName(ids.first(), format)
+                        when {
+                            ids.size > 1 -> saveMany.launch(null)
+                            name.endsWith(".epub") -> saveOne.launch(name)
+                            else -> saveOriginal.launch(name)
+                        }
                     } catch (e: ActivityNotFoundException) {
                         exporting = null
                         localMessage = "This device has no way to choose where to save files."

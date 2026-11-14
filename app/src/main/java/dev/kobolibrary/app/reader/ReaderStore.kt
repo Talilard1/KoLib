@@ -45,6 +45,15 @@ data class ReaderPosition(
     }
 }
 
+/**
+ * Where a book added as a PDF was left in the PDF reader: its [page] (from 0) of [pages], and whether it's
+ * read [asText] (the EPUB made from it) instead.
+ */
+data class PdfPlace(val page: Int, val pages: Int, val at: Long = System.currentTimeMillis(), val asText: Boolean = false) {
+    /** How far through: the pages before this one, and the whole book at the last page. */
+    val readHere: ReadHere get() = ReadHere(if (page >= pages - 1) 1f else page.toFloat() / pages, at)
+}
+
 data class ReaderState(
     val position: ReaderPosition? = null,
     val bookmarks: List<ReaderPosition> = emptyList(),
@@ -131,19 +140,59 @@ class ReaderStore(
         /** How far through the book it was left, for the library (0 to 1), or null if never opened. */
         fun progressOf(bookDir: File): Float? = readHereOf(bookDir)?.progress
 
-        /** How far through the book it was left and when, or null if it's never been opened (or it's been marked as not started). */
-        fun readHereOf(bookDir: File): ReadHere? = try {
-            val f = File(bookDir, "reader.json")
-            if (!f.exists()) null else {
-                val o = JSONObject(f.readText())
-                val p = o.optJSONObject("position")
-                when {
-                    o.optBoolean("finished") -> ReadHere(1f, o.optLong("finishedAt").takeIf { t -> t > 0 } ?: f.lastModified(), finished = true)
-                    else -> p?.let { ReadHere(it.optDouble("book", 0.0).toFloat(), it.optLong("at").takeIf { t -> t > 0 } ?: f.lastModified()) }
+        /**
+         * How far through the book it was left and when, or null if it's never been opened (or it's been
+         * marked as not started). A book added as a PDF has a place in the PDF too: the later one counts.
+         */
+        fun readHereOf(bookDir: File): ReadHere? {
+            val text = try {
+                val f = File(bookDir, "reader.json")
+                if (!f.exists()) null else {
+                    val o = JSONObject(f.readText())
+                    val p = o.optJSONObject("position")
+                    when {
+                        o.optBoolean("finished") -> return ReadHere(1f, o.optLong("finishedAt").takeIf { t -> t > 0 } ?: f.lastModified(), finished = true)
+                        else -> p?.let { ReadHere(it.optDouble("book", 0.0).toFloat(), it.optLong("at").takeIf { t -> t > 0 } ?: f.lastModified()) }
+                    }
                 }
+            } catch (e: Exception) {
+                null
+            }
+            val pdf = pdfPlace(bookDir)?.takeIf { it.pages > 0 }?.readHere
+            return listOfNotNull(text, pdf).maxByOrNull { it.at }
+        }
+
+        private fun pdfFile(bookDir: File) = File(bookDir, "pdf.json")
+
+        /** Where the book was left in the PDF reader, if it's been read there. */
+        fun pdfPlace(bookDir: File): PdfPlace? = try {
+            val f = pdfFile(bookDir)
+            if (!f.exists()) null else JSONObject(f.readText()).let { o ->
+                PdfPlace(o.optInt("page"), o.optInt("pages"), o.optLong("at"), o.optBoolean("asText"))
             }
         } catch (e: Exception) {
             null
+        }
+
+        /** Keeps [place]; a book that was marked as finished is being read again. */
+        fun savePdfPlace(bookDir: File, place: PdfPlace) {
+            try {
+                bookDir.mkdirs()
+                val tmp = File(bookDir, "pdf.json.part")
+                tmp.writeText(
+                    JSONObject().put("page", place.page).put("pages", place.pages).put("at", place.at).put("asText", place.asText).toString()
+                )
+                if (!tmp.renameTo(pdfFile(bookDir))) {
+                    pdfFile(bookDir).delete()
+                    tmp.renameTo(pdfFile(bookDir))
+                }
+                if (!place.asText && File(bookDir, "reader.json").exists()) rewrite(bookDir) { o ->
+                    o.remove("finished")
+                    o.remove("finishedAt")
+                }
+            } catch (e: Exception) {
+                AppLog.w("Reader", "The place in the PDF couldn't be saved", e)
+            }
         }
 
         /**
@@ -152,6 +201,7 @@ class ReaderStore(
          * Its bookmarks and highlights are kept.
          */
         fun markFinished(bookDir: File, now: Long = System.currentTimeMillis()): ReadHere {
+            forgetPdfPage(bookDir)
             rewrite(bookDir) { o ->
                 o.remove("position")
                 o.put("finished", true)
@@ -161,10 +211,16 @@ class ReaderStore(
         }
 
         /** Marks the book as not started: its place is let go (it opens at the beginning); bookmarks and highlights are kept. */
-        fun markUnread(bookDir: File) = rewrite(bookDir) { o ->
+        fun markUnread(bookDir: File) = rewrite(bookDir.also { forgetPdfPage(it) }) { o ->
             o.remove("position")
             o.remove("finished")
             o.remove("finishedAt")
+        }
+
+        /** The PDF opens at its start again; whether it's read as text is kept. */
+        private fun forgetPdfPage(bookDir: File) {
+            val place = pdfPlace(bookDir) ?: return
+            if (place.asText) savePdfPlace(bookDir, place.copy(page = 0, pages = 0)) else pdfFile(bookDir).delete()
         }
 
         private fun rewrite(bookDir: File, change: (JSONObject) -> Unit) {

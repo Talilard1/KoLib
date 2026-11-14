@@ -229,7 +229,7 @@ fun LibraryScreen(
                         }
                         DropdownMenu(expanded = addMenu, onDismissRequest = { addMenu = false }) {
                             DropdownMenuItem(
-                                text = { Text("EPUB files from this device") },
+                                text = { Text("Files from this device") },
                                 leadingIcon = { Icon(Icons.Outlined.FileOpen, null) },
                                 onClick = { addMenu = false; onAddFiles() },
                             )
@@ -348,7 +348,7 @@ internal fun EmptyLibrary(koboConnected: Boolean, onAddFiles: () -> Unit, onAddF
             Text("Your library is empty", style = MaterialTheme.typography.headlineSmall)
             Spacer(Modifier.height(8.dp))
             Text(
-                "Add books from your Kobo, or EPUB files from this device. Then you can edit their details and covers here. " +
+                "Add books from your Kobo, or files from this device: EPUBs, PDFs, MOBIs, Word files and more. Then you can edit their details and covers here. " +
                     "Books from the Kobo come with their collections.",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -366,7 +366,7 @@ internal fun EmptyLibrary(koboConnected: Boolean, onAddFiles: () -> Unit, onAddF
                 OutlinedButton(onClick = onAddFiles, modifier = if (phoneLayout()) Modifier.fillMaxWidth().height(48.dp) else Modifier) {
                     Icon(Icons.Outlined.FileOpen, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("Add EPUB files")
+                    Text("Add files")
                 }
             }
             // On a phone the buttons go one above the other, the width of the screen.
@@ -1082,6 +1082,7 @@ fun LibraryDetailPane(
             InfoRow("Last sent", Fmt.dateTime(book.sentAt))
             InfoRow("Added", Fmt.date(book.addedAt))
             InfoRow("Last edited", Fmt.dateTime(book.modifiedAt).takeIf { book.modifiedAt > book.addedAt + 1000 })
+            InfoRow("Added as", book.addedAs)
             InfoRow("File size", Fmt.bytes(context, book.fileSize))
         }
         meta.description?.let { html ->

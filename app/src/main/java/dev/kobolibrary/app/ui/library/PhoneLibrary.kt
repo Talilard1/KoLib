@@ -416,7 +416,7 @@ private fun AddBooksSheet(
     val state = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = state) {
         Text("Add books", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(start = 24.dp, end = 24.dp, bottom = 8.dp))
-        SheetItem(Icons.Outlined.FileOpen, "EPUB files from this device") { onDismiss(); onAddFiles() }
+        SheetItem(Icons.Outlined.FileOpen, "Files from this device", "EPUB, PDF, MOBI, Word and more") { onDismiss(); onAddFiles() }
         SheetItem(Icons.Outlined.Usb, "Books from the Kobo", if (koboConnected) null else "Connect your Kobo first") { onDismiss(); onAddFromKobo() }
         SheetItem(Icons.AutoMirrored.Outlined.NoteAdd, "Write a new book") { onDismiss(); onNewBook() }
         Spacer(Modifier.height(16.dp))
@@ -635,6 +635,7 @@ internal fun PhoneBookPage(
                 InfoRow("Last sent", Fmt.dateTime(book.sentAt))
                 InfoRow("Added", Fmt.date(book.addedAt))
                 InfoRow("Last edited", Fmt.dateTime(book.modifiedAt).takeIf { book.modifiedAt > book.addedAt + 1000 })
+                InfoRow("Added as", book.addedAs)
                 InfoRow("File size", Fmt.bytes(context, book.fileSize))
             }
             meta.description?.let { html ->

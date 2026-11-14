@@ -123,8 +123,13 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         get() = runCatching { CoverFitting.valueOf(prefs.getString("send_covers", null) ?: "") }.getOrDefault(CoverFitting.BLUR)
         set(value) = prefs.edit().putString("send_covers", value.name).apply()
 
+    /** Whether books added as PDFs go to the Kobo as the PDF, as chosen last time. */
+    var sendPdfs: Boolean
+        get() = prefs.getBoolean("send_pdfs", false)
+        set(value) = prefs.edit().putBoolean("send_pdfs", value).apply()
+
     /** Books waiting to be sent by the send that's running; more can join it while it runs. */
-    private class SendRequest(val id: String, val session: KoboSession, val format: SendFormat, val covers: CoverFitting)
+    private class SendRequest(val id: String, val session: KoboSession, val format: SendFormat, val covers: CoverFitting, val pdfs: Boolean)
 
     private val sendLock = Any()
     private val sendQueue = ArrayDeque<SendRequest>()
@@ -198,7 +203,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         if (_job.value?.finished == true) _job.value = null
         val chosen = held.map { it to (choices[it.key] ?: DuplicateChoice.SKIP) }
         if (chosen.all { it.second == DuplicateChoice.SKIP }) {
-            held.forEach { it.file.delete() }
+            held.forEach { library.discardHeld(it.file) }
             _message.value = if (held.size == 1) "Skipped “${held[0].title}”." else "Skipped ${held.size} books."
             return
         }
@@ -239,7 +244,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
                     AppLog.e("Library", "Couldn't ${choice.label.lowercase()} '${d.title}'", e)
                     failed += d.title
                 } finally {
-                    d.file.delete()
+                    library.discardHeld(d.file)
                 }
             }
             val only = last.takeIf { replaced + added == 1 && failed.isEmpty() }
@@ -293,9 +298,10 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
      * (in their new format if it changed). While books are being sent, more can be added: they join
      * the same send.
      */
-    fun sendToKobo(session: KoboSession, ids: List<String>, format: SendFormat, covers: CoverFitting = coverFitting) {
+    fun sendToKobo(session: KoboSession, ids: List<String>, format: SendFormat, covers: CoverFitting = coverFitting, pdfs: Boolean = sendPdfs) {
         sendFormat = format
         coverFitting = covers
+        sendPdfs = pdfs
         val chosen = ids.mapNotNull { library.book(it) }
         if (chosen.isEmpty()) return
         val needed = chosen.sumOf { it.fileSize } + chosen.size * 64L * 1024
@@ -304,7 +310,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
             _message.value = "Not enough space on the Kobo. These books need about ${needed / (1024 * 1024)} MB, and the Kobo has ${free / (1024 * 1024)} MB free."
             return
         }
-        val requests = chosen.map { SendRequest(it.id, session, format, covers) }
+        val requests = chosen.map { SendRequest(it.id, session, format, covers, pdfs) }
         synchronized(sendLock) {
             if (sendRunning) {
                 val waiting = sendQueue.map { it.id }.toSet() + listOfNotNull(sendingId)
@@ -328,7 +334,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
                 // The last send is just finishing: start this one straight after it.
                 viewModelScope.launch {
                     previous.join()
-                    sendToKobo(session, ids, format, covers)
+                    sendToKobo(session, ids, format, covers, pdfs)
                 }
             } else {
                 _message.value = "Wait until the books being added to the library are finished, then send."
@@ -357,10 +363,13 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
                         val place = placeOnKobo(current, next.session.snapshot, next.format)
                         // A cover set to "Leave unchanged" is never fitted to the screen.
                         val covers = if (current.coverAsIs) CoverFitting.AS_IS else next.covers
+                        // A PDF goes as it is when asked; scanned pages always do, having no text to convert.
+                        val pdf = if (current.goesAsPdf(next.pdfs)) library.sourceFile(current.id) else null
                         val outcome = sender.send(
                             next.session, current.title, current.meta, place, library.epubFile(current.id), next.format, covers,
                             freshPlace = { format -> freshPlaceOnKobo(current, next.session.snapshot, format, besides = place) },
                             onProgress = fraction,
+                            pdf = pdf,
                         )
                         when (outcome) {
                             is SendOutcome.Sent -> {
@@ -678,14 +687,26 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
 
     // ---- saving copies elsewhere ---------------------------------------------------------------------
 
-    /** The name a book is saved under: "Title - Author.epub", or ".kepub.epub". */
-    fun exportName(id: String, format: dev.kobolibrary.app.kobo.SendFormat): String {
-        val b = library.book(id) ?: return "book${format.extension}"
-        return dev.kobolibrary.app.kobo.KoboPaths.component("${b.title} - ${b.meta.authors.joinToString(" & ").ifBlank { "Unknown" }}", 110) + format.extension
+    /** The name a book is saved under: "Title - Author.epub", ".kepub.epub", or (null) the ending of the file it was added as. */
+    fun exportName(id: String, format: dev.kobolibrary.app.kobo.SendFormat?): String {
+        val ending = format?.extension ?: library.sourceFile(id)?.let { ".${it.extension}" } ?: ".epub"
+        val b = library.book(id) ?: return "book$ending"
+        return dev.kobolibrary.app.kobo.KoboPaths.component("${b.title} - ${b.meta.authors.joinToString(" & ").ifBlank { "Unknown" }}", 110) + ending
     }
 
-    /** The book as a file: itself, or converted to kepub as it is for the Kobo. */
-    private fun writeCopy(id: String, format: dev.kobolibrary.app.kobo.SendFormat, out: java.io.OutputStream) {
+    /** What kind of file [book] was added as ("PDF"), when it wasn't an EPUB. */
+    fun addedAsLabel(book: LibraryBook): String? = when (book.sourceFormat) {
+        null -> null
+        dev.kobolibrary.app.convert.BookFormats.PDF_SCAN, dev.kobolibrary.app.convert.BookFormats.PDF_ONLY -> "PDF"
+        else -> dev.kobolibrary.app.convert.SourceFormat.entries.firstOrNull { it.name == book.sourceFormat }?.label
+    }
+
+    /** The book as a file: itself, converted to kepub as it is for the Kobo, or (null) the file it was added as. */
+    private fun writeCopy(id: String, format: dev.kobolibrary.app.kobo.SendFormat?, out: java.io.OutputStream) {
+        if (format == null) {
+            (library.sourceFile(id) ?: library.epubFile(id)).inputStream().use { it.copyTo(out) }
+            return
+        }
         val source = library.epubFile(id)
         if (format == dev.kobolibrary.app.kobo.SendFormat.EPUB) {
             source.inputStream().use { it.copyTo(out) }
@@ -701,18 +722,22 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     /** Saves [id] as [format] to [uri], a file chosen in Android's save picker. */
-    fun exportBook(id: String, format: dev.kobolibrary.app.kobo.SendFormat, uri: Uri) = making("Saving the file") {
+    fun exportBook(id: String, format: dev.kobolibrary.app.kobo.SendFormat?, uri: Uri) = making("Saving the file") {
         val book = library.book(id) ?: return@making
         withContext(Dispatchers.IO) {
             val resolver = getApplication<Application>().contentResolver
             (resolver.openOutputStream(uri, "wt") ?: throw java.io.IOException("Can't save to the chosen location.")).use { writeCopy(id, format, it) }
         }
-        AppLog.i("Library", "Saved a copy of '${book.title}' as ${format.label}.")
-        _message.value = "Saved “${book.title}” as ${if (format == dev.kobolibrary.app.kobo.SendFormat.KEPUB) "a kepub" else "an EPUB"}."
+        AppLog.i("Library", "Saved a copy of '${book.title}' as ${format?.label ?: "the file it was added as"}.")
+        _message.value = when (format) {
+            null -> "Saved “${book.title}”."
+            dev.kobolibrary.app.kobo.SendFormat.KEPUB -> "Saved “${book.title}” as a kepub."
+            else -> "Saved “${book.title}” as an EPUB."
+        }
     }
 
     /** Saves [ids] as [format] into [tree], a folder chosen in Android's folder picker, each as "Title - Author". */
-    fun exportBooks(ids: List<String>, format: dev.kobolibrary.app.kobo.SendFormat, tree: Uri) = making("Saving the files") {
+    fun exportBooks(ids: List<String>, format: dev.kobolibrary.app.kobo.SendFormat?, tree: Uri) = making("Saving the files") {
         val resolver = getApplication<Application>().contentResolver
         val folder = android.provider.DocumentsContract.buildDocumentUriUsingTree(tree, android.provider.DocumentsContract.getTreeDocumentId(tree))
         var saved = 0
@@ -722,7 +747,9 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
             _making.value = "Saving files (${i + 1} of ${ids.size})"
             try {
                 withContext(Dispatchers.IO) {
-                    val file = android.provider.DocumentsContract.createDocument(resolver, folder, "application/epub+zip", exportName(id, format))
+                    val name = exportName(id, format)
+                    val mime = if (name.endsWith(".epub")) "application/epub+zip" else "application/octet-stream"
+                    val file = android.provider.DocumentsContract.createDocument(resolver, folder, mime, name)
                         ?: throw java.io.IOException("Couldn't create a file in that folder.")
                     (resolver.openOutputStream(file, "wt") ?: throw java.io.IOException("Couldn't write the new file.")).use { writeCopy(id, format, it) }
                 }
@@ -732,8 +759,8 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
                 failed += book.title
             }
         }
-        AppLog.i("Library", "Saved copies of $saved books as ${format.label}.")
-        _message.value = "Saved ${Fmt.plural(saved, "book")} as ${format.label}." +
+        AppLog.i("Library", "Saved copies of $saved books as ${format?.label ?: "the files they were added as"}.")
+        _message.value = "Saved ${Fmt.plural(saved, "book")}${format?.let { " as ${it.label}" } ?: ""}." +
             if (failed.isNotEmpty()) " ${failed.size} couldn't be saved. The log has the details." else ""
     }
 

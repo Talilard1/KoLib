@@ -1,0 +1,24 @@
+# The signing key and its passwords. Never put these in git: anyone who has them
+# can make APKs that install over KoLib as if they were updates.
+/keystore/
+*.jks
+*.keystore
+keystore.properties
+
+# Gradle and Kotlin
+.gradle/
+.kotlin/
+build/
+local.properties
+
+# Android Studio
+.idea/
+*.iml
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Other
+.DS_Store
+__pycache__/
+*.pyc

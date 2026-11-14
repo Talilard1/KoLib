@@ -1,0 +1,1871 @@
+/*
+ * KoLib's reader, inside one chapter of a book.
+ *
+ * The chapter is laid out in CSS columns, one (or two, side by side) per screen, and turned like
+ * pages; or, when scrolling, as one long page read from top to bottom. Taps, swipes and keys move
+ * through it here; the app is told where the reader is, and asked to open the next or previous
+ * chapter at the edges. Autoscroll moves on by itself, at a reading speed. window.KL is the app's side.
+ */
+(function () {
+  'use strict';
+
+  var KL = window.KL || {
+    start: function () { return '{}'; }, ready: function () {}, position: function () {}, edge: function () {},
+    tap: function () {}, link: function () {}, note: function () {}, image: function () {}, external: function () {},
+    jumped: function () {}, log: function () {}, turn: function () {}, selecting: function () {}, annotation: function () {},
+  };
+  var root = document.documentElement;
+  var scroller = document.scrollingElement || root;
+  var settings = {};
+  var W = 0, H = 0, page = 0, pages = 1, padX = 48, padY = 44, perScreen = 1;
+  var ready = false, animating = 0, laidOutWidth = 0;
+  var startTarget = null;
+  // Scrolling: the chapter as one long page. The bands at the top and bottom are where the app shows
+  // the margins' chapter title, time and so on, over the text going by.
+  var scrolled = false, bandTop = 0, bandBottom = 0, lineH = 24;
+  // The chapters either side, for the end of a scrolled chapter.
+  var nextTitle = null, isLast = false;
+
+  function parse(s) { try { return JSON.parse(s || '{}') || {}; } catch (e) { return {}; } }
+  function log(m) { try { KL.log(String(m)); } catch (e) {} }
+
+  // ---- settings -------------------------------------------------------------------------------
+
+  function setVar(name, value) { root.style.setProperty(name, value); }
+
+  function applySettings(s) {
+    settings = s || {};
+    scrolled = s.flow === 'scroll';
+    root.classList.add('kl-paged');
+    root.classList.toggle('kl-scroll', scrolled);
+    bindTouchMove();
+    applyColours(s);
+    setVar('--kl-font-size', Math.round((s.fontScale || 1) * 100) + '%');
+    if (s.font) { setVar('--kl-font', s.font); root.classList.add('kl-font'); } else root.classList.remove('kl-font');
+    if (s.line) { setVar('--kl-line', String(s.line)); root.classList.add('kl-lh'); } else root.classList.remove('kl-lh');
+    root.classList.toggle('kl-hyphens', s.hyphens === 'on');
+    root.classList.toggle('kl-nohyphens', s.hyphens === 'off');
+    if (s.hyphens === 'on' && !root.getAttribute('lang') && !root.getAttributeNS('http://www.w3.org/XML/1998/namespace', 'lang')) {
+      root.setAttribute('lang', s.lang || 'en');
+    }
+    document.body && alignParagraphs(s.align || 'book');
+    document.body && blendPictures();
+    measure();
+  }
+
+  /** The page's colours. Nothing moves: the text is laid out just as it was. */
+  function applyColours(s) {
+    setVar('--kl-bg', s.bg || '#fbf8f1');
+    setVar('--kl-fg', s.fg || '#1f1c18');
+    setVar('--kl-link', s.link || '#1d4f91');
+    setVar('--kl-bar', s.barColor || s.fg || '#1f1c18');
+    if (s.sel) setVar('--kl-sel', s.sel);
+    if (s.hl) setVar('--kl-hl', s.hl);
+    root.classList.toggle('kl-recolor', !!s.recolor);
+    root.classList.toggle('kl-dim-images', !!s.dimImages);
+    highlightStyles();
+  }
+
+  // ---- pictures that take the page's colour ------------------------------------------------------
+
+  /**
+   * Black-and-white pictures (a chapter's ornament or banner, a drawn initial, a timeline) are ink on
+   * white paper, which shows as a white box on a tinted or dark page. Blended, their white takes the
+   * page's colour; on a dark page they're turned over first, so the ink is light and the paper dark.
+   * 'ornaments' blends pictures that are ink on paper, but not plates (pictures in a ruled frame, which
+   * keep their paper); 'all' every picture; 'off' none.
+   */
+  var inkOnPaperKnown = typeof WeakMap !== 'undefined' ? new WeakMap() : null;
+
+  function blendPictures() {
+    var mode = settings.blend || 'ornaments';
+    var pics = document.querySelectorAll('img, svg');
+    for (var i = 0; i < pics.length; i++) markBlend(pics[i], mode);
+  }
+
+  function markBlend(el, mode) {
+    if (mode === 'off') { el.classList.remove('kl-blend'); return; }
+    if (mode === 'all') { el.classList.add('kl-blend'); return; }
+    isInkOnPaper(el, function (yes) {
+      el.classList.toggle('kl-blend', yes && (settings.blend || 'ornaments') === 'ornaments');
+    });
+  }
+
+  /** Calls back with whether a picture is ink on paper (see [inkOnPaper]) and not a framed plate. */
+  function isInkOnPaper(el, then) {
+    var known = inkOnPaperKnown ? inkOnPaperKnown.get(el) : undefined;
+    if (known !== undefined) { then(known); return; }
+    var src = pictureSource(el);
+    if (!src) { then(false); return; }
+    var img = new Image();
+    img.onload = function () {
+      var yes = false;
+      try { yes = inkOnPaper(img) && !framed(img); } catch (e) { log(e); }
+      if (inkOnPaperKnown) inkOnPaperKnown.set(el, yes);
+      then(yes);
+    };
+    img.onerror = function () { then(false); };
+    img.src = src;
+  }
+
+  function pictureSource(el) {
+    if (el.localName === 'img') return el.currentSrc || el.src || null;
+    // An svg holding a picture.
+    var im = el.querySelector ? el.querySelector('image') : null;
+    if (!im) return null;
+    var href = im.getAttribute('href') || im.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
+    if (!href) return null;
+    try { return new URL(href, document.baseURI).href; } catch (e) { return null; }
+  }
+
+  /** The picture's pixels, drawn no bigger than [most] across; [sharp]: each one picked, not averaged. */
+  function pixels(img, most, sharp) {
+    var w = img.naturalWidth, h = img.naturalHeight;
+    var k = Math.min(1, most / Math.max(w, h));
+    var cw = Math.max(1, Math.round(w * k)), ch = Math.max(1, Math.round(h * k));
+    var c = document.createElement('canvas');
+    c.width = cw;
+    c.height = ch;
+    var g = c.getContext('2d');
+    if (sharp) g.imageSmoothingEnabled = false;
+    g.drawImage(img, 0, 0, cw, ch);
+    return { d: g.getImageData(0, 0, cw, ch).data, w: cw, h: ch };
+  }
+
+  /** How much of a small copy of the picture is in colour, grey (and in which shades) and white. */
+  function tones(img, sharp) {
+    var d = pixels(img, 96, sharp).d;
+    var t = { seen: 0, colour: 0, grey: 0, white: 0, shades: [] };
+    for (var b = 0; b < 52; b++) t.shades.push(0);
+    for (var i = 0; i < d.length; i += 4) {
+      if (d[i + 3] < 40) continue; // see-through: already the page
+      var mx = Math.max(d[i], d[i + 1], d[i + 2]), mn = Math.min(d[i], d[i + 1], d[i + 2]);
+      t.seen++;
+      if (mx - mn > 48) t.colour++;
+      var l = (mx + mn) / 2;
+      if (l > 200) t.white++;
+      else if (l > 70) {
+        t.grey++;
+        t.shades[Math.floor(l / 5)]++;
+      }
+    }
+    return t;
+  }
+
+  /**
+   * Ink on paper: next to no colour, and either few greys (black lines and lettering on white) or greys
+   * that are one flat shade (a grey banner or shape), rather than the many greys of a photograph. A
+   * busy chart (small lettering, thin lines) turns grey when shrunk, so it's looked at sharp too: there
+   * it's black and white, with plenty of paper.
+   */
+  function inkOnPaper(img) {
+    if (!img.naturalWidth || !img.naturalHeight) return false;
+    var t = tones(img, false);
+    if (!t.seen || t.colour / t.seen >= 0.04) return false;
+    if (t.grey / t.seen < 0.3) return true;
+    // Plenty of grey: all right if nearly all of it is one shade (within about 15 levels).
+    var most = 0;
+    for (var s = 0; s < t.shades.length - 2; s++) most = Math.max(most, t.shades[s] + t.shades[s + 1] + t.shades[s + 2]);
+    if (most / t.grey >= 0.7) return true;
+    var sharp = tones(img, true);
+    return sharp.seen > 0 && sharp.colour / sharp.seen < 0.04 && sharp.grey / sharp.seen < 0.25 && sharp.white / sharp.seen >= 0.6;
+  }
+
+  /**
+   * A plate: a picture in a ruled frame (a line along all four edges), like the engravings in an old
+   * illustrated book. Its paper is part of the picture, so it isn't blended. Each edge is looked at as
+   * a narrow strip, so a frame drawn a little crooked, or scanned that way, is still found.
+   */
+  function framed(img) {
+    if (!img.naturalWidth || !img.naturalHeight) return false;
+    var p = pixels(img, 400), d = p.d, w = p.w, h = p.h;
+    if (w < 24 || h < 24) return false;
+    function ink(x, y) {
+      var i = (y * w + x) * 4;
+      if (d[i + 3] < 40) return false;
+      return (Math.max(d[i], d[i + 1], d[i + 2]) + Math.min(d[i], d[i + 1], d[i + 2])) / 2 < 200;
+    }
+    var bx = Math.max(3, Math.round(w * 0.06)), by = Math.max(3, Math.round(h * 0.06));
+    /** Ink in the strip along most of an edge: [along] the edge's length, [across] the strip's width. */
+    function lined(along, across, at) {
+      var n = 0;
+      for (var a = 0; a < along; a++) {
+        for (var c = 0; c < across; c++) if (at(a, c)) { n++; break; }
+      }
+      return n >= along * 0.85;
+    }
+    return lined(w, by, function (x, y) { return ink(x, y); }) &&
+      lined(w, by, function (x, y) { return ink(x, h - 1 - y); }) &&
+      lined(h, bx, function (y, x) { return ink(x, y); }) &&
+      lined(h, bx, function (y, x) { return ink(w - 1 - x, y); });
+  }
+
+  /** Paragraphs the book aligns to the left or justifies follow the reader's choice; centred ones stay centred. */
+  function alignParagraphs(align) {
+    var els = document.body.querySelectorAll('p, li, dd, blockquote, div');
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i];
+      el.classList.remove('kl-align-left', 'kl-align-justify');
+    }
+    if (align !== 'left' && align !== 'justify') return;
+    var cls = align === 'left' ? 'kl-align-left' : 'kl-align-justify';
+    for (var j = 0; j < els.length; j++) {
+      var e = els[j];
+      if (e.tagName.toLowerCase() === 'div' && !hasOwnText(e)) continue;
+      var a = getComputedStyle(e).textAlign;
+      if (a === 'start' || a === 'left' || a === 'justify' || a === '-webkit-auto' || a === 'auto') e.classList.add(cls);
+    }
+  }
+
+  function hasOwnText(e) {
+    for (var n = e.firstChild; n; n = n.nextSibling) if (n.nodeType === 3 && n.data.trim()) return true;
+    return false;
+  }
+
+  /** The screen's size in CSS pixels; 0 until the WebView has been given its place. */
+  function screenWidth() { return window.innerWidth || root.clientWidth || 0; }
+  function screenHeight() { return window.innerHeight || root.clientHeight || 0; }
+  function hasSize() { return screenWidth() > 0 && screenHeight() > 0; }
+
+  function measure() {
+    W = screenWidth();
+    H = screenHeight();
+    // Pixels, not 100vw/100vh: a WebView can report viewport units as zero.
+    setVar('--kl-vw', W + 'px');
+    setVar('--kl-vh', H + 'px');
+    var s = settings;
+    if (scrolled) {
+      // One column, no wider than is easy to read: the wider the margins chosen, the narrower it is.
+      perScreen = 1;
+      padX = Math.round(Math.max(16, Math.min(140, W * (s.marginFrac || 0.06))));
+      padY = Math.round(Math.max(20, Math.min(48, H * 0.035)));
+      bandTop = Math.max(0, s.bandTop || 0);
+      bandBottom = Math.max(0, s.bandBottom || 0);
+      var f = s.marginFrac || 0.06;
+      setVar('--kl-measure', f < 0.05 ? 'none' : f < 0.09 ? '46em' : '38em');
+      setVar('--kl-pad-x', padX + 'px');
+      setVar('--kl-pad-y', padY + 'px');
+      setVar('--kl-band-top', bandTop + 'px');
+      setVar('--kl-band-bottom', bandBottom + 'px');
+      setVar('--kl-page-h', Math.max(80, H - bandTop - bandBottom - 2 * padY) + 'px');
+      return;
+    }
+    bandTop = bandBottom = 0;
+    // Two pages side by side on a wide screen held sideways, unless the reader says otherwise.
+    perScreen = s.columns === 2 ? 2 : s.columns === 1 ? 1 : (W > H && W >= 880 ? 2 : 1);
+    var pageWidth = W / perScreen;
+    var margin = Math.round(Math.max(16, Math.min(140, pageWidth * (s.marginFrac || 0.06))));
+    padX = margin;
+    padY = s.marginY || Math.round(Math.max(28, Math.min(64, H * 0.05)));
+    var col = perScreen === 2 ? Math.floor((W - 4 * padX) / 2) : Math.floor(W - 2 * padX);
+    setVar('--kl-pad-x', padX + 'px');
+    setVar('--kl-pad-y', padY + 'px');
+    setVar('--kl-col', col + 'px');
+    setVar('--kl-gap', 2 * padX + 'px');
+    setVar('--kl-page-h', Math.max(80, H - 2 * padY - 2) + 'px');
+  }
+
+  /** Pictures that are a page on their own (covers, plates) fill the page. */
+  /**
+   * Pictures that are a page on their own (covers, plates) fill the page. Only on a page that's
+   * nothing but the picture: a chapter's ornament, even one drawn 100% high, stays in the text.
+   */
+  function markFullPagePictures() {
+    var body = document.body;
+    if (!body) return;
+    var text = (body.textContent || '').replace(/\s+/g, '');
+    if (text.length >= 80) return;
+    var pics = body.querySelectorAll('img, svg');
+    var svgs = body.querySelectorAll('svg');
+    for (var i = 0; i < svgs.length; i++) {
+      var h = svgs[i].getAttribute('height');
+      if (h && /%$/.test(h)) svgs[i].classList.add('kl-full-page');
+    }
+    if (pics.length === 1) pics[0].classList.add('kl-full-page');
+  }
+
+  /**
+   * A picture held in an svg keeps its own shape, in the middle of the space it's given, as big as
+   * fits. Some books (calibre's covers among them) have it stretched to fill the svg, which only
+   * looks right when the svg is the picture's shape; here a cover's svg is the shape of the page, and
+   * a single page on a screen held sideways is wide.
+   */
+  function keepPictureShapes() {
+    var stretched = function (el) { return /^\s*none\b/.test(el.getAttribute('preserveAspectRatio') || ''); };
+    var svgs = document.querySelectorAll('svg');
+    for (var i = 0; i < svgs.length; i++) {
+      var svg = svgs[i];
+      var images = svg.querySelectorAll('image');
+      if (!images.length) continue;
+      if (stretched(svg)) svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      for (var k = 0; k < images.length; k++) {
+        if (stretched(images[k])) images[k].setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      }
+    }
+  }
+
+  /**
+   * A picture on a line of its own sits in the middle of it, as a printed book has it: the paragraph
+   * holding nothing else is centred, without its first-line indent (which would push it off centre).
+   */
+  function centrePictures() {
+    var pics = document.body.querySelectorAll('img, svg');
+    for (var i = 0; i < pics.length; i++) {
+      var pic = pics[i];
+      if (pic.localName === 'svg' && pic.parentNode && pic.parentNode.closest && pic.parentNode.closest('svg')) continue;
+      var box = pic.parentNode;
+      // Out through anything wrapped round just it (a link, a span).
+      while (box && box !== document.body && box.nodeType === 1 && /^(a|span)$/i.test(box.localName) && holdsOnly(box, pic)) box = box.parentNode;
+      if (box && box !== document.body && box.nodeType === 1 && holdsOnly(box, pic)) box.classList.add('kl-picture-box');
+    }
+  }
+
+  function holdsOnly(box, pic) {
+    if (box.querySelectorAll('img, svg').length !== (pic.localName === 'svg' ? 1 + pic.querySelectorAll('svg').length : 1)) return false;
+    var text = (box.textContent || '').replace(pic.textContent || '', '');
+    return !text.trim();
+  }
+
+  /**
+   * A picture keeps its shape when the page is narrower than the width the book gives it: the book's
+   * height goes too, rather than leaving it small in a tall box. (And if the page's height then
+   * stops it, its width goes as well, so it's as big as fits.)
+   */
+  function fitPictureBoxes() {
+    var misshapen = function (im) {
+      if (!im.naturalWidth || !im.naturalHeight || im.classList.contains('kl-full-page')) return false;
+      var r = im.getBoundingClientRect();
+      if (r.width < 2 || r.height < 2) return false;
+      return Math.abs((r.width / r.height) / (im.naturalWidth / im.naturalHeight) - 1) > 0.03;
+    };
+    var imgs = document.images, off = [];
+    for (var i = 0; i < imgs.length; i++) if (misshapen(imgs[i])) off.push(imgs[i]);
+    for (var j = 0; j < off.length; j++) off[j].style.setProperty('height', 'auto', 'important');
+    var still = off.filter(misshapen);
+    for (var k = 0; k < still.length; k++) still[k].style.setProperty('width', 'auto', 'important');
+  }
+
+  function forcedBreak(v) { return /^(page|always|left|right|recto|verso|column)$/.test(v || ''); }
+
+  /**
+   * A chapter's opening (its number, an ornament, its title) stays with the first lines of the text:
+   * page breaks the book asks for between them are dropped, and headings and pictures there keep
+   * with what follows. The opening is everything before the first paragraph of real text.
+   */
+  function keepOpeningTogether() {
+    var body = document.body;
+    if (!body) return;
+    var all = body.getElementsByTagName('*');
+    var first = null;
+    for (var i = 0; i < all.length && i < 400; i++) {
+      var e = all[i];
+      if (!/^(p|div|blockquote|li)$/i.test(e.localName)) continue;
+      var own = '';
+      for (var n = e.firstChild; n; n = n.nextSibling) {
+        if (n.nodeType === 3) own += n.data;
+        else if (n.nodeType === 1 && !/^(p|div|blockquote|ul|ol|table|h[1-6]|figure|section)$/i.test(n.localName)) own += n.textContent || '';
+      }
+      if (own.replace(/\s+/g, ' ').trim().length >= 100) { first = e; break; }
+    }
+    if (!first) return;
+    // A chapter's opening from a file of its own, put in front of the chapter by the app: nothing in
+    // it or after it may start a new page, so it shares the first page with the chapter's start.
+    var opening = document.getElementById('kl-opening');
+    if (opening) {
+      var own = [opening].concat(Array.prototype.slice.call(opening.getElementsByTagName('*')));
+      for (var k = 0; k < own.length; k++) {
+        var o = own[k].style;
+        o.setProperty('break-before', 'auto', 'important');
+        o.setProperty('page-break-before', 'auto', 'important');
+        o.setProperty('break-after', 'avoid', 'important');
+        o.setProperty('page-break-after', 'avoid', 'important');
+      }
+      body.style.setProperty('break-before', 'auto', 'important');
+      body.style.setProperty('page-break-before', 'auto', 'important');
+    }
+    var seenContent = !!opening;
+    for (var j = 0; j < all.length; j++) {
+      var el = all[j];
+      if (el === first) break;
+      if (el.contains(first)) continue;
+      var cs = getComputedStyle(el);
+      var hasContent = (el.textContent || '').trim().length > 0 || /^(img|svg|image)$/i.test(el.localName) || el.querySelector('img, svg');
+      // Nothing before it yet: a break there makes no difference, and the chapter starts on its own page anyway.
+      if (seenContent && (forcedBreak(cs.breakBefore) || forcedBreak(cs.pageBreakBefore))) {
+        el.style.setProperty('break-before', 'auto', 'important');
+        el.style.setProperty('page-break-before', 'auto', 'important');
+      }
+      if (forcedBreak(cs.breakAfter) || forcedBreak(cs.pageBreakAfter) || /^h[1-6]$/i.test(el.localName) || /^(img|svg|figure)$/i.test(el.localName)) {
+        el.style.setProperty('break-after', 'avoid', 'important');
+        el.style.setProperty('page-break-after', 'avoid', 'important');
+      }
+      if (hasContent) seenContent = true;
+    }
+    var fs = getComputedStyle(first);
+    if (seenContent && (forcedBreak(fs.breakBefore) || forcedBreak(fs.pageBreakBefore))) {
+      first.style.setProperty('break-before', 'auto', 'important');
+      first.style.setProperty('page-break-before', 'auto', 'important');
+    }
+  }
+
+  // ---- layout -----------------------------------------------------------------------------------
+
+  // When scrolling: how much of the screen shows text between the bands, how far a "page" goes (a
+  // screen, less a line so the last line read is still there), and how far down the chapter can go.
+  function viewH() { return Math.max(40, H - bandTop - bandBottom); }
+  function stepH() { return Math.max(40, viewH() - Math.round(lineH * 1.5)); }
+  function maxScroll() { return Math.max(0, scroller.scrollHeight - H); }
+  /** How far a scrolled chapter goes until its last line sits at the foot of the screen (the space under it aside). */
+  function textMax() {
+    var bottom = document.body.getBoundingClientRect().bottom + scroller.scrollTop;
+    return Math.max(0, Math.min(maxScroll(), bottom + padY - (H - bandBottom)));
+  }
+  /** Where a place gone to sits on the screen: just under the top band. */
+  function topInset() { return bandTop + Math.round(padY * 0.6); }
+
+  function countPages() {
+    laidOutWidth = W;
+    var fill = pageFill();
+    if (scrolled) {
+      if (fill) fill.style.display = 'none';
+      pages = Math.max(1, Math.ceil(textMax() / stepH()) + 1);
+      page = scrolledPage();
+      return pages;
+    }
+    // Counted without the filler, which then goes at the far edge of the last screen.
+    if (fill) fill.style.display = 'none';
+    var w = scroller.scrollWidth;
+    pages = W > 0 ? Math.max(1, Math.ceil((w - 2) / W)) : 1;
+    if (fill) {
+      fill.style.left = (pages * W - 1) + 'px';
+      fill.style.display = 'block';
+    }
+    return pages;
+  }
+
+  /**
+   * A speck at the far edge of the last screen, so the chapter can be scrolled to it whole. The
+   * columns end short of that edge (by the last column's margin, or by a whole page when the last
+   * screen has text on its left-hand page only), and without it the last screen can only be
+   * scrolled to part way, showing the edge of the page before. Outside the body, so the chapter is unchanged.
+   */
+  function pageFill() {
+    var el = document.getElementById('kl-pagefill');
+    if (el) return el;
+    try {
+      el = document.createElementNS(XHTML, 'div');
+      el.id = 'kl-pagefill';
+      el.setAttribute('aria-hidden', 'true');
+      root.appendChild(el);
+      return el;
+    } catch (e) { log(e); return null; }
+  }
+
+  /** Which screenful a scrolled chapter is at. */
+  function scrolledPage() {
+    var max = textMax();
+    if (max <= 0) return 0;
+    if (scroller.scrollTop >= max - 2) return pages - 1;
+    return Math.max(0, Math.min(pages - 1, Math.round(scroller.scrollTop / stepH())));
+  }
+
+  /** How far down a scrolled chapter, 0 to 1: 1 once its last line is on screen. */
+  function scrolledProgress() {
+    var max = textMax();
+    return max > 0 ? Math.max(0, Math.min(1, scroller.scrollTop / max)) : 0;
+  }
+
+  function setScroll(x) { scroller.scrollLeft = x; if (scroller.scrollLeft !== x) window.scrollTo(x, 0); }
+  function setScrollY(y) {
+    y = Math.max(0, Math.min(maxScroll(), y));
+    scroller.scrollTop = y;
+    if (Math.abs(scroller.scrollTop - y) > 1) window.scrollTo(0, y);
+  }
+
+  function showPage(n, animate, done) {
+    n = Math.max(0, Math.min(pages - 1, n));
+    if (scrolled) {
+      showY(n >= pages - 1 && n > 0 ? textMax() : n * stepH(), animate, done);
+      return;
+    }
+    var x = n * W;
+    var changed = n !== page;
+    page = n;
+    cancelAnimation();
+    if (animate && settings.animate !== false && Math.abs(scroller.scrollLeft - x) <= W * 1.5) {
+      animateTo(x, 230, function () { afterTurn(changed); if (done) done(); });
+    } else {
+      setScroll(x);
+      afterTurn(changed);
+      if (done) done();
+    }
+  }
+
+  /** Scrolls a scrolled chapter to [y], gently if [animate]. */
+  function showY(y, animate, done) {
+    y = Math.max(0, Math.min(maxScroll(), Math.round(y)));
+    cancelAnimation();
+    var finish = function () {
+      var before = page;
+      page = scrolledPage();
+      afterTurn(page !== before);
+      if (done) done();
+    };
+    if (animate && Math.abs(scroller.scrollTop - y) <= H * 2) animateTo(y, 300, finish, true);
+    else { setScrollY(y); finish(); }
+  }
+
+  function afterTurn(changed) {
+    if (changed) clearHighlight('kl-search');
+    if (changed) autoPageTurned();
+    report();
+  }
+
+  var raf = 0;
+  function cancelAnimation() { if (raf) cancelAnimationFrame(raf); raf = 0; animating = 0; }
+  function animateTo(x, ms, done, vertical) {
+    var from = vertical ? scroller.scrollTop : scroller.scrollLeft, d = x - from, t0 = performance.now();
+    animating = 1;
+    function step(now) {
+      var p = Math.min(1, (now - t0) / ms);
+      var e = 1 - Math.pow(1 - p, 3);
+      if (vertical) setScrollY(Math.round(from + d * e)); else setScroll(Math.round(from + d * e));
+      if (p < 1) raf = requestAnimationFrame(step);
+      else { raf = 0; animating = 0; if (done) done(); }
+    }
+    raf = requestAnimationFrame(step);
+  }
+
+  /** Curl and Fade are drawn by the app over the page: the page just jumps, when the app says. */
+  function appTurns() { return !scrolled && (settings.turn === 'curl' || settings.turn === 'sweep' || settings.turn === 'fade'); }
+
+  /** [y]: where on the page the turn was asked for (0 top, 1 bottom), for where a curl lifts. */
+  function next(y) {
+    if (scrolled) {
+      // A screen on, or at the end, on to the next chapter.
+      if (scroller.scrollTop < maxScroll() - 2) showY(scroller.scrollTop + stepH(), true);
+      else KL.edge(1);
+      return;
+    }
+    if (page < pages - 1) {
+      if (appTurns()) { KL.turn(1, y == null ? 0.8 : y); return; }
+      showPage(page + 1, true);
+    } else KL.edge(1);
+  }
+  function prev(y) {
+    if (scrolled) {
+      if (scroller.scrollTop > 2) showY(scroller.scrollTop - stepH(), true);
+      else KL.edge(-1);
+      return;
+    }
+    if (page > 0) {
+      if (appTurns()) { KL.turn(-1, y == null ? 0.8 : y); return; }
+      showPage(page - 1, true);
+    } else KL.edge(-1);
+  }
+
+  /** The app's turn: straight to the next or previous page. False at the first or last page. */
+  function turnNow(dir) {
+    if (scrolled) return false;
+    var n = page + (dir > 0 ? 1 : -1);
+    if (n < 0 || n > pages - 1) return false;
+    showPage(n, false);
+    return true;
+  }
+
+  // ---- where the reader is ---------------------------------------------------------------------
+
+  function textNodes() {
+    var out = [];
+    var w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+    for (var n = w.nextNode(); n; n = w.nextNode()) out.push(n);
+    return out;
+  }
+
+  function rectOf(node, offset) {
+    var r = document.createRange();
+    try {
+      if (node.nodeType === 3) {
+        var o = Math.min(offset || 0, node.data.length);
+        r.setStart(node, o);
+        r.setEnd(node, Math.min(node.data.length, o + 1));
+      } else r.selectNode(node);
+    } catch (e) { return null; }
+    var rects = r.getClientRects();
+    for (var i = 0; i < rects.length; i++) if (rects[i].width || rects[i].height) return rects[i];
+    var b = r.getBoundingClientRect();
+    return (b.width || b.height) ? b : null;
+  }
+
+  /** Which page a point in the chapter (node and offset) is on. */
+  function pageOf(node, offset) {
+    var r = rectOf(node, offset);
+    if (!r) return null;
+    return Math.max(0, Math.min(pages - 1, Math.floor((r.left + scroller.scrollLeft + 1) / W)));
+  }
+
+  /** How far down a scrolled chapter a point in it (node and offset) is, or null. */
+  function yOf(node, offset) {
+    var r = rectOf(node, offset);
+    return r ? r.top + scroller.scrollTop : null;
+  }
+
+  /** The first character showing under the top band of a scrolled chapter. */
+  function firstVisibleScrolled() {
+    var top = bandTop + 3;
+    var box = document.body.getBoundingClientRect();
+    var x = Math.max(4, box.left + 4);
+    if (document.caretRangeFromPoint) {
+      for (var dy = 0; dy <= 30; dy += 10) {
+        var r = document.caretRangeFromPoint(x, top + dy);
+        if (r && r.startContainer && r.startContainer.nodeType === 3 && document.body.contains(r.startContainer) && r.startContainer.data.trim()) {
+          var rc = rectOf(r.startContainer, r.startOffset);
+          if (rc && rc.bottom > bandTop && rc.top < H - bandBottom) return { node: r.startContainer, offset: r.startOffset };
+        }
+      }
+    }
+    // Otherwise the first text that reaches below the band.
+    var nodes = textNodes();
+    var lo = 0, hi = nodes.length - 1, found = -1;
+    while (lo <= hi) {
+      var mid = (lo + hi) >> 1;
+      var rs = rangeRects(nodes[mid]);
+      var bottom = rs.length ? rs[rs.length - 1].bottom : -1e9;
+      if (bottom > bandTop) { found = mid; hi = mid - 1; } else lo = mid + 1;
+    }
+    for (var i = Math.max(0, found); i >= 0 && i < nodes.length; i++) {
+      var n = nodes[i];
+      if (!n.data.trim()) continue;
+      var q = rangeRects(n);
+      if (!q.length) continue;
+      if (q[0].top >= H - bandBottom) break;
+      // The first character in it below the band.
+      var a = 0, b = n.data.length;
+      while (a < b) {
+        var m = (a + b) >> 1;
+        var c = rectOf(n, m);
+        if (c && c.bottom > bandTop) b = m; else a = m + 1;
+      }
+      return { node: n, offset: Math.min(a, n.data.length) };
+    }
+    return null;
+  }
+
+  /** The first character on the current page. */
+  function firstVisible() {
+    if (scrolled) return firstVisibleScrolled();
+    var r = document.caretRangeFromPoint ? document.caretRangeFromPoint(padX + 3, padY + 6) : null;
+    if (r && r.startContainer && r.startContainer.nodeType === 3 && document.body.contains(r.startContainer)) {
+      var p = pageOf(r.startContainer, r.startOffset);
+      if (p === page) return { node: r.startContainer, offset: r.startOffset };
+    }
+    // Otherwise the first text node that reaches onto this page.
+    var nodes = textNodes();
+    var lo = 0, hi = nodes.length - 1, found = -1;
+    var left = page * W;
+    while (lo <= hi) {
+      var mid = (lo + hi) >> 1;
+      var rects = rangeRects(nodes[mid]);
+      var end = rects.length ? rects[rects.length - 1].right + scroller.scrollLeft : -1;
+      if (end > left) { found = mid; hi = mid - 1; } else lo = mid + 1;
+    }
+    for (var i = Math.max(0, found); i >= 0 && i < nodes.length; i++) {
+      var n = nodes[i];
+      if (!n.data.trim()) continue;
+      var rs = rangeRects(n);
+      for (var k = 0; k < rs.length; k++) {
+        if (rs[k].right + scroller.scrollLeft > left && rs[k].left + scroller.scrollLeft < left + W) {
+          return { node: n, offset: offsetAtPage(n, left) };
+        }
+      }
+      if (rs.length && rs[0].left + scroller.scrollLeft >= left + W) break;
+    }
+    return null;
+  }
+
+  function rangeRects(n) {
+    var r = document.createRange();
+    r.selectNodeContents(n);
+    return r.getClientRects();
+  }
+
+  function offsetAtPage(n, left) {
+    var lo = 0, hi = n.data.length;
+    while (lo < hi) {
+      var mid = (lo + hi) >> 1;
+      var r = rectOf(n, mid);
+      if (r && r.left + scroller.scrollLeft >= left) hi = mid; else lo = mid + 1;
+    }
+    return lo;
+  }
+
+  function pathOf(node) {
+    var parts = [];
+    while (node && node !== document.body) {
+      var i = 0;
+      for (var s = node.previousSibling; s; s = s.previousSibling) i++;
+      parts.unshift(i);
+      node = node.parentNode;
+    }
+    return node ? parts.join('/') : null;
+  }
+
+  function nodeAt(path) {
+    var node = document.body;
+    var parts = String(path).split('/');
+    for (var i = 0; i < parts.length && node; i++) {
+      if (parts[i] === '') continue;
+      node = node.childNodes[parseInt(parts[i], 10)];
+    }
+    return node || null;
+  }
+
+  function snippetFrom(node, offset) {
+    var out = '';
+    var w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+    w.currentNode = node;
+    var n = node, first = true;
+    while (n && out.length < 160) {
+      var t = first ? n.data.slice(offset) : n.data;
+      out += t;
+      first = false;
+      n = w.nextNode();
+    }
+    return out.replace(/\s+/g, ' ').trim().slice(0, 140);
+  }
+
+  function here() {
+    var v = firstVisible();
+    var anchor = v ? pathOf(v.node) + ':' + v.offset : null;
+    // Pictures still loading can make a scrolled chapter longer.
+    if (scrolled) countPages();
+    return {
+      page: page,
+      pages: pages,
+      progress: scrolled ? scrolledProgress() : pages > 1 ? page / (pages - 1) : 0,
+      anchor: anchor,
+      snippet: v ? snippetFrom(v.node, v.offset) : '',
+      spread: perScreen === 2,
+      scrolled: scrolled,
+      // What the pages were laid out at: the same chapter comes to the same pages while this stays the same.
+      layout: [W, H, perScreen, scrolled ? 1 : 0, padX, padY, bandTop, bandBottom, settings.fontScale, settings.font,
+        settings.line, settings.align, settings.hyphens, settings.lang].join('|'),
+    };
+  }
+
+  var reportTimer = 0, reportedAt = 0;
+  function report() {
+    if (!ready) return;
+    clearTimeout(reportTimer);
+    reportTimer = setTimeout(function () {
+      reportedAt = Date.now();
+      try { KL.position(JSON.stringify(here())); } catch (e) { log(e); }
+    }, 60);
+  }
+
+  /** While a scrolled chapter moves: where the reader is, now and then, and once it stops. */
+  function reportWhileScrolling() {
+    if (!ready) return;
+    if (Date.now() - reportedAt > 400) {
+      reportedAt = Date.now();
+      try { KL.position(JSON.stringify(here())); } catch (e) { log(e); }
+    }
+    report();
+  }
+
+  // ---- going places ------------------------------------------------------------------------------
+
+  function elementFor(fragment) {
+    if (!fragment) return null;
+    var id = decodeURIComponent(fragment);
+    return document.getElementById(id) || document.querySelector('[name="' + id.replace(/"/g, '\\"') + '"]');
+  }
+
+  function pageOfElement(el) {
+    var target = el;
+    // An empty anchor has no box of its own: use what follows it.
+    var r = rectOf(target);
+    if (!r) {
+      var w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+      w.currentNode = el;
+      var t = w.nextNode();
+      while (t && !t.data.trim()) t = w.nextNode();
+      if (t) return pageOf(t, 0);
+      return null;
+    }
+    return Math.max(0, Math.min(pages - 1, Math.floor((r.left + scroller.scrollLeft + 1) / W)));
+  }
+
+  /** Finds the [occurrence]th match of [text] (case and spacing ignored) and returns a range for it. */
+  function findText(text, occurrence, segment, offset) {
+    var nodes = textNodes();
+    // Exactly where the app says, when the text is still there.
+    if (segment != null && segment >= 0 && segment < nodes.length) {
+      var n = nodes[segment];
+      var got = n.data.substr(offset, text.length);
+      if (got.toLowerCase() === text.toLowerCase()) {
+        var r0 = document.createRange();
+        r0.setStart(n, offset);
+        r0.setEnd(n, offset + text.length);
+        return r0;
+      }
+    }
+    var wanted = text.replace(/\s+/g, ' ').toLowerCase();
+    var flat = '', map = [];
+    for (var i = 0; i < nodes.length; i++) {
+      var d = nodes[i].data;
+      for (var j = 0; j < d.length; j++) {
+        var c = d[j];
+        if (/\s/.test(c)) {
+          if (flat.length && flat[flat.length - 1] === ' ') continue;
+          c = ' ';
+        }
+        flat += c.toLowerCase();
+        map.push([i, j]);
+      }
+    }
+    var at = -1, k = -1;
+    do { at = flat.indexOf(wanted, at + 1); if (at >= 0) k++; } while (at >= 0 && k < (occurrence || 0));
+    if (at < 0) return null;
+    var s = map[at], e = map[at + wanted.length - 1];
+    var r = document.createRange();
+    r.setStart(nodes[s[0]], s[1]);
+    r.setEnd(nodes[e[0]], e[1] + 1);
+    return r;
+  }
+
+  function clearHighlight(name) { try { if (window.CSS && CSS.highlights) CSS.highlights.delete(name); } catch (e) {} }
+  function highlight(name, range) {
+    try { if (window.CSS && CSS.highlights && window.Highlight) CSS.highlights.set(name, new Highlight(range)); } catch (e) {}
+  }
+
+  function flash(range) {
+    highlight('kl-flash', range);
+    setTimeout(function () { clearHighlight('kl-flash'); }, 1600);
+  }
+
+  /** The same places as [goTo], in a scrolled chapter: each put just under the top band. */
+  function goToScrolled(t, animate) {
+    // The end is the last lines at the foot of the screen, as a chapter's last page would be.
+    var y = 0, max = textMax();
+    var nearTop = function (top) { return top == null ? null : top - topInset(); };
+    switch (t.type) {
+      case 'end': y = max; break;
+      case 'page': y = (t.value | 0) * stepH(); break;
+      case 'progress': y = (t.value || 0) * max; break;
+      case 'anchor': {
+        var bits = String(t.value || '').split(':');
+        var node = nodeAt(bits[0]);
+        var a = node ? nearTop(yOf(node, parseInt(bits[1] || '0', 10))) : null;
+        y = a != null ? a : (t.progress || 0) * max;
+        break;
+      }
+      case 'range': {
+        var hr = rangeFor(t);
+        var rr = hr ? hr.getClientRects()[0] : null;
+        y = rr ? nearTop(rr.top + scroller.scrollTop) : (t.progress || 0) * max;
+        if (hr && t.flash) flash(hr);
+        break;
+      }
+      case 'fragment': {
+        var el = elementFor(t.value);
+        var er = el ? (rectOf(el) || el.getBoundingClientRect()) : null;
+        y = er ? nearTop(er.top + scroller.scrollTop) : 0;
+        if (el && t.flash) {
+          var fr = document.createRange();
+          fr.selectNodeContents(el);
+          flash(fr);
+        }
+        break;
+      }
+      case 'search': {
+        var range = findText(t.text || '', t.occurrence || 0, t.segment, t.offset);
+        if (range) {
+          var sr = range.getClientRects()[0];
+          // A found word a little way down the screen, where the eye looks.
+          if (sr) y = sr.top + scroller.scrollTop - bandTop - viewH() * 0.3;
+          showY(y, false);
+          highlight('kl-search', range);
+          return;
+        }
+        break;
+      }
+      default: y = 0;
+    }
+    showY(y, !!animate);
+  }
+
+  function goTo(t, animate) {
+    t = t || {};
+    if (scrolled) { goToScrolled(t, animate); return; }
+    var target = 0;
+    switch (t.type) {
+      case 'end': target = pages - 1; break;
+      case 'page': target = t.value | 0; break;
+      case 'progress': target = Math.round((t.value || 0) * (pages - 1)); break;
+      case 'anchor': {
+        var bits = String(t.value || '').split(':');
+        var node = nodeAt(bits[0]);
+        var p = node ? pageOf(node, parseInt(bits[1] || '0', 10)) : null;
+        if (p == null && t.progress != null) p = Math.round(t.progress * (pages - 1));
+        target = p || 0;
+        break;
+      }
+      case 'range': {
+        var hr = rangeFor(t);
+        var hp = hr ? pageOfRange(hr) : null;
+        if (hp == null && t.progress != null) hp = Math.round(t.progress * (pages - 1));
+        target = hp || 0;
+        if (hr && t.flash) {
+          highlight('kl-flash', hr);
+          setTimeout(function () { clearHighlight('kl-flash'); }, 1600);
+        }
+        break;
+      }
+      case 'fragment': {
+        var el = elementFor(t.value);
+        var pe = el ? pageOfElement(el) : null;
+        target = pe == null ? 0 : pe;
+        if (el && t.flash) {
+          var fr = document.createRange();
+          fr.selectNodeContents(el);
+          highlight('kl-flash', fr);
+          setTimeout(function () { clearHighlight('kl-flash'); }, 1600);
+        }
+        break;
+      }
+      case 'search': {
+        var range = findText(t.text || '', t.occurrence || 0, t.segment, t.offset);
+        if (range) {
+          var rr = range.getClientRects()[0];
+          if (rr) target = Math.max(0, Math.min(pages - 1, Math.floor((rr.left + scroller.scrollLeft + 1) / W)));
+          showPage(target, false);
+          highlight('kl-search', range);
+          return;
+        }
+        break;
+      }
+      default: target = 0;
+    }
+    showPage(target, !!animate);
+  }
+
+  // ---- highlights and notes ---------------------------------------------------------------------
+
+  var HL = { yellow: [255, 212, 0], green: [100, 200, 90], blue: [90, 160, 255], pink: [255, 110, 170] };
+  var annotations = [];
+  var flatCache = null;
+  var XHTML = 'http://www.w3.org/1999/xhtml';
+
+  function norm(t) { return String(t || '').replace(/\s+/g, ' ').trim(); }
+
+  /** The chapter's text with runs of space as one, and where each character came from. */
+  function flatText() {
+    if (flatCache) return flatCache;
+    var nodes = textNodes(), flat = '', map = [];
+    for (var i = 0; i < nodes.length; i++) {
+      var d = nodes[i].data;
+      for (var j = 0; j < d.length; j++) {
+        var c = d[j];
+        if (/\s/.test(c)) {
+          if (flat.length && flat[flat.length - 1] === ' ') continue;
+          c = ' ';
+        }
+        flat += c.toLowerCase();
+        map.push([nodes[i], j]);
+      }
+    }
+    flatCache = { flat: flat, map: map };
+    return flatCache;
+  }
+
+  /** How many times these words occur in the chapter before this range: to find them again after an edit. */
+  function occurrenceOf(range, text) {
+    var f = flatText(), wanted = norm(text).toLowerCase();
+    if (!wanted) return 0;
+    var at = -1, k = 0;
+    while ((at = f.flat.indexOf(wanted, at + 1)) >= 0) {
+      var m = f.map[at];
+      var probe = document.createRange();
+      try { probe.setStart(m[0], m[1]); } catch (e) { break; }
+      if (probe.compareBoundaryPoints(Range.START_TO_START, range) >= 0) break;
+      k++;
+    }
+    return k;
+  }
+
+  function pointAt(anchor) {
+    var bits = String(anchor || '').split(':');
+    var n = nodeAt(bits[0]);
+    if (!n) return null;
+    var off = parseInt(bits[1] || '0', 10);
+    var max = n.nodeType === 3 ? n.data.length : n.childNodes.length;
+    return off <= max ? { node: n, offset: off } : null;
+  }
+
+  /** Where a highlight is: by its anchors while the words there still match, else by its words. */
+  function rangeFor(a) {
+    var s = pointAt(a.start), e = pointAt(a.end);
+    if (s && e) {
+      try {
+        var r = document.createRange();
+        r.setStart(s.node, s.offset);
+        r.setEnd(e.node, e.offset);
+        if (norm(r.toString()).toLowerCase() === norm(a.text).toLowerCase()) return r;
+      } catch (er) {}
+    }
+    return a.text ? findText(a.text, a.occurrence || 0) : null;
+  }
+
+  function highlightStyles() {
+    var dark = !!settings.dimImages;
+    var css = '';
+    for (var c in HL) {
+      var rgb = HL[c].join(',');
+      css += '::highlight(kl-hl-' + c + '){background-color:rgba(' + rgb + ',' + (dark ? 0.34 : 0.42) + ');}';
+      css += '::highlight(kl-ul-' + c + '){text-decoration-line:underline;text-decoration-color:rgb(' + rgb + ');text-decoration-thickness:3px;}';
+    }
+    css += '#kl-marks{position:absolute;left:0;top:0;width:0;height:0;overflow:visible;z-index:5;}';
+    css += '.kl-mark{position:absolute;width:13px;height:13px;margin:-4px 0 0 1px;border-radius:50% 50% 50% 0;box-shadow:0 0 0 1.5px ' + (dark ? 'rgba(0,0,0,.6)' : 'rgba(255,255,255,.9)') + ';cursor:pointer;}';
+    var el = document.getElementById('kl-hl-style');
+    if (!el) {
+      el = document.createElementNS(XHTML, 'style');
+      el.id = 'kl-hl-style';
+      (document.head || document.documentElement).appendChild(el);
+    }
+    el.textContent = css;
+  }
+
+  /** Shows this chapter's highlights: [list] from the app, each with id, anchors, words, colour, style, note. */
+  function applyAnnotations(list) {
+    annotations = [];
+    var groups = {};
+    for (var i = 0; i < (list || []).length; i++) {
+      var a = list[i];
+      var r = rangeFor(a);
+      if (!r) continue;
+      a.range = r;
+      annotations.push(a);
+      var c = HL[a.color] ? a.color : 'yellow';
+      var key = (a.style === 'underline' ? 'kl-ul-' : 'kl-hl-') + c;
+      (groups[key] = groups[key] || []).push(r);
+    }
+    for (var name in HL) { clearHighlight('kl-hl-' + name); clearHighlight('kl-ul-' + name); }
+    try {
+      if (window.CSS && CSS.highlights && window.Highlight) {
+        for (var k in groups) {
+          var h = new Highlight();
+          for (var j = 0; j < groups[k].length; j++) h.add(groups[k][j]);
+          CSS.highlights.set(k, h);
+        }
+      }
+    } catch (e) { log(e); }
+    placeNoteMarks();
+  }
+
+  /** A small flag at the end of each passage that has a note. */
+  function placeNoteMarks() {
+    var box = document.getElementById('kl-marks');
+    if (box) box.parentNode.removeChild(box);
+    var noted = annotations.filter(function (a) { return a.note; });
+    if (!noted.length) return;
+    box = document.createElementNS(XHTML, 'div');
+    box.id = 'kl-marks';
+    for (var i = 0; i < noted.length; i++) {
+      var rs = noted[i].range.getClientRects();
+      if (!rs.length) continue;
+      var q = rs[rs.length - 1];
+      var m = document.createElementNS(XHTML, 'div');
+      m.className = 'kl-mark';
+      m.setAttribute('data-id', noted[i].id);
+      var rgb = (HL[noted[i].color] || HL.yellow).join(',');
+      m.style.background = 'rgb(' + rgb + ')';
+      m.style.left = (q.right + scroller.scrollLeft) + 'px';
+      m.style.top = (q.top + scroller.scrollTop) + 'px';
+      box.appendChild(m);
+    }
+    // Outside the chapter's body, so nothing in it moves.
+    document.documentElement.appendChild(box);
+  }
+
+  function rectJson(r) { return { x: r.left, y: r.top, w: r.width, h: r.height }; }
+
+  /** The page a range starts on. */
+  function pageOfRange(r) {
+    var rs = r.getClientRects();
+    for (var i = 0; i < rs.length; i++) {
+      if (rs[i].width || rs[i].height) return Math.max(0, Math.min(pages - 1, Math.floor((rs[i].left + scroller.scrollLeft + 1) / W)));
+    }
+    return null;
+  }
+
+  /** The highlight under a tap, if any. */
+  function annotationAt(x, y) {
+    for (var i = annotations.length - 1; i >= 0; i--) {
+      var rs = annotations[i].range.getClientRects();
+      for (var k = 0; k < rs.length; k++) {
+        var q = rs[k];
+        if (x >= q.left - 2 && x <= q.right + 2 && y >= q.top - 3 && y <= q.bottom + 3) return annotations[i];
+      }
+    }
+    return null;
+  }
+
+  function annotationById(id) {
+    for (var i = 0; i < annotations.length; i++) if (annotations[i].id === id) return annotations[i];
+    return null;
+  }
+
+  /** What's selected, for the app to highlight or look up: anchors, words, and where it is on screen. */
+  function selectionInfo() {
+    var sel = window.getSelection && window.getSelection();
+    if (!sel || !sel.rangeCount || sel.isCollapsed) return null;
+    var r = sel.getRangeAt(0);
+    if (!document.body.contains(r.commonAncestorContainer) && r.commonAncestorContainer !== document.body) return null;
+    var text = r.toString();
+    if (!norm(text)) return null;
+    var start = pathOf(r.startContainer), end = pathOf(r.endContainer);
+    if (start == null || end == null) return null;
+    var progress = 0;
+    if (scrolled) {
+      var r0 = r.getClientRects()[0];
+      progress = r0 && textMax() > 0 ? Math.max(0, Math.min(1, (r0.top + scroller.scrollTop - topInset()) / textMax())) : scrolledProgress();
+    } else {
+      var page0 = pageOfRange(r);
+      progress = pages > 1 && page0 != null ? page0 / (pages - 1) : 0;
+    }
+    return {
+      start: start + ':' + r.startOffset,
+      end: end + ':' + r.endOffset,
+      text: text,
+      occurrence: occurrenceOf(r, text),
+      progress: progress,
+      rect: rectJson(r.getBoundingClientRect()),
+    };
+  }
+
+  // ---- laying out, and again when something changes -----------------------------------------------
+
+  function whenSettled(done) {
+    var waits = [];
+    if (document.fonts && document.fonts.ready) waits.push(document.fonts.ready);
+    var imgs = document.images;
+    for (var i = 0; i < imgs.length; i++) {
+      if (!imgs[i].complete) {
+        waits.push(new Promise(function (res) { imgs[i].addEventListener('load', res); imgs[i].addEventListener('error', res); }));
+      }
+    }
+    var timeout = new Promise(function (res) { setTimeout(res, 1800); });
+    Promise.race([Promise.all(waits), timeout]).then(function () {
+      requestAnimationFrame(function () { requestAnimationFrame(done); });
+    });
+  }
+
+  /** Lays out again (new settings, a new screen size) and stays at the same words. */
+  function relayout(change) {
+    var keep = ready ? firstVisible() : null;
+    // Scrolling: how far down the screen those words were, so they stay there. (Put just under the top
+    // band instead, the line half under it would come down a line each time.)
+    var wasScrolled = scrolled, keptAt = null;
+    if (keep && scrolled) {
+      var kr = rectOf(keep.node, keep.offset);
+      if (kr) keptAt = kr.top;
+    }
+    var spentOnPage = autoPageDone;
+    var progress = scrolled ? scrolledProgress() : pages > 1 ? page / (pages - 1) : 0;
+    change();
+    whenSettled(function () {
+      setScroll(0);
+      if (!scrolled) scroller.scrollTop = 0;
+      try { fitPictureBoxes(); } catch (e) { log(e); }
+      measureDensity();
+      countPages();
+      if (scrolled) {
+        var y = keep ? yOf(keep.node, keep.offset) : null;
+        var at = wasScrolled && keptAt != null ? keptAt : topInset();
+        showY(y == null ? progress * textMax() : y - at, false);
+      } else {
+        var p = keep ? pageOf(keep.node, keep.offset) : null;
+        showPage(p == null ? Math.round(progress * (pages - 1)) : p, false);
+      }
+      placeNoteMarks();
+      blendPictures();
+      root.classList.toggle('kl-auto-pages', auto.on && !scrolled);
+      if (auto.on) {
+        autoPos = -1;
+        startPageTimer();
+        autoPageDone = Math.min(spentOnPage, autoPageNeed);
+      }
+    });
+  }
+
+  // ---- the end of a scrolled chapter --------------------------------------------------------------
+
+  /**
+   * Under a scrolled chapter: where it ends, and the way on to the next one. It's tall enough for the
+   * last lines to be scrolled up to where the eye reads. Outside the body, so the chapter is unchanged.
+   */
+  function addChapterEnd() {
+    if (document.getElementById('kl-end')) return;
+    var box = document.createElementNS(XHTML, 'div');
+    box.id = 'kl-end';
+    var label = document.createElementNS(XHTML, 'div');
+    label.className = 'kl-end-label';
+    label.textContent = isLast ? 'End of book' : 'End of chapter';
+    box.appendChild(label);
+    if (!isLast) {
+      var go = document.createElementNS(XHTML, 'div');
+      go.id = 'kl-end-go';
+      go.textContent = nextTitle ? 'Next chapter: ' + nextTitle : 'Next chapter';
+      box.appendChild(go);
+      var hint = document.createElementNS(XHTML, 'div');
+      hint.className = 'kl-end-hint';
+      hint.textContent = 'Tap the button or pull up to keep reading';
+      box.appendChild(hint);
+    }
+    root.appendChild(box);
+  }
+
+  // Pulling a scrolled chapter on past its end (or back past its start) opens the next (or previous) one.
+  var pull = null, hasPrev = true;
+  function pullThreshold() { return Math.max(70, Math.min(140, H * 0.1)); }
+
+  function pullMove(t) {
+    var max = maxScroll();
+    if (scroller.scrollTop >= max - 1 && !isLast) {
+      if (!pull || pull.dir !== 1) pull = { dir: 1, from: t.clientY, dist: 0 };
+      pull.dist = Math.max(0, pull.from - t.clientY);
+    } else if (scroller.scrollTop <= 1 && hasPrev) {
+      if (!pull || pull.dir !== -1) pull = { dir: -1, from: t.clientY, dist: 0 };
+      pull.dist = Math.max(0, t.clientY - pull.from);
+    } else pull = null;
+    showPull();
+  }
+
+  function pullEnd() {
+    var p = pull;
+    pull = null;
+    showPull();
+    if (p && p.dist >= pullThreshold()) KL.edge(p.dir);
+  }
+
+  function showPull() {
+    var el = document.getElementById('kl-pull');
+    if (!pull || pull.dist < 14) {
+      if (el) el.classList.remove('kl-on');
+      return;
+    }
+    if (!el) {
+      el = document.createElementNS(XHTML, 'div');
+      el.id = 'kl-pull';
+      root.appendChild(el);
+    }
+    var far = pull.dist >= pullThreshold();
+    el.className = 'kl-on ' + (pull.dir > 0 ? 'kl-bottom' : 'kl-top');
+    el.textContent = pull.dir > 0
+      ? (far ? 'Let go to open the next chapter' : 'Pull up for the next chapter')
+      : (far ? 'Let go to open the previous chapter' : 'Pull down for the previous chapter');
+  }
+
+  /** Runs [done] once the WebView has a size (it can load a page before it's been laid out). */
+  function whenSized(done) {
+    if (hasSize()) { done(); return; }
+    var t0 = Date.now();
+    (function wait() {
+      if (hasSize() || Date.now() - t0 > 4000) done();
+      else requestAnimationFrame(wait);
+    })();
+  }
+
+  function start() {
+    var st = parse(KL.start());
+    markFullPagePictures();
+    try { keepPictureShapes(); } catch (e) { log(e); }
+    try { centrePictures(); } catch (e) { log(e); }
+    try { keepOpeningTogether(); } catch (e) { log(e); }
+    var around = st.chapters || {};
+    nextTitle = around.next || null;
+    isLast = around.hasNext === false;
+    hasPrev = around.hasPrev !== false;
+    try { addChapterEnd(); } catch (e) { log(e); }
+    startTarget = st.target || { type: 'start' };
+    whenSized(function () {
+      applySettings(st.settings || {});
+      bindTouchMove();
+      whenSettled(function () {
+        // The size may have settled while pictures and fonts loaded.
+        if (screenWidth() !== W || screenHeight() !== H) measure();
+        try { fitPictureBoxes(); } catch (e) { log(e); }
+        measureDensity();
+        countPages();
+        blendPictures();
+        ready = true;
+        try { applyAnnotations(st.annotations || []); } catch (e) { log(e); }
+        goTo(startTarget, false);
+        root.classList.add('kl-ready');
+        var h = here();
+        try { KL.ready(JSON.stringify({ pages: pages, page: page, spread: perScreen === 2, progress: h.progress, scrolled: scrolled })); } catch (e) { log(e); }
+        if (st.auto) setAuto(st.auto, true);
+      });
+    });
+  }
+
+  var resizeTimer = 0;
+  window.addEventListener('resize', function () {
+    if (!ready) return;
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      if (screenWidth() === laidOutWidth && screenHeight() === H) return;
+      relayout(measure);
+    }, 120);
+  });
+
+  // ---- touch, taps, keys --------------------------------------------------------------------------
+
+  var touch = null, suppressClick = false;
+
+  function selectionActive() {
+    var s = window.getSelection && window.getSelection();
+    return !!(s && s.type === 'Range' && String(s).length);
+  }
+
+  document.addEventListener('touchstart', function (e) {
+    autoTouch(true);
+    if (!ready || e.touches.length !== 1) { touch = null; return; }
+    suppressClick = selectionActive();
+    var t = e.touches[0];
+    cancelAnimation();
+    touch = { x: t.clientX, y: t.clientY, t: Date.now(), base: page * W, moved: false, lastX: t.clientX, lastT: Date.now(), v: 0 };
+    pull = null;
+  }, { passive: true });
+
+  function onTouchMove(e) {
+    if (!touch || selectionActive()) return;
+    var t = e.touches[0];
+    var dx = t.clientX - touch.x, dy = t.clientY - touch.y;
+    if (scrolled) {
+      // The page scrolls by itself; this only watches for a pull past either end.
+      if (!touch.moved && Math.abs(dy) > 10) touch.moved = true;
+      pullMove(t);
+      return;
+    }
+    if (!touch.moved) {
+      if (Math.abs(dx) < 12 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+      touch.moved = true;
+    }
+    if (e.cancelable) e.preventDefault();
+    var now = Date.now();
+    touch.v = (t.clientX - touch.lastX) / Math.max(1, now - touch.lastT);
+    touch.lastX = t.clientX;
+    touch.lastT = now;
+    // With Curl or Fade the page stays put while the finger moves; the turn comes when it lets go.
+    if (appTurns()) return;
+    var x = touch.base - dx;
+    var min = 0, max = (pages - 1) * W;
+    // Past the first or last page it pulls with resistance, to show there's another chapter.
+    if (x < min) x = min - Math.min(W * 0.3, (min - x) * 0.35);
+    if (x > max) x = max + Math.min(W * 0.3, (x - max) * 0.35);
+    setScroll(Math.round(x));
+  }
+
+  // Pages: the swipe is handled here, so it can't be passive. Scrolling: the browser scrolls, and a
+  // passive listener doesn't hold it up.
+  var movePassive = null;
+  function bindTouchMove() {
+    if (movePassive === scrolled) return;
+    if (movePassive !== null) document.removeEventListener('touchmove', onTouchMove);
+    document.addEventListener('touchmove', onTouchMove, { passive: scrolled });
+    movePassive = scrolled;
+  }
+
+  document.addEventListener('touchend', function (e) {
+    if (!e.touches || !e.touches.length) autoTouch(false);
+    if (!touch) return;
+    var t = touch;
+    touch = null;
+    if (scrolled) {
+      if (t.moved) suppressClick = true;
+      // Set to keep going: after a drag, a moment for any glide to begin, then on it goes.
+      if (t.moved && auto.on && keepsGoing()) autoWaitUntil = Math.max(autoWaitUntil, performance.now() + 250);
+      pullEnd();
+      return;
+    }
+    if (!t.moved) return;
+    suppressClick = true;
+    var dx = t.lastX - t.x;
+    var fling = Math.abs(t.v) > 0.35;
+    var far = Math.abs(dx) > W * 0.18;
+    if (appTurns()) {
+      if ((far || fling) && dx < 0) next(t.y / H);
+      else if ((far || fling) && dx > 0) prev(t.y / H);
+      return;
+    }
+    if ((far || fling) && dx < 0) {
+      if (page < pages - 1) showPage(page + 1, true);
+      else { showPage(page, true); KL.edge(1); }
+    } else if ((far || fling) && dx > 0) {
+      if (page > 0) showPage(page - 1, true);
+      else { showPage(page, true); KL.edge(-1); }
+    } else {
+      showPage(page, true);
+    }
+  }, { passive: true });
+
+  // A tap's click is taken unless text is selected (a touch says so first; a mouse or pen here).
+  document.addEventListener('mousedown', function () { if (!touch) suppressClick = selectionActive(); }, true);
+
+  // The app took the touch over (it's turning the page with the finger): forget this one.
+  document.addEventListener('touchcancel', function (e) {
+    if (!e.touches || !e.touches.length) autoTouch(false);
+    touch = null;
+    suppressClick = false;
+    pull = null;
+    showPull();
+  }, { passive: true });
+
+  // The app needs to know when text is selected: a drag then moves the selection, not the page.
+  var selectionReported = false;
+  document.addEventListener('selectionchange', function () {
+    var on = selectionActive();
+    if (on !== selectionReported) {
+      selectionReported = on;
+      try { KL.selecting(on); } catch (e) {}
+    }
+  });
+
+  function isNoteLink(a) {
+    var type = (a.getAttributeNS('http://www.idpf.org/2007/ops', 'type') || a.getAttribute('epub:type') || '') + ' ' + (a.getAttribute('role') || '');
+    if (/noteref/.test(type)) return true;
+    var text = (a.textContent || '').trim();
+    if (text.length && text.length <= 5 && /^[\[(]?([0-9]{1,3}|[*†‡§¶#]{1,3}|[a-z])[\])]?$/i.test(text)) return true;
+    var p = a.parentNode;
+    return !!(p && p.nodeType === 1 && /^sup$/i.test(p.localName) && text.length <= 6);
+  }
+
+  function noteHtml(doc, id) {
+    var el = doc.getElementById(id) || doc.querySelector('[name="' + id + '"]');
+    if (!el) return null;
+    var box = el;
+    // An empty marker: the note is the block it sits in.
+    if (!(el.textContent || '').trim() || /^a$/i.test(el.localName)) {
+      var b = el.closest ? el.closest('p, li, aside, div, dd, section, blockquote, td') : null;
+      if (b) box = b;
+    }
+    var clone = box.cloneNode(true);
+    var scripts = clone.querySelectorAll ? clone.querySelectorAll('script, style') : [];
+    for (var i = 0; i < scripts.length; i++) scripts[i].parentNode.removeChild(scripts[i]);
+    var html = clone.innerHTML !== undefined ? clone.innerHTML : new XMLSerializer().serializeToString(clone);
+    var text = (box.textContent || '').trim();
+    if (!text || text.length > 4000) return null;
+    return html;
+  }
+
+  function handleLink(a) {
+    var href = a.getAttribute('href') || a.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
+    if (!href) return;
+    var url;
+    try { url = new URL(href, document.baseURI); } catch (e) { return; }
+    if (url.origin !== location.origin) { KL.external(url.href); return; }
+    var fragment = url.hash ? url.hash.slice(1) : '';
+    var samePage = url.pathname === location.pathname;
+    var from = JSON.stringify(here());
+    if (isNoteLink(a) && fragment) {
+      if (samePage) {
+        var html = noteHtml(document, decodeURIComponent(fragment));
+        if (html) { KL.note(JSON.stringify({ html: html, href: url.href })); return; }
+      } else {
+        fetch(url.href.split('#')[0]).then(function (r) {
+          var type = (r.headers.get('content-type') || 'text/html').split(';')[0];
+          return r.text().then(function (t) { return new DOMParser().parseFromString(t, type === 'application/xhtml+xml' ? type : 'text/html'); });
+        }).then(function (doc) {
+          var h = noteHtml(doc, decodeURIComponent(fragment));
+          if (h) KL.note(JSON.stringify({ html: h, href: url.href }));
+          else KL.link(JSON.stringify({ href: url.href, from: from }));
+        }).catch(function () { KL.link(JSON.stringify({ href: url.href, from: from })); });
+        return;
+      }
+    }
+    if (samePage) {
+      KL.jumped(from);
+      goTo({ type: 'fragment', value: fragment, flash: true }, false);
+    } else {
+      KL.link(JSON.stringify({ href: url.href, from: from }));
+    }
+  }
+
+  document.addEventListener('click', function (e) {
+    if (!ready) return;
+    if (suppressClick) { suppressClick = false; e.preventDefault(); return; }
+    var t = e.target;
+    var a = t && t.closest ? t.closest('a') : null;
+    if (a && (a.hasAttribute('href') || a.hasAttributeNS('http://www.w3.org/1999/xlink', 'href'))) {
+      e.preventDefault();
+      handleLink(a);
+      return;
+    }
+    var mark = t && t.closest ? t.closest('.kl-mark') : null;
+    var hit = mark ? annotationById(mark.getAttribute('data-id')) : annotationAt(e.clientX, e.clientY);
+    if (hit && !selectionActive()) {
+      e.preventDefault();
+      try { KL.annotation(JSON.stringify({ id: hit.id, rect: rectJson(hit.range.getBoundingClientRect()) })); } catch (er) { log(er); }
+      return;
+    }
+    if (t && t.closest && t.closest('#kl-end-go')) {
+      e.preventDefault();
+      KL.edge(1);
+      return;
+    }
+    var img = t && t.closest ? t.closest('img, image') : null;
+    if (img) {
+      var src = img.currentSrc || img.src || img.getAttribute('href') || img.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
+      if (src && typeof src === 'object' && src.baseVal) src = src.baseVal;
+      if (src) {
+        try { KL.image(new URL(src, document.baseURI).href); } catch (er) {}
+        e.preventDefault();
+        return;
+      }
+    }
+    var x = e.clientX, y = H > 0 ? e.clientY / H : 0.8;
+    var zone = tapZone(x, e.clientY);
+    if (zone < 0) prev(y);
+    else if (zone > 0) next(y);
+    else KL.tap('center');
+  }, true);
+
+  /** What a tap at (x, y) does, as the reader's set: -1 back, 1 on, 0 the controls (always the middle). */
+  function tapZone(x, y) {
+    // How far in from the edges a tap turns the page: the rest, the middle, is for the controls.
+    var f = Math.max(0.05, Math.min(0.4, settings.tapWidth || 0.14));
+    var side = x < W * f ? -1 : x > W * (1 - f) ? 1 : 0;
+    switch (settings.taps) {
+      case 'none': return 0;
+      case 'forward': return side !== 0 ? 1 : 0;
+      case 'topbottom':
+        if (y < H * f) return -1;
+        if (y > H * (1 - f)) return 1;
+        return side;
+      default: return side;
+    }
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (!ready) return;
+    switch (e.key) {
+      case 'ArrowRight': case 'PageDown': case ' ': case 'ArrowDown': next(); break;
+      case 'ArrowLeft': case 'PageUp': case 'ArrowUp': prev(); break;
+      default: return;
+    }
+    e.preventDefault();
+  });
+
+  var wheelAt = 0;
+  document.addEventListener('wheel', function (e) {
+    // A scrolled chapter scrolls as any page does.
+    if (!ready || scrolled) return;
+    e.preventDefault();
+    var now = Date.now();
+    if (now - wheelAt < 350) return;
+    wheelAt = now;
+    if ((e.deltaY || e.deltaX) > 0) next(); else prev();
+  }, { passive: false });
+
+  // Pages: nothing is scrolled by the browser itself. Scrolling: where the reader is, as it goes by.
+  window.addEventListener('scroll', function () {
+    if (!ready) return;
+    if (scrolled) {
+      if (scroller.scrollLeft) setScroll(0);
+      if (auto.on && autoPos >= 0 && Math.abs(scroller.scrollTop - autoPos) > 2) {
+        // Moved by a finger, or still gliding after one: autoscroll carries on once it has settled.
+        autoWaitUntil = Math.max(autoWaitUntil, performance.now() + 200);
+      }
+      reportWhileScrolling();
+      return;
+    }
+    if (animating || touch) return;
+    var x = page * W;
+    if (Math.abs(scroller.scrollLeft - x) > 1) setScroll(x);
+  });
+
+  // ---- how fast the words go by -------------------------------------------------------------------
+
+  /** Words in some text. */
+  function countWords(text) {
+    var m = String(text || '').match(/\S+/g);
+    return m ? m.length : 0;
+  }
+
+  // How tall a line is, and how far down the page a word takes on average (lines, and the space
+  // between paragraphs), measured from the chapter's own paragraphs as they're laid out.
+  var pxPerWord = 2.5;
+
+  function measureDensity() {
+    var body = document.body;
+    if (!body) return;
+    var ps = body.getElementsByTagName('p');
+    var words = 0, height = 0, lhSum = 0, n = 0;
+    for (var i = 0; i < ps.length && n < 40; i++) {
+      var p = ps[i];
+      var wc = countWords(p.textContent);
+      if (wc < 20) continue;
+      var rs = p.getClientRects(), h = 0;
+      for (var k = 0; k < rs.length; k++) h += rs[k].height;
+      if (h <= 0) continue;
+      var cs = getComputedStyle(p);
+      var lh = parseFloat(cs.lineHeight);
+      if (!(lh > 0)) lh = (parseFloat(cs.fontSize) || 16) * 1.3;
+      // The space to the next paragraph (margins between them fold into the larger one).
+      h += Math.max(parseFloat(cs.marginTop) || 0, parseFloat(cs.marginBottom) || 0);
+      words += wc;
+      height += h;
+      lhSum += lh;
+      n++;
+    }
+    var fs = parseFloat(getComputedStyle(body).fontSize) || 16;
+    lineH = n ? lhSum / n : fs * 1.4;
+    if (n && words) pxPerWord = height / words;
+    else {
+      // Little ordinary text: about a word for every three letters' width of the line.
+      var width = body.getBoundingClientRect().width || W;
+      pxPerWord = lineH / Math.max(2, width / (fs * 2.9));
+    }
+  }
+
+  /** About how many words are on the page showing (pages, not scrolling). */
+  function wordsOnPage() {
+    var left = page * W, right = left + W, words = 0;
+    var nodes = textNodes();
+    for (var i = 0; i < nodes.length; i++) {
+      var n = nodes[i];
+      if (!n.data.trim()) continue;
+      var rs = rangeRects(n);
+      if (!rs.length) continue;
+      var inside = 0;
+      for (var k = 0; k < rs.length; k++) {
+        var x = rs[k].left + scroller.scrollLeft;
+        if (x >= left - 1 && x < right) inside++;
+      }
+      if (inside) words += countWords(n.data) * inside / rs.length;
+    }
+    return words;
+  }
+
+  // ---- autoscroll ---------------------------------------------------------------------------------
+
+  /**
+   * Moving on by itself at a reading speed ([auto.wpm] words a minute): a scrolled chapter scrolls
+   * steadily; pages turn when there's been time to read them. A finger on the page holds it, and it
+   * carries on [auto.resume] seconds after (or stops, if that's below 0). At the end of a chapter it
+   * waits [auto.endPause] seconds and goes on to the next (or stops, below 0). The app holds it while
+   * something is shown over the page.
+   */
+  var auto = { on: false, wpm: 230, endPause: 3, resume: 2 };
+  var autoHeld = false, autoTouching = false, autoWaitUntil = 0;
+  var autoRaf = 0, autoLast = 0, autoPos = -1, autoEndSince = 0, autoAsked = false;
+  var autoPageNeed = 0, autoPageDone = 0;
+  /** The page autoscroll was stopped on (pages), so starting it again there carries on its time. */
+  var autoStoppedOn = -1;
+
+  function setAuto(a, fresh) {
+    a = a || {};
+    var was = auto.on;
+    auto = {
+      on: !!a.on,
+      wpm: Math.max(40, Math.min(1500, +a.wpm || 230)),
+      endPause: a.endPause == null ? 3 : +a.endPause,
+      resume: a.resume == null ? 2 : +a.resume,
+    };
+    if (auto.on && !was) {
+      // A chapter just opened by autoscroll shows its start for a moment before moving.
+      autoWaitUntil = performance.now() + (fresh && scrolled ? Math.max(0, +a.startDelay || 0) : 0);
+      autoPos = -1;
+      autoEndSince = 0;
+      autoAsked = false;
+      // Started again on the page it was stopped on: the time already spent reading it counts.
+      var before = autoPageDone, samePage = autoStoppedOn === page;
+      startPageTimer();
+      if (samePage) autoPageDone = Math.min(before, autoPageNeed);
+    } else if (auto.on && !scrolled) {
+      // A new speed: the page being read gets the time it needs at that speed.
+      var done = autoPageDone;
+      startPageTimer();
+      autoPageDone = Math.min(done, autoPageNeed);
+    }
+    if (auto.on && !autoRaf) {
+      autoLast = 0;
+      autoRaf = requestAnimationFrame(autoTick);
+    }
+    if (!auto.on && was) autoStoppedOn = page;
+    if (!auto.on && autoRaf) {
+      cancelAnimationFrame(autoRaf);
+      autoRaf = 0;
+    }
+    root.classList.toggle('kl-auto-pages', auto.on && !scrolled);
+    showAutoBar(0);
+  }
+
+  /** Stopped here (a touch, the end of a chapter): the app is told, so its button shows it. */
+  function stopAuto(reason) {
+    if (!auto.on) return;
+    autoStoppedOn = page;
+    auto.on = false;
+    if (autoRaf) { cancelAnimationFrame(autoRaf); autoRaf = 0; }
+    root.classList.remove('kl-auto-pages');
+    try { KL.auto(JSON.stringify({ on: false, reason: reason })); } catch (e) {}
+  }
+
+  function autoTouch(down) {
+    if (down) { autoTouching = true; return; }
+    autoTouching = false;
+    if (!auto.on || keepsGoing()) return;
+    if (auto.resume < 0) { stopAuto('touch'); return; }
+    autoWaitUntil = performance.now() + auto.resume * 1000;
+  }
+
+  /** Set to keep going when the page is touched: a tap doesn't stop it, and a drag only while it lasts. */
+  function keepsGoing() { return auto.resume === 0; }
+
+  function autoTick(now) {
+    autoRaf = requestAnimationFrame(autoTick);
+    var dt = autoLast ? Math.min(80, now - autoLast) : 0;
+    autoLast = now;
+    if (!auto.on || !ready) return;
+    var finger = keepsGoing() ? !!(touch && touch.moved) : autoTouching || !!touch;
+    var holding = autoHeld || finger || now < autoWaitUntil || animating || selectionActive();
+    if (scrolled) autoScrollTick(now, dt, holding); else autoPageTick(dt, holding);
+  }
+
+  /**
+   * How far autoscroll goes in a scrolled chapter: until its last line has come up to about two fifths
+   * of the way down the screen, where it has been read, rather than on through the space under it.
+   */
+  function autoEnd() {
+    var textEnd = document.body.getBoundingClientRect().bottom + scroller.scrollTop;
+    return Math.max(0, Math.min(maxScroll(), textEnd - bandTop - viewH() * 0.4));
+  }
+
+  function autoScrollTick(now, dt, holding) {
+    if (holding) { autoPos = -1; autoEndSince = 0; return; }
+    var max = autoEnd();
+    // Moved by hand since: carry on from there.
+    if (autoPos < 0 || Math.abs(autoPos - scroller.scrollTop) > 3) autoPos = scroller.scrollTop;
+    if (autoPos >= max - 0.5) {
+      if (!autoEndSince) autoEndSince = now;
+      if (auto.endPause < 0) { stopAuto('chapter'); return; }
+      if (!autoAsked && now - autoEndSince >= auto.endPause * 1000) {
+        autoAsked = true;
+        KL.edge(1);
+      }
+      return;
+    }
+    autoEndSince = 0;
+    autoPos = Math.min(max, autoPos + auto.wpm / 60000 * pxPerWord * dt);
+    scroller.scrollTop = autoPos;
+  }
+
+  function autoPageTick(dt, holding) {
+    if (autoPageNeed <= 0) startPageTimer();
+    if (holding) return;
+    autoPageDone += dt;
+    showAutoBar(autoPageDone / autoPageNeed);
+    if (autoPageDone < autoPageNeed) return;
+    if (page >= pages - 1) {
+      if (auto.endPause < 0) { stopAuto('chapter'); return; }
+      // On to the next chapter: nothing more here until it opens.
+      autoPageNeed = 1e12;
+      autoPageDone = 0;
+      KL.edge(1);
+      return;
+    }
+    autoPageNeed = 0;
+    autoPageDone = 0;
+    next(0.8);
+  }
+
+  /** The time the page showing needs at the reading speed (and the pause, at a chapter's last page). */
+  function startPageTimer() {
+    autoPageDone = 0;
+    if (scrolled || !ready) { autoPageNeed = 0; return; }
+    var words = wordsOnPage();
+    var need = words < 5 ? 4000 : words / auto.wpm * 60000;
+    need = Math.max(3000, need);
+    if (page >= pages - 1 && auto.endPause > 0) need += auto.endPause * 1000;
+    autoPageNeed = need;
+  }
+
+  function autoPageTurned() {
+    if (!auto.on || scrolled) return;
+    startPageTimer();
+    showAutoBar(0);
+  }
+
+  /** A thin line along the foot of the page, under the progress bar, filling up until the page turns. */
+  function showAutoBar(f) {
+    var bar = document.getElementById('kl-autobar');
+    if (!bar) {
+      if (!auto.on || scrolled) return;
+      bar = document.createElementNS(XHTML, 'div');
+      bar.id = 'kl-autobar';
+      root.appendChild(bar);
+    }
+    bar.style.transform = 'scaleX(' + Math.max(0, Math.min(1, f || 0)) + ')';
+  }
+
+  // ---- what the app can ask -----------------------------------------------------------------------
+
+  /**
+   * Settings that leave the text where it is: how pages turn, and the page's colours. Changing only
+   * these needs no laying out again, which would move a scrolled chapter.
+   */
+  var NOT_LAYOUT = {
+    turn: 1, animate: 1, taps: 1, tapWidth: 1, blend: 1, barColor: 1,
+    bg: 1, fg: 1, link: 1, sel: 1, hl: 1, recolor: 1, dimImages: 1,
+  };
+
+  function sameLayout(a, b) {
+    var keys = Object.keys(a).concat(Object.keys(b));
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
+      if (NOT_LAYOUT[k]) continue;
+      if (JSON.stringify(a[k]) !== JSON.stringify(b[k])) return false;
+    }
+    return true;
+  }
+
+  window.KLR = {
+    next: function () { next(); },
+    prev: function () { prev(); },
+    turnNow: turnNow,
+    selection: function () { var s0 = selectionInfo(); return s0 ? JSON.stringify(s0) : ''; },
+    clearSelection: function () { try { window.getSelection().removeAllRanges(); } catch (e) {} },
+    setAnnotations: function (json) { applyAnnotations(parse(json).list || []); },
+    annotationRect: function (id) { var a = annotationById(id); return a ? JSON.stringify(rectJson(a.range.getBoundingClientRect())) : ''; },
+    go: function (json, animate) { goTo(parse(json), animate); },
+    apply: function (json) {
+      var s = parse(json);
+      if (ready && sameLayout(settings, s)) {
+        var blendChanged = settings.blend !== s.blend;
+        settings = s;
+        applyColours(s);
+        if (blendChanged) blendPictures();
+        return;
+      }
+      relayout(function () { applySettings(s); });
+    },
+    here: function () { return JSON.stringify(here()); },
+    clear: function () { clearHighlight('kl-search'); },
+    /** Autoscroll: on or off, its speed and timings ({on, wpm, endPause, resume}). */
+    auto: function (json) { setAuto(parse(json), false); },
+    /** Something is over the page: autoscroll waits. */
+    autoHold: function (on) { autoHeld = !!on; },
+    info: function () {
+      return JSON.stringify({
+        page: page, pages: pages, W: W, H: H, padX: padX, padY: padY, scrollWidth: scroller.scrollWidth,
+        scrolled: scrolled, scrollTop: scroller.scrollTop, scrollHeight: scroller.scrollHeight, maxScroll: maxScroll(), textMax: scrolled ? textMax() : 0,
+        step: stepH(), lineH: lineH, pxPerWord: pxPerWord, auto: auto.on, wpm: auto.wpm, pageNeed: autoPageNeed, pageDone: autoPageDone,
+      });
+    },
+  };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
+})();

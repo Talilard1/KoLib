@@ -1,0 +1,254 @@
+/*
+ * KoLib's reader: lays a book's chapter out as pages (CSS columns) and applies the reader's
+ * settings on top of the book's own styles. Loaded last, so it wins where it has to.
+ */
+@import url("fonts.css");
+
+:root {
+  --kl-bg: #fbf8f1;
+  --kl-fg: #1f1c18;
+  --kl-link: #1d4f91;
+  --kl-bar: #1f1c18;
+  --kl-sel: rgba(255, 196, 0, 0.35);
+  --kl-hl: rgba(255, 196, 0, 0.55);
+  --kl-font-size: 100%;
+  --kl-pad-x: 48px;
+  --kl-pad-y: 44px;
+  --kl-col: 600px;
+  --kl-gap: 96px;
+  --kl-page-h: 600px;
+}
+
+/* Nothing shows until the pages are laid out, so the chapter never flashes up unpaginated. */
+html { visibility: hidden; }
+html.kl-ready { visibility: visible; }
+
+html.kl-paged {
+  margin: 0 !important;
+  padding: var(--kl-pad-y) var(--kl-pad-x) !important;
+  box-sizing: border-box !important;
+  /* The screen's size in pixels, measured by reader.js: viewport units can be wrong in a WebView. */
+  width: var(--kl-vw, 100vw) !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  height: var(--kl-vh, 100vh) !important;
+  max-height: var(--kl-vh, 100vh) !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  column-width: var(--kl-col) !important;
+  column-gap: var(--kl-gap) !important;
+  column-count: auto !important;
+  column-fill: auto !important;
+  column-rule: none !important;
+  font-size: var(--kl-font-size) !important;
+  background: var(--kl-bg) !important;
+  color: var(--kl-fg) !important;
+  -webkit-text-size-adjust: none !important;
+  text-size-adjust: none !important;
+  overflow-wrap: break-word;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+}
+
+html.kl-paged body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  columns: auto !important;
+  overflow: visible !important;
+  background: transparent !important;
+  color: inherit;
+  box-sizing: border-box !important;
+}
+
+/* Scrolling: the chapter as one long page, in a column no wider than is easy to read. The bands are
+   where the app shows the margins' chapter title, time and the rest, over the text going by. */
+html.kl-paged.kl-scroll {
+  height: auto !important;
+  max-height: none !important;
+  min-height: var(--kl-vh, 100vh) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  column-width: auto !important;
+  column-count: auto !important;
+  column-gap: normal !important;
+  padding: calc(var(--kl-band-top, 0px) + var(--kl-pad-y)) var(--kl-pad-x) calc(var(--kl-band-bottom, 0px) + var(--kl-pad-y)) !important;
+  touch-action: pan-y;
+}
+html.kl-paged.kl-scroll body {
+  max-width: var(--kl-measure, 46em) !important;
+  margin: 0 auto !important;
+}
+
+/* At the far edge of a chapter's last screen of pages (placed by reader.js), so it scrolls there whole. */
+#kl-pagefill {
+  display: none;
+  position: absolute !important;
+  top: 0 !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* The end of a scrolled chapter, and the way on: tall enough for the last lines to come up to where
+   the eye reads. Only when scrolling. */
+#kl-end, #kl-pull, #kl-autobar { display: none; }
+html.kl-scroll #kl-end {
+  display: block;
+  max-width: var(--kl-measure, 46em);
+  min-height: calc(var(--kl-vh, 100vh) * 0.62);
+  margin: 2.5em auto 0;
+  padding: 1.4em 0 0;
+  border-top: 1px solid rgba(127, 127, 127, 0.35);
+  text-align: center;
+  font-family: Roboto, 'Noto Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--kl-fg);
+  box-sizing: border-box;
+}
+#kl-end .kl-end-label { opacity: 0.6; letter-spacing: 0.04em; }
+#kl-end-go {
+  display: inline-block;
+  margin-top: 0.9em;
+  padding: 0.55em 1.3em;
+  border-radius: 999px;
+  border: 1px solid rgba(127, 127, 127, 0.45);
+  color: var(--kl-link);
+  font-weight: 500;
+  cursor: pointer;
+}
+#kl-end .kl-end-hint { margin-top: 0.7em; font-size: 13px; opacity: 0.5; }
+/* Pulling past either end of a scrolled chapter. */
+html.kl-scroll #kl-pull {
+  display: block;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  padding: 9px 18px;
+  border-radius: 999px;
+  background: rgba(32, 32, 32, 0.86);
+  color: #fff;
+  font: 500 14px Roboto, 'Noto Sans', sans-serif;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+html.kl-scroll #kl-pull.kl-on { opacity: 1; }
+html.kl-scroll #kl-pull.kl-bottom { bottom: calc(var(--kl-band-bottom, 0px) + 18px); }
+html.kl-scroll #kl-pull.kl-top { top: calc(var(--kl-band-top, 0px) + 18px); }
+/* Autoscroll on pages: a thin line right along the foot of the page fills until the page turns. It's
+   in the reading progress bar's colour, and below it: the progress bar (drawn by the app) is 5px up
+   from the bottom and 3px thick, so this one, 2px thick at the very bottom, leaves a gap between them. */
+html.kl-auto-pages #kl-autobar {
+  display: block;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--kl-bar, var(--kl-fg));
+  transform-origin: 0 50%;
+  z-index: 20;
+  pointer-events: none;
+}
+
+/* A chapter's opening, put in front of its chapter by the app: its pictures are ornaments, kept small
+   enough to share the page with the chapter's start. */
+html.kl-paged #kl-opening {
+  margin: 0 !important;
+  padding: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+html.kl-paged #kl-opening img {
+  max-height: calc(var(--kl-page-h) * 0.3) !important;
+  width: auto !important;
+  max-width: 100% !important;
+}
+html.kl-paged #kl-opening svg {
+  max-height: calc(var(--kl-page-h) * 0.3) !important;
+  max-width: 100% !important;
+}
+
+/* Pictures fit on a page. */
+html.kl-paged img,
+html.kl-paged video,
+html.kl-paged svg {
+  max-width: 100% !important;
+  max-height: var(--kl-page-h) !important;
+  box-sizing: border-box !important;
+  object-fit: contain;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+html.kl-paged img { height: auto; }
+/* A picture that is the whole page (covers, plates) fills it. */
+html.kl-paged .kl-full-page {
+  display: block !important;
+  width: 100% !important;
+  height: var(--kl-page-h) !important;
+  max-height: var(--kl-page-h) !important;
+  margin: 0 auto !important;
+  object-fit: contain !important;
+}
+
+html.kl-paged h1, html.kl-paged h2, html.kl-paged h3, html.kl-paged h4, html.kl-paged h5, html.kl-paged h6 {
+  break-after: avoid;
+  page-break-after: avoid;
+  break-inside: avoid;
+}
+html.kl-paged p { orphans: 2; widows: 2; }
+html.kl-paged table, html.kl-paged figure, html.kl-paged pre { break-inside: avoid; }
+/* Wide things scroll inside their page instead of spilling onto the next. */
+html.kl-paged pre, html.kl-paged table { max-width: 100%; overflow-x: auto; }
+
+/* Colours: dark and tinted themes recolour the book's text so it can be read. */
+html.kl-recolor body,
+html.kl-recolor body *:not(img):not(svg):not(svg *):not(video) {
+  color: inherit !important;
+  background-color: transparent !important;
+  border-color: rgba(127, 127, 127, 0.45) !important;
+  text-shadow: none !important;
+}
+html.kl-paged a[href], html.kl-paged a[href] * { color: var(--kl-link) !important; text-decoration-color: rgba(127, 127, 127, 0.5); }
+html.kl-dim-images img, html.kl-dim-images svg image { filter: brightness(0.82) contrast(1.05); }
+/* Ink-on-paper pictures take the page's colour: the white paper blends into it, the ink stays dark... */
+html.kl-paged img.kl-blend, html.kl-paged svg.kl-blend { mix-blend-mode: multiply; filter: none; }
+html.kl-paged svg.kl-blend image { filter: none; }
+/* ...and on a dark page they're turned over first, so the ink is light (about the text's shade) and the paper dark. */
+html.kl-paged.kl-dim-images img.kl-blend, html.kl-paged.kl-dim-images svg.kl-blend { mix-blend-mode: screen; filter: invert(1) hue-rotate(180deg) brightness(0.85); }
+
+/* The reader's font, spacing and alignment, when chosen instead of the book's own. */
+html.kl-font body,
+html.kl-font body *:not(code):not(pre):not(kbd):not(samp):not(tt):not(svg):not(svg *) {
+  font-family: var(--kl-font) !important;
+}
+html.kl-lh body,
+html.kl-lh body p, html.kl-lh body div, html.kl-lh body li, html.kl-lh body blockquote,
+html.kl-lh body span, html.kl-lh body dd, html.kl-lh body td {
+  line-height: var(--kl-line) !important;
+}
+html.kl-paged .kl-align-left { text-align: left !important; }
+html.kl-paged .kl-align-justify { text-align: justify !important; }
+/* A picture on a line of its own, in the middle (reader.js marks the line). */
+html.kl-paged .kl-picture-box { text-align: center !important; text-indent: 0 !important; }
+html.kl-paged .kl-picture-box > img, html.kl-paged .kl-picture-box > svg,
+html.kl-paged .kl-picture-box > a > img, html.kl-paged .kl-picture-box > a > svg { margin-left: auto !important; margin-right: auto !important; }
+html.kl-hyphens body { -webkit-hyphens: auto !important; hyphens: auto !important; }
+html.kl-nohyphens body, html.kl-nohyphens body * { -webkit-hyphens: manual !important; hyphens: manual !important; }
+
+::selection { background: var(--kl-sel); }
+::highlight(kl-search) { background-color: var(--kl-hl); color: inherit; }
+::highlight(kl-flash) { background-color: var(--kl-hl); color: inherit; }

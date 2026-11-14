@@ -1,0 +1,30 @@
+/* The chapter's code, coloured: tags, attributes, values, entities and comments. */
+:root { color-scheme: light; --bg: #fbfaf7; --fg: #24221f; --tag: #9a3412; --attr: #1d4ed8; --value: #15803d; --entity: #7c3aed; --comment: #78716c; --err: rgba(220, 38, 38, 0.25); }
+html.dark { color-scheme: dark; --bg: #1b1a18; --fg: #e7e2d8; --tag: #fb923c; --attr: #93c5fd; --value: #86efac; --entity: #c4b5fd; --comment: #a8a29e; --err: rgba(248, 113, 113, 0.3); }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+#code {
+  margin: 0;
+  padding: 16px 20px 45vh 20px;
+  min-height: 100vh;
+  box-sizing: border-box;
+  font: 14px/1.55 "Roboto Mono", "Noto Sans Mono", "DejaVu Sans Mono", monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  outline: none;
+  tab-size: 2;
+  caret-color: #ea580c;
+}
+#bar {
+  position: sticky; top: 0; z-index: 2;
+  background: #b91c1c; color: #fff;
+  font: 500 14px/1.4 Roboto, sans-serif;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+::highlight(c-tag) { color: var(--tag); }
+::highlight(c-attr) { color: var(--attr); }
+::highlight(c-value) { color: var(--value); }
+::highlight(c-entity) { color: var(--entity); }
+::highlight(c-comment) { color: var(--comment); }
+::highlight(c-error) { background-color: var(--err); }
+::highlight(c-find) { background-color: rgba(255, 200, 0, 0.5); }

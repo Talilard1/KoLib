@@ -1,0 +1,47 @@
+/* KoLib's text editor: the chapter shown as a page on a desk, ready to type into. */
+
+html.kl-edit {
+  background: #e7e3da !important;
+  min-height: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+}
+
+html.kl-edit body {
+  box-sizing: border-box !important;
+  max-width: 44em !important;
+  min-height: calc(100vh - 40px) !important;
+  margin: 20px auto 40vh auto !important;
+  padding: 56px 64px 72px 64px !important;
+  background: #fffdf8 !important;
+  color: #1f1c18;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 4px 18px rgba(0, 0, 0, 0.08) !important;
+  border-radius: 3px;
+  outline: none !important;
+  caret-color: #c2410c;
+  overflow-wrap: break-word;
+  position: relative !important;
+  float: none !important;
+  width: auto !important;
+  height: auto !important;
+  columns: auto !important;
+}
+
+@media (max-width: 640px) {
+  html.kl-edit body { margin: 8px 6px 40vh 6px !important; padding: 28px 22px 48px 22px !important; }
+}
+
+html.kl-edit img, html.kl-edit svg { max-width: 100% !important; height: auto; }
+html.kl-edit img.kl-selected { outline: 3px solid #f59e0b; outline-offset: 3px; }
+
+/* Dark: the desk and page darken and the book's own colours give way. */
+html.kl-edit.kl-dark { background: #121110 !important; }
+html.kl-edit.kl-dark body { background: #23211e !important; color: #e6dfd3 !important; box-shadow: none !important; caret-color: #fb923c; }
+html.kl-edit.kl-dark body *:not(img):not(svg):not(svg *) { color: inherit !important; background-color: transparent !important; }
+html.kl-edit.kl-dark a[href] { color: #9ec1f5 !important; }
+
+html.kl-edit ::selection { background: rgba(251, 146, 60, 0.35); }
+::highlight(kl-find) { background-color: rgba(255, 200, 0, 0.45); color: inherit; }
+::highlight(kl-current) { background-color: rgba(255, 140, 0, 0.75); color: #000; }

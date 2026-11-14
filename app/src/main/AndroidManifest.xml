@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Only for finding covers online, when asked to. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <!-- Used only to recognise which Kobo model is plugged in. Not required to install. -->
     <uses-feature
         android:name="android.hardware.usb.host"

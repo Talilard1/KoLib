@@ -1271,24 +1271,23 @@ private fun PageSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) 
     Heading("Page headings")
     Choices(RunningHeads.entries, s.runningHeads, { it.label }) { onChange(s.withHeads(it)) }
     Help(
-        if (s.runningHeads == RunningHeads.OFF) "Off: put the page number and titles where you like below."
-        else "Like a printed book: each page's number at its outside corner, with the book's title over left-hand pages and the chapter's over right-hand ones." +
-            if (s.scrolling) " They show when you're turning pages, not scrolling." else ""
+        if (s.runningHeads == RunningHeads.OFF) "Choose where the page number and titles go, below."
+        else "The page number in the corner, the book title on left pages and the chapter title on right pages, like a printed book." +
+            if (s.scrolling) " Only shown when turning pages." else ""
     )
     if (s.runningHeads != RunningHeads.OFF) {
-        Heading("Heading titles")
+        Heading("Title position")
         Choices(HeadTitlePlace.entries, s.headTitlePlace, { it.label }) { onChange(s.copy(headTitlePlace = it)) }
-        Help("Centred on the page, or nearer the middle of the book, as some printed books set them.")
     }
 
-    Heading("Book of several books")
+    Heading("Omnibus title")
     Choices(CollectionTitle.entries, s.collectionTitle, { it.label }) { onChange(s.copy(collectionTitle = it)) }
-    Help("For a collection such as an omnibus: the title shown over left-hand pages (and as the book title around the page) is the one of the book you're reading in it, or the whole collection's.")
+    Help("In a book that holds several books, show the title of the one you're reading, or of the whole omnibus.")
 
     Heading("Info around the page")
     Help(
-        "Choose what to show around the text, and where. Tap a position to change it." +
-            if (s.runningHeads != RunningHeads.OFF) " The ${if (s.runningHeads.top) "top" else "bottom"} is kept for the page headings." else ""
+        "Choose what to show around the text. Tap a position to change it." +
+            if (s.runningHeads != RunningHeads.OFF) " Page headings use the ${if (s.runningHeads.top) "top" else "bottom"}." else ""
     )
     Spacer(Modifier.height(8.dp))
     MarginPreview(s)

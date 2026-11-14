@@ -113,7 +113,7 @@ fun AboutScreen(onBack: () -> Unit) {
                         Text("Version ${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Text(
-                        "The app has no access to the internet. Your books, and everything you do with them, stay on this device and your Kobo.",
+                        "Your books, and everything you do with them, stay on this device and your Kobo. KoLib only goes online when you search for a cover, and then only sends the words you search for.",
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Text(

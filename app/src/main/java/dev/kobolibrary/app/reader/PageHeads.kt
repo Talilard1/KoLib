@@ -63,7 +63,14 @@ object HeadTitles {
 
     /** Series details at the end of a title, in brackets: "(The Wheel of Time, Book 6)", "[Discworld #2]". */
     private val seriesTail = Regex("""\s*[(\[]([^()\[\]]*)[)\]]\s*$""")
-    private val seriesWords = Regex("""(?i)\b(book|bk|vol|volume|part|series|novel)\b|#\s*\d""")
+    private val seriesWords = Regex("""(?i)\b(book|bk|vol|volume|part|series|novel)s?\b|#\s*\d""")
+
+    /**
+     * A range of numbers in front of a title, for the books a collection holds and to sort it among them:
+     * "0-14 The Wheel of Time", "[1-3] The Hunger Games". Not a year's ("1914-1918 ..."), nor one set off
+     * with a colon, which is the title's own ("9-11: ...").
+     */
+    private val sortRange = Regex("""^\s*([\[(]?)\s*(\d{1,3})\s*[-–—]\s*(\d{1,3})\s*([\])]?)(\s+[-–—]?\s*|\s*[-–—]\s+)(?=\S)""")
 
     /**
      * [title] as a printed book's heading would have it: without a number in front that's only there to
@@ -73,6 +80,14 @@ object HeadTitles {
      */
     fun book(title: String, seriesIndex: Double? = null): String {
         var t = title.trim()
+        sortRange.find(t)?.let { m ->
+            val open = m.groupValues[1]
+            val close = m.groupValues[4]
+            val from = m.groupValues[2].toInt()
+            val to = m.groupValues[3].toInt()
+            val rest = t.substring(m.range.last + 1).trim()
+            if (from < to && open.isEmpty() == close.isEmpty() && rest.any { it.isLetter() }) t = rest
+        }
         sortNumber.find(t)?.let { m ->
             val open = m.groupValues[1]
             val number = m.groupValues[2]
@@ -99,6 +114,54 @@ object HeadTitles {
             if (left.any { it.isLetter() } && seriesWords.containsMatchIn(inside) && inside.any { it.isDigit() }) t = left
         }
         return t
+    }
+
+    /**
+     * A chapter's number in front of its title: "1 An Empty Road", "12. The Battle", "XII: The Battle",
+     * "Chapter 3 - The Road", "Chapter Three: The Road". What separates it from the title goes with it.
+     */
+    private val chapterLead = Regex(
+        """^\s*((?:chapter|chap\.|ch\.)\s*)?(?:(\d{1,3})|([IVXLCDMivxlcdm]+)|(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred)(?:[\s-](?:one|two|three|four|five|six|seven|eight|nine))?)(?![\p{L}\p{N}])(\s*(?:[:)\]]|\.(?!\d))\s*|\s*[-–—|]\s*|\s+)(?=\S)""",
+        RegexOption.IGNORE_CASE,
+    )
+    private val roman = Regex("""^M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$""")
+
+    /** Words that read as Roman numerals: not taken for a number in front of a title unless set off from it. */
+    private val romanWords = setOf("MIX", "LIV", "DIV", "CIV", "CV", "MC", "DC", "CD", "MD", "MM", "DI", "LI", "MI", "XL", "CC", "CM", "DIX")
+
+    /**
+     * [title] as the heading over a right-hand page has it: without the chapter's number in front of it, in
+     * figures or Roman numerals ("1 An Empty Road" → "An Empty Road", "Chapter XII: The Battle" → "The
+     * Battle"). A title that's only its number keeps it ("Chapter 12", "XII"); so does one with its number
+     * after it ("Interlude II"), and one whose first word only looks like a numeral ("I Am Legend").
+     */
+    fun chapter(title: String): String {
+        val t = title.trim()
+        val m = chapterLead.find(t) ?: return t
+        val word = m.groups[1] != null
+        val arabic = m.groups[2]?.value
+        val numeral = m.groups[3]?.value
+        val spelled = m.groups[4]?.value
+        val separator = m.groupValues[5].trim()
+        val rest = t.substring(m.range.last + 1).trim()
+        if (rest.none { it.isLetterOrDigit() }) return t
+        val isNumber = when {
+            arabic != null -> true
+            spelled != null -> word
+            numeral != null -> {
+                val up = numeral.uppercase()
+                roman.matches(up) && up.isNotEmpty() && when {
+                    word -> true
+                    // On its own, a numeral in capitals: set off from the title ("I. The Beginning"), or a
+                    // longer one before a capital ("XII The Battle"), but not a word ("MIX Tape", "I Am...").
+                    numeral != up -> false
+                    separator.isNotEmpty() -> true
+                    else -> up.length >= 2 && up !in romanWords && rest.first().let { it.isUpperCase() || it.isDigit() }
+                }
+            }
+            else -> false
+        }
+        return if (isNumber) rest else t
     }
 
     /** Small capitals for a heading: all of them small when the title is set in capitals already. */

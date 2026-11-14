@@ -7,6 +7,7 @@ import dev.kobolibrary.app.epub.BookStructure
 import dev.kobolibrary.app.epub.EpubFile
 import dev.kobolibrary.app.epub.EpubFileFiles
 import dev.kobolibrary.app.epub.TestBooks
+import dev.kobolibrary.app.epub.TestEpubs
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -57,12 +58,53 @@ class PageHeadsTest {
             "1-800-Where-R-You" to "1-800-Where-R-You",
             "1 Corinthians" to "1 Corinthians",
             "Selected Poems (1950)" to "Selected Poems (1950)",
+            // A range of numbers in front, for the books a collection holds.
+            "0-14 The Wheel of Time" to "The Wheel of Time",
+            "[1-3] The Hunger Games" to "The Hunger Games",
+            "01 - 03 The Expanse" to "The Expanse",
+            "The Hunger Games Trilogy (Books 1-3)" to "The Hunger Games Trilogy",
+            "1914-1918 The Great War" to "1914-1918 The Great War",
+            "9-11: Was There an Alternative?" to "9-11: Was There an Alternative?",
             "The Hobbit" to "The Hobbit",
         )
         for ((title, shown) in cases) assertEquals(title, shown, HeadTitles.book(title))
         // A number the same as the book's in its series is there to sort it.
         assertEquals("Lord of Chaos", HeadTitles.book("6 Lord of Chaos", seriesIndex = 6.0))
         assertEquals("12 Rules for Life", HeadTitles.book("12 Rules for Life", seriesIndex = 3.0))
+        // A chapter's number in front of its title is left off the heading; one after it, or only a number, stays.
+        val chapters = mapOf(
+            "1 An Empty Road" to "An Empty Road",
+            "12. The Battle" to "The Battle",
+            "01 - The Dragon Reborn" to "The Dragon Reborn",
+            "XII The Battle" to "The Battle",
+            "XII: The Battle" to "The Battle",
+            "IV. Escape" to "Escape",
+            "I. The Beginning" to "The Beginning",
+            "Chapter 3: The Road" to "The Road",
+            "Chapter 3 - The Road" to "The Road",
+            "CHAPTER 1. Loomings." to "Loomings.",
+            "Chapter XII — The Battle" to "The Battle",
+            "Chapter Twelve: The Battle" to "The Battle",
+            "Chapter Twenty-One The Last" to "The Last",
+            "12" to "12",
+            "XII" to "XII",
+            "Chapter 12" to "Chapter 12",
+            "Chapter One" to "Chapter One",
+            "Interlude II" to "Interlude II",
+            "The Road, Part 2" to "The Road, Part 2",
+            "Prologue: The First Message" to "Prologue: The First Message",
+            "I Am Legend" to "I Am Legend",
+            "I, Robot" to "I, Robot",
+            "One Night in Paris" to "One Night in Paris",
+            "Mix Tape" to "Mix Tape",
+            "MIX Tape" to "MIX Tape",
+            "Civil War" to "Civil War",
+            "1984" to "1984",
+            "1945: The End" to "1945: The End",
+            "1.5 Between" to "1.5 Between",
+            "12th Night" to "12th Night",
+        )
+        for ((title, shown) in chapters) assertEquals(title, shown, HeadTitles.chapter(title))
         // All in capitals: all small capitals, so it isn't shouted.
         assertTrue(HeadTitles.smallCapsFeatures("LORD OF CHAOS").contains("c2sc"))
         assertFalse(HeadTitles.smallCapsFeatures("Lord of Chaos").contains("c2sc"))
@@ -199,9 +241,11 @@ class PageHeadsTest {
             // The first: the chapter's opening page, then the next.
             c.readied(spread(page = 0, screens = 4, columns = 7))
             assertEquals(listOf(true, false), c.shownPages.map { it.opening })
-            // The headings' titles: the book's without its sorting number, and the chapter's from the contents.
+            // The headings' titles: the book's without its sorting number, and the chapter's from the contents,
+            // without its number in front.
             assertEquals("The Garden", c.headBookTitle)
-            assertEquals(c.chapterTitle, c.headChapterTitle)
+            assertEquals("Chapter 1: Rose", c.chapterTitle)
+            assertEquals("Rose", c.headChapterTitle)
             assertTrue(c.headChapterTitle.isNotBlank())
 
             // The progress bar names a page, and goes to the screen it's on.
@@ -227,6 +271,82 @@ class PageHeadsTest {
             assertEquals(n, c.bookPageLast)
             assertEquals(listOf(ShownPage(0, n, if (n % 2 == 0) PageSide.LEFT else PageSide.RIGHT, opening = false)), c.shownPages)
             c.release()
+        }
+    }
+
+    @Test
+    fun aPageOnItsOwnIsTheRightHandOne() {
+        val book = TestBooks.garden(File(context.cacheDir, "lone-${UUID.randomUUID()}.epub"))
+        EpubFile.open(book).use { epub ->
+            val files = EpubFileFiles(epub)
+            val c = ReaderController(files, BookStructure(files), "The Garden", "en", null, ReaderSettings(), context.assets)
+            c.counter = FakeCounter(::pagesOf, layout)
+            settle { c.lengthsCounted }
+            val notes = c.index("notes.xhtml")
+            c.open(notes, JSONObject().put("type", "start"))
+            // One page of text, put on the right with a blank page before it: its number, and no title over it.
+            c.readied(JSONObject(spread(page = 0, screens = 1, columns = 1)).put("blank", 1).put("display", false).toString())
+            settle { c.bookPages != null }
+            val n = c.bookPages!!.before(notes) + 1
+            assertEquals(listOf(ShownPage(1, n, PageSide.RIGHT, opening = true)), c.shownPages)
+            assertEquals(n, c.bookPage)
+            assertEquals(n, c.bookPageLast)
+            // A dedication, a quote, a map: not even its number.
+            c.reported(JSONObject(spread(page = 0, screens = 1, columns = 1)).put("blank", 1).put("display", true).toString())
+            assertTrue(c.shownPages.isEmpty())
+            assertEquals(n, c.bookPage)
+            // One page at a time, there's no blank page.
+            c.readied(JSONObject(one(page = 0, pages = 1)).put("blank", 0).toString())
+            assertEquals(0, c.blankBefore)
+            c.release()
+        }
+    }
+
+    @Test
+    fun aBookOfSeveralBooksHeadsEachWithItsOwnTitle() {
+        fun page(title: String) = TestBooks.simplePage(title, "Words.").toByteArray()
+        val files = linkedMapOf(
+            "cover" to "Cover", "eye" to "The Eye of the World", "eye-pro" to "Prologue: Dragonmount", "eye-1" to "1 An Empty Road",
+            "eye-2" to "2 Strangers", "hunt" to "The Great Hunt", "hunt-pro" to "Prologue: In the Shadow", "hunt-1" to "1 The Flame",
+            "hunt-2" to "2 The Welcome", "about" to "About the Author",
+        )
+        val nav = files.entries.joinToString("\n") { (f, t) -> """<li><a href="text/$f.xhtml">$t</a></li>""" }
+            .replace("""<li><a href="text/eye.xhtml">The Eye of the World</a></li>""", """<li><a href="text/eye.xhtml">The Eye of the World</a><ol>""")
+            .replace("""<li><a href="text/hunt.xhtml">The Great Hunt</a></li>""", """</ol></li><li><a href="text/hunt.xhtml">The Great Hunt</a><ol>""")
+            .replace("""<li><a href="text/about.xhtml">""", """</ol></li><li><a href="text/about.xhtml">""")
+        val opf = """<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="id">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="id">urn:uuid:9</dc:identifier><dc:title>0-14 The Wheel of Time</dc:title><dc:language>en</dc:language></metadata>
+  <manifest><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
+${files.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" media-type="application/xhtml+xml"/>""" }}</manifest>
+  <spine>${files.keys.joinToString("") { """<itemref idref="$it"/>""" }}</spine>
+</package>"""
+        val navDoc = """<?xml version="1.0" encoding="utf-8"?><html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops"><head><title>Contents</title></head>
+<body><nav epub:type="toc"><ol>$nav</ol></nav></body></html>"""
+        val entries = linkedMapOf<String, ByteArray>(
+            "META-INF/container.xml" to TestEpubs.CONTAINER.toByteArray(),
+            "OEBPS/content.opf" to opf.toByteArray(),
+            "OEBPS/nav.xhtml" to navDoc.toByteArray(),
+        )
+        for ((f, t) in files) entries["OEBPS/text/$f.xhtml"] = page(t)
+        val book = TestEpubs.build(File(context.cacheDir, "omnibus-${UUID.randomUUID()}.epub"), entries)
+        EpubFile.open(book).use { epub ->
+            val bf = EpubFileFiles(epub)
+            val structure = BookStructure(bf)
+            for ((choice, inHunt) in listOf(CollectionTitle.BOOK to "The Great Hunt", CollectionTitle.COLLECTION to "The Wheel of Time")) {
+                val c = ReaderController(bf, structure, "0-14 The Wheel of Time", "en", null, ReaderSettings(collectionTitle = choice), context.assets)
+                assertEquals(listOf("The Eye of the World", "The Great Hunt"), c.innerBooks.map { it.title })
+                c.open(c.index("hunt-1.xhtml"), JSONObject().put("type", "start"))
+                assertEquals(inHunt, c.headBookTitle)
+                c.open(c.index("eye-2.xhtml"), JSONObject().put("type", "start"))
+                assertEquals(if (choice == CollectionTitle.BOOK) "The Eye of the World" else "The Wheel of Time", c.headBookTitle)
+                // The collection's own pages, before and after its books: its title.
+                c.open(c.index("cover.xhtml"), JSONObject().put("type", "start"))
+                assertEquals("The Wheel of Time", c.headBookTitle)
+                c.open(c.index("about.xhtml"), JSONObject().put("type", "start"))
+                assertEquals("The Wheel of Time", c.headBookTitle)
+                c.release()
+            }
         }
     }
 }

@@ -397,7 +397,9 @@ class AdvertShots140 {
             captureScreenRoboImage(File(out, "${name}_${pageIndex + 1}_${if (white) "white" else "black"}.png").path)
         }
 
-    private fun mobySettings(theme: ReaderTheme) = ReaderSettings(theme = theme, font = ReaderFont.GARAMOND, fontScale = 1.1f)
+    /** As the advert's reader pages were shot: the chapter's title and page number in the margins, from before page headings. */
+    private fun mobySettings(theme: ReaderTheme) =
+        ReaderSettings(theme = theme, font = ReaderFont.GARAMOND, fontScale = 1.1f).withHeads(dev.kobolibrary.app.reader.RunningHeads.OFF)
 
     private fun moby(name: String, theme: ReaderTheme, page: String, n: Int, controls: Boolean = false, panel: Panel = Panel.NONE) =
         reader(name, "herman-melville_moby-dick", "Moby Dick", "Herman Melville", "chapter-1.xhtml", mobySettings(theme), page, n - 1, 3, controls, panel)

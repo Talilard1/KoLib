@@ -31,6 +31,13 @@
   // A page of its own kind that a printed book doesn't number: a dedication, an epigraph or other quote, a
   // part's title, a map or plate. No page headings over it.
   var displayPage = false;
+  // Where the app asks for a chapter of one page to go, two pages side by side: 'cover' or 'title' (a book's
+  // title page) in the middle of the screen, 'left' (a dedication), or as it lays out (on the right).
+  var place = null;
+  function centred() { return place === 'cover' || place === 'title' || place === 'centre'; }
+  // Two short pages from files of their own, shown side by side: the app puts the left one in a box in
+  // front of the right one's body.
+  function pairBox() { return document.getElementById('kl-pair'); }
   var ready = false, animating = 0, laidOutWidth = 0;
   // Only counting the chapter's pages, in a WebView that's never shown (see countOnly).
   var countingOnly = false;
@@ -296,7 +303,8 @@
    */
   function markFullPagePictures() {
     var body = document.body;
-    if (!body) return;
+    // Two short pages side by side, or a book's title page: a picture there is a publisher's mark.
+    if (!body || pairBox() || place === 'title') return;
     var text = (body.textContent || '').replace(/\s+/g, '');
     if (text.length >= 80) return;
     var pics = body.querySelectorAll('img, svg');
@@ -462,7 +470,7 @@
     // Counted without the filler, which then goes at the far edge of the last screen; and laid out as the
     // book has it, before a page alone is moved to the right or a wide picture across both pages.
     if (fill) fill.style.display = 'none';
-    root.classList.remove('kl-recto', 'kl-spread-pic');
+    root.classList.remove('kl-recto', 'kl-spread-pic', 'kl-centre');
     blankBefore = 0;
     spreadPicture = false;
     var w = scroller.scrollWidth;
@@ -472,19 +480,28 @@
     columns = perScreen === 2 && W > 0 ? Math.max(1, Math.min(pages * 2, lastColumn() + 1)) : pages;
     // Nothing after them but empty space (a page break the book asks for at its end): no screens for it.
     if (perScreen === 2) pages = Math.max(1, Math.min(pages, Math.ceil(columns / 2)));
-    displayPage = columns === 1 && pages === 1 && looksLikeDisplayPage();
-    if (perScreen === 2 && pages === 1) {
-      if (picturePage && widePicture()) {
-        // A map or a picture made to go across two pages: across the screen, in the middle.
+    // Two short pages side by side are both pages a book doesn't number; one alone, if it's one of those.
+    var pair = !!pairBox();
+    displayPage = pair || (columns === 1 && pages === 1 && looksLikeDisplayPage());
+    if (perScreen === 2 && pages === 1 && !pair) {
+      var wide = picturePage && widePicture();
+      if (picturePage && (wide || centred())) {
+        // A map or a picture made to go across two pages: across the screen, in the middle. A cover: in
+        // the middle, as big as fits.
         spreadPicture = true;
-        columns = 2;
+        columns = wide ? 2 : 1;
         displayPage = true;
         // Into the margins, up to the rows of the time and the rest over and under the page, if they're there.
         setVar('--kl-spread-top', Math.max(12, Math.round((settings.minTop || 0) - 10)) + 'px');
         setVar('--kl-spread-bottom', Math.max(12, Math.round((settings.minBottom || 0) - 10)) + 'px');
         root.classList.add('kl-spread-pic');
-      } else if (columns === 1) {
-        // A page on its own (a dedication, an epigraph, a plate) goes on the right, as in print.
+      } else if (columns === 1 && centred()) {
+        // A book's title page: in the middle of the screen.
+        setVar('--kl-centre-shift', Math.round(W / 2 - padX - colW / 2) + 'px');
+        root.classList.add('kl-centre');
+      } else if (columns === 1 && place !== 'left') {
+        // A page on its own (an epigraph, a notice, a plate) goes on the right, as in print. (A
+        // dedication stays on the left.)
         blankBefore = 1;
         root.classList.add('kl-recto');
       }
@@ -539,6 +556,26 @@
       if (b.width > 1 && b.height > 1) { right = Math.max(right, b.left + x0); break; }
     }
     return Math.max(0, Math.floor((right + 1) / pitch));
+  }
+
+  /**
+   * A picture marked as the whole page that turns out small, with words by it (a publisher's mark on a
+   * title page): left as it is, not made to fill the page. Once the pictures have loaded.
+   */
+  function unmarkSmallPictures() {
+    // A picture with no words by it is the page, however small it is.
+    if (!document.body || !(document.body.textContent || '').trim()) return;
+    var marked = document.querySelectorAll('.kl-full-page');
+    for (var i = 0; i < marked.length; i++) {
+      var el = marked[i], w = 0, h = 0;
+      if (el.localName === 'img') { w = el.naturalWidth; h = el.naturalHeight; }
+      else {
+        var im = el.querySelector && el.querySelector('image');
+        if (im) { w = parseFloat(im.getAttribute('width')) || 0; h = parseFloat(im.getAttribute('height')) || 0; }
+      }
+      if (w > 0 && h > 0 && w < 400 && h < 400) el.classList.remove('kl-full-page');
+    }
+    picturePage = !!document.querySelector('.kl-full-page');
   }
 
   /** The chapter's one picture is wider than it is tall, as a map across two pages is. */
@@ -1309,7 +1346,7 @@
     whenSettled(function () {
       setScroll(0);
       if (!scrolled) scroller.scrollTop = 0;
-      try { fitPictureBoxes(); } catch (e) { log(e); }
+      try { unmarkSmallPictures(); fitPictureBoxes(); } catch (e) { log(e); }
       measureDensity();
       countPages();
       if (scrolled) {
@@ -1412,6 +1449,7 @@
   function start() {
     var st = parse(KL.start());
     if (st.measure) { countOnly(st); return; }
+    place = st.place || null;
     markFullPagePictures();
     try { keepPictureShapes(); } catch (e) { log(e); }
     try { centrePictures(); } catch (e) { log(e); }
@@ -1428,7 +1466,7 @@
       whenSettled(function () {
         // The size may have settled while pictures and fonts loaded.
         if (screenWidth() !== W || screenHeight() !== H) measure();
-        try { fitPictureBoxes(); } catch (e) { log(e); }
+        try { unmarkSmallPictures(); fitPictureBoxes(); } catch (e) { log(e); }
         measureDensity();
         countPages();
         blendPictures();
@@ -1453,6 +1491,7 @@
    */
   function countOnly(st) {
     countingOnly = true;
+    place = st.place || null;
     markFullPagePictures();
     try { keepPictureShapes(); } catch (e) { log(e); }
     try { centrePictures(); } catch (e) { log(e); }
@@ -1466,7 +1505,7 @@
       applySettings(st.settings || {});
       whenSettled(function () {
         if (screenWidth() !== W || screenHeight() !== H) measure();
-        try { fitPictureBoxes(); } catch (e) { log(e); }
+        try { unmarkSmallPictures(); fitPictureBoxes(); } catch (e) { log(e); }
         measureDensity();
         countPages();
         try { KL.measured(JSON.stringify({ id: st.measure, pages: pages, columns: columns, layout: layoutKey() })); } catch (e) { log(e); }

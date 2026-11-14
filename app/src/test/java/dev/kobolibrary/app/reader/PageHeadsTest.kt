@@ -303,6 +303,68 @@ class PageHeadsTest {
     }
 
     @Test
+    fun shortPagesGoSideBySideAndCoversInTheMiddle() {
+        val pages = linkedMapOf(
+            "cover" to """<div><img src="../images/cover.jpg" alt="Cover"/></div>""",
+            "title" to """<h1>THE WHEEL OF TIME</h1><p>ROBERT JORDAN</p><p>AND BRANDON SANDERSON</p>""",
+            "notice" to """<p>The author and publisher have provided this e-book to you without DRM.</p><p>Copyright infringement is against the law.</p>""",
+            "dedication" to """<p>For Harriet</p>""",
+            "epigraph" to """<p>The Wheel weaves as the Wheel wills.</p><p>—from The Karaethon Cycle</p>""",
+            "ch1" to "<h1>1 An Empty Road</h1>" + (1..60).joinToString("") { "<p>Paragraph $it of the first chapter, with enough words in it to read.</p>" },
+            "alsoby" to """<p>Also by Robert Jordan: The Eye of the World, The Great Hunt.</p>""",
+            "ch2" to "<h1>2 Strangers</h1>" + (1..60).joinToString("") { "<p>Paragraph $it of the second chapter, with enough words in it to read.</p>" },
+        )
+        val opf = """<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="id">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="id">urn:uuid:8</dc:identifier><dc:title>The Eye of the World</dc:title><dc:language>en</dc:language></metadata>
+  <manifest><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/><item id="img" href="images/cover.jpg" media-type="image/jpeg"/>
+${pages.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" media-type="application/xhtml+xml"/>""" }}</manifest>
+  <spine>${pages.keys.joinToString("") { """<itemref idref="$it"/>""" }}</spine>
+</package>"""
+        val nav = """<?xml version="1.0" encoding="utf-8"?><html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops"><head><title>Contents</title></head>
+<body><nav epub:type="toc"><ol><li><a href="text/dedication.xhtml">Dedication</a></li><li><a href="text/ch1.xhtml">1 An Empty Road</a></li><li><a href="text/ch2.xhtml">2 Strangers</a></li></ol></nav></body></html>"""
+        val entries = linkedMapOf<String, ByteArray>(
+            "META-INF/container.xml" to TestEpubs.CONTAINER.toByteArray(),
+            "OEBPS/content.opf" to opf.toByteArray(),
+            "OEBPS/nav.xhtml" to nav.toByteArray(),
+            "OEBPS/images/cover.jpg" to ByteArray(32),
+        )
+        for ((f, body) in pages) entries["OEBPS/text/$f.xhtml"] = """<?xml version="1.0" encoding="utf-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>$f</title></head><body>$body</body></html>""".toByteArray()
+        val book = TestEpubs.build(File(context.cacheDir, "short-${UUID.randomUUID()}.epub"), entries)
+        EpubFile.open(book).use { epub ->
+            val files = EpubFileFiles(epub)
+            val c = ReaderController(files, BookStructure(files), "The Eye of the World", "en", null, ReaderSettings(), context.assets)
+            settle { c.lengthsCounted }
+            val at = { name: String -> c.index("$name.xhtml") }
+            assertEquals(
+                listOf(PageKind.COVER, PageKind.SHORT, PageKind.SHORT, PageKind.DEDICATION, PageKind.QUOTE, PageKind.TEXT, PageKind.SHORT, PageKind.TEXT),
+                pages.keys.map { c.pageKind(at(it)) },
+            )
+            // The title page and the notice side by side; the dedication and the quote. The cover alone, and a short page between chapters too.
+            assertEquals(listOf("title", "dedication"), pages.keys.filter { c.isPairedLeft(at(it)) })
+            val served = c.servedText(c.chapters[at("notice")].path)!!
+            assertTrue(served.contains("id=\"kl-pair\"") && served.contains("THE WHEEL OF TIME") && served.contains("without DRM"))
+            // Opening the left one opens the two; turning back from the right one goes past both.
+            c.open(at("dedication"), JSONObject().put("type", "start"))
+            assertEquals(at("epigraph"), c.chapterIndex)
+            c.open(at("cover"), JSONObject().put("type", "start"))
+            assertEquals("cover", JSONObject(c.startState).optString("place"))
+            c.nextChapter()
+            assertEquals(at("notice"), c.chapterIndex)
+            assertFalse(JSONObject(c.startState).has("place"))
+            c.nextChapter()
+            assertEquals(at("epigraph"), c.chapterIndex)
+            c.previousChapter()
+            assertEquals(at("notice"), c.chapterIndex)
+            // The contents' "Dedication" is the page on screen.
+            c.open(at("epigraph"), JSONObject().put("type", "start"))
+            assertTrue(c.contentsPaths.any { it.endsWith("dedication.xhtml") })
+            c.release()
+        }
+    }
+
+    @Test
     fun aBookOfSeveralBooksHeadsEachWithItsOwnTitle() {
         fun page(title: String) = TestBooks.simplePage(title, "Words.").toByteArray()
         val files = linkedMapOf(

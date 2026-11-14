@@ -47,8 +47,9 @@ object ChapterOpenings {
      * chapter's body, so the body (and every place in it the reader remembers) is untouched. Null if
      * it can't be done safely: the two aren't in the same folder (links would break), or either
      * isn't well-formed XHTML (a browser reading it as HTML would move the box inside the body).
+     * [boxId] names the box: "kl-opening" for an opening, "kl-pair" for a short page shown beside the next.
      */
-    fun join(text: String, textPath: String, opening: String, openingPath: String): String? {
+    fun join(text: String, textPath: String, opening: String, openingPath: String, boxId: String = OPENING_BOX): String? {
         if (textPath.substringBeforeLast('/', "") != openingPath.substringBeforeLast('/', "")) return null
         val doc = try { Xml.parse(text) } catch (e: XmlException) { return null }
         if (doc.root.namespaceUri() != XHTML_NS) return null
@@ -61,7 +62,7 @@ object ChapterOpenings {
 
         // Its namespaces (an svg's xlink, say) and its body's class come along, so it reads and looks as it did.
         val attrs = LinkedHashMap<String, String>()
-        attrs["id"] = "kl-opening"
+        attrs["id"] = boxId
         obody.attributes["class"]?.let { attrs["class"] = it }
         for ((k, v) in odoc.root.attributes + obody.attributes) if (k.startsWith("xmlns:")) attrs.putIfAbsent(k, v)
         val box = Xml.startTag("div", attrs, false) + inner + "</div>\n"
@@ -87,4 +88,10 @@ object ChapterOpenings {
     }
 
     private const val XHTML_NS = "http://www.w3.org/1999/xhtml"
+
+    /** The box an opening goes in, in front of its chapter. */
+    const val OPENING_BOX = "kl-opening"
+
+    /** The box a short page goes in, in front of the short page shown beside it. */
+    const val PAIR_BOX = "kl-pair"
 }

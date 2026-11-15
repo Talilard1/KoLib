@@ -1841,5 +1841,7 @@
 "This book has no pictures.",
 "Large only ({0})",
 "Front of the book",
-"Go to its page"
+"Go to its page",
+"The cover is saved inside the book file at {0} × {1} pixels, the size of your Kobo's screen.",
+"The cover shows the book's title, series and authors. It's made at {0} × {1} pixels, the size of your Kobo's screen."
 ]

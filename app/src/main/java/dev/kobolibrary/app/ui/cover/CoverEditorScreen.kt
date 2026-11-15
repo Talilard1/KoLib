@@ -2,6 +2,7 @@
 
 package dev.kobolibrary.app.ui.cover
 
+import dev.kobolibrary.app.kobo.CoverScreen
 import dev.kobolibrary.app.tr
 import dev.kobolibrary.app.ui.components.GoldButton
 import android.net.Uri
@@ -611,7 +612,8 @@ private fun CoverControls(
                 shown?.let { tr("The picture is saved in the book file at its own size ({0} × {1} pixels) and sent to the Kobo unchanged.", it.width, it.height) }
                     ?: tr("The picture is saved in the book file at its own size and sent to the Kobo unchanged.")
             } else {
-                tr("The cover is saved inside the book file at {0} × {1} pixels, the size of the Kobo Clara's screen.", CoverCrop.OUT_WIDTH, CoverCrop.OUT_HEIGHT)
+                if (CoverScreen.fromKobo) tr("The cover is saved inside the book file at {0} × {1} pixels, the size of your Kobo's screen.", CoverCrop.OUT_WIDTH, CoverCrop.OUT_HEIGHT)
+                else tr("The cover is saved inside the book file at {0} × {1} pixels, the size of the Kobo Clara's screen.", CoverCrop.OUT_WIDTH, CoverCrop.OUT_HEIGHT)
             },
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,

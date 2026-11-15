@@ -476,6 +476,75 @@ ${pages.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" media-
     }
 
     @Test
+    fun aPartsTitleSplitIntoPiecesIsOnePage() {
+        fun png(w: Int, h: Int) = byteArrayOf(0x89.toByte(), 'P'.code.toByte(), 'N'.code.toByte(), 'G'.code.toByte(), 13, 10, 26, 10, 0, 0, 0, 13,
+            'I'.code.toByte(), 'H'.code.toByte(), 'D'.code.toByte(), 'R'.code.toByte(),
+            0, 0, (w shr 8).toByte(), (w and 0xff).toByte(), 0, 0, (h shr 8).toByte(), (h and 0xff).toByte(), 8, 6, 0, 0, 0)
+        val pages = linkedMapOf(
+            "part" to "<h1>Part One</h1>",
+            "divider" to """<div class="center"><img src="../images/divider.png" alt=""/></div>""",
+            "name" to "<h2>THE DAIMANATE</h2>",
+            "ch1" to "<h1>1 An Empty Road</h1>" + (1..60).joinToString("") { "<p>Paragraph $it of the first chapter, with enough words in it to read.</p>" },
+            "map" to """<div><img src="../images/map.png" alt=""/></div>""",
+            "ch2" to "<h1>2 Strangers</h1>" + (1..60).joinToString("") { "<p>Paragraph $it of the second chapter, with enough words in it to read.</p>" },
+        )
+        val opf = """<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="id">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="id">urn:uuid:11</dc:identifier><dc:title>Parts</dc:title><dc:language>en</dc:language></metadata>
+  <manifest><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
+<item id="i-d" href="images/divider.png" media-type="image/png"/><item id="i-m" href="images/map.png" media-type="image/png"/>
+${pages.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" media-type="application/xhtml+xml"/>""" }}</manifest>
+  <spine>${pages.keys.joinToString("") { """<itemref idref="$it"/>""" }}</spine>
+</package>"""
+        val nav = """<?xml version="1.0" encoding="utf-8"?><html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops"><head><title>Contents</title></head>
+<body><nav epub:type="toc"><ol><li><a href="text/part.xhtml">Part One</a></li><li><a href="text/ch1.xhtml">1 An Empty Road</a></li><li><a href="text/ch2.xhtml">2 Strangers</a></li></ol></nav></body></html>"""
+        val entries = linkedMapOf<String, ByteArray>(
+            "META-INF/container.xml" to TestEpubs.CONTAINER.toByteArray(),
+            "OEBPS/content.opf" to opf.toByteArray(),
+            "OEBPS/nav.xhtml" to nav.toByteArray(),
+            "OEBPS/images/divider.png" to png(480, 140),
+            "OEBPS/images/map.png" to png(1600, 1200),
+        )
+        for ((f, body) in pages) entries["OEBPS/text/$f.xhtml"] = """<?xml version="1.0" encoding="utf-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>$f</title></head><body>$body</body></html>""".toByteArray()
+        val book = TestEpubs.build(File(context.cacheDir, "parts-${UUID.randomUUID()}.epub"), entries)
+        EpubFile.open(book).use { epub ->
+            val files = EpubFileFiles(epub)
+            val c = ReaderController(files, BookStructure(files), "Parts", "en", null, ReaderSettings(), context.assets)
+            settle { c.lengthsCounted }
+            val at = { name: String -> c.index("$name.xhtml") }
+            // The divider is an ornament, not a page's picture; the map is a picture.
+            assertEquals(PageKind.ORNAMENT, c.pageKind(at("divider")))
+            assertEquals(PageKind.WIDE_PICTURE, c.pageKind(at("map")))
+            // The part's title and the divider are pieces of its name's page; nothing else is.
+            assertEquals(listOf("part", "divider"), pages.keys.filter { c.isPiece(at(it)) })
+            val served = c.servedText(c.chapters[at("name")].path)!!
+            assertTrue(served.indexOf("Part One") in 0 until served.indexOf("divider.png"))
+            assertTrue(served.indexOf("divider.png") < served.indexOf("THE DAIMANATE"))
+            // Opening the part opens its page; the contents' "Part One" is the page on screen, and it starts a chapter.
+            c.open(at("part"), JSONObject().put("type", "start"))
+            assertEquals(at("name"), c.chapterIndex)
+            assertTrue(c.contentsPaths.any { it.endsWith("part.xhtml") })
+            assertEquals("Part One", c.chapterTitle)
+            assertTrue(JSONObject(c.startState).optBoolean("opening"))
+            // On to the chapter, and back past the pieces.
+            c.nextChapter()
+            assertEquals(at("ch1"), c.chapterIndex)
+            c.previousChapter()
+            assertEquals(at("name"), c.chapterIndex)
+            c.release()
+        }
+        // With openings left as the book has them, its pieces are too.
+        EpubFile.open(book).use { epub ->
+            val files = EpubFileFiles(epub)
+            val c = ReaderController(files, BookStructure(files), "Parts", "en", null, ReaderSettings(joinOpenings = false), context.assets)
+            settle { c.lengthsCounted }
+            assertFalse(c.isPiece(c.index("part.xhtml")))
+            c.release()
+        }
+    }
+
+    @Test
     fun aBookOfSeveralBooksHeadsEachWithItsOwnTitle() {
         fun page(title: String) = TestBooks.simplePage(title, "Words.").toByteArray()
         val files = linkedMapOf(

@@ -855,9 +855,10 @@
         root.classList.add('kl-centre');
       } else if (columns === 1 && place !== 'left') {
         // A page on its own (an epigraph, a notice, a plate) goes on the right, as in print. (A
-        // dedication stays on the left.) A plate fills its page, into the margins.
+        // dedication stays on the left.) A plate fills its page, into the margins. (With pieces of the page put in
+        // front of it by the app, a part's title and an ornament, the blank page goes before them too.)
         blankBefore = 1;
-        root.classList.add('kl-recto');
+        root.classList.add(document.getElementById('kl-opening') ? 'kl-recto-open' : 'kl-recto');
         var plate = picturePage && document.querySelector('.kl-full-page');
         if (plate && !countingOnly) {
           placePicture(plate, W / 2 + gutter, W - 12);
@@ -930,8 +931,10 @@
    * title page): left as it is, not made to fill the page. Once the pictures have loaded.
    */
   function unmarkSmallPictures() {
-    // A picture with no words by it is the page, however small it is.
-    if (!document.body || !(document.body.textContent || '').trim()) return;
+    if (!document.body) return;
+    // A picture with no words by it is the page however small it is, unless it's an ornament (a divider, a
+    // flourish: small, or long and low), which isn't blown up to fill the page or spread across two.
+    var words = !!(document.body.textContent || '').trim();
     var marked = document.querySelectorAll('.kl-full-page');
     for (var i = 0; i < marked.length; i++) {
       var el = marked[i], w = 0, h = 0;
@@ -940,7 +943,10 @@
         var im = el.querySelector && el.querySelector('image');
         if (im) { w = parseFloat(im.getAttribute('width')) || 0; h = parseFloat(im.getAttribute('height')) || 0; }
       }
-      if (w > 0 && h > 0 && w < 400 && h < 400) el.classList.remove('kl-full-page');
+      var small = w > 0 && h > 0 && w < 400 && h < 400;
+      var ornament = w > 0 && h > 0 && ((w < 700 && h < 400) || (w >= 3 * h && h < 500));
+      // (The book's cover, as the app says, is the cover however small.)
+      if (words ? small : (ornament && place !== 'cover')) el.classList.remove('kl-full-page');
     }
     picturePage = !!document.querySelector('.kl-full-page');
     if (picturePair && !(picturePair[0].classList.contains('kl-full-page') && picturePair[1].classList.contains('kl-full-page'))) {

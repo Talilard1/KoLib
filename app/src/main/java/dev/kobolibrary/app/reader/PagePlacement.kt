@@ -19,6 +19,8 @@ enum class PageKind {
     PICTURE,
     /** A picture on its own wider than it's tall (a map, a scene across two pages): across both pages, alone. */
     WIDE_PICTURE,
+    /** An ornament on its own (a small picture, or a long low one: a divider): not a page's picture, but a piece of a page. */
+    ORNAMENT,
     /** Any other short page (a title page, a notice, a list of the author's books): beside another, or on the right. */
     SHORT;
 
@@ -93,6 +95,8 @@ object PagePlacement {
         val biggestPicture: Int = 0,
         /** The biggest of its pictures is wider than it's tall (by more than a little). */
         val widePicture: Boolean = false,
+        /** The biggest of its pictures is small, or long and low: an ornament (a divider), not a page's picture. */
+        val ornament: Boolean = false,
     )
 
     /** The pictures on a chapter's page (its file [xhtml] at [path]): their paths in the book, in the order they come. */
@@ -130,8 +134,12 @@ object PagePlacement {
             heading = headingTag.containsMatchIn(body),
             biggestPicture = sizes.maxOfOrNull { (w, h) -> maxOf(w, h) } ?: 0,
             widePicture = biggest != null && biggest.second > 0 && biggest.first.toFloat() / biggest.second > 1.15f,
+            ornament = biggest != null && isOrnament(biggest.first, biggest.second),
         )
     }
+
+    /** A picture [w] by [h] pixels is an ornament (a divider, a flourish): small, or long and low. */
+    fun isOrnament(w: Int, h: Int) = w > 0 && h > 0 && ((w < 700 && h < 400) || (w >= 3 * h && h < 500))
 
     /**
      * What a chapter with [f] on its page is. [coverPlace]: where a book's cover goes (the book's first
@@ -144,6 +152,7 @@ object PagePlacement {
         // A book's title page with its publisher's mark is its title page; only a picture alone is its cover.
         if (picture && !(titlePlace && f.words > 0)) {
             return if (coverPlace || coverMark.containsMatchIn(f.marks)) PageKind.COVER
+            else if (f.ornament && f.words == 0) PageKind.ORNAMENT
             else if (f.widePicture) PageKind.WIDE_PICTURE else PageKind.PICTURE
         }
         if (f.words > SHORT_WORDS) return PageKind.TEXT

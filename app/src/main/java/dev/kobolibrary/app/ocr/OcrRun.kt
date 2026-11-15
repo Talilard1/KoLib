@@ -7,6 +7,7 @@ import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.job
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import java.io.Closeable
@@ -79,6 +80,9 @@ class OcrRun(
         val open = CopyOnWriteArrayList<OcrEngine>()
         val threads = Dispatchers.Default.limitedParallelism(workers.coerceAtLeast(1))
         coroutineScope {
+            // The run as a whole. Stopping marks it stopped before any of its parts hear of it, so a page whose
+            // reading was cut short (by the watcher below, on another thread) is never kept as if it were read.
+            val whole = coroutineContext.job
             // Stopping stops the pages being read too. (Not on the readers' threads, which may all be busy.)
             val watcher = launch(Dispatchers.Default) {
                 try {
@@ -104,6 +108,7 @@ class OcrRun(
                                     } else {
                                         val page = if (g.blank) OcrPage.blank(g.width, g.height, g.dpi)
                                         else Hocr.parse(engine.read(g.pixels, g.width, g.height, g.dpi), g.dpi)
+                                        whole.ensureActive()
                                         currentCoroutineContext().ensureActive()
                                         store.save(index, page)
                                     }

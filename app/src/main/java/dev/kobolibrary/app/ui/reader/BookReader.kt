@@ -54,6 +54,7 @@ fun BookReader(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var controller by remember(book.id) { mutableStateOf<ReaderController?>(null) }
+    val store = remember(book.id) { ReaderStore(library.bookDir(book.id)) { saved -> readingHere?.update(book.id, saved.position) } }
     var error by remember(book.id) { mutableStateOf<String?>(null) }
     DisposableEffect(book.id) {
         var epub: EpubFile? = null
@@ -74,8 +75,9 @@ fun BookReader(
                     structure = opened.second,
                     bookTitle = book.title,
                     language = book.meta.language,
-                    store = ReaderStore(library.bookDir(book.id)) { saved -> readingHere?.update(book.id, saved.position) },
-                    initialSettings = settings.settings.value,
+                    store = store,
+                    // With the book's own text, page and layout settings, if it has them.
+                    initialSettings = settings.settings.value.let { usual -> store.look(usual)?.let { usual.withLookOf(it) } ?: usual },
                     assets = context.assets,
                     bookAuthor = book.authorLine,
                     bookSeriesIndex = book.meta.seriesIndex,
@@ -96,7 +98,7 @@ fun BookReader(
     }
     val c = controller
     when {
-        c != null -> ReaderWith(c, settings, onClose, onEdit, onReadAsPdf, onAppSettings)
+        c != null -> ReaderWith(c, settings, onClose, onEdit, onReadAsPdf, onAppSettings, lookStore = store)
         error != null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(error!!, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(24.dp))
@@ -118,6 +120,10 @@ fun PreviewReader(files: BookFiles, structure: BookStructure, title: String, lan
     ReaderWith(controller, settings, onClose, onEdit = null)
 }
 
+/**
+ * The reader with its settings: the usual ones, and a book's own text, page and layout settings
+ * ([lookStore] keeps them), which it has once one of those is changed while it's read.
+ */
 @Composable
 private fun ReaderWith(
     controller: ReaderController,
@@ -126,21 +132,46 @@ private fun ReaderWith(
     onEdit: ((String) -> Unit)?,
     onReadAsPdf: (() -> Unit)? = null,
     onAppSettings: (() -> Unit)? = null,
+    lookStore: ReaderStore? = null,
 ) {
     val current by settings.settings.collectAsStateWithLifecycle()
+    var own by remember(controller) { mutableStateOf(lookStore?.look(settings.settings.value)) }
+    val shown = own?.let { current.withLookOf(it) } ?: current
     ReaderScreen(
         controller = controller,
         onSettings = { s ->
-            settings.update { s }
+            if (lookStore == null) settings.update { s }
+            else {
+                // The page colour, brightness, controls and the rest are every book's; the look is this book's.
+                settings.update { usual -> s.withLookOf(usual) }
+                if (!s.sameLook(shown)) {
+                    own = s
+                    lookStore.saveLook(s)
+                }
+            }
             controller.applySettings(s)
         },
         onClose = onClose,
         onEdit = onEdit,
         onReadAsPdf = onReadAsPdf,
         onAppSettings = onAppSettings,
+        bookLook = lookStore?.let { ls ->
+            BookLook(
+                own = own != null,
+                makeUsual = {
+                    own?.let { o -> settings.update { usual -> usual.withLookOf(o) } }
+                    own = null
+                    ls.forgetLook()
+                },
+                useUsual = {
+                    own = null
+                    ls.forgetLook()
+                },
+            )
+        },
     )
-    // Settings changed elsewhere reach this book too.
-    androidx.compose.runtime.LaunchedEffect(current) {
-        if (controller.settings != current) controller.applySettings(current)
+    // Settings changed elsewhere (or the book going back to the usual ones) reach this book too.
+    androidx.compose.runtime.LaunchedEffect(shown) {
+        if (controller.settings != shown) controller.applySettings(shown)
     }
 }

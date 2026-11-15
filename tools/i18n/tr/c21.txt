@@ -1,0 +1,648 @@
+@fr
+1659|=
+1660|=
+1661|=
+1662|=
+1663|=
+1664|=
+1665|=
+1666|=
+1667|=
+1668|=
+1669|=
+1670|=
+1671|=
+1672|=
+1673|=
+1674|=
+1675|Les couvertures créées par l’appli, pour les alphabets que les polices ci-dessus n’ont pas.
+1676|Ce livre a ses propres réglages de texte, de page et de mise en page. Les autres livres utilisent les réglages habituels.
+1677|Les réglages de texte, de page et de mise en page modifiés ici sont gardés pour ce livre.
+1678|En faire les réglages habituels
+1679|Utiliser les réglages habituels
+1680|Créer une page de couverture
+1681|page de couverture
+1682|Utiliser comme page de couverture
+1683|Image encadrée
+1684|Toile dorée
+1685|Peinture
+1686|Noir
+1687|Gothique
+1688|Ciel étoilé
+1689|Art déco
+1690|Fleurs
+1691|Album illustré
+1692|Essai
+1693|Anthracite
+1694|Terre d’ombre
+1695|Prune
+1696|Bleu canard
+1697|Rose poudré
+1698|Tome {0} de
+1699|peinture paysage fantasy
+1700|peinture spatiale science-fiction
+1701|rue dans le brouillard la nuit
+1702|ville la nuit
+1703|maison hantée la nuit
+1704|peinture coucher de soleil romantique
+1705|peinture historique
+1706|peinture voilier
+1707|peinture paysage far west
+1708|peinture de paysage
+1709|photo de paysage
+1710|illustration livre pour enfants
+1711|Genre
+1712|Nouvelle image
+1713|Faites glisser l’image pour la déplacer, et pincez ou utilisez le curseur pour zoomer.
+1714|Ce modèle n’a pas de place pour votre image. Choisissez l’image encadrée ou la peinture pour l’utiliser.
+1715|Modèles pour ce genre
+1716|Autres modèles
+1717|Ce modèle prend les couleurs de son image.
+1718|Fantasy
+1719|Science-fiction
+1720|Policier et mystère
+1721|Thriller
+1722|Horreur
+1723|Romance
+1724|Historique
+1725|Aventure
+1726|Western
+1727|Littérature et classiques
+1728|Essais et documents
+1729|Jeunesse
+1730|Trouver une image
+1731|Utiliser cette image
+1732|Le livre a déjà une page de couverture, « {0} ».
+1733|« {0} », au début du livre, ressemble déjà à une page de couverture. Pour l’utiliser, choisissez « Utiliser comme page de couverture » dans son menu.
+1734|« {0} » est maintenant la page de couverture
+1735|Le livre n’a pas d’image de couverture.
+1736|L’image de couverture du livre n’a pas pu être lue.
+1737|Couverture et page de couverture créées
+1738|Page de couverture créée
+@de
+1659|=
+1660|=
+1661|=
+1662|=
+1663|=
+1664|=
+1665|=
+1666|=
+1667|=
+1668|=
+1669|=
+1670|=
+1671|=
+1672|=
+1673|=
+1674|=
+1675|Cover, die die App erstellt, für Alphabete, die die Schriften oben nicht haben.
+1676|Dieses Buch hat eigene Einstellungen für Text, Seite und Layout. Andere Bücher verwenden die Standardeinstellungen.
+1677|Text-, Seiten- und Layouteinstellungen, die du hier änderst, werden für dieses Buch gespeichert.
+1678|Als Standard übernehmen
+1679|Standard verwenden
+1680|Coverseite erstellen
+1681|Coverseite
+1682|Als Coverseite verwenden
+1683|Gerahmtes Bild
+1684|Goldgeprägtes Leinen
+1685|Gemälde
+1686|Noir
+1687|Gotisch
+1688|Sternenhimmel
+1689|Art déco
+1690|Blüten
+1691|Bilderbuch
+1692|Essay
+1693|Anthrazit
+1694|Umbra
+1695|Pflaume
+1696|Petrol
+1697|Rosé
+1698|Band {0} der Reihe
+1699|Fantasy Landschaft Gemälde
+1700|Science-Fiction Weltraum Gemälde
+1701|neblige Straße bei Nacht
+1702|Stadt bei Nacht
+1703|Spukhaus bei Nacht
+1704|romantischer Sonnenuntergang Gemälde
+1705|historisches Gemälde
+1706|Segelschiff Gemälde
+1707|Wilder Westen Landschaft Gemälde
+1708|Landschaftsgemälde
+1709|Landschaftsfoto
+1710|Bilderbuch Illustration
+1711|Genre
+1712|Neues Bild
+1713|Zieh das Bild, um es zu verschieben, und zoome mit zwei Fingern oder dem Regler.
+1714|Dieses Design hat keinen Platz für dein Bild. Wähle das gerahmte Bild oder das Gemälde, um es zu verwenden.
+1715|Designs für dieses Genre
+1716|Andere Designs
+1717|Dieses Design übernimmt die Farben seines Bildes.
+1718|Fantasy
+1719|Science-Fiction
+1720|Krimi
+1721|Thriller
+1722|Horror
+1723|Liebesroman
+1724|Historisch
+1725|Abenteuer
+1726|Western
+1727|Belletristik und Klassiker
+1728|Sachbuch
+1729|Kinderbuch
+1730|Bild suchen
+1731|Dieses Bild verwenden
+1732|Das Buch hat schon eine Coverseite, „{0}“.
+1733|„{0}“ am Anfang des Buchs sieht schon wie eine Coverseite aus. Um sie zu verwenden, wähle in ihrem Menü „Als Coverseite verwenden“.
+1734|„{0}“ ist jetzt die Coverseite
+1735|Das Buch hat kein Coverbild.
+1736|Das Coverbild des Buchs konnte nicht gelesen werden.
+1737|Cover und Coverseite erstellt
+1738|Coverseite erstellt
+@es
+1659|=
+1660|=
+1661|=
+1662|=
+1663|=
+1664|=
+1665|=
+1666|=
+1667|=
+1668|=
+1669|=
+1670|=
+1671|=
+1672|=
+1673|=
+1674|=
+1675|Las portadas que crea la app, para alfabetos que no tienen las fuentes de arriba.
+1676|Este libro tiene sus propios ajustes de texto, página y diseño. Los demás libros usan los habituales.
+1677|Los ajustes de texto, página y diseño que cambies aquí se guardan para este libro.
+1678|Hacer que sean los habituales
+1679|Usar los habituales
+1680|Crear una página de portada
+1681|página de portada
+1682|Usar como página de portada
+1683|Imagen enmarcada
+1684|Tela dorada
+1685|Pintura
+1686|Noir
+1687|Gótico
+1688|Cielo estrellado
+1689|Art déco
+1690|Flores
+1691|Cuento ilustrado
+1692|Ensayo
+1693|Carbón
+1694|Sombra tostada
+1695|Ciruela
+1696|Verde azulado
+1697|Rubor
+1698|Libro {0} de
+1699|pintura paisaje fantasía
+1700|pintura espacial ciencia ficción
+1701|calle con niebla de noche
+1702|ciudad de noche
+1703|casa embrujada de noche
+1704|pintura atardecer romántico
+1705|pintura histórica
+1706|pintura velero
+1707|pintura paisaje del Oeste
+1708|pintura de paisaje
+1709|fotografía de paisaje
+1710|ilustración de cuento infantil
+1711|Género
+1712|Nueva imagen
+1713|Arrastra la imagen para moverla, y pellizca o usa el control deslizante para hacer zoom.
+1714|Este diseño no tiene sitio para tu imagen. Elige la imagen enmarcada o la pintura para usarla.
+1715|Diseños para este género
+1716|Otros diseños
+1717|Este diseño toma los colores de su imagen.
+1718|Fantasía
+1719|Ciencia ficción
+1720|Misterio y novela negra
+1721|Suspense
+1722|Terror
+1723|Romántica
+1724|Histórica
+1725|Aventuras
+1726|Del Oeste
+1727|Literatura y clásicos
+1728|No ficción
+1729|Infantil
+1730|Buscar una imagen
+1731|Usar esta imagen
+1732|El libro ya tiene una página de portada, «{0}».
+1733|«{0}», al principio del libro, ya parece una página de portada. Para usarla, elige «Usar como página de portada» en su menú.
+1734|«{0}» es ahora la página de portada
+1735|El libro no tiene imagen de portada.
+1736|No se pudo leer la imagen de portada del libro.
+1737|Se crearon una portada y una página de portada
+1738|Se creó una página de portada
+@it
+1659|=
+1660|=
+1661|=
+1662|=
+1663|=
+1664|=
+1665|=
+1666|=
+1667|=
+1668|=
+1669|=
+1670|=
+1671|=
+1672|=
+1673|=
+1674|=
+1675|Le copertine create dall’app, per gli alfabeti che i caratteri qui sopra non hanno.
+1676|Questo libro ha le sue impostazioni di testo, pagina e layout. Gli altri libri usano quelle solite.
+1677|Le impostazioni di testo, pagina e layout che cambi qui vengono conservate per questo libro.
+1678|Rendile quelle solite
+1679|Usa quelle solite
+1680|Crea una pagina di copertina
+1681|pagina di copertina
+1682|Usa come pagina di copertina
+1683|Immagine incorniciata
+1684|Tela dorata
+1685|Dipinto
+1686|Noir
+1687|Gotico
+1688|Cielo stellato
+1689|Déco
+1690|Fiori
+1691|Libro illustrato
+1692|Saggio
+1693|Antracite
+1694|Terra d’ombra
+1695|Prugna
+1696|Verde petrolio
+1697|Cipria
+1698|Libro {0} di
+1699|dipinto paesaggio fantasy
+1700|dipinto spaziale fantascienza
+1701|strada nella nebbia di notte
+1702|città di notte
+1703|casa infestata di notte
+1704|dipinto tramonto romantico
+1705|dipinto storico
+1706|dipinto veliero
+1707|dipinto paesaggio far west
+1708|dipinto di paesaggio
+1709|foto di paesaggio
+1710|illustrazione libro per bambini
+1711|Genere
+1712|Nuova immagine
+1713|Trascina l’immagine per spostarla, e pizzica o usa il cursore per lo zoom.
+1714|Questo modello non ha spazio per la tua immagine. Scegli l’immagine incorniciata o il dipinto per usarla.
+1715|Modelli per questo genere
+1716|Altri modelli
+1717|Questo modello prende i colori dalla sua immagine.
+1718|Fantasy
+1719|Fantascienza
+1720|Gialli e mistero
+1721|Thriller
+1722|Horror
+1723|Rosa
+1724|Storico
+1725|Avventura
+1726|Western
+1727|Narrativa e classici
+1728|Saggistica
+1729|Per ragazzi
+1730|Trova un’immagine
+1731|Usa questa immagine
+1732|Il libro ha già una pagina di copertina, «{0}».
+1733|«{0}», all’inizio del libro, sembra già una pagina di copertina. Per usarla, scegli «Usa come pagina di copertina» nel suo menu.
+1734|«{0}» ora è la pagina di copertina
+1735|Il libro non ha un’immagine di copertina.
+1736|Non è stato possibile leggere l’immagine di copertina del libro.
+1737|Create una copertina e una pagina di copertina
+1738|Creata una pagina di copertina
+@nl
+1659|=
+1660|=
+1661|=
+1662|=
+1663|=
+1664|=
+1665|=
+1666|=
+1667|=
+1668|=
+1669|=
+1670|=
+1671|=
+1672|=
+1673|=
+1674|=
+1675|Omslagen die de app maakt, voor alfabetten die de lettertypen hierboven niet hebben.
+1676|Dit boek heeft eigen instellingen voor tekst, pagina en indeling. Andere boeken gebruiken de gewone.
+1677|Instellingen voor tekst, pagina en indeling die je hier wijzigt, worden voor dit boek bewaard.
+1678|Maak dit de gewone
+1679|Gebruik de gewone
+1680|Omslagpagina maken
+1681|omslagpagina
+1682|Als omslagpagina gebruiken
+1683|Ingelijste afbeelding
+1684|Verguld linnen
+1685|Schilderij
+1686|Noir
+1687|Gotisch
+1688|Sterrenhemel
+1689|Art deco
+1690|Bloesem
+1691|Prentenboek
+1692|Essay
+1693|Antraciet
+1694|Omber
+1695|Pruim
+1696|Petrol
+1697|Poederroze
+1698|Deel {0} van
+1699|fantasy landschap schilderij
+1700|sciencefiction ruimte schilderij
+1701|mistige straat 's nachts
+1702|stad 's nachts
+1703|spookhuis 's nachts
+1704|romantische zonsondergang schilderij
+1705|historisch schilderij
+1706|zeilschip schilderij
+1707|wilde westen landschap schilderij
+1708|landschapsschilderij
+1709|landschapsfoto
+1710|prentenboek illustratie
+1711|Genre
+1712|Nieuwe afbeelding
+1713|Sleep de afbeelding om haar te verplaatsen, en knijp of gebruik de schuifregelaar om te zoomen.
+1714|Dit ontwerp heeft geen plek voor je afbeelding. Kies de ingelijste afbeelding of het schilderij om haar te gebruiken.
+1715|Ontwerpen voor dit genre
+1716|Andere ontwerpen
+1717|Dit ontwerp neemt de kleuren van zijn afbeelding over.
+1718|Fantasy
+1719|Sciencefiction
+1720|Misdaad en mysterie
+1721|Thriller
+1722|Horror
+1723|Romantiek
+1724|Historisch
+1725|Avontuur
+1726|Western
+1727|Literatuur en klassiekers
+1728|Non-fictie
+1729|Kinderboeken
+1730|Afbeelding zoeken
+1731|Deze afbeelding gebruiken
+1732|Het boek heeft al een omslagpagina, ‘{0}’.
+1733|‘{0}’ aan het begin van het boek lijkt al een omslagpagina. Kies ‘Als omslagpagina gebruiken’ in het menu ervan om die te gebruiken.
+1734|‘{0}’ is nu de omslagpagina
+1735|Het boek heeft geen omslagafbeelding.
+1736|De omslagafbeelding van het boek kon niet worden gelezen.
+1737|Omslag en omslagpagina gemaakt
+1738|Omslagpagina gemaakt
+@pt
+1659|=
+1660|=
+1661|=
+1662|=
+1663|=
+1664|=
+1665|=
+1666|=
+1667|=
+1668|=
+1669|=
+1670|=
+1671|=
+1672|=
+1673|=
+1674|=
+1675|Capas que o app cria, para alfabetos que as fontes acima não têm.
+1676|Este livro tem as próprias configurações de texto, página e layout. Os outros livros usam as de sempre.
+1677|As configurações de texto, página e layout que você mudar aqui ficam guardadas para este livro.
+1678|Tornar estas as de sempre
+1679|Usar as de sempre
+1680|Criar uma página de capa
+1681|página de capa
+1682|Usar como página de capa
+1683|Imagem emoldurada
+1684|Tecido dourado
+1685|Pintura
+1686|Noir
+1687|Gótico
+1688|Céu estrelado
+1689|Art déco
+1690|Flores
+1691|Livro ilustrado
+1692|Ensaio
+1693|Carvão
+1694|Sombra
+1695|Ameixa
+1696|Azul-petróleo
+1697|Rosado
+1698|Livro {0} de
+1699|pintura paisagem fantasia
+1700|pintura espacial ficção científica
+1701|rua com neblina à noite
+1702|cidade à noite
+1703|casa assombrada à noite
+1704|pintura pôr do sol romântico
+1705|pintura histórica
+1706|pintura veleiro
+1707|pintura paisagem velho oeste
+1708|pintura de paisagem
+1709|foto de paisagem
+1710|ilustração de livro infantil
+1711|Gênero
+1712|Nova imagem
+1713|Arraste a imagem para movê-la, e faça movimento de pinça ou use o controle deslizante para dar zoom.
+1714|Este modelo não tem espaço para a sua imagem. Escolha a imagem emoldurada ou a pintura para usá-la.
+1715|Modelos para este gênero
+1716|Outros modelos
+1717|Este modelo usa as cores da sua imagem.
+1718|Fantasia
+1719|Ficção científica
+1720|Mistério e policial
+1721|Suspense
+1722|Terror
+1723|Romance
+1724|Histórico
+1725|Aventura
+1726|Faroeste
+1727|Literatura e clássicos
+1728|Não ficção
+1729|Infantil
+1730|Encontrar uma imagem
+1731|Usar esta imagem
+1732|O livro já tem uma página de capa, “{0}”.
+1733|“{0}”, no começo do livro, já parece uma página de capa. Para usá-la, escolha “Usar como página de capa” no menu dela.
+1734|“{0}” agora é a página de capa
+1735|O livro não tem imagem de capa.
+1736|Não foi possível ler a imagem de capa do livro.
+1737|Capa e página de capa criadas
+1738|Página de capa criada
+@ru
+1659|=
+1660|=
+1661|=
+1662|=
+1663|=
+1664|=
+1665|=
+1666|=
+1667|=
+1668|=
+1669|=
+1670|=
+1671|=
+1672|=
+1673|=
+1674|=
+1675|Обложки, которые делает приложение, для алфавитов, которых нет в шрифтах выше.
+1676|У этой книги свои настройки текста, страницы и макета. Другие книги используют обычные.
+1677|Настройки текста, страницы и макета, которые вы меняете здесь, сохраняются для этой книги.
+1678|Сделать обычными
+1679|Использовать обычные
+1680|Сделать страницу обложки
+1681|страница обложки
+1682|Сделать страницей обложки
+1683|Картина в рамке
+1684|Золотое тиснение
+1685|Картина
+1686|Нуар
+1687|Готика
+1688|Звёздное небо
+1689|Ар-деко
+1690|Цветы
+1691|Сказка
+1692|Эссе
+1693|Уголь
+1694|Умбра
+1695|Слива
+1696|Морская волна
+1697|Пудра
+1698|Книга {0} цикла
+1699|фэнтези пейзаж картина
+1700|космос научная фантастика картина
+1701|улица в тумане ночью
+1702|город ночью
+1703|дом с привидениями ночью
+1704|романтический закат картина
+1705|историческая живопись
+1706|парусник картина
+1707|дикий запад пейзаж картина
+1708|пейзажная живопись
+1709|пейзаж фото
+1710|иллюстрация к сказке
+1711|Жанр
+1712|Новая картинка
+1713|Перетащите картинку, чтобы сдвинуть её, а чтобы изменить масштаб, сведите или разведите пальцы или передвиньте ползунок.
+1714|В этом стиле нет места для вашей картинки. Чтобы её использовать, выберите «Картина в рамке» или «Картина».
+1715|Стили для этого жанра
+1716|Другие стили
+1717|Этот стиль берёт цвета из своей картинки.
+1718|Фэнтези
+1719|Научная фантастика
+1720|Детектив
+1721|Триллер
+1722|Ужасы
+1723|Любовный роман
+1724|Исторический
+1725|Приключения
+1726|Вестерн
+1727|Художественная литература и классика
+1728|Нон-фикшн
+1729|Детская
+1730|Найти картинку
+1731|Использовать эту картинку
+1732|У книги уже есть страница обложки: «{0}».
+1733|«{0}» в начале книги уже похожа на страницу обложки. Чтобы использовать её, выберите в её меню «Сделать страницей обложки».
+1734|«{0}» теперь страница обложки
+1735|У книги нет картинки обложки.
+1736|Не удалось прочитать картинку обложки книги.
+1737|Сделаны обложка и страница обложки
+1738|Сделана страница обложки
+@ja
+1659|=
+1660|=
+1661|=
+1662|=
+1663|=
+1664|=
+1665|=
+1666|=
+1667|=
+1668|=
+1669|=
+1670|=
+1671|=
+1672|=
+1673|=
+1674|=
+1675|アプリが作る表紙で、上のフォントにない文字に使います。
+1676|この本には独自の文字・ページ・レイアウトの設定があります。ほかの本はいつもの設定を使います。
+1677|ここで変えた文字・ページ・レイアウトの設定は、この本用に保存されます。
+1678|これをいつもの設定にする
+1679|いつもの設定を使う
+1680|表紙ページを作る
+1681|表紙ページ
+1682|表紙ページにする
+1683|額縁の絵
+1684|金箔押しの布装
+1685|絵画
+1686|ノワール
+1687|ゴシック
+1688|星空
+1689|アール・デコ
+1690|花
+1691|絵本
+1692|エッセイ
+1693|チャコール
+1694|アンバー
+1695|プラム
+1696|ティール
+1697|ブラッシュ
+1698|第{0}巻
+1699|ファンタジー 風景画
+1700|SF 宇宙 イラスト
+1701|夜 霧 街並み
+1702|夜の街
+1703|夜 幽霊屋敷
+1704|ロマンチック 夕焼け 絵画
+1705|歴史画
+1706|帆船 絵画
+1707|西部 荒野 風景画
+1708|風景画
+1709|風景写真
+1710|絵本 イラスト
+1711|ジャンル
+1712|新しい絵
+1713|画像をドラッグして動かし、ピンチかスライダーで拡大・縮小します。
+1714|このデザインにはあなたの画像を入れる場所がありません。使うには「額縁の絵」か「絵画」を選んでください。
+1715|このジャンル向けのデザイン
+1716|ほかのデザイン
+1717|このデザインは絵の色を使います。
+1718|ファンタジー
+1719|SF
+1720|ミステリー・犯罪
+1721|スリラー
+1722|ホラー
+1723|恋愛
+1724|歴史
+1725|冒険
+1726|西部劇
+1727|文学・古典
+1728|ノンフィクション
+1729|児童書
+1730|画像を探す
+1731|この画像を使う
+1732|この本にはすでに表紙ページ「{0}」があります。
+1733|本の先頭の「{0}」はすでに表紙ページのようです。使うには、そのメニューで「表紙ページにする」を選んでください。
+1734|「{0}」が表紙ページになりました
+1735|この本には表紙の画像がありません。
+1736|本の表紙の画像を読み込めませんでした。
+1737|表紙と表紙ページを作成しました
+1738|表紙ページを作成しました

@@ -102,6 +102,36 @@ class ReaderStore(
         onSaved?.invoke(state)
     }
 
+    private val lookFile get() = File(bookDir, "look.json")
+
+    /** The book's own look, over [base] (see [ReaderSettings.withLookOf]); null if it follows the usual settings. */
+    fun look(base: ReaderSettings): ReaderSettings? = try {
+        if (!lookFile.exists()) null else ReaderSettings.withLook(base, JSONObject(lookFile.readText()))
+    } catch (e: Exception) {
+        AppLog.w("Reader", "The book's own settings couldn't be read", e)
+        null
+    }
+
+    /** Keeps [s]'s look as the book's own. */
+    fun saveLook(s: ReaderSettings) {
+        try {
+            bookDir.mkdirs()
+            val tmp = File(bookDir, "look.json.part")
+            tmp.writeText(s.lookJson().toString())
+            if (!tmp.renameTo(lookFile)) {
+                lookFile.delete()
+                tmp.renameTo(lookFile)
+            }
+        } catch (e: Exception) {
+            AppLog.w("Reader", "The book's own settings couldn't be saved", e)
+        }
+    }
+
+    /** The book goes back to the usual settings. */
+    fun forgetLook() {
+        lookFile.delete()
+    }
+
     private val pagesFile get() = File(bookDir, "pages.json")
 
     /** Each chapter's pages as counted before at [key] (the layout and the book's text), if they were. */

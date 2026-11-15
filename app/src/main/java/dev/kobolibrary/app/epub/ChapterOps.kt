@@ -189,35 +189,33 @@ object ChapterOps {
         return Result(if (hidden) tr("Hid “{0}”", chapter.title) else tr("Showed “{0}” again", chapter.title), mapOf(structure.opfPath to bytes(edits.apply())), path)
     }
 
-    // ---- start -------------------------------------------------------------------------------
+    // ---- guide and landmarks -----------------------------------------------------------------
 
-    /** Where the book opens: the guide's "text" entry and the navigation document's "bodymatter" landmark. */
-    fun startPath(structure: BookStructure): String? {
-        structure.opf.guideElement?.elements()?.firstOrNull {
-            it.localName.equals("reference", true) && (it.attributes["type"].equals("text", true) || it.attributes["type"].equals("start", true))
-        }?.attributes?.get("href")?.let { return EpubFile.resolvePath(structure.opfDir, it) }
+    /** The page the guide's reference of one of [types] points at. */
+    private fun guidePath(structure: BookStructure, types: Set<String>): String? =
+        structure.opf.guideElement?.elements()?.firstOrNull { e -> e.localName.equals("reference", true) && types.any { e.attributes["type"].equals(it, true) } }
+            ?.attributes?.get("href")?.substringBefore('#')?.let { EpubFile.resolvePath(structure.opfDir, it) }
+
+    /** The page the navigation document's landmark of [type] points at. */
+    private fun landmarkPath(structure: BookStructure, type: String): String? {
         val nav = structure.opf.navItem() ?: return null
         val navPath = structure.pathOf(nav)
         val text = structure.source.text(navPath) ?: return null
         val doc = runCatching { Xml.parse(text) }.getOrNull() ?: return null
         val link = doc.root.descendants().firstOrNull { a ->
-            a.localName.equals("a", true) && a.attributes.entries.any { (k, v) -> k.substringAfter(':') == "type" && v.split(' ').contains("bodymatter") }
+            a.localName.equals("a", true) && a.attributes.entries.any { (k, v) -> k.substringAfter(':') == "type" && v.split(' ').contains(type) }
         } ?: return null
-        return link.attributes["href"]?.let { EpubFile.resolvePath(navPath.substringBeforeLast('/', ""), it) }
+        return link.attributes["href"]?.substringBefore('#')?.let { EpubFile.resolvePath(navPath.substringBeforeLast('/', ""), it) }
     }
 
-    fun setStart(files: BookFiles, structure: BookStructure, path: String): Result {
-        val chapter = structure.chapterAt(path) ?: throw OpError(tr("That chapter is no longer in the book."))
-        val opf = structure.opf
-        val text = structure.opfText
+    /** The package file [text] with its guide's reference of one of [types] pointing at [href] as a [type] (added if there's none). */
+    private fun withGuideRef(text: String, types: Set<String>, type: String, title: String, href: String): String {
+        val opf = OpfDocument(text)
         val edits = TextEdits(text)
-        val href = Contents.encodeHref(EpubFile.relativeHref(structure.opfPath, path))
         val guide = opf.guideElement
-        val existing = guide?.elements()?.firstOrNull {
-            it.localName.equals("reference", true) && (it.attributes["type"].equals("text", true) || it.attributes["type"].equals("start", true))
-        }
+        val existing = guide?.elements()?.firstOrNull { e -> e.localName.equals("reference", true) && types.any { e.attributes["type"].equals(it, true) } }
         val refName = guide?.prefix?.let { "$it:reference" } ?: (opf.pkg.prefix?.let { "$it:reference" } ?: "reference")
-        val newRef = "<$refName type=\"text\" title=\"Start\" href=\"${Xml.escapeAttr(href)}\"/>"
+        val newRef = "<$refName type=\"$type\" title=\"${Xml.escapeAttr(title)}\" href=\"${Xml.escapeAttr(href)}\"/>"
         when {
             existing != null -> edits.replace(existing.start, existing.end, newRef)
             guide != null && !guide.selfClosing -> edits.insert(guide.endTagStart, "  $newRef\n" + indentBefore(text, guide))
@@ -229,32 +227,174 @@ object ChapterOps {
                 edits.insert(spine.end, "\n$ind<$guideName>\n$ind  $newRef\n$ind</$guideName>")
             }
         }
-        val changes = LinkedHashMap<String, ByteArray?>()
-        changes[structure.opfPath] = bytes(edits.apply())
-        // The EPUB 3 landmark, if the book has landmarks.
-        opf.navItem()?.let { nav ->
-            val navPath = structure.pathOf(nav)
-            val navText = files.text(navPath) ?: return@let
-            val doc = runCatching { Xml.parse(navText) }.getOrNull() ?: return@let
-            val landmarks = doc.root.descendants().firstOrNull { e ->
-                e.localName.equals("nav", true) && e.attributes.entries.any { (k, v) -> k.substringAfter(':') == "type" && v.split(' ').contains("landmarks") }
-            } ?: return@let
-            val navHref = Contents.encodeHref(EpubFile.relativeHref(navPath, path))
-            val link = landmarks.descendants().firstOrNull { a ->
-                a.localName.equals("a", true) && a.attributes.entries.any { (k, v) -> k.substringAfter(':') == "type" && v.split(' ').contains("bodymatter") }
-            }
-            val ne = TextEdits(navText)
-            if (link != null) {
-                val attrs = LinkedHashMap(link.attributes).apply { this["href"] = navHref }
-                ne.replace(link.start, link.startTagEnd, Xml.startTag(link.name, attrs, link.selfClosing))
-            } else {
-                val ol = landmarks.elements().firstOrNull { it.localName.equals("ol", true) } ?: return@let
-                val typeAttr = landmarks.attributes.keys.first { it.substringAfter(':') == "type" }
-                ne.insert(ol.startTagEnd, "\n${indentBefore(navText, ol)}  <li><a $typeAttr=\"bodymatter\" href=\"${Xml.escapeAttr(navHref)}\">Start</a></li>")
-            }
-            changes[navPath] = bytes(ne.apply())
+        return edits.apply()
+    }
+
+    /**
+     * The navigation document with its landmark of [type] pointing at [target] (added at the top of the
+     * landmarks if there's none), for a book with landmarks; null for one without.
+     */
+    private fun withLandmark(files: BookFiles, structure: BookStructure, type: String, title: String, target: String): Pair<String, ByteArray>? {
+        val nav = structure.opf.navItem() ?: return null
+        val navPath = structure.pathOf(nav)
+        val navText = files.text(navPath) ?: return null
+        val doc = runCatching { Xml.parse(navText) }.getOrNull() ?: return null
+        val landmarks = doc.root.descendants().firstOrNull { e ->
+            e.localName.equals("nav", true) && e.attributes.entries.any { (k, v) -> k.substringAfter(':') == "type" && v.split(' ').contains("landmarks") }
+        } ?: return null
+        val navHref = Contents.encodeHref(EpubFile.relativeHref(navPath, target))
+        val link = landmarks.descendants().firstOrNull { a ->
+            a.localName.equals("a", true) && a.attributes.entries.any { (k, v) -> k.substringAfter(':') == "type" && v.split(' ').contains(type) }
         }
+        val ne = TextEdits(navText)
+        if (link != null) {
+            val attrs = LinkedHashMap(link.attributes).apply { this["href"] = navHref }
+            ne.replace(link.start, link.startTagEnd, Xml.startTag(link.name, attrs, link.selfClosing))
+        } else {
+            val ol = landmarks.elements().firstOrNull { it.localName.equals("ol", true) } ?: return null
+            val typeAttr = landmarks.attributes.keys.first { it.substringAfter(':') == "type" }
+            ne.insert(ol.startTagEnd, "\n${indentBefore(navText, ol)}  <li><a $typeAttr=\"$type\" href=\"${Xml.escapeAttr(navHref)}\">${Xml.escapeText(title)}</a></li>")
+        }
+        return navPath to bytes(ne.apply())
+    }
+
+    // ---- start -------------------------------------------------------------------------------
+
+    /** Where the book opens: the guide's "text" entry and the navigation document's "bodymatter" landmark. */
+    fun startPath(structure: BookStructure): String? = guidePath(structure, setOf("text", "start")) ?: landmarkPath(structure, "bodymatter")
+
+    fun setStart(files: BookFiles, structure: BookStructure, path: String): Result {
+        val chapter = structure.chapterAt(path) ?: throw OpError(tr("That chapter is no longer in the book."))
+        val href = Contents.encodeHref(EpubFile.relativeHref(structure.opfPath, path))
+        val changes = LinkedHashMap<String, ByteArray?>()
+        changes[structure.opfPath] = bytes(withGuideRef(structure.opfText, setOf("text", "start"), "text", "Start", href))
+        // The EPUB 3 landmark, if the book has landmarks.
+        withLandmark(files, structure, "bodymatter", "Start", path)?.let { (p, b) -> changes[p] = b }
         return Result(tr("The book now opens at “{0}”", chapter.title), changes, path)
+    }
+
+    // ---- cover page --------------------------------------------------------------------------
+
+    /** A picture to put in the book: its bytes, type, and size in pixels. */
+    class NewPicture(val data: ByteArray, val mediaType: String, val width: Int, val height: Int)
+
+    /** The book's cover page: the page its guide or landmarks call the cover. */
+    fun coverPagePath(structure: BookStructure): String? =
+        listOfNotNull(guidePath(structure, setOf("cover")), landmarkPath(structure, "cover")).firstOrNull { structure.chapterAt(it) != null }
+
+    /** The book's cover picture: the one it declares, or failing that one named as the cover. */
+    fun coverImagePath(files: BookFiles, structure: BookStructure): String? =
+        (structure.opf.declaredCoverItem() ?: structure.opf.guessedCoverItem())?.let { structure.pathOf(it) }?.takeIf { files.has(it) }
+
+    /**
+     * Stops if the book has a cover page already: one it names as the cover, or a first page that is
+     * just a picture.
+     */
+    fun checkNoCoverPage(files: BookFiles, structure: BookStructure) {
+        coverPagePath(structure)?.let { p ->
+            throw OpError(tr("The book already has a cover page, “{0}”.", structure.chapterAt(p)?.title ?: p))
+        }
+        val first = structure.chapters.firstOrNull() ?: return
+        val html = files.text(first.path) ?: return
+        if (EpubFile.firstImageReference(html) != null && EpubText.plainText(html).trim().length < 40) {
+            throw OpError(tr("“{0}” at the front of the book looks like a cover page already. To use it, choose “Use as the cover page” in its menu.", first.title))
+        }
+    }
+
+    /**
+     * Makes the chapter at [path] the book's cover page: named so in the guide (and the landmarks, in a
+     * book that has them) and moved to the front.
+     */
+    fun setCoverPage(files: BookFiles, structure: BookStructure, path: String): Result {
+        val chapter = structure.chapterAt(path) ?: throw OpError(tr("That chapter is no longer in the book."))
+        val href = Contents.encodeHref(EpubFile.relativeHref(structure.opfPath, path))
+        val changes = LinkedHashMap<String, ByteArray?>()
+        changes[structure.opfPath] = bytes(withGuideRef(structure.opfText, setOf("cover"), "cover", "Cover", href))
+        var overlay: BookFiles = OverlayFiles(files, changes.toMap())
+        var now = BookStructure(overlay)
+        if (now.chapters.firstOrNull()?.path != path) {
+            changes.putAll(reorder(overlay, now, listOf(path) + now.chapters.map { it.path }.filter { it != path }).changes)
+            overlay = OverlayFiles(files, changes.toMap())
+            now = BookStructure(overlay)
+        }
+        withLandmark(overlay, now, "cover", "Cover", path)?.let { (p, b) -> changes[p] = b }
+        return Result(tr("“{0}” is now the cover page", chapter.title), changes, path)
+    }
+
+    /**
+     * Adds a cover page at the front of the book: the whole page a picture of the cover. With [picture],
+     * that picture is added and made the book's cover; without, the book's own cover picture is used.
+     */
+    fun addCoverPage(files: BookFiles, structure: BookStructure, picture: NewPicture?): Result {
+        checkNoCoverPage(files, structure)
+        val changes = LinkedHashMap<String, ByteArray?>()
+        var opfText = structure.opfText
+        val imagePath: String
+        val size: Pair<Int, Int>
+        if (picture != null) {
+            imagePath = newPicturePath(files, structure, if (picture.mediaType == "image/png") "png" else "jpg", name = "cover")
+            changes[imagePath] = picture.data
+            opfText = OpfDocument(opfText).withCover(EpubFile.relativeHref(structure.opfPath, imagePath), picture.mediaType)
+            size = picture.width to picture.height
+        } else {
+            imagePath = coverImagePath(files, structure) ?: throw OpError(tr("The book has no cover picture."))
+            size = files.bytes(imagePath)?.let { dev.kobolibrary.app.reader.ImageSize.of(it) } ?: throw OpError(tr("The book's cover picture couldn't be read."))
+        }
+
+        // The page, in the folder the book's first page is in.
+        val dir = structure.chapters.firstOrNull()?.path?.substringBeforeLast('/', "")
+            ?: (if (structure.opfDir.isEmpty()) "text" else "${structure.opfDir}/text")
+        var n = 1
+        fun candidate() = (if (dir.isEmpty()) "" else "$dir/") + (if (n == 1) "cover.xhtml" else "cover-$n.xhtml")
+        while (files.has(candidate())) n++
+        val pagePath = candidate()
+        val opf = OpfDocument(opfText)
+        val lang = opf.readMetadata().language?.takeIf { it.isNotBlank() } ?: "en"
+        changes[pagePath] = bytes(coverPage(lang, Contents.encodeHref(EpubFile.relativeHref(pagePath, imagePath)), size.first, size.second, opf.isEpub3))
+
+        // Listed in the package file, first in the reading order, and named the cover in the guide.
+        val manifest = opf.manifestElement ?: throw OpError(tr("The book has no list of files."))
+        val spine = opf.spineElement ?: throw OpError(tr("The book has no reading order."))
+        val id = uniqueId(opf, "cover-page")
+        val pageHref = Contents.encodeHref(EpubFile.relativeHref(structure.opfPath, pagePath))
+        val oe = TextEdits(opfText)
+        val itemName = manifest.prefix?.let { "$it:item" } ?: "item"
+        val svg = if (opf.isEpub3) " properties=\"svg\"" else ""
+        oe.insert(
+            manifest.elements().lastOrNull()?.end ?: manifest.startTagEnd,
+            "\n${opf.indentOf(manifest) ?: "    "}<$itemName id=\"$id\" href=\"${Xml.escapeAttr(pageHref)}\" media-type=\"application/xhtml+xml\"$svg/>",
+        )
+        val firstRef = spine.elements().firstOrNull()
+        val refName = firstRef?.name ?: spine.prefix?.let { "$it:itemref" } ?: "itemref"
+        val indent = opf.indentOf(spine) ?: "    "
+        if (firstRef != null) oe.insert(firstRef.start, "<$refName idref=\"$id\"/>\n$indent")
+        else oe.insert(spine.startTagEnd, "\n$indent<$refName idref=\"$id\"/>")
+        changes[structure.opfPath] = bytes(withGuideRef(oe.apply(), setOf("cover"), "cover", "Cover", pageHref))
+
+        val overlay = OverlayFiles(files, changes.toMap())
+        withLandmark(overlay, BookStructure(overlay), "cover", "Cover", pagePath)?.let { (p, b) -> changes[p] = b }
+        return Result(if (picture != null) tr("Made a cover and a cover page") else tr("Made a cover page"), changes, pagePath)
+    }
+
+    /** A page that is the whole of a picture [w] × [h] (at [href]), kept in proportion on any screen. */
+    private fun coverPage(lang: String, href: String, w: Int, h: Int, epub3: Boolean): String {
+        val l = Xml.escapeAttr(lang)
+        return buildString {
+            append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
+            append(if (epub3) "<!DOCTYPE html>\n" else "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n")
+            append("<html xmlns=\"http://www.w3.org/1999/xhtml\"")
+            if (epub3) append(" xmlns:epub=\"http://www.idpf.org/2007/ops\" xml:lang=\"$l\" lang=\"$l\"") else append(" xml:lang=\"$l\"")
+            append(">\n<head>\n  <title>Cover</title>\n  <style type=\"text/css\">\n")
+            append("    @page { margin: 0; padding: 0; }\n")
+            append("    html, body { margin: 0; padding: 0; height: 100%; text-align: center; }\n")
+            append("    div.cover { height: 100%; margin: 0; padding: 0; }\n")
+            append("  </style>\n</head>\n")
+            append(if (epub3) "<body epub:type=\"cover\">\n" else "<body>\n")
+            append("  <div class=\"cover\">\n")
+            append("    <svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.1\" width=\"100%\" height=\"100%\" viewBox=\"0 0 $w $h\" preserveAspectRatio=\"xMidYMid meet\">\n")
+            append("      <image width=\"$w\" height=\"$h\" xlink:href=\"${Xml.escapeAttr(href)}\"/>\n")
+            append("    </svg>\n  </div>\n</body>\n</html>\n")
+        }
     }
 
     // ---- delete ------------------------------------------------------------------------------
@@ -641,12 +781,16 @@ object ChapterOps {
     // ---- pictures ----------------------------------------------------------------------------
 
     /** Where a new picture goes: the folder most of the book's pictures are in, with a free name. */
-    fun newPicturePath(files: BookFiles, structure: BookStructure, extension: String): String {
+    fun newPicturePath(files: BookFiles, structure: BookStructure, extension: String, name: String? = null): String {
         val folders = structure.opf.items.filter { it.isImage }.map { structure.pathOf(it).substringBeforeLast('/', "") }
         val dir = folders.groupingBy { it }.eachCount().maxByOrNull { it.value }?.key
             ?: (if (structure.opfDir.isEmpty()) "images" else "${structure.opfDir}/images")
         var n = 1
-        fun candidate() = (if (dir.isEmpty()) "" else "$dir/") + "picture-$n.$extension"
+        fun candidate() = (if (dir.isEmpty()) "" else "$dir/") + when {
+            name == null -> "picture-$n.$extension"
+            n == 1 -> "$name.$extension"
+            else -> "$name-$n.$extension"
+        }
         while (files.has(candidate())) n++
         return candidate()
     }

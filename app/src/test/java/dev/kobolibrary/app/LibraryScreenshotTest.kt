@@ -435,6 +435,18 @@ class LibraryScreenshotTest {
     fun coverGenerator() = generatorScreen("40_cover_generator")
 
     @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun coverGeneratorFramed() {
+        val text = CoverText("The Iron Crown", listOf("Mara Ellison"), "The Ninefold Gate", 6.0)
+        shot("40b_cover_generator_framed") {
+            CoverGeneratorScreen(
+                text, onUse = { _, _ -> }, onCancel = {}, genre = dev.kobolibrary.app.ui.cover.CoverGenre.FANTASY,
+                initial = CoverDesign(CoverStyle.FRAMED, CoverDesign.boardFor(6.0)!!, dev.kobolibrary.app.ui.cover.CoverGenre.FANTASY, 7),
+            )
+        }
+    }
+
+    @Test
     @Config(qualifiers = PORTRAIT)
     fun coverGeneratorPortrait() = generatorScreen("41_cover_generator_portrait")
 

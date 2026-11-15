@@ -40,6 +40,10 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONArray
 import org.json.JSONObject
+import dev.kobolibrary.app.ui.cover.CoverDesign
+import dev.kobolibrary.app.ui.cover.CoverGenerator
+import dev.kobolibrary.app.ui.cover.CoverGenre
+import dev.kobolibrary.app.ui.cover.CoverText
 import java.io.ByteArrayOutputStream
 import kotlin.coroutines.resume
 
@@ -397,6 +401,27 @@ class TextEditState(
     fun addChapter(after: String?, title: String) = change { ChapterOps.addChapter(edit, structure, after, title) }
 
     val startPath: String? get() = version.let { runCatching { ChapterOps.startPath(structure) }.getOrNull() }
+
+    /** The book's cover page, if it names one. */
+    val coverPath: String? get() = version.let { runCatching { ChapterOps.coverPagePath(structure) }.getOrNull() }
+
+    /** Makes the chapter at [path] the book's cover page, at the front. */
+    fun setCoverPage(path: String) = change { ChapterOps.setCoverPage(edit, structure, path) }
+
+    /**
+     * Adds a cover page at the front of the book showing its cover. A book without a cover picture gets
+     * one made for it here, in a design that suits its genre, which becomes its cover too.
+     */
+    fun makeCoverPage(context: Context) = change {
+        if (ChapterOps.coverImagePath(edit, structure) != null) return@change ChapterOps.addCoverPage(edit, structure, null)
+        ChapterOps.checkNoCoverPage(edit, structure)
+        val meta = structure.opf.readMetadata()
+        val design = CoverDesign.random(genre = CoverGenre.guess(meta.tags, meta.series, meta.title, meta.description))
+        val cover = CoverGenerator(context.applicationContext).render(CoverText(meta.title, meta.authors, meta.series, meta.seriesIndex), design)
+        val out = ByteArrayOutputStream()
+        cover.compress(Bitmap.CompressFormat.JPEG, 90, out)
+        ChapterOps.addCoverPage(edit, structure, ChapterOps.NewPicture(out.toByteArray(), "image/jpeg", cover.width, cover.height))
+    }
 
     fun splitPoints(path: String): List<ChapterOps.SplitPoint> =
         edit.text(path)?.let { runCatching { ChapterOps.splitPoints(it) }.getOrNull() }.orEmpty()

@@ -37,8 +37,15 @@ class CoverGeneratorTest {
 
     private fun draw(t: CoverText, style: CoverStyle, colors: CoverColors = CoverColors.themes[0]) = generator.render(t, CoverDesign(style, colors), w, h)
 
+    /**
+     * The designs drawn on darker shades of their ground (a night sky, deep space), or with a picture over
+     * most of it, rather than on the ground itself.
+     */
+    private val darkened = setOf(CoverStyle.NOIR, CoverStyle.STARFIELD, CoverStyle.GOTHIC)
+
     @Test
     fun everyDesignInEveryThemeIsAFullCoverInItsColours() {
+        val wrong = mutableListOf<String>()
         for (style in CoverStyle.entries) for (colors in CoverColors.themes) {
             val label = "${style.label} / ${colors.name}"
             val bmp = draw(text, style, colors)
@@ -46,29 +53,57 @@ class CoverGeneratorTest {
             assertEquals(label, h, bmp.height)
             val px = bmp.pixels()
             assertTrue("$label is opaque", px.all { Color.alpha(it) == 255 })
+            // Those in a picture's own colours are left at that.
+            if (!style.themed) continue
             fun near(colour: Int) = px.count {
                 Math.abs(Color.red(it) - Color.red(colour)) < 40 && Math.abs(Color.green(it) - Color.green(colour)) < 40 &&
                     Math.abs(Color.blue(it) - Color.blue(colour)) < 40
             }
-            assertTrue("$label is mostly its ground (${near(colors.ground)})", near(colors.ground) > px.size / 4)
-            assertTrue("$label shows its accent (${near(colors.accent)})", near(colors.accent) > px.size / 200)
+            if (style !in darkened && near(colors.ground) <= px.size / 4) wrong += "$label is mostly its ground (${near(colors.ground)})"
+            // (Those on a night sky show it in smaller touches: a glow, a rim of light, a line of lettering.)
+            if (near(colors.accent) <= px.size / (if (style in darkened) 600 else 200)) wrong += "$label shows its accent (${near(colors.accent)})"
+        }
+        assertTrue(wrong.joinToString("\n"), wrong.isEmpty())
+    }
+
+    @Test
+    fun theDesignsWithoutTheirOwnColoursStillDiffer() {
+        // A painting and a storybook keep their picture's colours whatever the theme, and differ by genre and seed.
+        for (style in CoverStyle.entries.filter { !it.themed }) {
+            val a = generator.render(text, CoverDesign(style, CoverColors.themes[0], CoverGenre.FANTASY, 1), 268, 362)
+            val b = generator.render(text, CoverDesign(style, CoverColors.themes[3], CoverGenre.FANTASY, 1), 268, 362)
+            assertArrayEquals(style.label, a.pixels(), b.pixels())
+            val c = generator.render(text, CoverDesign(style, CoverColors.themes[0], CoverGenre.FANTASY, 2), 268, 362)
+            assertTrue(style.label, changed(a, c, 0, 362) > 1000)
         }
     }
 
     @Test
     fun theTitleSeriesAndAuthorAreAllOnTheCover() {
+        // The designs with the author's name at the head.
+        val authorAtTop = setOf(CoverStyle.FRAMED, CoverStyle.NOIR)
+        // The designs with the words in a block in the middle, the author's name last.
+        val authorInMiddle = setOf(CoverStyle.DECO, CoverStyle.BLOSSOM)
         for (style in CoverStyle.entries) {
             val whole = draw(text, style)
             val retitled = draw(text.copy(title = "A Study in Scarlet"), style)
-            assertTrue("${style.label} title", changed(whole, retitled, 0, h * 2 / 3) > 400)
+            assertTrue("${style.label} title", changed(whole, retitled, 0, h) > 400)
 
             val other = draw(text.copy(authors = listOf("Agatha Christie")), style)
-            assertTrue("${style.label} author", changed(whole, other, h * 2 / 3, h) > 150)
-            // (A mosaic's tiles change with the author as well, so it is left out of this one.)
-            if (style != CoverStyle.MOSAIC) assertEquals("${style.label}: the author is at the foot", 0, changed(whole, other, 0, h / 2))
+            if (style in authorAtTop) {
+                assertTrue("${style.label} author", changed(whole, other, 0, h / 3) > 150)
+                assertEquals("${style.label}: the author is at the head", 0, changed(whole, other, h / 2, h))
+            } else if (style in authorInMiddle) {
+                assertTrue("${style.label} author", changed(whole, other, h / 3, h) > 150)
+                assertEquals("${style.label}: the author is under the title", 0, changed(whole, other, 0, h / 4))
+            } else {
+                assertTrue("${style.label} author", changed(whole, other, h * 2 / 3, h) > 150)
+                // (A mosaic's tiles change with the author as well, so it is left out of this one.)
+                if (style != CoverStyle.MOSAIC) assertEquals("${style.label}: the author is at the foot", 0, changed(whole, other, 0, h / 2))
+            }
 
             val alone = draw(text.copy(series = null, seriesIndex = null), style)
-            assertTrue("${style.label} series", changed(whole, alone, 0, h * 2 / 3) > 100)
+            assertTrue("${style.label} series", changed(whole, alone, 0, h) > 100)
 
             val unnamed = draw(text.copy(authors = listOf("Unknown")), style)
             val nobody = draw(text.copy(authors = emptyList()), style)
@@ -133,6 +168,48 @@ class CoverGeneratorTest {
         // The band of tiles lies between the title and the author, so a change there is a change of tiles.
         val another = draw(text.copy(title = "A Study in Scarlet"), CoverStyle.MOSAIC)
         assertTrue("another book gets other tiles", changed(one, another, h * 45 / 100, h * 8 / 10) > 5000)
+    }
+
+    @Test
+    fun theFramedDesignSaysWhichBookOfTheSeriesItIs() {
+        val sixth = draw(text.copy(seriesIndex = 6.0), CoverStyle.FRAMED)
+        val seventh = draw(text.copy(seriesIndex = 7.0), CoverStyle.FRAMED)
+        // "Book Six of" sits under the title, near the foot.
+        assertTrue(changed(sixth, seventh, h * 3 / 4, h) > 100)
+        assertEquals(0, changed(sixth, seventh, 0, h / 2))
+        // The books of a series get the boards in turn.
+        assertTrue(CoverDesign.boardFor(1.0) != CoverDesign.boardFor(2.0))
+        assertEquals(CoverDesign.boardFor(1.0), CoverDesign.boardFor((CoverColors.dark.size + 1).toDouble()))
+        assertEquals(null, CoverDesign.boardFor(null))
+    }
+
+    @Test
+    fun aPictureOfYourOwnGoesInTheFrame() {
+        val pic = Bitmap.createBitmap(300, 200, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.rgb(255, 0, 255)) }
+        val design = CoverDesign(CoverStyle.FRAMED, CoverColors.themes[0], CoverGenre.FANTASY, 3)
+        val bmp = generator.render(text, design, w, h, pic)
+        val frame = generator.pictureFrame(CoverStyle.FRAMED, w.toFloat(), h.toFloat())!!
+        val px = bmp.pixels()
+        fun magenta(x: Int, y: Int) = px[y * w + x] == Color.rgb(255, 0, 255)
+        assertTrue(magenta(frame.centerX().toInt(), frame.centerY().toInt()))
+        assertTrue(magenta(frame.left.toInt() + 3, frame.top.toInt() + 3))
+        assertTrue(!magenta(frame.left.toInt() - 6, frame.centerY().toInt()) && !magenta(w / 2, frame.top.toInt() - 6))
+        // Designs without a frame for it leave it out.
+        assertEquals(null, generator.pictureFrame(CoverStyle.CLASSIC, w.toFloat(), h.toFloat()))
+        assertArrayEquals(draw(text, CoverStyle.CLASSIC).pixels(), generator.render(text, CoverDesign(CoverStyle.CLASSIC, CoverColors.themes[0]), w, h, pic).pixels())
+    }
+
+    @Test
+    fun designsForAGenreMostlySuitIt() {
+        val rnd = Random(3)
+        for (genre in CoverGenre.entries) {
+            val suited = CoverStyle.entries.filter { genre in it.suits }
+            assertTrue("$genre has designs", suited.isNotEmpty())
+            assertEquals(suited, CoverStyle.forGenre(genre).take(suited.size))
+            val picked = List(100) { CoverDesign.random(rnd, genre = genre) }
+            assertTrue(picked.all { it.genre == genre })
+            assertTrue("$genre", picked.count { it.style in suited } > 60)
+        }
     }
 
     @Test

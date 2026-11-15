@@ -89,7 +89,9 @@ There's no account to make and no ads.
   edit, along with the file you added.
 - Edit titles, authors, series, tags, ratings and descriptions.
 - Find a cover online (on Amazon, Google Books, Open Library or Google Images), use a picture of
-  your own, or make one with the book's title in one of several designs.
+  your own, or make one with the book's title in one of many designs: picked to suit the book's
+  genre, from a painted scene or a framed picture (which you can swap for a picture of your own, then
+  move and zoom) to gold-stamped cloth, noir, gothic, deep space, art deco and more.
 - Search and sort your books, and filter them by tag.
 - Make a PDF of scanned pages into a book whose text fits the screen: KoLib recognises the words in
   the pages on your device, in English, French, German, Spanish, Italian, Dutch, Portuguese,
@@ -117,6 +119,8 @@ There's no account to make and no ads.
 - Pages laid out like a printed book: page headings and page numbers, chapters that start on a
   right-hand page, the chapter's number and title in print style, and a large first letter. Page
   numbers run through the whole book and stay the same every time you open it.
+- Each book can keep a look of its own (font, layout, page headings and so on), or use the one you
+  usually read with.
 - Highlights, notes and bookmarks, search, autoscroll, and looking words up in your dictionary app.
 - Maps and pictures printed across two pages are shown whole.
 
@@ -136,6 +140,8 @@ There's no account to make and no ads.
 - Edit a book's text: fix typos, find and replace (with a mode for renaming a character), and tidy
   up blank lines, quotes and dashes.
 - Rename, move, split and join chapters, and rebuild the contents from the chapter headings.
+- Give a book a cover page: make one from its cover (or from a cover made for it, if it has none),
+  or mark one of its pages as the cover.
 - Split an omnibus into separate books, or combine several books into one.
 - Turn Word, OpenDocument, PDF, MOBI, FB2, RTF, text, Markdown and HTML files, and comics, into
   EPUBs.
@@ -201,8 +207,9 @@ KoLib keeps a log of what it does (Kobo → Device → Open log). Please share t
   opening CBR and CB7 comics.
 - **[Tesseract](https://github.com/tesseract-ocr/tesseract)** and **[Tesseract4Android](https://github.com/adaptech-cz/Tesseract4Android):**
   recognising the words in scanned pages.
-- The fonts (EB Garamond, Literata, Atkinson Hyperlegible, OpenDyslexic, Lora, Poppins and
-  Liberation) and Android's own libraries. All of them, with their licences, are listed in
+- The fonts (EB Garamond, Literata, Atkinson Hyperlegible, OpenDyslexic, Lora, Poppins, Cinzel,
+  UnifrakturMaguntia, Great Vibes, Bebas Neue, Orbitron, Poiret One, Fredoka and Liberation) and
+  Android's own libraries. All of them, with their licences, are listed in
   [NOTICE.md](NOTICE.md).
 
 ## Building it yourself

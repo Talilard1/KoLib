@@ -53,9 +53,7 @@ import dev.kobolibrary.app.epub.BookStructure
 import dev.kobolibrary.app.epub.EpubFile
 import dev.kobolibrary.app.epub.EpubFileFiles
 import dev.kobolibrary.app.reader.ReaderController
-import dev.kobolibrary.app.reader.ReaderFont
 import dev.kobolibrary.app.reader.ReaderSettings
-import dev.kobolibrary.app.reader.ReaderTheme
 import dev.kobolibrary.app.ui.AboutScreen
 import dev.kobolibrary.app.ui.cover.CoverColors
 import dev.kobolibrary.app.ui.cover.CoverDesign
@@ -521,19 +519,52 @@ class PhoneShots {
 
     // ---- the reader and the text editor ----------------------------------------------------------------
 
+    /** Waits for the book's chapters to be measured, so the reader can number pages through the whole book. */
+    private fun counted(c: ReaderController) {
+        val looper = org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper())
+        repeat(1200) {
+            if (c.lengthsCounted) return
+            looper.idle()
+            Thread.sleep(25)
+        }
+    }
+
+    /**
+     * What the page is told as Moby Dick's first chapter opens with the reader as it comes: for laying the
+     * page out in Chrome at the phone's size (render_now.py there), which [reader] then shows.
+     */
+    @Test
+    @Config(qualifiers = PHONE)
+    fun readerStart() {
+        val f = File(art, "books/herman-melville_moby-dick.epub")
+        assumeTrue(f.exists() && home.exists())
+        EpubFile.open(f).use { epub ->
+            val files = EpubFileFiles(epub)
+            val c = ReaderController(files, BookStructure(files), "Moby Dick", "en", null, ReaderSettings(), context.assets, "Herman Melville")
+            counted(c)
+            val at = c.chapters.indexOfFirst { it.path.endsWith("chapter-1.xhtml") }
+            File(home, "start").mkdirs()
+            File(home, "start/moby.json").writeText(c.startForPreview(at))
+        }
+    }
+
     private fun reader(name: String, controls: Boolean, panel: Panel = Panel.NONE, lookTab: Int = 0) {
         val f = File(art, "books/herman-melville_moby-dick.epub")
-        assumeTrue(f.exists())
+        val pageNow = File(home, "pages/moby_now_1.png")
+        assumeTrue(f.exists() && pageNow.exists())
         EpubFile.open(f).use { epub ->
             val files = EpubFileFiles(epub)
             val structure = BookStructure(files)
-            val settings = ReaderSettings(theme = ReaderTheme.PAPER, font = ReaderFont.GARAMOND, fontScale = 1.0f)
+            // The reader as it comes, over the chapter's first page as the app's own reader lays it out.
+            val settings = ReaderSettings()
             val c = ReaderController(files, structure, "Moby Dick", "en", null, settings, context.assets, "Herman Melville")
             val at = c.chapters.indexOfFirst { it.path.endsWith("chapter-1.xhtml") }
-            c.showForPreview(at, 0, 8)
+            counted(c)
+            val pages = File(home, "pages/moby_now_pages.txt").takeIf { it.exists() }?.readText()?.trim()?.toIntOrNull() ?: 8
+            c.showForPreview(at, 0, pages)
             c.controlsVisible = controls
             c.lookTab = lookTab
-            val img = BitmapFactory.decodeFile(File(art, "pages/ph_moby_1.png").path).asImageBitmap()
+            val img = BitmapFactory.decodeFile(pageNow.path).asImageBitmap()
             compose.mainClock.autoAdvance = false
             compose.setContent {
                 AppSurface(ThemeChoice.BOOKCASE) {
@@ -546,7 +577,7 @@ class PhoneShots {
                 }
             }
             compose.mainClock.advanceTimeBy(50)
-            c.showForPreview(at, 0, 8)
+            c.showForPreview(at, 0, pages)
             compose.mainClock.advanceTimeBy(900)
             capture(name)
         }

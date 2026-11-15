@@ -66,7 +66,12 @@ object Notices {
         Notice(tr("OpenDyslexic"), tr("A typeface for reading."), OFL, tr("© 2012–2019 Abbie Gonzalez"), "opendyslexic-OFL.txt"),
         Notice(tr("Android Jetpack"), tr("The app's screens, controls and icons (AndroidX, Jetpack Compose, Material icons)."), APACHE, tr("© The Android Open Source Project"), "apache-2.0.txt"),
         Notice(tr("Kotlin"), tr("The language the app is written in, with kotlinx.coroutines."), APACHE, tr("© JetBrains s.r.o. and Kotlin contributors"), "apache-2.0.txt"),
+        Notice("libarchive", tr("Reading CBR and CB7 comics."), tr("BSD 2-Clause License"), tr("© 2003–2018 Tim Kientzle and the libarchive contributors"), "libarchive-BSD.txt"),
+        Notice(tr("libarchive for Android"), tr("Reading CBR and CB7 comics."), APACHE, tr("© 2023 Hai Zhang"), "apache-2.0.txt"),
     )
+
+    /** KoLib itself: free software, to share and change under the GPL. */
+    val own = Notice("KoLib", tr("This app. You can share it and change it under these terms."), tr("GNU General Public License 3.0"), tr("© 2026 the KoLib authors"), "gpl-3.0.txt")
 }
 
 /** The app's name and version, and the licences of everything in it that comes from elsewhere. */
@@ -132,6 +137,15 @@ fun AboutScreen(onBack: () -> Unit, onShowIntro: (() -> Unit)? = null) {
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.widthIn(max = 640.dp).fillMaxWidth().padding(start = 24.dp, end = 24.dp, top = 20.dp, bottom = 4.dp),
+                )
+            }
+            item(key = "own") {
+                val n = Notices.own
+                ListItem(
+                    headlineContent = { Text(n.name) },
+                    supportingContent = { Text("${n.use}\n${n.licence} · ${n.holder}") },
+                    trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, tr("Read the licence")) },
+                    modifier = Modifier.widthIn(max = 640.dp).fillMaxWidth().clickable { open = n }.padding(horizontal = 8.dp),
                 )
             }
             items(Notices.all, key = { it.name }) { n ->

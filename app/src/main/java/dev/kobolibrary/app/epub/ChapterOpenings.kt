@@ -9,10 +9,10 @@ package dev.kobolibrary.app.epub
 object ChapterOpenings {
 
     /** An opening is at most this many words: "Chapter 12", a title, perhaps a short line under it. */
-    private const val MOST_WORDS = 40
+    const val MOST_WORDS = 40
 
     /** And the chapter after it has at least this many: a chapter, not another title page. */
-    private const val LEAST_WORDS = 150
+    const val LEAST_WORDS = 150
 
     /** Just a chapter's number: "Chapter 12", "CHAPTER TWO", "Ch. 3", "IV", "12", "Prologue". */
     private val numberOnly = Regex(

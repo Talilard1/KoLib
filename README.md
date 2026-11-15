@@ -5,7 +5,7 @@
 <h1 align="center">KoLib</h1>
 
 <p align="center">
-  <b>Your Kobo's library, on your Android tablet or phone.</b>
+  <b>An ebook library, editor and EPUB maker for your Kobo, on your Android tablet or phone.</b>
 </p>
 
 <p align="center">
@@ -13,6 +13,7 @@
   <img alt="Made in Kotlin" src="https://img.shields.io/badge/Kotlin-Jetpack%20Compose-7F52FF?style=flat-square">
   <img alt="8 languages" src="https://img.shields.io/badge/languages-8-C8963E?style=flat-square">
   <img alt="No account, no ads" src="https://img.shields.io/badge/no%20account-no%20ads-6B4A2E?style=flat-square">
+  <img alt="Licence: GPL 3.0" src="https://img.shields.io/badge/licence-GPL%203.0-2F6DB5?style=flat-square">
 </p>
 
 <p align="center">
@@ -21,13 +22,24 @@
 
 ## What it does
 
-Plug your Kobo into your tablet or phone with a USB-C cable and KoLib reads its books and
-collections. Keep your books in KoLib, fix their details and covers, read them, and send them to
-the Kobo as kepubs, the Kobo's own format, so pages turn quickly and the Kobo keeps reading stats.
+KoLib is more than somewhere to keep your books. It's a **book editor** and an **EPUB maker** too:
+change the words inside a book as well as its details and cover, turn Word files, PDFs, text and
+comics into EPUBs, write a new book from scratch, join books into one or split an omnibus apart.
 
-| Library | Kobo | Reader |
-|---|---|---|
-| Add EPUB, PDF, MOBI, Word and other ebook files, or a whole folder at once. Edit titles, authors, series, tags, descriptions and covers. | See what's on your Kobo, put books into its collections, send books and keep backups of its database. | Read in KoLib too, with your choice of font, margins and page colour, and highlights, notes and bookmarks. |
+Plug your Kobo into your tablet or phone with a USB-C cable and KoLib reads its books and
+collections, and sends your books to it as kepubs, the Kobo's own format, so pages turn quickly
+and the Kobo keeps reading stats. And it reads books and comics itself.
+
+<table>
+  <tr>
+    <td width="50%" valign="top"><b>Editor and EPUB maker</b><br>Edit a book's text: find and replace, fix quotes and dashes, rename, split or join chapters. Make EPUBs from Word, OpenDocument, PDF, MOBI, text, Markdown, HTML and comics, or write a new one. Save any book as an EPUB or kepub.</td>
+    <td width="50%" valign="top"><b>Library</b><br>Add ebook files and comics one at a time or a whole folder at once. Edit titles, authors, series, tags, descriptions and covers, and find covers online.</td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top"><b>Kobo</b><br>See what's on your Kobo, put books into its collections, send books and comics, and keep backups of its database.</td>
+    <td width="50%" valign="top"><b>Reader</b><br>Read books with your choice of font, margins and page colour, with highlights, notes and bookmarks. Read comics page by page or as a long strip, as Mihon does.</td>
+  </tr>
+</table>
 
 ## On a tablet
 
@@ -71,22 +83,30 @@ the Kobo as kepubs, the Kobo's own format, so pages turn quickly and the Kobo ke
 
 ## Highlights
 
+- **Edit the text, not only the details:** fix typos, find and replace (with a mode for renaming a
+  character), tidy up blank lines, quotes and dashes, rename, split or join chapters, split an
+  omnibus into books or combine books into one.
+- **Make EPUBs:** from Word, OpenDocument, PDF, MOBI, AZW3, FB2, RTF, text, Markdown and HTML files,
+  and from comics, or start a new book and write it in KoLib. Save any book as an EPUB or a kepub
+  to use anywhere.
 - **Sends books the way the Kobo likes them:** as kepubs (or plain EPUB if you'd rather), with the
   cover fitted to the Kobo's screen. Send a book again and it replaces the copy on the Kobo, which keeps your place in it.
 - **Any ebook file:** EPUB, kepub, PDF, MOBI, AZW and AZW3, FB2, Word (.docx), OpenDocument (.odt),
-  RTF, plain text, Markdown, HTML and CBZ. Everything is made into an EPUB you can edit, and the
-  file you added is kept. A PDF can still go to the Kobo as a PDF.
+  RTF, plain text, Markdown and HTML. Each is made into an EPUB you can edit, and the file you
+  added is kept. A PDF can still go to the Kobo as a PDF.
+- **Comics:** CBZ, CBR and CB7 files of any size, even several gigabytes. They're read straight
+  from the file in a comic reader that works like Mihon's: left to right, right to left (manga), top
+  to bottom or one long strip, with Mihon's ways of fitting pages, cropping borders and splitting
+  wide pages. They go to the Kobo as CBZ or CBR files, which the Kobo reads itself.
 - **The Kobo's collections:** KoLib reads them, and puts books into them when you send or edit.
   It can't make new collections on the Kobo, so make one there first (My Books → Collections →
   New collection) and KoLib can then add books to it.
 - **Covers:** look one up on Amazon, Google Books and Open Library, or on Google Images, with each
   picture's size shown on it. Or make a cover with the title, in one of several designs.
-- **Edit the text, not only the details:** fix typos, find and replace (with a mode for renaming a
-  character), tidy up blank lines, quotes and dashes, rename, split or join chapters, split an
-  omnibus into books or combine books into one.
 - **A reader of its own:** turn pages or scroll, two pages side by side, page headings like a
-  printed book, highlights and notes, bookmarks, autoscroll, and looking words up in your
-  dictionary app.
+  printed book, maps across two pages shown whole, highlights and notes, bookmarks, autoscroll,
+  and looking words up in your dictionary app. Page numbers through the whole book, the same
+  every time you open it.
 - **Backups:** each time you connect and the Kobo's database has changed, KoLib saves a zipped copy
   of it on your device before it changes anything.
 - **In your language:** English, Français, Deutsch, Español, Italiano, Nederlands,
@@ -103,11 +123,11 @@ the Kobo as kepubs, the Kobo's own format, so pages turn quickly and the Kobo ke
 
 | File | Best for |
 |---|---|
-| **KoLib-1.0-arm64-v8a.apk** | **Almost every phone and tablet from the last several years** (Galaxy Tab S9, Galaxy A72…) |
-| KoLib-1.0-armeabi-v7a.apk | Older 32-bit phones and tablets |
-| KoLib-1.0-x86_64.apk | Chromebooks and Android emulators on a PC |
-| KoLib-1.0-x86.apk | Older emulators |
-| KoLib-1.0-universal.apk | Any of these, if you'd rather not choose |
+| **KoLib-…-arm64-v8a.apk** | **Almost every phone and tablet from the last several years** (Galaxy Tab S9, Galaxy A72…) |
+| KoLib-…-armeabi-v7a.apk | Older 32-bit phones and tablets |
+| KoLib-…-x86_64.apk | Chromebooks and Android emulators on a PC |
+| KoLib-…-x86.apk | Older emulators |
+| KoLib-…-universal.apk | Any of these, if you'd rather not choose |
 
 Needs Android 10 or newer, and a USB-C cable (or adapter) that carries data, not only power.
 Updates install over the version you have; your library and settings stay.
@@ -184,6 +204,7 @@ All the app's text goes through `tr("...")`, with a table for each language in
 | `…/library/` | KoLib's own library: books, covers, folders of books |
 | `…/epub/` | Reading, checking and editing EPUBs, and making kepubs |
 | `…/convert/` | Turning PDF, MOBI, Word and other files into EPUBs |
+| `…/comic/` | Comic files (CBZ, CBR, CB7) read page by page, and the comic reader's settings |
 | `…/reader/` | The reader: pages, settings, highlights |
 | `…/covers/` | Looking covers up online |
 | `…/ui/` | The screens |
@@ -196,9 +217,9 @@ All the app's text goes through `tr("...")`, with a table for each language in
 
 ## Licences
 
-No licence has been chosen for KoLib's own code yet, so it isn't open source for now. The parts
-that come from elsewhere (fonts, the kepub method, Android libraries) and their licences are listed
-in [NOTICE.md](NOTICE.md).
+KoLib is free software: you can share it and change it under the GNU General Public License,
+version 3 ([LICENSE](LICENSE)). The parts that come from elsewhere (fonts, the kepub method,
+libarchive, Android libraries) and their licences are listed in [NOTICE.md](NOTICE.md).
 
 Kobo is a trademark of Rakuten Kobo Inc. KoLib isn't made by, endorsed by or connected with
 Rakuten Kobo. The books in the pictures are public domain, with covers made from public-domain

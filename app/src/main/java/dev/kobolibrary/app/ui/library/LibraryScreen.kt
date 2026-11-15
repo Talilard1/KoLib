@@ -988,7 +988,8 @@ fun LibraryDetailPane(
                 Spacer(Modifier.width(8.dp))
                 Text(tr("Edit details"))
             }
-            OutlinedButton(onClick = onEditText) {
+            // A comic's pages are pictures in its comic file: there's no text to edit.
+            if (!book.isComic) OutlinedButton(onClick = onEditText) {
                 Icon(Icons.Outlined.EditNote, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
                 Text(tr("Edit text"))
@@ -998,7 +999,7 @@ fun LibraryDetailPane(
                 Spacer(Modifier.width(8.dp))
                 Text(tr("Change cover"))
             }
-            OutlinedButton(onClick = onSplit) {
+            if (!book.isComic) OutlinedButton(onClick = onSplit) {
                 Icon(Icons.AutoMirrored.Outlined.CallSplit, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
                 Text(tr("Split into books"))

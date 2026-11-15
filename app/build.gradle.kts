@@ -28,8 +28,8 @@ android {
         applicationId = "dev.kobolibrary.app"
         minSdk = 29
         targetSdk = 36
-        versionCode = 51
-        versionName = "1.0"
+        versionCode = 52
+        versionName = "1.1"
     }
 
     // An APK for each kind of processor, a little smaller, and a universal one that runs on any of them.
@@ -121,6 +121,8 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
+    // Reads CBR (RAR, RAR5) and CB7 comics, as Mihon does (libarchive; BSD licence, the Android wrapper Apache 2.0).
+    implementation("me.zhanghai.android.libarchive:library:1.1.6")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.xerial:sqlite-jdbc:3.53.4.0")

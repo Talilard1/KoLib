@@ -114,6 +114,19 @@ object EpubWriter {
     }
 
     /** Writes a new EPUB from scratch: `mimetype` first and bare, then [entries] in order. */
+    /** As [create], each entry's bytes read only when it's written. */
+    fun createLazily(target: File, entries: List<Pair<String, () -> ByteArray>>) {
+        ZipOutputStream(target.outputStream().buffered(256 * 1024)).use { out ->
+            out.setLevel(Deflater.DEFAULT_COMPRESSION)
+            writeStored(out, "mimetype", "application/epub+zip".toByteArray(), null)
+            val written = hashSetOf("mimetype")
+            for ((name, bytes) in entries) {
+                if (!written.add(name)) continue
+                write(out, name, bytes(), null)
+            }
+        }
+    }
+
     fun create(target: File, entries: List<Pair<String, ByteArray>>) {
         ZipOutputStream(target.outputStream().buffered(256 * 1024)).use { out ->
             out.setLevel(Deflater.DEFAULT_COMPRESSION)

@@ -147,4 +147,38 @@ class BookPageNumbersTest {
             c.release()
         }
     }
+
+    @Test
+    fun countsKeptFromBeforeAreOnlyUsedForTheBookAsItWas() {
+        val book = TestBooks.garden(File(context.cacheDir, "pn-${UUID.randomUUID()}.epub"))
+        val storeDir = File(context.cacheDir, "pn-store-${UUID.randomUUID()}")
+        fun open(): Pair<ReaderController, FakeCounter> {
+            val epub = EpubFile.open(book)
+            val files = EpubFileFiles(epub)
+            val c = ReaderController(files, BookStructure(files), "Garden", "en", ReaderStore(storeDir), ReaderSettings(), context.assets)
+            val fake = FakeCounter(::pagesOf, layout)
+            c.counter = fake
+            settle { c.lengthsCounted }
+            c.openAt("ch1.xhtml", 0, 7)
+            settle { c.bookPages != null && !c.countingPages }
+            return c to fake
+        }
+        val (first, counted) = open()
+        assertTrue(counted.asked.isNotEmpty())
+        val chapter = first.chapters.first { it.path.endsWith("ch2.xhtml") }.path
+        first.release()
+        (first.files as EpubFileFiles).close()
+        // The same book again: nothing counted.
+        val (second, again) = open()
+        assertTrue(again.asked.isEmpty())
+        second.release()
+        (second.files as EpubFileFiles).close()
+        // Changed (a chapter edited): counted afresh.
+        val text = EpubFile.open(book).use { it.readText(chapter)!! }
+        dev.kobolibrary.app.epub.EpubWriter.rewriteInPlace(book, replace = mapOf(chapter to text.replace("</body>", "<p>One more line.</p></body>").toByteArray()))
+        val (third, afresh) = open()
+        assertTrue(afresh.asked.isNotEmpty())
+        third.release()
+        (third.files as EpubFileFiles).close()
+    }
 }

@@ -1,0 +1,560 @@
+@fr
+1455|Lecture des BD CBR et CB7.
+1456|Licence BSD à 2 clauses
+1457|© 2003–2018 Tim Kientzle et les contributeurs de libarchive
+1458|libarchive pour Android
+1459|© 2023 Hai Zhang
+1460|Cette appli. Vous pouvez la partager et la modifier selon ces conditions.
+1461|Licence publique générale GNU 3.0
+1462|© 2026 les auteurs de KoLib
+1463|Réglages
+1464|Dossier des livres
+1465|Aucun dossier choisi pour l’instant
+1466|Choisir
+1467|Chercher de nouveaux livres
+1468|La BD n’est plus dans la bibliothèque.
+1469|Cette BD n’a pas pu être ouverte. Le fichier est peut-être endommagé ou protégé par un mot de passe.
+1470|Cette page est maintenant la couverture.
+1471|Cette page n’a pas pu devenir la couverture.
+1472|Réglages des BD
+1473|Ne plus rogner les marges
+1474|Rogner les marges
+1475|Utiliser comme couverture
+1476|Enregistrer dans Images
+1477|Enregistrée dans Images, dans le dossier KoLib.
+1478|La page n’a pas pu être enregistrée.
+1479|Cette page ne peut pas être affichée.
+1480|Mode de lecture de cette BD
+1481|Mode de lecture des autres BD
+1482|Page par page
+1483|Où commence une page plus grande que l’écran
+1484|Couper les pages larges en deux
+1485|L’autre moitié d’abord
+1486|Faire pivoter les pages larges pour qu’elles tiennent
+1487|Zoomer sur les pages larges
+1488|Sur un écran tenu droit, une page large en remplit la hauteur et défile.
+1489|Parcourir les pages larges avant de tourner
+1490|Bande continue
+1491|Marges latérales
+1492|Toucher deux fois pour zoomer
+1493|Touchers et touches
+1494|Zones de toucher
+1495|Inverser les zones de toucher
+1496|Montrer les zones de toucher à l’ouverture d’une BD
+1497|Les touches de volume tournent les pages
+1498|Touches de volume inversées
+1499|Rester appuyé sur une page pour voir ce que vous pouvez en faire
+1500|Écran
+1501|Fond
+1502|Animer les changements de page
+1503|Afficher le numéro de page
+1504|Garder l’écran allumé
+1505|Ce type de fichier de BD ne peut pas être ouvert ici.
+1506|Ce fichier de BD ne peut pas être lu.
+1507|La page {0} n’est pas dans le fichier.
+1508|De gauche à droite
+1509|De droite à gauche (manga)
+1510|De haut en bas
+1511|Bande continue avec espaces
+1512|Adapter à l’écran
+1513|Étirer
+1514|Adapter à la largeur
+1515|Adapter à la hauteur
+1516|Taille d’origine
+1517|Ajustement intelligent
+1518|Droite
+1519|Milieu
+1520|Selon le mode de lecture
+1521|En L
+1522|Façon Kindle
+1523|Bords
+1524|Droite et gauche
+1525|Non
+1526|Gauche et droite
+1527|Haut et bas
+1528|Les deux
+1529|Gris
+1530|Assorti à la page
+1531|Il n’y a pas assez de place sur cet appareil pour ce fichier.
+1532|BD {0}, gardée telle quelle
+1533|Cette BD n’a pas pu être convertie en CBZ pour la Kobo.
+@de
+1455|Lesen von Comics im Format CBR und CB7.
+1456|BSD-2-Klausel-Lizenz
+1457|© 2003–2018 Tim Kientzle und die Mitwirkenden an libarchive
+1458|libarchive für Android
+1459|© 2023 Hai Zhang
+1460|Diese App. Du darfst sie unter diesen Bedingungen weitergeben und ändern.
+1461|GNU General Public License 3.0
+1462|© 2026 die Autoren von KoLib
+1463|Einstellungen
+1464|Bücherordner
+1465|Noch keiner ausgewählt
+1466|Auswählen
+1467|Nach neuen Büchern suchen
+1468|Der Comic ist nicht mehr in der Bibliothek.
+1469|Dieser Comic ließ sich nicht öffnen. Die Datei ist vielleicht beschädigt oder mit einem Passwort geschützt.
+1470|Diese Seite ist jetzt das Cover.
+1471|Diese Seite konnte nicht zum Cover werden.
+1472|Comic-Einstellungen
+1473|Ränder nicht mehr zuschneiden
+1474|Ränder zuschneiden
+1475|Als Cover verwenden
+1476|In „Bilder“ speichern
+1477|In „Bilder“ im Ordner KoLib gespeichert.
+1478|Die Seite konnte nicht gespeichert werden.
+1479|Diese Seite kann nicht angezeigt werden.
+1480|Lesemodus für diesen Comic
+1481|Lesemodus für andere Comics
+1482|Seite für Seite
+1483|Wo eine Seite beginnt, die größer als der Bildschirm ist
+1484|Breite Seiten teilen
+1485|Andere Hälfte zuerst
+1486|Breite Seiten zum Anpassen drehen
+1487|In breite Seiten zoomen
+1488|Bei aufrecht gehaltenem Bildschirm füllt eine breite Seite die Höhe aus und wird weitergeschoben.
+1489|Breite Seiten vor dem Umblättern durchgehen
+1490|Langer Streifen
+1491|Abstand an den Seiten
+1492|Zum Zoomen doppelt tippen
+1493|Tippen und Tasten
+1494|Tippbereiche
+1495|Tippbereiche tauschen
+1496|Tippbereiche beim Öffnen eines Comics zeigen
+1497|Lautstärketasten blättern um
+1498|Lautstärketasten umgekehrt
+1499|Eine Seite gedrückt halten, um zu sehen, was du damit tun kannst
+1500|Bildschirm
+1501|Hintergrund
+1502|Umblättern animieren
+1503|Seitenzahl zeigen
+1504|Bildschirm anlassen
+1505|Diese Art von Comic-Datei kann hier nicht geöffnet werden.
+1506|Diese Comic-Datei kann nicht gelesen werden.
+1507|Seite {0} ist nicht in der Datei.
+1508|Von links nach rechts
+1509|Von rechts nach links (Manga)
+1510|Von oben nach unten
+1511|Langer Streifen mit Abständen
+1512|An Bildschirm anpassen
+1513|Strecken
+1514|An Breite anpassen
+1515|An Höhe anpassen
+1516|Originalgröße
+1517|Intelligent anpassen
+1518|Rechts
+1519|Mitte
+1520|Je nach Lesemodus
+1521|L-förmig
+1522|Kindle-ähnlich
+1523|Ränder
+1524|Rechts und links
+1525|Nein
+1526|Links und rechts
+1527|Oben und unten
+1528|Beides
+1529|Grau
+1530|Passend zur Seite
+1531|Auf diesem Gerät ist nicht genug Platz dafür.
+1532|{0}-Comic, unverändert behalten
+1533|Dieser Comic konnte nicht in eine CBZ-Datei für den Kobo umgewandelt werden.
+@es
+1455|Lectura de cómics CBR y CB7.
+1456|Licencia BSD de 2 cláusulas
+1457|© 2003–2018 Tim Kientzle y los colaboradores de libarchive
+1458|libarchive para Android
+1459|© 2023 Hai Zhang
+1460|Esta app. Puedes compartirla y modificarla según estas condiciones.
+1461|Licencia Pública General de GNU 3.0
+1462|© 2026 los autores de KoLib
+1463|Ajustes
+1464|Carpeta de libros
+1465|Aún no has elegido ninguna
+1466|Elegir
+1467|Buscar libros nuevos
+1468|El cómic ya no está en la biblioteca.
+1469|No se ha podido abrir este cómic. Puede que el archivo esté dañado o protegido con contraseña.
+1470|Esa página es ahora la portada.
+1471|No se ha podido usar esa página como portada.
+1472|Ajustes de cómics
+1473|Dejar de recortar los bordes
+1474|Recortar bordes
+1475|Usar como portada
+1476|Guardar en Imágenes
+1477|Guardada en Imágenes, en la carpeta KoLib.
+1478|No se ha podido guardar la página.
+1479|Esta página no se puede mostrar.
+1480|Modo de lectura de este cómic
+1481|Modo de lectura de otros cómics
+1482|Página a página
+1483|Dónde empieza una página más grande que la pantalla
+1484|Dividir las páginas anchas en dos
+1485|La otra mitad primero
+1486|Girar las páginas anchas para que quepan
+1487|Ampliar las páginas anchas
+1488|Con la pantalla en vertical, una página ancha ocupa toda la altura y se desplaza.
+1489|Recorrer las páginas anchas antes de pasar
+1490|Tira larga
+1491|Espacio a los lados
+1492|Toca dos veces para ampliar
+1493|Toques y teclas
+1494|Zonas de toque
+1495|Invertir las zonas de toque
+1496|Mostrar las zonas de toque al abrir un cómic
+1497|Las teclas de volumen pasan página
+1498|Teclas de volumen al revés
+1499|Mantén pulsada una página para ver qué puedes hacer con ella
+1500|Pantalla
+1501|Fondo
+1502|Animar el paso de página
+1503|Mostrar el número de página
+1504|Mantener la pantalla encendida
+1505|Este tipo de archivo de cómic no se puede abrir aquí.
+1506|No se puede leer este archivo de cómic.
+1507|La página {0} no está en el archivo.
+1508|De izquierda a derecha
+1509|De derecha a izquierda (manga)
+1510|De arriba abajo
+1511|Tira larga con espacios
+1512|Ajustar a la pantalla
+1513|Estirar
+1514|Ajustar al ancho
+1515|Ajustar al alto
+1516|Tamaño original
+1517|Ajuste inteligente
+1518|Derecha
+1519|Centro
+1520|Según el modo de lectura
+1521|En forma de L
+1522|Estilo Kindle
+1523|Bordes
+1524|Derecha e izquierda
+1525|No
+1526|Izquierda y derecha
+1527|Arriba y abajo
+1528|Ambos
+1529|Gris
+1530|Según la página
+1531|No hay suficiente espacio en este dispositivo.
+1532|Cómic {0}, guardado tal cual
+1533|No se ha podido convertir este cómic en CBZ para el Kobo.
+@it
+1455|Lettura dei fumetti CBR e CB7.
+1456|Licenza BSD a 2 clausole
+1457|© 2003–2018 Tim Kientzle e i collaboratori di libarchive
+1458|libarchive per Android
+1459|© 2023 Hai Zhang
+1460|Questa app. Puoi condividerla e modificarla secondo questi termini.
+1461|Licenza Pubblica Generica GNU 3.0
+1462|© 2026 gli autori di KoLib
+1463|Impostazioni
+1464|Cartella dei libri
+1465|Nessuna scelta per ora
+1466|Scegli
+1467|Cerca nuovi libri
+1468|Il fumetto non è più nella libreria.
+1469|Non è stato possibile aprire questo fumetto. Il file potrebbe essere danneggiato o protetto da password.
+1470|Ora quella pagina è la copertina.
+1471|Non è stato possibile usare quella pagina come copertina.
+1472|Impostazioni fumetti
+1473|Non ritagliare più i bordi
+1474|Ritaglia i bordi
+1475|Usa come copertina
+1476|Salva in Immagini
+1477|Salvata in Immagini, nella cartella KoLib.
+1478|Non è stato possibile salvare la pagina.
+1479|Questa pagina non può essere mostrata.
+1480|Modalità di lettura di questo fumetto
+1481|Modalità di lettura degli altri fumetti
+1482|Una pagina alla volta
+1483|Da dove parte una pagina più grande dello schermo
+1484|Dividi in due le pagine larghe
+1485|Prima l’altra metà
+1486|Ruota le pagine larghe per farle stare
+1487|Ingrandisci le pagine larghe
+1488|Con lo schermo in verticale, una pagina larga ne occupa tutta l’altezza e scorre.
+1489|Scorri le pagine larghe prima di girare
+1490|Striscia lunga
+1491|Spazio ai lati
+1492|Tocca due volte per ingrandire
+1493|Tocchi e tasti
+1494|Zone di tocco
+1495|Inverti le zone di tocco
+1496|Mostra le zone di tocco quando si apre un fumetto
+1497|I tasti del volume girano le pagine
+1498|Tasti del volume al contrario
+1499|Tieni premuta una pagina per vedere cosa puoi farci
+1500|Schermo
+1501|Sfondo
+1502|Anima il cambio pagina
+1503|Mostra il numero di pagina
+1504|Tieni lo schermo acceso
+1505|Questo tipo di file di fumetto non può essere aperto qui.
+1506|Questo file di fumetto non può essere letto.
+1507|La pagina {0} non è nel file.
+1508|Da sinistra a destra
+1509|Da destra a sinistra (manga)
+1510|Dall’alto in basso
+1511|Striscia lunga con spazi
+1512|Adatta allo schermo
+1513|Allunga
+1514|Adatta alla larghezza
+1515|Adatta all’altezza
+1516|Dimensione originale
+1517|Adattamento intelligente
+1518|Destra
+1519|Centro
+1520|In base alla modalità di lettura
+1521|A L
+1522|Stile Kindle
+1523|Bordi
+1524|Destra e sinistra
+1525|No
+1526|Sinistra e destra
+1527|Alto e basso
+1528|Entrambi
+1529|Grigio
+1530|In base alla pagina
+1531|Non c’è abbastanza spazio su questo dispositivo.
+1532|Fumetto {0}, conservato così com’è
+1533|Non è stato possibile convertire questo fumetto in CBZ per il Kobo.
+@nl
+1455|Strips in CBR en CB7 lezen.
+1456|BSD-licentie met 2 clausules
+1457|© 2003–2018 Tim Kientzle en de bijdragers aan libarchive
+1458|libarchive voor Android
+1459|© 2023 Hai Zhang
+1460|Deze app. Je mag hem onder deze voorwaarden delen en aanpassen.
+1461|GNU General Public License 3.0
+1462|© 2026 de makers van KoLib
+1463|Instellingen
+1464|Boekenmap
+1465|Nog niet gekozen
+1466|Kiezen
+1467|Zoeken naar nieuwe boeken
+1468|De strip staat niet meer in de bibliotheek.
+1469|Deze strip kon niet worden geopend. Het bestand is misschien beschadigd of met een wachtwoord beveiligd.
+1470|Die pagina is nu de omslag.
+1471|Die pagina kon niet de omslag worden.
+1472|Instellingen voor strips
+1473|Randen niet meer bijsnijden
+1474|Randen bijsnijden
+1475|Als omslag gebruiken
+1476|Opslaan in Afbeeldingen
+1477|Opgeslagen in Afbeeldingen, in de map KoLib.
+1478|De pagina kon niet worden opgeslagen.
+1479|Deze pagina kan niet worden getoond.
+1480|Leesmodus voor deze strip
+1481|Leesmodus voor andere strips
+1482|Pagina voor pagina
+1483|Waar een pagina begint die groter is dan het scherm
+1484|Brede pagina’s in tweeën splitsen
+1485|Eerst de andere helft
+1486|Brede pagina’s draaien zodat ze passen
+1487|Inzoomen op brede pagina’s
+1488|Op een rechtop gehouden scherm vult een brede pagina de hoogte en schuift hij mee.
+1489|Brede pagina’s eerst doorlopen voor het omslaan
+1490|Lange strip
+1491|Ruimte aan de zijkanten
+1492|Dubbeltikken om te zoomen
+1493|Tikken en toetsen
+1494|Tikzones
+1495|Tikzones omdraaien
+1496|Tikzones tonen als een strip opent
+1497|Volumeknoppen slaan de pagina om
+1498|Volumeknoppen andersom
+1499|Houd een pagina vast om te zien wat je ermee kunt doen
+1500|Scherm
+1501|Achtergrond
+1502|Omslaan animeren
+1503|Paginanummer tonen
+1504|Scherm aan laten
+1505|Dit soort stripbestand kan hier niet worden geopend.
+1506|Dit stripbestand kan niet worden gelezen.
+1507|Pagina {0} staat niet in het bestand.
+1508|Van links naar rechts
+1509|Van rechts naar links (manga)
+1510|Van boven naar beneden
+1511|Lange strip met tussenruimte
+1512|Passend op scherm
+1513|Uitrekken
+1514|Passend op breedte
+1515|Passend op hoogte
+1516|Oorspronkelijke grootte
+1517|Slim passend
+1518|Rechts
+1519|Midden
+1520|Afhankelijk van de leesmodus
+1521|L-vormig
+1522|Kindle-achtig
+1523|Randen
+1524|Rechts en links
+1525|Nee
+1526|Links en rechts
+1527|Boven en onder
+1528|Beide
+1529|Grijs
+1530|Passend bij de pagina
+1531|Er is niet genoeg ruimte op dit apparaat.
+1532|{0}-strip, bewaard zoals hij is
+1533|Deze strip kon niet worden omgezet naar CBZ voor de Kobo.
+@pt
+1455|Leitura de quadrinhos CBR e CB7.
+1456|Licença BSD de 2 cláusulas
+1457|© 2003–2018 Tim Kientzle e os colaboradores do libarchive
+1458|libarchive para Android
+1459|© 2023 Hai Zhang
+1460|Este app. Você pode compartilhá-lo e modificá-lo de acordo com estes termos.
+1461|Licença Pública Geral GNU 3.0
+1462|© 2026 os autores do KoLib
+1463|Configurações
+1464|Pasta de livros
+1465|Nenhuma escolhida ainda
+1466|Escolher
+1467|Procurar livros novos
+1468|O quadrinho não está mais na biblioteca.
+1469|Não foi possível abrir este quadrinho. O arquivo pode estar danificado ou protegido por senha.
+1470|Essa página agora é a capa.
+1471|Não foi possível usar essa página como capa.
+1472|Configurações de quadrinhos
+1473|Parar de cortar as bordas
+1474|Cortar bordas
+1475|Usar como capa
+1476|Salvar em Imagens
+1477|Salva em Imagens, na pasta KoLib.
+1478|Não foi possível salvar a página.
+1479|Esta página não pode ser exibida.
+1480|Modo de leitura deste quadrinho
+1481|Modo de leitura de outros quadrinhos
+1482|Uma página de cada vez
+1483|Onde começa uma página maior que a tela
+1484|Dividir páginas largas em duas
+1485|A outra metade primeiro
+1486|Girar páginas largas para caber
+1487|Ampliar páginas largas
+1488|Com a tela na vertical, uma página larga ocupa toda a altura e é percorrida.
+1489|Percorrer páginas largas antes de virar
+1490|Tira longa
+1491|Espaço nas laterais
+1492|Toque duas vezes para ampliar
+1493|Toques e teclas
+1494|Zonas de toque
+1495|Inverter as zonas de toque
+1496|Mostrar as zonas de toque ao abrir um quadrinho
+1497|As teclas de volume viram as páginas
+1498|Teclas de volume ao contrário
+1499|Toque e segure uma página para ver o que fazer com ela
+1500|Tela
+1501|Fundo
+1502|Animar a virada de página
+1503|Mostrar o número da página
+1504|Manter a tela ligada
+1505|Este tipo de arquivo de quadrinho não pode ser aberto aqui.
+1506|Este arquivo de quadrinho não pode ser lido.
+1507|A página {0} não está no arquivo.
+1508|Da esquerda para a direita
+1509|Da direita para a esquerda (mangá)
+1510|De cima para baixo
+1511|Tira longa com espaços
+1512|Ajustar à tela
+1513|Esticar
+1514|Ajustar à largura
+1515|Ajustar à altura
+1516|Tamanho original
+1517|Ajuste inteligente
+1518|Direita
+1519|Centro
+1520|Conforme o modo de leitura
+1521|Em L
+1522|Estilo Kindle
+1523|Bordas
+1524|Direita e esquerda
+1525|Não
+1526|Esquerda e direita
+1527|Cima e baixo
+1528|Ambos
+1529|Cinza
+1530|Conforme a página
+1531|Não há espaço suficiente neste dispositivo.
+1532|Quadrinho {0}, mantido como está
+1533|Não foi possível converter este quadrinho em CBZ para o Kobo.
+@ja
+1455|CBR・CB7 のコミックの読み込み。
+1456|BSD 2条項ライセンス
+1457|© 2003–2018 Tim Kientzle および libarchive の貢献者
+1458|Android 用 libarchive
+1459|© 2023 Hai Zhang
+1460|このアプリです。以下の条件で共有・改変できます。
+1461|GNU 一般公衆利用許諾書 3.0
+1462|© 2026 KoLib の作者
+1463|設定
+1464|本のフォルダ
+1465|まだ選ばれていません
+1466|選ぶ
+1467|新しい本を探す
+1468|このコミックはもうライブラリにありません。
+1469|このコミックを開けませんでした。ファイルが壊れているか、パスワードで保護されている可能性があります。
+1470|このページを表紙にしました。
+1471|このページを表紙にできませんでした。
+1472|コミックの設定
+1473|余白の切り取りをやめる
+1474|余白を切り取る
+1475|表紙にする
+1476|「ピクチャ」に保存
+1477|「ピクチャ」の KoLib フォルダに保存しました。
+1478|ページを保存できませんでした。
+1479|このページは表示できません。
+1480|このコミックの読み方
+1481|ほかのコミックの読み方
+1482|1ページずつ
+1483|画面より大きいページの表示開始位置
+1484|横長のページを2つに分ける
+1485|反対側の半分から
+1486|横長のページを回転して合わせる
+1487|横長のページを拡大する
+1488|縦向きの画面では、横長のページを高さいっぱいに表示して横に送ります。
+1489|めくる前に横長のページを送る
+1490|縦長スクロール
+1491|左右の余白
+1492|ダブルタップで拡大
+1493|タップとキー
+1494|タップの範囲
+1495|タップの範囲を入れ替える
+1496|コミックを開いたときにタップの範囲を表示する
+1497|音量キーでページをめくる
+1498|音量キーを逆にする
+1499|ページを長押しして操作を表示する
+1500|画面
+1501|背景
+1502|ページめくりのアニメーション
+1503|ページ番号を表示する
+1504|画面をつけたままにする
+1505|この種類のコミックファイルはここでは開けません。
+1506|このコミックファイルは読み込めません。
+1507|ファイルに {0} ページ目がありません。
+1508|左から右
+1509|右から左（マンガ）
+1510|上から下
+1511|縦長スクロール（間隔あり）
+1512|画面に合わせる
+1513|引き伸ばす
+1514|幅に合わせる
+1515|高さに合わせる
+1516|元のサイズ
+1517|スマートフィット
+1518|右
+1519|中央
+1520|読み方に合わせる
+1521|L字型
+1522|Kindle風
+1523|端
+1524|左右
+1525|いいえ
+1526|左右
+1527|上下
+1528|両方
+1529|グレー
+1530|ページに合わせる
+1531|この端末には十分な空き容量がありません。
+1532|{0} のコミック（そのまま保存）
+1533|このコミックを Kobo 用の CBZ に変換できませんでした。

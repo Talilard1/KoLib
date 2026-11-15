@@ -442,8 +442,8 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
                         val place = placeOnKobo(current, next.session.snapshot, next.format)
                         // A cover set to "Leave unchanged" is never fitted to the screen.
                         val covers = if (current.coverAsIs) CoverFitting.AS_IS else next.covers
-                        // A PDF goes as it is when asked; scanned pages always do, having no text to convert.
-                        val pdf = if (current.goesAsPdf(next.pdfs)) library.sourceFile(current.id) else null
+                        // A PDF goes as it is when asked; scanned pages always do, having no text to convert, and so do comics.
+                        val pdf = if (current.goesAsPdf(next.pdfs) || current.isComic) library.sourceFile(current.id) else null
                         val outcome = sender.send(
                             next.session, current.title, current.meta, place, library.epubFile(current.id), next.format, covers,
                             freshPlace = { format -> freshPlaceOnKobo(current, next.session.snapshot, format, besides = place) },
@@ -786,17 +786,26 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
             (library.sourceFile(id) ?: library.epubFile(id)).inputStream().use { it.copyTo(out) }
             return
         }
-        val source = library.epubFile(id)
-        if (format == dev.kobolibrary.app.kobo.SendFormat.EPUB) {
-            source.inputStream().use { it.copyTo(out) }
-            return
+        val book = library.book(id)
+        val comic = book?.takeIf { it.isComic }?.let { library.sourceFile(id) }
+        // A comic's EPUB is a stand-in: the whole of it is made from the comic file, a page at a time.
+        val whole = comic?.let { file ->
+            java.io.File(getApplication<Application>().cacheDir, "comic-${System.nanoTime()}.epub").also { epub ->
+                dev.kobolibrary.app.comic.ComicArchives.open(file).use { c -> dev.kobolibrary.app.convert.ComicConverter.wholeEpub(c, book.meta, epub) }
+            }
         }
+        val source = whole ?: library.epubFile(id)
         val temp = java.io.File(getApplication<Application>().cacheDir, "copy-${System.nanoTime()}.kepub.epub")
         try {
+            if (format == dev.kobolibrary.app.kobo.SendFormat.EPUB) {
+                source.inputStream().use { it.copyTo(out) }
+                return
+            }
             dev.kobolibrary.app.epub.EpubEditor.toKepub(source, temp)
             temp.inputStream().use { it.copyTo(out) }
         } finally {
             temp.delete()
+            whole?.delete()
         }
     }
 

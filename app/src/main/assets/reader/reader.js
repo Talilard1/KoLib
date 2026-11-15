@@ -13,6 +13,7 @@
     start: function () { return '{}'; }, ready: function () {}, position: function () {}, edge: function () {},
     tap: function () {}, link: function () {}, note: function () {}, image: function () {}, external: function () {},
     jumped: function () {}, log: function () {}, turn: function () {}, selecting: function () {}, annotation: function () {},
+    counterReady: function () {},
   };
   var root = document.documentElement;
   var scroller = document.scrollingElement || root;
@@ -41,6 +42,9 @@
   var ready = false, animating = 0, laidOutWidth = 0;
   // Only counting the chapter's pages, in a WebView that's never shown (see countOnly).
   var countingOnly = false;
+  // Counting one chapter after another in the one page (see countInShell): the chapter's own address,
+  // for what its file name says. Null in a chapter opened on its own.
+  var pagePath = null;
   var startTarget = null;
   // Scrolling: the chapter as one long page. The bands at the top and bottom are where the app shows
   // the margins' chapter title, time and so on, over the text going by.
@@ -470,7 +474,8 @@
     // Counted without the filler, which then goes at the far edge of the last screen; and laid out as the
     // book has it, before a page alone is moved to the right or a wide picture across both pages.
     if (fill) fill.style.display = 'none';
-    root.classList.remove('kl-recto', 'kl-spread-pic', 'kl-centre');
+    root.classList.remove('kl-recto', 'kl-spread-pic', 'kl-centre', 'kl-spread-pair');
+    unplaceHalves();
     blankBefore = 0;
     spreadPicture = false;
     var w = scroller.scrollWidth;
@@ -482,10 +487,23 @@
     if (perScreen === 2) pages = Math.max(1, Math.min(pages, Math.ceil(columns / 2)));
     // Two short pages side by side are both pages a book doesn't number; one alone, if it's one of those.
     var pair = !!pairBox();
-    displayPage = pair || (columns === 1 && pages === 1 && looksLikeDisplayPage());
+    // A map printed across two pages and kept as its two halves: the two pages of one screen, joined.
+    var halves = perScreen === 2 && !pair && pages <= 2 ? spreadHalves() : null;
+    if (halves) {
+      pages = 1;
+      columns = 2;
+    }
+    displayPage = pair || !!halves || (columns === 1 && pages === 1 && looksLikeDisplayPage());
     if (perScreen === 2 && pages === 1 && !pair) {
       var wide = picturePage && widePicture();
-      if (picturePage && (wide || centred())) {
+      if (halves) {
+        spreadPicture = true;
+        setVar('--kl-spread-top', Math.max(12, Math.round((settings.minTop || 0) - 10)) + 'px');
+        setVar('--kl-spread-bottom', Math.max(12, Math.round((settings.minBottom || 0) - 10)) + 'px');
+        // Only shown, not counted: it's two pages either way.
+        if (!countingOnly) placeHalves(halves);
+        root.classList.add('kl-spread-pair');
+      } else if (picturePage && (wide || centred())) {
         // A map or a picture made to go across two pages: across the screen, in the middle. A cover: in
         // the middle, as big as fits.
         spreadPicture = true;
@@ -523,7 +541,7 @@
     if (picturePage) return true;
     if ((body.textContent || '').replace(/\s+/g, '').length < 700) return true;
     var marks = /(^|[^a-z])(dedication|epigraphs?|titlepage|halftitle(page)?|half-title|frontispiece|pullquote)([^a-z]|$)/i;
-    if (marks.test(decodeURIComponent((location.pathname || '').split('/').pop() || ''))) return true;
+    if (marks.test(decodeURIComponent((pagePath || location.pathname || '').split('/').pop() || ''))) return true;
     var els = [body].concat(Array.prototype.slice.call(body.querySelectorAll('section, div, blockquote, aside')).slice(0, 6));
     for (var i = 0; i < els.length; i++) {
       var e = els[i];
@@ -576,6 +594,123 @@
       if (w > 0 && h > 0 && w < 400 && h < 400) el.classList.remove('kl-full-page');
     }
     picturePage = !!document.querySelector('.kl-full-page');
+  }
+
+  /**
+   * A map (or another picture) printed across two facing pages, kept in the book as two pictures: its
+   * left half and its right. The chapter is nothing but the two (a few words at most, such as a title),
+   * each taller than it's wide, as half of something wide is, and the same height, give or take a little
+   * (the halves are often scanned apart). [{el, w, h}] for each, left first; null if it isn't that.
+   */
+  function spreadHalves() {
+    var body = document.body;
+    if (!body) return null;
+    var pics = [];
+    var all = body.querySelectorAll('img, svg');
+    for (var i = 0; i < all.length; i++) {
+      var el = all[i];
+      if (el.localName === 'svg' && el.parentNode && el.parentNode.closest && el.parentNode.closest('svg')) continue;
+      pics.push(el);
+    }
+    if (pics.length !== 2) return null;
+    var words = body.textContent || '';
+    for (var k = 0; k < pics.length; k++) words = words.replace(pics[k].textContent || '', '');
+    if (words.replace(/\s+/g, '').length >= 80) return null;
+    var out = [];
+    for (var j = 0; j < 2; j++) {
+      var size = naturalSize(pics[j]);
+      if (!size) return null;
+      var shape = size.w / size.h;
+      if (shape < 0.3 || shape > 1.05) return null;
+      out.push({ el: pics[j], w: size.w, h: size.h });
+    }
+    if (Math.abs(out[0].h - out[1].h) / Math.max(out[0].h, out[1].h) > 0.1) return null;
+    return out;
+  }
+
+  /** A picture's own size: an img's pixels, or an svg's (from its viewBox, or the picture in it). */
+  function naturalSize(el) {
+    var w = 0, h = 0;
+    if (el.localName === 'img') { w = el.naturalWidth; h = el.naturalHeight; }
+    else {
+      var vb = el.viewBox && el.viewBox.baseVal;
+      if (vb && vb.width && vb.height) { w = vb.width; h = vb.height; }
+      var im = el.querySelector && el.querySelector('image');
+      if ((!w || !h) && im) { w = parseFloat(im.getAttribute('width')) || 0; h = parseFloat(im.getAttribute('height')) || 0; }
+    }
+    return w > 0 && h > 0 ? { w: w, h: h } : null;
+  }
+
+  // The halves placed across the screen, and how much of each was left off at the join (see placeHalves).
+  var placedHalves = [];
+
+  /**
+   * The two halves across the whole screen, into the margins, in the middle: the same height, side by
+   * side, joined where they were cut. A blank strip at either inside edge (the gap a scan leaves there)
+   * is left off, so the map runs on across the join.
+   */
+  function placeHalves(halves) {
+    var top = Math.max(12, Math.round((settings.minTop || 0) - 10));
+    var bottom = Math.max(12, Math.round((settings.minBottom || 0) - 10));
+    var availW = W - 24, availH = Math.max(40, H - top - bottom);
+    var a = halves[0], b = halves[1];
+    a.cut = a.el.localName === 'img' ? blankEdge(a.el, true) : 0;
+    b.cut = b.el.localName === 'img' ? blankEdge(b.el, false) : 0;
+    var ka = a.w * (1 - a.cut) / a.h, kb = b.w * (1 - b.cut) / b.h;
+    var h = Math.min(availH, availW / (ka + kb));
+    var wa = Math.round(h * ka), wb = Math.round(h * kb);
+    h = Math.round(h);
+    var x = Math.round((W - wa - wb) / 2), y = Math.round(top + (availH - h) / 2);
+    putHalf(a.el, x, y, wa, h, '0% 50%');
+    putHalf(b.el, x + wa, y, wb, h, '100% 50%');
+    placedHalves = [a, b];
+  }
+
+  function putHalf(el, x, y, w, h, at) {
+    el.classList.add('kl-spread-half');
+    var st = el.style;
+    st.setProperty('left', x + 'px', 'important');
+    st.setProperty('top', y + 'px', 'important');
+    st.setProperty('width', w + 'px', 'important');
+    st.setProperty('height', h + 'px', 'important');
+    st.setProperty('object-position', at, 'important');
+  }
+
+  function unplaceHalves() {
+    for (var i = 0; i < placedHalves.length; i++) {
+      var el = placedHalves[i].el;
+      el.classList.remove('kl-spread-half');
+      ['left', 'top', 'width', 'height', 'object-position'].forEach(function (p) { el.style.removeProperty(p); });
+    }
+    placedHalves = [];
+  }
+
+  /**
+   * How much of a picture's width, at its right edge ([right]) or its left, is blank: columns with ink in
+   * no more of their height than a frame's lines take. At most a twelfth of the width; 0 if it can't be read.
+   */
+  function blankEdge(img, right) {
+    try {
+      var px = pixels(img, 480, false);
+      var d = px.d, w = px.w, h = px.h;
+      var lum = new Array(w * h);
+      var hist = new Array(256).fill(0);
+      for (var i = 0, p = 0; i < d.length; i += 4, p++) {
+        var l = Math.round(0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]);
+        lum[p] = l;
+        hist[l]++;
+      }
+      // The paper: the shade at which the lightest twentieth starts.
+      var seen = 0, paper = 255;
+      for (var v = 255; v >= 0; v--) { seen += hist[v]; if (seen >= w * h * 0.05) { paper = v; break; } }
+      var most = Math.floor(w / 12), n = 0;
+      for (; n < most; n++) {
+        var x = right ? w - 1 - n : n, ink = 0;
+        for (var y = 0; y < h; y++) if (paper - lum[y * w + x] > 60) ink++;
+        if (ink > h * 0.03) break;
+      }
+      return n / w;
+    } catch (e) { log(e); return 0; }
   }
 
   /** The chapter's one picture is wider than it is tall, as a map across two pages is. */
@@ -1454,6 +1589,7 @@
 
   function start() {
     var st = parse(KL.start());
+    if (st.shell) { try { KL.counterReady(); } catch (e) { log(e); } return; }
     if (st.measure) { countOnly(st); return; }
     place = st.place || null;
     markFullPagePictures();
@@ -1497,8 +1633,22 @@
    * through the whole book from these counts, so the numbers don't change as the book is read.
    */
   function countOnly(st) {
+    readyToCount(st);
+    whenSized(function () {
+      applySettings(st.settings || {});
+      settleForCount(null, function () { finishCount(st.measure); });
+    });
+  }
+
+  /** What countOnly does before the page is laid out: as start() does it, for a chapter just put in. */
+  function readyToCount(st) {
     countingOnly = true;
     place = st.place || null;
+    // As a fresh page has them: what the chapter counted before found doesn't carry over.
+    picturePage = false;
+    blankBefore = 0;
+    spreadPicture = false;
+    displayPage = false;
     markFullPagePictures();
     try { keepPictureShapes(); } catch (e) { log(e); }
     try { centrePictures(); } catch (e) { log(e); }
@@ -1509,16 +1659,130 @@
     isLast = around.hasNext === false;
     hasPrev = around.hasPrev !== false;
     try { addChapterEnd(); } catch (e) { log(e); }
-    whenSized(function () {
+  }
+
+  function finishCount(id) {
+    if (screenWidth() !== W || screenHeight() !== H) measure();
+    try { unmarkSmallPictures(); fitPictureBoxes(); } catch (e) { log(e); }
+    measureDensity();
+    countPages();
+    try { KL.measured(JSON.stringify({ id: id, pages: pages, columns: columns, layout: layoutKey() })); } catch (e) { log(e); }
+  }
+
+  /**
+   * Counting: once the page's style sheets ([waits]), pictures and fonts are in. No frames are waited for
+   * (none are drawn): the layout is worked out when it's asked for. A font is only fetched once text that
+   * needs it is laid out, so the layout is asked for first, and again after anything has loaded. A count
+   * waits for all of it, however long it takes (up to a point), so it comes out the same every time.
+   */
+  function settleForCount(waits, done) {
+    var t0 = Date.now(), rounds = 0, first = waits || [];
+    (function round() {
+      try { void scroller.scrollWidth; } catch (e) {}
+      var pending = first;
+      first = [];
+      var imgs = document.images;
+      for (var i = 0; i < imgs.length; i++) {
+        var im = imgs[i];
+        if (!im.complete) pending.push(new Promise(function (res) { im.addEventListener('load', res); im.addEventListener('error', res); }));
+      }
+      if (document.fonts && document.fonts.status === 'loading') pending.push(document.fonts.ready);
+      if (!pending.length || rounds >= 6 || Date.now() - t0 > 10000) { done(); return; }
+      rounds++;
+      var left = Math.max(0, 10000 - (Date.now() - t0));
+      Promise.race([Promise.all(pending), new Promise(function (res) { setTimeout(res, left); })]).then(round);
+    })();
+  }
+
+  // ---- counting one chapter after another in the one page ----------------------------------------
+
+  // The book's own head (its style sheets) as the chapter being counted has it: kept for the next
+  // chapter if it has the same, as most do, so they're not loaded and read again.
+  var shellHead = [], shellHeadKey = null;
+
+  /**
+   * The page the app counts a book's pages in: one chapter after another is put into it in place of the
+   * last, laid out and counted just as a chapter opened on its own is (see countOnly), without loading
+   * the reader's script, styles and fonts again for each. The chapter is fetched as the reader gets it,
+   * read by the same parser, and its head, its root's attributes and everything else in it put in this
+   * page's place. The app is told the count, or which kind of page the chapter needs (XHTML or HTML: this
+   * page is one or the other), or that it couldn't be counted here.
+   */
+  function countInShell(id, url, st) {
+    var tell = function (o) { o.id = id; try { KL.measured(JSON.stringify(o)); } catch (e) { log(e); } };
+    var xml = document.contentType === 'application/xhtml+xml';
+    fetch(url, { cache: 'no-store' }).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      var type = (r.headers.get('Content-Type') || 'text/html').split(';')[0].trim().toLowerCase();
+      return r.text().then(function (text) { return { type: type, text: text }; });
+    }).then(function (got) {
+      var wantXml = got.type === 'application/xhtml+xml';
+      if (wantXml !== xml) { tell({ shell: wantXml ? 'xhtml' : 'html' }); return; }
+      var doc = new DOMParser().parseFromString(got.text, wantXml ? 'application/xhtml+xml' : 'text/html');
+      if (!doc || !doc.documentElement || doc.documentElement.localName !== 'html' || doc.getElementsByTagName('parsererror').length) {
+        tell({ failed: 'parse' });
+        return;
+      }
+      var sheets = swapIn(doc, url);
+      pagePath = new URL(url, location.href).pathname;
+      readyToCount(st);
+      setScroll(0);
+      scroller.scrollTop = 0;
       applySettings(st.settings || {});
-      whenSettled(function () {
-        if (screenWidth() !== W || screenHeight() !== H) measure();
-        try { unmarkSmallPictures(); fitPictureBoxes(); } catch (e) { log(e); }
-        measureDensity();
-        countPages();
-        try { KL.measured(JSON.stringify({ id: st.measure, pages: pages, columns: columns, layout: layoutKey() })); } catch (e) { log(e); }
+      settleForCount(sheets, function () { finishCount(id); });
+    }).catch(function (e) { log(e); tell({ failed: String(e && e.message || e) }); });
+  }
+
+  /** Puts the chapter [doc] (fetched from [url]) in this page's place; the style sheets now loading. */
+  function swapIn(doc, url) {
+    var head = document.head;
+    var base = document.getElementById('kl-base');
+    base.setAttribute('href', url.split('#')[0]);
+    // The book's head: its style sheets and the rest, in order (the reader's own come after them).
+    var from = doc.head, own = [];
+    if (from) for (var n = from.firstChild; n; n = n.nextSibling) {
+      if (n.nodeType !== 1 || /^(script|title|base)$/i.test(n.localName)) continue;
+      if (n.localName === 'meta' && /viewport/i.test(n.getAttribute('name') || '')) continue;
+      if (n.localName === 'link' && (n.getAttribute('href') || '').indexOf('/app/reader/') >= 0) continue;
+      own.push(n);
+    }
+    var key = own.map(function (e) { return e.outerHTML; }).join('\n');
+    var loading = [];
+    if (key !== shellHeadKey) {
+      shellHead.forEach(function (e) { if (e.parentNode) e.parentNode.removeChild(e); });
+      shellHead = [];
+      var after = base.nextSibling;
+      own.forEach(function (e) {
+        var c = document.importNode(e, true);
+        if (c.localName === 'link' && /stylesheet/i.test(c.getAttribute('rel') || '')) {
+          loading.push(new Promise(function (res) { c.addEventListener('load', res); c.addEventListener('error', res); }));
+        }
+        head.insertBefore(c, after);
+        shellHead.push(c);
       });
-    });
+      shellHeadKey = key;
+    }
+    // The root: the chapter's own attributes (the reader's classes and settings go on again as it's counted).
+    var root0 = document.documentElement, src = doc.documentElement;
+    while (root0.attributes.length) root0.removeAttributeNode(root0.attributes[0]);
+    for (var i = 0; i < src.attributes.length; i++) {
+      var a = src.attributes[i];
+      try {
+        if (a.namespaceURI) root0.setAttributeNS(a.namespaceURI, a.name, a.value);
+        else root0.setAttribute(a.name, a.value);
+      } catch (e) { log(e); }
+    }
+    // Everything else in it: the body, and a box the app put in front of it.
+    for (var c = root0.firstChild; c;) {
+      var nx = c.nextSibling;
+      if (c !== head) root0.removeChild(c);
+      c = nx;
+    }
+    for (var s2 = src.firstChild; s2; s2 = s2.nextSibling) {
+      if (s2 === from) continue;
+      root0.appendChild(document.importNode(s2, true));
+    }
+    return loading;
   }
 
   var resizeTimer = 0;
@@ -1727,6 +1991,15 @@
       return;
     }
     var img = t && t.closest ? t.closest('img, image') : null;
+    if (img && placedHalves.length === 2 && img.classList && img.classList.contains('kl-spread-half')) {
+      // Half of a map across two pages: the app shows the whole of it.
+      try {
+        KL.image(placedHalves.map(function (hv) { return new URL(hv.el.currentSrc || hv.el.src, document.baseURI).href; }).join('\n') +
+          '\n' + placedHalves[0].cut + '\n' + placedHalves[1].cut);
+      } catch (er) {}
+      e.preventDefault();
+      return;
+    }
     if (img) {
       var src = img.currentSrc || img.src || img.getAttribute('href') || img.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
       if (src && typeof src === 'object' && src.baseVal) src = src.baseVal;
@@ -2063,6 +2336,8 @@
       relayout(function () { applySettings(s); });
     },
     here: function () { return JSON.stringify(here()); },
+    /** In the page the app counts pages in: counts the chapter at [url] as [json] says, as count [id]. */
+    count: function (id, url, json) { countInShell(id, url, parse(json)); },
     clear: function () { clearHighlight('kl-search'); },
     /** Autoscroll: on or off, its speed and timings ({on, wpm, endPause, resume}). */
     auto: function (json) { setAuto(parse(json), false); },

@@ -17,6 +17,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import dev.kobolibrary.app.epub.BookFiles
+import dev.kobolibrary.app.epub.EpubFileFiles
 import dev.kobolibrary.app.epub.BookStructure
 import dev.kobolibrary.app.epub.ChapterOps
 import dev.kobolibrary.app.epub.ChapterOpenings
@@ -226,6 +227,9 @@ class ReaderController(
         get() = (chapterWords.getOrElse(chapterIndex) { 0 } * (1f - chapterProgress) / WORDS_PER_MINUTE).toInt()
 
     private var chapterWords = IntArray(chapters.size)
+    /** [chapterWords] are counted (a moment before [lengthsKnown]: the openings are found from them first). */
+    @Volatile
+    private var wordsCounted = false
 
     /** The chapter's words have been counted (so the time left in it means something). */
     val chapterWordsKnown: Boolean get() = chapterWords.getOrElse(chapterIndex) { 0 } > 0
@@ -247,6 +251,7 @@ class ReaderController(
             }
             textStamp = stamp.value.toString(16)
             chapterWords = counted.map { EpubText.countWords(it) }.toIntArray()
+            wordsCounted = true
             weights = counted.map { maxOf(1f, it.length.toFloat()) }.toFloatArray()
             weightTotal = weights.sum()
             findOpenings()
@@ -274,8 +279,10 @@ class ReaderController(
      */
     val bookPages: BookPages?
         get() {
-            if (!lengthsKnown || chapters.isEmpty()) return null
+            if (chapters.isEmpty()) return null
+            // Counted (or kept from before): there straight away, before the chapters' lengths are.
             exactPages()?.let { return BookPages(it) }
+            if (!lengthsKnown) return null
             if (counter != null && !countFailed) return null
             val perPage = textPerPage() ?: return null
             return BookPages(IntArray(chapters.size) { i ->
@@ -438,23 +445,29 @@ class ReaderController(
         countToken = token
         countJob = scope.launch {
             try {
-                // The chapters' lengths and openings first (the openings are counted with their chapters).
-                while (!lengthsKnown) delay(50)
-                val stored = "$key|$textStamp|${dev.kobolibrary.app.BuildConfig.VERSION_CODE}"
+                // Counts kept from before, for the book as it is, laid out as it is now, by the same rules:
+                // looked for straight away, from the book file's own checksums where it has them.
+                val stamp = withContext(Dispatchers.IO) { runCatching { (files as? EpubFileFiles)?.epub?.stamp() }.getOrNull() }
+                    ?: run { while (!lengthsKnown) delay(50); textStamp }
+                val stored = "$key|$stamp|${PageCounter.fingerprint(assets)}"
                 val kept = withContext(Dispatchers.IO) { store?.pageCounts(stored) }
                 if (kept != null && kept.size == chapters.size) {
                     counted = kept
                     return@launch
                 }
+                // The chapters' lengths and openings first (the openings are counted with their chapters).
+                while (!lengthsKnown) delay(50)
                 // Let the chapter being opened settle before counting the rest.
                 delay(400)
                 val result = IntArray(chapters.size)
                 for (i in chapters.indices) {
                     if (withContext(Dispatchers.IO) { isOpening(i) || isPairedLeft(i) }) continue
+                    // As the reader opens it (where a page of its own kind goes changes how it's laid out).
                     val start = JSONObject()
                         .put("settings", JSONObject(settingsJs(settings)))
                         .put("chapters", aroundJs(i))
                         .put("words", wordsJs())
+                        .apply { runCatching { pageKind(i).place }.getOrNull()?.let { put("place", it) } }
                         .toString()
                     val got = withTimeoutOrNull(20_000) {
                         try {
@@ -713,7 +726,12 @@ class ReaderController(
         return openings.getOrPut(i) {
             val a = chapters.getOrNull(i)
             val b = chapters.getOrNull(i + 1)
-            a != null && b != null && runCatching { ChapterOpenings.joins(a, files.text(a.path).orEmpty(), b, files.text(b.path).orEmpty()) }.getOrDefault(false)
+            // Too long to be an opening, or followed by too little to be its chapter, as the words counted
+            // already say: not read through again (in a long book, most chapters are one or the other).
+            val plainlyNot = wordsCounted && i + 1 < chapterWords.size &&
+                (chapterWords[i] > ChapterOpenings.MOST_WORDS || chapterWords[i + 1] < ChapterOpenings.LEAST_WORDS)
+            !plainlyNot && a != null && b != null &&
+                runCatching { ChapterOpenings.joins(a, files.text(a.path).orEmpty(), b, files.text(b.path).orEmpty()) }.getOrDefault(false)
         }
     }
 

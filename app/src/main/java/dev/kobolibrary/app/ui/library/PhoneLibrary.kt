@@ -62,6 +62,7 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.LocalOffer
 import androidx.compose.material.icons.outlined.Merge
 import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.SaveAlt
 import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material.icons.outlined.Usb
@@ -254,7 +255,7 @@ internal fun PhoneLibraryScreen(
                         IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, tr("More options")) }
                         DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                             onTheme?.let { theme ->
-                                DropdownMenuItem(text = { Text(tr("App theme")) }, leadingIcon = { Icon(Icons.Outlined.Palette, null) }, onClick = { menu = false; theme() })
+                                DropdownMenuItem(text = { Text(tr("Settings")) }, leadingIcon = { Icon(Icons.Outlined.Settings, null) }, onClick = { menu = false; theme() })
                             }
                             DropdownMenuItem(text = { Text(tr("About KoLib")) }, leadingIcon = { Icon(Icons.Outlined.Info, null) }, onClick = { menu = false; onAbout() })
                         }
@@ -281,7 +282,7 @@ internal fun PhoneLibraryScreen(
                         onSelect = { browse.selecting = true },
                         onGrid = { browse.grid = it },
                         more = listOfNotNull(
-                            onTheme?.let { MenuEntry(tr("App theme"), Icons.Outlined.Palette, it) },
+                            onTheme?.let { MenuEntry(tr("Settings"), Icons.Outlined.Settings, it) },
                             MenuEntry(tr("About KoLib"), Icons.Outlined.Info, onAbout),
                         ),
                     )
@@ -590,11 +591,12 @@ internal fun PhoneBookPage(
             }
 
             Spacer(Modifier.height(16.dp))
-            val tiles = listOf(
+            // A comic's pages are pictures in its comic file: there's no text to edit or split.
+            val tiles = listOfNotNull(
                 Triple(Icons.Outlined.Edit, tr("Edit details"), onEdit),
                 Triple(Icons.Outlined.Image, tr("Change cover"), onCover),
-                Triple(Icons.Outlined.EditNote, tr("Edit text"), onEditText),
-                Triple(Icons.AutoMirrored.Outlined.CallSplit, tr("Split into books"), onSplit),
+                Triple(Icons.Outlined.EditNote, tr("Edit text"), onEditText).takeUnless { book.isComic },
+                Triple(Icons.AutoMirrored.Outlined.CallSplit, tr("Split into books"), onSplit).takeUnless { book.isComic },
                 Triple(Icons.Outlined.SaveAlt, tr("Save as file"), onExport),
                 Triple(Icons.Outlined.ContentCopy, tr("Duplicate"), onDuplicate),
             )

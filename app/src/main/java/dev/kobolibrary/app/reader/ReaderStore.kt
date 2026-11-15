@@ -132,6 +132,47 @@ class ReaderStore(
         lookFile.delete()
     }
 
+    private val picturesFile get() = File(bookDir, "pictures.json")
+
+    /** Pictures turned in the book (printed on their side to fit a page): each one's path, and its quarter turns clockwise. */
+    fun turns(): Map<String, Int> = try {
+        if (!picturesFile.exists()) emptyMap() else {
+            val o = JSONObject(picturesFile.readText()).optJSONObject("turns") ?: JSONObject()
+            o.keys().asSequence().associateWith { o.optInt(it) }.filterValues { Math.floorMod(it, 4) != 0 }
+        }
+    } catch (e: Exception) {
+        AppLog.w("Reader", "The book's turned pictures couldn't be read", e)
+        emptyMap()
+    }
+
+    /** Pictures already looked at to see whether they're on their side (so they aren't again, and a reader's own turn stands). */
+    fun checkedPictures(): Set<String> = try {
+        if (!picturesFile.exists()) emptySet() else {
+            val a = JSONObject(picturesFile.readText()).optJSONArray("checked") ?: JSONArray()
+            (0 until a.length()).map { a.optString(it) }.filter { it.isNotEmpty() }.toSet()
+        }
+    } catch (e: Exception) {
+        emptySet()
+    }
+
+    fun saveTurns(turns: Map<String, Int>, checked: Set<String> = checkedPictures()) {
+        try {
+            bookDir.mkdirs()
+            if (turns.isEmpty() && checked.isEmpty()) {
+                picturesFile.delete()
+                return
+            }
+            val tmp = File(bookDir, "pictures.json.part")
+            tmp.writeText(JSONObject().put("turns", JSONObject(turns)).put("checked", JSONArray(checked.sorted())).toString())
+            if (!tmp.renameTo(picturesFile)) {
+                picturesFile.delete()
+                tmp.renameTo(picturesFile)
+            }
+        } catch (e: Exception) {
+            AppLog.w("Reader", "The book's turned pictures couldn't be saved", e)
+        }
+    }
+
     private val pagesFile get() = File(bookDir, "pages.json")
 
     /** Each chapter's pages as counted before at [key] (the layout and the book's text), if they were. */

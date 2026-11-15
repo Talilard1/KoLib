@@ -18,6 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Compare
 import androidx.compose.material.icons.outlined.DocumentScanner
+import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Stop
 import androidx.compose.material.icons.outlined.Undo
 import androidx.compose.material.icons.outlined.WarningAmber
@@ -160,6 +161,14 @@ fun OcrSection(book: LibraryBook, shownStatus: OcrStatus? = null) {
                     else tr("The pages of this PDF are pictures, so it can only be read and sent as the PDF. KoLib can recognise the words in them and make it into a book whose text fits the screen."),
                     style = MaterialTheme.typography.bodyMedium,
                 )
+                if (stopped == null) {
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        tr("The first time for each language, it needs to download that language's recognition data (a few megabytes)."),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
                 val s = stopped
                 if (s != null) {
                     Spacer(Modifier.height(8.dp))
@@ -227,6 +236,18 @@ fun OcrDialog(books: List<LibraryBook>, onStart: (List<String>) -> Unit, onDismi
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Spacer(Modifier.height(12.dp))
+                // Said first, before anything is picked: it needs the internet the first time.
+                Row(verticalAlignment = Alignment.Top) {
+                    Icon(Icons.Outlined.Download, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.primary)
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        if (toDownload > 0) tr("It needs to download the recognition data for each language first: {0} for the languages picked, from the Tesseract project. Each one is downloaded once, and kept.", Fmt.bytes(context, toDownload) ?: "")
+                        else tr("The recognition data for the languages picked is on this device already, so nothing needs downloading."),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (toDownload > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Spacer(Modifier.height(12.dp))
                 Row(verticalAlignment = Alignment.Top) {
                     Icon(Icons.Outlined.WarningAmber, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.error)
                     Spacer(Modifier.width(8.dp))
@@ -249,13 +270,6 @@ fun OcrDialog(books: List<LibraryBook>, onStart: (List<String>) -> Unit, onDismi
                         )
                     }
                 }
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    if (toDownload > 0) tr("First, {0} of language data is downloaded from the Tesseract project.", Fmt.bytes(context, toDownload) ?: "")
-                    else tr("Everything it needs is on this device already."),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
             }
         },
         confirmButton = {

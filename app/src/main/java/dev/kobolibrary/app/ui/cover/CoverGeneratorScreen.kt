@@ -49,6 +49,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -314,7 +315,8 @@ fun CoverGeneratorScreen(
     ) { padding ->
         BoxWithConstraints(Modifier.padding(padding).fillMaxSize()) {
             val previewPane: @Composable (Modifier) -> Unit = { m ->
-                BoxWithConstraints(m.padding(24.dp), contentAlignment = Alignment.Center) {
+              Column(m.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                BoxWithConstraints(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                     val w = min(maxWidth, maxHeight * CoverCrop.ASPECT)
                     val canMove = shownPicture != null
                     Box(
@@ -350,6 +352,43 @@ fun CoverGeneratorScreen(
                         if (opening) CircularProgressIndicator()
                     }
                 }
+                // Under the cover rather than among the designs, so picking a design never moves the others.
+                Column(Modifier.widthIn(max = 460.dp).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    problem?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(top = 8.dp)) }
+                    if (shownPicture != null) {
+                        Text(
+                            tr("Drag the picture to move it, and pinch or use the slider to zoom."),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(tr("Zoom"), style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(end = 12.dp))
+                            Slider(
+                                value = crop.zoom,
+                                onValueChange = { z ->
+                                    val pic = shownPicture.small
+                                    val frame = generator.pictureFrame(style, CoverCrop.OUT_WIDTH.toFloat(), CoverCrop.OUT_HEIGHT.toFloat())
+                                    if (frame != null) {
+                                        moving = true
+                                        crop = crop.zoomedTo(z, frame.width(), frame.height(), pic.width, pic.height)
+                                    }
+                                },
+                                onValueChangeFinished = { moving = false },
+                                valueRange = CoverCrop.MIN_ZOOM..CoverCrop.MAX_ZOOM,
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
+                    } else if (own != null) {
+                        Text(
+                            tr("This design has no room for your picture. Pick one with a picture (framed picture, painting, pulp magazine or snapshot) to use it."),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                    }
+                }
+              }
             }
             val controls: @Composable (Modifier) -> Unit = { m ->
                 Column(m.verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -380,63 +419,37 @@ fun CoverGeneratorScreen(
                         }
                         if (choosing) GenrePicker(kind, onPick = { kind = it; choosing = false }, onDismiss = { choosing = false })
                     }
-                    if (style.picture || style in CoverStyle.drawn) {
-                        HorizontalDivider()
-                        Text(tr("Picture"), style = MaterialTheme.typography.titleSmall)
-                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            FilledTonalButton(onClick = {
+                    HorizontalDivider()
+                    Text(tr("Picture"), style = MaterialTheme.typography.titleSmall)
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilledTonalButton(
+                            onClick = {
                                 seed = kotlin.random.Random.nextInt()
                                 own = null
-                            }) {
-                                Icon(Icons.Filled.Refresh, null, Modifier.size(18.dp))
-                                Spacer(Modifier.width(8.dp))
-                                Text(tr("New picture"))
-                            }
-                            if (style.picture) {
-                                OutlinedButton(onClick = { runCatching { photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) } }) {
-                                    Icon(Icons.Outlined.PhotoLibrary, null, Modifier.size(18.dp))
-                                    Spacer(Modifier.width(8.dp))
-                                    Text(tr("Photos"))
-                                }
-                                OutlinedButton(onClick = { runCatching { filePicker.launch(arrayOf("image/*")) } }) {
-                                    Icon(Icons.Outlined.FolderOpen, null, Modifier.size(18.dp))
-                                    Spacer(Modifier.width(8.dp))
-                                    Text(tr("Files"))
-                                }
-                                OutlinedButton(onClick = { findingPicture = true }) {
-                                    Icon(Icons.Outlined.Search, null, Modifier.size(18.dp))
-                                    Spacer(Modifier.width(8.dp))
-                                    Text(tr("Find online"))
-                                }
-                            }
+                            },
+                            enabled = style.picture || style in CoverStyle.drawn,
+                        ) {
+                            Icon(Icons.Filled.Refresh, null, Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(tr("New picture"))
                         }
-                        problem?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
-                        if (shownPicture != null) {
-                            Text(
-                                tr("Drag the picture to move it, and pinch or use the slider to zoom."),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Text(tr("Zoom"), style = MaterialTheme.typography.labelLarge)
-                            Slider(
-                                value = crop.zoom,
-                                onValueChange = { z ->
-                                    val pic = shownPicture.small
-                                    val frame = generator.pictureFrame(style, CoverCrop.OUT_WIDTH.toFloat(), CoverCrop.OUT_HEIGHT.toFloat())
-                                    if (frame != null) {
-                                        moving = true
-                                        crop = crop.zoomedTo(z, frame.width(), frame.height(), pic.width, pic.height)
-                                    }
-                                },
-                                onValueChangeFinished = { moving = false },
-                                valueRange = CoverCrop.MIN_ZOOM..CoverCrop.MAX_ZOOM,
-                            )
-                        } else if (own != null) {
-                            Text(
-                                tr("This design has no room for your picture. Pick one with a picture (framed picture, painting, pulp magazine or snapshot) to use it."),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
+                        OutlinedButton(
+                            onClick = { runCatching { photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) } },
+                            enabled = style.picture,
+                        ) {
+                            Icon(Icons.Outlined.PhotoLibrary, null, Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(tr("Photos"))
+                        }
+                        OutlinedButton(onClick = { runCatching { filePicker.launch(arrayOf("image/*")) } }, enabled = style.picture) {
+                            Icon(Icons.Outlined.FolderOpen, null, Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(tr("Files"))
+                        }
+                        OutlinedButton(onClick = { findingPicture = true }, enabled = style.picture) {
+                            Icon(Icons.Outlined.Search, null, Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(tr("Find online"))
                         }
                     }
                     HorizontalDivider()

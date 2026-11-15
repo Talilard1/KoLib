@@ -29,6 +29,10 @@
   // Two pages side by side: a chapter of one page sits on the right-hand page, as in a printed book, with a
   // blank page before it (blankBefore); a wide picture alone (a map) goes across both pages (spreadPicture).
   var blankBefore = 0, spreadPicture = false;
+  // Two pages side by side, each just a picture (plates one after another, put together by the app): [left, right].
+  var picturePair = null;
+  // Pictures set where they go on the screen, into the margins (see placePicture), to be put back before laying out again.
+  var placedPics = [];
   // A page of its own kind that a printed book doesn't number: a dedication, an epigraph or other quote, a
   // part's title, a map or plate. No page headings over it.
   var displayPage = false;
@@ -306,6 +310,47 @@
     setVar('--kl-page-h', Math.max(80, H - padTop - padBottom - 2) + 'px');
   }
 
+  /**
+   * Pictures the reader has turned a quarter (one printed on its side to fit a page): the app hands the picture
+   * over turned, and where the book gives it a shape of its own (an svg's viewBox, an img's width and height),
+   * that's turned too. [turns]: the picture's path in the book to the quarter turns.
+   */
+  function applyTurns(turns) {
+    if (!turns) return;
+    var odd = function (el, href) {
+      if (!href) return false;
+      var path;
+      try { path = decodeURIComponent(new URL(href, document.baseURI).pathname.replace(/^\/book\//, '')); } catch (e) { return false; }
+      return (turns[path] || 0) % 2 === 1;
+    };
+    var swap = function (el, a, b) {
+      var x = el.getAttribute(a), y = el.getAttribute(b);
+      if (x && y && !/%$/.test(x) && !/%$/.test(y)) { el.setAttribute(a, y); el.setAttribute(b, x); }
+    };
+    var imgs = document.querySelectorAll('img');
+    for (var i = 0; i < imgs.length; i++) if (odd(imgs[i], imgs[i].getAttribute('src'))) swap(imgs[i], 'width', 'height');
+    var images = document.querySelectorAll('svg image');
+    for (var k = 0; k < images.length; k++) {
+      var im = images[k];
+      if (!odd(im, im.getAttribute('href') || im.getAttributeNS('http://www.w3.org/1999/xlink', 'href'))) continue;
+      swap(im, 'width', 'height');
+      var svg = im.closest('svg');
+      var vb = svg && svg.getAttribute('viewBox');
+      var n = vb ? vb.trim().split(/[\s,]+/) : null;
+      if (n && n.length === 4) svg.setAttribute('viewBox', [n[0], n[1], n[3], n[2]].join(' '));
+      if (svg) swap(svg, 'width', 'height');
+    }
+  }
+
+  /** The one picture in [scope], with next to no words by it (a plate, its caption at most); null if it isn't that. */
+  function lonePicture(scope) {
+    if (!scope || (scope.textContent || '').replace(/\s+/g, '').length >= 80) return null;
+    var pics = Array.prototype.filter.call(scope.querySelectorAll('img, svg'), function (el) {
+      return !(el.localName === 'svg' && el.parentNode && el.parentNode.closest && el.parentNode.closest('svg'));
+    });
+    return pics.length === 1 ? pics[0] : null;
+  }
+
   /** Pictures that are a page on their own (covers, plates) fill the page. */
   /**
    * Pictures that are a page on their own (covers, plates) fill the page. Only on a page that's
@@ -313,8 +358,20 @@
    */
   function markFullPagePictures() {
     var body = document.body;
+    picturePair = null;
+    // Two pages side by side that are each just a picture (plates one after another): each fills its page.
+    if (body && pairBox()) {
+      var a = lonePicture(pairBox()), b = lonePicture(body);
+      if (a && b) {
+        a.classList.add('kl-full-page');
+        b.classList.add('kl-full-page');
+        picturePair = [a, b];
+        picturePage = true;
+      }
+      return;
+    }
     // Two short pages side by side, or a book's title page: a picture there is a publisher's mark.
-    if (!body || pairBox() || place === 'title') return;
+    if (!body || place === 'title') return;
     var text = (body.textContent || '').replace(/\s+/g, '');
     if (text.length >= 80) return;
     var pics = body.querySelectorAll('img, svg');
@@ -519,6 +576,20 @@
   /** A line that reads as the story begun rather than a heading: speech, or a sentence. */
   function storyLine(t) { return spoken(t) || /[.!?\u2026]['"\u201d\u2019\u00bb\u203a\u300d\u300f)]*$/.test(t); }
 
+  /** The name of a page a book has before or after its story: its copyright, a map, its contents, a list of its characters. */
+  var notAChapter = /\b(copyright|maps?|contents|dedication|acknowledg\w*|about the|also by|books by|other books|newsletter|mailing list|glossary|dramatis|cast of|characters|pronunciation|timeline|credits|colophon|imprint|title page|bibliography|index|praise|preview|excerpt|sneak peek|bonus)\b/i;
+
+  /**
+   * The chapter is a chapter of the book's text, to open with a drop cap: it has a chapter's number ("Chapter 3",
+   * "Prologue"), or under a name, a good deal of prose (not a copyright page, a map, or a title page with a line or two).
+   */
+  function realChapter(number, name, together) {
+    if (number || together) return true;
+    if (!name) return false;
+    var prose = (document.body.textContent || '').replace(/\s+/g, ' ').length;
+    return prose >= 6000 || (prose >= 1500 && !notAChapter.test(saidIn(name)));
+  }
+
   /** Set like the text's paragraphs: not a heading, an epigraph, or a place and date set apart. */
   function setLikeText(el, bodySize) {
     if (headingLike(el, bodySize)) return false;
@@ -609,8 +680,9 @@
     }
     // The text's first paragraph: the first line after the chapter's number and name set like the text (passing over an
     // epigraph, say), or else the first long paragraph.
+    // (A short line only if it's speech or a sentence: not a line of a title page, "A Novel of the North".)
     for (; !opening && k < lines.length; k++) {
-      if (ownInitial(lines[k]) || setLikeText(lines[k], bodySize)) opening = lines[k];
+      if (ownInitial(lines[k]) || (setLikeText(lines[k], bodySize) && storyLine(saidIn(lines[k])))) opening = lines[k];
     }
     var start = opening || first;
     // Set as in print whatever the book says when the reader asks for that; otherwise only where the book
@@ -624,7 +696,7 @@
       start.classList.add('kl-initial');
       var letter = initialIn(start, parseFloat(getComputedStyle(start).fontSize) || 16, 0);
       if (letter && !/^(img|svg)$/i.test(letter.localName)) letter.classList.add('kl-initial-letter');
-    } else if (number || name || together) start.classList.add('kl-dropcap');
+    } else if (realChapter(number, name, together)) start.classList.add('kl-dropcap');
   }
 
   /**
@@ -717,8 +789,9 @@
     // Counted without the filler, which then goes at the far edge of the last screen; and laid out as the
     // book has it, before a page alone is moved to the right or a wide picture across both pages.
     if (fill) fill.style.display = 'none';
-    root.classList.remove('kl-recto', 'kl-spread-pic', 'kl-centre', 'kl-spread-pair', 'kl-recto-open');
+    root.classList.remove('kl-recto', 'kl-spread-pic', 'kl-centre', 'kl-spread-pair', 'kl-recto-open', 'kl-placed');
     unplaceHalves();
+    unplacePictures();
     blankBefore = 0;
     spreadPicture = false;
     var w = scroller.scrollWidth;
@@ -737,6 +810,26 @@
       columns = 2;
     }
     displayPage = pair || !!halves || (columns === 1 && pages === 1 && looksLikeDisplayPage());
+    var gutter = 8;
+    if (picturePair && perScreen === 2) {
+      // Two plates one after another: side by side, each on its page, as big as fits, into the margins.
+      pages = 1;
+      columns = 2;
+      if (!countingOnly) {
+        placePicture(picturePair[0], 12, W / 2 - gutter);
+        placePicture(picturePair[1], W / 2 + gutter, W - 12);
+        root.classList.add('kl-placed');
+      }
+    } else if (picturePair && !countingOnly) {
+      // One page at a time: each on its own page, as the flow has them.
+    } else if (perScreen === 1 && pages === 1 && picturePage && !pair && !countingOnly) {
+      // A plate alone, one page at a time: the whole screen, into the margins.
+      var lone = document.querySelector('.kl-full-page');
+      if (lone) {
+        placePicture(lone, 12, W - 12);
+        root.classList.add('kl-placed');
+      }
+    }
     if (perScreen === 2 && pages === 1 && !pair) {
       var wide = picturePage && widePicture();
       if (halves) {
@@ -762,9 +855,14 @@
         root.classList.add('kl-centre');
       } else if (columns === 1 && place !== 'left') {
         // A page on its own (an epigraph, a notice, a plate) goes on the right, as in print. (A
-        // dedication stays on the left.)
+        // dedication stays on the left.) A plate fills its page, into the margins.
         blankBefore = 1;
         root.classList.add('kl-recto');
+        var plate = picturePage && document.querySelector('.kl-full-page');
+        if (plate && !countingOnly) {
+          placePicture(plate, W / 2 + gutter, W - 12);
+          root.classList.add('kl-placed');
+        }
       }
     }
     // A chapter starts on a right-hand page, as in print, the left-hand one beside it blank. (Its pages of
@@ -845,6 +943,12 @@
       if (w > 0 && h > 0 && w < 400 && h < 400) el.classList.remove('kl-full-page');
     }
     picturePage = !!document.querySelector('.kl-full-page');
+    if (picturePair && !(picturePair[0].classList.contains('kl-full-page') && picturePair[1].classList.contains('kl-full-page'))) {
+      picturePair[0].classList.remove('kl-full-page');
+      picturePair[1].classList.remove('kl-full-page');
+      picturePair = null;
+      picturePage = false;
+    }
   }
 
   /**
@@ -925,6 +1029,35 @@
     st.setProperty('width', w + 'px', 'important');
     st.setProperty('height', h + 'px', 'important');
     st.setProperty('object-position', at, 'important');
+  }
+
+  /** The room a picture placed on the screen has, into the margins: up to the rows over and under the page. */
+  function pictureRoom() {
+    return {
+      top: Math.max(12, Math.round((settings.minTop || 0) - 10)),
+      bottom: Math.max(12, Math.round((settings.minBottom || 0) - 10)),
+    };
+  }
+
+  /** [el] set in the box from [x] to [x2] across, as big as fits and in the middle of it, into the margins. */
+  function placePicture(el, x, x2) {
+    var room = pictureRoom();
+    el.classList.add('kl-placed-pic');
+    var st = el.style;
+    st.setProperty('left', Math.round(x) + 'px', 'important');
+    st.setProperty('top', room.top + 'px', 'important');
+    st.setProperty('width', Math.max(20, Math.round(x2 - x)) + 'px', 'important');
+    st.setProperty('height', Math.max(20, H - room.top - room.bottom) + 'px', 'important');
+    placedPics.push(el);
+  }
+
+  function unplacePictures() {
+    for (var i = 0; i < placedPics.length; i++) {
+      var el = placedPics[i];
+      el.classList.remove('kl-placed-pic');
+      ['left', 'top', 'width', 'height'].forEach(function (p) { el.style.removeProperty(p); });
+    }
+    placedPics = [];
   }
 
   function unplaceHalves() {
@@ -1868,6 +2001,7 @@
     if (st.measure) { countOnly(st); return; }
     place = st.place || null;
     chapterOpening = st.opening !== false;
+    try { applyTurns(st.turns); } catch (e) { log(e); }
     markFullPagePictures();
     try { keepPictureShapes(); } catch (e) { log(e); }
     try { centrePictures(); } catch (e) { log(e); }
@@ -1928,6 +2062,7 @@
     blankBefore = 0;
     spreadPicture = false;
     displayPage = false;
+    try { applyTurns(st.turns); } catch (e) { log(e); }
     markFullPagePictures();
     try { keepPictureShapes(); } catch (e) { log(e); }
     try { centrePictures(); } catch (e) { log(e); }

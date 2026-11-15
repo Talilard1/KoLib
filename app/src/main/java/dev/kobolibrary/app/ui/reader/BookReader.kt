@@ -81,7 +81,16 @@ fun BookReader(
                     assets = context.assets,
                     bookAuthor = book.authorLine,
                     bookSeriesIndex = book.meta.seriesIndex,
-                )
+                ).apply {
+                    // Plates printed on their side (as light novels have scenes across two pages) found from the words in
+                    // them, with the text recognition's data for the book's language or English, if it's on the device.
+                    val filesDir = context.filesDir
+                    val language = dev.kobolibrary.app.ocr.OcrLanguages.suggested(book.meta.language)
+                        .filter { dev.kobolibrary.app.ocr.OcrLanguages.installed(filesDir, it) }
+                    if (language.isNotEmpty()) sidewaysCheck = {
+                        runCatching { dev.kobolibrary.app.ocr.SidewaysPictures(dev.kobolibrary.app.ocr.OcrLanguages.root(filesDir), language.take(1)) }.getOrNull()
+                    }
+                }
             } catch (e: Exception) {
                 AppLog.e("Reader", "The book couldn't be opened", e)
                 error = e.message ?: tr("The book couldn't be opened.")

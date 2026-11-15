@@ -258,6 +258,23 @@ html.kl-paged.kl-spread-pic .kl-full-page {
   z-index: 2 !important;
 }
 
+/* Plates (pictures that are pages of their own) set on the screen by reader.js, each in its page's space into the
+   margins, as big as fits; the rest of the page (a caption) is hidden behind them. */
+html.kl-paged.kl-placed body, html.kl-paged.kl-placed > #kl-pair { visibility: hidden !important; }
+html.kl-paged.kl-placed .kl-placed-pic {
+  visibility: visible !important;
+  display: block !important;
+  position: fixed !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  max-width: none !important;
+  max-height: none !important;
+  box-sizing: border-box !important;
+  object-fit: contain !important;
+  z-index: 2 !important;
+}
+
 /* A map across two pages kept as its two halves (reader.js finds them and works out where they go): side by
    side across the whole screen, the same height, joined where they were cut, into the margins. Anything else
    on the pages (a title) is hidden behind them. */

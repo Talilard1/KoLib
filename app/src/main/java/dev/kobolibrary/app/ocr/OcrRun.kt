@@ -57,7 +57,7 @@ class OcrRun(
         for (i in listOf(n / 2, n / 3, 2 * n / 3, n / 4, 0).distinct().filter { it in 0 until n }) {
             val g = runCatching { source.gray(i, 300) }.getOrNull() ?: continue
             if (g.blank) continue
-            val page = Hocr.parse(engine.read(g.pixels, g.width, g.height, g.dpi), g.dpi)
+            val page = Hocr.parse(engine.read(ScanCleanup.clean(g.pixels, g.width, g.height), g.width, g.height, g.dpi), g.dpi)
             val sizes = page.lines.filter { it.words.size >= 3 }.map { it.size }.sorted()
             if (sizes.size < 5) continue
             val median = sizes[sizes.size / 2] * 300.0 / g.dpi
@@ -107,7 +107,7 @@ class OcrRun(
                                         AppLog.w("OCR", "Page ${index + 1} couldn't be drawn; it stays a picture.")
                                     } else {
                                         val page = if (g.blank) OcrPage.blank(g.width, g.height, g.dpi)
-                                        else Hocr.parse(engine.read(g.pixels, g.width, g.height, g.dpi), g.dpi)
+                                        else Hocr.parse(engine.read(ScanCleanup.clean(g.pixels, g.width, g.height), g.width, g.height, g.dpi), g.dpi)
                                         whole.ensureActive()
                                         currentCoroutineContext().ensureActive()
                                         store.save(index, page)

@@ -28,8 +28,8 @@ android {
         applicationId = "dev.kobolibrary.app"
         minSdk = 29
         targetSdk = 36
-        versionCode = 57
-        versionName = "1.5"
+        versionCode = 58
+        versionName = "1.6"
     }
 
     // An APK for each kind of processor, a little smaller, and a universal one that runs on any of them.

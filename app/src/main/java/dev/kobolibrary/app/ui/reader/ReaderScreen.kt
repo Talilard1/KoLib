@@ -92,6 +92,8 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.RotateLeft
+import androidx.compose.material.icons.filled.RotateRight
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Delete
@@ -1567,10 +1569,14 @@ private fun NoteSheet(html: String, onClose: () -> Unit, onGoTo: () -> Unit) {
 
 @Composable
 private fun ImageViewer(controller: ReaderController, src: String, onClose: () -> Unit) {
-    val bitmap = remember(src) {
-        val parts = src.split('\n')
+    val parts = remember(src) { src.split('\n') }
+    // A picture of its own (not the two halves of a map) can be turned: one printed on its side to fit a page.
+    val path = remember(src) { if (parts.size >= 2) null else BookServer.pathOf(src)?.first }
+    val turned = path?.let { controller.turns[it] } ?: 0
+    var turnsMade by remember(src) { mutableStateOf(0) }
+    val bitmap = remember(src, turned, turnsMade) {
         if (parts.size >= 2) joinedHalves(controller, parts)?.asImageBitmap()
-        else BookServer.pathOf(src)?.first?.let { controller.files.bytes(it) }?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }?.asImageBitmap()
+        else path?.let { controller.pictureBytes(it) }?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }?.asImageBitmap()
     }
     var scale by remember { mutableFloatStateOf(1f) }
     var offset by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
@@ -1599,6 +1605,28 @@ private fun ImageViewer(controller: ReaderController, src: String, onClose: () -
         }
         IconButton(onClick = onClose, modifier = Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(8.dp)) {
             Icon(Icons.Filled.Close, tr("Close picture"), tint = Color.White)
+        }
+        if (path != null && bitmap != null) {
+            Row(Modifier.align(Alignment.TopStart).statusBarsPadding().padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = {
+                    controller.turnPicture(path, -1)
+                    turnsMade++
+                    scale = 1f
+                    offset = androidx.compose.ui.geometry.Offset.Zero
+                }) { Icon(Icons.Filled.RotateLeft, tr("Turn the picture left"), tint = Color.White) }
+                IconButton(onClick = {
+                    controller.turnPicture(path, 1)
+                    turnsMade++
+                    scale = 1f
+                    offset = androidx.compose.ui.geometry.Offset.Zero
+                }) { Icon(Icons.Filled.RotateRight, tr("Turn the picture right"), tint = Color.White) }
+                Text(
+                    tr("A picture printed on its side: turn it the right way up, and it goes across both pages."),
+                    color = Color.White.copy(alpha = 0.75f),
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 8.dp).widthIn(max = 360.dp),
+                )
+            }
         }
     }
 }

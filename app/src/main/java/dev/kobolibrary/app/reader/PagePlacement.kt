@@ -15,8 +15,10 @@ enum class PageKind {
     DEDICATION,
     /** An epigraph or another quote: on the right-hand page. */
     QUOTE,
-    /** A picture on its own (a plate, a map): as the reader lays pictures out. */
+    /** A picture on its own (a plate): as the reader lays pictures out; beside another, one after another. */
     PICTURE,
+    /** A picture on its own wider than it's tall (a map, a scene across two pages): across both pages, alone. */
+    WIDE_PICTURE,
     /** Any other short page (a title page, a notice, a list of the author's books): beside another, or on the right. */
     SHORT;
 
@@ -89,7 +91,18 @@ object PagePlacement {
         val heading: Boolean = false,
         /** The biggest of its pictures, its longer side in pixels; 0 if none could be measured. */
         val biggestPicture: Int = 0,
+        /** The biggest of its pictures is wider than it's tall (by more than a little). */
+        val widePicture: Boolean = false,
     )
+
+    /** The pictures on a chapter's page (its file [xhtml] at [path]): their paths in the book, in the order they come. */
+    fun pictures(xhtml: String, path: String): List<String> {
+        val body = bodyStart.find(xhtml)?.let { xhtml.substring(it.range.first) } ?: xhtml
+        return pictureSource.findAll(body).mapNotNull { m ->
+            val src = m.groupValues[1].ifEmpty { m.groupValues[2] }.substringBefore('?')
+            if (src.isEmpty() || src.contains(':')) null else EpubFile.resolvePath(path.substringBeforeLast('/', ""), src)
+        }.toList()
+    }
 
     /** [sizeOf]: a picture's size, by its path in the book (null if it can't be told). */
     fun facts(xhtml: String, path: String, title: String, sizeOf: (String) -> Pair<Int, Int>? = { null }): Facts {
@@ -100,6 +113,12 @@ object PagePlacement {
             for (m in attrs.findAll(body)) append(' ').append(m.groupValues[1].ifEmpty { m.groupValues[2] }.lowercase())
         }
         val lines = body.split(blockTag).map { EpubText.plainText(it).replace(Regex("""\s+"""), " ").trim() }.filter { it.isNotEmpty() }
+        val sizes = pictureSource.findAll(body).mapNotNull { m ->
+            val src = m.groupValues[1].ifEmpty { m.groupValues[2] }.substringBefore('?')
+            if (src.isEmpty() || src.contains(':')) null
+            else sizeOf(EpubFile.resolvePath(path.substringBeforeLast('/', ""), src))
+        }.toList()
+        val biggest = sizes.maxByOrNull { (w, h) -> w.toLong() * h }
         return Facts(
             words = EpubText.countWords(text),
             pictures = pictures.findAll(body).count(),
@@ -109,11 +128,8 @@ object PagePlacement {
             lastLine = lines.lastOrNull().orEmpty(),
             blockquote = body.contains("<blockquote", ignoreCase = true),
             heading = headingTag.containsMatchIn(body),
-            biggestPicture = pictureSource.findAll(body).mapNotNull { m ->
-                val src = m.groupValues[1].ifEmpty { m.groupValues[2] }.substringBefore('?')
-                if (src.isEmpty() || src.contains(':')) null
-                else sizeOf(EpubFile.resolvePath(path.substringBeforeLast('/', ""), src))?.let { (w, h) -> maxOf(w, h) }
-            }.maxOrNull() ?: 0,
+            biggestPicture = sizes.maxOfOrNull { (w, h) -> maxOf(w, h) } ?: 0,
+            widePicture = biggest != null && biggest.second > 0 && biggest.first.toFloat() / biggest.second > 1.15f,
         )
     }
 
@@ -127,7 +143,8 @@ object PagePlacement {
         val picture = f.pictures >= 1 && f.words <= PICTURE_WORDS && !mark
         // A book's title page with its publisher's mark is its title page; only a picture alone is its cover.
         if (picture && !(titlePlace && f.words > 0)) {
-            return if (coverPlace || coverMark.containsMatchIn(f.marks)) PageKind.COVER else PageKind.PICTURE
+            return if (coverPlace || coverMark.containsMatchIn(f.marks)) PageKind.COVER
+            else if (f.widePicture) PageKind.WIDE_PICTURE else PageKind.PICTURE
         }
         if (f.words > SHORT_WORDS) return PageKind.TEXT
         if (titlePlace) return PageKind.TITLE

@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import dev.kobolibrary.app.ui.cover.CoverColors
 import dev.kobolibrary.app.ui.cover.CoverDesign
 import dev.kobolibrary.app.ui.cover.CoverGenerator
+import dev.kobolibrary.app.ui.cover.CoverGenre
 import dev.kobolibrary.app.ui.cover.CoverStyle
 import dev.kobolibrary.app.ui.cover.CoverText
 import org.junit.Assume.assumeTrue
@@ -58,6 +59,24 @@ class AdvertCovers {
         val text = CoverText("The Hound of the Baskervilles", listOf("Arthur Conan Doyle"), "Sherlock Holmes", 5.0)
         for (style in CoverStyle.entries) for (colors in CoverColors.themes) {
             save(generator.render(text, CoverDesign(style, colors), 536, 724), File(root, "matrix/${style.name}_${colors.name}.jpg"))
+        }
+    }
+
+    /**
+     * Covers for the seventh advert, listed in /home/claude/advert7/covers7.tsv (file, style, theme, genre,
+     * title, authors, series, number, width, height), written to /home/claude/advert7/covers7.
+     */
+    @Test
+    fun seven() {
+        val home = File("/home/claude/advert7")
+        val list = File(home, "covers7.tsv")
+        assumeTrue(list.exists())
+        val generator = CoverGenerator(context)
+        for (line in list.readLines().filter { it.isNotBlank() && !it.startsWith("#") }) {
+            val f = line.split('\t')
+            val design = CoverDesign(CoverStyle.valueOf(f[1]), CoverColors.themes.first { it.name == f[2] }, CoverGenre.valueOf(f[3]))
+            val text = CoverText(f[4], f[5].split('|').filter { it.isNotBlank() }, f.getOrNull(6)?.ifBlank { null }, f.getOrNull(7)?.toDoubleOrNull())
+            save(generator.render(text, design, f[8].toInt(), f[9].toInt()), File(home, "covers7/${f[0]}.jpg"))
         }
     }
 }

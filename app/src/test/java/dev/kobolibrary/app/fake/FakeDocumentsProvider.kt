@@ -77,14 +77,12 @@ class FakeDocumentsProvider : ContentProvider() {
         val docId = DocumentsContract.getDocumentId(uri)
         checkInTree(uri, docId)
         val file = fileFor(docId)
+        val children = uri.lastPathSegment == "children"
+        // Nothing to list: no cursor is made, so none is left open.
+        if (children && !file.isDirectory) return null
+        if (!children && !file.exists()) return null // the real provider returns null for a missing document
         val cursor = MatrixCursor(projection ?: DEFAULT_PROJECTION)
-        if (uri.lastPathSegment == "children") {
-            if (!file.isDirectory) return null
-            file.listFiles()?.sortedBy { it.name }?.forEach { addRow(cursor, it) }
-        } else {
-            if (!file.exists()) return null // the real provider returns null for a missing document
-            addRow(cursor, file)
-        }
+        if (children) file.listFiles()?.sortedBy { it.name }?.forEach { addRow(cursor, it) } else addRow(cursor, file)
         return cursor
     }
 

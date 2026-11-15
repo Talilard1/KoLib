@@ -89,8 +89,7 @@ class ComicZoomTest {
     }
 
     private fun shot(name: String): Bitmap {
-        File("/home/claude/heads/shots").mkdirs()
-        val path = "/home/claude/heads/shots/zoom_$name.png"
+        val path = "${TestLanguage.folder("build/outputs/roborazzi")}/zoom_$name.png"
         compose.onRoot().captureRoboImage(path)
         return BitmapFactory.decodeFile(path)
     }

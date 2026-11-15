@@ -14,7 +14,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import java.io.File
 
 /** The introduction's pages, on a phone and a tablet, and in another language. */
 @RunWith(RobolectricTestRunner::class)
@@ -36,8 +35,7 @@ class IntroShots {
             }
         }
         compose.mainClock.advanceTimeBy(1500)
-        File("/home/claude/heads/shots/intro").mkdirs()
-        captureScreenRoboImage("/home/claude/heads/shots/intro/$name.png")
+        captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/intro_$name.png")
     }
 
     @Test @Config(qualifiers = "w411dp-h914dp-port-xxhdpi") fun phoneLanguage() = shoot("phone_1_language", 0)

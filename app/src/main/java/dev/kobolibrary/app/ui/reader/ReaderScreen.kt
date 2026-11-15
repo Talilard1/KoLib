@@ -239,6 +239,8 @@ internal fun ReaderScreen(
     initialPanel: Panel = Panel.NONE,
     /** Opens the app's own settings (its look, language and books folder), from the reading settings. */
     onAppSettings: (() -> Unit)? = null,
+    /** The book's own text, page and layout settings, when it can keep some. */
+    bookLook: BookLook? = null,
 ) {
     val context = LocalContext.current
     val view = LocalView.current
@@ -449,7 +451,7 @@ internal fun ReaderScreen(
             when (panel) {
                 Panel.CONTENTS -> ContentsPanel(controller, wide, onPicked = { panel = Panel.NONE; controller.controlsVisible = false }, onClose = dismiss)
                 Panel.SEARCH -> SearchPanel(controller, wide, onPicked = { panel = Panel.NONE; controller.controlsVisible = false }, onClose = dismiss)
-                Panel.LOOK -> LookPanel(s, onSettings, controller.lookTab, wide, onTab = { controller.lookTab = it }, onClose = dismiss, onAppSettings = onAppSettings)
+                Panel.LOOK -> LookPanel(s, onSettings, controller.lookTab, wide, onTab = { controller.lookTab = it }, onClose = dismiss, onAppSettings = onAppSettings, bookLook = bookLook)
                 Panel.NONE -> Unit
             }
         }
@@ -1117,6 +1119,7 @@ private fun LookPanel(
     onTab: (Int) -> Unit,
     onClose: () -> Unit,
     onAppSettings: (() -> Unit)? = null,
+    bookLook: BookLook? = null,
 ) {
     val tabs = LookTab.entries
     val pager = rememberPagerState(initialPage = tab.coerceIn(0, tabs.size - 1)) { tabs.size }
@@ -1156,6 +1159,7 @@ private fun LookPanel(
         // Swipe left or right for the next tab; each starts at its top.
         HorizontalPager(pager, Modifier.fillMaxSize(), verticalAlignment = Alignment.Top) { page ->
             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 16.dp)) {
+                if (bookLook != null && tabs[page] in BOOK_LOOK_TABS) BookLookNote(bookLook)
                 when (tabs[page]) {
                     LookTab.TEXT -> TextSettings(s, onChange)
                     LookTab.PAGE -> PageSettings(s, onChange)
@@ -1163,6 +1167,39 @@ private fun LookPanel(
                     LookTab.CONTROLS -> ControlSettings(s, onChange)
                     LookTab.AUTOSCROLL -> AutoscrollSettings(s, onChange)
                 }
+            }
+        }
+    }
+}
+
+/**
+ * A book's own text, page and layout settings: whether it has them (changed while reading it), and going
+ * back to the usual ones or making its own the usual.
+ */
+class BookLook(val own: Boolean, val makeUsual: () -> Unit, val useUsual: () -> Unit)
+
+/** The tabs whose settings a book keeps for itself. */
+private val BOOK_LOOK_TABS = setOf(LookTab.TEXT, LookTab.PAGE, LookTab.LAYOUT)
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun BookLookNote(look: BookLook) {
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier.fillMaxWidth().padding(bottom = 14.dp),
+    ) {
+        Column(Modifier.padding(start = 14.dp, end = 8.dp, top = 10.dp, bottom = if (look.own) 2.dp else 10.dp)) {
+            Text(
+                if (look.own) tr("This book has its own text, page and layout settings. Other books use the usual ones.")
+                else tr("Text, page and layout settings you change here are kept for this book."),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(end = 6.dp),
+            )
+            if (look.own) FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                TextButton(onClick = look.makeUsual) { Text(tr("Make these the usual")) }
+                TextButton(onClick = look.useUsual) { Text(tr("Use the usual")) }
             }
         }
     }

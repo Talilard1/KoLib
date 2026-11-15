@@ -298,6 +298,90 @@ class BookEditingTest {
         }
     }
 
+    // ---- cover page ---------------------------------------------------------------------------
+
+    /** The start of a PNG [w] × [h]: enough for its size to be read. */
+    private fun pngHeader(w: Int, h: Int): ByteArray {
+        val b = ByteArray(33)
+        byteArrayOf(0x89.toByte(), 'P'.code.toByte(), 'N'.code.toByte(), 'G'.code.toByte(), 13, 10, 26, 10).copyInto(b)
+        b[11] = 13
+        "IHDR".toByteArray().copyInto(b, 12)
+        for (k in 0..3) {
+            b[16 + k] = (w shr (24 - 8 * k)).toByte()
+            b[20 + k] = (h shr (24 - 8 * k)).toByte()
+        }
+        return b
+    }
+
+    @Test
+    fun makesACoverPageWithANewCover() {
+        BookEdit(TestBooks.threeParts(tmp.newFile("three.epub"))).use { e ->
+            assertNull(ChapterOps.coverPagePath(e.structure))
+            assertNull(ChapterOps.coverImagePath(e, e.structure))
+            val r = ChapterOps.addCoverPage(e, e.structure, ChapterOps.NewPicture(byteArrayOf(1, 2, 3), "image/jpeg", 1072, 1448))
+            assertTrue(e.apply(r.label, r.changes))
+            val s = e.structure
+            assertEquals("OEBPS/text/cover.xhtml", s.chapters.first().path)
+            assertEquals(listOf("cover", "one", "two", "three"), s.chapters.map { it.path.substringAfterLast('/').substringBefore('.') })
+            assertEquals("OEBPS/text/cover.xhtml", ChapterOps.coverPagePath(s))
+            assertEquals("OEBPS/images/cover.jpg", ChapterOps.coverImagePath(e, s))
+            // The page shows the picture, kept in proportion, and is marked as the cover.
+            val page = e.text("OEBPS/text/cover.xhtml")!!
+            assertNull(XmlCheck.check(page))
+            assertTrue(page, page.contains("viewBox=\"0 0 1072 1448\"") && page.contains("xlink:href=\"../images/cover.jpg\"") && page.contains("epub:type=\"cover\""))
+            val opf = e.t("content.opf")
+            assertTrue(opf, opf.contains("href=\"text/cover.xhtml\" media-type=\"application/xhtml+xml\" properties=\"svg\""))
+            assertTrue(opf, opf.contains("<reference type=\"cover\" title=\"Cover\" href=\"text/cover.xhtml\"/>"))
+            assertTrue(e.t("nav.xhtml").contains("epub:type=\"cover\" href=\"text/cover.xhtml\""))
+            // The book still opens where it did, and a second cover page isn't made.
+            assertEquals("OEBPS/text/one.xhtml", ChapterOps.startPath(s))
+            assertTrue(runCatching { ChapterOps.addCoverPage(e, s, null) }.exceptionOrNull() is ChapterOps.OpError)
+            // It's all one step to undo.
+            e.undo()
+            assertEquals(listOf("one", "two", "three"), e.structure.chapters.map { it.path.substringAfterLast('/').substringBefore('.') })
+            assertFalse(e.has("OEBPS/images/cover.jpg"))
+        }
+    }
+
+    @Test
+    fun makesACoverPageFromTheBooksOwnCover() = garden().use { e ->
+        val add = ChapterOps.addFile(e, e.structure, "OEBPS/images/cover.png", pngHeader(600, 800), "image/png")
+        e.apply(add.label, add.changes)
+        assertEquals("OEBPS/images/cover.png", ChapterOps.coverImagePath(e, e.structure))
+        val r = ChapterOps.addCoverPage(e, e.structure, null)
+        e.apply(r.label, r.changes)
+        val page = e.t("text/cover.xhtml")
+        assertNull(XmlCheck.check(page))
+        assertTrue(page, page.contains("viewBox=\"0 0 600 800\"") && page.contains("xlink:href=\"../images/cover.png\""))
+        // An EPUB 2 book: no EPUB 3 markings.
+        assertFalse(page.contains("epub:type"))
+        assertFalse(e.t("content.opf").contains("properties=\"svg\""))
+        assertEquals("OEBPS/text/cover.xhtml", e.structure.chapters.first().path)
+        assertEquals("OEBPS/text/cover.xhtml", ChapterOps.coverPagePath(e.structure))
+        assertEquals("OEBPS/text/part1.xhtml", ChapterOps.startPath(e.structure))
+    }
+
+    @Test
+    fun anyChapterCanBeTheCoverPage() {
+        BookEdit(TestBooks.threeParts(tmp.newFile("three.epub"))).use { e ->
+            val r = ChapterOps.setCoverPage(e, e.structure, "OEBPS/text/three.xhtml")
+            e.apply(r.label, r.changes)
+            assertEquals(listOf("Three", "One", "Two"), e.structure.chapters.map { it.title })
+            assertEquals("OEBPS/text/three.xhtml", ChapterOps.coverPagePath(e.structure))
+            assertTrue(e.t("content.opf").contains("<reference type=\"cover\" title=\"Cover\" href=\"text/three.xhtml\"/>"))
+            val nav = e.t("nav.xhtml")
+            assertTrue(nav, nav.contains("<li><a epub:type=\"cover\" href=\"text/three.xhtml\">Cover</a></li>"))
+            // The landmark for where the book opens is left as it was.
+            assertTrue(nav, nav.contains("epub:type=\"bodymatter\" href=\"text/one.xhtml\""))
+            // Another chapter takes over as the cover page, and the first stays where it now is.
+            val again = ChapterOps.setCoverPage(e, e.structure, "OEBPS/text/two.xhtml")
+            e.apply(again.label, again.changes)
+            assertEquals(listOf("Two", "Three", "One"), e.structure.chapters.map { it.title })
+            assertEquals("OEBPS/text/two.xhtml", ChapterOps.coverPagePath(e.structure))
+            assertEquals(1, Regex("type=\"cover\"").findAll(e.t("content.opf")).count())
+        }
+    }
+
     @Test
     fun contentsFromHeadings() = garden().use { e ->
         val r = ChapterOps.contentsFromHeadings(e, e.structure, deepest = 3)

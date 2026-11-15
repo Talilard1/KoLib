@@ -236,6 +236,7 @@ fun CoverEditorScreen(
     if (generating) {
         CoverGeneratorScreen(
             text = coverText,
+            genre = remember(book.id, book.meta) { CoverGenre.guess(book.meta.tags, book.meta.series, book.meta.title, book.meta.description) },
             onUse = { bitmap, design ->
                 shown = ShownPicture(CoverRendering.prepare(bitmap, tr("Made here, in the {0} design", design.style.label)))
                 crop = CoverCrop()

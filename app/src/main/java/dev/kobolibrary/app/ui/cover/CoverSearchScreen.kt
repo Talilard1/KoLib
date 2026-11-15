@@ -206,6 +206,56 @@ fun CoverSearchScreen(
     }
 }
 
+/**
+ * A picture for a cover found on Google Images: Google's own page, searching for [firstQuery] or whatever
+ * is typed, where pressing and holding a picture picks it.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PictureSearchScreen(firstQuery: String, onPick: (bytes: ByteArray) -> Unit, onClose: () -> Unit) {
+    BackHandler(onBack = onClose)
+    var typed by remember { mutableStateOf(firstQuery) }
+    var searched by remember { mutableStateOf(firstQuery) }
+    var picked by remember { mutableStateOf<Shown?>(null) }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                navigationIcon = { IconButton(onClick = onClose) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Back")) } },
+                title = { Text(tr("Find a picture")) },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
+            )
+        },
+    ) { padding ->
+        Column(Modifier.padding(padding).fillMaxSize()) {
+            Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                val go: () -> Unit = { searched = typed.trim().ifEmpty { firstQuery } }
+                OutlinedTextField(
+                    value = typed,
+                    onValueChange = { typed = it },
+                    singleLine = true,
+                    label = { Text(tr("Search for")) },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                    keyboardActions = KeyboardActions(onSearch = { go() }),
+                    modifier = Modifier.weight(1f),
+                )
+                IconButton(onClick = go) { Icon(Icons.Outlined.Search, tr("Search")) }
+            }
+            GoogleImages(searched, Modifier.weight(1f).fillMaxWidth()) { picture -> picked = picture }
+        }
+    }
+    picked?.let { s ->
+        PickedCover(
+            s,
+            useLabel = tr("Use this picture"),
+            onUse = {
+                picked = null
+                onPick(s.cover.bytes)
+            },
+            onCancel = { picked = null },
+        )
+    }
+}
+
 /** A cover in the grid: the picture, where it's from, and its size at the bottom right. */
 @Composable
 private fun FoundTile(s: Shown, onClick: () -> Unit) {
@@ -248,7 +298,7 @@ private fun SizeBadge(w: Int, h: Int, modifier: Modifier = Modifier) {
 
 /** The cover picked, larger, to use or not. */
 @Composable
-private fun PickedCover(s: Shown, onUse: () -> Unit, onCancel: () -> Unit) {
+private fun PickedCover(s: Shown, onUse: () -> Unit, onCancel: () -> Unit, useLabel: String = tr("Use this cover")) {
     androidx.compose.ui.window.Dialog(onDismissRequest = onCancel) {
         Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surface) {
             Column(Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -261,7 +311,7 @@ private fun PickedCover(s: Shown, onUse: () -> Unit, onCancel: () -> Unit) {
                 Spacer(Modifier.height(16.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     OutlinedButton(onClick = onCancel) { Text(tr("Cancel")) }
-                    GoldButton(onClick = onUse) { Text(tr("Use this cover")) }
+                    GoldButton(onClick = onUse) { Text(useLabel) }
                 }
             }
         }

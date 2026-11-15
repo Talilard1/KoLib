@@ -441,6 +441,18 @@
 
   function saidIn(el) { return (el.textContent || '').replace(/\s+/g, ' ').trim(); }
 
+  /**
+   * A chapter's number and its name in one line ("CHAPTER ONE DARK MATTERS", "Chapter 3: The Road"):
+   * they can't be set apart, so the book's own look for them stays.
+   */
+  function numberAndName(t) {
+    var words = t.split(' ');
+    for (var k = 1; k < words.length && k <= 4; k++) {
+      if (chapterNumber.test(words.slice(0, k).join(' ').replace(/[.:,;\u2013\u2014-]+$/, ''))) return true;
+    }
+    return false;
+  }
+
   /** The book's own style sheets (not the reader's, nor the browser's) say [prop] for [el], or its own style attribute does. */
   function bookSets(el, prop) {
     if (el.style && el.style.getPropertyValue(prop)) return true;
@@ -555,10 +567,11 @@
         lines.push(el);
       }
     }
-    var number = null, name = null;
+    var number = null, name = null, together = false;
     for (var k = 0; k < lines.length; k++) {
       var line = lines[k];
       if (!number && !name && chapterNumber.test(saidIn(line))) { number = line; continue; }
+      if (!number && !name && headingLike(line, bodySize) && numberAndName(saidIn(line))) { together = true; break; }
       if (!name && (number || headingLike(line, bodySize))) { name = line; break; }
     }
     // Set as in print whatever the book says when the reader asks for that; otherwise only where the book
@@ -566,7 +579,7 @@
     if (number) { number.classList.add('kl-chapnum'); if (!bookStyles(number)) number.classList.add('kl-unstyled'); }
     if (name) { name.classList.add('kl-chapname'); if (!bookStyles(name)) name.classList.add('kl-unstyled'); }
     // A drop cap where a chapter starts, as in print, unless the book has its own.
-    if ((number || name) && !ownInitial(first)) first.classList.add('kl-dropcap');
+    if ((number || name || together) && !ownInitial(first)) first.classList.add('kl-dropcap');
   }
 
   /**
@@ -1042,13 +1055,17 @@
     } else KL.edge(-1);
   }
 
-  /** The app's turn: straight to the next or previous page. False at the first or last page. */
+  /**
+   * The app's turn: straight to the next or previous page. False at the first or last page; otherwise
+   * where the page is now, so the app shows its headings and number before it copies it for the turn
+   * (the report that follows a moment later says the same).
+   */
   function turnNow(dir) {
     if (scrolled) return false;
     var n = page + (dir > 0 ? 1 : -1);
     if (n < 0 || n > pages - 1) return false;
     showPage(n, false);
-    return true;
+    try { return JSON.stringify(here()); } catch (e) { log(e); return true; }
   }
 
   // ---- where the reader is ---------------------------------------------------------------------
@@ -1658,9 +1675,19 @@
     });
   }
 
+  /**
+   * Where the last relayout left the reader: the words it kept to, and the page (or the scroll) they came
+   * to. While the reader stays there, the next relayout keeps to the same words, so changing one setting
+   * after another doesn't creep back a page each time (the first words on a page after a relayout are
+   * usually a little before the ones kept to).
+   */
+  var kept = null;
+
   /** Lays out again (new settings, a new screen size) and stays at the same words. */
   function relayout(change) {
-    var keep = ready ? firstVisible() : null;
+    var still = ready && kept && kept.scrolled === scrolled && document.body.contains(kept.keep.node) &&
+        (scrolled ? Math.abs(scroller.scrollTop - kept.at) <= 2 : page === kept.at);
+    var keep = still ? kept.keep : ready ? firstVisible() : null;
     // Scrolling: how far down the screen those words were, so they stay there. (Put just under the top
     // band instead, the line half under it would come down a line each time.)
     var wasScrolled = scrolled, keptAt = null;
@@ -1685,6 +1712,7 @@
         var p = keep ? pageOf(keep.node, keep.offset) : null;
         showPage(p == null ? Math.round(progress * (pages - 1)) : p, false);
       }
+      kept = keep ? { keep: keep, scrolled: scrolled, at: scrolled ? scroller.scrollTop : page } : null;
       placeNoteMarks();
       blendPictures();
       root.classList.toggle('kl-auto-pages', auto.on && !scrolled);
@@ -1735,7 +1763,16 @@
 
   function pullMove(t) {
     var max = maxScroll();
-    if (scroller.scrollTop >= max - 1 && !isLast) {
+    var atEnd = scroller.scrollTop >= max - 1 && !isLast;
+    var atStart = scroller.scrollTop <= 1 && hasPrev;
+    if (atEnd && atStart) {
+      // A chapter too short to scroll (a dedication, a title page): it's at both ends at once, so the way
+      // the finger goes says which way it pulls.
+      if (!pull) pull = { dir: 0, from: t.clientY, dist: 0 };
+      var d = t.clientY - pull.from;
+      pull.dir = d < 0 ? 1 : -1;
+      pull.dist = Math.abs(d);
+    } else if (atEnd) {
       if (!pull || pull.dir !== 1) pull = { dir: 1, from: t.clientY, dist: 0 };
       pull.dist = Math.max(0, pull.from - t.clientY);
     } else if (scroller.scrollTop <= 1 && hasPrev) {

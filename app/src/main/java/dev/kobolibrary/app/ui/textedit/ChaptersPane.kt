@@ -25,6 +25,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DragIndicator
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.AddPhotoAlternate
 import androidx.compose.material.icons.outlined.ArrowDownward
 import androidx.compose.material.icons.outlined.ArrowUpward
 import androidx.compose.material.icons.outlined.CallMerge
@@ -32,6 +33,8 @@ import androidx.compose.material.icons.outlined.CallSplit
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.DriveFileRenameOutline
 import androidx.compose.material.icons.outlined.Flag
+import androidx.compose.material.icons.outlined.Image
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material.icons.outlined.Toc
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
@@ -82,7 +85,7 @@ sealed interface ChapterAction {
 
 /**
  * The book's chapters in reading order. Drag one by its handle (or press and hold it) to move it;
- * its menu renames, splits, joins, hides, deletes or makes it the start.
+ * its menu renames, splits, joins, hides, deletes or makes it the start or the cover page.
  */
 @Composable
 fun ChaptersPane(
@@ -94,6 +97,8 @@ fun ChaptersPane(
     val version = state.version
     val chapters = remember(version) { state.structure.chapters }
     val startPath = state.startPath
+    val coverPath = state.coverPath
+    val context = LocalContext.current
     val words by produceState(emptyMap<String, Int>(), version) {
         value = withContext(Dispatchers.Default) {
             chapters.associate { c -> c.path to (state.edit.text(c.path)?.let { EpubText.countWords(EpubText.plainText(it)) } ?: 0) }
@@ -167,6 +172,12 @@ fun ChaptersPane(
                         leadingIcon = { Icon(Icons.Outlined.Toc, null) },
                         onClick = { menu = false; state.contentsFromHeadings() },
                     )
+                    DropdownMenuItem(
+                        text = { Text(tr("Make a cover page")) },
+                        leadingIcon = { Icon(Icons.Outlined.AddPhotoAlternate, null) },
+                        enabled = coverPath == null,
+                        onClick = { menu = false; state.makeCoverPage(context) },
+                    )
                 }
             }
         }
@@ -180,6 +191,7 @@ fun ChaptersPane(
                     words = words[path],
                     current = path == state.currentPath,
                     isStart = path == startPath,
+                    isCover = path == coverPath,
                     dragged = isDragged,
                     first = index == 0,
                     last = index == order.size - 1,
@@ -196,6 +208,7 @@ fun ChaptersPane(
                     },
                     onHide = { state.setHidden(path, c.linear) },
                     onStart = { state.setStart(path) },
+                    onCover = { state.setCoverPage(path) },
                     handle = Modifier.pointerInput(path) {
                         detectDragGestures(
                             onDragStart = { dragging = path; dragOffset = 0f },
@@ -229,6 +242,7 @@ private fun ChapterRow(
     words: Int?,
     current: Boolean,
     isStart: Boolean,
+    isCover: Boolean,
     dragged: Boolean,
     first: Boolean,
     last: Boolean,
@@ -237,6 +251,7 @@ private fun ChapterRow(
     onMove: (Int) -> Unit,
     onHide: () -> Unit,
     onStart: () -> Unit,
+    onCover: () -> Unit,
     handle: Modifier,
     modifier: Modifier,
 ) {
@@ -273,6 +288,7 @@ private fun ChapterRow(
                     listOfNotNull(
                         words?.let { if (it == 1) tr("1 word") else tr("{0} words", "%,d".format(it)) },
                         if (!chapter.linear) tr("hidden") else null,
+                        if (isCover) tr("cover page") else null,
                         if (isStart) tr("book opens here") else null,
                     ).joinToString(" · "),
                     style = MaterialTheme.typography.labelSmall,
@@ -302,6 +318,8 @@ private fun ChapterRow(
                     )
                     DropdownMenuItem(text = { Text(tr("Open the book here")) }, leadingIcon = { Icon(Icons.Outlined.Flag, null) }, enabled = !isStart,
                         onClick = { menu = false; onStart() })
+                    DropdownMenuItem(text = { Text(tr("Use as the cover page")) }, leadingIcon = { Icon(Icons.Outlined.Image, null) }, enabled = !isCover,
+                        onClick = { menu = false; onCover() })
                     HorizontalDivider()
                     DropdownMenuItem(
                         text = { Text(tr("Delete…"), color = MaterialTheme.colorScheme.error) },

@@ -9,7 +9,8 @@ read in the app (Library, then the ⓘ button).
 | kepubify, © 2017–2022 Patrick Gaskin | Sending books as kepubs: `epub/KepubConverter.kt` follows kepubify's method | MIT | `kepubify-MIT.txt` |
 | Lora | Lettering on covers the app makes | SIL OFL 1.1 | `lora-OFL.txt` |
 | Poppins | Lettering on covers the app makes | SIL OFL 1.1 | `poppins-OFL.txt` |
-| Liberation Serif and Sans | Covers the app makes, for alphabets Lora and Poppins lack | SIL OFL 1.1 | `liberation-fonts.txt` |
+| Cinzel, Cinzel Decorative, UnifrakturMaguntia, Great Vibes, Bebas Neue, Orbitron, Poiret One, Fredoka | Lettering on covers the app makes | SIL OFL 1.1 | `cinzel-OFL.txt`, `cinzel-decorative-OFL.txt`, `unifraktur-maguntia-OFL.txt`, `great-vibes-OFL.txt`, `bebas-neue-OFL.txt`, `orbitron-OFL.txt`, `poiret-one-OFL.txt`, `fredoka-OFL.txt` |
+| Liberation Serif and Sans | Covers the app makes, for alphabets the fonts above lack | SIL OFL 1.1 | `liberation-fonts.txt` |
 | EB Garamond, Literata, Atkinson Hyperlegible, OpenDyslexic | Typefaces in the reader; EB Garamond also for the app's headings and book titles | SIL OFL 1.1 | `*-OFL.txt` |
 | AndroidX, Jetpack Compose, Material icons, Kotlin, kotlinx.coroutines | The app's framework | Apache 2.0 | `apache-2.0.txt` |
 | libarchive, © 2003–2018 Tim Kientzle and the libarchive contributors | Reading CBR (RAR) and CB7 (7z) comics | BSD 2-clause | `libarchive-BSD.txt` |

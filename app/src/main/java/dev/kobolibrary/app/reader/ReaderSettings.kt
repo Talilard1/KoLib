@@ -427,6 +427,33 @@ data class ReaderSettings(
      * there. When scrolling, the margins do: their items show over the text, in bands it scrolls under.
      * (Turning pages, the room kept for the margins does too: see [marginRoom].)
      */
+    /**
+     * These settings with [book]'s look in place of theirs: how its text is set (font, size, spacing,
+     * margins, alignment, hyphens), how its pages are laid out (side by side, scrolling, the headings and
+     * what shows round the page, pictures, links) and how its chapters open. A book keeps a look of its own
+     * once one of those is changed while it's read. The page colour, the brightness, the controls, the page
+     * turn and autoscroll are the same for every book.
+     */
+    fun withLookOf(book: ReaderSettings): ReaderSettings = copy(
+        font = book.font, fontScale = book.fontScale, lineSpacing = book.lineSpacing, margins = book.margins, align = book.align,
+        hyphens = book.hyphens, spread = book.spread, flow = book.flow, marginItems = book.marginItems, runningHeads = book.runningHeads,
+        headTitlePlace = book.headTitlePlace, headSize = book.headSize, headGap = book.headGap, collectionTitle = book.collectionTitle,
+        pictures = book.pictures, colourLinks = book.colourLinks, joinOpenings = book.joinOpenings, rectoOpenings = book.rectoOpenings,
+        printHeads = book.printHeads, dropCaps = book.dropCaps,
+    )
+
+    /** These and [other] give a book the same look (see [withLookOf]). */
+    fun sameLook(other: ReaderSettings): Boolean = withLookOf(other) == this
+
+    /** The look (see [withLookOf]), to keep with a book. */
+    fun lookJson(): JSONObject = JSONObject()
+        .put("font", font.name).put("fontScale", fontScale.toDouble()).put("line", lineSpacing.toDouble()).put("margins", margins.name)
+        .put("align", align.name).put("hyphens", hyphens.name).put("spread", spread.name).put("flow", flow.name)
+        .put("marginItems", MarginItem.write(marginItems)).put("heads", runningHeads.name).put("headTitles", headTitlePlace.name)
+        .put("headSize", headSize.name).put("headGap", headGap.name).put("collectionTitle", collectionTitle.name)
+        .put("pictures", pictures.name).put("linkColour", colourLinks).put("openings", joinOpenings).put("rectoOpenings", rectoOpenings)
+        .put("printHeads", printHeads).put("dropCaps", dropCaps)
+
     fun pageOnly(): ReaderSettings = copy(
         volumeKeys = true, edgePanels = true, edgeBack = false, keepScreenOn = true, brightness = -1f, brightnessFromScreen = true,
         marginItems = if (scrolling) marginItems else MarginItem.DEFAULTS,
@@ -481,6 +508,33 @@ data class ReaderSettings(
     }.toString()
 
     companion object {
+        /** [base] with the look kept in [o] (see [lookJson]); anything missing or unknown stays as [base] has it. */
+        fun withLook(base: ReaderSettings, o: JSONObject): ReaderSettings {
+            fun <E : Enum<E>> pick(key: String, values: Array<E>, d: E): E = o.optString(key).let { v -> values.firstOrNull { it.name == v } } ?: d
+            return base.copy(
+                font = pick("font", ReaderFont.values(), base.font),
+                fontScale = o.optDouble("fontScale", base.fontScale.toDouble()).toFloat(),
+                lineSpacing = o.optDouble("line", base.lineSpacing.toDouble()).toFloat(),
+                margins = pick("margins", ReaderMargins.values(), base.margins),
+                align = pick("align", ReaderAlign.values(), base.align),
+                hyphens = pick("hyphens", ReaderHyphens.values(), base.hyphens),
+                spread = pick("spread", ReaderSpread.values(), base.spread),
+                flow = pick("flow", ReaderFlow.values(), base.flow),
+                marginItems = o.optString("marginItems").takeIf { it.isNotEmpty() }?.let { MarginItem.parse(it) } ?: base.marginItems,
+                runningHeads = pick("heads", RunningHeads.values(), base.runningHeads),
+                headTitlePlace = pick("headTitles", HeadTitlePlace.values(), base.headTitlePlace),
+                headSize = pick("headSize", HeadSize.values(), base.headSize),
+                headGap = pick("headGap", HeadGap.values(), base.headGap),
+                collectionTitle = pick("collectionTitle", CollectionTitle.values(), base.collectionTitle),
+                pictures = pick("pictures", PictureBlend.values(), base.pictures),
+                colourLinks = o.optBoolean("linkColour", base.colourLinks),
+                joinOpenings = o.optBoolean("openings", base.joinOpenings),
+                rectoOpenings = o.optBoolean("rectoOpenings", base.rectoOpenings),
+                printHeads = o.optBoolean("printHeads", base.printHeads),
+                dropCaps = o.optBoolean("dropCaps", base.dropCaps),
+            )
+        }
+
         fun css(argb: Long): String = "#%06x".format(argb and 0xFFFFFF)
         val FONT_SCALES = listOf(0.7f, 0.8f, 0.9f, 1f, 1.1f, 1.2f, 1.3f, 1.45f, 1.6f, 1.8f, 2f, 2.3f, 2.6f)
         val LINE_SPACINGS = listOf(0f, 1.2f, 1.4f, 1.6f, 1.8f, 2f)

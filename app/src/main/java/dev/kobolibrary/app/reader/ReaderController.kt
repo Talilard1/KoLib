@@ -185,7 +185,13 @@ class ReaderController(
         }
         main.post {
             try {
-                v.evaluateJavascript("KLR.turnNow($dir)") { r -> done(r == "true") }
+                v.evaluateJavascript("KLR.turnNow($dir)") { r ->
+                    // Where the page is now comes back with it: taken in at once, so the headings and the
+                    // page number are this page's before a turn copies it.
+                    val moved = r != null && r != "false" && r != "null"
+                    if (moved && r != "true") runCatching { org.json.JSONTokener(r).nextValue() as String }.getOrNull()?.let { update(it) }
+                    done(moved)
+                }
             } catch (e: Exception) {
                 done(false)
             }

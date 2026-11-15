@@ -179,11 +179,11 @@ pages themselves are read on your device and never sent anywhere.
 
 | File | Best for |
 |---|---|
-| **KoLib-…-arm64-v8a.apk** | **Almost every phone and tablet from the last several years** (Galaxy Tab S9, Galaxy A72…) |
+| **KoLib-…-arm64-v8a.apk** | **Almost every phone and tablet from the last several years** |
 | KoLib-…-armeabi-v7a.apk | Older 32-bit phones and tablets |
 | KoLib-…-x86_64.apk | Chromebooks, and Android emulators on a PC |
 | KoLib-…-x86.apk | Older emulators |
-| KoLib-…-universal.apk | Any of these, if you'd rather not choose |
+| KoLib-…-universal.apk | If you are uncertain |
 
 KoLib needs Android 10 or newer, and a USB-C cable (or adapter) that carries data, not only power.
 New versions install over the one you have, and your library and settings stay as they are.

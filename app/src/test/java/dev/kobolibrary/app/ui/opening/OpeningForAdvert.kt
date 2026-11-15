@@ -24,7 +24,7 @@ import java.io.File
  * The opening at the advert's size (2560 x 1440), thirty frames a second, once over black and once over
  * white: from the two, the advert works out how much of what is behind shows through each dot, and so can
  * put its own first scene behind the opening where the app would be. Only runs when asked for: when the file
- * /home/claude/advert4/opening/render-now is there.
+ * /home/claude/advert5/opening/render-now is there.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
@@ -34,7 +34,7 @@ class OpeningForAdvert {
     @get:Rule
     val compose = createComposeRule()
 
-    private val home = File("/home/claude/advert4")
+    private val home = File("/home/claude/advert5")
 
     private fun render(dir: File, behind: Color) {
         assumeTrue(File(home, "opening/render-now").exists())

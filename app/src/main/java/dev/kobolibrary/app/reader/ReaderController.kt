@@ -1653,6 +1653,12 @@ class ReaderController(
     internal val lengthsCounted: Boolean get() = lengthsKnown
 
     /** For pictures of the reading screen in tests, where there's no WebView to report pages. */
+    /** For pictures of the reader made without a WebView: what the page is told as chapter [index] opens at its start. */
+    internal fun startForPreview(index: Int): String {
+        open(index, target("start"))
+        return startJson
+    }
+
     internal fun showForPreview(chapter: Int, page: Int, pages: Int, columns: Int = pages, twoUp: Boolean = false, blank: Int = 0, display: Boolean = false) {
         chapterIndex = chapter
         this.page = page

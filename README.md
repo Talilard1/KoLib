@@ -136,7 +136,8 @@ There's no account to make and no ads.
   device) and turned the right way up, across both pages; or tap a picture to turn it yourself.
 - Every picture in the book in one place: the Pictures tab, beside the contents, bookmarks and
   highlights, shows them all small, in the order they come, each with its chapter (and its book, in
-  a book of several). Tap one to see it full screen, then go to its page if you like.
+  a book of several). Tap one to see it full screen, swipe for the next or the one before, and go to
+  its page if you like.
 
 ### Comics
 

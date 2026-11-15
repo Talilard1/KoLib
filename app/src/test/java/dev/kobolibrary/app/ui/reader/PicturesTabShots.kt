@@ -12,6 +12,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.onRoot
 import androidx.test.core.app.ApplicationProvider
 import com.github.takahirom.roborazzi.captureScreenRoboImage
 import dev.kobolibrary.app.TestLanguage
@@ -233,10 +239,44 @@ ${chapters.joinToString("\n") { (id, t) -> """<li><a href="text/$id.xhtml">$t</a
     fun aPictureFromTheList() {
         val c = controller()
         c.contentsTab = 3
-        val map = c.pictures!!.first { it.path.endsWith("map.png") }
-        c.imageChapter = map.chapter
-        c.image = c.pictureUrl(map.path)
+        val all = c.pictures!!
+        c.browsing = ReaderController.Browse(all, all.indexOfFirst { it.path.endsWith("map.png") })
         shot("59e_reader_picture_viewer", c)
-        assertTrue(c.image != null)
+        assertEquals(1, c.browsedTo)
+    }
+
+    /** From the list, a swipe goes to the next picture or the one before; "Go to its page" goes to the one shown. */
+    @Test
+    @Config(qualifiers = PHONE)
+    fun swipingThroughThePictures() {
+        val c = controller()
+        c.contentsTab = 3
+        val all = c.pictures!!
+        c.browsing = ReaderController.Browse(all, 1)
+        shot("59f_reader_picture_swipe_tmp", c)
+        assertEquals(1, c.browsedTo)
+        fun swipe(left: Boolean) {
+            compose.onRoot().performTouchInput { if (left) swipeLeft() else swipeRight() }
+            repeat(6) { compose.waitForIdle(); Thread.sleep(30) }
+        }
+        swipe(left = true)
+        assertEquals("the next", 2, c.browsedTo)
+        swipe(left = true)
+        assertEquals(3, c.browsedTo)
+        swipe(left = false)
+        assertEquals("the one before", 2, c.browsedTo)
+        captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/59f_reader_picture_swipe.png")
+        File("${TestLanguage.folder("build/outputs/roborazzi")}/59f_reader_picture_swipe_tmp.png").delete()
+        // The first picture has none before it.
+        c.browsing = ReaderController.Browse(all, 0)
+        repeat(4) { compose.waitForIdle(); Thread.sleep(30) }
+        swipe(left = false)
+        assertEquals(0, c.browsedTo)
+        // Going to the page of the one shown closes the pictures.
+        swipe(left = true)
+        compose.onNodeWithText("Go to its page").performClick()
+        compose.waitForIdle()
+        assertEquals(null, c.browsing)
+        assertEquals(all[1].chapter, c.chapterIndex)
     }
 }

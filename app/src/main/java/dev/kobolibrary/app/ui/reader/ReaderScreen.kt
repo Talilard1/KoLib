@@ -74,6 +74,10 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.runtime.key
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.material3.ButtonDefaults
 import dev.kobolibrary.app.reader.BookPictures
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -321,6 +325,7 @@ internal fun ReaderScreen(
             controller.openAnnotation != null -> controller.openAnnotation = null
             panel != Panel.NONE -> panel = Panel.NONE
             controller.note != null -> controller.note = null
+            controller.browsing != null -> controller.browsing = null
             controller.image != null -> controller.image = null
             else -> onClose()
         }
@@ -332,7 +337,7 @@ internal fun ReaderScreen(
     val pageColor = Color(s.theme.bg)
     val inkColor = Color(s.theme.fg)
     // Nothing shown over the page but (perhaps) the controls: a panel, a note, a picture, a question...
-    fun pageClear(): Boolean = panel == Panel.NONE && controller.note == null && controller.image == null &&
+    fun pageClear(): Boolean = panel == Panel.NONE && controller.note == null && controller.image == null && controller.browsing == null &&
         controller.externalLink == null && !controller.atEnd && controller.openAnnotation == null && controller.editingNote == null &&
         controller.lookUpText == null
     BoxWithConstraints(Modifier.fillMaxSize().background(pageColor).edgeBackSwipe(edgeBack, backSwipe) { goBack() }) {
@@ -473,21 +478,21 @@ internal fun ReaderScreen(
                 controller.followNote(note.href)
             })
         }
-        controller.image?.let { src ->
-            ImageViewer(
-                controller, src,
-                onClose = { controller.image = null; controller.imageChapter = null },
-                onGoTo = controller.imageChapter?.let { i ->
-                    {
-                        val path = BookServer.pathOf(src)?.first
-                        controller.image = null
-                        controller.imageChapter = null
+        controller.image?.let { src -> ImageViewer(controller, src, onClose = { controller.image = null }) }
+        controller.browsing?.let { browse ->
+            // Opened afresh each time, where it's opened at.
+            key(browse) {
+                PictureBrowser(
+                    controller, browse,
+                    onClose = { controller.browsing = null },
+                    onGoTo = { p ->
+                        controller.browsing = null
                         panel = Panel.NONE
                         controller.controlsVisible = false
-                        if (path != null) controller.goToPicture(i, path)
-                    }
-                },
-            )
+                        controller.goToPicture(p.chapter, p.path)
+                    },
+                )
+            }
         }
         // Highlights: the card for a tapped one, writing a note, looking words up.
         AnnotationCard(controller, s, onSettings)
@@ -1009,7 +1014,9 @@ private fun PicturesList(controller: ReaderController) {
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp),
                 ) {
-                    items(shown, key = { it.path }) { p -> PictureCell(controller, p) }
+                    itemsIndexed(shown, key = { _, p -> p.path }) { i, p ->
+                        PictureCell(controller, p) { controller.browsing = ReaderController.Browse(shown, i) }
+                    }
                 }
             }
         }
@@ -1017,7 +1024,7 @@ private fun PicturesList(controller: ReaderController) {
 }
 
 @Composable
-private fun PictureCell(controller: ReaderController, p: ReaderController.BookPicture) {
+private fun PictureCell(controller: ReaderController, p: ReaderController.BookPicture, onOpen: () -> Unit) {
     val turned = controller.turns[p.path] ?: 0
     val small by produceState<android.graphics.Bitmap?>(null, p.path, turned) {
         value = withContext(Dispatchers.IO) { runCatching { controller.thumbnail(p.path, 360) }.getOrNull() }
@@ -1025,10 +1032,7 @@ private fun PictureCell(controller: ReaderController, p: ReaderController.BookPi
     Column(
         Modifier
             .clip(RoundedCornerShape(6.dp))
-            .clickable {
-                controller.imageChapter = p.chapter
-                controller.image = controller.pictureUrl(p.path)
-            }
+            .clickable(onClick = onOpen)
             .padding(2.dp),
     ) {
         Box(
@@ -1663,77 +1667,144 @@ private fun NoteSheet(html: String, onClose: () -> Unit, onGoTo: () -> Unit) {
     }
 }
 
+/** A picture from the page, full screen: pinch or double-tap to zoom, and turn it if it's on its side. */
 @Composable
-private fun ImageViewer(controller: ReaderController, src: String, onClose: () -> Unit, onGoTo: (() -> Unit)? = null) {
+private fun ImageViewer(controller: ReaderController, src: String, onClose: () -> Unit) {
     val parts = remember(src) { src.split('\n') }
     // A picture of its own (not the two halves of a map) can be turned: one printed on its side to fit a page.
     val path = remember(src) { if (parts.size >= 2) null else BookServer.pathOf(src)?.first }
     val turned = path?.let { controller.turns[it] } ?: 0
-    var turnsMade by remember(src) { mutableStateOf(0) }
-    val bitmap = remember(src, turned, turnsMade) {
-        if (parts.size >= 2) joinedHalves(controller, parts)?.asImageBitmap()
-        else path?.let { controller.pictureBytes(it) }?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }?.asImageBitmap()
+    // Null while it's read; a failure if it can't be.
+    val bitmap by produceState<Result<ImageBitmap>?>(null, src, turned) {
+        value = withContext(Dispatchers.IO) {
+            runCatching {
+                checkNotNull(
+                    if (parts.size >= 2) joinedHalves(controller, parts)?.asImageBitmap()
+                    else path?.let { controller.pictureBytes(it) }?.let { viewerBitmap(it) }?.asImageBitmap()
+                )
+            }
+        }
     }
-    var scale by remember { mutableFloatStateOf(1f) }
-    var offset by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
+    Box(Modifier.fillMaxSize().background(Color.Black)) {
+        ZoomablePicture(bitmap, src to turned, onZoomed = {})
+        ViewerButtons(controller, path, onClose)
+    }
+}
+
+/**
+ * The book's pictures, full screen, from the list of them: swipe left or right for the next or the one before
+ * (when it isn't zoomed in). Turn the one shown, or go to its page.
+ */
+@Composable
+private fun PictureBrowser(controller: ReaderController, browse: ReaderController.Browse, onClose: () -> Unit, onGoTo: (ReaderController.BookPicture) -> Unit) {
+    val pictures = browse.pictures
+    if (pictures.isEmpty()) return
+    val pager = rememberPagerState(initialPage = browse.start.coerceIn(0, pictures.lastIndex)) { pictures.size }
+    var zoomed by remember { mutableStateOf(false) }
+    LaunchedEffect(pager.currentPage) {
+        controller.browsedTo = pager.currentPage
+        zoomed = false
+    }
+    Box(Modifier.fillMaxSize().background(Color.Black)) {
+        HorizontalPager(
+            pager, Modifier.fillMaxSize(),
+            userScrollEnabled = !zoomed,
+            beyondViewportPageCount = 1,
+            key = { pictures[it].path },
+        ) { page ->
+            val p = pictures[page]
+            val turned = controller.turns[p.path] ?: 0
+            val bitmap by produceState<Result<ImageBitmap>?>(null, p.path, turned) {
+                value = withContext(Dispatchers.IO) { runCatching { checkNotNull(controller.pictureBytes(p.path)?.let { viewerBitmap(it) }).asImageBitmap() } }
+            }
+            ZoomablePicture(bitmap, p.path to turned, onZoomed = { if (page == pager.currentPage) zoomed = it })
+        }
+        val current = pictures[pager.currentPage.coerceIn(0, pictures.lastIndex)]
+        ViewerButtons(controller, current.path, onClose)
+        TextButton(
+            onClick = { onGoTo(current) },
+            colors = ButtonDefaults.textButtonColors(containerColor = Color.Black.copy(alpha = 0.5f), contentColor = Color.White),
+            modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(16.dp),
+        ) {
+            Text(tr("Go to its page"))
+        }
+    }
+}
+
+/**
+ * A picture fitted to the screen, to pinch or double-tap to zoom into and drag about; [onZoomed] says when it's
+ * zoomed in (and so, in a row of pictures, a drag moves it rather than going to the next). [key]: a new picture.
+ */
+@Composable
+private fun ZoomablePicture(bitmap: Result<ImageBitmap>?, key: Any, onZoomed: (Boolean) -> Unit) {
+    var scale by remember(key) { mutableFloatStateOf(1f) }
+    var offset by remember(key) { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
     val transform = rememberTransformableState { zoom, pan, _ ->
         scale = (scale * zoom).coerceIn(1f, 6f)
         offset = if (scale == 1f) androidx.compose.ui.geometry.Offset.Zero else offset + pan
+        onZoomed(scale > 1f)
     }
     Box(
         Modifier
             .fillMaxSize()
-            .background(Color.Black)
-            .pointerInput(Unit) { detectTapGestures(onDoubleTap = { scale = if (scale > 1f) 1f else 2.5f; offset = androidx.compose.ui.geometry.Offset.Zero }) }
+            .pointerInput(key) {
+                detectTapGestures(onDoubleTap = {
+                    scale = if (scale > 1f) 1f else 2.5f
+                    offset = androidx.compose.ui.geometry.Offset.Zero
+                    onZoomed(scale > 1f)
+                })
+            },
+        contentAlignment = Alignment.Center,
     ) {
-        if (bitmap != null) {
+        val picture = bitmap?.getOrNull()
+        if (bitmap != null && picture == null) {
+            Text(tr("This picture can't be shown."), color = Color.White)
+        } else if (picture != null) {
             Image(
-                bitmap,
+                picture,
                 contentDescription = null,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .fillMaxSize()
-                    .transformable(transform)
+                    // A drag only moves the picture about when it's zoomed in; else it's left to what's round it.
+                    .transformable(transform, canPan = { scale > 1f })
                     .graphicsLayer(scaleX = scale, scaleY = scale, translationX = offset.x, translationY = offset.y),
             )
-        } else {
-            Text(tr("This picture can't be shown."), color = Color.White, modifier = Modifier.align(Alignment.Center))
         }
-        // The buttons sit on a dark round backing, so they show over a pale picture too.
-        val backing = Color.Black.copy(alpha = 0.5f)
-        IconButton(onClick = onClose, modifier = Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(8.dp).clip(CircleShape).background(backing)) {
-            Icon(Icons.Filled.Close, tr("Close picture"), tint = Color.White)
-        }
-        if (path != null && bitmap != null) {
-            Row(
-                Modifier.align(Alignment.TopStart).statusBarsPadding().padding(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                IconButton(modifier = Modifier.clip(CircleShape).background(backing), onClick = {
-                    controller.turnPicture(path, -1)
-                    turnsMade++
-                    scale = 1f
-                    offset = androidx.compose.ui.geometry.Offset.Zero
-                }) { Icon(Icons.Filled.RotateLeft, tr("Turn the picture left"), tint = Color.White) }
-                IconButton(modifier = Modifier.clip(CircleShape).background(backing), onClick = {
-                    controller.turnPicture(path, 1)
-                    turnsMade++
-                    scale = 1f
-                    offset = androidx.compose.ui.geometry.Offset.Zero
-                }) { Icon(Icons.Filled.RotateRight, tr("Turn the picture right"), tint = Color.White) }
+    }
+}
+
+/** Over a picture shown full screen: turning it (if it's a picture of its own, at [path]), and closing. */
+@Composable
+private fun BoxScope.ViewerButtons(controller: ReaderController, path: String?, onClose: () -> Unit) {
+    // The buttons sit on a dark round backing, so they show over a pale picture too.
+    val backing = Color.Black.copy(alpha = 0.5f)
+    IconButton(onClick = onClose, modifier = Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(8.dp).clip(CircleShape).background(backing)) {
+        Icon(Icons.Filled.Close, tr("Close picture"), tint = Color.White)
+    }
+    if (path != null) {
+        Row(
+            Modifier.align(Alignment.TopStart).statusBarsPadding().padding(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            IconButton(modifier = Modifier.clip(CircleShape).background(backing), onClick = { controller.turnPicture(path, -1) }) {
+                Icon(Icons.Filled.RotateLeft, tr("Turn the picture left"), tint = Color.White)
             }
-        }
-        onGoTo?.let { go ->
-            TextButton(
-                onClick = go,
-                colors = ButtonDefaults.textButtonColors(containerColor = backing, contentColor = Color.White),
-                modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(16.dp),
-            ) {
-                Text(tr("Go to its page"))
+            IconButton(modifier = Modifier.clip(CircleShape).background(backing), onClick = { controller.turnPicture(path, 1) }) {
+                Icon(Icons.Filled.RotateRight, tr("Turn the picture right"), tint = Color.White)
             }
         }
     }
+}
+
+/** A picture's bytes as a bitmap to show full screen: a very large one made smaller (no side over 4096), so it can be drawn. */
+private fun viewerBitmap(bytes: ByteArray): android.graphics.Bitmap? {
+    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
+    var sample = 1
+    while (maxOf(bounds.outWidth, bounds.outHeight) / sample > 4096) sample *= 2
+    return BitmapFactory.decodeByteArray(bytes, 0, bytes.size, BitmapFactory.Options().apply { inSampleSize = sample })
 }
 
 /**

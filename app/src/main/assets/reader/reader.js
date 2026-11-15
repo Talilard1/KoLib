@@ -1470,6 +1470,25 @@
     return document.getElementById(id) || document.querySelector('[name="' + id.replace(/"/g, '\\"') + '"]');
   }
 
+  /** The first picture in the page (an img, or an svg's image) whose address is [url]. */
+  function pictureFor(url) {
+    if (!url) return null;
+    var plain = function (u) {
+      u = String(u).split('#')[0].split('?')[0];
+      try { return decodeURI(u); } catch (e) { return u; }
+    };
+    var want = plain(url);
+    var all = document.querySelectorAll('img, image');
+    for (var i = 0; i < all.length; i++) {
+      var el = all[i];
+      var src = el.getAttribute('src') || el.getAttribute('href') || el.getAttribute('xlink:href');
+      if (!src) continue;
+      try { src = new URL(src, document.baseURI).href; } catch (e) { continue; }
+      if (plain(src) === want) return el.tagName.toLowerCase() === 'image' && el.ownerSVGElement ? el.ownerSVGElement : el;
+    }
+    return null;
+  }
+
   function pageOfElement(el) {
     var target = el;
     // An empty anchor has no box of its own: use what follows it.
@@ -1556,6 +1575,12 @@
         if (hr && t.flash) flash(hr);
         break;
       }
+      case 'picture': {
+        var pic = pictureFor(t.value);
+        var pr = pic ? pic.getBoundingClientRect() : null;
+        y = pr ? nearTop(pr.top + scroller.scrollTop) : 0;
+        break;
+      }
       case 'fragment': {
         var el = elementFor(t.value);
         var er = el ? (rectOf(el) || el.getBoundingClientRect()) : null;
@@ -1609,6 +1634,12 @@
           highlight('kl-flash', hr);
           setTimeout(function () { clearHighlight('kl-flash'); }, 1600);
         }
+        break;
+      }
+      case 'picture': {
+        var pic = pictureFor(t.value);
+        var pp = pic ? pageOfElement(pic) : null;
+        target = pp == null ? 0 : pp;
         break;
       }
       case 'fragment': {

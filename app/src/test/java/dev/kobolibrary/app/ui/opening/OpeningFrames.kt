@@ -77,6 +77,17 @@ class OpeningFrames {
         render(File(home, "key-light"), null, times, light = true)
     }
 
+    /** The threads running in and the book drawn from them, to the flash, closely: both versions. */
+    private val merging = List(34) { 1.3f + it * 0.05f }
+
+    @Test
+    @Config(qualifiers = "w411dp-h914dp-port-hdpi")
+    fun merging() = render(File(home, "merge-full"), null, merging)
+
+    @Test
+    @Config(qualifiers = "w411dp-h914dp-port-hdpi")
+    fun mergingLight() = render(File(home, "merge-light"), null, merging, light = true)
+
     /** The lighter version, the same way. */
     @Test
     @Config(qualifiers = "w411dp-h914dp-port-hdpi")
@@ -99,6 +110,14 @@ class OpeningFrames {
     @Test
     @Config(qualifiers = "w1280dp-h800dp-land-mdpi")
     fun tabletThrough() = render(File(home, "through-tablet"), "/home/claude/advert/app140/ad_library.png", through)
+
+    /** Every frame at 60 a second on a tablet held sideways, over the library, for a preview video. */
+    @Test
+    @Config(qualifiers = "w1280dp-h800dp-land-mdpi")
+    fun tabletAll() = render(
+        File(home, "tablet-all"), "/home/claude/advert/app140/ad_library.png",
+        List((Opening.LENGTH * 60).toInt() + 24) { it / 60f },
+    )
 
     /** A few moments on a tablet held sideways, to check the layout there. */
     @Test

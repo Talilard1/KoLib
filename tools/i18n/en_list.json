@@ -1836,5 +1836,10 @@
 "A picture printed on its side: turn it the right way up, and it goes across both pages.",
 "The first time for each language, it needs to download that language's recognition data (a few megabytes).",
 "It needs to download the recognition data for each language first: {0} for the languages picked, from the Tesseract project. Each one is downloaded once, and kept.",
-"The recognition data for the languages picked is on this device already, so nothing needs downloading."
+"The recognition data for the languages picked is on this device already, so nothing needs downloading.",
+"Pictures",
+"This book has no pictures.",
+"Large only ({0})",
+"Front of the book",
+"Go to its page"
 ]

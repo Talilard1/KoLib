@@ -1,0 +1,48 @@
+@fr
+1838|Images
+1839|Ce livre ne contient aucune image.
+1840|Grandes seulement ({0})
+1841|Début du livre
+1842|Aller à sa page
+@de
+1838|Bilder
+1839|Dieses Buch enthält keine Bilder.
+1840|Nur große ({0})
+1841|Anfang des Buchs
+1842|Zur Seite im Buch
+@es
+1838|Imágenes
+1839|Este libro no tiene imágenes.
+1840|Solo grandes ({0})
+1841|Inicio del libro
+1842|Ir a su página
+@it
+1838|Immagini
+1839|Questo libro non ha immagini.
+1840|Solo grandi ({0})
+1841|Inizio del libro
+1842|Vai alla sua pagina
+@nl
+1838|Afbeeldingen
+1839|Dit boek heeft geen afbeeldingen.
+1840|Alleen grote ({0})
+1841|Begin van het boek
+1842|Naar de pagina
+@pt
+1838|Imagens
+1839|Este livro não tem imagens.
+1840|Só as grandes ({0})
+1841|Início do livro
+1842|Ir para a página
+@ru
+1838|Картинки
+1839|В этой книге нет картинок.
+1840|Только крупные ({0})
+1841|Начало книги
+1842|Перейти к странице
+@ja
+1838|画像
+1839|この本には画像がありません。
+1840|大きいものだけ（{0}）
+1841|本の冒頭
+1842|そのページへ移動

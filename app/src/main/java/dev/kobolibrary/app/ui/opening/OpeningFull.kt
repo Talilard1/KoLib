@@ -212,27 +212,37 @@ private class FullArt {
         return comet
     }
 
-    class Thread(val angle: Float, val delay: Float, val squash: Float, val tilt: Float, val width: Float, val length: Float, val bright: Float)
     class Speck(val angle: Float, val radius: Float, val size: Float, val phase: Float, val twinkle: Float, val appear: Float, val spin: Float, val depth: Float)
     class Spark(val angle: Float, val speed: Float, val size: Float, val life: Float)
 
-    val threads: List<Thread>
+    val threads: List<OpeningThread>
     val specks: List<Speck>
     val sparks: List<Spark>
+    /** The pages' lines measured, for where the threads go over into them. */
+    val leftTrack = MarkTrack(leftHalf)
+    val rightTrack = MarkTrack(rightHalf)
+    /** How far the right-hand page's line is drawn when it passes where the ribbon hangs: it leaves a spark there. */
+    val ribbonSeed = OpeningThreads.nearestAlong(rightHalf, MarkPoints.RIBBON_TOP)
+
+    private val tailPart = Path()
+    /** Where the tail [tail] gave last starts. */
+    var tailStart = Offset.Zero
+        private set
+
+    /** The last [back] of [half], drawn to [f] of the way along: the bright tail behind its pen. */
+    fun tail(half: Path, f: Float, back: Float): Path {
+        tailPart.reset()
+        measure.setPath(half, false)
+        val length = measure.length
+        val from = length * max(0f, f - back)
+        measure.getSegment(from, length * f, tailPart, true)
+        tailStart = measure.getPosition(from)
+        return tailPart
+    }
 
     init {
         val r = Random(7)
-        threads = List(13) { i ->
-            Thread(
-                angle = (i * 2 * PI / 13).toFloat() + r.nextFloat() * 0.4f,
-                delay = r.nextFloat() * 0.4f,
-                squash = 0.7f + r.nextFloat() * 0.3f,
-                tilt = r.nextFloat() * PI.toFloat(),
-                width = 2.6f + r.nextFloat() * 2.0f,
-                length = 0.16f + r.nextFloat() * 0.14f,
-                bright = 0.65f + r.nextFloat() * 0.35f,
-            )
-        }
+        threads = OpeningThreads.make(r, leftTrack, rightTrack)
         specks = List(80) {
             Speck(
                 angle = r.nextFloat() * 2 * PI.toFloat(),
@@ -318,7 +328,7 @@ private fun DrawScope.drawOpening(t: Float, alpha: Float, art: FullArt, center: 
         // round the edge of what shows through it.
         val markAlpha = alpha * (1f - smooth(Opening.LENGTH - 0.08f, Opening.LENGTH, t))
         if (markAlpha > 0f) {
-            val pages = easeInOut(clamp01((t - Opening.DRAW_START) / (Opening.DRAW_END - Opening.DRAW_START)))
+            val pages = OpeningThreads.pages(t)
             val ribbon = easeOut(clamp01((t - Opening.RIBBON_START) / (Opening.RIBBON_END - Opening.RIBBON_START)))
             withTransform({
                 translate(center.x, center.y)
@@ -399,34 +409,28 @@ private fun DrawScope.drawSpecks(t: Float, alpha: Float, art: FullArt, center: O
     }
 }
 
-/** The threads of light swirling in to the middle: comets with bright heads and tapering tails. */
+/**
+ * The threads of light swirling in to circle the book: comets with bright heads and tapering tails. One after
+ * another they go over into the two lines drawing the book's pages, and run into them.
+ */
 private fun DrawScope.drawThreads(t: Float, alpha: Float, art: FullArt, center: Offset, halfDiag: Float, unit: Float) {
-    val out = 1f - smooth(Opening.DRAW_START + 0.1f, Opening.DRAW_START + 0.62f, t)
-    if (out <= 0f || t < Opening.SWIRL_START) return
+    if (t < Opening.SWIRL_START) return
     val dp = 1.dp.toPx()
-    val start = halfDiag * 0.85f
-    val end = 26f * unit
+    val from = halfDiag * 0.85f
+    val ring = OpeningThreads.RING * unit
+    val pen = { side: Int, time: Float -> MarkPoints.onScreen((if (side == 0) art.leftTrack else art.rightTrack).at(OpeningThreads.pages(time)), center, unit) }
     val steps = 40
     art.threads.forEach { th ->
-        val span = Opening.SWIRL_END - Opening.SWIRL_START - th.delay
-        val u = clamp01((t - Opening.SWIRL_START - th.delay) / span)
-        if (u <= 0f) return@forEach
-        val a = smooth(0f, 0.12f, u) * out * th.bright * alpha
+        val u = th.along(t)
+        if (u <= 0f || t >= th.joined + OpeningThreads.AFTER_JOIN) return@forEach
+        // In as it sets off; once it's run into its line, its tail fading along the line.
+        val a = smooth(0f, 0.12f, u) * (1f - smooth(th.joined, th.joined + OpeningThreads.AFTER_JOIN, t)) * th.bright * alpha
         if (a <= 0.01f) return@forEach
-        fun at(v: Float): Offset {
-            val r = end + (start - end) * (1f - v).pow(1.5f)
-            val phi = th.angle + (2.3f * PI.toFloat() * v + 1.6f * PI.toFloat() * v * v)
-            val x = cos(phi) * r
-            val y = sin(phi) * r * th.squash
-            val ct = cos(th.tilt)
-            val st = sin(th.tilt)
-            return Offset(center.x + x * ct - y * st, center.y + x * st + y * ct)
-        }
         art.points.clear()
         for (k in 0..steps) {
-            val v = u - th.length * k / steps
-            if (v < 0f) break
-            art.points.add(at(v))
+            val back = t - th.tailTime * k / steps
+            if (th.along(back) < 0f) break
+            art.points.add(th.at(back, center, from, ring, pen))
         }
         if (art.points.size < 3) return@forEach
         val head = art.points.first()
@@ -546,15 +550,47 @@ private fun DrawScope.drawMark(t: Float, alpha: Float, art: FullArt, pages: Floa
         )
         drawPath(together, band, alpha = alpha, style = line(2.6f), blendMode = BlendMode.Plus)
     }
-    // The bright points drawing the lines, coming and going softly.
-    art.pens.forEachIndexed { i, pen ->
-        val drawn = if (i < 2 && book != null && pages < 1f) pages else ribbon
-        val a = alpha * smooth(0f, 0.06f, drawn) * (1f - smooth(0.9f, 1f, drawn))
-        if (a <= 0f) return@forEachIndexed
+    fun spot(at: Offset, radius: Float, a: Float) {
+        if (a <= 0.004f) return
         drawCircle(
-            Brush.radialGradient(0f to Spark.copy(alpha = a), 0.3f to GoldLight.copy(alpha = 0.5f * a), 1f to Gold.copy(alpha = 0f), center = pen, radius = 7f),
-            radius = 7f, center = pen, blendMode = BlendMode.Plus,
+            Brush.radialGradient(0f to Spark.copy(alpha = a), 0.3f to GoldLight.copy(alpha = 0.5f * a), 1f to Gold.copy(alpha = 0f), center = at, radius = radius),
+            radius = radius, center = at, blendMode = BlendMode.Plus,
         )
+    }
+    // The bright points drawing the lines. The pages' two are made of the threads, growing brighter as each
+    // runs into them, each with a tail along the line just drawn; they meet at the foot of the spine.
+    val drawingPages = book != null && pages < 1f
+    art.pens.forEachIndexed { i, pen ->
+        if (i < 2 && drawingPages) {
+            if (t >= OpeningThreads.BEAD_START) return@forEachIndexed
+            val fed = OpeningThreads.joinedInto(art.threads, i, t)
+            val a = alpha * smooth(0f, 0.03f, pages) * (0.55f + 0.45f * fed)
+            val tail = art.tail(if (i == 0) art.leftHalf else art.rightHalf, pages, 0.16f)
+            drawPath(
+                tail, Brush.linearGradient(0f to Spark.copy(alpha = 0.9f * a), 1f to GoldLight.copy(alpha = 0f), start = pen, end = art.tailStart),
+                style = line(3f), blendMode = BlendMode.Plus,
+            )
+            spot(pen, 7f + 2.5f * fed, a)
+        } else {
+            // The ribbon's, from the spark left for it.
+            spot(pen, 7f, alpha * (1f - smooth(0.9f, 1f, ribbon)))
+        }
+    }
+    // Where the ribbon hangs, a spark left by the right-hand page's line as it passes, until the ribbon's drawn from it.
+    if (ribbon <= 0f && pages >= art.ribbonSeed) {
+        spot(MarkPoints.RIBBON_TOP, 5f, alpha * smooth(art.ribbonSeed, art.ribbonSeed + 0.03f, pages) * (0.8f + 0.2f * sin(t * 23f)))
+    }
+    // Met at the foot of the spine, the two go on as one, up the middle of the book, and set off the flash.
+    OpeningThreads.rising(t)?.let { (p, s) ->
+        val a = alpha * (1f - smooth(Opening.FLASH - 0.01f, Opening.FLASH + 0.05f, t))
+        val back = Offset(p.x, min(MarkPoints.SPINE_FOOT.y, p.y + 10f))
+        if (back.y - p.y > 0.5f) {
+            drawLine(
+                Brush.linearGradient(0f to Spark.copy(alpha = a), 1f to GoldLight.copy(alpha = 0f), start = p, end = back),
+                p, back, strokeWidth = 3f, cap = StrokeCap.Round, blendMode = BlendMode.Plus,
+            )
+        }
+        spot(p, 9f + 3f * s, a)
     }
 }
 

@@ -49,23 +49,44 @@ object ChapterOpenings {
      * isn't well-formed XHTML (a browser reading it as HTML would move the box inside the body).
      * [boxId] names the box: "kl-opening" for an opening, "kl-pair" for a short page shown beside the next.
      */
-    fun join(text: String, textPath: String, opening: String, openingPath: String, boxId: String = OPENING_BOX): String? {
-        if (textPath.substringBeforeLast('/', "") != openingPath.substringBeforeLast('/', "")) return null
+    fun join(text: String, textPath: String, opening: String, openingPath: String, boxId: String = OPENING_BOX): String? =
+        joinAll(text, textPath, listOf(opening to openingPath), boxId)
+
+    /**
+     * [text] (a chapter at [textPath]) with [pieces] (the texts and paths of the little pages before it, in order: a
+     * part's title, an ornament) put in front of it, as [join] puts an opening: in one box, each piece in a box of
+     * its own within it. Null if it can't be done safely.
+     */
+    fun joinAll(text: String, textPath: String, pieces: List<Pair<String, String>>, boxId: String = OPENING_BOX): String? {
+        if (pieces.isEmpty()) return null
+        if (pieces.any { (_, p) -> textPath.substringBeforeLast('/', "") != p.substringBeforeLast('/', "") }) return null
         val doc = try { Xml.parse(text) } catch (e: XmlException) { return null }
         if (doc.root.namespaceUri() != XHTML_NS) return null
         val body = doc.root.elements().firstOrNull { it.localName == "body" } ?: return null
         val head = doc.root.elements().firstOrNull { it.localName == "head" }
-        val odoc = try { Xml.parse(opening) } catch (e: XmlException) { return null }
-        val obody = odoc.root.elements().firstOrNull { it.localName == "body" } ?: return null
-        if (obody.selfClosing) return null
-        val inner = opening.substring(obody.startTagEnd, obody.endTagStart)
+        val parsed = pieces.map { (t, _) ->
+            val odoc = try { Xml.parse(t) } catch (e: XmlException) { return null }
+            val obody = odoc.root.elements().firstOrNull { it.localName == "body" } ?: return null
+            if (obody.selfClosing) return null
+            Triple(t, odoc, obody)
+        }
 
         // Its namespaces (an svg's xlink, say) and its body's class come along, so it reads and looks as it did.
         val attrs = LinkedHashMap<String, String>()
         attrs["id"] = boxId
-        obody.attributes["class"]?.let { attrs["class"] = it }
-        for ((k, v) in odoc.root.attributes + obody.attributes) if (k.startsWith("xmlns:")) attrs.putIfAbsent(k, v)
-        val box = Xml.startTag("div", attrs, false) + inner + "</div>\n"
+        val box = if (parsed.size == 1) {
+            val (t, odoc, obody) = parsed[0]
+            obody.attributes["class"]?.let { attrs["class"] = it }
+            for ((k, v) in odoc.root.attributes + obody.attributes) if (k.startsWith("xmlns:")) attrs.putIfAbsent(k, v)
+            Xml.startTag("div", attrs, false) + t.substring(obody.startTagEnd, obody.endTagStart) + "</div>\n"
+        } else {
+            for ((_, odoc, obody) in parsed) for ((k, v) in odoc.root.attributes + obody.attributes) if (k.startsWith("xmlns:")) attrs.putIfAbsent(k, v)
+            Xml.startTag("div", attrs, false) + parsed.joinToString("") { (t, _, obody) ->
+                val each = LinkedHashMap<String, String>()
+                obody.attributes["class"]?.let { each["class"] = it }
+                Xml.startTag("div", each, false) + t.substring(obody.startTagEnd, obody.endTagStart) + "</div>"
+            } + "</div>\n"
+        }
 
         // Its style sheets, where the chapter doesn't already have them (same folder, so the links work as they are).
         val linkRe = Regex("""<link\b[^>]*>""", RegexOption.IGNORE_CASE)
@@ -75,8 +96,10 @@ object ChapterOpenings {
             .mapNotNull { m -> hrefRe.find(m.value)?.let { it.groupValues[1].ifEmpty { it.groupValues[2] } } }
             .toList()
         val have = if (head != null) sheets(text, head.end).toSet() else emptySet()
-        val ohead = odoc.root.elements().firstOrNull { it.localName == "head" }
-        val missing = if (ohead != null) sheets(opening, ohead.end).filter { it !in have } else emptyList()
+        val missing = parsed.flatMap { (t, odoc, _) ->
+            val ohead = odoc.root.elements().firstOrNull { it.localName == "head" }
+            if (ohead != null) sheets(t, ohead.end) else emptyList()
+        }.distinct().filter { it !in have }
 
         val edits = TextEdits(text)
         if (missing.isNotEmpty() && head != null && !head.selfClosing) {

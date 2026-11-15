@@ -10,7 +10,7 @@ class PagePlacementTest {
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops"><head><title>X</title></head><body$extra>$body</body></html>"""
 
     /** Pictures' sizes by path: the publisher's mark is small, a map wide; everything else as big as a page. */
-    private val sizes = mapOf("text/logo.png" to (160 to 120), "images/tor.png" to (200 to 180), "text/wide.jpg" to (2400 to 1600))
+    private val sizes = mapOf("text/logo.png" to (160 to 120), "images/tor.png" to (200 to 180), "text/wide.jpg" to (2400 to 1600), "text/divider.png" to (1200 to 300))
     private fun kind(body: String, path: String = "text/page.xhtml", title: String = "", extra: String = "", cover: Boolean = false, titlePlace: Boolean = false) =
         PagePlacement.kind(PagePlacement.facts(page(body, extra), path, title) { sizes[it] ?: (1200 to 1800) }, cover, titlePlace)
 
@@ -41,8 +41,9 @@ class PagePlacementTest {
         assertEquals(PageKind.PICTURE, kind("""<div><img src="p.jpg"/></div><p>Rand al'Thor, as drawn by the author</p>"""))
         assertEquals(PageKind.SHORT, kind("""<h1>DUNE</h1><p>Frank Herbert</p><p><img src="logo.png"/></p>"""))
         assertEquals(PageKind.SHORT, kind("""<p>DUNE</p><p><img src="../images/tor.png"/></p>"""))
-        // A picture alone is a picture however small (wider than it's tall, across both pages); a big one with a heading is still a picture.
-        assertEquals(PageKind.WIDE_PICTURE, kind("""<p><img src="logo.png"/></p>"""))
+        // A small picture alone is an ornament (a divider, a flourish), not a page's picture; a big one with a heading is still a picture.
+        assertEquals(PageKind.ORNAMENT, kind("""<p><img src="logo.png"/></p>"""))
+        assertEquals(PageKind.ORNAMENT, kind("""<div><img src="divider.png"/></div>"""))
         assertEquals(PageKind.PICTURE, kind("""<h2>Map</h2><p><img src="map.png"/></p>"""))
         // Anything else short.
         assertEquals(PageKind.SHORT, kind("""<h1>THE WHEEL OF TIME</h1><p>ROBERT JORDAN</p><p>AND BRANDON SANDERSON</p><p><img src="tor.png"/></p>"""))

@@ -128,6 +128,8 @@ There's no account to make and no ads.
 - Each book can keep a look of its own (font, layout, page headings and so on), or use the one you
   usually read with.
 - Highlights, notes and bookmarks, search, autoscroll, and looking words up in your dictionary app.
+- A page some books split into little files (a part's title, an ornament under it, its name) is put
+  back together on one page, and an ornament on its own isn't blown up to fill the screen.
 - Maps and pictures printed across two pages are shown whole. Full-page pictures fill the page out to
   the margins, and two in a row (a light novel's colour pages) go side by side. A picture printed on
   its side is found from the words in it (with the recognition data for the book's language on your

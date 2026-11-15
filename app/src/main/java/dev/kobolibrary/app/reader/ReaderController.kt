@@ -386,7 +386,7 @@ class ReaderController(
         var i = chapterIndex
         while (i >= 0) {
             val c = chapters.getOrNull(i) ?: return ""
-            val fromToc = c.titleFromToc || (i > 0 && isKnownOpening(i - 1) && chapters[i - 1].titleFromToc)
+            val fromToc = c.titleFromToc || inFront(i).any { chapters[it].titleFromToc }
             if (fromToc) return titleOf(i)
             if (toc.isEmpty()) return titleOf(i).takeUnless { it == c.path.substringAfterLast('/').substringBeforeLast('.') }.orEmpty()
             i--
@@ -397,7 +397,7 @@ class ReaderController(
     /** Chapter [i] starts a chapter of the contents (or the book has none), rather than carrying one on. */
     private fun startsChapter(i: Int): Boolean {
         val c = chapters.getOrNull(i) ?: return false
-        return toc.isEmpty() || c.titleFromToc || (i > 0 && isKnownOpening(i - 1) && chapters[i - 1].titleFromToc)
+        return toc.isEmpty() || c.titleFromToc || inFront(i).any { chapters[it].titleFromToc }
     }
 
     /** The camera's cutout at the top of the screen is [dp] deep: the margins' top row goes below it, the text with it. */
@@ -472,7 +472,7 @@ class ReaderController(
                 delay(400)
                 val result = IntArray(chapters.size)
                 for (i in chapters.indices) {
-                    if (withContext(Dispatchers.IO) { isOpening(i) || isPairedLeft(i) }) continue
+                    if (withContext(Dispatchers.IO) { isOpening(i) || isPairedLeft(i) || isPiece(i) }) continue
                     // As the reader opens it (where a page of its own kind goes changes how it's laid out).
                     val start = JSONObject()
                         .put("settings", JSONObject(settingsJs(settings)))
@@ -543,8 +543,16 @@ class ReaderController(
 
     private fun isKnownOpening(i: Int) = openings[i] == true
 
-    /** Chapter [i] is known to be shown in front of the next: an opening, or a short page beside it. */
-    private fun isKnownJoined(i: Int) = openings[i] == true || pairs[i] == true
+    /** Chapter [i] is known to be shown in front of the next: an opening, a short page beside it, or a piece of its page. */
+    private fun isKnownJoined(i: Int) = openings[i] == true || pairs[i] == true || pieces[i] == true
+
+    /** The chapters known to be shown in front of chapter [i] on its page: its opening, or the pieces of its page before it. */
+    private fun inFront(i: Int): List<Int> {
+        if (i > 0 && openings[i - 1] == true) return listOf(i - 1)
+        var j = i
+        while (j > 0 && pieces[j - 1] == true) j--
+        return (j until i).toList()
+    }
 
     /** A chapter's text, with its opening's (or the short page beside it) when that's shown in front of it. */
     private fun textWithOpening(i: Int): Float =
@@ -572,6 +580,7 @@ class ReaderController(
         withContext(Dispatchers.IO) {
             for (i in chapters.indices) {
                 if (settings.joinOpenings) runCatching { isOpening(i) }
+                if (settings.joinOpenings) runCatching { isPiece(i) }
                 runCatching { isPairedLeft(i) }
             }
         }
@@ -664,7 +673,7 @@ class ReaderController(
         // A chapter's opening page is shown with the chapter's text, so it's never opened alone: its
         // text opens instead, at its start (a link into the opening still finds its place). The same
         // for a short page shown beside the next.
-        if (isOpening(index) || isPairedLeft(index)) {
+        if (isOpening(index) || isPairedLeft(index) || isPiece(index)) {
             open(index + 1, if (target.optString("type") == "fragment") target else target("start"))
             return
         }
@@ -716,7 +725,7 @@ class ReaderController(
                 // Forward onto an opening: its chapter, which shows it. Back onto one: it's the opening of the
                 // chapter being left, already shown, so on to the chapter before. (A short page shown
                 // beside the next, the same.)
-                if (isOpening(i) || isPairedLeft(i)) {
+                if (isOpening(i) || isPairedLeft(i) || isPiece(i)) {
                     if (step > 0) return i + 1
                     i += step
                     continue
@@ -757,8 +766,52 @@ class ReaderController(
         if (i <= 0) return null
         val before = chapters[i - 1]
         if (isOpening(i - 1)) return ChapterOpenings.join(text, path, files.text(before.path) ?: return null, before.path)
+        if (isPiece(i - 1)) {
+            var j = i - 1
+            while (j > 0 && isPiece(j - 1)) j--
+            val pieces = (j until i).map { k -> (files.text(chapters[k].path) ?: return null) to chapters[k].path }
+            return ChapterOpenings.joinAll(text, path, pieces)
+        }
         if (isPairedLeft(i - 1)) return ChapterOpenings.join(text, path, files.text(before.path) ?: return null, before.path, ChapterOpenings.PAIR_BOX)
         return null
+    }
+
+    // ---- pieces of one page --------------------------------------------------------------------------
+
+    /** Whether each chapter is a piece of the page after it, as found so far. */
+    private val pieces = java.util.concurrent.ConcurrentHashMap<Int, Boolean>()
+
+    /**
+     * Chapter [i] is a piece of the page after it: some books split a page into little files, a piece in each (a
+     * part's title, an ornament under it, its name), where a printed book has them on one page. Two little pages
+     * next to each other, one of them an ornament, go on one page; four pieces at most. Not where either is an
+     * opening, or a book's cover or title page.
+     */
+    fun isPiece(i: Int): Boolean {
+        if (!settings.joinOpenings) return false
+        pieces[i]?.let { return it }
+        val a = chapters.getOrNull(i)
+        val b = chapters.getOrNull(i + 1)
+        val piece = a != null && b != null && a.linear && b.linear && runCatching {
+            val ka = pageKind(i)
+            val kb = pageKind(i + 1)
+            little(i, ka) && little(i + 1, kb) && (ka == PageKind.ORNAMENT || kb == PageKind.ORNAMENT) &&
+                !isOpening(i) && !isOpening(i + 1) &&
+                // At most four pieces to a page.
+                !(i >= 3 && (1..3).all { pieces[i - it] == true }) &&
+                ChapterOpenings.joinAll(files.text(b.path)!!, b.path, listOf(files.text(a.path)!! to a.path)) != null
+        }.getOrDefault(false)
+        pieces[i] = piece
+        return piece
+    }
+
+    /** Chapter [i], of [kind], is a little page: an ornament, or a few words (a part's title, its name) with no picture. */
+    private fun little(i: Int, kind: PageKind): Boolean {
+        if (kind == PageKind.ORNAMENT) return true
+        if (kind != PageKind.SHORT && kind != PageKind.TEXT) return false
+        val text = files.text(chapters[i].path) ?: return false
+        val words = chapterWords.getOrNull(i) ?: EpubText.countWords(EpubText.plainText(text))
+        return words in 1..12 && !Regex("""<(img|image)\b""", RegexOption.IGNORE_CASE).containsMatchIn(text)
     }
 
     // ---- short pages, two pages side by side --------------------------------------------------------
@@ -801,6 +854,7 @@ class ReaderController(
         val paired = a != null && b != null && a.linear && b.linear &&
             ((pageKind(i).canBeLeft && pageKind(i + 1).canBeRight) || (pageKind(i) == PageKind.PICTURE && pageKind(i + 1) == PageKind.PICTURE)) &&
             !isOpening(i) && !isOpening(i + 1) && (i == 0 || !isPairedLeft(i - 1)) &&
+            !isPiece(i) && !isPiece(i + 1) && (i == 0 || !isPiece(i - 1)) &&
             runCatching {
                 ChapterOpenings.join(files.text(b.path)!!, b.path, files.text(a.path)!!, a.path, ChapterOpenings.PAIR_BOX) != null
             }.getOrDefault(false)
@@ -910,8 +964,12 @@ class ReaderController(
         open(home, target("start"))
     }
 
-    private fun titleOf(index: Int): String =
-        (if (index > 0 && isOpening(index - 1)) chapters[index - 1].title else chapters.getOrNull(index)?.title).orEmpty()
+    private fun titleOf(index: Int): String {
+        if (index > 0 && isOpening(index - 1)) return chapters[index - 1].title
+        // A page put together from pieces: the contents' name for it (a part's), as its first piece has it.
+        inFront(index).firstOrNull { chapters[it].titleFromToc }?.let { return chapters[it].title }
+        return chapters.getOrNull(index)?.title.orEmpty()
+    }
 
     /** The chapter's title as the reader shows it: its opening's, if it has one ("1 The Hook" rather than "The Hook"). */
     val chapterTitle: String get() = titleOf(chapterIndex)
@@ -921,7 +979,7 @@ class ReaderController(
         get() = listOfNotNull(
             chapter?.path,
             chapters.getOrNull(chapterIndex - 1)?.takeIf { chapterIndex > 0 && (isOpening(chapterIndex - 1) || isPairedLeft(chapterIndex - 1)) }?.path,
-        )
+        ) + inFront(chapterIndex).filter { pieces[it] == true }.map { chapters[it].path }
 
     fun nextChapter() {
         val i = nextLinear(chapterIndex, 1)
@@ -1090,6 +1148,7 @@ class ReaderController(
             // The chapter is served differently now: open it again where it was.
             openings.clear()
             pairs.clear()
+            pieces.clear()
             laidOutPages.clear()
             scope.launch { findOpenings() }
             stopTurn()

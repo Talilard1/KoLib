@@ -31,20 +31,43 @@ the Kobo as kepubs, the Kobo's own format, so pages turn quickly and the Kobo ke
 
 ## On a tablet
 
-| | |
-|:---:|:---:|
-| <a href="docs/images/tablet-kobo-books.webp"><img src="docs/images/tablet-kobo-books.webp" alt="The books on the Kobo"></a><br>**The books on your Kobo** | <a href="docs/images/tablet-kobo-collections.webp"><img src="docs/images/tablet-kobo-collections.webp" alt="The Kobo's collections"></a><br>**Its collections** |
-| <a href="docs/images/tablet-send.webp"><img src="docs/images/tablet-send.webp" alt="Sending a book to the Kobo"></a><br>**Sending a book** | <a href="docs/images/tablet-details.webp"><img src="docs/images/tablet-details.webp" alt="Editing a book's details"></a><br>**Editing its details** |
-| <a href="docs/images/tablet-cover.webp"><img src="docs/images/tablet-cover.webp" alt="Changing a cover"></a><br>**Changing a cover** | <a href="docs/images/tablet-make-cover.webp"><img src="docs/images/tablet-make-cover.webp" alt="Making a cover"></a><br>**Making a new one** |
-| <a href="docs/images/tablet-editor.webp"><img src="docs/images/tablet-editor.webp" alt="Finding and replacing in a book's text"></a><br>**Editing the text** | <a href="docs/images/tablet-library-light.webp"><img src="docs/images/tablet-library-light.webp" alt="The library in the light look"></a><br>**The light look** |
-| <a href="docs/images/tablet-reader.webp"><img src="docs/images/tablet-reader.webp" alt="Two pages side by side in the reader"></a><br>**Reading, two pages side by side** | <a href="docs/images/tablet-reader-settings.webp"><img src="docs/images/tablet-reader-settings.webp" alt="The reader's layout settings"></a><br>**The reader's settings** |
+<table>
+  <tr>
+    <td align="center" width="50%"><a href="docs/images/tablet-kobo-books.webp"><img src="docs/images/tablet-kobo-books.webp" alt="The books on the Kobo"></a><br><b>The books on your Kobo</b></td>
+    <td align="center" width="50%"><a href="docs/images/tablet-kobo-collections.webp"><img src="docs/images/tablet-kobo-collections.webp" alt="The Kobo's collections"></a><br><b>Its collections</b></td>
+  </tr>
+  <tr>
+    <td align="center" width="50%"><a href="docs/images/tablet-send.webp"><img src="docs/images/tablet-send.webp" alt="Sending a book to the Kobo"></a><br><b>Sending a book</b></td>
+    <td align="center" width="50%"><a href="docs/images/tablet-details.webp"><img src="docs/images/tablet-details.webp" alt="Editing a book's details"></a><br><b>Editing its details</b></td>
+  </tr>
+  <tr>
+    <td align="center" width="50%"><a href="docs/images/tablet-cover.webp"><img src="docs/images/tablet-cover.webp" alt="Changing a cover"></a><br><b>Changing a cover</b></td>
+    <td align="center" width="50%"><a href="docs/images/tablet-make-cover.webp"><img src="docs/images/tablet-make-cover.webp" alt="Making a cover"></a><br><b>Making a new one</b></td>
+  </tr>
+  <tr>
+    <td align="center" width="50%"><a href="docs/images/tablet-editor.webp"><img src="docs/images/tablet-editor.webp" alt="Finding and replacing in a book's text"></a><br><b>Editing the text</b></td>
+    <td align="center" width="50%"><a href="docs/images/tablet-library-light.webp"><img src="docs/images/tablet-library-light.webp" alt="The library in the light look"></a><br><b>The light look</b></td>
+  </tr>
+  <tr>
+    <td align="center" width="50%"><a href="docs/images/tablet-reader.webp"><img src="docs/images/tablet-reader.webp" alt="Two pages side by side in the reader"></a><br><b>Reading, two pages side by side</b></td>
+    <td align="center" width="50%"><a href="docs/images/tablet-reader-settings.webp"><img src="docs/images/tablet-reader-settings.webp" alt="The reader's layout settings"></a><br><b>The reader's settings</b></td>
+  </tr>
+</table>
 
 ## On a phone
 
-| | | |
-|:---:|:---:|:---:|
-| <img src="docs/images/phone-library.webp" width="250" alt="The library on a phone"><br>**Library** | <img src="docs/images/phone-book.webp" width="250" alt="A book's page"><br>**A book's page** | <img src="docs/images/phone-kobo.webp" width="250" alt="The Kobo's books"><br>**Your Kobo** |
-| <img src="docs/images/phone-send.webp" width="250" alt="Sending a book"><br>**Sending** | <img src="docs/images/phone-reader.webp" width="250" alt="The reader"><br>**Reading** | <img src="docs/images/phone-make-cover.webp" width="250" alt="Making a cover"><br>**Making a cover** |
+<table>
+  <tr>
+    <td align="center" width="33%"><img src="docs/images/phone-library.webp" alt="The library on a phone"><br><b>Library</b></td>
+    <td align="center" width="33%"><img src="docs/images/phone-book.webp" alt="A book's page"><br><b>A book's page</b></td>
+    <td align="center" width="33%"><img src="docs/images/phone-kobo.webp" alt="The Kobo's books"><br><b>Your Kobo</b></td>
+  </tr>
+  <tr>
+    <td align="center" width="33%"><img src="docs/images/phone-send.webp" alt="Sending a book"><br><b>Sending</b></td>
+    <td align="center" width="33%"><img src="docs/images/phone-reader.webp" alt="The reader"><br><b>Reading</b></td>
+    <td align="center" width="33%"><img src="docs/images/phone-make-cover.webp" alt="Making a cover"><br><b>Making a cover</b></td>
+  </tr>
+</table>
 
 ## Highlights
 
@@ -118,10 +141,13 @@ KoLib keeps a log of what it does (Kobo → Device → Open log). Share the log 
 ### Build and test
 
 ```
-./gradlew assembleDebug            # app/build/outputs/apk/debug/
-./gradlew assembleRelease          # app/build/outputs/apk/release/: one APK per processor type, and a universal one
-./gradlew :app:testDebugUnitTest   # tests; screenshots go to app/build/outputs/roborazzi/
+./gradlew assembleDebug            # makes app/build/outputs/apk/debug/
+./gradlew assembleRelease          # makes app/build/outputs/apk/release/
+./gradlew :app:testDebugUnitTest   # runs the tests
 ```
+
+A release build makes an APK for each processor type, and a universal one. The tests include
+screenshots of every screen, saved in `app/build/outputs/roborazzi/`.
 
 ### The signing key
 

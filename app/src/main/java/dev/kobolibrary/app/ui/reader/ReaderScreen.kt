@@ -235,6 +235,8 @@ internal fun ReaderScreen(
     /** Shown instead of the page in screenshots, where a WebView can't draw. */
     pagePreview: (@Composable () -> Unit)? = null,
     initialPanel: Panel = Panel.NONE,
+    /** Opens the app's own settings (its look, language and books folder), from the reading settings. */
+    onAppSettings: (() -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val view = LocalView.current
@@ -445,7 +447,7 @@ internal fun ReaderScreen(
             when (panel) {
                 Panel.CONTENTS -> ContentsPanel(controller, wide, onPicked = { panel = Panel.NONE; controller.controlsVisible = false }, onClose = dismiss)
                 Panel.SEARCH -> SearchPanel(controller, wide, onPicked = { panel = Panel.NONE; controller.controlsVisible = false }, onClose = dismiss)
-                Panel.LOOK -> LookPanel(s, onSettings, controller.lookTab, wide, onTab = { controller.lookTab = it }, onClose = dismiss)
+                Panel.LOOK -> LookPanel(s, onSettings, controller.lookTab, wide, onTab = { controller.lookTab = it }, onClose = dismiss, onAppSettings = onAppSettings)
                 Panel.NONE -> Unit
             }
         }
@@ -1105,12 +1107,25 @@ internal enum class LookTab(val label: String, val icon: androidx.compose.ui.gra
 }
 
 @Composable
-private fun LookPanel(s: ReaderSettings, onChange: (ReaderSettings) -> Unit, tab: Int, wide: Boolean, onTab: (Int) -> Unit, onClose: () -> Unit) {
+private fun LookPanel(
+    s: ReaderSettings,
+    onChange: (ReaderSettings) -> Unit,
+    tab: Int,
+    wide: Boolean,
+    onTab: (Int) -> Unit,
+    onClose: () -> Unit,
+    onAppSettings: (() -> Unit)? = null,
+) {
     val tabs = LookTab.entries
     val pager = rememberPagerState(initialPage = tab.coerceIn(0, tabs.size - 1)) { tabs.size }
     SwipedTabs(pager, tab, onTab)
     Column(Modifier.fillMaxSize()) {
+        // The app's own settings, a step away: its theme, language and books folder.
+        val appSettings: @Composable () -> Unit = {
+            if (onAppSettings != null) AppSettingsLink(onAppSettings, Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+        }
         if (wide) {
+            appSettings()
             PrimaryTabRow(selectedTabIndex = pager.currentPage) {
                 val scope = rememberCoroutineScope()
                 tabs.forEachIndexed { i, t ->
@@ -1133,6 +1148,7 @@ private fun LookPanel(s: ReaderSettings, onChange: (ReaderSettings) -> Unit, tab
             }
         } else {
             DrawerHeader(tr("Reading settings"), onClose = onClose)
+            appSettings()
             DrawerTabs(tabs.map { DrawerTab(it.label, it.icon) }, pager)
         }
         // Swipe left or right for the next tab; each starts at its top.

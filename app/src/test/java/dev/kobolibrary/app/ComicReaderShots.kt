@@ -47,7 +47,7 @@ class ComicReaderShots {
             AppSurface(ThemeChoice.BOOKCASE) {
                 ComicView(
                     book = book, pages = pages, dir = dir, s = s, mode = mode, menu = menu, setMenu = {},
-                    onMode = {}, onSettings = {}, onClose = {}, onCover = {}, readingHere = null, settingsOpen = settings,
+                    onMode = {}, onSettings = {}, onClose = {}, onCover = {}, readingHere = null, onAppSettings = {}, settingsOpen = settings,
                 )
             }
         }

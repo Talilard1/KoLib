@@ -4,13 +4,15 @@ import android.app.Activity
 import android.content.ContentValues
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Paint
+import android.graphics.RectF
+import android.os.SystemClock
 import android.provider.MediaStore
 import android.view.KeyEvent
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -18,6 +20,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.animateScrollBy
@@ -42,9 +45,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
@@ -89,9 +90,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -102,20 +105,35 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.AwaitPointerEventScope
+import androidx.compose.ui.input.pointer.PointerEvent
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.core.view.WindowCompat
@@ -147,14 +165,20 @@ import dev.kobolibrary.app.tr
 import java.io.File
 import kotlin.math.abs
 import kotlin.math.ceil
+import kotlin.math.exp
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -171,6 +195,8 @@ fun ComicBookReader(
     readerSettings: ReaderSettingsStore,
     onClose: () -> Unit,
     readingHere: ReadingHereIndex? = null,
+    /** Opens the app's own settings: its look, language and books folder. */
+    onAppSettings: (() -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val view = LocalView.current
@@ -267,6 +293,7 @@ fun ComicBookReader(
                     }
                 },
                 readingHere = readingHere,
+                onAppSettings = onAppSettings,
             )
         }
         error != null -> Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface), contentAlignment = Alignment.Center) {
@@ -296,6 +323,8 @@ internal fun ComicView(
     onClose: () -> Unit,
     onCover: (ByteArray) -> Unit,
     readingHere: ReadingHereIndex?,
+    /** Opens the app's own settings: its look, language and books folder. */
+    onAppSettings: (() -> Unit)? = null,
     /** For pictures of the screen in tests: the settings open. */
     settingsOpen: Boolean = false,
 ) {
@@ -309,6 +338,16 @@ internal fun ComicView(
     // Taps, keys and the bar's buttons: on or back, for the page or strip showing to act on; and pages to go to.
     val nudges = remember { MutableSharedFlow<Int>(extraBufferCapacity = 4) }
     val jumps = remember { MutableSharedFlow<Int>(extraBufferCapacity = 1) }
+    // The menu, shown and hidden by taps on the page. Those are handled for as long as the page shows, so they
+    // read whether it's showing as it is at the time.
+    val menuNow by rememberUpdatedState(menu)
+    val setMenuNow by rememberUpdatedState(setMenu)
+    val toggleMenu = remember { { setMenuNow(!menuNow) } }
+    // As in Mihon, the menu goes when the page is turned or the strip scrolled, other than from the menu itself.
+    var menuMovedAt by remember { mutableLongStateOf(-1_000_000L) }
+    val fromMenu = { menuMovedAt = SystemClock.uptimeMillis() }
+    val moved = remember { { if (menuNow && SystemClock.uptimeMillis() - menuMovedAt > 1500) setMenuNow(false) } }
+    LaunchedEffect(mode.paged) { if (mode.paged) snapshotFlow { page }.drop(1).collect { moved() } }
     LaunchedEffect(page) {
         val place = PdfPlace(page, count)
         withContext(Dispatchers.IO) { ReaderStore.savePdfPlace(dir, place) }
@@ -343,12 +382,11 @@ internal fun ComicView(
         }
     }
     Box(Modifier.fillMaxSize().background(tone)) {
-        val toggleMenu = { setMenu(!menu) }
         val longPress = { i: Int -> if (s.longTap) actionsFor = i }
         if (mode.paged) {
             PagedComic(pages, s, mode, page, onPage = { page = it }, onMenu = toggleMenu, onLongPress = longPress, nudges = nudges, jumps = jumps)
         } else {
-            StripComic(pages, s, mode, page, onPage = { page = it }, onMenu = toggleMenu, onLongPress = longPress, nudges = nudges, jumps = jumps)
+            StripComic(pages, s, mode, page, onPage = { page = it }, onMenu = toggleMenu, onLongPress = longPress, onMoved = moved, nudges = nudges, jumps = jumps)
         }
         // Where the taps go, shown for a moment as the comic opens, if asked for.
         var zones by remember(mode) { mutableStateOf(s.showTapZones) }
@@ -381,7 +419,7 @@ internal fun ComicView(
                     var dragging by remember { mutableStateOf<Float?>(null) }
                     val rtl = mode == ComicMode.RIGHT_TO_LEFT
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        IconButton(onClick = { nudges.tryEmit(if (rtl) 1 else -1) }) { Icon(Icons.AutoMirrored.Filled.NavigateBefore, if (rtl) tr("Next page") else tr("Previous page")) }
+                        IconButton(onClick = { fromMenu(); nudges.tryEmit(if (rtl) 1 else -1) }) { Icon(Icons.AutoMirrored.Filled.NavigateBefore, if (rtl) tr("Next page") else tr("Previous page")) }
                         Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                             if (count > 1) {
                                 // Right to left, the bar goes that way too, as the pages do.
@@ -390,6 +428,7 @@ internal fun ComicView(
                                     value = if (rtl) (count - 1) - v else v,
                                     onValueChange = { x -> dragging = if (rtl) (count - 1) - x else x },
                                     onValueChangeFinished = {
+                                        fromMenu()
                                         dragging?.let { d -> jumps.tryEmit(d.roundToInt().coerceIn(0, count - 1)) }
                                         dragging = null
                                     },
@@ -398,7 +437,7 @@ internal fun ComicView(
                             }
                             dragging?.let { d -> Text(tr("Page {0}", d.roundToInt() + 1), style = MaterialTheme.typography.bodySmall) }
                         }
-                        IconButton(onClick = { nudges.tryEmit(if (rtl) -1 else 1) }) { Icon(Icons.AutoMirrored.Filled.NavigateNext, if (rtl) tr("Previous page") else tr("Next page")) }
+                        IconButton(onClick = { fromMenu(); nudges.tryEmit(if (rtl) -1 else 1) }) { Icon(Icons.AutoMirrored.Filled.NavigateNext, if (rtl) tr("Previous page") else tr("Next page")) }
                     }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                         var modes by remember { mutableStateOf(false) }
@@ -426,7 +465,10 @@ internal fun ComicView(
         if (showSettings) {
             val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
             ModalBottomSheet(onDismissRequest = { showSettings = false }, sheetState = sheet) {
-                ComicSettingsSheet(s, mode, onMode = onMode, onSettings = onSettings)
+                ComicSettingsSheet(
+                    s, mode, onMode = onMode, onSettings = onSettings,
+                    onAppSettings = onAppSettings?.let { open -> { showSettings = false; open() } },
+                )
             }
         }
         actionsFor?.let { i ->
@@ -523,6 +565,93 @@ private fun TapZonesOverlay(s: ComicSettings, mode: ComicMode) {
     }
 }
 
+// ---- touches ----------------------------------------------------------------------------------------
+
+/** How a touch begins: let go where it went down (a tap), held there, moved, joined by a second finger, or gone. */
+private enum class Start { TAP, HOLD, DRAG, PINCH, GONE }
+
+/**
+ * Follows a touch from [down] until it's clear how it begins, returning that and the event that showed it. Held
+ * still only counts if [holds]; otherwise it waits on for the finger to move or let go.
+ */
+private suspend fun AwaitPointerEventScope.howItStarts(
+    down: PointerInputChange,
+    holds: Boolean,
+    pass: PointerEventPass = PointerEventPass.Main,
+): Pair<Start, PointerEvent?> {
+    val slop = viewConfiguration.touchSlop
+    var last: PointerEvent? = null
+    suspend fun AwaitPointerEventScope.follow(): Start {
+        while (true) {
+            val e = awaitPointerEvent(pass)
+            last = e
+            val c = e.changes.firstOrNull { it.id == down.id } ?: return Start.GONE
+            when {
+                e.changes.count { it.pressed } >= 2 -> return Start.PINCH
+                !c.pressed -> return if (c.isConsumed) Start.GONE else Start.TAP
+                (c.position - down.position).getDistance() > slop -> return Start.DRAG
+            }
+        }
+    }
+    val start = if (holds) withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) { follow() } ?: Start.HOLD else follow()
+    return start to last
+}
+
+/** Waits for every finger to let go. */
+private suspend fun AwaitPointerEventScope.waitForAllUp(pass: PointerEventPass = PointerEventPass.Main) {
+    do {
+        val e = awaitPointerEvent(pass)
+    } while (e.changes.any { it.pressed })
+}
+
+/** How fast one finger moved up or down zooms in or out (double-tap and hold, then move): about e times per this far. */
+private val QUICK_ZOOM_DISTANCE = 160.dp
+
+/**
+ * The pager moved by a finger that's pulling a zoomed page on past its edge, as in Mihon: one scroll from the
+ * first pull until the finger lets go, then on to the page coming into view or back to the one it started from.
+ */
+private class PagerPull(private val pager: PagerState, private val scope: CoroutineScope) {
+    private var deltas: Channel<Float>? = null
+    private var job: Job? = null
+    private var from = 0
+
+    val pulling get() = deltas != null
+
+    /** Moves the pager on (positive) or back (negative) by [by] pixels. */
+    fun move(by: Float) {
+        val ch = deltas ?: Channel<Float>(Channel.UNLIMITED).also { c ->
+            deltas = c
+            from = pager.settledPage
+            job = scope.launch {
+                pager.scroll(MutatePriority.UserInput) { for (d in c) scrollBy(d) }
+            }
+        }
+        ch.trySend(by)
+    }
+
+    /**
+     * Lets go: on to the next page or back to the one before if the pager has come far enough that way (a seventh
+     * of the screen), or was flung that way at [speed] (pixels a second, on positive), else back where it was.
+     */
+    fun letGo(speed: Float, flingSpeed: Float, last: Int) {
+        val ch = deltas ?: return
+        deltas = null
+        ch.close()
+        val scrolling = job
+        scope.launch {
+            scrolling?.join()
+            val moved = pager.currentPage + pager.currentPageOffsetFraction - from
+            val target = when {
+                moved > 0.14f || (moved > 0.02f && speed > flingSpeed) -> from + 1
+                moved < -0.14f || (moved < -0.02f && speed < -flingSpeed) -> from - 1
+                else -> from
+            }
+            pager.animateScrollToPage(target.coerceIn(0, last))
+        }
+    }
+}
+
 // ---- page by page ----------------------------------------------------------------------------------
 
 @Composable
@@ -538,6 +667,7 @@ private fun PagedComic(
     jumps: SharedFlow<Int>,
 ) {
     val scope = rememberCoroutineScope()
+    val density = LocalDensity.current
     val rtl = mode == ComicMode.RIGHT_TO_LEFT
     // Which pages are known to be wide (as each is read): with "Split wide pages", each is two.
     val wide = remember { mutableStateMapOf<Int, Boolean>() }
@@ -569,6 +699,11 @@ private fun PagedComic(
         // A key or button press goes to the page showing, which moves along itself first if it's bigger than the screen.
         val toPage = remember { MutableSharedFlow<Int>(extraBufferCapacity = 4) }
         LaunchedEffect(Unit) { nudges.collect { toPage.emit(it) } }
+        // A zoomed page pulled on past its edge moves the pager with the finger. A finger moving this way
+        // (to the left, up, or to the right reading right to left) brings the next page on.
+        val pull = remember(pager) { PagerPull(pager, scope) }
+        val onward = if (!mode.horizontal || !rtl) -1f else 1f
+        val flingSpeed = with(density) { 400.dp.toPx() }
         val content: @Composable (Int) -> Unit = { sc ->
             val piece = pieces[sc]
             ComicPage(
@@ -579,6 +714,9 @@ private fun PagedComic(
                 current = pager.settledPage == sc,
                 onLocked = { if (pager.settledPage == sc) locked = it },
                 onTurn = ::turn,
+                canPull = { finger -> if (finger * onward > 0) pager.canScrollForward else pager.canScrollBackward },
+                onPull = { finger -> pull.move(finger * onward) },
+                onLetGo = { speed -> pull.letGo(speed * onward, flingSpeed, pieces.size - 1) },
                 onMenu = onMenu,
                 onLongPress = { onLongPress(piece.page) },
                 nudges = if (pager.settledPage == sc) toPage else null,
@@ -593,9 +731,10 @@ private fun PagedComic(
 }
 
 /**
- * One page (or half of a wide one) on the screen, fitted as the settings say: pinched or double-tapped to zoom,
- * moved about when it's bigger than the screen (pulled on past its edge, it turns), tapped to turn or for the menu,
- * held for what can be done with it.
+ * One page (or half of a wide one) on the screen, fitted as the settings say, and touched as in Mihon: pinched to
+ * zoom; double-tapped to zoom in on the spot tapped (brought to the middle) or out again; double-tapped and held,
+ * then moved up or down, to zoom with one finger; moved about when it's bigger than the screen (pulled on past its
+ * edge, the next page comes on); tapped to turn or for the menu; held for what can be done with it.
  */
 @Composable
 private fun ComicPage(
@@ -606,6 +745,12 @@ private fun ComicPage(
     current: Boolean,
     onLocked: (Boolean) -> Unit,
     onTurn: (Int) -> Unit,
+    /** Whether the pager can move with a finger moving [finger] pixels along the way pages turn. */
+    canPull: (Float) -> Boolean,
+    /** The pager moved with the finger, pulling the page on past its edge. */
+    onPull: (Float) -> Unit,
+    /** The finger let go of a page pulled past its edge, moving at that speed (along the way pages turn). */
+    onLetGo: (Float) -> Unit,
     onMenu: () -> Unit,
     onLongPress: () -> Unit,
     nudges: SharedFlow<Int>?,
@@ -622,6 +767,14 @@ private fun ComicPage(
         val crop = if (s.cropPaged) pages.crop(piece.page) ?: whole else whole
         region = ComicLayout.regionOf(piece.part, crop)
     }
+    // What touches act with, kept up to date without starting the touch handling again.
+    val sNow by rememberUpdatedState(s)
+    val turnNow by rememberUpdatedState(onTurn)
+    val canPullNow by rememberUpdatedState(canPull)
+    val pullNow by rememberUpdatedState(onPull)
+    val letGoNow by rememberUpdatedState(onLetGo)
+    val menuNow by rememberUpdatedState(onMenu)
+    val longPressNow by rememberUpdatedState(onLongPress)
     // Read here, outside the box that measures the screen, so the page is drawn again as soon as it's known.
     val known = region
     BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -638,14 +791,21 @@ private fun ComicPage(
         val rotated = s.rotateWide && piece.part == ComicLayout.Part.WHOLE && r.width() > r.height() && h > w
         val cw = (if (rotated) r.height() else r.width()).toFloat()
         val ch = (if (rotated) r.width() else r.height()).toFloat()
-        val (pw, ph) = ComicLayout.fit(cw, ch, w, h, s.scale, s.zoomWide && !rotated)
+        // Its size on the screen before zooming, in whole pixels.
+        val (fw, fh) = ComicLayout.fit(cw, ch, w, h, s.scale, s.zoomWide && !rotated)
+        val pw = fw.roundToInt().coerceIn(1, 32000).toFloat()
+        val ph = fh.roundToInt().coerceIn(1, 32000).toFloat()
         val minZoom = if (s.scale == ComicScale.STRETCH) 1f else min(1f, min(w / pw, h / ph))
-        val maxZoom = max(4f, 2f * cw / pw)
+        // Up to five times as big, as in Mihon (or twice the picture's own size, for very big pictures).
+        val maxZoom = max(5f, 2f * cw / pw)
+        val along = mode.horizontal
+        // How much bigger it's shown, and where its top left corner is on the screen.
         var zoom by remember(piece.key, pw, ph) { mutableFloatStateOf(1f) }
         var offset by remember(piece.key, pw, ph) {
             val (x, y) = ComicLayout.startOffset(pw, ph, w, h, s.zoomStart, rtl)
             mutableStateOf(Offset(x, y))
         }
+        // Kept on the screen: in the middle where it's smaller than the screen, and covering it where it's bigger.
         fun held(o: Offset, z: Float): Offset {
             val dw = pw * z
             val dh = ph * z
@@ -655,22 +815,23 @@ private fun ComicPage(
         LaunchedEffect(current) {
             if (!current) {
                 zoom = 1f
-                val (x, y) = ComicLayout.startOffset(pw, ph, w, h, s.zoomStart, rtl)
+                val (x, y) = ComicLayout.startOffset(pw, ph, w, h, sNow.zoomStart, rtl)
                 offset = Offset(x, y)
             }
         }
-        val along = mode.horizontal
         // Bigger than the screen the way pages turn (or zoomed): swipes move the page, not to the next.
-        val lockedNow = zoom > 1.01f || (if (along) pw * zoom > w + 1 else ph * zoom > h + 1)
+        val lockedNow by remember(piece.key, pw, ph, w, h, along) {
+            derivedStateOf { zoom > 1.01f || (if (along) pw * zoom > w + 1 else ph * zoom > h + 1) }
+        }
         LaunchedEffect(lockedNow, current) { if (current) onLocked(lockedNow) }
-        val zoomNow by rememberUpdatedState(zoom)
-        val offsetNow by rememberUpdatedState(offset)
+        var moving by remember { mutableStateOf<Job?>(null) }
         fun animateTo(z1: Float, o1: Offset) {
             val z0 = zoom
             val o0 = offset
             val target = held(o1, z1)
-            scope.launch {
-                animate(0f, 1f, animationSpec = tween(if (s.animate) 220 else 1)) { t, _ ->
+            moving?.cancel()
+            moving = scope.launch {
+                animate(0f, 1f, animationSpec = tween(if (sNow.animate) 220 else 1)) { t, _ ->
                     zoom = z0 + (z1 - z0) * t
                     offset = o0 + (target - o0) * t
                 }
@@ -679,9 +840,9 @@ private fun ComicPage(
         /** On (1) or back (-1): along the page first if it's bigger than the screen and there's more of it that way. */
         fun step(by: Int) {
             if (by == 0) return
-            val z = zoomNow
-            val o = offsetNow
-            if (s.panWide) {
+            val z = zoom
+            val o = offset
+            if (sNow.panWide) {
                 if (along && pw * z > w + 1) {
                     // Which way the page moves: on is to the right reading left to right, to the left reading right to left.
                     val dx = (if ((by > 0) != rtl) -1 else 1) * w * 0.85f
@@ -692,142 +853,249 @@ private fun ComicPage(
                     if (abs(moved.y - o.y) > 2) { animateTo(z, moved); return }
                 }
             }
-            onTurn(by)
+            turnNow(by)
         }
-        if (nudges != null) LaunchedEffect(nudges) { nudges.collect { step(it) } }
+        if (nudges != null) LaunchedEffect(nudges, pw, ph, w, h) { nudges.collect { step(it) } }
         // Drawn about the size it's shown, no bigger than about twice the screen; sharper again when zoomed in.
         val k = min(1f, sqrt(2f * w * h / (pw * ph)))
         val baseW = ((if (rotated) ph else pw) * k).toInt().coerceAtLeast(1)
         val baseH = ((if (rotated) pw else ph) * k).toInt().coerceAtLeast(1)
         val base by produceState<Bitmap?>(null, piece.key, r, baseW, baseH) { value = pages.bitmap(piece.page, r, baseW, baseH) }
-        val tapsNow by rememberUpdatedState(s)
+        // Zoomed in further than it's drawn: the part on the screen drawn again sharp, once it stops moving. Kept
+        // where it is on the page, so it moves with the page until the next one's ready.
+        var sharp by remember(piece.key, pw, ph) { mutableStateOf<Pair<RectF, Bitmap>?>(null) }
+        LaunchedEffect(piece.key, base, current, pw, ph, w, h, rotated) {
+            sharp = null
+            val b = base ?: return@LaunchedEffect
+            if (!current || rotated) return@LaunchedEffect
+            snapshotFlow { zoom to offset }.collectLatest { (z, o) ->
+                val dw = pw * z
+                val dh = ph * z
+                if (dw / b.width < 1.25f) {
+                    sharp = null
+                    return@collectLatest
+                }
+                delay(150)
+                val left = max(0f, o.x)
+                val top = max(0f, o.y)
+                val right = min(w, o.x + dw)
+                val bottom = min(h, o.y + dh)
+                if (right - left < 2 || bottom - top < 2) return@collectLatest
+                val sx = r.width() / dw
+                val sy = r.height() / dh
+                val src = android.graphics.Rect(
+                    (r.left + (left - o.x) * sx).toInt(), (r.top + (top - o.y) * sy).toInt(),
+                    (r.left + (right - o.x) * sx).toInt().coerceAtMost(r.right), (r.top + (bottom - o.y) * sy).toInt().coerceAtMost(r.bottom),
+                )
+                if (src.width() < 2 || src.height() < 2) return@collectLatest
+                val bmp = pages.bitmap(piece.page, src, (right - left).toInt(), (bottom - top).toInt()) ?: return@collectLatest
+                // That part of the picture, placed on the page as it's laid out before zooming.
+                val where = RectF(
+                    (src.left - r.left) * pw / r.width(), (src.top - r.top) * ph / r.height(),
+                    (src.right - r.left) * pw / r.width(), (src.bottom - r.top) * ph / r.height(),
+                )
+                sharp = where to bmp
+            }
+        }
+        val paint = remember { Paint(Paint.FILTER_BITMAP_FLAG) }
+        val quickZoom = with(density) { QUICK_ZOOM_DISTANCE.toPx() }
         Box(
-            Modifier.fillMaxSize()
-                .pointerInput(piece.key, pw, ph) {
-                    awaitEachGesture {
-                        awaitFirstDown(requireUnconsumed = false)
-                        var mine = false
-                        var moved = Offset.Zero
-                        var over = Offset.Zero
-                        do {
-                            val event = awaitPointerEvent()
-                            val fingers = event.changes.count { it.pressed }
-                            val by = event.calculateZoom()
-                            val pan = event.calculatePan()
-                            if (fingers >= 2) mine = true
-                            else if (!mine) {
-                                moved += pan
-                                if (moved.getDistance() > viewConfiguration.touchSlop) {
-                                    val z = zoomNow
-                                    val bigAlong = if (along) pw * z > w + 1 else ph * z > h + 1
-                                    val bigAcross = if (along) ph * z > h + 1 else pw * z > w + 1
-                                    val acrossMove = if (along) abs(moved.y) > abs(moved.x) else abs(moved.x) > abs(moved.y)
-                                    // The page's own to move: zoomed, bigger than the screen the way pages turn, or moved across where it's bigger that way.
-                                    mine = z > 1.01f || bigAlong || (bigAcross && acrossMove)
+            Modifier
+                .fillMaxSize()
+                .clipToBounds()
+                .pointerInput(piece.key, pw, ph, w, h) {
+                    val slop = viewConfiguration.touchSlop
+                    val doubleTapSlop = 100.dp.toPx()
+
+                    // Two fingers: the point of the page between them stays between them as they spread, pinch and move.
+                    // Should one let go, the other moves the page on.
+                    suspend fun AwaitPointerEventScope.pinch(first: PointerEvent) {
+                        var e = first
+                        while (true) {
+                            val by = e.calculateZoom()
+                            val pan = e.calculatePan()
+                            if (by != 1f || pan != Offset.Zero) {
+                                val z0 = zoom
+                                val z1 = (z0 * by).coerceIn(minZoom, maxZoom)
+                                val c = e.calculateCentroid(useCurrent = true)
+                                if (c.isSpecified) {
+                                    offset = held(c - (c - pan - offset) * (z1 / z0), z1)
+                                    zoom = z1
                                 }
                             }
-                            if (mine && (by != 1f || pan != Offset.Zero)) {
-                                val z0 = zoomNow
-                                val z1 = (z0 * by).coerceIn(minZoom, maxZoom)
-                                val c = event.calculateCentroid(useCurrent = true)
-                                val wanted = c - (c - offsetNow) * (z1 / z0) + pan
-                                val kept = held(wanted, z1)
-                                if (fingers < 2) over += wanted - kept
+                            e.changes.forEach { if (it.positionChanged()) it.consume() }
+                            if (e.changes.none { it.pressed }) return
+                            e = awaitPointerEvent()
+                        }
+                    }
+
+                    // One finger moving: the page moves, if it's bigger than the screen that way or zoomed in; otherwise
+                    // the pager has it, to turn. Pulled on past its edge the way pages turn, the pager comes along.
+                    suspend fun AwaitPointerEventScope.drag(down: PointerInputChange, first: PointerEvent) {
+                        val z = zoom
+                        val moved = (first.changes.firstOrNull { it.id == down.id }?.position ?: down.position) - down.position
+                        val bigAlong = if (along) pw * z > w + 1 else ph * z > h + 1
+                        val bigAcross = if (along) ph * z > h + 1 else pw * z > w + 1
+                        val acrossMove = if (along) abs(moved.y) > abs(moved.x) else abs(moved.x) > abs(moved.y)
+                        if (!(z > 1.01f || bigAlong || (bigAcross && acrossMove))) {
+                            while (true) {
+                                val e = awaitPointerEvent()
+                                if (e.changes.count { it.pressed } >= 2) { pinch(e); return }
+                                if (e.changes.none { it.pressed }) return
+                            }
+                        }
+                        // Pulling the pager along only where the page can be moved the way pages turn, or the move began that way.
+                        val canTurnHere = z > 1.01f || bigAlong || !acrossMove
+                        val speed = VelocityTracker()
+                        var pulled = 0f
+                        val most = if (along) w else h
+                        var e = first
+                        while (true) {
+                            if (e.changes.count { it.pressed } >= 2) {
+                                if (pulled != 0f) letGoNow(0f)
+                                pinch(e)
+                                return
+                            }
+                            val finger = e.changes.firstOrNull { it.id == down.id && it.pressed } ?: e.changes.firstOrNull { it.pressed }
+                            if (finger == null) break
+                            speed.addPosition(finger.uptimeMillis, finger.position)
+                            val pan = e.calculatePan()
+                            var a = if (along) pan.x else pan.y
+                            val across = if (along) pan.y else pan.x
+                            // The pager already pulled along: moving back gives that back first.
+                            if (pulled != 0f && a != 0f) {
+                                val p = pulled + a
+                                if (p == 0f || (p > 0) == (pulled > 0)) {
+                                    val to = p.coerceIn(-most, most)
+                                    pullNow(to - pulled)
+                                    pulled = to
+                                    a = 0f
+                                } else {
+                                    pullNow(-pulled)
+                                    pulled = 0f
+                                    a = p
+                                }
+                            }
+                            val o = offset
+                            val wanted = if (along) Offset(o.x + a, o.y + across) else Offset(o.x + across, o.y + a)
+                            val kept = held(wanted, zoom)
+                            offset = kept
+                            val left = if (along) wanted.x - kept.x else wanted.y - kept.y
+                            if (canTurnHere && left != 0f && (pulled != 0f || canPullNow(left))) {
+                                val to = (pulled + left).coerceIn(-most, most)
+                                pullNow(to - pulled)
+                                pulled = to
+                            }
+                            e.changes.forEach { if (it.positionChanged()) it.consume() }
+                            e = awaitPointerEvent()
+                        }
+                        if (pulled != 0f) {
+                            val v = speed.calculateVelocity()
+                            letGoNow(if (along) v.x else v.y)
+                        }
+                    }
+
+                    // The second of two taps: let go, it zooms in on the spot (brought to the middle, as in Mihon) or out
+                    // again; held and moved up or down, it zooms with the finger, about that spot.
+                    suspend fun AwaitPointerEventScope.secondTap(second: PointerInputChange) {
+                        val f = second.position
+                        val z0 = zoom
+                        val o0 = offset
+                        var quick = false
+                        while (true) {
+                            val e = awaitPointerEvent()
+                            if (e.changes.count { it.pressed } >= 2) { pinch(e); return }
+                            val c = e.changes.firstOrNull { it.id == second.id }
+                            if (c == null || !c.pressed) break
+                            if (!quick && (c.position - f).getDistance() > slop) quick = true
+                            if (quick) {
+                                val z1 = (z0 * exp((c.position.y - f.y) / quickZoom)).coerceIn(minZoom, maxZoom)
+                                offset = held(f - (f - o0) * (z1 / z0), z1)
                                 zoom = z1
-                                offset = kept
-                                event.changes.forEach { if (it.positionChanged()) it.consume() }
                             }
-                        } while (event.changes.any { it.pressed })
-                        // Pulled on past the page's edge the way pages turn: to the next page that way.
-                        val pull = if (along) over.x else over.y
-                        val far = (if (along) w else h) * 0.14f
-                        if (mine && abs(pull) > far) {
-                            val toward = if (pull < 0) 1 else -1 // the page after (to the right, or below)
-                            onTurn(if (along && rtl) -toward else toward)
+                            e.changes.forEach { it.consume() }
+                        }
+                        if (quick) return
+                        val z = zoom
+                        val spot = (f - offset) / z
+                        val middle = Offset(w / 2, h / 2)
+                        // In to twice the size unless it's most of the way there already; then back out.
+                        if (z <= 1.8f) {
+                            val z1 = min(maxZoom, 2f)
+                            animateTo(z1, middle - spot * z1)
+                        } else {
+                            animateTo(1f, middle - spot)
                         }
                     }
-                }
-                .pointerInput(piece.key, pw, ph) {
-                    awaitEachGesture {
-                        val down = awaitFirstDown(requireUnconsumed = false)
-                        val held = awaitLongPressOrCancellation(down.id)
-                        if (held != null) {
-                            onLongPress()
-                            waitForUpOrCancellation()
-                            return@awaitEachGesture
-                        }
-                        val up = currentEvent.changes.firstOrNull { it.id == down.id } ?: return@awaitEachGesture
-                        if (up.pressed || up.isConsumed || (up.position - down.position).getDistance() > viewConfiguration.touchSlop) return@awaitEachGesture
-                        val st = tapsNow
-                        val action = ComicLayout.tapAction(up.position.x / size.width, up.position.y / size.height, st.taps, mode, st.invertTaps)
-                        if (action != 0) {
-                            step(action)
-                            return@awaitEachGesture
-                        }
-                        val second = withTimeoutOrNull(viewConfiguration.doubleTapTimeoutMillis) { awaitFirstDown(requireUnconsumed = false) }
-                        if (second == null) onMenu()
-                        else {
-                            waitForUpOrCancellation()
-                            val z0 = zoomNow
-                            if (z0 > 1.01f) {
-                                val (x, y) = ComicLayout.startOffset(pw, ph, w, h, st.zoomStart, rtl)
-                                animateTo(1f, Offset(x, y))
-                            } else {
-                                val z1 = min(maxZoom, 2f)
-                                val f = second.position
-                                animateTo(z1, f - (f - offsetNow) * (z1 / z0))
+
+                    suspend fun AwaitPointerEventScope.touch(down: PointerInputChange) {
+                        moving?.cancel()
+                        val st = sNow
+                        val (start, first) = howItStarts(down, holds = st.longTap)
+                        when (start) {
+                            Start.GONE -> Unit
+                            Start.HOLD -> {
+                                longPressNow()
+                                waitForAllUp()
+                            }
+                            Start.PINCH -> pinch(first!!)
+                            Start.DRAG -> drag(down, first!!)
+                            Start.TAP -> {
+                                val up = first!!.changes.first { it.id == down.id }.position
+                                val action = ComicLayout.tapAction(up.x / size.width, up.y / size.height, st.taps, mode, st.invertTaps)
+                                // As in Mihon, a tap waits a moment in case a second follows: two zoom.
+                                val second = withTimeoutOrNull(viewConfiguration.doubleTapTimeoutMillis) { awaitFirstDown(requireUnconsumed = false) }
+                                when {
+                                    second == null -> if (action != 0) step(action) else menuNow()
+                                    (second.position - up).getDistance() > doubleTapSlop -> {
+                                        if (action != 0) step(action) else menuNow()
+                                        touch(second)
+                                    }
+                                    else -> secondTap(second)
+                                }
                             }
                         }
                     }
+
+                    awaitEachGesture { touch(awaitFirstDown(requireUnconsumed = false)) }
                 },
         ) {
-            val dw = pw * zoom
-            val dh = ph * zoom
-            base?.let { bmp ->
-                Box(
-                    Modifier.offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
-                        .size(with(density) { dw.toDp() }, with(density) { dh.toDp() }),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    val image = bmp.asImageBitmap()
-                    if (rotated) {
-                        Image(image, null, contentScale = ContentScale.FillBounds, modifier = Modifier.requiredSize(with(density) { dh.toDp() }, with(density) { dw.toDp() }).graphicsLayer { rotationZ = 90f })
-                    } else {
-                        Image(image, null, contentScale = ContentScale.FillBounds, modifier = Modifier.fillMaxSize())
+            // The page as laid out before zooming, made bigger and moved where it's shown (drawn, not laid out again).
+            val iw = pw.toInt()
+            val ih = ph.toInt()
+            Spacer(
+                Modifier
+                    .layout { measurable, constraints ->
+                        val placeable = measurable.measure(Constraints.fixed(iw, ih))
+                        layout(constraints.maxWidth, constraints.maxHeight) {
+                            placeable.placeWithLayer(0, 0) {
+                                transformOrigin = TransformOrigin(0f, 0f)
+                                scaleX = zoom
+                                scaleY = zoom
+                                translationX = offset.x
+                                translationY = offset.y
+                            }
+                        }
                     }
-                }
-            }
-            // Zoomed in further than it's drawn: the part on the screen drawn again sharp, once it stops moving.
-            if (!rotated && current) {
-                var sharp by remember(piece.key) { mutableStateOf<Pair<android.graphics.RectF, Bitmap>?>(null) }
-                val at = zoom to offset
-                LaunchedEffect(at, base) {
-                    sharp = null
-                    val b = base ?: return@LaunchedEffect
-                    if (dw / b.width < 1.25f) return@LaunchedEffect
-                    delay(150)
-                    val left = max(0f, offset.x)
-                    val top = max(0f, offset.y)
-                    val right = min(w, offset.x + dw)
-                    val bottom = min(h, offset.y + dh)
-                    if (right - left < 2 || bottom - top < 2) return@LaunchedEffect
-                    val sx = r.width() / dw
-                    val sy = r.height() / dh
-                    val src = android.graphics.Rect(
-                        (r.left + (left - offset.x) * sx).toInt(), (r.top + (top - offset.y) * sy).toInt(),
-                        (r.left + (right - offset.x) * sx).toInt().coerceAtMost(r.right), (r.top + (bottom - offset.y) * sy).toInt().coerceAtMost(r.bottom),
-                    )
-                    if (src.width() < 2 || src.height() < 2) return@LaunchedEffect
-                    pages.bitmap(piece.page, src, (right - left).toInt(), (bottom - top).toInt())?.let { sharp = android.graphics.RectF(left, top, right, bottom) to it }
-                }
-                sharp?.let { (where, bmp) ->
-                    Image(
-                        bmp.asImageBitmap(), null, contentScale = ContentScale.FillBounds,
-                        modifier = Modifier.offset { IntOffset(where.left.roundToInt(), where.top.roundToInt()) }
-                            .size(with(density) { where.width().toDp() }, with(density) { where.height().toDp() }),
-                    )
-                }
-            }
+                    .drawBehind {
+                        val b = base ?: return@drawBehind
+                        drawIntoCanvas { canvas ->
+                            val c = canvas.nativeCanvas
+                            if (rotated) {
+                                // Drawn as it is, then turned a quarter clockwise about the page's middle.
+                                c.save()
+                                c.rotate(90f, size.width / 2, size.height / 2)
+                                val l = (size.width - size.height) / 2
+                                val t = (size.height - size.width) / 2
+                                c.drawBitmap(b, null, RectF(l, t, l + size.height, t + size.width), paint)
+                                c.restore()
+                            } else {
+                                c.drawBitmap(b, null, RectF(0f, 0f, size.width, size.height), paint)
+                                sharp?.let { (where, bmp) -> c.drawBitmap(bmp, null, where, paint) }
+                            }
+                        }
+                    },
+            )
         }
     }
 }
@@ -839,6 +1107,11 @@ private data class StripPiece(val page: Int, val part: Int, val parts: Int, val 
     val key: String get() = "$page:$part"
 }
 
+/**
+ * The pages one under another, scrolled through; zoomed as in Mihon, about the screen's middle: pinched, double-tapped
+ * (twice the size about the spot, or back), or double-tapped and held then moved up or down. Zoomed in, a finger
+ * moves the strip sideways too, and at either end down or up to its very edge.
+ */
 @Composable
 private fun StripComic(
     pages: ComicPages,
@@ -848,6 +1121,8 @@ private fun StripComic(
     onPage: (Int) -> Unit,
     onMenu: () -> Unit,
     onLongPress: (Int) -> Unit,
+    /** The strip was scrolled. */
+    onMoved: () -> Unit,
     nudges: SharedFlow<Int>,
     jumps: SharedFlow<Int>,
 ) {
@@ -858,6 +1133,10 @@ private fun StripComic(
     val regions = remember(s.cropStrip) { mutableStateMapOf<Int, android.graphics.Rect>() }
     // Read here, outside the box that measures the screen, so the strip is laid out again as pages become known.
     val known = regions.toMap()
+    val sNow by rememberUpdatedState(s)
+    val menuNow by rememberUpdatedState(onMenu)
+    val longPressNow by rememberUpdatedState(onLongPress)
+    val movedNow by rememberUpdatedState(onMoved)
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val w = constraints.maxWidth.toFloat()
         val h = constraints.maxHeight.toFloat()
@@ -880,9 +1159,10 @@ private fun StripComic(
                 }
             }
         }
+        val piecesNow by rememberUpdatedState(pieces)
         val list = rememberLazyListState(initialFirstVisibleItemIndex = pieces.indexOfFirst { it.page == page }.coerceAtLeast(0))
         // The pages near the screen read first, so the strip knows their shapes before they come into view.
-        val first by remember { androidx.compose.runtime.derivedStateOf { list.firstVisibleItemIndex } }
+        val first by remember { derivedStateOf { list.firstVisibleItemIndex } }
         LaunchedEffect(first, s.cropStrip) {
             val at = pieces.getOrNull(first)?.page ?: page
             for (i in listOf(at) + ((at - 2).coerceAtLeast(0)..(at + 6).coerceAtMost(count - 1)).filter { it != at }) {
@@ -898,86 +1178,165 @@ private fun StripComic(
         LaunchedEffect(list, pieces) {
             jumps.collect { p -> pieces.indexOfFirst { it.page == p }.takeIf { it >= 0 }?.let { list.scrollToItem(it) } }
         }
-        LaunchedEffect(list) {
-            nudges.collect { by -> if (s.animate) list.animateScrollBy(by * h * 0.75f) else list.scrollBy(by * h * 0.75f) }
+        // As in Mihon, the menu goes once the strip moves.
+        LaunchedEffect(list) { snapshotFlow { list.isScrollInProgress }.collect { if (it) movedNow() } }
+
+        // How much bigger the strip is shown, and how far it's moved from the middle of the screen.
+        var zoom by remember { mutableFloatStateOf(1f) }
+        var shift by remember { mutableStateOf(Offset.Zero) }
+        val middle = Offset(w / 2, h / 2)
+        // Moved no further than its edges: sideways where it's wider than the screen, and down or up as far as the
+        // part of the list on the screen goes.
+        fun heldShift(o: Offset, z: Float): Offset {
+            val sx = max(0f, (column * z - w) / 2)
+            val sy = max(0f, (z - 1) * h / 2)
+            return Offset(o.x.coerceIn(-sx, sx), o.y.coerceIn(-sy, sy))
         }
-        val zoom = remember { Animatable(1f) }
-        var shift by remember { mutableFloatStateOf(0f) }
-        fun heldShift(x: Float, z: Float) = x.coerceIn(-(z - 1) * w / 2, (z - 1) * w / 2)
+        /** Zooms to [z1], what was at [from] on the screen going to [to]: by moving the strip, and where that's not enough, scrolling it. */
+        fun zoomAbout(from: Offset, to: Offset, z1: Float) {
+            val z0 = zoom
+            val local = (from - middle - shift) / z0
+            val wanted = to - middle - local * z1
+            val kept = heldShift(wanted, z1)
+            zoom = z1
+            shift = kept
+            val over = wanted.y - kept.y
+            if (abs(over) > 0.5f) list.dispatchRawDelta(-over / z1)
+        }
+        var moving by remember { mutableStateOf<Job?>(null) }
+        fun animateZoom(about: Offset, z1: Float) {
+            moving?.cancel()
+            moving = scope.launch {
+                animate(zoom, z1, animationSpec = tween(if (sNow.animate) 220 else 1)) { z, _ -> zoomAbout(about, about, z) }
+            }
+        }
+        /** On (1) or back (-1) by most of the screen; zoomed in at either end, the strip is moved to its very edge. */
+        fun scrollStrip(by: Int) {
+            if (by == 0) return
+            moving?.cancel()
+            moving = scope.launch {
+                val atEnd = if (by > 0) !list.canScrollForward else !list.canScrollBackward
+                if (atEnd && zoom > 1.01f) {
+                    val to = heldShift(Offset(shift.x, if (by > 0) -h * 10 else h * 10), zoom)
+                    val from = shift
+                    animate(0f, 1f, animationSpec = tween(if (sNow.animate) 220 else 1)) { t, _ -> shift = from + (to - from) * t }
+                } else {
+                    val d = by * h * 0.75f / zoom
+                    if (sNow.animate) list.animateScrollBy(d) else list.scrollBy(d)
+                }
+            }
+        }
+        LaunchedEffect(list, w, h, column) { nudges.collect { scrollStrip(it) } }
+        // At either end of the strip, zoomed in, the rest of a drag moves the strip within the screen, so its very
+        // top and bottom can be seen.
+        val ends = remember(w, h, column) {
+            object : NestedScrollConnection {
+                override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+                    if (zoom <= 1.001f || available.y == 0f) return Offset.Zero
+                    val before = shift
+                    shift = heldShift(Offset(before.x, before.y + available.y * zoom), zoom)
+                    return Offset(0f, (shift.y - before.y) / zoom)
+                }
+            }
+        }
+        val quickZoom = with(density) { QUICK_ZOOM_DISTANCE.toPx() }
         Box(
-            Modifier.fillMaxSize()
-                // Pinching zooms the strip; zoomed, a finger moves it sideways too.
-                .pointerInput(Unit) {
-                    awaitEachGesture {
-                        awaitFirstDown(requireUnconsumed = false)
-                        var pinching = false
-                        var moved = Offset.Zero
-                        var sideways = false
-                        do {
-                            val event = awaitPointerEvent()
-                            val fingers = event.changes.count { it.pressed }
-                            if (fingers >= 2) pinching = true
-                            val by = event.calculateZoom()
-                            val pan = event.calculatePan()
-                            if (pinching && (by != 1f || pan != Offset.Zero)) {
-                                val z0 = zoom.value
-                                val z1 = (z0 * by).coerceIn(1f, 4f)
-                                scope.launch { zoom.snapTo(z1) }
-                                val c = event.calculateCentroid(useCurrent = true)
-                                shift = heldShift((shift - (c.x - w / 2)) * (z1 / z0) + (c.x - w / 2) + pan.x, z1)
-                                list.dispatchRawDelta(-pan.y / z1)
-                                event.changes.forEach { if (it.positionChanged()) it.consume() }
-                            } else if (!pinching && zoom.value > 1.01f) {
-                                moved += pan
-                                if (!sideways && moved.getDistance() > viewConfiguration.touchSlop) sideways = abs(moved.x) > abs(moved.y)
-                                if (sideways) {
-                                    shift = heldShift(shift + pan.x, zoom.value)
-                                    event.changes.forEach { if (it.positionChanged()) it.consume() }
+            Modifier
+                .fillMaxSize()
+                .nestedScroll(ends)
+                // Seen before the list sees them, so two fingers zoom without the list scrolling too.
+                .pointerInput(w, h, column) {
+                    val slop = viewConfiguration.touchSlop
+                    val doubleTapSlop = 100.dp.toPx()
+                    val pass = PointerEventPass.Initial
+
+                    suspend fun AwaitPointerEventScope.pinch(first: PointerEvent) {
+                        var e = first
+                        while (true) {
+                            val by = e.calculateZoom()
+                            val pan = e.calculatePan()
+                            if (by != 1f || pan != Offset.Zero) {
+                                val c = e.calculateCentroid(useCurrent = true)
+                                if (c.isSpecified) zoomAbout(c - pan, c, (zoom * by).coerceIn(1f, 3f))
+                            }
+                            e.changes.forEach { it.consume() }
+                            if (e.changes.none { it.pressed }) return
+                            e = awaitPointerEvent(pass)
+                        }
+                    }
+
+                    // One finger: the list scrolls itself; zoomed in, the strip moves sideways here too.
+                    suspend fun AwaitPointerEventScope.drag(first: PointerEvent) {
+                        var e = first
+                        while (true) {
+                            if (e.changes.count { it.pressed } >= 2) { pinch(e); return }
+                            if (e.changes.none { it.pressed }) return
+                            val pan = e.calculatePan()
+                            if (pan.x != 0f && zoom > 1.001f) shift = heldShift(Offset(shift.x + pan.x, shift.y), zoom)
+                            e = awaitPointerEvent(pass)
+                        }
+                    }
+
+                    suspend fun AwaitPointerEventScope.secondTap(second: PointerInputChange) {
+                        val f = second.position
+                        val z0 = zoom
+                        var quick = false
+                        while (true) {
+                            val e = awaitPointerEvent(pass)
+                            if (e.changes.count { it.pressed } >= 2) { pinch(e); return }
+                            val c = e.changes.firstOrNull { it.id == second.id }
+                            if (c == null || !c.pressed) break
+                            if (!quick && (c.position - f).getDistance() > slop) quick = true
+                            if (quick) zoomAbout(f, f, (z0 * exp((c.position.y - f.y) / quickZoom)).coerceIn(1f, 3f))
+                            e.changes.forEach { it.consume() }
+                        }
+                        // Two taps: twice the size about where they were (as in Mihon), or back again.
+                        if (!quick) animateZoom(f, if (zoom > 1.01f) 1f else 2f)
+                    }
+
+                    suspend fun AwaitPointerEventScope.touch(down: PointerInputChange) {
+                        moving?.cancel()
+                        val st = sNow
+                        val (start, first) = howItStarts(down, holds = st.longTap, pass = pass)
+                        when (start) {
+                            Start.GONE -> Unit
+                            Start.HOLD -> {
+                                // The page held, found where it's drawn, zoomed or not.
+                                val at = middle + (down.position - middle - shift) / zoom
+                                val item = list.layoutInfo.visibleItemsInfo.firstOrNull { at.y >= it.offset && at.y < it.offset + it.size }
+                                piecesNow.getOrNull(item?.index ?: list.firstVisibleItemIndex)?.let { longPressNow(it.page) }
+                                waitForAllUp(pass)
+                            }
+                            Start.PINCH -> pinch(first!!)
+                            Start.DRAG -> drag(first!!)
+                            Start.TAP -> {
+                                val up = first!!.changes.first { it.id == down.id }.position
+                                val action = ComicLayout.tapAction(up.x / size.width, up.y / size.height, st.taps, mode, st.invertTaps)
+                                val second = if (!st.doubleTapZoom) null else withTimeoutOrNull(viewConfiguration.doubleTapTimeoutMillis) {
+                                    awaitFirstDown(requireUnconsumed = false, pass = pass)
+                                }
+                                when {
+                                    second == null -> if (action != 0) scrollStrip(action) else menuNow()
+                                    (second.position - up).getDistance() > doubleTapSlop -> {
+                                        if (action != 0) scrollStrip(action) else menuNow()
+                                        touch(second)
+                                    }
+                                    else -> secondTap(second)
                                 }
                             }
-                        } while (event.changes.any { it.pressed })
-                    }
-                }
-                .pointerInput(Unit) {
-                    awaitEachGesture {
-                        val down = awaitFirstDown(requireUnconsumed = false)
-                        val held = awaitLongPressOrCancellation(down.id)
-                        if (held != null) {
-                            val idx = list.layoutInfo.visibleItemsInfo.firstOrNull { item ->
-                                val y = (down.position.y - h / 2) / zoom.value + h / 2
-                                y >= item.offset && y < item.offset + item.size
-                            }?.index
-                            pieces.getOrNull(idx ?: list.firstVisibleItemIndex)?.let { onLongPress(it.page) }
-                            waitForUpOrCancellation()
-                            return@awaitEachGesture
-                        }
-                        val up = currentEvent.changes.firstOrNull { it.id == down.id } ?: return@awaitEachGesture
-                        if (up.pressed || up.isConsumed || (up.position - down.position).getDistance() > viewConfiguration.touchSlop) return@awaitEachGesture
-                        val action = ComicLayout.tapAction(up.position.x / size.width, up.position.y / size.height, s.taps, mode, s.invertTaps)
-                        if (action != 0) {
-                            scope.launch { if (s.animate) list.animateScrollBy(action * h * 0.75f) else list.scrollBy(action * h * 0.75f) }
-                            return@awaitEachGesture
-                        }
-                        val second = if (s.doubleTapZoom) withTimeoutOrNull(viewConfiguration.doubleTapTimeoutMillis) { awaitFirstDown(requireUnconsumed = false) } else null
-                        if (second == null) onMenu()
-                        else {
-                            waitForUpOrCancellation()
-                            val target = if (zoom.value > 1.01f) 1f else 2f
-                            val c = second.position.x - w / 2
-                            val goal = heldShift(if (target == 1f) 0f else -c * (target - 1), target)
-                            val from = shift
-                            scope.launch { zoom.animateTo(target, tween(if (s.animate) 220 else 1)) { shift = from + (goal - from) * ((value - 1f) / (target - 1f).let { if (it == 0f) 1f else it }).coerceIn(0f, 1f) } }
-                            if (target == 1f) shift = 0f
                         }
                     }
+
+                    awaitEachGesture { touch(awaitFirstDown(requireUnconsumed = false, pass = pass)) }
                 },
         ) {
             LazyColumn(
                 state = list,
                 modifier = Modifier.fillMaxSize().graphicsLayer {
-                    scaleX = zoom.value
-                    scaleY = zoom.value
-                    translationX = shift
+                    scaleX = zoom
+                    scaleY = zoom
+                    translationX = shift.x
+                    translationY = shift.y
                 },
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -1019,9 +1378,11 @@ private fun ComicSettingsSheet(
     mode: ComicMode,
     onMode: (ComicMode?) -> Unit,
     onSettings: ((ComicSettings) -> ComicSettings) -> Unit,
+    onAppSettings: (() -> Unit)? = null,
 ) {
     Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp).padding(bottom = 24.dp)) {
         Text(tr("Comic settings"), style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(bottom = 8.dp))
+        if (onAppSettings != null) AppSettingsLink(onAppSettings, Modifier.padding(bottom = 8.dp))
         Choices(tr("Reading mode for this comic"), ComicMode.entries, mode, { it.label() }) { onMode(it) }
         Choices(tr("Reading mode for other comics"), ComicMode.entries, s.mode, { it.label() }) { m -> onSettings { it.copy(mode = m) } }
 

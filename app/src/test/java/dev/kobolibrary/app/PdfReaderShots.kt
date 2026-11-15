@@ -105,7 +105,7 @@ class PdfReaderShots {
                 PdfPagesView(
                     book = book, pages = pages, dir = dir,
                     s = ReaderSettings(spread = if (two) dev.kobolibrary.app.reader.ReaderSpread.TWO else dev.kobolibrary.app.reader.ReaderSpread.ONE),
-                    background = ComposeColor(0xFFFBF8F1), controls = true, setControls = {}, onClose = {}, onReadAsText = {}, readingHere = null,
+                    background = ComposeColor(0xFFFBF8F1), controls = true, setControls = {}, onClose = {}, onReadAsText = {}, readingHere = null, onAppSettings = {},
                 )
             }
         }

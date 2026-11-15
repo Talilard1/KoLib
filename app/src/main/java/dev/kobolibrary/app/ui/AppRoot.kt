@@ -356,6 +356,7 @@ fun AppRoot(
                             readerSettings = libraryVm.readerSettings,
                             onClose = { overlay = null },
                             readingHere = libraryVm.readingHere,
+                            onAppSettings = { showLook = true },
                         )
                     } else if (book.isPdf && !asText) {
                         PdfBookReader(
@@ -365,6 +366,7 @@ fun AppRoot(
                             onClose = { overlay = null },
                             onReadAsText = if (book.isScan) null else ({ readAs(true) }),
                             readingHere = libraryVm.readingHere,
+                            onAppSettings = { showLook = true },
                         )
                     } else {
                         BookReader(
@@ -375,6 +377,7 @@ fun AppRoot(
                             onEdit = { path -> overlay = "text:${book.id}|$path" },
                             readingHere = libraryVm.readingHere,
                             onReadAsPdf = if (book.isPdf) ({ readAs(false) }) else null,
+                            onAppSettings = { showLook = true },
                         )
                     }
                 }
@@ -495,6 +498,7 @@ fun AppRoot(
                             onAddToLibrary = { chosen -> libraryVm.importFromKobo(connection.session, chosen) },
                             onDeleteFromKobo = vm::deleteFromKobo,
                             sending = job?.let { it.kind == JobKind.SEND && !it.finished } == true,
+                            onSettings = { showLook = true },
                         )
                         connection is Connection.Waiting && koboView != null -> DeviceScreen(
                             view = koboView,
@@ -512,6 +516,7 @@ fun AppRoot(
                             onOpenLog = { overlay = "log" },
                             extras = koboExtras,
                             onHowToConnect = { showConnectHelp = true },
+                            onSettings = { showLook = true },
                         )
                         else -> ConnectScreen(
                             connection = connection,
@@ -523,6 +528,7 @@ fun AppRoot(
                                 overlay = "backups"
                             },
                             onOpenLog = { overlay = "log" },
+                            onSettings = { showLook = true },
                         )
                     }
                 }

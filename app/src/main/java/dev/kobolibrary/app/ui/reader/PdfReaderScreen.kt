@@ -50,6 +50,7 @@ import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.NavigateBefore
 import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.outlined.FormatSize
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.AutoStories
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material3.CircularProgressIndicator
@@ -311,6 +312,8 @@ fun PdfBookReader(
     /** Switches to reading the EPUB made from it; null for scanned pages, which have no text. */
     onReadAsText: (() -> Unit)?,
     readingHere: ReadingHereIndex? = null,
+    /** Opens the app's own settings: its look, language and books folder. */
+    onAppSettings: (() -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val view = LocalView.current
@@ -386,7 +389,7 @@ fun PdfBookReader(
     val background = Color(s.theme.bg)
     val p = pages
     when {
-        p != null -> PdfPagesView(book, p, dir, s, background, controls, { controls = it }, onClose, onReadAsText, readingHere)
+        p != null -> PdfPagesView(book, p, dir, s, background, controls, { controls = it }, onClose, onReadAsText, readingHere, onAppSettings)
         error != null -> Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(24.dp)) {
                 Text(error!!, style = MaterialTheme.typography.bodyLarge)
@@ -414,6 +417,8 @@ internal fun PdfPagesView(
     onClose: () -> Unit,
     onReadAsText: (() -> Unit)?,
     readingHere: ReadingHereIndex?,
+    /** Opens the app's own settings: its look, language and books folder. */
+    onAppSettings: (() -> Unit)? = null,
 ) {
     val scope = rememberCoroutineScope()
     val count = pages.count
@@ -524,6 +529,7 @@ internal fun PdfPagesView(
                             else Icon(Icons.Outlined.AutoStories, tr("Show two pages side by side"))
                         }
                         if (onReadAsText != null) IconButton(onClick = onReadAsText) { Icon(Icons.Outlined.FormatSize, tr("Read as text")) }
+                        if (onAppSettings != null) IconButton(onClick = onAppSettings) { Icon(Icons.Outlined.Settings, tr("Settings")) }
                     }
                 }
             }

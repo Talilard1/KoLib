@@ -1,0 +1,21 @@
+@fr
+1534|Réglages de l’appli
+1535|Thème, langue et dossier des livres
+@de
+1534|App-Einstellungen
+1535|Design, Sprache und Bücherordner
+@es
+1534|Ajustes de la app
+1535|Tema, idioma y carpeta de libros
+@it
+1534|Impostazioni dell’app
+1535|Tema, lingua e cartella dei libri
+@nl
+1534|App-instellingen
+1535|Thema, taal en boekenmap
+@pt
+1534|Configurações do app
+1535|Tema, idioma e pasta de livros
+@ja
+1534|アプリの設定
+1535|テーマ、言語、本のフォルダ

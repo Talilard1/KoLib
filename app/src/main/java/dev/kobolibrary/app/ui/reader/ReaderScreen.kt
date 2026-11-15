@@ -74,6 +74,15 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.ButtonDefaults
+import dev.kobolibrary.app.reader.BookPictures
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.outlined.Image
+import androidx.compose.runtime.produceState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -464,7 +473,22 @@ internal fun ReaderScreen(
                 controller.followNote(note.href)
             })
         }
-        controller.image?.let { src -> ImageViewer(controller, src, onClose = { controller.image = null }) }
+        controller.image?.let { src ->
+            ImageViewer(
+                controller, src,
+                onClose = { controller.image = null; controller.imageChapter = null },
+                onGoTo = controller.imageChapter?.let { i ->
+                    {
+                        val path = BookServer.pathOf(src)?.first
+                        controller.image = null
+                        controller.imageChapter = null
+                        panel = Panel.NONE
+                        controller.controlsVisible = false
+                        if (path != null) controller.goToPicture(i, path)
+                    }
+                },
+            )
+        }
         // Highlights: the card for a tapped one, writing a note, looking words up.
         AnnotationCard(controller, s, onSettings)
         NoteDialog(controller)
@@ -885,43 +909,36 @@ private fun DrawerTabs(tabs: List<DrawerTab>, pager: PagerState) {
 
 @Composable
 private fun ContentsPanel(controller: ReaderController, wide: Boolean, onPicked: () -> Unit, onClose: () -> Unit) {
-    val pager = rememberPagerState(initialPage = controller.contentsTab.coerceIn(0, 2)) { 3 }
+    val pager = rememberPagerState(initialPage = controller.contentsTab.coerceIn(0, 3)) { 4 }
+    // The book's pictures are looked for once the panel's open (the tab shows how many once they're found).
+    LaunchedEffect(controller) { controller.findPictures() }
+    val pictureCount = controller.pictures?.size ?: 0
     SwipedTabs(pager, controller.contentsTab) { controller.contentsTab = it }
     Column(Modifier.fillMaxSize()) {
-        if (wide) {
-            PrimaryTabRow(selectedTabIndex = pager.currentPage, containerColor = Color.Transparent) {
-                val scope = rememberCoroutineScope()
-                listOf(tr("Contents"), tr("Bookmarks ({0})", controller.bookmarks.size), tr("Highlights ({0})", controller.annotations.size)).forEachIndexed { i, label ->
-                    Tab(
-                        selected = i == pager.currentPage,
-                        onClick = { scope.launch { pager.animateScrollToPage(i) } },
-                        selectedContentColor = MaterialTheme.colorScheme.primary,
-                        unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        text = { Text(label, maxLines = 1) },
-                    )
-                }
-            }
-        } else {
+        if (!wide) {
             DrawerHeader(
                 controller.bookTitle,
                 subtitle = controller.bookAuthor?.takeIf { it.isNotBlank() } ?: tr("{0}% read", (controller.bookProgress * 100).roundToInt()),
                 onClose = onClose,
             )
-            DrawerTabs(
-                listOf(
-                    DrawerTab(tr("Contents"), Icons.Outlined.Toc),
-                    DrawerTab(tr("Bookmarks"), Icons.Outlined.BookmarkBorder, controller.bookmarks.size),
-                    DrawerTab(tr("Highlights"), Icons.Outlined.BorderColor, controller.annotations.size),
-                ),
-                pager,
-            )
         }
+        // Four tabs, each an icon over its name (with how many it holds), so they fit side by side on any screen.
+        DrawerTabs(
+            listOf(
+                DrawerTab(tr("Contents"), Icons.Outlined.Toc),
+                DrawerTab(tr("Bookmarks"), Icons.Outlined.BookmarkBorder, controller.bookmarks.size),
+                DrawerTab(tr("Highlights"), Icons.Outlined.BorderColor, controller.annotations.size),
+                DrawerTab(tr("Pictures"), Icons.Outlined.Image, pictureCount),
+            ),
+            pager,
+        )
         // Swipe left or right for the next tab.
         HorizontalPager(pager, Modifier.fillMaxSize(), verticalAlignment = Alignment.Top) { page ->
             when (page) {
                 0 -> ContentsList(controller, onPicked)
                 1 -> BookmarksList(controller, onPicked)
-                else -> HighlightsList(controller, onPicked)
+                2 -> HighlightsList(controller, onPicked)
+                else -> PicturesList(controller)
             }
         }
     }
@@ -954,6 +971,85 @@ private fun ContentsList(controller: ReaderController, onPicked: () -> Unit) {
                     }
                 }
             }
+        }
+    }
+}
+
+/**
+ * Every picture in the book, small, in the order they come, each with the chapter it's in (and the book, in a book
+ * of several). Tap one to see it whole.
+ */
+@Composable
+private fun PicturesList(controller: ReaderController) {
+    val all = controller.pictures
+    when {
+        all == null -> Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.TopCenter) { CircularProgressIndicator() }
+        all.isEmpty() -> Text(
+            tr("This book has no pictures."),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(24.dp),
+        )
+        else -> {
+            val large = remember(all) { all.filter { BookPictures.large(it.width, it.height) } }
+            // Only worth a choice when the book has both: little marks (each chapter's, say) and big pictures.
+            val mixed = large.isNotEmpty() && large.size < all.size
+            val shown = if (controller.largePicturesOnly && mixed) large else all
+            Column(Modifier.fillMaxSize()) {
+                if (mixed) {
+                    Row(Modifier.fillMaxWidth().padding(start = 12.dp, end = 12.dp, top = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        FilterChip(selected = !controller.largePicturesOnly, onClick = { controller.largePicturesOnly = false }, label = { Text(tr("All")) })
+                        FilterChip(selected = controller.largePicturesOnly, onClick = { controller.largePicturesOnly = true }, label = { Text(tr("Large only ({0})", large.size)) })
+                    }
+                }
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(minSize = 104.dp),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp),
+                ) {
+                    items(shown, key = { it.path }) { p -> PictureCell(controller, p) }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PictureCell(controller: ReaderController, p: ReaderController.BookPicture) {
+    val turned = controller.turns[p.path] ?: 0
+    val small by produceState<android.graphics.Bitmap?>(null, p.path, turned) {
+        value = withContext(Dispatchers.IO) { runCatching { controller.thumbnail(p.path, 360) }.getOrNull() }
+    }
+    Column(
+        Modifier
+            .clip(RoundedCornerShape(6.dp))
+            .clickable {
+                controller.imageChapter = p.chapter
+                controller.image = controller.pictureUrl(p.path)
+            }
+            .padding(2.dp),
+    ) {
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(132.dp)
+                .clip(RoundedCornerShape(4.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+            contentAlignment = Alignment.Center,
+        ) {
+            small?.let { Image(it.asImageBitmap(), contentDescription = null, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize().padding(4.dp)) }
+        }
+        Text(
+            controller.chapterNameOf(p.chapter).ifBlank { tr("Front of the book") },
+            style = MaterialTheme.typography.labelMedium,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(top = 6.dp),
+        )
+        controller.innerBookOf(p.chapter)?.let {
+            Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
     }
 }
@@ -1568,7 +1664,7 @@ private fun NoteSheet(html: String, onClose: () -> Unit, onGoTo: () -> Unit) {
 }
 
 @Composable
-private fun ImageViewer(controller: ReaderController, src: String, onClose: () -> Unit) {
+private fun ImageViewer(controller: ReaderController, src: String, onClose: () -> Unit, onGoTo: (() -> Unit)? = null) {
     val parts = remember(src) { src.split('\n') }
     // A picture of its own (not the two halves of a map) can be turned: one printed on its side to fit a page.
     val path = remember(src) { if (parts.size >= 2) null else BookServer.pathOf(src)?.first }
@@ -1603,29 +1699,38 @@ private fun ImageViewer(controller: ReaderController, src: String, onClose: () -
         } else {
             Text(tr("This picture can't be shown."), color = Color.White, modifier = Modifier.align(Alignment.Center))
         }
-        IconButton(onClick = onClose, modifier = Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(8.dp)) {
+        // The buttons sit on a dark round backing, so they show over a pale picture too.
+        val backing = Color.Black.copy(alpha = 0.5f)
+        IconButton(onClick = onClose, modifier = Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(8.dp).clip(CircleShape).background(backing)) {
             Icon(Icons.Filled.Close, tr("Close picture"), tint = Color.White)
         }
         if (path != null && bitmap != null) {
-            Row(Modifier.align(Alignment.TopStart).statusBarsPadding().padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = {
+            Row(
+                Modifier.align(Alignment.TopStart).statusBarsPadding().padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                IconButton(modifier = Modifier.clip(CircleShape).background(backing), onClick = {
                     controller.turnPicture(path, -1)
                     turnsMade++
                     scale = 1f
                     offset = androidx.compose.ui.geometry.Offset.Zero
                 }) { Icon(Icons.Filled.RotateLeft, tr("Turn the picture left"), tint = Color.White) }
-                IconButton(onClick = {
+                IconButton(modifier = Modifier.clip(CircleShape).background(backing), onClick = {
                     controller.turnPicture(path, 1)
                     turnsMade++
                     scale = 1f
                     offset = androidx.compose.ui.geometry.Offset.Zero
                 }) { Icon(Icons.Filled.RotateRight, tr("Turn the picture right"), tint = Color.White) }
-                Text(
-                    tr("A picture printed on its side: turn it the right way up, and it goes across both pages."),
-                    color = Color.White.copy(alpha = 0.75f),
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(start = 8.dp).widthIn(max = 360.dp),
-                )
+            }
+        }
+        onGoTo?.let { go ->
+            TextButton(
+                onClick = go,
+                colors = ButtonDefaults.textButtonColors(containerColor = backing, contentColor = Color.White),
+                modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(16.dp),
+            ) {
+                Text(tr("Go to its page"))
             }
         }
     }

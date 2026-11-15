@@ -115,6 +115,9 @@ class ReaderController(
     var controlsVisible by mutableStateOf(false)
     var note by mutableStateOf<ReaderNote?>(null)
     var image by mutableStateOf<String?>(null)
+
+    /** The chapter the picture shown came from, when it was opened from the list of the book's pictures (to go to its page). */
+    var imageChapter by mutableStateOf<Int?>(null)
     var externalLink by mutableStateOf<String?>(null)
     /** Where the reader was before following a link, to go back to. */
     var jumpedFrom by mutableStateOf<ReaderPosition?>(null)
@@ -382,8 +385,14 @@ class ReaderController(
         get() = HeadTitles.chapter(headChapterName())
 
     /** The chapter's name for [headChapterTitle], with its number if it has one in front. */
-    private fun headChapterName(): String {
-        var i = chapterIndex
+    private fun headChapterName(): String = chapterNameOf(chapterIndex)
+
+    /**
+     * The contents' name for the chapter that chapter [index] is in (its own, or the one it carries on), with its
+     * number if it has one in front; blank if the contents don't name one.
+     */
+    fun chapterNameOf(index: Int): String {
+        var i = index
         while (i >= 0) {
             val c = chapters.getOrNull(i) ?: return ""
             val fromToc = c.titleFromToc || inFront(i).any { chapters[it].titleFromToc }
@@ -674,7 +683,7 @@ class ReaderController(
         // text opens instead, at its start (a link into the opening still finds its place). The same
         // for a short page shown beside the next.
         if (isOpening(index) || isPairedLeft(index) || isPiece(index)) {
-            open(index + 1, if (target.optString("type") == "fragment") target else target("start"))
+            open(index + 1, if (target.optString("type") in setOf("fragment", "picture")) target else target("start"))
             return
         }
         val c = chapters.getOrNull(index) ?: return
@@ -914,6 +923,7 @@ class ReaderController(
                     if (q == 1 || q == 3) {
                         AppLog.i("Reader", "The picture $picture is on its side: turned the right way up.")
                         turns = turns + (picture to q)
+                        withContext(Dispatchers.Main) { swapShape(picture) }
                         kinds.clear()
                         pairs.clear()
                         withContext(Dispatchers.Main) {
@@ -934,6 +944,85 @@ class ReaderController(
         }
     }
 
+    // ---- the book's pictures, for the list of them ----------------------------------------------------
+
+    /** A picture in the book: where it is, the chapter it first comes in, and its size (as turned). */
+    data class BookPicture(val path: String, val chapter: Int, val width: Int, val height: Int)
+
+    /** Every picture in the book, each once where it first comes (not the tiny ones), in reading order; null until found. */
+    var pictures by mutableStateOf<List<BookPicture>?>(null)
+        private set
+
+    @Volatile
+    private var findingPictures = false
+
+    /** The list of the book's pictures shows only the large ones (not chapters' little marks). */
+    var largePicturesOnly by mutableStateOf(false)
+
+    /** Finds the book's pictures, once, away from the screen. */
+    fun findPictures() {
+        if (pictures != null || findingPictures) return
+        findingPictures = true
+        scope.launch {
+            val found = withContext(Dispatchers.IO) {
+                runCatching {
+                    BookPictures.find(
+                        chapters.map { it.path },
+                        text = { runCatching { files.text(it) }.getOrNull() },
+                        sizeOf = { p -> runCatching { files.bytes(p)?.let { ImageSize.of(it) } }.getOrNull() },
+                    )
+                }.getOrDefault(emptyList())
+            }
+            pictures = found.map { f ->
+                val (w, h) = PictureTurns.size(f.width, f.height, turns[f.path] ?: 0)
+                BookPicture(f.path, f.chapter, w, h)
+            }
+            findingPictures = false
+        }
+    }
+
+    /** In a book of several, the title of the one that chapter [i] is in; otherwise null. */
+    fun innerBookOf(i: Int): String? = innerBooks.takeIf { it.size > 1 }?.firstOrNull { i in it.first..it.last }?.title
+
+    /** Shows the book's page with the picture at [path] on it, in chapter [i]. */
+    fun goToPicture(i: Int, path: String) {
+        open(i, target("picture", pictureUrl(path)))
+    }
+
+    /** A picture turned a quarter: in the list of pictures, its shape turns too. */
+    private fun swapShape(path: String) {
+        pictures = pictures?.map { if (it.path == path) it.copy(width = it.height, height = it.width) else it }
+    }
+
+    /** The address the page and the picture viewer have for the picture at [path]. */
+    fun pictureUrl(path: String): String = server.urlFor(path)
+
+    /** Small pictures for the list, kept a while. */
+    private val thumbnails = object : android.util.LruCache<String, android.graphics.Bitmap>(16 * 1024 * 1024) {
+        override fun sizeOf(key: String, value: android.graphics.Bitmap) = value.byteCount
+    }
+
+    /** The picture at [path] made small (about [side] pixels each way), turned as the reader turned it; null if it can't be read. */
+    fun thumbnail(path: String, side: Int): android.graphics.Bitmap? {
+        val q = turns[path] ?: 0
+        val key = "$q|$side|$path"
+        thumbnails.get(key)?.let { return it }
+        val bytes = files.bytes(path) ?: return null
+        val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
+        if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
+        var sample = 1
+        while (maxOf(bounds.outWidth, bounds.outHeight) / (sample * 2) >= side) sample *= 2
+        var bmp = android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size, android.graphics.BitmapFactory.Options().apply { inSampleSize = sample }) ?: return null
+        if (Math.floorMod(q, 4) != 0) {
+            val turned = android.graphics.Bitmap.createBitmap(bmp, 0, 0, bmp.width, bmp.height, android.graphics.Matrix().apply { postRotate(90f * q) }, true)
+            if (turned !== bmp) bmp.recycle()
+            bmp = turned
+        }
+        thumbnails.put(key, bmp)
+        return bmp
+    }
+
     /** The turns as the page is told them: each turned picture's path and its quarter turns. */
     private fun turnsJs(): JSONObject = JSONObject().apply { turns.forEach { (p, q) -> put(p, q) } }
 
@@ -949,6 +1038,7 @@ class ReaderController(
         turns = if (q == 0) turns - path else turns + (path to q)
         // The reader's own turn stands: never looked at again to be turned for them.
         checkedPictures += path
+        swapShape(path)
         store?.let { s -> scope.launch(Dispatchers.IO) { s.saveTurns(turns, checkedPictures.toSet()) } }
         // Which pages are plates, wide or side by side, may have changed.
         kinds.clear()
@@ -959,7 +1049,19 @@ class ReaderController(
         val name = path.substringAfterLast('/')
         val home = listOf(chapterIndex - 1, chapterIndex).firstOrNull { i ->
             i >= 0 && chapters.getOrNull(i)?.let { runCatching { files.text(it.path) }.getOrNull()?.contains(name) } == true
-        } ?: chapterIndex
+        }
+        if (home == null) {
+            // A picture elsewhere in the book (turned from the list of its pictures): the page on screen stays where
+            // it is, laid out again with the turn.
+            val p = position
+            if (!loading && p != null && p.path == chapter?.path) {
+                loading = true
+                startJson = JSONObject(startJson.ifEmpty { "{}" }).put("turns", turnsJs())
+                    .put("target", target("anchor", p.anchor, p.progress)).toString()
+                main.post { webView?.loadUrl(server.urlFor(p.path)) }
+            }
+            return
+        }
         loading = true
         open(home, target("start"))
     }

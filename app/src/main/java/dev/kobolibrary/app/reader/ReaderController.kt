@@ -116,8 +116,14 @@ class ReaderController(
     var note by mutableStateOf<ReaderNote?>(null)
     var image by mutableStateOf<String?>(null)
 
-    /** The chapter the picture shown came from, when it was opened from the list of the book's pictures (to go to its page). */
-    var imageChapter by mutableStateOf<Int?>(null)
+    /** Pictures opened from the list of the book's pictures, to go through left and right: the list as shown, and where it opened. */
+    data class Browse(val pictures: List<BookPicture>, val start: Int)
+
+    /** The list of the book's pictures being gone through full screen, if it is. */
+    var browsing by mutableStateOf<Browse?>(null)
+
+    /** Which of [browsing]'s pictures is shown. */
+    var browsedTo by mutableStateOf(0)
     var externalLink by mutableStateOf<String?>(null)
     /** Where the reader was before following a link, to go back to. */
     var jumpedFrom by mutableStateOf<ReaderPosition?>(null)
@@ -873,9 +879,11 @@ class ReaderController(
 
     // ---- pictures turned -----------------------------------------------------------------------------
 
-    /** Pictures turned in this book (printed on their side to fit a page): each one's path, and its quarter turns clockwise. */
-    @Volatile
-    var turns: Map<String, Int> = store?.turns().orEmpty()
+    /**
+     * Pictures turned in this book (printed on their side to fit a page): each one's path, and its quarter turns
+     * clockwise. Watched, so a picture shown redraws when it's turned (and safe to read from any thread).
+     */
+    var turns by mutableStateOf<Map<String, Int>>(store?.turns().orEmpty())
         private set
 
     /** Turned pictures as handed over, kept a while so turning pages back and forth doesn't turn them again. */

@@ -17,7 +17,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import java.io.ByteArrayOutputStream
-import java.io.File
 
 /** The window of covers found online, with made-up covers in it. */
 @RunWith(RobolectricTestRunner::class)
@@ -60,7 +59,6 @@ class CoverSearchShots {
             }
         }
         compose.waitForIdle()
-        File("/home/claude/heads/shots").mkdirs()
-        captureScreenRoboImage("/home/claude/heads/shots/cover_search.png")
+        captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/cover_search.png")
     }
 }

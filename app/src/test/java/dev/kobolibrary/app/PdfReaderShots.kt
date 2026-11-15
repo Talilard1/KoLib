@@ -113,8 +113,7 @@ class PdfReaderShots {
             Thread.sleep(400)
             compose.waitForIdle()
         }
-        File("/home/claude/heads/shots").mkdirs()
-        captureScreenRoboImage("/home/claude/heads/shots/$name.png")
+        captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/$name.png")
     }
 
     @Test

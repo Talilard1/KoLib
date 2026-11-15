@@ -1,0 +1,32 @@
+@fr
+1829|Baguette magique
+1830|Hibou
+1831|Corbeau
+@de
+1829|Zauberstab
+1830|Eule
+1831|Rabe
+@es
+1829|Varita
+1830|Búho
+1831|Cuervo
+@it
+1829|Bacchetta
+1830|Gufo
+1831|Corvo
+@nl
+1829|Toverstaf
+1830|Uil
+1831|Raaf
+@pt
+1829|Varinha
+1830|Coruja
+1831|Corvo
+@ru
+1829|Волшебная палочка
+1830|Сова
+1831|Ворон
+@ja
+1829|魔法の杖
+1830|フクロウ
+1831|カラス

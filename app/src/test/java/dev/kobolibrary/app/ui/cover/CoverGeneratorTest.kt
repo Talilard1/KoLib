@@ -41,7 +41,12 @@ class CoverGeneratorTest {
      * The designs drawn on darker shades of their ground (a night sky, deep space), or with a picture over
      * most of it, rather than on the ground itself.
      */
-    private val darkened = setOf(CoverStyle.NOIR, CoverStyle.STARFIELD, CoverStyle.GOTHIC)
+    private val darkened = setOf(
+        CoverStyle.NOIR, CoverStyle.STARFIELD, CoverStyle.GOTHIC, CoverStyle.THORNS, CoverStyle.NEON, CoverStyle.WAND, CoverStyle.OWL, CoverStyle.RAVEN,
+    )
+
+    /** The designs on paper of their own, with the ground colour only in a band. */
+    private val onPaper = setOf(CoverStyle.PULP)
 
     @Test
     fun everyDesignInEveryThemeIsAFullCoverInItsColours() {
@@ -59,7 +64,7 @@ class CoverGeneratorTest {
                 Math.abs(Color.red(it) - Color.red(colour)) < 40 && Math.abs(Color.green(it) - Color.green(colour)) < 40 &&
                     Math.abs(Color.blue(it) - Color.blue(colour)) < 40
             }
-            if (style !in darkened && near(colors.ground) <= px.size / 4) wrong += "$label is mostly its ground (${near(colors.ground)})"
+            if (style !in darkened && style !in onPaper && near(colors.ground) <= px.size / 4) wrong += "$label is mostly its ground (${near(colors.ground)})"
             // (Those on a night sky show it in smaller touches: a glow, a rim of light, a line of lettering.)
             if (near(colors.accent) <= px.size / (if (style in darkened) 600 else 200)) wrong += "$label shows its accent (${near(colors.accent)})"
         }
@@ -81,7 +86,7 @@ class CoverGeneratorTest {
     @Test
     fun theTitleSeriesAndAuthorAreAllOnTheCover() {
         // The designs with the author's name at the head.
-        val authorAtTop = setOf(CoverStyle.FRAMED, CoverStyle.NOIR)
+        val authorAtTop = setOf(CoverStyle.FRAMED, CoverStyle.NOIR, CoverStyle.POSTER)
         // The designs with the words in a block in the middle, the author's name last.
         val authorInMiddle = setOf(CoverStyle.DECO, CoverStyle.BLOSSOM)
         for (style in CoverStyle.entries) {
@@ -179,7 +184,8 @@ class CoverGeneratorTest {
         assertEquals(0, changed(sixth, seventh, 0, h / 2))
         // The books of a series get the boards in turn.
         assertTrue(CoverDesign.boardFor(1.0) != CoverDesign.boardFor(2.0))
-        assertEquals(CoverDesign.boardFor(1.0), CoverDesign.boardFor((CoverColors.dark.size + 1).toDouble()))
+        assertEquals(CoverDesign.boardFor(1.0), CoverDesign.boardFor((CoverColors.boards.size + 1).toDouble()))
+        assertTrue(CoverColors.boards.all { it in CoverColors.dark })
         assertEquals(null, CoverDesign.boardFor(null))
     }
 

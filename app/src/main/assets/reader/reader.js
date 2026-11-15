@@ -489,18 +489,46 @@
       try { rules = sh.cssRules; } catch (e) { continue; }
       if (rules && firstLetterRule(rules, p)) return true;
     }
-    var pFont = parseFloat(getComputedStyle(p).fontSize) || 16;
-    for (var n = p.firstChild; n; n = n.nextSibling) {
-      if (n.nodeType === 3) { if (n.data.trim()) return false; continue; }
+    return !!initialIn(p, parseFloat(getComputedStyle(p).fontSize) || 16, 0);
+  }
+
+  /**
+   * A letter or two (with a quotation mark, say) set apart at the start of [el]: a picture, or a letter floated, made
+   * bigger or marked as an initial; looked for inside what [el] opens with too (the first words in small capitals, say).
+   * Gives the picture or the letter's element, or null.
+   */
+  function initialIn(el, pFont, depth) {
+    for (var n = el.firstChild; n; n = n.nextSibling) {
+      if (n.nodeType === 3) { if (n.data.trim()) return null; continue; }
       if (n.nodeType !== 1) continue;
-      if (/^(img|svg)$/i.test(n.localName)) return true;
-      var cs = getComputedStyle(n);
-      if (/(^|[\s_-])(drop|dropcap|initial|init|cap|dc|first-?letter|big)/i.test(n.getAttribute('class') || '')) return true;
-      if (cs.cssFloat && cs.cssFloat !== 'none') return true;
-      if ((parseFloat(cs.fontSize) || 0) > pFont * 1.3) return true;
-      return false;
+      if (/^(img|svg)$/i.test(n.localName)) return n;
+      if ((n.textContent || '').trim().length <= 4) {
+        var cs = getComputedStyle(n);
+        if (/(^|[\s_-])(drop|drop-?cap|initial|init|cap|dc|first-?letter|big)($|[\s_\d-])/i.test(n.getAttribute('class') || '')) return n;
+        if (cs.cssFloat && cs.cssFloat !== 'none') return n;
+        if ((parseFloat(cs.fontSize) || 0) > pFont * 1.3) return n;
+      }
+      return depth < 3 ? initialIn(n, pFont, depth + 1) : null;
     }
-    return false;
+    return null;
+  }
+
+  /** Opening with a quotation mark or a dash, as speech (or a quotation) does. */
+  function spoken(t) { return /^[\u201c\u201e\u00ab\u2039\u2018\u201a"'\u300c\u300e\u2014\u2013]/.test(t); }
+
+  /** A line that reads as the story begun rather than a heading: speech, or a sentence. */
+  function storyLine(t) { return spoken(t) || /[.!?\u2026]['"\u201d\u2019\u00bb\u203a\u300d\u300f)]*$/.test(t); }
+
+  /** Set like the text's paragraphs: not a heading, an epigraph, or a place and date set apart. */
+  function setLikeText(el, bodySize) {
+    if (headingLike(el, bodySize)) return false;
+    var cs = getComputedStyle(el);
+    if ((parseFloat(cs.fontSize) || 0) < bodySize * 0.95) return false;
+    if (cs.textAlign === 'right' || cs.textAlign === 'end') return false;
+    for (var a = el.parentElement; a && a !== document.body; a = a.parentElement) {
+      if (/^(blockquote|aside|figure|header)$/i.test(a.localName)) return false;
+    }
+    return true;
   }
   function firstLetterRule(rules, p) {
     for (var r = 0; r < rules.length; r++) {
@@ -544,8 +572,8 @@
    * unless the book gives it one of its own. Only the lines before the first paragraph of text are looked at.
    */
   function markOpening() {
-    var old = document.querySelectorAll('.kl-chapnum, .kl-chapname, .kl-dropcap');
-    for (var o = 0; o < old.length; o++) old[o].classList.remove('kl-chapnum', 'kl-chapname', 'kl-dropcap', 'kl-unstyled');
+    var old = document.querySelectorAll('.kl-chapnum, .kl-chapname, .kl-dropcap, .kl-initial, .kl-initial-letter');
+    for (var o = 0; o < old.length; o++) old[o].classList.remove('kl-chapnum', 'kl-chapname', 'kl-dropcap', 'kl-unstyled', 'kl-initial', 'kl-initial-letter');
     if (!chapterOpening) return;
     var first = firstTextParagraph();
     if (!first) return;
@@ -567,19 +595,36 @@
         lines.push(el);
       }
     }
-    var number = null, name = null, together = false;
-    for (var k = 0; k < lines.length; k++) {
-      var line = lines[k];
-      if (!number && !name && chapterNumber.test(saidIn(line))) { number = line; continue; }
-      if (!number && !name && headingLike(line, bodySize) && numberAndName(saidIn(line))) { together = true; break; }
-      if (!name && (number || headingLike(line, bodySize))) { name = line; break; }
+    var number = null, name = null, together = false, opening = null, k = 0;
+    for (; k < lines.length; k++) {
+      var line = lines[k], said = saidIn(line), heading = headingLike(line, bodySize);
+      if (!number && !name && chapterNumber.test(said)) { number = line; continue; }
+      // The text has begun, however short its first paragraph: a big first letter, or speech or a sentence set like the text.
+      var real = /^h[1-6]$/i.test(line.localName);
+      if ((!real && ownInitial(line)) || (!heading && storyLine(said))) { opening = line; break; }
+      // A quotation set apart (an epigraph, say) is no chapter's name: look on past it.
+      if (!real && spoken(said)) continue;
+      if (!number && !name && heading && numberAndName(said)) { together = true; k++; break; }
+      if (!name && (number || heading)) { name = line; k++; break; }
     }
+    // The text's first paragraph: the first line after the chapter's number and name set like the text (passing over an
+    // epigraph, say), or else the first long paragraph.
+    for (; !opening && k < lines.length; k++) {
+      if (ownInitial(lines[k]) || setLikeText(lines[k], bodySize)) opening = lines[k];
+    }
+    var start = opening || first;
     // Set as in print whatever the book says when the reader asks for that; otherwise only where the book
     // doesn't set their look itself (kl-unstyled).
     if (number) { number.classList.add('kl-chapnum'); if (!bookStyles(number)) number.classList.add('kl-unstyled'); }
     if (name) { name.classList.add('kl-chapname'); if (!bookStyles(name)) name.classList.add('kl-unstyled'); }
-    // A drop cap where a chapter starts, as in print, unless the book has its own.
-    if ((number || name || together) && !ownInitial(first)) first.classList.add('kl-dropcap');
+    // A drop cap where a chapter starts, as in print, unless the book has its own: then that paragraph isn't indented,
+    // which would set the big letter in from the margin and the words after it further still. (With large first
+    // letters turned off, the book's own letter is set like the rest of the text; a picture is left as it is.)
+    if (ownInitial(start)) {
+      start.classList.add('kl-initial');
+      var letter = initialIn(start, parseFloat(getComputedStyle(start).fontSize) || 16, 0);
+      if (letter && !/^(img|svg)$/i.test(letter.localName)) letter.classList.add('kl-initial-letter');
+    } else if (number || name || together) start.classList.add('kl-dropcap');
   }
 
   /**

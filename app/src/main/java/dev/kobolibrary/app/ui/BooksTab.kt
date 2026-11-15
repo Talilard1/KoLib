@@ -649,8 +649,10 @@ private fun statusText(book: KoboBook): String = when (book.readStatus) {
 /** "en" -> "English", "fr-CA" -> "French (Canada)"; anything unrecognised is shown as stored. */
 fun languageName(code: String): String {
     val locale = java.util.Locale.forLanguageTag(code.replace('_', '-'))
-    val name = locale.getDisplayName(java.util.Locale.getDefault())
-    return if (name.isBlank() || name.equals(code, ignoreCase = true)) code else name
+    val here = java.util.Locale.getDefault()
+    val name = locale.getDisplayName(here)
+    // Shown on its own, with a capital: some languages write their names small ("anglais", "английский").
+    return if (name.isBlank() || name.equals(code, ignoreCase = true)) code else name.replaceFirstChar { it.titlecase(here) }
 }
 
 /** Book descriptions are HTML; show their bold and italic, nothing riskier. */

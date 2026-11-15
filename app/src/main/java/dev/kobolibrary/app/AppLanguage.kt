@@ -16,7 +16,7 @@ import java.util.Locale
  */
 object AppLanguage {
     /** KoLib's languages, as Android names them. English is the one it falls back to. */
-    val supported = listOf("en", "fr", "de", "es", "it", "nl", "pt-BR", "ja")
+    val supported = listOf("en", "fr", "de", "es", "it", "nl", "pt-BR", "ru", "ja")
 
     private const val PREFS = "settings"
     private const val KEY = "language"

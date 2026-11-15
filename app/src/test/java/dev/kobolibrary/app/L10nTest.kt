@@ -38,6 +38,33 @@ class L10nTest {
     }
 
     @Test
+    fun aCountTakesTheRightFormOfTheWordInRussian() {
+        L10n.use("ru", mapOf("{0} books" to "{0} {0:книга|книги|книг}", "{0} books sent." to "{0} {0:книга отправлена|книги отправлены|книг отправлено}."))
+        assertEquals("21 книга", tr("{0} books", 21))
+        assertEquals("2 книги", tr("{0} books", 2))
+        assertEquals("24 книги", tr("{0} books", 24L))
+        assertEquals("5 книг", tr("{0} books", 5))
+        assertEquals("11 книг", tr("{0} books", 11))
+        assertEquals("14 книг", tr("{0} books", 14))
+        assertEquals("112 книг", tr("{0} books", 112))
+        assertEquals("0 книг", tr("{0} books", 0))
+        // A number already written out, with its thousands spaced.
+        assertEquals("1 234 книги", tr("{0} books", "1 234"))
+        assertEquals("3 книги отправлены.", tr("{0} books sent.", 3))
+        assertEquals("101 книга отправлена.", tr("{0} books sent.", 101))
+    }
+
+    @Test
+    fun otherLanguagesHaveTwoForms() {
+        L10n.use("fr", mapOf("{0} pages" to "{0} {0:page|pages}"))
+        assertEquals("0 page", tr("{0} pages", 0))
+        assertEquals("2 pages", tr("{0} pages", 2))
+        L10n.use("de", mapOf("{0} pages" to "{0} {0:Seite|Seiten}"))
+        assertEquals("1 Seite", tr("{0} pages", 1))
+        assertEquals("0 Seiten", tr("{0} pages", 0))
+    }
+
+    @Test
     fun bracesThatArentPlaceholdersAreLeftAlone() {
         assertEquals("a {x} {5} b", tr("a {x} {5} {0}", "b"))
         assertEquals("{0}", tr("{0}"))

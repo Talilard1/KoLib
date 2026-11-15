@@ -1,0 +1,28 @@
+@fr
+1536|Liens
+1537|Liens en couleur
+1538|Désactivé, les liens ressemblent au reste du texte. Ils fonctionnent toujours quand vous les touchez.
+@de
+1536|Links
+1537|Links farbig anzeigen
+1538|Aus: Links sehen aus wie der übrige Text. Sie funktionieren trotzdem, wenn du sie antippst.
+@es
+1536|Enlaces
+1537|Enlaces en color
+1538|Desactivado, los enlaces se ven como el resto del texto. Siguen funcionando al tocarlos.
+@it
+1536|Link
+1537|Link colorati
+1538|Se disattivato, i link hanno lo stesso aspetto del resto del testo. Funzionano comunque quando li tocchi.
+@nl
+1536|Links
+1537|Links in kleur
+1538|Uit: links zien eruit als de rest van de tekst. Ze werken nog steeds als je erop tikt.
+@pt
+1536|Links
+1537|Links coloridos
+1538|Desligado, os links ficam iguais ao resto do texto. Eles ainda funcionam quando tocados.
+@ja
+1536|リンク
+1537|リンクに色を付ける
+1538|オフにすると、リンクはほかの文字と同じ見た目になります。タップすればリンクとして使えます。

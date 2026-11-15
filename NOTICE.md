@@ -35,6 +35,15 @@ Kobo as `Author Sort/Title - Authors`, an arrangement Calibre users will recogni
 Up to version 0.8.2 the cover maker was a port of Calibre's cover generator
 (`calibre/ebooks/covers.py`, GPL v3). Version 0.8.3 replaced it with designs of the app's own.
 
+## What was learned from Mihon
+
+Mihon (Apache 2.0, https://github.com/mihonapp/mihon) is not used, and none of its code is in the
+app. KoLib's comic reader is modelled on Mihon's: its reading modes, ways of fitting pages, cropping
+borders and splitting wide pages, its tap zones, and how its pages are zoomed (pinching, double
+tapping to twice the size with the spot tapped brought to the middle, and double tapping then
+sliding up or down). Mihon's reader was read to see how it behaves, and the comic reader was
+written for this app. Thanks to the Mihon project.
+
 ## Trademarks
 
 Kobo is a trademark of Rakuten Kobo Inc. This app isn't made or endorsed by Rakuten Kobo.

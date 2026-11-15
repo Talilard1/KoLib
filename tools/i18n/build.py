@@ -9,7 +9,9 @@ import glob, json, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 EN = json.load(open(os.path.join(HERE, 'en_list.json')))
-LANGS = ['fr', 'de', 'es', 'it', 'nl', 'pt', 'ja']
+LANGS = ['fr', 'de', 'es', 'it', 'nl', 'pt', 'ru', 'ja']
+# How many forms a word has with a count, {0:...|...}, in languages that use them (see L10n.formFor).
+FORMS = {'ru': 3}
 OUT = os.path.join(HERE, '..', '..', 'app', 'src', 'main', 'assets', 'i18n')
 FILE_LANG = {'pt': 'pt-BR'}
 
@@ -58,6 +60,11 @@ for path in sorted(glob.glob(os.path.join(HERE, 'tr', '*.txt'))):
             problems.append(f'{os.path.basename(path)}:{n}: {lang} {i} given twice')
         if sorted(re.findall(r'\{\d+\}', en)) != sorted(re.findall(r'\{\d+\}', text)):
             problems.append(f'{os.path.basename(path)}:{n}: {lang} {i} placeholders differ: {en!r} -> {text!r}')
+        for k, forms in re.findall(r'\{(\d+):([^{}]*)\}', text):
+            if '{%s}' % k not in en:
+                problems.append(f'{os.path.basename(path)}:{n}: {lang} {i} counts {{{k}}}, which the English hasn\'t got')
+            if len(forms.split('|')) != FORMS.get(lang, 2):
+                problems.append(f'{os.path.basename(path)}:{n}: {lang} {i} {{{k}:...}} needs {FORMS.get(lang, 2)} forms: {forms!r}')
         # Spaces at the ends join the text to what comes before or after it: kept as in the English.
         text = text.strip(' ')
         if en.startswith(' '):

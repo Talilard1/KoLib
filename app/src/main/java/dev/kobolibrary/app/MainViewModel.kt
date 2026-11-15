@@ -135,6 +135,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             val seen = withContext(Dispatchers.IO) { repo.loadLastSeen() }
             if (seen != null) _state.update { it.copy(lastSeen = seen) }
+            // A Kobo known from before this was remembered: covers are made for its screen.
+            if (!dev.kobolibrary.app.kobo.CoverScreen.fromKobo) {
+                seen?.info?.screen?.let { dev.kobolibrary.app.kobo.CoverScreen.remember(getApplication(), it) }
+            }
             val tags = withContext(Dispatchers.IO) { repo.bookTags.load() }
             _state.update { it.copy(koboTags = tags) }
         }

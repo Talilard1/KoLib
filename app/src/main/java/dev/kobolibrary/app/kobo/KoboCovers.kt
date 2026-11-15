@@ -37,20 +37,23 @@ class ShapedCover(val bitmap: Bitmap, val jpegForBook: ByteArray?, val sourceWid
 /** Covers for the Kobo: shaped to its screen, and the pictures it shows in its library. */
 object KoboCovers {
 
-    /** Covers within this much of the screen's shape are left alone. */
-    const val TOLERANCE = 0.015f
+    /**
+     * Covers within this much of the screen's shape are left alone, and fill the screen with a sliver lost
+     * at two edges. Kobo screens differ from one another by less, so a cover made for one fills them all.
+     */
+    const val TOLERANCE = 0.025f
 
     /** One of the pictures the Kobo keeps for each book: the end of its file name, and its size. */
     data class Picture(val suffix: String, val width: Int, val height: Int, val fullScreen: Boolean)
 
     /**
-     * The pictures the Kobo keeps for each book, for 1072 × 1448 screens like the Clara's: the full-screen
-     * one, the one for the home screen and the book's details (355 × 530), and the library's (149 × 223).
-     * The smaller two are the shape of an ordinary book cover, as the Kobo's own are, so every book in its
-     * lists is the same height.
+     * The pictures the Kobo keeps for each book: the full-screen one, the size of its [screen]; the one for
+     * the home screen and the book's details (355 × 530); and the library's (149 × 223). The smaller two
+     * are the same on every model and the shape of an ordinary book cover, as the Kobo's own are, so every
+     * book in its lists is the same height.
      */
-    val PICTURES = listOf(
-        Picture(" - N3_FULL.parsed", CoverCrop.OUT_WIDTH, CoverCrop.OUT_HEIGHT, fullScreen = true),
+    fun pictures(screen: KoboScreen) = listOf(
+        Picture(" - N3_FULL.parsed", screen.width, screen.height, fullScreen = true),
         Picture(" - N3_LIBRARY_FULL.parsed", 355, 530, fullScreen = false),
         Picture(" - N3_LIBRARY_GRID.parsed", 149, 223, fullScreen = false),
     )
@@ -75,24 +78,24 @@ object KoboCovers {
         return Bitmap.createBitmap(scaledToCover, (sw - w) / 2, (sh - h) / 2, w, h)
     }
 
-    fun isKoboShaped(width: Int, height: Int): Boolean =
-        width > 0 && height > 0 && abs((width.toFloat() / height) / CoverCrop.ASPECT - 1f) <= TOLERANCE
+    fun isKoboShaped(width: Int, height: Int, screen: KoboScreen): Boolean =
+        width > 0 && height > 0 && abs((width.toFloat() / height) / screen.aspect - 1f) <= TOLERANCE
 
     /**
-     * The book's cover at the Kobo's screen size, or null if it has none, or [fitting] says to leave it
-     * unchanged and it isn't the screen's shape already (then the Kobo makes its own pictures of it).
+     * The book's cover at the size of the Kobo's [screen], or null if it has none, or [fitting] says to
+     * leave it unchanged and it isn't the screen's shape already (then the Kobo makes its own pictures of it).
      */
-    fun shape(epub: File, fitting: CoverFitting): ShapedCover? {
+    fun shape(epub: File, fitting: CoverFitting, screen: KoboScreen): ShapedCover? {
         val bytes = runCatching { EpubFile.open(epub).use { e -> e.findCover()?.let { e.readBytes(it.path) } } }.getOrNull() ?: return null
         val decoded = CoverRendering.decode(bytes) ?: run {
             AppLog.w("Covers", "The cover of ${epub.name} couldn't be read as a picture, so it's left as it is.")
             return null
         }
-        val shaped = isKoboShaped(decoded.width, decoded.height)
+        val shaped = isKoboShaped(decoded.width, decoded.height, screen)
         // A cover left unchanged that is the screen's shape anyway needs no change to get the app's pictures.
         if (fitting == CoverFitting.AS_IS && !shaped) return null
         val fit = if (shaped || fitting == CoverFitting.FILL) CoverFit.FILL else CoverFit.FIT_BLUR
-        val out = CoverRendering.render(CoverRendering.prepare(decoded, "cover"), CoverCrop(fit = fit))
+        val out = CoverRendering.render(CoverRendering.prepare(decoded, "cover"), CoverCrop(fit = fit), screen.width, screen.height)
         return ShapedCover(out, if (shaped) null else CoverRendering.toJpeg(out), decoded.width, decoded.height, own = decoded)
     }
 

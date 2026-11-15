@@ -54,6 +54,9 @@ data class KoboDeviceInfo(
     val directFileAccess: Boolean,
 ) {
     val displayName: String get() = tr("Kobo {0}", modelName)
+
+    /** This Kobo's screen, or null if its model isn't one the app knows. */
+    val screen: KoboScreen? get() = KoboModels.screen(usbProductId, version?.modelId) ?: KoboModels.screen(modelName)
 }
 
 class KoboSession(
@@ -204,6 +207,7 @@ class KoboRepository(private val context: Context) {
             }
         }
         prefs.edit().clear().apply()
+        CoverScreen.forget(context)
         AppLog.i("Kobo", "Forgot the Kobo and released its drive permission.")
     }
 
@@ -254,6 +258,15 @@ class KoboRepository(private val context: Context) {
                 "drive '${volume?.description ?: "?"}' (${info.volumeUuid ?: "?"}); " +
                 "space ${free?.let { "$it free of $total" } ?: "unknown"}; direct file access ${if (direct) "yes" else "no"}."
         )
+        // Covers are made for this Kobo's screen from now on.
+        val screen = info.screen
+        if (screen != null) {
+            if (screen != CoverScreen.current || !CoverScreen.fromKobo) CoverScreen.remember(context, screen)
+            AppLog.i("Kobo", "Its screen is ${screen.width} × ${screen.height}; covers are made that size.")
+        } else {
+            val now = CoverScreen.current
+            AppLog.w("Kobo", "The app doesn't know this model's screen size; covers stay ${now.width} × ${now.height}.")
+        }
 
         val dbEntry = tree.child(koboDir.docId, "KoboReader.sqlite")
             ?: recoverInterruptedSwap(tree, koboDir.docId)

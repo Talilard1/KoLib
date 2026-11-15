@@ -104,6 +104,8 @@ private fun DeviceCard(view: KoboView) {
         InfoRow(tr("Firmware"), info.version?.firmware)
         InfoRow(tr("Serial number"), info.version?.serial, selectable = true)
         InfoRow(tr("Model ID"), info.version?.modelId?.takeLast(3))
+        // The size covers are made at for this Kobo.
+        InfoRow(tr("Screen"), info.screen?.let { "${it.width} × ${it.height}" })
         InfoRow(tr("USB ID"), info.usbProductId?.let { "0x%04X".format(it) })
         InfoRow(tr("Database version"), view.snapshot.dbVersion.takeIf { it > 0 }?.toString())
         InfoRow(tr("Drive"), listOfNotNull(info.volumeDescription, info.volumeUuid).joinToString(" · ").ifEmpty { null })

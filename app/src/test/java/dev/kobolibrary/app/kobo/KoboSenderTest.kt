@@ -8,6 +8,7 @@ import dev.kobolibrary.app.epub.TestEpubs
 import dev.kobolibrary.app.fake.FakeDocumentsProvider
 import dev.kobolibrary.app.fake.FakeKobo
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -33,10 +34,17 @@ class KoboSenderTest {
     private val drive = File(context.cacheDir, "$name-kobo")
     private val sender = KoboSender(context)
 
-    private fun connect(): KoboSession = runBlocking {
+    /** Connects the fake Kobo: a Clara 2E, or the model whose number (the end of its model id) is [model]. */
+    private fun connect(model: String? = null): KoboSession = runBlocking {
         FakeKobo.create(drive)
+        if (model != null) {
+            File(drive, ".kobo/version").writeText("N418231234567,4.1.15,4.38.23171,4.1.15,4.1.15,00000000-0000-0000-0000-000000000$model\n")
+        }
         KoboRepository(context).connect(FakeDocumentsProvider.install(drive)) {}
     }
+
+    @After
+    fun coversAreForTheClaraAgain() = CoverScreen.forget(context)
 
     private fun histories(): Pair<File, BookMetadata> {
         val file = TestEpubs.calibreEpub2(File(context.cacheDir, "$name/The Histories.epub"))
@@ -330,12 +338,62 @@ class KoboSenderTest {
         }
         val imageId = KoboImages.imageIdFromContentId(KoboPaths.contentId(sent.path))
         val dir = File(drive, ".kobo-images/" + KoboImages.folderFor(imageId))
-        for ((suffix, w, h) in KoboCovers.PICTURES) {
+        for ((suffix, w, h) in KoboCovers.pictures(KoboScreen.CLARA)) {
             assertEquals(suffix, w to h, sizeOf(File(dir, imageId + suffix).readBytes()))
         }
         // The app's view of the Kobo shows it straight away, and the library's copy is untouched.
         assertNotNull(session.covers.load(imageId, CoverSize.THUMBNAIL, 100))
         assertArrayEquals(original, file.readBytes())
+    }
+
+    @Test
+    fun coversAreMadeTheSizeOfTheScreenOfTheKoboTheyGoTo() = runBlocking {
+        // A Libra Colour (model 390): its screen is 1264 × 1680, not the Clara's 1072 × 1448.
+        val session = connect(model = "390")
+        assertEquals("Libra Colour", session.info.modelName)
+        assertEquals(KoboScreen(1264, 1680), session.info.screen)
+        assertEquals("covers made in the app are its screen's size from now on", KoboScreen(1264, 1680), CoverScreen.current)
+        assertTrue(CoverScreen.fromKobo)
+
+        // A nearly square cover is fitted to that screen, in the book and in the Kobo's pictures.
+        val file = TestEpubs.calibreEpub2(File(context.cacheDir, "$name/square.epub"), extra = mapOf("OEBPS/cover.jpeg" to realJpeg(1000, 1100)))
+        val meta = EpubFile.open(file).use { it.opf.readMetadata() }.copy(title = "Square")
+        val sent = sender.send(session, "Square", meta, null, file, SendFormat.KEPUB, CoverFitting.BLUR) as SendOutcome.Sent
+        assertTrue(sent.coverReshaped)
+        EpubFile.open(File(drive, sent.path)).use { epub ->
+            assertEquals(1264 to 1680, sizeOf(epub.readBytes(epub.findCover()!!.path)!!))
+            assertTrue(epub.readText(epub.resolve("titlepage.xhtml"))!!.contains("viewBox=\"0 0 1264 1680\""))
+        }
+        val imageId = KoboImages.imageIdFromContentId(KoboPaths.contentId(sent.path))
+        val dir = File(drive, ".kobo-images/" + KoboImages.folderFor(imageId))
+        assertEquals(1264 to 1680, sizeOf(File(dir, "$imageId - N3_FULL.parsed").readBytes()))
+        // The library's pictures are the same size on every Kobo.
+        assertEquals(355 to 530, sizeOf(File(dir, "$imageId - N3_LIBRARY_FULL.parsed").readBytes()))
+        assertEquals(149 to 223, sizeOf(File(dir, "$imageId - N3_LIBRARY_GRID.parsed").readBytes()))
+
+        // A cover made for the Clara is near enough this screen's shape: it stays the book's own, with no
+        // blurred strips added, and fills the screen in the Kobo's picture.
+        val clara = TestEpubs.calibreEpub2(File(context.cacheDir, "$name/clara.epub"), extra = mapOf("OEBPS/cover.jpeg" to realJpeg(1072, 1448)))
+        val claraMeta = EpubFile.open(clara).use { it.opf.readMetadata() }.copy(title = "Made For The Clara")
+        val b = sender.send(session, claraMeta.title, claraMeta, null, clara, SendFormat.EPUB, CoverFitting.BLUR) as SendOutcome.Sent
+        assertFalse(b.coverReshaped)
+        assertTrue(b.coverPicturesWritten)
+        assertArrayEquals(clara.readBytes(), File(drive, b.path).readBytes())
+        val idB = KoboImages.imageIdFromContentId(KoboPaths.contentId(b.path))
+        assertEquals(1264 to 1680, sizeOf(File(drive, ".kobo-images/" + KoboImages.folderFor(idB) + "/$idB - N3_FULL.parsed").readBytes()))
+    }
+
+    @Test
+    fun aKoboOfAModelTheAppDoesntKnowGetsCoversTheSizeTheyAreMadeAt() = runBlocking {
+        val session = connect(model = "999")
+        assertNull(session.info.screen)
+        assertEquals(KoboScreen.CLARA, CoverScreen.current)
+        assertFalse(CoverScreen.fromKobo)
+        val file = TestEpubs.calibreEpub2(File(context.cacheDir, "$name/square.epub"), extra = mapOf("OEBPS/cover.jpeg" to realJpeg(1000, 1100)))
+        val meta = EpubFile.open(file).use { it.opf.readMetadata() }.copy(title = "Square")
+        val sent = sender.send(session, "Square", meta, null, file, SendFormat.KEPUB, CoverFitting.FILL) as SendOutcome.Sent
+        val imageId = KoboImages.imageIdFromContentId(KoboPaths.contentId(sent.path))
+        assertEquals(1072 to 1448, sizeOf(File(drive, ".kobo-images/" + KoboImages.folderFor(imageId) + "/$imageId - N3_FULL.parsed").readBytes()))
     }
 
     @Test

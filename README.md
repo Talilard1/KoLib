@@ -47,7 +47,7 @@ There's no account to make and no ads.
     <td align="center" width="50%"><a href="docs/images/tablet-kobo-collections.webp"><img src="docs/images/tablet-kobo-collections.webp" alt="The Kobo's collections"></a><br><b>Its collections</b></td>
   </tr>
   <tr>
-    <td align="center" width="50%"><a href="docs/images/tablet-send.webp"><img src="docs/images/tablet-send.webp" alt="Sending a book to the Kobo"></a><br><b>Sending a book</b></td>
+    <td align="center" width="50%"><a href="docs/images/tablet-send.webp"><img src="docs/images/tablet-send.webp" alt="Sending books to the Kobo"></a><br><b>Sending books</b></td>
     <td align="center" width="50%"><a href="docs/images/tablet-details.webp"><img src="docs/images/tablet-details.webp" alt="Editing a book's details"></a><br><b>Editing its details</b></td>
   </tr>
   <tr>
@@ -56,7 +56,7 @@ There's no account to make and no ads.
   </tr>
   <tr>
     <td align="center" width="50%"><a href="docs/images/tablet-reader.webp"><img src="docs/images/tablet-reader.webp" alt="Two pages side by side in the reader"></a><br><b>Reading, two pages side by side</b></td>
-    <td align="center" width="50%"><a href="docs/images/tablet-reader-settings.webp"><img src="docs/images/tablet-reader-settings.webp" alt="The reader's layout settings"></a><br><b>The reader's settings</b></td>
+    <td align="center" width="50%"><a href="docs/images/tablet-reader-settings.webp"><img src="docs/images/tablet-reader-settings.webp" alt="The reader's text settings"></a><br><b>The reader's settings</b></td>
   </tr>
   <tr>
     <td align="center" width="50%"><a href="docs/images/tablet-editor.webp"><img src="docs/images/tablet-editor.webp" alt="Finding and replacing in a book's text"></a><br><b>Editing the text</b></td>
@@ -107,8 +107,8 @@ There's no account to make and no ads.
 
 - See every book and collection on your Kobo, and how far you've read, and filter the Kobo's books
   by whether they're in your library.
-- Send books as kepubs (or plain EPUBs if you'd rather), with covers fitted to the Kobo's screen.
-  Send a book again and it's updated on the Kobo without losing your place.
+- Send books as kepubs (or plain EPUBs if you'd rather), with covers fitted to your Kobo's screen,
+  whichever model it is. Send a book again and it's updated on the Kobo without losing your place.
 - Put books into your Kobo collections as you send them. KoLib can't create collections on the
   Kobo, so make the collection there first (My Books → Collections → New collection).
 - Copy books you put on the Kobo yourself into your library, or delete them from the Kobo.
@@ -205,7 +205,8 @@ When you're done, eject the Kobo before you unplug it. KoLib shows you where And
 option is. Once it's unplugged, the Kobo adds the books you sent to its library.
 
 KoLib was made with a Kobo Clara 2E, a Galaxy Tab S9 and a Galaxy A72. Other Kobo e-readers keep
-their books the same way, so they should work too.
+their books the same way, so they should work too. KoLib knows the screen size of every Kobo from
+the Touch onwards and makes covers that size for the one you plug in.
 
 ## Something wrong?
 

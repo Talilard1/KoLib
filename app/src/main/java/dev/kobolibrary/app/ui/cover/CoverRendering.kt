@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.cover
 
+import dev.kobolibrary.app.kobo.CoverScreen
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -28,7 +29,7 @@ class CoverPicture(val full: Bitmap, val preview: Bitmap, val blurred: Bitmap, v
 class SavedCover(val bytes: ByteArray, val mediaType: String, val width: Int, val height: Int, val asIs: Boolean)
 
 object CoverRendering {
-    /** Pictures are read at most this big; plenty for a 1448-pixel-tall cover, even zoomed in. */
+    /** Pictures are read at most this big; plenty for a cover the height of the largest Kobo screen (1920 pixels), even zoomed in. */
     private const val MAX_SIDE = 3000
     private const val PREVIEW_SIDE = 1600
 
@@ -101,8 +102,10 @@ object CoverRendering {
     }
 
     /** [picture] fitted to the Kobo's screen as [crop] says, as a JPEG. */
-    fun fitted(picture: CoverPicture, crop: CoverCrop): SavedCover =
-        SavedCover(toJpeg(render(picture, crop)), "image/jpeg", CoverCrop.OUT_WIDTH, CoverCrop.OUT_HEIGHT, asIs = false)
+    fun fitted(picture: CoverPicture, crop: CoverCrop): SavedCover {
+        val screen = CoverScreen.current
+        return SavedCover(toJpeg(render(picture, crop, screen.width, screen.height)), "image/jpeg", screen.width, screen.height, asIs = false)
+    }
 
     /** Halves the picture (each step averages 2×2 pixels) until it's no more than [maxSide]. */
     fun scaleDownTo(src: Bitmap, maxSide: Int): Bitmap {

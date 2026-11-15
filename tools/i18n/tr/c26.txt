@@ -1,0 +1,24 @@
+@fr
+1843|La couverture est enregistrée dans le fichier du livre en {0} × {1} pixels, la taille de l’écran de votre Kobo.
+1844|La couverture montre le titre, la série et les auteurs du livre. Elle est créée en {0} × {1} pixels, la taille de l’écran de votre Kobo.
+@de
+1843|Das Cover wird mit {0} × {1} Pixeln in der Buchdatei gespeichert, der Bildschirmgröße deines Kobo.
+1844|Das Cover zeigt Titel, Reihe und Autoren des Buchs. Es wird mit {0} × {1} Pixeln erstellt, der Bildschirmgröße deines Kobo.
+@es
+1843|La portada se guarda en el archivo del libro a {0} × {1} píxeles, el tamaño de la pantalla de tu Kobo.
+1844|La portada muestra el título, la serie y los autores del libro. Se crea a {0} × {1} píxeles, el tamaño de la pantalla de tu Kobo.
+@it
+1843|La copertina viene salvata nel file del libro a {0} × {1} pixel, la dimensione dello schermo del tuo Kobo.
+1844|La copertina mostra titolo, serie e autori del libro. Viene creata a {0} × {1} pixel, la dimensione dello schermo del tuo Kobo.
+@nl
+1843|De omslag wordt in het boekbestand opgeslagen op {0} × {1} pixels, de schermgrootte van je Kobo.
+1844|De omslag toont de titel, reeks en auteurs van het boek. Hij wordt gemaakt op {0} × {1} pixels, de schermgrootte van je Kobo.
+@pt
+1843|A capa é salva no arquivo do livro com {0} × {1} pixels, o tamanho da tela do seu Kobo.
+1844|A capa mostra o título, a série e os autores do livro. Ela é criada com {0} × {1} pixels, o tamanho da tela do seu Kobo.
+@ru
+1843|Обложка сохраняется внутри файла книги размером {0} × {1} пикселей — под размер экрана вашего Kobo.
+1844|На обложке — название книги, серия и авторы. Она делается размером {0} × {1} пикселей — под размер экрана вашего Kobo.
+@ja
+1843|表紙はお使いの Kobo の画面と同じ {0} × {1} ピクセルで本のファイルに保存されます。
+1844|表紙には本のタイトル、シリーズ、著者が入ります。お使いの Kobo の画面と同じ {0} × {1} ピクセルで作成します。

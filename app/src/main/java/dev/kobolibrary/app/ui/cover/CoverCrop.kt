@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.cover
 
+import dev.kobolibrary.app.kobo.CoverScreen
 import dev.kobolibrary.app.tr
 import kotlin.math.max
 import kotlin.math.min
@@ -94,10 +95,13 @@ data class CoverCrop(
         const val MIN_ZOOM = 1f
         const val MAX_ZOOM = 5f
 
-        /** The Kobo Clara's screen, in pixels; covers are saved at this size. */
-        const val OUT_WIDTH = 1072
-        const val OUT_HEIGHT = 1448
-        const val ASPECT = OUT_WIDTH.toFloat() / OUT_HEIGHT
+        /**
+         * The size covers are saved at, in pixels: the screen of the Kobo last plugged in, or the Kobo
+         * Clara's (1072 × 1448) until one has been. See [CoverScreen].
+         */
+        val OUT_WIDTH: Int get() = CoverScreen.current.width
+        val OUT_HEIGHT: Int get() = CoverScreen.current.height
+        val ASPECT: Float get() = CoverScreen.current.aspect
 
         private fun clampAxis(start: Float, frame: Float, drawn: Float): Float {
             val lo = min(0f, frame - drawn)

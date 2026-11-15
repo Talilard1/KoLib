@@ -2,6 +2,7 @@
 
 package dev.kobolibrary.app.ui.cover
 
+import dev.kobolibrary.app.kobo.CoverScreen
 import dev.kobolibrary.app.tr
 import dev.kobolibrary.app.ui.components.GoldButton
 import android.graphics.Bitmap
@@ -271,14 +272,17 @@ fun CoverGeneratorScreen(
 
     BackHandler { onCancel() }
 
-    LaunchedEffect(design, shownPicture, crop, moving) {
-        val (w, h) = if (moving) 268 to 362 else 536 to 724
+    val coverAspect = CoverCrop.ASPECT
+    LaunchedEffect(design, shownPicture, crop, moving, coverAspect) {
+        // Half the Clara's width (a quarter while the picture is being moved), at the cover's own shape.
+        val w = if (moving) 268 else 536
+        val h = (w / coverAspect).roundToInt()
         preview = withContext(drawing) { generator.render(text, design, w, h, shownPicture?.small, crop).asImageBitmap() }
     }
-    LaunchedEffect(colors, kind, seed, own) {
+    LaunchedEffect(colors, kind, seed, own, coverAspect) {
         thumbs = withContext(Dispatchers.Default) {
             CoverStyle.entries.associateWith {
-                generator.render(text, CoverDesign(it, colors, kind, seed), 134, 181, own?.small?.takeIf { _ -> it.picture }, crop).asImageBitmap()
+                generator.render(text, CoverDesign(it, colors, kind, seed), 134, (134 / coverAspect).roundToInt(), own?.small?.takeIf { _ -> it.picture }, crop).asImageBitmap()
             }
         }
     }
@@ -538,7 +542,8 @@ fun CoverGeneratorScreen(
                         }
                     }
                     Text(
-                        tr("The cover shows the book's title, series and authors. It's made at 1072 × 1448 pixels, the size of the Kobo Clara's screen."),
+                        if (CoverScreen.fromKobo) tr("The cover shows the book's title, series and authors. It's made at {0} × {1} pixels, the size of your Kobo's screen.", CoverCrop.OUT_WIDTH, CoverCrop.OUT_HEIGHT)
+                        else tr("The cover shows the book's title, series and authors. It's made at 1072 × 1448 pixels, the size of the Kobo Clara's screen."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

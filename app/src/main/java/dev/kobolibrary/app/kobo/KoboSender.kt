@@ -5,7 +5,6 @@ import android.content.Context
 import dev.kobolibrary.app.epub.BookMetadata
 import dev.kobolibrary.app.epub.EpubEditor
 import dev.kobolibrary.app.log.AppLog
-import dev.kobolibrary.app.ui.cover.CoverCrop
 import dev.kobolibrary.app.ui.cover.CoverRendering
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -177,10 +176,11 @@ class KoboSender(private val context: Context) {
         var oldPath = koboPath?.takeIf { !it.equals(target, ignoreCase = true) }
         val temps = mutableListOf<File>()
         try {
-            // The cover shaped for the Kobo's screen. When the book's own cover is another shape, the
+            // The cover shaped for this Kobo's screen. When the book's own cover is another shape, the
             // copy sent gets the shaped one, so whatever the Kobo makes from the file looks right too.
+            val screen = session.info.screen ?: CoverScreen.current
             val shaped = try {
-                KoboCovers.shape(file, covers)
+                KoboCovers.shape(file, covers, screen)
             } catch (e: Exception) {
                 AppLog.w("Send", "Couldn't shape the cover of '$title'; it goes as it is", e)
                 null
@@ -191,7 +191,7 @@ class KoboSender(private val context: Context) {
                 val copy = File(work, "${System.nanoTime()}.epub").also { temps += it }
                 try {
                     file.copyTo(copy, overwrite = true)
-                    EpubEditor.replaceCover(copy, jpeg, "image/jpeg", CoverCrop.OUT_WIDTH, CoverCrop.OUT_HEIGHT)
+                    EpubEditor.replaceCover(copy, jpeg, "image/jpeg", screen.width, screen.height)
                     source = copy
                     reshaped = true
                     AppLog.i("Send", "'$title': its ${shaped.sourceWidth} × ${shaped.sourceHeight} cover was fitted to the Kobo's screen (${covers.label}).")
@@ -250,7 +250,7 @@ class KoboSender(private val context: Context) {
             var picturesWritten = false
             if (shaped != null) {
                 picturesWritten = try {
-                    writeCoverPictures(session, imageId, shaped)
+                    writeCoverPictures(session, imageId, shaped, screen)
                     true
                 } catch (e: Exception) {
                     AppLog.w("Send", "Couldn't write the Kobo's cover pictures for '$title'; it will make its own", e)
@@ -358,12 +358,12 @@ class KoboSender(private val context: Context) {
      * fitted to the screen, and the home screen's and library's from the book's own cover, at the shape of
      * an ordinary book cover so they line up with the Kobo's other books.
      */
-    private fun writeCoverPictures(session: KoboSession, imageId: String, cover: ShapedCover) {
+    private fun writeCoverPictures(session: KoboSession, imageId: String, cover: ShapedCover, screen: KoboScreen) {
         val folder = "${KoboImages.IMAGES_DIR}/${KoboImages.folderFor(imageId)}"
         val tmp = File(work, "${System.nanoTime()}.jpg")
         val thumbnailSource = KoboCovers.thumbnailSource(cover)
         try {
-            for (p in KoboCovers.PICTURES) {
+            for (p in KoboCovers.pictures(screen)) {
                 val picture = if (p.fullScreen) KoboCovers.scaled(cover.bitmap, p.width, p.height) else KoboCovers.boxed(thumbnailSource, p.width, p.height)
                 tmp.writeBytes(CoverRendering.toJpeg(picture, 90))
                 session.tree.writeFile("$folder/$imageId${p.suffix}", tmp)

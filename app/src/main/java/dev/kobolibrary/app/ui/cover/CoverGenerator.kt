@@ -413,7 +413,7 @@ class CoverGenerator(context: Context) {
     }
 
     /**
-     * Draws the cover at [width] × [height] (the Kobo Clara's screen size by default). A design with a
+     * Draws the cover at [width] × [height] (the size of the Kobo's screen by default). A design with a
      * picture shows [picture] there, placed by [crop], in place of the one painted for its genre.
      */
     fun render(

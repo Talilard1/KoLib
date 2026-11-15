@@ -1,0 +1,728 @@
+@fr
+1739|Grimoire
+1740|Ronces et roses
+1741|Néon
+1742|Magazine pulp
+1743|Affiche
+1744|Instantané
+1745|Émeraude
+1746|Cramoisi
+1747|Saphir
+1748|Obsidienne
+1749|=
+1750|Lavande
+1751|Menthe
+1752|N°
+1753|peinture château magique la nuit
+1754|art dark fantasy
+1755|peinture chaumière de sorcière au clair de lune
+1756|peinture voyage fantasy épique
+1757|peinture tempête fantasy épique
+1758|peinture mythologique
+1759|illustration conte de fées
+1760|art fantasy romantique
+1761|ville fantasy urbaine la nuit
+1762|peinture paysage à l’encre chinoise
+1763|concept art bataille spatiale
+1764|concept art vaisseau spatial
+1765|art ville cyberpunk
+1766|art ville post-apocalyptique
+1767|art ville steampunk dirigeable
+1768|art ville de super-héros la nuit
+1769|peinture brouillard Londres victorienne
+1770|peinture village anglais
+1771|ville la nuit thriller d’espionnage
+1772|peinture de guerre
+1773|peinture bataille médiévale
+1774|peinture époque Régence
+1775|peinture ruines antiques
+1776|lumières de la ville romantiques
+1777|rose rouge sombre
+1778|illustration cosy
+1779|rue la nuit sous la pluie
+1780|château gothique lune rouge
+1781|art tentacules monstre marin
+1782|citrouilles d’Halloween la nuit
+1783|illustration café cosy
+1784|campus universitaire en automne
+1785|lumières de stade la nuit
+1786|lumières de scène de concert
+1787|village enneigé à Noël
+1788|Ce modèle n’a pas de place pour votre image. Choisissez-en un avec une image (image encadrée, peinture, magazine pulp ou instantané) pour l’utiliser.
+1789|École de magie
+1790|Magie noire
+1791|Sorcières et sortilèges
+1792|Quêtes et légendes
+1793|Épopée des tempêtes
+1794|Mythes et dieux
+1795|Conte de fées
+1796|Fantasy romantique
+1797|Fantasy urbaine
+1798|Wuxia et cultivation
+1799|Space opera
+1800|Voyages en vaisseau spatial
+1801|Cyberpunk
+1802|Dystopie et apocalypse
+1803|Steampunk
+1804|Super-héros
+1805|Détective victorien
+1806|Cosy mystery
+1807|Espions
+1808|Guerre
+1809|Chevaliers et batailles
+1810|Régence et drame d’époque
+1811|Mondes antiques
+1812|Romance moderne
+1813|Dark romance
+1814|Douceur et réconfort
+1815|Angst et chagrin d’amour
+1816|Vampires et loups-garous
+1817|Horreur cosmique
+1818|Halloween
+1819|Cafés et vie urbaine
+1820|École et université
+1821|Sport
+1822|Musique et célébrité
+1823|Noël et hiver
+1824|Fantasy et magie
+1825|Mystère et thrillers
+1826|Histoire, guerre et aventure
+1827|Horreur et surnaturel
+1828|Vie quotidienne et plus
+@de
+1739|Zauberbuch
+1740|Dornen und Rosen
+1741|=
+1742|Pulp-Magazin
+1743|Plakat
+1744|Schnappschuss
+1745|Smaragd
+1746|Karmesin
+1747|Saphir
+1748|Obsidian
+1749|=
+1750|Lavendel
+1751|Minze
+1752|Nr.
+1753|magisches Schloss bei Nacht Gemälde
+1754|Dark Fantasy Kunst
+1755|Hexenhaus im Mondschein Gemälde
+1756|epische Fantasy Reise Gemälde
+1757|epische Fantasy Sturm Gemälde
+1758|Mythologie Gemälde
+1759|Märchen Illustration
+1760|romantische Fantasy Kunst
+1761|Urban Fantasy Stadt bei Nacht
+1762|chinesische Tuschemalerei Landschaft
+1763|Weltraumschlacht Concept Art
+1764|Raumschiff Concept Art
+1765|Cyberpunk Stadt Kunst
+1766|postapokalyptische Stadt Kunst
+1767|Steampunk Luftschiff Stadt Kunst
+1768|Superhelden Stadt bei Nacht Kunst
+1769|viktorianisches London Nebel Gemälde
+1770|englisches Dorf Gemälde
+1771|Spionagethriller Stadt bei Nacht
+1772|Kriegsgemälde
+1773|mittelalterliche Schlacht Gemälde
+1774|Regency Zeit Gemälde
+1775|antike Ruinen Gemälde
+1776|romantische Lichter der Stadt
+1777|dunkelrote Rose
+1778|gemütliche Illustration
+1779|regnerische Straße bei Nacht
+1780|gotisches Schloss roter Mond
+1781|Seeungeheuer Tentakel Kunst
+1782|Halloween Kürbisse bei Nacht
+1783|gemütliches Café Illustration
+1784|Universitätscampus im Herbst
+1785|Stadionlichter bei Nacht
+1786|Konzertbühne Lichter
+1787|verschneites Dorf an Weihnachten
+1788|Dieses Design hat keinen Platz für dein Bild. Wähle eines mit Bild (gerahmtes Bild, Gemälde, Pulp-Magazin oder Schnappschuss), um es zu verwenden.
+1789|Zauberschule
+1790|Dunkle Magie
+1791|Hexen und Zauber
+1792|Queste und Legenden
+1793|Sturmgepeitschtes Epos
+1794|Mythen und Götter
+1795|Märchen
+1796|Romantische Fantasy
+1797|Urban Fantasy
+1798|Wuxia und Kultivierung
+1799|Space Opera
+1800|Raumschiffreisen
+1801|Cyberpunk
+1802|Dystopie und Apokalypse
+1803|Steampunk
+1804|Superhelden
+1805|Viktorianischer Detektiv
+1806|Cosy Crime
+1807|Spione
+1808|Krieg
+1809|Ritter und Schlachten
+1810|Regency und Historiendrama
+1811|Antike Welten
+1812|Moderne Liebesgeschichte
+1813|Dark Romance
+1814|Fluff und Geborgenheit
+1815|Angst und Herzschmerz
+1816|Vampire und Werwölfe
+1817|Kosmischer Horror
+1818|Halloween
+1819|Cafés und Stadtleben
+1820|Schule und Uni
+1821|Sport
+1822|Musik und Ruhm
+1823|Weihnachten und Winter
+1824|Fantasy und Magie
+1825|Krimis und Thriller
+1826|Geschichte, Krieg und Abenteuer
+1827|Horror und Übernatürliches
+1828|Alltag und mehr
+@es
+1739|Libro de hechizos
+1740|Espinas y rosas
+1741|Neón
+1742|Revista pulp
+1743|Cartel
+1744|Instantánea
+1745|Esmeralda
+1746|Carmesí
+1747|Zafiro
+1748|Obsidiana
+1749|=
+1750|Lavanda
+1751|Menta
+1752|N.º
+1753|pintura castillo mágico de noche
+1754|arte de fantasía oscura
+1755|pintura cabaña de bruja a la luz de la luna
+1756|pintura viaje de fantasía épica
+1757|pintura tormenta de fantasía épica
+1758|pintura mitológica
+1759|ilustración de cuento de hadas
+1760|arte de fantasía romántica
+1761|ciudad de fantasía urbana de noche
+1762|pintura de paisaje a tinta china
+1763|arte conceptual batalla espacial
+1764|arte conceptual nave espacial
+1765|arte ciudad cyberpunk
+1766|arte ciudad postapocalíptica
+1767|arte ciudad steampunk dirigible
+1768|arte ciudad de superhéroes de noche
+1769|pintura niebla Londres victoriano
+1770|pintura pueblo inglés
+1771|ciudad de noche thriller de espías
+1772|pintura bélica
+1773|pintura batalla medieval
+1774|pintura época de la Regencia
+1775|pintura ruinas antiguas
+1776|luces de ciudad románticas
+1777|rosa roja oscura
+1778|ilustración acogedora
+1779|calle de noche bajo la lluvia
+1780|castillo gótico luna roja
+1781|arte tentáculos monstruo marino
+1782|calabazas de Halloween de noche
+1783|ilustración cafetería acogedora
+1784|campus universitario en otoño
+1785|luces de estadio de noche
+1786|luces de escenario de concierto
+1787|pueblo nevado en Navidad
+1788|Este diseño no tiene sitio para tu imagen. Elige uno con imagen (imagen enmarcada, pintura, revista pulp o instantánea) para usarla.
+1789|Escuela de magia
+1790|Magia oscura
+1791|Brujas y hechizos
+1792|Búsquedas y leyendas
+1793|Épica de tormentas
+1794|Mitos y dioses
+1795|Cuento de hadas
+1796|Fantasía romántica
+1797|Fantasía urbana
+1798|Wuxia y cultivo
+1799|Ópera espacial
+1800|Viajes en nave espacial
+1801|Cyberpunk
+1802|Distopía y apocalipsis
+1803|Steampunk
+1804|Superhéroes
+1805|Detective victoriano
+1806|Misterio acogedor
+1807|Espías
+1808|Guerra
+1809|Caballeros y batallas
+1810|Regencia y drama de época
+1811|Mundos antiguos
+1812|Romance moderno
+1813|Romance oscuro
+1814|Fluff y consuelo
+1815|Angst y desamor
+1816|Vampiros y hombres lobo
+1817|Horror cósmico
+1818|Halloween
+1819|Cafeterías y vida urbana
+1820|Escuela y universidad
+1821|Deporte
+1822|Música y fama
+1823|Navidad e invierno
+1824|Fantasía y magia
+1825|Misterio y thrillers
+1826|Historia, guerra y aventura
+1827|Terror y lo sobrenatural
+1828|Vida cotidiana y más
+@it
+1739|Libro degli incantesimi
+1740|Spine e rose
+1741|=
+1742|Rivista pulp
+1743|Manifesto
+1744|Istantanea
+1745|Smeraldo
+1746|Cremisi
+1747|Zaffiro
+1748|Ossidiana
+1749|=
+1750|Lavanda
+1751|Menta
+1752|N.
+1753|dipinto castello magico di notte
+1754|arte dark fantasy
+1755|dipinto casetta della strega al chiaro di luna
+1756|dipinto viaggio fantasy epico
+1757|dipinto tempesta fantasy epica
+1758|dipinto mitologico
+1759|illustrazione fiaba
+1760|arte fantasy romantica
+1761|città urban fantasy di notte
+1762|dipinto paesaggio a inchiostro cinese
+1763|concept art battaglia spaziale
+1764|concept art astronave
+1765|arte città cyberpunk
+1766|arte città post-apocalittica
+1767|arte città steampunk dirigibile
+1768|arte città dei supereroi di notte
+1769|dipinto nebbia Londra vittoriana
+1770|dipinto villaggio inglese
+1771|città di notte thriller di spionaggio
+1772|dipinto di guerra
+1773|dipinto battaglia medievale
+1774|dipinto epoca Reggenza
+1775|dipinto rovine antiche
+1776|luci della città romantiche
+1777|rosa rosso scuro
+1778|illustrazione accogliente
+1779|strada di notte sotto la pioggia
+1780|castello gotico luna rossa
+1781|arte tentacoli mostro marino
+1782|zucche di Halloween di notte
+1783|illustrazione caffetteria accogliente
+1784|campus universitario in autunno
+1785|luci dello stadio di notte
+1786|luci del palco di un concerto
+1787|villaggio innevato a Natale
+1788|Questo modello non ha spazio per la tua immagine. Scegline uno con un’immagine (immagine incorniciata, dipinto, rivista pulp o istantanea) per usarla.
+1789|Scuola di magia
+1790|Magia oscura
+1791|Streghe e incantesimi
+1792|Imprese e leggende
+1793|Epica delle tempeste
+1794|Miti e dèi
+1795|Fiaba
+1796|Fantasy romantico
+1797|Urban fantasy
+1798|Wuxia e coltivazione
+1799|Space opera
+1800|Viaggi stellari
+1801|Cyberpunk
+1802|Distopia e apocalisse
+1803|Steampunk
+1804|Supereroi
+1805|Detective vittoriano
+1806|Giallo cozy
+1807|Spie
+1808|Guerra
+1809|Cavalieri e battaglie
+1810|Reggenza e drammi in costume
+1811|Mondi antichi
+1812|Romance moderno
+1813|Dark romance
+1814|Fluff e coccole
+1815|Angst e cuori spezzati
+1816|Vampiri e lupi mannari
+1817|Orrore cosmico
+1818|Halloween
+1819|Caffè e vita in città
+1820|Scuola e università
+1821|Sport
+1822|Musica e fama
+1823|Natale e inverno
+1824|Fantasy e magia
+1825|Gialli e thriller
+1826|Storia, guerra e avventura
+1827|Horror e soprannaturale
+1828|Vita quotidiana e altro
+@nl
+1739|Spreukenboek
+1740|Doornen en rozen
+1741|=
+1742|Pulpblad
+1743|Poster
+1744|Kiekje
+1745|Smaragd
+1746|Karmozijn
+1747|Saffier
+1748|Obsidiaan
+1749|=
+1750|Lavendel
+1751|Munt
+1752|Nr.
+1753|magisch kasteel 's nachts schilderij
+1754|dark fantasy kunst
+1755|heksenhuisje in maanlicht schilderij
+1756|epische fantasy reis schilderij
+1757|epische fantasy storm schilderij
+1758|mythologie schilderij
+1759|sprookjes illustratie
+1760|romantische fantasy kunst
+1761|urban fantasy stad 's nachts
+1762|Chinese inkt landschap schilderij
+1763|ruimtegevecht concept art
+1764|ruimteschip concept art
+1765|cyberpunk stad kunst
+1766|postapocalyptische stad kunst
+1767|steampunk luchtschip stad kunst
+1768|superhelden stad 's nachts kunst
+1769|Victoriaans Londen mist schilderij
+1770|Engels dorp schilderij
+1771|spionagethriller stad 's nachts
+1772|oorlogsschilderij
+1773|middeleeuwse veldslag schilderij
+1774|regencytijd schilderij
+1775|antieke ruïnes schilderij
+1776|romantische stadslichten
+1777|donkerrode roos
+1778|gezellige illustratie
+1779|regenachtige straat 's nachts
+1780|gotisch kasteel rode maan
+1781|zeemonster tentakels kunst
+1782|halloweenpompoenen 's nachts
+1783|gezellig koffiehuis illustratie
+1784|universiteitscampus in de herfst
+1785|stadionlichten 's nachts
+1786|podiumlichten concert
+1787|besneeuwd dorp met kerst
+1788|Dit ontwerp heeft geen plek voor je afbeelding. Kies er een met een afbeelding (ingelijste afbeelding, schilderij, pulpblad of kiekje) om haar te gebruiken.
+1789|Toverschool
+1790|Duistere magie
+1791|Heksen en spreuken
+1792|Queestes en legendes
+1793|Stormachtig epos
+1794|Mythen en goden
+1795|Sprookje
+1796|Romantische fantasy
+1797|Urban fantasy
+1798|Wuxia en cultivatie
+1799|Space opera
+1800|Ruimtereizen
+1801|Cyberpunk
+1802|Dystopie en apocalyps
+1803|Steampunk
+1804|Superhelden
+1805|Victoriaanse detective
+1806|Cosy mystery
+1807|Spionnen
+1808|Oorlog
+1809|Ridders en veldslagen
+1810|Regency en kostuumdrama
+1811|Antieke werelden
+1812|Moderne romantiek
+1813|Dark romance
+1814|Fluff en troost
+1815|Angst en liefdesverdriet
+1816|Vampiers en weerwolven
+1817|Kosmische horror
+1818|Halloween
+1819|Koffiehuizen en stadsleven
+1820|School en universiteit
+1821|Sport
+1822|Muziek en roem
+1823|Kerst en winter
+1824|Fantasy en magie
+1825|Mysterie en thrillers
+1826|Geschiedenis, oorlog en avontuur
+1827|Horror en het bovennatuurlijke
+1828|Dagelijks leven en meer
+@pt
+1739|Livro de feitiços
+1740|Espinhos e rosas
+1741|=
+1742|Revista pulp
+1743|Pôster
+1744|Foto instantânea
+1745|Esmeralda
+1746|Carmesim
+1747|Safira
+1748|Obsidiana
+1749|=
+1750|Lavanda
+1751|Menta
+1752|Nº
+1753|pintura castelo mágico à noite
+1754|arte de fantasia sombria
+1755|pintura cabana de bruxa ao luar
+1756|pintura jornada de fantasia épica
+1757|pintura tempestade de fantasia épica
+1758|pintura mitológica
+1759|ilustração de conto de fadas
+1760|arte de fantasia romântica
+1761|cidade de fantasia urbana à noite
+1762|pintura de paisagem em tinta chinesa
+1763|arte conceitual batalha espacial
+1764|arte conceitual nave espacial
+1765|arte cidade cyberpunk
+1766|arte cidade pós-apocalíptica
+1767|arte cidade steampunk dirigível
+1768|arte cidade de super-heróis à noite
+1769|pintura neblina Londres vitoriana
+1770|pintura vilarejo inglês
+1771|cidade à noite thriller de espionagem
+1772|pintura de guerra
+1773|pintura batalha medieval
+1774|pintura era regencial
+1775|pintura ruínas antigas
+1776|luzes da cidade românticas
+1777|rosa vermelha escura
+1778|ilustração aconchegante
+1779|rua chuvosa à noite
+1780|castelo gótico lua vermelha
+1781|arte tentáculos monstro marinho
+1782|abóboras de Halloween à noite
+1783|ilustração cafeteria aconchegante
+1784|campus universitário no outono
+1785|luzes de estádio à noite
+1786|luzes de palco de show
+1787|vilarejo nevado no Natal
+1788|Este modelo não tem espaço para a sua imagem. Escolha um com imagem (imagem emoldurada, pintura, revista pulp ou foto instantânea) para usá-la.
+1789|Escola de magia
+1790|Magia sombria
+1791|Bruxas e feitiços
+1792|Jornadas e lendas
+1793|Épico das tempestades
+1794|Mitos e deuses
+1795|Conto de fadas
+1796|Fantasia romântica
+1797|Fantasia urbana
+1798|Wuxia e cultivo
+1799|Ópera espacial
+1800|Viagens espaciais
+1801|Cyberpunk
+1802|Distopia e apocalipse
+1803|Steampunk
+1804|Super-heróis
+1805|Detetive vitoriano
+1806|Mistério aconchegante
+1807|Espiões
+1808|Guerra
+1809|Cavaleiros e batalhas
+1810|Regência e drama de época
+1811|Mundos antigos
+1812|Romance moderno
+1813|Dark romance
+1814|Fluff e conforto
+1815|Angst e coração partido
+1816|Vampiros e lobisomens
+1817|Horror cósmico
+1818|Halloween
+1819|Cafés e vida urbana
+1820|Escola e faculdade
+1821|Esporte
+1822|Música e fama
+1823|Natal e inverno
+1824|Fantasia e magia
+1825|Mistério e suspense
+1826|História, guerra e aventura
+1827|Terror e sobrenatural
+1828|Vida cotidiana e mais
+@ru
+1739|Книга заклинаний
+1740|Шипы и розы
+1741|Неон
+1742|Палп-журнал
+1743|Плакат
+1744|Снимок
+1745|Изумруд
+1746|Багрянец
+1747|Сапфир
+1748|Обсидиан
+1749|Синтвейв
+1750|Лаванда
+1751|Мята
+1752|№
+1753|волшебный замок ночью картина
+1754|тёмное фэнтези арт
+1755|домик ведьмы в лунном свете картина
+1756|эпическое фэнтези путешествие картина
+1757|эпическое фэнтези буря картина
+1758|мифология картина
+1759|иллюстрация к сказке
+1760|романтическое фэнтези арт
+1761|городское фэнтези ночной город
+1762|китайская живопись тушью пейзаж
+1763|космическая битва концепт-арт
+1764|звездолёт концепт-арт
+1765|киберпанк город арт
+1766|постапокалиптический город арт
+1767|стимпанк дирижабль город арт
+1768|супергерои ночной город арт
+1769|викторианский Лондон туман картина
+1770|английская деревня картина
+1771|шпионский триллер ночной город
+1772|батальная живопись
+1773|средневековая битва картина
+1774|эпоха Регентства картина
+1775|древние руины картина
+1776|романтические огни города
+1777|тёмно-красная роза
+1778|уютная иллюстрация
+1779|ночная улица под дождём
+1780|готический замок красная луна
+1781|морское чудовище щупальца арт
+1782|тыквы на Хэллоуин ночью
+1783|уютная кофейня иллюстрация
+1784|университетский кампус осенью
+1785|огни стадиона ночью
+1786|огни концертной сцены
+1787|заснеженная деревня на Рождество
+1788|В этом стиле нет места для вашей картинки. Чтобы её использовать, выберите стиль с картинкой («Картина в рамке», «Картина», «Палп-журнал» или «Снимок»).
+1789|Школа магии
+1790|Тёмная магия
+1791|Ведьмы и заклинания
+1792|Странствия и легенды
+1793|Эпос бурь
+1794|Мифы и боги
+1795|Волшебная сказка
+1796|Романтическое фэнтези
+1797|Городское фэнтези
+1798|Уся и культивация
+1799|Космическая опера
+1800|Звёздные путешествия
+1801|Киберпанк
+1802|Антиутопия и апокалипсис
+1803|Стимпанк
+1804|Супергерои
+1805|Викторианский детектив
+1806|Уютный детектив
+1807|Шпионы
+1808|Война
+1809|Рыцари и битвы
+1810|Регентство и костюмная драма
+1811|Древние миры
+1812|Современный любовный роман
+1813|Тёмный любовный роман
+1814|Флафф и уют
+1815|Ангст и разбитое сердце
+1816|Вампиры и оборотни
+1817|Космический ужас
+1818|Хэллоуин
+1819|Кофейни и городская жизнь
+1820|Школа и университет
+1821|Спорт
+1822|Музыка и слава
+1823|Рождество и зима
+1824|Фэнтези и магия
+1825|Детективы и триллеры
+1826|История, война и приключения
+1827|Ужасы и сверхъестественное
+1828|Повседневность и не только
+@ja
+1739|魔法書
+1740|茨と薔薇
+1741|ネオン
+1742|パルプ雑誌
+1743|ポスター
+1744|スナップ写真
+1745|エメラルド
+1746|クリムゾン
+1747|サファイア
+1748|オブシディアン
+1749|シンセウェーブ
+1750|ラベンダー
+1751|ミント
+1752|=
+1753|夜の魔法の城 絵画
+1754|ダークファンタジー アート
+1755|月明かりの魔女の家 絵画
+1756|壮大なファンタジー 旅 絵画
+1757|壮大なファンタジー 嵐 絵画
+1758|神話 絵画
+1759|おとぎ話 イラスト
+1760|ロマンスファンタジー アート
+1761|夜の街 アーバンファンタジー
+1762|水墨画 山水
+1763|宇宙戦争 コンセプトアート
+1764|宇宙船 コンセプトアート
+1765|サイバーパンク 都市 アート
+1766|終末世界 都市 アート
+1767|スチームパンク 飛行船 都市
+1768|夜の街 スーパーヒーロー アート
+1769|霧のヴィクトリア朝ロンドン 絵画
+1770|イギリスの村 絵画
+1771|スパイ スリラー 夜の街
+1772|戦争画
+1773|中世の戦い 絵画
+1774|リージェンシー時代 絵画
+1775|古代遺跡 絵画
+1776|ロマンチックな街の灯り
+1777|深紅の薔薇
+1778|ほっこり イラスト
+1779|雨の夜の街
+1780|ゴシック城 赤い月
+1781|海の怪物 触手 アート
+1782|夜のハロウィンかぼちゃ
+1783|ほっこりカフェ イラスト
+1784|秋の大学キャンパス
+1785|夜のスタジアムの照明
+1786|コンサートのステージ照明
+1787|クリスマスの雪の村
+1788|このデザインにはあなたの画像を入れる場所がありません。使うには、画像のあるデザイン（額縁の絵、絵画、パルプ雑誌、スナップ写真）を選んでください。
+1789|魔法学校
+1790|闇の魔法
+1791|魔女と呪文
+1792|探索と伝説
+1793|嵐の叙事詩
+1794|神話と神々
+1795|おとぎ話
+1796|ロマンスファンタジー
+1797|アーバンファンタジー
+1798|武侠・仙侠
+1799|スペースオペラ
+1800|宇宙船の旅
+1801|サイバーパンク
+1802|ディストピアと終末
+1803|スチームパンク
+1804|スーパーヒーロー
+1805|ヴィクトリア朝の探偵
+1806|コージーミステリー
+1807|スパイ
+1808|戦争
+1809|騎士と戦い
+1810|リージェンシーと時代劇
+1811|古代の世界
+1812|現代ロマンス
+1813|ダークロマンス
+1814|ほのぼの・癒やし
+1815|切なさと失恋
+1816|吸血鬼と人狼
+1817|コズミックホラー
+1818|ハロウィン
+1819|カフェと街の暮らし
+1820|学校と大学
+1821|スポーツ
+1822|音楽と名声
+1823|クリスマスと冬
+1824|ファンタジーと魔法
+1825|ミステリーとスリラー
+1826|歴史・戦争・冒険
+1827|ホラーと超常
+1828|日常ほか

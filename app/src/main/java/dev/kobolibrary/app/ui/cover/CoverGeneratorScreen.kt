@@ -15,8 +15,6 @@ import androidx.compose.foundation.gestures.calculatePan
 import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.outlined.Search
@@ -46,6 +44,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -109,17 +108,77 @@ private class OwnPicture(val full: Bitmap) {
 /** What to look for online for a cover's picture, to start with. */
 private fun pictureQuery(genre: CoverGenre): String = when (genre) {
     CoverGenre.FANTASY -> tr("fantasy landscape painting")
+    CoverGenre.MAGIC_SCHOOL -> tr("magical castle at night painting")
+    CoverGenre.DARK_MAGIC -> tr("dark fantasy art")
+    CoverGenre.WITCHES -> tr("witch cottage moonlight painting")
+    CoverGenre.QUEST -> tr("epic fantasy journey painting")
+    CoverGenre.STORM_EPIC -> tr("epic fantasy storm painting")
+    CoverGenre.MYTHOLOGY -> tr("mythology painting")
+    CoverGenre.FAIRY_TALE -> tr("fairy tale illustration")
+    CoverGenre.ROMANTASY -> tr("romantic fantasy art")
+    CoverGenre.URBAN_FANTASY -> tr("urban fantasy city at night")
+    CoverGenre.WUXIA -> tr("chinese ink landscape painting")
     CoverGenre.SCIENCE_FICTION -> tr("science fiction space painting")
+    CoverGenre.SPACE_OPERA -> tr("space battle concept art")
+    CoverGenre.STARSHIP -> tr("starship concept art")
+    CoverGenre.CYBERPUNK -> tr("cyberpunk city art")
+    CoverGenre.DYSTOPIA -> tr("post-apocalyptic city art")
+    CoverGenre.STEAMPUNK -> tr("steampunk airship city art")
+    CoverGenre.SUPERHERO -> tr("superhero city at night art")
     CoverGenre.MYSTERY -> tr("foggy street at night")
+    CoverGenre.DETECTIVE -> tr("victorian london fog painting")
+    CoverGenre.COSY_MYSTERY -> tr("english village painting")
     CoverGenre.THRILLER -> tr("city at night")
-    CoverGenre.HORROR -> tr("haunted house at night")
-    CoverGenre.ROMANCE -> tr("romantic sunset painting")
+    CoverGenre.SPY -> tr("spy thriller city at night")
     CoverGenre.HISTORICAL -> tr("historical painting")
+    CoverGenre.WAR -> tr("war painting")
+    CoverGenre.KNIGHTS -> tr("medieval battle painting")
+    CoverGenre.REGENCY -> tr("regency era painting")
+    CoverGenre.ANCIENT -> tr("ancient ruins painting")
     CoverGenre.ADVENTURE -> tr("sailing ship painting")
     CoverGenre.WESTERN -> tr("wild west landscape painting")
+    CoverGenre.ROMANCE -> tr("romantic sunset painting")
+    CoverGenre.MODERN_ROMANCE -> tr("romantic city lights")
+    CoverGenre.DARK_ROMANCE -> tr("dark red rose")
+    CoverGenre.FLUFF -> tr("cosy illustration")
+    CoverGenre.ANGST -> tr("rainy night street")
+    CoverGenre.HORROR -> tr("haunted house at night")
+    CoverGenre.VAMPIRES -> tr("gothic castle red moon")
+    CoverGenre.COSMIC_HORROR -> tr("sea monster tentacles art")
+    CoverGenre.HALLOWEEN -> tr("halloween pumpkins at night")
     CoverGenre.LITERARY -> tr("landscape painting")
+    CoverGenre.SLICE_OF_LIFE -> tr("cosy coffee shop illustration")
+    CoverGenre.SCHOOL -> tr("university campus in autumn")
+    CoverGenre.SPORTS -> tr("stadium lights at night")
+    CoverGenre.MUSIC -> tr("concert stage lights")
+    CoverGenre.CHRISTMAS -> tr("snowy village at christmas")
     CoverGenre.NON_FICTION -> tr("landscape photograph")
     CoverGenre.CHILDREN -> tr("storybook illustration")
+}
+
+/** The genres to choose from, in their groups. */
+@Composable
+private fun GenrePicker(current: CoverGenre, onPick: (CoverGenre) -> Unit, onDismiss: () -> Unit) {
+    androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
+        Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surfaceContainerHigh) {
+            Column(Modifier.heightIn(max = 620.dp).verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(tr("Genre"), style = MaterialTheme.typography.titleLarge)
+                CoverGenre.Group.entries.forEach { group ->
+                    Text(group.label, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(top = 6.dp))
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        group.genres.forEach { g ->
+                            FilterChip(
+                                selected = g == current,
+                                onClick = { onPick(g) },
+                                label = { Text(g.label) },
+                                leadingIcon = if (g == current) ({ Icon(Icons.Filled.Check, null, Modifier.size(16.dp)) }) else null,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 /** A design for the book: for its [genre], and for a book in a series, the series' colour for the framed design. */
@@ -315,24 +374,11 @@ fun CoverGeneratorScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(tr("Genre"), style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(end = 16.dp))
                         var choosing by remember { mutableStateOf(false) }
-                        Box {
-                            OutlinedButton(onClick = { choosing = true }) {
-                                Text(kind.label)
-                                Icon(Icons.Filled.ArrowDropDown, null, Modifier.size(20.dp))
-                            }
-                            DropdownMenu(expanded = choosing, onDismissRequest = { choosing = false }) {
-                                CoverGenre.entries.forEach { g ->
-                                    DropdownMenuItem(
-                                        text = { Text(g.label) },
-                                        leadingIcon = { if (g == kind) Icon(Icons.Filled.Check, null) else Spacer(Modifier.size(24.dp)) },
-                                        onClick = {
-                                            kind = g
-                                            choosing = false
-                                        },
-                                    )
-                                }
-                            }
+                        OutlinedButton(onClick = { choosing = true }) {
+                            Text(kind.label)
+                            Icon(Icons.Filled.ArrowDropDown, null, Modifier.size(20.dp))
                         }
+                        if (choosing) GenrePicker(kind, onPick = { kind = it; choosing = false }, onDismiss = { choosing = false })
                     }
                     if (style.picture || style in CoverStyle.drawn) {
                         HorizontalDivider()
@@ -387,7 +433,7 @@ fun CoverGeneratorScreen(
                             )
                         } else if (own != null) {
                             Text(
-                                tr("This design has no room for your picture. Pick the framed picture or the painting to use it."),
+                                tr("This design has no room for your picture. Pick one with a picture (framed picture, painting, pulp magazine or snapshot) to use it."),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )

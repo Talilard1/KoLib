@@ -435,6 +435,24 @@ class LibraryScreenshotTest {
     fun coverGenerator() = generatorScreen("40_cover_generator")
 
     @Test
+    fun coverGeneratorGenres() {
+        val text = CoverText("The Iron Crown", listOf("Mara Ellison"), "The Ninefold Gate", 6.0)
+        compose.mainClock.autoAdvance = false
+        compose.setContent {
+            AppSurface(ThemeChoice.SYSTEM) {
+                CoverGeneratorScreen(
+                    text, onUse = { _, _ -> }, onCancel = {}, genre = dev.kobolibrary.app.ui.cover.CoverGenre.MAGIC_SCHOOL,
+                    initial = CoverDesign(CoverStyle.FRAMED, CoverDesign.boardFor(6.0)!!, dev.kobolibrary.app.ui.cover.CoverGenre.MAGIC_SCHOOL, 7),
+                )
+            }
+        }
+        compose.mainClock.advanceTimeBy(500)
+        compose.onNodeWithText(dev.kobolibrary.app.ui.cover.CoverGenre.MAGIC_SCHOOL.label).performClick()
+        compose.mainClock.advanceTimeBy(1_000)
+        captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/40c_cover_generator_genres.png")
+    }
+
+    @Test
     @Config(qualifiers = LANDSCAPE)
     fun coverGeneratorFramed() {
         val text = CoverText("The Iron Crown", listOf("Mara Ellison"), "The Ninefold Gate", 6.0)

@@ -127,6 +127,11 @@ fun AboutScreen(onBack: () -> Unit, onShowIntro: (() -> Unit)? = null) {
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                    Text(
+                        tr("The comic reader is modelled on Mihon's: its reading modes, page fitting, tap zones and zooming work the same way. Thanks to the Mihon project."),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                     if (onShowIntro != null) {
                         androidx.compose.material3.OutlinedButton(onClick = onShowIntro) { Text(tr("Show the introduction again")) }
                     }

@@ -1534,5 +1534,9 @@
 "{0} comic, kept as it is",
 "This comic couldn't be made into a CBZ for the Kobo.",
 "App settings",
-"Theme, language and books folder"
+"Theme, language and books folder",
+"Links",
+"Colour links",
+"Off, links look like the rest of the text. They still work when tapped.",
+"The comic reader is modelled on Mihon's: its reading modes, page fitting, tap zones and zooming work the same way. Thanks to the Mihon project."
 ]

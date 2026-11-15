@@ -1,0 +1,16 @@
+@fr
+1539|La lecture des BD s’inspire de Mihon : ses modes de lecture, l’ajustement des pages, les zones de toucher et le zoom fonctionnent de la même façon. Merci au projet Mihon.
+@de
+1539|Der Comic-Leser ist Mihon nachempfunden: Lesemodi, Seitenanpassung, Tippbereiche und Zoom funktionieren genauso. Danke an das Mihon-Projekt.
+@es
+1539|El lector de cómics sigue el modelo de Mihon: sus modos de lectura, el ajuste de páginas, las zonas de toque y el zoom funcionan igual. Gracias al proyecto Mihon.
+@it
+1539|Il lettore di fumetti è modellato su quello di Mihon: modalità di lettura, adattamento delle pagine, zone di tocco e zoom funzionano allo stesso modo. Grazie al progetto Mihon.
+@nl
+1539|De striplezer is gebaseerd op die van Mihon: leesmodi, paginapassing, tikzones en zoomen werken op dezelfde manier. Met dank aan het Mihon-project.
+@pt
+1539|O leitor de quadrinhos segue o modelo do Mihon: modos de leitura, ajuste de página, zonas de toque e zoom funcionam do mesmo jeito. Obrigado ao projeto Mihon.
+@ru
+1539|Чтение комиксов устроено по образцу Mihon: режимы чтения, размещение страниц, зоны касания и масштабирование работают так же. Спасибо проекту Mihon.
+@ja
+1539|コミックリーダーは Mihon をお手本にしています。読み方のモード、ページの合わせ方、タップの範囲、ズームが同じように動きます。Mihon プロジェクトに感謝します。

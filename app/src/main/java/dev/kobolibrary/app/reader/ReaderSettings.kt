@@ -266,6 +266,8 @@ data class ReaderSettings(
     val taps: TapZones = TapZones.SIDES,
     val tapWidth: TapWidth = TapWidth.NARROW,
     val pictures: PictureBlend = PictureBlend.ORNAMENTS,
+    /** Links in a colour of their own; off, they look like the text around them (and still work). */
+    val colourLinks: Boolean = true,
     /** A chapter's opening page (its number, an ornament) shown with its text, when a book keeps it in a file of its own. */
     val joinOpenings: Boolean = true,
     /** Pages to turn, or one long page to scroll. */
@@ -416,6 +418,7 @@ data class ReaderSettings(
         put("taps", taps.js)
         put("tapWidth", tapWidth.fraction.toDouble())
         put("blend", pictures.js)
+        put("plainLinks", !colourLinks)
         put("barColor", css(barColor))
         language?.let { put("lang", it) }
     }.toString()
@@ -470,6 +473,7 @@ class ReaderSettingsStore(context: Context) {
             .putString("taps", next.taps.name)
             .putString("tapWidth", next.tapWidth.name)
             .putString("pictures", next.pictures.name)
+            .putBoolean("linkColour", next.colourLinks)
             .putString("flow", next.flow.name)
             .putInt("autoWpm", next.autoWpm)
             .putString("autoEnd", next.autoEnd.name)
@@ -528,6 +532,7 @@ class ReaderSettingsStore(context: Context) {
             taps = enumOf("taps", d.taps),
             tapWidth = enumOf("tapWidth", d.tapWidth),
             pictures = enumOf("pictures", d.pictures),
+            colourLinks = prefs.getBoolean("linkColour", d.colourLinks),
             flow = enumOf("flow", d.flow),
             autoWpm = prefs.getInt("autoWpm", d.autoWpm).coerceIn(ReaderSettings.MIN_WPM, ReaderSettings.MAX_WPM),
             autoEnd = enumOf("autoEnd", d.autoEnd),

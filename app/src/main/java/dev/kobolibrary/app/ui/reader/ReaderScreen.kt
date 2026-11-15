@@ -1290,6 +1290,10 @@ private fun PageSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) 
     Choices(PictureBlend.entries, s.pictures, { it.label }) { onChange(s.copy(pictures = it)) }
     Help(s.pictures.help)
 
+    Heading(tr("Links"))
+    SwitchRow(tr("Colour links"), s.colourLinks) { onChange(s.copy(colourLinks = it)) }
+    Help(tr("Off, links look like the rest of the text. They still work when tapped."))
+
     Heading(tr("Page headings"))
     Choices(RunningHeads.entries, s.runningHeads, { it.label }) { onChange(s.withHeads(it)) }
     Help(

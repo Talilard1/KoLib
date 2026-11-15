@@ -68,6 +68,7 @@
     applyColours(s);
     setVar('--kl-font-size', Math.round((s.fontScale || 1) * 100) + '%');
     if (s.font) { setVar('--kl-font', s.font); root.classList.add('kl-font'); } else root.classList.remove('kl-font');
+    root.classList.toggle('kl-plain-links', !!s.plainLinks);
     if (s.line) { setVar('--kl-line', String(s.line)); root.classList.add('kl-lh'); } else root.classList.remove('kl-lh');
     root.classList.toggle('kl-hyphens', s.hyphens === 'on');
     root.classList.toggle('kl-nohyphens', s.hyphens === 'off');
@@ -346,14 +347,36 @@
    * holding nothing else is centred, without its first-line indent (which would push it off centre).
    */
   function centrePictures() {
-    var pics = document.body.querySelectorAll('img, svg');
-    for (var i = 0; i < pics.length; i++) {
-      var pic = pics[i];
-      if (pic.localName === 'svg' && pic.parentNode && pic.parentNode.closest && pic.parentNode.closest('svg')) continue;
-      var box = pic.parentNode;
-      // Out through anything wrapped round just it (a link, a span).
-      while (box && box !== document.body && box.nodeType === 1 && /^(a|span)$/i.test(box.localName) && holdsOnly(box, pic)) box = box.parentNode;
-      if (box && box !== document.body && box.nodeType === 1 && holdsOnly(box, pic)) box.classList.add('kl-picture-box');
+    // In the body, and in a chapter's opening or a page beside the next, which the app puts in front of it.
+    var roots = [document.body, document.getElementById('kl-opening'), pairBox()];
+    for (var r = 0; r < roots.length; r++) {
+      var scope = roots[r];
+      if (!scope) continue;
+      var pics = scope.querySelectorAll('img, svg');
+      for (var i = 0; i < pics.length; i++) {
+        var pic = pics[i];
+        if (pic.localName === 'svg' && pic.parentNode && pic.parentNode.closest && pic.parentNode.closest('svg')) continue;
+        var box = pic.parentNode;
+        // Out through anything wrapped round just it (a link, a span).
+        while (box && box !== scope && box.nodeType === 1 && /^(a|span)$/i.test(box.localName) && holdsOnly(box, pic)) box = box.parentNode;
+        if (box && box !== scope && box.nodeType === 1 && holdsOnly(box, pic)) box.classList.add('kl-picture-box');
+      }
+    }
+  }
+
+  /**
+   * What's wrapped round just a link (a span, a paragraph holding only it): with links in the text's
+   * colour, a colour or underline the book gives the wrapper goes too, as the link's own does.
+   */
+  function markLinkWrappers() {
+    var links = document.querySelectorAll('a[href]');
+    for (var i = 0; i < links.length && i < 3000; i++) {
+      var a = links[i];
+      var said = (a.textContent || '').trim();
+      for (var box = a.parentNode; box && box.nodeType === 1 && box !== document.body && box !== document.documentElement; box = box.parentNode) {
+        if ((box.textContent || '').trim() !== said || box.querySelectorAll('a[href]').length !== 1) break;
+        box.classList.add('kl-link-wrap');
+      }
     }
   }
 
@@ -1595,6 +1618,7 @@
     markFullPagePictures();
     try { keepPictureShapes(); } catch (e) { log(e); }
     try { centrePictures(); } catch (e) { log(e); }
+    try { markLinkWrappers(); } catch (e) { log(e); }
     try { keepOpeningTogether(); } catch (e) { log(e); }
     words = st.words || {};
     var around = st.chapters || {};
@@ -1652,6 +1676,7 @@
     markFullPagePictures();
     try { keepPictureShapes(); } catch (e) { log(e); }
     try { centrePictures(); } catch (e) { log(e); }
+    try { markLinkWrappers(); } catch (e) { log(e); }
     try { keepOpeningTogether(); } catch (e) { log(e); }
     words = st.words || {};
     var around = st.chapters || {};

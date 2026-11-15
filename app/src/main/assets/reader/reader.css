@@ -275,15 +275,24 @@ html.kl-paged table, html.kl-paged figure, html.kl-paged pre { break-inside: avo
 /* Wide things scroll inside their page instead of spilling onto the next. */
 html.kl-paged pre, html.kl-paged table { max-width: 100%; overflow-x: auto; }
 
-/* Colours: dark and tinted themes recolour the book's text so it can be read. */
+/* Colours: dark and tinted themes recolour the book's text so it can be read. A chapter's opening and a
+   page shown beside the next are put in front of the body by the app (see below): they're the book's text too. */
 html.kl-recolor body,
-html.kl-recolor body *:not(img):not(svg):not(svg *):not(video) {
+html.kl-recolor body *:not(img):not(svg):not(svg *):not(video),
+html.kl-recolor #kl-opening,
+html.kl-recolor #kl-opening *:not(img):not(svg):not(svg *):not(video),
+html.kl-recolor #kl-pair,
+html.kl-recolor #kl-pair *:not(img):not(svg):not(svg *):not(video) {
   color: inherit !important;
   background-color: transparent !important;
   border-color: rgba(127, 127, 127, 0.45) !important;
   text-shadow: none !important;
 }
 html.kl-paged a[href], html.kl-paged a[href] * { color: var(--kl-link) !important; text-decoration-color: rgba(127, 127, 127, 0.5); }
+/* Links in the colour of the text, if asked for, and what's wrapped round just a link (reader.js marks it)
+   too, so a colour or underline the book gives that goes as well. They still work. */
+html.kl-plain-links a[href], html.kl-plain-links a[href] *,
+html.kl-plain-links .kl-link-wrap { color: var(--kl-fg) !important; text-decoration: none !important; }
 html.kl-dim-images img, html.kl-dim-images svg image { filter: brightness(0.82) contrast(1.05); }
 /* Ink-on-paper pictures take the page's colour: the white paper blends into it, the ink stays dark... */
 html.kl-paged img.kl-blend, html.kl-paged svg.kl-blend { mix-blend-mode: multiply; filter: none; }
@@ -291,14 +300,22 @@ html.kl-paged svg.kl-blend image { filter: none; }
 /* ...and on a dark page they're turned over first, so the ink is light (about the text's shade) and the paper dark. */
 html.kl-paged.kl-dim-images img.kl-blend, html.kl-paged.kl-dim-images svg.kl-blend { mix-blend-mode: screen; filter: invert(1) hue-rotate(180deg) brightness(0.85); }
 
-/* The reader's font, spacing and alignment, when chosen instead of the book's own. */
+/* The reader's font, spacing and alignment, when chosen instead of the book's own: for a chapter's
+   opening and a page beside the next as well as the body. */
 html.kl-font body,
-html.kl-font body *:not(code):not(pre):not(kbd):not(samp):not(tt):not(svg):not(svg *) {
+html.kl-font body *:not(code):not(pre):not(kbd):not(samp):not(tt):not(svg):not(svg *),
+html.kl-font #kl-opening,
+html.kl-font #kl-opening *:not(code):not(pre):not(kbd):not(samp):not(tt):not(svg):not(svg *),
+html.kl-font #kl-pair,
+html.kl-font #kl-pair *:not(code):not(pre):not(kbd):not(samp):not(tt):not(svg):not(svg *) {
   font-family: var(--kl-font) !important;
 }
 html.kl-lh body,
 html.kl-lh body p, html.kl-lh body div, html.kl-lh body li, html.kl-lh body blockquote,
-html.kl-lh body span, html.kl-lh body dd, html.kl-lh body td {
+html.kl-lh body span, html.kl-lh body dd, html.kl-lh body td,
+html.kl-lh #kl-opening, html.kl-lh #kl-opening p, html.kl-lh #kl-opening div, html.kl-lh #kl-opening span,
+html.kl-lh #kl-pair, html.kl-lh #kl-pair p, html.kl-lh #kl-pair div, html.kl-lh #kl-pair li,
+html.kl-lh #kl-pair blockquote, html.kl-lh #kl-pair span, html.kl-lh #kl-pair dd, html.kl-lh #kl-pair td {
   line-height: var(--kl-line) !important;
 }
 html.kl-paged .kl-align-left { text-align: left !important; }
@@ -307,8 +324,9 @@ html.kl-paged .kl-align-justify { text-align: justify !important; }
 html.kl-paged .kl-picture-box { text-align: center !important; text-indent: 0 !important; }
 html.kl-paged .kl-picture-box > img, html.kl-paged .kl-picture-box > svg,
 html.kl-paged .kl-picture-box > a > img, html.kl-paged .kl-picture-box > a > svg { margin-left: auto !important; margin-right: auto !important; }
-html.kl-hyphens body { -webkit-hyphens: auto !important; hyphens: auto !important; }
-html.kl-nohyphens body, html.kl-nohyphens body * { -webkit-hyphens: manual !important; hyphens: manual !important; }
+html.kl-hyphens body, html.kl-hyphens #kl-pair { -webkit-hyphens: auto !important; hyphens: auto !important; }
+html.kl-nohyphens body, html.kl-nohyphens body *, html.kl-nohyphens #kl-opening, html.kl-nohyphens #kl-opening *,
+html.kl-nohyphens #kl-pair, html.kl-nohyphens #kl-pair * { -webkit-hyphens: manual !important; hyphens: manual !important; }
 
 ::selection { background: var(--kl-sel); }
 ::highlight(kl-search) { background-color: var(--kl-hl); color: inherit; }

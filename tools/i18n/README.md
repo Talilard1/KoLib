@@ -25,6 +25,9 @@ automatically, and French gets its no-break spaces before `: ; ? !` and inside `
    (`tr("Sent {0} of {1}.", done, total)`), and counts get a sentence each for one and for more.
 2. `python3 update.py` gives new text its number and writes `build/en_work.txt`, which lists it.
 3. Add the translations to a `tr/*.txt` file (a new one is fine).
+   Russian has three forms of a word with a count (1 книга, 2 книги, 5 книг; 21 книга), so a Russian
+   translation of a count's sentence picks the word with `{0:книга|книги|книг}` (one, few, many) next to
+   the number's `{0}`: `{0} {0:книга|книги|книг}`. The app chooses the form for the count it's given.
 4. `python3 build.py` checks them: every language has every text, with the same `{n}` and line breaks.
 5. `python3 build.py --write` writes the app's tables.
 
@@ -36,4 +39,5 @@ automatically, and French gets its no-break spaces before `: ; ? !` and inside `
 | it | Italian | tu | il Kobo |
 | nl | Dutch | je | de Kobo |
 | pt (pt-BR) | Brazilian Portuguese | você | o Kobo |
+| ru | Russian | вы | Kobo (masculine, not declined) |
 | ja | Japanese | polite (です・ます) | Kobo |

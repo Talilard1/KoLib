@@ -1,0 +1,56 @@
+@fr
+1832|Tourner l’image vers la gauche
+1833|Tourner l’image vers la droite
+1834|Une image imprimée de côté : remettez-la à l’endroit, et elle s’étend sur les deux pages.
+1835|La première fois pour chaque langue, il faut télécharger les données de reconnaissance de cette langue (quelques mégaoctets).
+1836|Il faut d’abord télécharger les données de reconnaissance de chaque langue : {0} pour les langues choisies, depuis le projet Tesseract. Chacune n’est téléchargée qu’une fois, puis conservée.
+1837|Les données de reconnaissance des langues choisies sont déjà sur cet appareil : rien à télécharger.
+@de
+1832|Bild nach links drehen
+1833|Bild nach rechts drehen
+1834|Ein seitlich gedrucktes Bild: Richtig herum gedreht, erstreckt es sich über beide Seiten.
+1835|Beim ersten Mal müssen für jede Sprache deren Erkennungsdaten heruntergeladen werden (einige Megabyte).
+1836|Zuerst müssen die Erkennungsdaten für jede Sprache heruntergeladen werden: {0} für die gewählten Sprachen, vom Tesseract-Projekt. Jede wird nur einmal heruntergeladen und behalten.
+1837|Die Erkennungsdaten für die gewählten Sprachen sind schon auf diesem Gerät, es muss also nichts heruntergeladen werden.
+@es
+1832|Girar la imagen a la izquierda
+1833|Girar la imagen a la derecha
+1834|Una imagen impresa de lado: gírela para ponerla derecha y ocupará las dos páginas.
+1835|La primera vez, para cada idioma hay que descargar sus datos de reconocimiento (unos pocos megabytes).
+1836|Primero hay que descargar los datos de reconocimiento de cada idioma: {0} para los idiomas elegidos, del proyecto Tesseract. Cada uno se descarga una sola vez y se guarda.
+1837|Los datos de reconocimiento de los idiomas elegidos ya están en este dispositivo, así que no hay nada que descargar.
+@it
+1832|Ruota l’immagine a sinistra
+1833|Ruota l’immagine a destra
+1834|Un’immagine stampata di lato: ruotala nel verso giusto e occuperà entrambe le pagine.
+1835|La prima volta, per ogni lingua bisogna scaricare i suoi dati di riconoscimento (qualche megabyte).
+1836|Prima bisogna scaricare i dati di riconoscimento di ogni lingua: {0} per le lingue scelte, dal progetto Tesseract. Ognuna si scarica una volta sola e resta salvata.
+1837|I dati di riconoscimento delle lingue scelte sono già su questo dispositivo, quindi non c’è nulla da scaricare.
+@nl
+1832|Afbeelding naar links draaien
+1833|Afbeelding naar rechts draaien
+1834|Een afbeelding die op haar zij is gedrukt: draai haar rechtop en ze loopt over beide pagina’s.
+1835|De eerste keer moeten voor elke taal de herkenningsgegevens van die taal worden gedownload (een paar megabyte).
+1836|Eerst moeten de herkenningsgegevens voor elke taal worden gedownload: {0} voor de gekozen talen, van het Tesseract-project. Elke taal wordt maar één keer gedownload en bewaard.
+1837|De herkenningsgegevens voor de gekozen talen staan al op dit apparaat, dus er hoeft niets te worden gedownload.
+@pt
+1832|Rodar a imagem para a esquerda
+1833|Rodar a imagem para a direita
+1834|Uma imagem impressa de lado: rode-a para a posição certa e ela ocupa as duas páginas.
+1835|Na primeira vez, para cada idioma é preciso baixar os dados de reconhecimento desse idioma (alguns megabytes).
+1836|Primeiro é preciso baixar os dados de reconhecimento de cada idioma: {0} para os idiomas escolhidos, do projeto Tesseract. Cada um é baixado só uma vez e guardado.
+1837|Os dados de reconhecimento dos idiomas escolhidos já estão neste dispositivo, então não há nada para baixar.
+@ru
+1832|Повернуть картинку влево
+1833|Повернуть картинку вправо
+1834|Картинка напечатана боком: поверните её как надо, и она займёт обе страницы.
+1835|В первый раз для каждого языка нужно скачать его данные для распознавания (несколько мегабайт).
+1836|Сначала нужно скачать данные для распознавания каждого языка: {0} для выбранных языков, из проекта Tesseract. Каждый скачивается один раз и сохраняется.
+1837|Данные для распознавания выбранных языков уже есть на этом устройстве, так что скачивать ничего не нужно.
+@ja
+1832|画像を左に回転
+1833|画像を右に回転
+1834|横向きに印刷された画像です。正しい向きに回すと、見開きの両ページに広がります。
+1835|各言語の初回は、その言語の認識データ（数メガバイト）をダウンロードする必要があります。
+1836|まず各言語の認識データをダウンロードする必要があります。選んだ言語で {0}、Tesseract プロジェクトから。各言語は一度だけダウンロードされ、保存されます。
+1837|選んだ言語の認識データはすでにこの端末にあるため、ダウンロードは不要です。

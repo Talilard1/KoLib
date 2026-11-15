@@ -34,6 +34,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -67,7 +68,10 @@ class ReaderController(
 
     val chapters = structure.chapters
     val toc: List<TocNode> = structure.toc
-    private val server = BookServer(assets, files).apply { transform = { path, text -> joined(path, text) } }
+    private val server = BookServer(assets, files).apply {
+        transform = { path, text -> joined(path, text) }
+        picture = { path, bytes -> turnedPicture(path, bytes) }
+    }
     private val main = Handler(Looper.getMainLooper())
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
@@ -262,6 +266,7 @@ class ReaderController(
             weightTotal = weights.sum()
             findOpenings()
             lengthsKnown = true
+            findSidewaysPictures()
         }
     }
 
@@ -474,6 +479,7 @@ class ReaderController(
                         .put("chapters", aroundJs(i))
                         .put("words", wordsJs())
                         .put("opening", startsChapter(i))
+                        .put("turns", turnsJs())
                         .apply { runCatching { pageKind(i).place }.getOrNull()?.let { put("place", it) } }
                         .toString()
                     val got = withTimeoutOrNull(20_000) {
@@ -673,6 +679,7 @@ class ReaderController(
             .apply { if (autoscroll) put("auto", autoJs().put("startDelay", 1500)) }
             // It starts a chapter: its first page can go on the right, its first letter dropped (see reader.js).
             .put("opening", startsChapter(index))
+            .put("turns", turnsJs())
             .apply { runCatching { pageKind(index).place }.getOrNull()?.let { put("place", it) } }
             .toString()
         if (index == chapterIndex && !loading && webView?.url?.let { BookServer.pathOf(it)?.first } == c.path) {
@@ -771,7 +778,9 @@ class ReaderController(
         // Words counted already (when the book opened): more than a short page has, it's a chapter of text.
         val counted = chapterWords.getOrNull(i)
         val kind = if (!c.linear || (counted != null && counted > PagePlacement.SHORT_WORDS)) PageKind.TEXT else {
-            val f = PagePlacement.facts(files.text(c.path).orEmpty(), c.path, c.title) { p -> files.bytes(p)?.let { ImageSize.of(it) } }
+            val f = PagePlacement.facts(files.text(c.path).orEmpty(), c.path, c.title) { p ->
+                files.bytes(p)?.let { ImageSize.of(it) }?.let { (w, h) -> PictureTurns.size(w, h, turns[p] ?: 0) }
+            }
             val bookStart = i == firstLinear || innerBooks.any { it.first == i }
             // A book inside this one starts with its cover, or its title page: the title page, after a cover if it has one.
             val titlePlace = innerBooks.any { it.first == i || (it.first == i - 1 && pageKind(i - 1) == PageKind.COVER) }
@@ -790,13 +799,115 @@ class ReaderController(
         val a = chapters.getOrNull(i)
         val b = chapters.getOrNull(i + 1)
         val paired = a != null && b != null && a.linear && b.linear &&
-            pageKind(i).canBeLeft && pageKind(i + 1).canBeRight &&
+            ((pageKind(i).canBeLeft && pageKind(i + 1).canBeRight) || (pageKind(i) == PageKind.PICTURE && pageKind(i + 1) == PageKind.PICTURE)) &&
             !isOpening(i) && !isOpening(i + 1) && (i == 0 || !isPairedLeft(i - 1)) &&
             runCatching {
                 ChapterOpenings.join(files.text(b.path)!!, b.path, files.text(a.path)!!, a.path, ChapterOpenings.PAIR_BOX) != null
             }.getOrDefault(false)
         pairs[i] = paired
         paired
+    }
+
+    // ---- pictures turned -----------------------------------------------------------------------------
+
+    /** Pictures turned in this book (printed on their side to fit a page): each one's path, and its quarter turns clockwise. */
+    @Volatile
+    var turns: Map<String, Int> = store?.turns().orEmpty()
+        private set
+
+    /** Turned pictures as handed over, kept a while so turning pages back and forth doesn't turn them again. */
+    private val turnedPictures = object : android.util.LruCache<String, ByteArray>(24 * 1024 * 1024) {
+        override fun sizeOf(key: String, value: ByteArray) = value.size
+    }
+
+    /** The picture at [path] as the reader shows it: turned, if it's been turned. */
+    fun pictureBytes(path: String): ByteArray? = files.bytes(path)?.let { turnedPicture(path, it) ?: it }
+
+    private fun turnedPicture(path: String, bytes: ByteArray): ByteArray? {
+        val q = turns[path] ?: return null
+        val key = "$q|$path"
+        turnedPictures.get(key)?.let { return it }
+        return PictureTurns.turn(bytes, q)?.also { turnedPictures.put(key, it) }
+    }
+
+    /** Pictures looked at already to see whether they're on their side, or turned by the reader: not looked at again. */
+    private val checkedPictures: MutableSet<String> = java.util.Collections.synchronizedSet((store?.checkedPictures().orEmpty()).toMutableSet())
+
+    /**
+     * Makes a check for pictures printed on their side, from the words in them (see SidewaysPictures), or null if it
+     * can't be made (the text recognition's data for the book's language isn't on the device). Set by the screen.
+     */
+    var sidewaysCheck: (() -> dev.kobolibrary.app.ocr.SidewaysPictures?)? = null
+
+    /** The book's plates looked at, once, to find any printed on their side, which are then turned the right way up. */
+    private fun findSidewaysPictures() {
+        scope.launch(Dispatchers.Default) {
+            // The book opened first; a book of nothing but pictures (a comic) isn't looked through.
+            delay(1500)
+            val make = sidewaysCheck ?: return@launch
+            val plates = chapters.indices.filter { runCatching { pageKind(it) }.getOrNull() == PageKind.PICTURE }
+            if (plates.isEmpty() || plates.size > 60) return@launch
+            val todo = plates.mapNotNull { i ->
+                runCatching { PagePlacement.pictures(files.text(chapters[i].path).orEmpty(), chapters[i].path).firstOrNull() }.getOrNull()?.let { i to it }
+            }.filter { (_, p) -> p !in checkedPictures && p !in turns }
+            if (todo.isEmpty()) return@launch
+            val check = runCatching { make() }.getOrNull() ?: return@launch
+            try {
+                for ((i, picture) in todo) {
+                    if (!kotlinx.coroutines.currentCoroutineContext().isActive) break
+                    val q = runCatching { files.bytes(picture)?.let { check.turnsFor(it) } }.getOrNull()
+                    checkedPictures += picture
+                    if (q == 1 || q == 3) {
+                        AppLog.i("Reader", "The picture $picture is on its side: turned the right way up.")
+                        turns = turns + (picture to q)
+                        kinds.clear()
+                        pairs.clear()
+                        withContext(Dispatchers.Main) {
+                            laidOutPages.clear()
+                            // The page on screen is it, or beside it: shown again, turned.
+                            if (i in (chapterIndex - 1)..(chapterIndex + 1) && !loading) {
+                                stopTurn()
+                                loading = true
+                                open(i, target("start"))
+                            }
+                        }
+                    }
+                    store?.saveTurns(turns, checkedPictures.toSet())
+                }
+            } finally {
+                runCatching { check.close() }
+            }
+        }
+    }
+
+    /** The turns as the page is told them: each turned picture's path and its quarter turns. */
+    private fun turnsJs(): JSONObject = JSONObject().apply { turns.forEach { (p, q) -> put(p, q) } }
+
+    /** Turned pictures change what pages there are: part of the layout's key, so pages are counted again. */
+    private fun turnsKey(): String = if (turns.isEmpty()) "" else turns.toSortedMap().entries.joinToString(",") { "${it.key}=${it.value}" }.hashCode().toString(16)
+
+    /**
+     * Turns the picture at [path] a quarter turn clockwise ([quarters] 1) or back (-1), and opens its page again: a
+     * picture printed on its side to fit a page, turned the right way up, goes across both pages.
+     */
+    fun turnPicture(path: String, quarters: Int) {
+        val q = Math.floorMod((turns[path] ?: 0) + quarters, 4)
+        turns = if (q == 0) turns - path else turns + (path to q)
+        // The reader's own turn stands: never looked at again to be turned for them.
+        checkedPictures += path
+        store?.let { s -> scope.launch(Dispatchers.IO) { s.saveTurns(turns, checkedPictures.toSet()) } }
+        // Which pages are plates, wide or side by side, may have changed.
+        kinds.clear()
+        pairs.clear()
+        laidOutPages.clear()
+        stopTurn()
+        // The page the picture is on: this chapter, or the page shown beside it.
+        val name = path.substringAfterLast('/')
+        val home = listOf(chapterIndex - 1, chapterIndex).firstOrNull { i ->
+            i >= 0 && chapters.getOrNull(i)?.let { runCatching { files.text(it.path) }.getOrNull()?.contains(name) } == true
+        } ?: chapterIndex
+        loading = true
+        open(home, target("start"))
     }
 
     private fun titleOf(index: Int): String =
@@ -1328,7 +1439,7 @@ class ReaderController(
         // out differently, the pages counted so far no longer hold.
         if (o.has("layout")) {
             val raw = o.optString("layout")
-            val key = raw + "|" + settings.joinOpenings
+            val key = raw + "|" + settings.joinOpenings + turnsKey().let { if (it.isEmpty()) "" else "|$it" }
             if (key != layoutKey) {
                 layoutKey = key
                 laidOutPages.clear()

@@ -25,6 +25,10 @@ class BookServer(private val assets: AssetManager, @Volatile var files: BookFile
     @Volatile
     var transform: ((path: String, text: String) -> String?)? = null
 
+    /** Changes a picture before it's served (the reader turns one printed on its side); null leaves it. */
+    @Volatile
+    var picture: ((path: String, bytes: ByteArray) -> ByteArray?)? = null
+
     /** Scripts only from the app: a book's own scripts don't run. */
     var scriptPolicy: String = "script-src $APP; object-src 'none'"
 
@@ -54,6 +58,10 @@ class BookServer(private val assets: AssetManager, @Volatile var files: BookFile
             val source = transform?.let { t -> runCatching { t(path, decoded) }.getOrNull() } ?: decoded
             val (mime, text) = prepare(source, inject)
             return WebResourceResponse(mime, "utf-8", 200, "OK", headers(mime) + ("Content-Security-Policy" to scriptPolicy), text.toByteArray(Charsets.UTF_8).inputStream())
+        }
+        if (type.startsWith("image/")) picture?.let { p -> runCatching { p(path, bytes) }.getOrNull() }?.let { turned ->
+            val turnedType = PictureTurns.mediaType(turned) ?: type
+            return WebResourceResponse(turnedType, null, 200, "OK", headers(turnedType), ByteArrayInputStream(turned))
         }
         return WebResourceResponse(type, null, 200, "OK", headers(type), ByteArrayInputStream(bytes))
     }

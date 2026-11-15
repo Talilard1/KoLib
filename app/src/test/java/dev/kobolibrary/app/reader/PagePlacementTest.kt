@@ -9,8 +9,8 @@ class PagePlacementTest {
     private fun page(body: String, extra: String = "") = """<?xml version="1.0" encoding="utf-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops"><head><title>X</title></head><body$extra>$body</body></html>"""
 
-    /** Pictures' sizes by path: the publisher's mark is small; everything else as big as a page. */
-    private val sizes = mapOf("text/logo.png" to (160 to 120), "images/tor.png" to (200 to 180))
+    /** Pictures' sizes by path: the publisher's mark is small, a map wide; everything else as big as a page. */
+    private val sizes = mapOf("text/logo.png" to (160 to 120), "images/tor.png" to (200 to 180), "text/wide.jpg" to (2400 to 1600))
     private fun kind(body: String, path: String = "text/page.xhtml", title: String = "", extra: String = "", cover: Boolean = false, titlePlace: Boolean = false) =
         PagePlacement.kind(PagePlacement.facts(page(body, extra), path, title) { sizes[it] ?: (1200 to 1800) }, cover, titlePlace)
 
@@ -23,6 +23,9 @@ class PagePlacementTest {
         assertEquals(PageKind.COVER, kind("""<div><img src="c.jpg"/></div>""", path = "text/cover.xhtml"))
         assertEquals(PageKind.PICTURE, kind("""<div><img src="map.jpg" alt="Map"/></div>"""))
         assertEquals(PageKind.PICTURE, kind("""<svg xmlns="http://www.w3.org/2000/svg"><image href="p.jpg"/></svg>"""))
+        // Wider than it's tall: a map or a scene across two pages, alone across both.
+        assertEquals(PageKind.WIDE_PICTURE, kind("""<div><img src="wide.jpg"/></div>"""))
+        assertEquals(PageKind.WIDE_PICTURE, kind("""<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><image xlink:href="wide.jpg"/></svg>"""))
         // A book's title page inside a book of several.
         assertEquals(PageKind.TITLE, kind("""<h1>LORD OF CHAOS</h1><p>Robert Jordan</p><p><img src="tor.png"/></p>""", titlePlace = true))
         // Dedications: marked as one, or reading like one.
@@ -38,8 +41,8 @@ class PagePlacementTest {
         assertEquals(PageKind.PICTURE, kind("""<div><img src="p.jpg"/></div><p>Rand al'Thor, as drawn by the author</p>"""))
         assertEquals(PageKind.SHORT, kind("""<h1>DUNE</h1><p>Frank Herbert</p><p><img src="logo.png"/></p>"""))
         assertEquals(PageKind.SHORT, kind("""<p>DUNE</p><p><img src="../images/tor.png"/></p>"""))
-        // A picture alone is a picture however small; a big one with a heading is still a picture.
-        assertEquals(PageKind.PICTURE, kind("""<p><img src="logo.png"/></p>"""))
+        // A picture alone is a picture however small (wider than it's tall, across both pages); a big one with a heading is still a picture.
+        assertEquals(PageKind.WIDE_PICTURE, kind("""<p><img src="logo.png"/></p>"""))
         assertEquals(PageKind.PICTURE, kind("""<h2>Map</h2><p><img src="map.png"/></p>"""))
         // Anything else short.
         assertEquals(PageKind.SHORT, kind("""<h1>THE WHEEL OF TIME</h1><p>ROBERT JORDAN</p><p>AND BRANDON SANDERSON</p><p><img src="tor.png"/></p>"""))
@@ -77,6 +80,8 @@ class PagePlacementTest {
         assertEquals("left", PageKind.DEDICATION.place)
         assertEquals(null, PageKind.QUOTE.place)
         assertEquals(null, PageKind.SHORT.place)
+        assertEquals(null, PageKind.PICTURE.place)
+        assertEquals(null, PageKind.WIDE_PICTURE.place)
         // A dedication on the left, a quote on the right; other short pages either side; covers and title pages alone.
         assertEquals(listOf(PageKind.DEDICATION, PageKind.SHORT), PageKind.entries.filter { it.canBeLeft })
         assertEquals(listOf(PageKind.QUOTE, PageKind.SHORT), PageKind.entries.filter { it.canBeRight })

@@ -98,8 +98,10 @@ There's no account to make and no ads.
 - Search and sort your books, and filter them by tag.
 - Make a PDF of scanned pages into a book whose text fits the screen: KoLib recognises the words in
   the pages on your device, in English, French, German, Spanish, Italian, Dutch, Portuguese,
-  Russian, Japanese, Ancient or Modern Greek and Latin. Compare the text with the scanned pages side
-  by side, and go back to the scan whenever you like.
+  Russian, Japanese, Ancient or Modern Greek and Latin. The recognition data for each language is
+  downloaded once, the first time it's used. The page behind showing through a thin scan is taken
+  out before the words are read. Compare the text with the scanned pages side by side, and go back
+  to the scan whenever you like.
 
 ### Your Kobo
 
@@ -120,12 +122,16 @@ There's no account to make and no ads.
 - Choose the font, text size, line spacing, margins and page colour, including dark pages for
   reading at night.
 - Pages laid out like a printed book: page headings and page numbers, chapters that start on a
-  right-hand page, the chapter's number and title in print style, and a large first letter. Page
-  numbers run through the whole book and stay the same every time you open it.
+  right-hand page, the chapter's number and title in print style, and a large first letter where a
+  chapter of the story starts. Page numbers run through the whole book and stay the same every time
+  you open it.
 - Each book can keep a look of its own (font, layout, page headings and so on), or use the one you
   usually read with.
 - Highlights, notes and bookmarks, search, autoscroll, and looking words up in your dictionary app.
-- Maps and pictures printed across two pages are shown whole.
+- Maps and pictures printed across two pages are shown whole. Full-page pictures fill the page out to
+  the margins, and two in a row (a light novel's colour pages) go side by side. A picture printed on
+  its side is found from the words in it (with the recognition data for the book's language on your
+  device) and turned the right way up, across both pages; or tap a picture to turn it yourself.
 
 ### Comics
 

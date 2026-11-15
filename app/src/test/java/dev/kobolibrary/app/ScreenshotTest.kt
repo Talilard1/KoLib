@@ -212,7 +212,7 @@ class ScreenshotTest {
     @Test
     @Config(qualifiers = LANDSCAPE)
     fun connectWaiting() = shot("11_connect_waiting") {
-        ConnectScreen(Connection.Waiting(usbKoboAttached = true), 3, {}, {}, {}, {})
+        ConnectScreen(Connection.Waiting(usbKoboAttached = true), 3, {}, {}, {}, {}, onSettings = {})
     }
 
     @Test

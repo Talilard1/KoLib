@@ -3,6 +3,8 @@ package dev.kobolibrary.app.ui
 import dev.kobolibrary.app.tr
 import dev.kobolibrary.app.ui.components.GoldButton
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -43,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import dev.kobolibrary.app.Connection
 import dev.kobolibrary.app.kobo.VolumeCandidate
 
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 fun ConnectScreen(
     connection: Connection,
@@ -51,6 +54,8 @@ fun ConnectScreen(
     onRetry: () -> Unit,
     onOpenBackups: () -> Unit,
     onOpenLog: () -> Unit,
+    /** Opens the app's settings: its look, language and books folder. */
+    onSettings: (() -> Unit)? = null,
 ) {
     Box(
         Modifier
@@ -104,7 +109,7 @@ fun ConnectScreen(
                     Text(tr("Choose the Kobo's drive manually"))
                 }
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)) {
                 TextButton(onClick = onOpenBackups) {
                     Icon(Icons.Outlined.Restore, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
@@ -114,6 +119,13 @@ fun ConnectScreen(
                     Icon(Icons.AutoMirrored.Outlined.Article, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
                     Text(tr("Log"))
+                }
+                onSettings?.let { open ->
+                    TextButton(onClick = open) {
+                        Icon(Icons.Outlined.Settings, null, Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text(tr("Settings"))
+                    }
                 }
             }
         }

@@ -16,6 +16,7 @@ import androidx.compose.material.icons.automirrored.outlined.Article
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.Backup
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.EditNote
 import androidx.compose.material.icons.outlined.Eject
 import androidx.compose.material.icons.outlined.LinkOff
@@ -75,6 +76,8 @@ fun DeviceScreen(
     onOpenBackups: () -> Unit,
     onOpenLog: () -> Unit,
     extras: KoboExtras = KoboExtras(),
+    /** Opens the app's settings: its look, language and books folder. */
+    onSettings: (() -> Unit)? = null,
     onAddToLibrary: (List<KoboBook>) -> Unit = {},
     onDeleteFromKobo: (List<KoboBook>) -> Unit = {},
     onHowToConnect: () -> Unit = {},
@@ -208,6 +211,13 @@ fun DeviceScreen(
                             leadingIcon = { Icon(Icons.AutoMirrored.Outlined.Article, null) },
                             onClick = { menuOpen = false; onOpenLog() },
                         )
+                        onSettings?.let { open ->
+                            DropdownMenuItem(
+                                text = { Text(tr("Settings")) },
+                                leadingIcon = { Icon(Icons.Outlined.Settings, null) },
+                                onClick = { menuOpen = false; open() },
+                            )
+                        }
                         HorizontalDivider()
                         DropdownMenuItem(
                             text = { Text(tr("Forget this Kobo")) },

@@ -421,7 +421,7 @@ class PhoneShots {
     @Config(qualifiers = PHONE)
     fun connect() = shot("p36_connect", ThemeChoice.BOOKCASE) {
         AppFrame(Section.KOBO, {}, koboConnected = false, onNarrow = {}, onLook = {}) {
-            ConnectScreen(Connection.Waiting(usbKoboAttached = false), backupCount = 3, onChooseDrive = {}, onRetry = {}, onOpenBackups = {}, onOpenLog = {})
+            ConnectScreen(Connection.Waiting(usbKoboAttached = false), backupCount = 3, onChooseDrive = {}, onRetry = {}, onOpenBackups = {}, onOpenLog = {}, onSettings = {})
         }
     }
 
@@ -541,6 +541,7 @@ class PhoneShots {
                         c, onSettings = {}, onClose = {}, onEdit = {},
                         pagePreview = { Image(img, null, Modifier.fillMaxSize(), contentScale = ContentScale.FillBounds) },
                         initialPanel = panel,
+                        onAppSettings = {},
                     )
                 }
             }

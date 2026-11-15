@@ -48,6 +48,8 @@ fun BookReader(
     readingHere: ReadingHereIndex? = null,
     /** For a book added as a PDF: reads the PDF instead. */
     onReadAsPdf: (() -> Unit)? = null,
+    /** Opens the app's own settings: its look, language and books folder. */
+    onAppSettings: (() -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -94,7 +96,7 @@ fun BookReader(
     }
     val c = controller
     when {
-        c != null -> ReaderWith(c, settings, onClose, onEdit, onReadAsPdf)
+        c != null -> ReaderWith(c, settings, onClose, onEdit, onReadAsPdf, onAppSettings)
         error != null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(error!!, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(24.dp))
@@ -117,7 +119,14 @@ fun PreviewReader(files: BookFiles, structure: BookStructure, title: String, lan
 }
 
 @Composable
-private fun ReaderWith(controller: ReaderController, settings: ReaderSettingsStore, onClose: () -> Unit, onEdit: ((String) -> Unit)?, onReadAsPdf: (() -> Unit)? = null) {
+private fun ReaderWith(
+    controller: ReaderController,
+    settings: ReaderSettingsStore,
+    onClose: () -> Unit,
+    onEdit: ((String) -> Unit)?,
+    onReadAsPdf: (() -> Unit)? = null,
+    onAppSettings: (() -> Unit)? = null,
+) {
     val current by settings.settings.collectAsStateWithLifecycle()
     ReaderScreen(
         controller = controller,
@@ -128,6 +137,7 @@ private fun ReaderWith(controller: ReaderController, settings: ReaderSettingsSto
         onClose = onClose,
         onEdit = onEdit,
         onReadAsPdf = onReadAsPdf,
+        onAppSettings = onAppSettings,
     )
     // Settings changed elsewhere reach this book too.
     androidx.compose.runtime.LaunchedEffect(current) {

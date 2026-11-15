@@ -108,7 +108,7 @@ class AdvertShots140 {
     val compose = createComposeRule()
 
     private val root = File("/home/claude/advert")
-    private val out = File(root, "app140")
+    private var out = File(root, "app140")
 
     private fun B(
         title: String, author: String, cover: String, status: Int = 0, percent: Int = 0, lastRead: String? = null,
@@ -589,4 +589,198 @@ class AdvertShots140 {
     private fun phoneReader(n: Int) = mobyWith("ph_reader_$n", ReaderSettings(theme = ReaderTheme.PAPER, font = ReaderFont.GARAMOND, fontScale = 1.0f), "ph_moby_$n", n, 8)
     @Test @Config(qualifiers = PHONE) fun phReader1() = phoneReader(1)
     @Test @Config(qualifiers = PHONE) fun phReader2() = phoneReader(2)
+
+    // ---- the fifth advert: the cover generator as it is now, KoLib's languages, the reader as it is set now ----
+
+    private val five = File(root, "app5")
+
+    /** Covers of the Hound in many designs, to pick the advert's from. */
+    @Test
+    @Config(qualifiers = TAB)
+    fun fiveCoverCandidates() {
+        val dir = File(five, "cands").apply { mkdirs() }
+        val genres = listOf(
+            dev.kobolibrary.app.ui.cover.CoverGenre.DETECTIVE, dev.kobolibrary.app.ui.cover.CoverGenre.MYSTERY,
+            dev.kobolibrary.app.ui.cover.CoverGenre.HORROR, dev.kobolibrary.app.ui.cover.CoverGenre.HALLOWEEN,
+        )
+        val gen = dev.kobolibrary.app.ui.cover.CoverGenerator(context)
+        for (style in CoverStyle.entries) for (genre in if (style.picture) genres else genres.take(1)) {
+            for (colors in CoverColors.themes.take(10)) {
+                if (!style.themed && colors != CoverColors.themes.first()) continue
+                val bmp = gen.render(houndText, CoverDesign(style, colors, genre), 300, 400)
+                File(dir, "${style.name}_${genre.name}_${colors.name}.png").outputStream().use { bmp.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
+            }
+        }
+    }
+
+    /** The cover generator as it is now, on five of its designs for the Hound, each in a colour of its own. */
+    private fun generatorNow(name: String, style: CoverStyle, genre: dev.kobolibrary.app.ui.cover.CoverGenre, colors: CoverColors) {
+        out = five
+        out.mkdirs()
+        compose.mainClock.autoAdvance = true
+        compose.setContent { AppSurface(ThemeChoice.BOOKCASE) { CoverGeneratorScreen(houndText, onUse = { _, _ -> }, onCancel = {}, initial = CoverDesign(style, colors, genre)) } }
+        repeat(28) { compose.waitForIdle(); Thread.sleep(250) }
+        captureScreenRoboImage(File(out, "$name.png").path)
+    }
+    @Test @Config(qualifiers = TAB) fun fiveGen1() = generatorNow("ad_newgen_1", CoverStyle.FRAMED, dev.kobolibrary.app.ui.cover.CoverGenre.HORROR, theme("Claret"))
+    @Test @Config(qualifiers = TAB) fun fiveGen2() = generatorNow("ad_newgen_2", CoverStyle.GILDED, dev.kobolibrary.app.ui.cover.CoverGenre.DETECTIVE, theme("Emerald"))
+    @Test @Config(qualifiers = TAB) fun fiveGen3() = generatorNow("ad_newgen_3", CoverStyle.PULP, dev.kobolibrary.app.ui.cover.CoverGenre.MYSTERY, theme("Teal"))
+    @Test @Config(qualifiers = TAB) fun fiveGen4() = generatorNow("ad_newgen_4", CoverStyle.SNAPSHOT, dev.kobolibrary.app.ui.cover.CoverGenre.HORROR, theme("Plum"))
+    @Test @Config(qualifiers = TAB) fun fiveGen5() = generatorNow("ad_newgen_5", CoverStyle.OWL, dev.kobolibrary.app.ui.cover.CoverGenre.DETECTIVE, theme("Midnight"))
+
+    /** The library, in each of KoLib's languages. */
+    private fun libraryInLanguage(code: String, file: String = code) {
+        val table = HashMap<String, String>()
+        File("src/main/assets/i18n/$file.json").reader(Charsets.UTF_8).use { input ->
+            android.util.JsonReader(input).use { r ->
+                r.beginObject()
+                while (r.hasNext()) table[r.nextName()] = r.nextString()
+                r.endObject()
+            }
+        }
+        val before = java.util.Locale.getDefault()
+        try {
+            dev.kobolibrary.app.L10n.use(code, table)
+            java.util.Locale.setDefault(java.util.Locale.forLanguageTag(file))
+            out = five
+            val (lib, covers) = library()
+            val browse = LibraryBrowseState().apply { selectedId = lib.titled("Moby Dick").id }
+            shot("ad_library_$code") { LibraryPage(lib, covers, browse) }
+        } finally {
+            dev.kobolibrary.app.L10n.use("en", emptyMap())
+            java.util.Locale.setDefault(before)
+        }
+    }
+    @Test @Config(qualifiers = TAB) fun fiveLangFr() = libraryInLanguage("fr")
+    @Test @Config(qualifiers = TAB) fun fiveLangDe() = libraryInLanguage("de")
+    @Test @Config(qualifiers = TAB) fun fiveLangEs() = libraryInLanguage("es")
+    @Test @Config(qualifiers = TAB) fun fiveLangIt() = libraryInLanguage("it")
+    @Test @Config(qualifiers = TAB) fun fiveLangNl() = libraryInLanguage("nl")
+    @Test @Config(qualifiers = TAB) fun fiveLangPt() = libraryInLanguage("pt", "pt-BR")
+    @Test @Config(qualifiers = TAB) fun fiveLangRu() = libraryInLanguage("ru")
+    @Test @Config(qualifiers = TAB) fun fiveLangJa() = libraryInLanguage("ja")
+
+    /** The reader as it's set now, with the text the size it was in the first adverts. */
+    private fun nowSettings(theme: ReaderTheme = ReaderTheme.PAPER, font: ReaderFont = ReaderFont.GARAMOND, scale: Float = 1.1f, flow: ReaderFlow = ReaderFlow.PAGES) =
+        ReaderSettings().copy(theme = theme, font = font, fontScale = scale, flow = flow)
+
+    /** What the page is told as each chapter opens, with each look the advert shows: for laying the pages out in Chrome. */
+    @Test
+    @Config(qualifiers = TAB)
+    fun fiveStarts() {
+        val dir = File(five, "start").apply { mkdirs() }
+        fun dump(name: String, book: String, title: String, author: String, chapter: String, settings: ReaderSettings) = withBook(book) { files, structure ->
+            val c = ReaderController(files, structure, title, "en", null, settings, context.assets, author)
+            counted(c)
+            val at = c.chapters.indexOfFirst { it.path.endsWith(chapter) }
+            File(dir, "$name.json").writeText(c.startForPreview(at))
+        }
+        val moby = "herman-melville_moby-dick"
+        for (theme in ReaderTheme.entries) dump("moby_${theme.name.lowercase()}", moby, "Moby Dick", "Herman Melville", "chapter-1.xhtml", nowSettings(theme))
+        dump("moby2_paper", moby, "Moby Dick", "Herman Melville", "chapter-2.xhtml", nowSettings())
+        dump("moby_font_literata", moby, "Moby Dick", "Herman Melville", "chapter-1.xhtml", nowSettings(font = ReaderFont.LITERATA, scale = 1.0f))
+        dump("moby_font_atkinson", moby, "Moby Dick", "Herman Melville", "chapter-1.xhtml", nowSettings(font = ReaderFont.HYPERLEGIBLE, scale = 1.0f))
+        dump("moby_font_dyslexic", moby, "Moby Dick", "Herman Melville", "chapter-1.xhtml", nowSettings(font = ReaderFont.DYSLEXIC, scale = 0.9f))
+        dump("pride_paper", "jane-austen_pride-and-prejudice", "Pride and Prejudice", "Jane Austen", "chapter-1.xhtml", nowSettings())
+        dump("iliad_night_scroll", "homer_the-iliad_william-cullen-bryant", "The Iliad", "Homer", "book-1.xhtml", nowSettings(ReaderTheme.NIGHT, flow = ReaderFlow.SCROLL))
+    }
+
+    /** A page laid out in Chrome with the reader as it's set now (the fifth advert's render5.py). */
+    private fun pageNow(name: String) = BitmapFactory.decodeFile("/home/claude/advert5work/pages/$name.png").asImageBitmap()
+
+    /** The reader as it's set now over one of those pages: [screen] of [screens], [columns] pages of text, the chapter opening on the right. */
+    private fun readerNow(
+        name: String, book: String, title: String, author: String, chapterFile: String, settings: ReaderSettings,
+        page: String, screen: Int, screens: Int, columns: Int, twoUp: Boolean = true, controls: Boolean = false,
+        panel: Panel = Panel.NONE, lookTab: Int = 0, prepare: (ReaderController) -> Unit = {},
+    ) = withBook(book) { files, structure ->
+        out = five
+        val c = ReaderController(files, structure, title, "en", null, settings, context.assets, author)
+        val at = c.chapters.indexOfFirst { it.path.endsWith(chapterFile) }
+        counted(c)
+        val blank = if (twoUp) 1 else 0
+        c.showForPreview(at, screen, screens, columns, twoUp, blank)
+        c.controlsVisible = controls
+        c.lookTab = lookTab
+        prepare(c)
+        val img = pageNow(page)
+        out.mkdirs()
+        compose.mainClock.autoAdvance = false
+        compose.setContent {
+            AppSurface(ThemeChoice.BOOKCASE) {
+                ReaderScreen(
+                    c, onSettings = {}, onClose = {}, onEdit = {},
+                    pagePreview = { Image(img, null, Modifier.fillMaxSize(), contentScale = ContentScale.FillBounds) },
+                    initialPanel = panel,
+                )
+            }
+        }
+        compose.mainClock.advanceTimeBy(50)
+        c.showForPreview(at, screen, screens, columns, twoUp, blank)
+        compose.mainClock.advanceTimeBy(900)
+        captureScreenRoboImage(File(out, "$name.png").path)
+    }
+
+    private val mobyBook = "herman-melville_moby-dick"
+    private fun mobyNow(name: String, settings: ReaderSettings, page: String, screen: Int, screens: Int = 4, columns: Int = 6, chapter: String = "chapter-1.xhtml", panel: Panel = Panel.NONE, lookTab: Int = 0) =
+        readerNow(name, mobyBook, "Moby Dick", "Herman Melville", chapter, settings, page, screen, screens, columns, controls = panel != Panel.NONE, panel = panel, lookTab = lookTab)
+
+    // the page turns: chapter 1 all the way through, into chapter 2's opening
+    @Test @Config(qualifiers = TAB) fun fiveMoby1() = mobyNow("ad_reader_moby_paper_1", nowSettings(), "moby_paper_s1", 0)
+    @Test @Config(qualifiers = TAB) fun fiveMoby2() = mobyNow("ad_reader_moby_paper_2", nowSettings(), "moby_paper_s2", 1)
+    @Test @Config(qualifiers = TAB) fun fiveMoby3() = mobyNow("ad_rd_moby_paper_3", nowSettings(), "moby_paper_s3", 2)
+    @Test @Config(qualifiers = TAB) fun fiveMoby4() = mobyNow("ad_rd_moby_paper_4", nowSettings(), "moby_paper_s4", 3)
+    @Test @Config(qualifiers = TAB) fun fiveMobyTwo1() = mobyNow("ad_rd_moby2_paper_1", nowSettings(), "moby2_paper_s1", 0, 3, 4, "chapter-2.xhtml")
+    @Test @Config(qualifiers = TAB) fun fiveMobyTwo2() = mobyNow("ad_rd_moby2_paper_2", nowSettings(), "moby2_paper_s2", 1, 3, 4, "chapter-2.xhtml")
+
+    // the page colours, with the settings open on them; and black with them closed
+    private fun themeNow(theme: ReaderTheme) = mobyNow(
+        "ad_rd_panel_theme_${theme.name.lowercase()}", nowSettings(theme), if (theme == ReaderTheme.PAPER) "moby_paper_s2" else "moby_${theme.name.lowercase()}_s2", 1,
+        panel = Panel.LOOK, lookTab = 1,
+    )
+    @Test @Config(qualifiers = TAB) fun fiveThemePaper() = themeNow(ReaderTheme.PAPER)
+    @Test @Config(qualifiers = TAB) fun fiveThemeWhite() = themeNow(ReaderTheme.WHITE)
+    @Test @Config(qualifiers = TAB) fun fiveThemeSepia() = themeNow(ReaderTheme.SEPIA)
+    @Test @Config(qualifiers = TAB) fun fiveThemeSlate() = themeNow(ReaderTheme.SLATE)
+    @Test @Config(qualifiers = TAB) fun fiveThemeNight() = themeNow(ReaderTheme.NIGHT)
+    @Test @Config(qualifiers = TAB) fun fiveThemeBlack() = themeNow(ReaderTheme.BLACK)
+    @Test @Config(qualifiers = TAB) fun fiveBlack2() = mobyNow("ad_reader_moby_black_2", nowSettings(ReaderTheme.BLACK), "moby_black_s2", 1)
+
+    // the typefaces, with the settings open on them, at the sizes they were
+    @Test @Config(qualifiers = TAB) fun fiveFontLiterata() = mobyNow("ad_rd_panel_font_literata", nowSettings(font = ReaderFont.LITERATA, scale = 1.0f), "moby_font_literata_s2", 1, 4, 7, panel = Panel.LOOK)
+    @Test @Config(qualifiers = TAB) fun fiveFontGaramond() = mobyNow("ad_rd_panel_font_garamond", nowSettings(), "moby_paper_s2", 1, panel = Panel.LOOK)
+    @Test @Config(qualifiers = TAB) fun fiveFontAtkinson() = mobyNow("ad_rd_panel_font_atkinson", nowSettings(font = ReaderFont.HYPERLEGIBLE, scale = 1.0f), "moby_font_atkinson_s2", 1, panel = Panel.LOOK)
+    @Test @Config(qualifiers = TAB) fun fiveFontDyslexic() = mobyNow("ad_rd_panel_font_dyslexic", nowSettings(font = ReaderFont.DYSLEXIC, scale = 0.9f), "moby_font_dyslexic_s2", 1, 6, 10, panel = Panel.LOOK)
+
+    // highlights and a note, in Pride and Prejudice
+    private val prideBook = "jane-austen_pride-and-prejudice"
+    @Test @Config(qualifiers = TAB) fun fivePride() = readerNow("ad_reader_pride", prideBook, "Pride and Prejudice", "Jane Austen", "chapter-1.xhtml", nowSettings(), "pride_paper_s1", 0, 2, 3)
+    @Test
+    @Config(qualifiers = TAB)
+    fun fivePrideNote() {
+        val note = Annotation(
+            path = "epub/text/chapter-1.xhtml", start = "1/0:0", end = "1/0:40",
+            text = "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.",
+            color = HighlightColor.YELLOW, note = "Still the best first line in all of fiction.", chapterTitle = "I", bookProgress = 0.01f, created = 1_794_300_000_000L,
+        )
+        val r = File("/home/claude/advert5work/pages/note_rect.txt").readText().trim().split(',').map { it.trim().toFloat() }
+        readerNow(
+            "ad_rd_pride_note", prideBook, "Pride and Prejudice", "Jane Austen", "chapter-1.xhtml", nowSettings(), "pride_paper_s1", 0, 2, 3,
+            prepare = { c ->
+                c.showAnnotationsForPreview(listOf(note))
+                c.openAnnotation = ReaderController.OpenAnnotation(note.id, android.graphics.RectF(r[0], r[1], r[2], r[3]))
+            },
+        )
+    }
+
+    // autoscroll: the Iliad scrolling at night
+    private val iliadBook = "homer_the-iliad_william-cullen-bryant"
+    private fun iliadNow() = nowSettings(ReaderTheme.NIGHT, flow = ReaderFlow.SCROLL)
+    @Test @Config(qualifiers = TAB) fun fiveIliadAuto() = readerNow(
+        "ad_reader_iliad_auto", iliadBook, "The Iliad", "Homer", "book-1.xhtml", iliadNow(), "iliad_night_scroll_view", 0, 27, 27, twoUp = false,
+        controls = true, prepare = { it.startAutoscroll(); it.controlsVisible = true },
+    )
+    private fun iliadMatteNow(white: Boolean) { out = five; matte("ad_matte_iliad", iliadBook, "The Iliad", "Homer", "book-1.xhtml", iliadNow(), 0, 27, white) }
+    @Test @Config(qualifiers = TAB) fun fiveIliadMatteBlack() = iliadMatteNow(false)
+    @Test @Config(qualifiers = TAB) fun fiveIliadMatteWhite() = iliadMatteNow(true)
 }

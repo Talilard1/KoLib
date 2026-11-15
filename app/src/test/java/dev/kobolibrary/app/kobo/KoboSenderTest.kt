@@ -476,6 +476,25 @@ class KoboSenderTest {
     }
 
     @Test
+    fun aComicGoesAsItsComicFile() = runBlocking {
+        val session = connect()
+        val (file, meta) = histories()
+        val first = sender.send(session, meta.title, meta, null, file, SendFormat.KEPUB) as SendOutcome.Sent
+        val cbz = dev.kobolibrary.app.comic.TestComics.comic(File(context.cacheDir, "$name/source.cbz"), pages = 3)
+        val second = sender.send(session, meta.title, meta, first.path, file, SendFormat.KEPUB, pdf = cbz) as SendOutcome.Sent
+        assertEquals(first.path.removeSuffix(".kepub.epub") + ".cbz", second.path)
+        assertFalse("the kepub has gone", File(drive, first.path).exists())
+        assertArrayEquals(cbz.readBytes(), File(drive, second.path).readBytes())
+        assertEquals("CBZ", KoboPaths.kindOf(second.path))
+        assertEquals(KoboPaths.stem(first.path), KoboPaths.stem(second.path))
+        // A CBR goes as a CBR.
+        val cbr = File(context.cacheDir, "$name/source.cbr").apply { writeBytes(byteArrayOf(0x52, 0x61, 0x72, 0x21, 0x1A, 0x07, 0x01, 0x00, 1, 2, 3)) }
+        val third = sender.send(session, meta.title, meta, second.path, file, SendFormat.KEPUB, pdf = cbr) as SendOutcome.Sent
+        assertTrue(third.path, third.path.endsWith(".cbr"))
+        assertFalse(File(drive, second.path).exists())
+    }
+
+    @Test
     fun aBookIsTheSameBookInAnyFormat() {
         assertEquals(KoboPaths.stem("A/B - C.kepub.epub"), KoboPaths.stem("A/B - C.pdf"))
         assertEquals(KoboPaths.stem("A/B - C.epub"), KoboPaths.stem("a/b - c.PDF"))

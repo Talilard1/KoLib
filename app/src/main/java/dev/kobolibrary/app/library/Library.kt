@@ -117,6 +117,8 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
             try {
                 open().use { input -> raw.outputStream().use { input.copyTo(it, 256 * 1024) } }
             } catch (e: IOException) {
+                // A big comic can fill the device.
+                if (incoming.usableSpace < 64L * 1024 * 1024) return@withContext ImportOutcome.Failed(name, tr("There isn't enough space on this device for it."))
                 return@withContext ImportOutcome.Failed(name, tr("Couldn't read the file: {0}", e.message))
             }
             if (raw.length() == 0L) return@withContext ImportOutcome.Failed(name, tr("The file is empty."))
@@ -186,7 +188,11 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
                     temp.delete()
                 }
                 val hasCover = coverBytes?.let { writeThumbnail(it, coverFile(id)) } ?: false
-                origin?.let { (file, kind) -> file.copyTo(File(dir, "$SOURCE.${extensionOf(name, kind)}"), overwrite = true) }
+                origin?.let { (file, kind) ->
+                    // The file brought in for this is moved into place, not copied again (a comic can be gigabytes).
+                    val kept = File(dir, "$SOURCE.${extensionOf(name, kind)}")
+                    if (file != raw || !file.renameTo(kept)) file.copyTo(kept, overwrite = true)
+                }
                 val now = System.currentTimeMillis()
                 val book = LibraryBook(
                     id = id,

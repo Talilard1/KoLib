@@ -52,6 +52,12 @@ data class LibraryBook(
      */
     val isScan: Boolean get() = sourceFormat == BookFormats.PDF_SCAN || sourceFormat == BookFormats.PDF_ONLY
 
+    /**
+     * A comic book (added as a CBZ, CBR or CB7): kept as that file, read in the comic reader, and sent to the
+     * Kobo as it is. Its EPUB is a stand-in, with its details and cover.
+     */
+    val isComic: Boolean get() = sourceFormat == "CBZ" || sourceFormat == "CBR" || sourceFormat == "CB7"
+
     /** Goes to the Kobo as its PDF: when [pdfs] are sent as PDFs, and always for scanned pages. */
     fun goesAsPdf(pdfs: Boolean): Boolean = isScan || (pdfs && isPdf)
 
@@ -60,6 +66,7 @@ data class LibraryBook(
         null -> null
         BookFormats.PDF_SCAN -> tr("PDF of scanned pages or pictures")
         BookFormats.PDF_ONLY -> tr("PDF, too big to make into an EPUB")
+        "CBZ", "CBR", "CB7" -> tr("{0} comic, kept as it is", sourceFormat)
         else -> dev.kobolibrary.app.convert.SourceFormat.entries.firstOrNull { it.name == sourceFormat }?.let { tr("{0} file, made into an EPUB", it.label) }
     }
     val title: String get() = meta.title

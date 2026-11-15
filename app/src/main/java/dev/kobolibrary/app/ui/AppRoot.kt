@@ -78,6 +78,9 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Switch
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Folder
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.outlined.Language
 import dev.kobolibrary.app.ui.components.AlertDialog
@@ -345,7 +348,16 @@ fun AppRoot(
                         dev.kobolibrary.app.reader.ReaderStore.savePdfPlace(dir, place.copy(asText = text))
                         asText = text
                     }
-                    if (book.isPdf && !asText) {
+                    if (book.isComic && libraryVm.library.sourceFile(book.id) != null) {
+                        // A comic: page by page, or as a long strip, read from the comic file itself.
+                        dev.kobolibrary.app.ui.reader.ComicBookReader(
+                            book = book,
+                            library = libraryVm.library,
+                            readerSettings = libraryVm.readerSettings,
+                            onClose = { overlay = null },
+                            readingHere = libraryVm.readingHere,
+                        )
+                    } else if (book.isPdf && !asText) {
                         PdfBookReader(
                             book = book,
                             library = libraryVm.library,
@@ -700,6 +712,15 @@ fun AppRoot(
                 showLook = false
                 showLanguage = true
             },
+            booksFolder = androidx.compose.ui.platform.LocalContext.current.let { ctx -> remember(showLook) { libraryVm.booksFolder?.let { dev.kobolibrary.app.library.BookFolders.nameOf(ctx.contentResolver, it) } } },
+            onChangeFolder = {
+                showLook = false
+                addFolder()
+            },
+            onRescanFolder = {
+                showLook = false
+                libraryVm.booksFolder?.let { libraryVm.scanFolder(it) }
+            },
         )
         if (showLanguage) dev.kobolibrary.app.ui.library.LanguageDialog(
             onDismiss = { showLanguage = false },
@@ -810,8 +831,8 @@ internal fun AppFrame(
                         NavigationRailItem(
                             selected = false,
                             onClick = onLook,
-                            icon = { Icon(Icons.Outlined.Palette, null) },
-                            label = { Text(tr("Theme")) },
+                            icon = { Icon(Icons.Outlined.Settings, null) },
+                            label = { dev.kobolibrary.app.ui.components.FittedText(tr("Settings"), style = MaterialTheme.typography.labelMedium, smallest = 0.7f) },
                             colors = itemColors,
                         )
                         Spacer(Modifier.height(12.dp))
@@ -888,11 +909,17 @@ fun LookDialog(
     onOpeningLight: ((Boolean) -> Unit)? = null,
     /** Opens the choice of language. */
     onLanguage: (() -> Unit)? = null,
+    /** The folder of books chosen to add books from, by name; null if none has been. */
+    booksFolder: String? = null,
+    /** Chooses another folder of books (and looks through it for books to add). */
+    onChangeFolder: (() -> Unit)? = null,
+    /** Looks through the folder of books again, for books added to it since. */
+    onRescanFolder: (() -> Unit)? = null,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        icon = { Icon(Icons.Outlined.Palette, null) },
-        title = { Text(tr("App theme")) },
+        icon = { Icon(Icons.Outlined.Settings, null) },
+        title = { Text(tr("Settings")) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 if (onLanguage != null) {
@@ -912,6 +939,21 @@ fun LookDialog(
                             Text(tr("Language"), style = MaterialTheme.typography.titleSmall)
                             Text(language, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
+                    }
+                    HorizontalDivider(Modifier.padding(vertical = 10.dp))
+                }
+                if (onChangeFolder != null) {
+                    Row(Modifier.fillMaxWidth().padding(vertical = 4.dp, horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Outlined.Folder, null, Modifier.padding(horizontal = 10.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(tr("Books folder"), style = MaterialTheme.typography.titleSmall)
+                            Text(booksFolder ?: tr("None chosen yet"), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                    Row(Modifier.fillMaxWidth().padding(start = 44.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        TextButton(onClick = onChangeFolder) { Text(if (booksFolder == null) tr("Choose") else tr("Change")) }
+                        if (booksFolder != null && onRescanFolder != null) TextButton(onClick = onRescanFolder) { Text(tr("Look for new books")) }
                     }
                     HorizontalDivider(Modifier.padding(vertical = 10.dp))
                 }

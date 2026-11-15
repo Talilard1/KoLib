@@ -54,6 +54,28 @@ class EpubOut(var meta: BookMetadata) {
         return "../" + path.removePrefix("OEBPS/")
     }
 
+    /**
+     * Adds a picture whose bytes are only read as the book is written ([read]: a big comic's pages, one at
+     * a time); its type is from [name]'s extension. Returns its address from a page.
+     */
+    fun imageLater(name: String, asCover: Boolean = false, read: () -> ByteArray): String {
+        val ext = name.substringAfterLast('.', "").lowercase()
+        val type = when (ext) {
+            "jpg", "jpeg" -> "image/jpeg"
+            "png" -> "image/png"
+            "gif" -> "image/gif"
+            "webp" -> "image/webp"
+            "bmp" -> "image/bmp"
+            "avif" -> "image/avif"
+            "heic", "heif" -> "image/heif"
+            else -> "image/jpeg"
+        }
+        val path = unique("OEBPS/images", name)
+        parts += BookAssembly.Part(path, type, null, if (asCover) setOf("cover-image") else emptySet(), later = read)
+        if (asCover && cover == null) cover = path
+        return "../" + path.removePrefix("OEBPS/")
+    }
+
     /** Makes the picture at [href] (from a page) the book's cover, if it hasn't one. */
     fun useAsCover(href: String) {
         if (cover != null) return

@@ -1,7 +1,7 @@
 # KoLib: third-party notices
 
-The app's own code and designs are not open source. These are the parts that come from elsewhere,
-and the terms they're used under. Each licence is in `app/src/main/assets/licences/`, and can be
+KoLib's own code is free software under the GNU General Public License, version 3 (see `LICENSE`).
+These are the parts that come from elsewhere, and the terms they're used under. Each licence is in `app/src/main/assets/licences/`, and can be
 read in the app (Library, then the ⓘ button).
 
 | What | Used for | Licence | File |
@@ -12,6 +12,8 @@ read in the app (Library, then the ⓘ button).
 | Liberation Serif and Sans | Covers the app makes, for alphabets Lora and Poppins lack | SIL OFL 1.1 | `liberation-fonts.txt` |
 | EB Garamond, Literata, Atkinson Hyperlegible, OpenDyslexic | Typefaces in the reader; EB Garamond also for the app's headings and book titles | SIL OFL 1.1 | `*-OFL.txt` |
 | AndroidX, Jetpack Compose, Material icons, Kotlin, kotlinx.coroutines | The app's framework | Apache 2.0 | `apache-2.0.txt` |
+| libarchive, © 2003–2018 Tim Kientzle and the libarchive contributors | Reading CBR (RAR) and CB7 (7z) comics | BSD 2-clause | `libarchive-BSD.txt` |
+| libarchive for Android (`me.zhanghai.android.libarchive`), © 2023 Hai Zhang | Using libarchive from the app | Apache 2.0 | `apache-2.0.txt` |
 
 Test-only libraries (JUnit, Robolectric, Roborazzi, sqlite-jdbc) are not part of the app.
 

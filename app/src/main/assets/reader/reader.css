@@ -247,6 +247,24 @@ html.kl-paged.kl-spread-pic .kl-full-page {
   z-index: 2 !important;
 }
 
+/* A map across two pages kept as its two halves (reader.js finds them and works out where they go): side by
+   side across the whole screen, the same height, joined where they were cut, into the margins. Anything else
+   on the pages (a title) is hidden behind them. */
+html.kl-paged.kl-spread-pair body { visibility: hidden !important; }
+html.kl-paged.kl-spread-pair .kl-spread-half {
+  visibility: visible !important;
+  display: block !important;
+  position: fixed !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  max-width: none !important;
+  max-height: none !important;
+  box-sizing: border-box !important;
+  object-fit: cover !important;
+  z-index: 2 !important;
+}
+
 html.kl-paged h1, html.kl-paged h2, html.kl-paged h3, html.kl-paged h4, html.kl-paged h5, html.kl-paged h6 {
   break-after: avoid;
   page-break-after: avoid;

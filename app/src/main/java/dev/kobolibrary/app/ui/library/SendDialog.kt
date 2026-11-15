@@ -74,7 +74,14 @@ fun SendDialog(
     var pdfs by remember { mutableStateOf(initialPdfs) }
     val onKobo = remember(books) { books.mapNotNull { b -> pathOnKobo(b)?.let { b to it } } }
     // What each book goes as: "kepub", "EPUB" or "PDF", the way KoboPaths.kindOf names them.
-    val goesAs = { b: LibraryBook -> if (b.goesAsPdf(pdfs)) "PDF" else if (format == SendFormat.KEPUB) "kepub" else "EPUB" }
+    val goesAs = { b: LibraryBook ->
+        when {
+            b.isComic -> if (b.sourceFormat == "CBR") "CBR" else "CBZ"
+            b.goesAsPdf(pdfs) -> "PDF"
+            format == SendFormat.KEPUB -> "kepub"
+            else -> "EPUB"
+        }
+    }
     val switching = onKobo.count { (b, path) -> dev.kobolibrary.app.kobo.KoboPaths.kindOf(path) != goesAs(b) }
     val replacing = onKobo.size - switching
     val textPdfs = books.count { it.isPdf && !it.isScan }

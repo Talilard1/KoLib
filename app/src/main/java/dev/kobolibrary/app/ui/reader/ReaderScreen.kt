@@ -1492,8 +1492,9 @@ private fun NoteSheet(html: String, onClose: () -> Unit, onGoTo: () -> Unit) {
 @Composable
 private fun ImageViewer(controller: ReaderController, src: String, onClose: () -> Unit) {
     val bitmap = remember(src) {
-        val path = BookServer.pathOf(src)?.first
-        path?.let { controller.files.bytes(it) }?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }?.asImageBitmap()
+        val parts = src.split('\n')
+        if (parts.size >= 2) joinedHalves(controller, parts)?.asImageBitmap()
+        else BookServer.pathOf(src)?.first?.let { controller.files.bytes(it) }?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }?.asImageBitmap()
     }
     var scale by remember { mutableFloatStateOf(1f) }
     var offset by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
@@ -1525,6 +1526,33 @@ private fun ImageViewer(controller: ReaderController, src: String, onClose: () -
         }
     }
 }
+
+/**
+ * The two halves of a map across two pages ([parts]: their addresses, then how much of each was left off
+ * at the join, as reader.js found it), joined into one picture as the reader shows them: the same height,
+ * side by side. Null if either can't be read.
+ */
+private fun joinedHalves(controller: ReaderController, parts: List<String>): android.graphics.Bitmap? = runCatching {
+    val (a, b) = parts.take(2).map { src ->
+        BookServer.pathOf(src)?.first?.let { controller.files.bytes(it) }?.let { BitmapFactory.decodeByteArray(it, 0, it.size) } ?: return null
+    }
+    val cutA = parts.getOrNull(2)?.toFloatOrNull()?.coerceIn(0f, 0.2f) ?: 0f
+    val cutB = parts.getOrNull(3)?.toFloatOrNull()?.coerceIn(0f, 0.2f) ?: 0f
+    val h = maxOf(a.height, b.height)
+    val keptA = (a.width * (1 - cutA)).toInt().coerceAtLeast(1)
+    val keptB = (b.width * (1 - cutB)).toInt().coerceAtLeast(1)
+    val wa = (keptA.toFloat() * h / a.height).toInt().coerceAtLeast(1)
+    val wb = (keptB.toFloat() * h / b.height).toInt().coerceAtLeast(1)
+    val out = android.graphics.Bitmap.createBitmap(wa + wb, h, android.graphics.Bitmap.Config.ARGB_8888)
+    val canvas = android.graphics.Canvas(out)
+    canvas.drawColor(android.graphics.Color.WHITE)
+    val paint = android.graphics.Paint(android.graphics.Paint.FILTER_BITMAP_FLAG)
+    canvas.drawBitmap(a, android.graphics.Rect(0, 0, keptA, a.height), android.graphics.Rect(0, 0, wa, h), paint)
+    canvas.drawBitmap(b, android.graphics.Rect(b.width - keptB, 0, b.width, b.height), android.graphics.Rect(wa, 0, wa + wb, h), paint)
+    a.recycle()
+    b.recycle()
+    out
+}.getOrNull()
 
 /** The tablet's own brightness setting as 0 to 1, to start a swipe from (half, if it can't be read). */
 private fun systemBrightness(context: android.content.Context): Float =

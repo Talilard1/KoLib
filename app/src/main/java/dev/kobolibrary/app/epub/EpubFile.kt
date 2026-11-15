@@ -37,6 +37,22 @@ class EpubFile private constructor(val file: File, private val zip: ZipFile) : C
 
     fun entryNames(): List<String> = zip.entries().asSequence().map { it.name }.toList()
 
+    /**
+     * A stamp of everything in the book, from the zip's own checksums (nothing is unpacked): it changes
+     * whenever any file in the book does.
+     */
+    fun stamp(): String {
+        val crc = java.util.zip.CRC32()
+        val b = java.nio.ByteBuffer.allocate(16)
+        for (e in zip.entries()) {
+            crc.update(e.name.toByteArray(Charsets.UTF_8))
+            b.clear()
+            b.putLong(e.crc).putLong(e.size)
+            crc.update(b.array())
+        }
+        return crc.value.toString(16) + "-" + zip.size()
+    }
+
     fun has(path: String): Boolean = zip.getEntry(path) != null
 
     fun readBytes(path: String): ByteArray? = zip.getEntry(path)?.let { e -> zip.getInputStream(e).use { it.readBytes() } }

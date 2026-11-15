@@ -62,7 +62,14 @@ class ConvertSamplesTest {
     @Test fun odt() { check("alice.odt", OdtConverter::convert) }
     @Test fun rtf() { check("alice.rtf", RtfConverter::convert) }
     @Test fun rtfFromLibreOffice() { check("lo/alice.rtf", RtfConverter::convert) }
-    @Test fun cbz() { check("comic.cbz", CbzConverter::convert) }
+    @Test fun cbz() {
+        check("comic.cbz") { bytes, name, target ->
+            val file = File(outDir, name).apply { writeBytes(bytes) }
+            dev.kobolibrary.app.comic.ComicArchives.open(file, libArchive = null).use { c ->
+                ComicConverter.wholeEpub(c, dev.kobolibrary.app.comic.ComicInfo.read(c.comicInfo, name).meta, target)
+            }
+        }
+    }
     @Test fun mobi6() { check("11.kindle.images", MobiConverter::convert) }
     private fun pdf(bytes: ByteArray, name: String, target: File) = PdfConverter.convert(bytes, name, target)
     @Test fun pdfLibreOffice() { check("alice.pdf", ::pdf) }

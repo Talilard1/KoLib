@@ -11,7 +11,10 @@ import java.io.File
 import java.io.RandomAccessFile
 import java.util.zip.ZipFile
 
-/** The kinds of file the library takes in. All but EPUB are made into EPUBs; a PDF is kept as well, to read and send as it is. */
+/**
+ * The kinds of file the library takes in. All but EPUB are made into EPUBs; a PDF is kept as well, to read and send
+ * as it is, and a comic (CBZ, CBR, CB7) is kept as it is, with a stand-in EPUB for its details and cover.
+ */
 enum class SourceFormat(val label: String, val extension: String) {
     EPUB("EPUB", "epub"),
     PDF("PDF", "pdf"),
@@ -25,6 +28,12 @@ enum class SourceFormat(val label: String, val extension: String) {
     HTML("HTML", "html"),
     MARKDOWN("Markdown", "md"),
     CBZ("CBZ", "cbz"),
+    CBR("CBR", "cbr"),
+    CB7("CB7", "cb7"),
+    ;
+
+    /** A comic book file, read in the comic reader and sent to the Kobo as it is. */
+    val isComic: Boolean get() = this == CBZ || this == CBR || this == CB7
 }
 
 object BookFormats {
@@ -32,7 +41,7 @@ object BookFormats {
     /** File endings the library takes in, for choosing files and searching folders. */
     val extensions = setOf(
         "epub", "kepub", "pdf", "mobi", "azw", "azw3", "prc", "pdb", "fb2", "fbz", "docx", "odt", "rtf", "txt", "text",
-        "html", "htm", "xhtml", "md", "markdown", "cbz",
+        "html", "htm", "xhtml", "md", "markdown", "cbz", "cbr", "cb7",
     )
 
     /**
@@ -44,11 +53,12 @@ object BookFormats {
         "application/vnd.amazon.mobi8-ebook", "application/x-mobi8-ebook", "application/x-fictionbook+xml", "application/x-fictionbook",
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.oasis.opendocument.text",
         "application/rtf", "text/*", "application/xhtml+xml", "application/xml", "application/vnd.comicbook+zip", "application/x-cbz",
+        "application/vnd.comicbook-rar", "application/x-cbr", "application/x-rar-compressed", "application/vnd.rar", "application/x-cb7", "application/x-7z-compressed",
         "application/zip", "application/x-zip-compressed", "application/octet-stream",
     )
 
     /** Endings of files that are never plain text. */
-    private val NOT_TEXT = setOf("epub", "kepub", "pdf", "mobi", "azw", "azw3", "prc", "pdb", "docx", "odt", "cbz", "fbz", "zip")
+    private val NOT_TEXT = setOf("epub", "kepub", "pdf", "mobi", "azw", "azw3", "prc", "pdb", "docx", "odt", "cbz", "cbr", "cb7", "fbz", "zip", "rar", "7z")
 
     fun isBook(name: String): Boolean = name.lowercase().let { n -> n.endsWith(".kepub.epub") || n.substringAfterLast('.', "") in extensions }
 
@@ -73,12 +83,15 @@ object BookFormats {
                 "word/document.xml" in names -> SourceFormat.DOCX
                 mimetype == "application/vnd.oasis.opendocument.text" || ("content.xml" in names && "meta.xml" in names) -> SourceFormat.ODT
                 names.any { it.endsWith(".fb2", true) } -> SourceFormat.FB2
-                names.any { it.substringAfterLast('.').lowercase() in setOf("jpg", "jpeg", "png", "gif", "webp") } -> SourceFormat.CBZ
+                names.any { dev.kobolibrary.app.comic.ComicArchives.isPage(it) } -> SourceFormat.CBZ
                 // Called an EPUB but not quite one: reading it as an EPUB says what's wrong with it.
                 ext == "epub" || ext == "kepub" -> SourceFormat.EPUB
                 else -> null
             }
         }
+        // A RAR or a 7z: comics are the only books that come in those.
+        if (start.startsWith("Rar!")) return SourceFormat.CBR
+        if (n >= 6 && head[0] == '7'.code.toByte() && head[1] == 'z'.code.toByte() && (head[2].toInt() and 0xFF) == 0xBC && (head[3].toInt() and 0xFF) == 0xAF) return SourceFormat.CB7
         if (start.startsWith("{\\rtf")) return SourceFormat.RTF
         val text = start.trimStart('\uFEFF', ' ', '\n', '\r', '\t')
         if (text.contains("<FictionBook")) return SourceFormat.FB2
@@ -122,6 +135,11 @@ object BookFormats {
                 }
             }
         }
+        if (format.isComic) {
+            // Kept as it is: read from the file as it's read, never held whole (a comic can be gigabytes).
+            dev.kobolibrary.app.comic.ComicArchives.open(file).use { ComicConverter.standIn(it, name, target) }
+            return Converted(null)
+        }
         val bytes = file.readBytes()
         when (format) {
             SourceFormat.EPUB, SourceFormat.PDF -> Unit
@@ -138,7 +156,7 @@ object BookFormats {
             SourceFormat.TXT -> TextConverter.convert(bytes, name, target)
             SourceFormat.HTML -> HtmlConverter.convert(bytes, name, target)
             SourceFormat.MARKDOWN -> MarkdownConverter.convert(bytes, name, target)
-            SourceFormat.CBZ -> CbzConverter.convert(bytes, name, target)
+            SourceFormat.CBZ, SourceFormat.CBR, SourceFormat.CB7 -> Unit
         }
         return Converted(null)
     }

@@ -18,8 +18,15 @@ class AssemblyException(message: String) : Exception(message)
  */
 object BookAssembly {
 
-    /** A file going into a book: its path in the zip, its type, its bytes, and any manifest properties. */
-    class Part(val path: String, val mediaType: String, val bytes: ByteArray, val properties: Set<String> = emptySet())
+    /**
+     * A file going into a book: its path in the zip, its type, its bytes, and any manifest properties. The
+     * bytes can be read only as the book is written ([later]), so a book of many big pictures (a comic of
+     * gigabytes) is never held whole.
+     */
+    class Part(val path: String, val mediaType: String, bytes: ByteArray?, val properties: Set<String> = emptySet(), private val later: (() -> ByteArray)? = null) {
+        private val held = bytes
+        val bytes: ByteArray get() = held ?: later?.invoke() ?: ByteArray(0)
+    }
 
     /** A page in the reading order; [linear] false for one only reached by a link (notes, say). */
     data class SpineEntry(val path: String, val linear: Boolean = true)
@@ -75,14 +82,15 @@ object BookAssembly {
         if (cover != null) finalOpf = OpfDocument(finalOpf).withCover(EpubFile.relativeHref(OPF, cover.path), cover.mediaType)
         val navText = Contents.writeNav(navTemplate(meta.title, lang), NAV, toc) ?: navTemplate(meta.title, lang)
         val ncxText = Contents.newNcx(meta.title, uid, NCX, toc)
-        val entries = ArrayList<Pair<String, ByteArray>>()
-        entries += "META-INF/container.xml" to CONTAINER.toByteArray()
-        entries += OPF to finalOpf.toByteArray()
-        entries += NAV to navText.toByteArray()
-        entries += NCX to ncxText.toByteArray()
-        for (p in parts) entries += p.path to p.bytes
+        val entries = ArrayList<Pair<String, () -> ByteArray>>()
+        entries += "META-INF/container.xml" to { CONTAINER.toByteArray() }
+        entries += OPF to { finalOpf.toByteArray() }
+        entries += NAV to { navText.toByteArray() }
+        entries += NCX to { ncxText.toByteArray() }
+        // Each part read as it's written, one at a time.
+        for (p in parts) entries += p.path to { p.bytes }
         target.parentFile?.mkdirs()
-        EpubWriter.create(target, entries)
+        EpubWriter.createLazily(target, entries)
     }
 
     private const val CONTAINER = """<?xml version="1.0" encoding="UTF-8"?>

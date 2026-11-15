@@ -161,6 +161,8 @@ import dev.kobolibrary.app.reader.PageFrame
 import dev.kobolibrary.app.reader.PageSide
 import dev.kobolibrary.app.reader.RunningHeads
 import dev.kobolibrary.app.reader.HeadTitlePlace
+import dev.kobolibrary.app.reader.HeadSize
+import dev.kobolibrary.app.reader.HeadGap
 import dev.kobolibrary.app.reader.CollectionTitle
 import dev.kobolibrary.app.ui.theme.Garamond
 import androidx.compose.ui.draw.clip
@@ -1270,21 +1272,25 @@ private fun PageSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) 
     }
 
     Heading(tr("Brightness"))
+    // With the tablet's own brightness, the slider starts from it.
+    val context = LocalContext.current
+    val screenNow = remember(s.level == null) { systemBrightness(context) }
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(Icons.Outlined.BrightnessLow, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         Slider(
-            value = s.level ?: 0.5f,
+            value = s.level ?: screenNow,
             onValueChange = { onChange(s.withLevel(it)) },
             valueRange = -ReaderSettings.MAX_DIM..1f,
-            enabled = s.level != null,
             modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
         )
         Icon(Icons.Outlined.BrightnessHigh, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
     }
     Help(tr("Slide all the way left to go darker than the screen's lowest setting. You can also swipe up or down the left edge of the page."))
     SwitchRow(tr("Use the system brightness"), s.level == null) { system ->
-        onChange(if (system) s.copy(brightness = -1f, dim = 0f) else s.copy(brightness = 0.5f, dim = 0f))
+        onChange(if (system) s.copy(brightness = -1f, dim = 0f) else s.copy(brightness = screenNow, dim = 0f))
     }
+    SwitchRow(tr("Open books at the system brightness"), s.brightnessFromScreen) { onChange(s.copy(brightnessFromScreen = it)) }
+    Help(tr("A change made while reading lasts until you close the book. Off, books open at the brightness you last set here."))
 
     Heading(tr("Match pictures to the page colour"))
     Choices(PictureBlend.entries, s.pictures, { it.label }) { onChange(s.copy(pictures = it)) }
@@ -1304,6 +1310,11 @@ private fun PageSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) 
     if (s.runningHeads != RunningHeads.OFF) {
         Heading(tr("Title position"))
         Choices(HeadTitlePlace.entries, s.headTitlePlace, { it.label }) { onChange(s.copy(headTitlePlace = it)) }
+        Heading(tr("Heading size"))
+        Choices(HeadSize.entries, s.headSize, { it.label }) { onChange(s.copy(headSize = it)) }
+        Heading(tr("Space under the headings"))
+        Choices(HeadGap.entries, s.headGap, { it.label }) { onChange(s.copy(headGap = it)) }
+        Help(tr("As in print, the headings are about the size of the text, with a line's space between them and the text."))
     }
 
     Heading(tr("Omnibus title"))
@@ -1358,6 +1369,14 @@ private fun LayoutSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit
     Heading(tr("Chapter title pages"))
     SwitchRow(tr("Show them with their chapter"), s.joinOpenings) { onChange(s.copy(joinOpenings = it)) }
     Help(tr("Some books put a chapter's number or picture on a page of its own. This shows it at the top of the chapter instead."))
+
+    Heading(tr("Chapter openings"))
+    SwitchRow(tr("Start chapters on a right-hand page"), s.rectoOpenings) { onChange(s.copy(rectoOpenings = it)) }
+    Help(tr("With two pages side by side, each chapter starts on the right, with the page beside it blank, as in a printed book."))
+    SwitchRow(tr("Chapter number and title as in print"), s.printHeads) { onChange(s.copy(printHeads = it)) }
+    Help(tr("The number (\u201cPrologue\u201d, \u201cChapter 1\u201d) in large spaced capitals, and the title under it in italics, whatever the book sets. Off, a book that sets its own look for them keeps it."))
+    SwitchRow(tr("Large first letter"), s.dropCaps) { onChange(s.copy(dropCaps = it)) }
+    Help(tr("The first letter of each chapter drops three lines down, as in print. A book with large first letters of its own keeps them."))
 }
 
 /** Taps, buttons, the screen, and looking words up. */
@@ -1480,7 +1499,7 @@ private fun SwitchRow(label: String, on: Boolean, onChange: (Boolean) -> Unit) {
         Modifier.fillMaxWidth().clickable { onChange(!on) }.padding(vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(label, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+        Text(label, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f).padding(end = 12.dp))
         Switch(checked = on, onCheckedChange = onChange)
     }
 }
@@ -1709,34 +1728,69 @@ private fun BoxWithConstraintsScope.PageHeads(controller: ReaderController, s: R
     val frame = controller.frame?.takeIf { it.perScreen == controller.perScreen }
         ?: PageFrame.of(maxWidth.value, maxHeight.value, s, s.marginRoom(controller.cutoutTop))
     val top = s.runningHeads.top
-    // Close over (or under) the text, as in print; never under the camera, nor nearer the edge than the margins' rows.
+    val row = s.headRow
+    // Over (or under) the text, the space chosen away from it, as in print; never under the camera, nor
+    // nearer the edge than the margins' rows.
     val inset = if (top) {
-        maxOf(s.topRowAt(controller.cutoutTop).toFloat(), frame.padTop - MarginRoom.GAP - MarginRoom.ROW_HEIGHT)
+        maxOf(s.topRowAt(controller.cutoutTop).toFloat(), frame.padTop - s.headGapDp - row)
     } else {
-        maxOf(bottomItemsInset(s).value, frame.padBottom - MarginRoom.GAP - MarginRoom.ROW_HEIGHT)
+        maxOf(bottomItemsInset(s).value, frame.padBottom - s.headGapDp - row)
     }
     val color = ink.copy(alpha = 0.72f)
+    val size = s.headFontSize.sp
+    val titleStyle = HeadTitle.copy(
+        fontSize = size, lineHeight = size * 1.2f,
+        letterSpacing = if (s.headSize == HeadSize.SMALL) HeadTitle.letterSpacing else 0.18.em,
+    )
+    val numberStyle = HeadNumber.copy(fontSize = size, lineHeight = size * 1.2f)
     for (p in pages) {
         val title = when {
             p.opening -> ""
             p.side == PageSide.LEFT -> controller.headBookTitle
             else -> controller.headChapterTitle.ifBlank { controller.headBookTitle }
-        }
+        }.let { HeadTitles.headingCase(it) }
+        // A chapter's first page has its number at the foot, as in print: at the outside corner of two pages side
+        // by side, and at the right of a page on its own. Not where something else is shown in that corner, nor
+        // where no room is kept at the foot.
+        val footRight = controller.perScreen == 1 || p.side != PageSide.LEFT
+        val footSpot = if (footRight) MarginSpot.BOTTOM_RIGHT else MarginSpot.BOTTOM_LEFT
+        val numberAtFoot = p.opening && top
+        val footShown = numberAtFoot && frame.padBottom >= bottomItemsInset(s).value + row &&
+            MarginItem.entries.none { s.shownSpotOf(it) == footSpot }
         Box(
             Modifier
                 .align(if (top) Alignment.TopStart else Alignment.BottomStart)
                 .offset(x = frame.textLeft(p.slot).dp)
                 .padding(top = if (top) inset.dp else 0.dp, bottom = if (top) 0.dp else inset.dp)
                 .width(frame.col.dp)
-                .height(MarginRoom.ROW_HEIGHT.dp),
+                .height(row.dp),
         ) {
-            p.number?.let { n ->
+            if (!numberAtFoot) p.number?.let { n ->
                 Text(
-                    n.toString(), style = HeadNumber, color = color, maxLines = 1,
+                    n.toString(), style = numberStyle, color = color, maxLines = 1,
                     modifier = Modifier.align(if (p.side == PageSide.LEFT) Alignment.CenterStart else Alignment.CenterEnd),
                 )
             }
-            if (title.isNotBlank()) HeadTitleLine(title, p.side, s.headTitlePlace, color)
+            if (title.isNotBlank()) HeadTitleLine(
+                title, p.side, s.headTitlePlace, color,
+                style = titleStyle.copy(fontFeatureSettings = HeadTitles.smallCapsFeatures(title)),
+                clearOfNumber = maxOf(46f, s.headFontSize * 3.2f).dp,
+            )
+        }
+        if (footShown) p.number?.let { n ->
+            Box(
+                Modifier
+                    .align(Alignment.BottomStart)
+                    .offset(x = frame.textLeft(p.slot).dp)
+                    .padding(bottom = bottomItemsInset(s))
+                    .width(frame.col.dp)
+                    .height(row.dp),
+            ) {
+                Text(
+                    n.toString(), style = numberStyle, color = color, maxLines = 1,
+                    modifier = Modifier.align(if (footRight) Alignment.CenterEnd else Alignment.CenterStart),
+                )
+            }
         }
     }
 }
@@ -1824,7 +1878,12 @@ private fun MarginPreview(s: ReaderSettings) {
     ) {
         // The text of the page, as grey lines: two pages side by side when they have headings, to show them as a book has them.
         val heads = s.runningHeads != RunningHeads.OFF
-        Row(Modifier.align(Alignment.Center).fillMaxWidth().padding(horizontal = if (heads) 18.dp else 28.dp), horizontalArrangement = Arrangement.spacedBy(28.dp)) {
+        // The text nearer the headings or further from them, as the space under them is chosen.
+        val nearer = when (s.headGap) { HeadGap.CLOSE -> -6; HeadGap.LINE -> 0; HeadGap.MORE -> 6 }.let { if (s.runningHeads.top) it else -it }
+        Row(
+            Modifier.align(Alignment.Center).offset(y = if (heads) nearer.dp else 0.dp).fillMaxWidth().padding(horizontal = if (heads) 18.dp else 28.dp),
+            horizontalArrangement = Arrangement.spacedBy(28.dp),
+        ) {
             repeat(if (heads) 2 else 1) {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(7.dp)) {
                     repeat(6) { i -> Box(Modifier.fillMaxWidth(if (i == 5) 0.6f else 1f).height(4.dp).clip(RoundedCornerShape(2.dp)).background(ink.copy(alpha = 0.14f))) }
@@ -1832,8 +1891,9 @@ private fun MarginPreview(s: ReaderSettings) {
             }
         }
         if (heads) {
-            val headStyle = HeadTitle.copy(fontSize = 8.5.sp, lineHeight = 11.sp, letterSpacing = 0.08.em, fontFeatureSettings = "smcp, onum")
-            val numberStyle = HeadNumber.copy(fontSize = 9.sp, lineHeight = 11.sp)
+            val size = when (s.headSize) { HeadSize.SMALL -> 8.5f; HeadSize.PRINT -> 10f; HeadSize.LARGE -> 11.5f }
+            val headStyle = HeadTitle.copy(fontSize = size.sp, lineHeight = (size + 2.5f).sp, letterSpacing = 0.08.em, fontFeatureSettings = "smcp, onum")
+            val numberStyle = HeadNumber.copy(fontSize = (size + 0.5f).sp, lineHeight = (size + 2.5f).sp)
             Row(
                 Modifier
                     .align(if (s.runningHeads.top) Alignment.TopCenter else Alignment.BottomCenter)
@@ -1843,7 +1903,7 @@ private fun MarginPreview(s: ReaderSettings) {
                 horizontalArrangement = Arrangement.spacedBy(28.dp),
             ) {
                 listOf(Triple("44", tr("The Eye of the World"), true), Triple("45", tr("The Hook"), false)).forEach { (n, t, left) ->
-                    Box(Modifier.weight(1f).height(12.dp)) {
+                    Box(Modifier.weight(1f).height((size + 4f).dp)) {
                         Text(n, style = numberStyle, color = ink.copy(alpha = 0.7f), modifier = Modifier.align(if (left) Alignment.CenterStart else Alignment.CenterEnd))
                         HeadTitleLine(
                             t, if (left) PageSide.LEFT else PageSide.RIGHT, s.headTitlePlace, ink.copy(alpha = 0.7f),

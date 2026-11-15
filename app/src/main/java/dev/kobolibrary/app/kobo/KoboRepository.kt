@@ -116,9 +116,13 @@ class KoboRepository(private val context: Context) {
      * Changes the Kobo's database (safely: see [KoboDatabaseWriter]). Returns the connection as it is
      * afterwards, or null if [edit] changed nothing.
      */
-    suspend fun writeDatabase(session: KoboSession, edit: (KoboDbEditor) -> Int): KoboSession? = withContext(Dispatchers.IO) {
-        val written = writer.write(session.tree, session.pristineDb, session.pristineWal, session.info.displayName, edit)
-            ?: return@withContext null
+    suspend fun writeDatabase(session: KoboSession, onWritten: () -> Unit = {}, edit: (KoboDbEditor) -> Int): KoboSession? = withContext(Dispatchers.IO) {
+        val written = try {
+            writer.write(session.tree, session.pristineDb, session.pristineWal, session.info.displayName, edit)
+        } finally {
+            // Reading the result back happens on the tablet: the Kobo can be ejected from here on.
+            onWritten()
+        } ?: return@withContext null
         val read = File(written.database.parentFile, "read.sqlite")
         written.database.copyTo(read, overwrite = true)
         val snapshot = openLocal(read).use { db -> KoboDatabaseReader(AndroidSqlSource(db)).read() }

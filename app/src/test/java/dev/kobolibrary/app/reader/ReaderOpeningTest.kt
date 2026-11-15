@@ -72,6 +72,8 @@ class ReaderOpeningTest {
         val (lib, book) = garden()
         readBefore(lib, book)
         val settings = ReaderSettingsStore(context)
+        // The percent read in the margin, to see that the page is open.
+        settings.update { it.copy(marginItems = it.marginItems + (MarginItem.PERCENT to MarginSpot.BOTTOM_RIGHT)) }
         AppLog.clear()
         compose.setContent { AppSurface(ThemeChoice.SYSTEM) { BookReader(book, lib, settings, onClose = {}, onEdit = null) } }
         // Either the page with its margins, or the "couldn't be opened" screen.

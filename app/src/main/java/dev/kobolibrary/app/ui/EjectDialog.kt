@@ -39,7 +39,7 @@ fun EjectDialog(onDismiss: () -> Unit, busy: Boolean = false, savingDatabase: Bo
                     )
                 } else if (savingDatabase) {
                     Text(
-                        tr("The app is saving collections and book details to the Kobo. Wait a few seconds until it's done."),
+                        tr("The app is updating collections and book details on the Kobo. Wait a few seconds until it's done."),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodyMedium,
                     )

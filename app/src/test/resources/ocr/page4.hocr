@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+ <head>
+  <title></title>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+  <meta name='ocr-system' content='tesseract 5.3.4' />
+  <meta name='ocr-capabilities' content='ocr_page ocr_carea ocr_par ocr_line ocrx_word ocrp_wconf'/>
+ </head>
+ <body>
+  <div class='ocr_page' id='page_1' title='image "/home/claude/kobolibrary/tools/ocr/../../app/src/test/resources/ocr/page4.png"; bbox 0 0 1700 2200; ppageno 0; scan_res 300 300'>
+   <div class='ocr_separator' id='block_1_1' title="bbox 250 300 1451 306"></div>
+   <div class='ocr_separator' id='block_1_2' title="bbox 250 951 259 1700"></div>
+   <div class='ocr_separator' id='block_1_3' title="bbox 261 1301 267 1700"></div>
+   <div class='ocr_separator' id='block_1_4' title="bbox 265 950 285 1678"></div>
+   <div class='ocr_carea' id='block_1_5' title="bbox 545 1398 604 1504">
+    <p class='ocr_par' id='par_1_1' lang='eng' title="bbox 545 1398 604 1504">
+     <span class='ocr_line' id='line_1_1' title="bbox 545 1398 568 1436; textangle 90; x_size 24; x_descenders 6; x_ascenders 6">
+      <span class='ocrx_word' id='word_1_1' title='bbox 545 1398 568 1436; x_wconf 15'>Lies</span>
+     </span>
+     <span class='ocr_line' id='line_1_2' title="bbox 559 1404 573 1464; textangle 90; x_size 19; x_descenders 4; x_ascenders 5">
+      <span class='ocrx_word' id='word_1_2' title='bbox 559 1404 573 1464; x_wconf 14' lang='grc'>“&quot;;</span>
+     </span>
+     <span class='ocr_line' id='line_1_3' title="bbox 567 1426 587 1476; textangle 90; x_size 20; x_descenders 5; x_ascenders 4">
+      <span class='ocrx_word' id='word_1_3' title='bbox 567 1426 587 1476; x_wconf 48' lang='grc'>“72,7</span>
+     </span>
+     <span class='ocr_line' id='line_1_4' title="bbox 579 1432 604 1504; textangle 90; x_size 28.5; x_descenders 6; x_ascenders 7.5">
+      <span class='ocrx_word' id='word_1_4' title='bbox 579 1432 604 1504; x_wconf 17' lang='grc'>ΡΖ</span>
+     </span>
+    </p>
+   </div>
+   <div class='ocr_separator' id='block_1_6' title="bbox 250 1686 500 1690"></div>
+   <div class='ocr_carea' id='block_1_7' title="bbox 590 1419 604 1485">
+    <p class='ocr_par' id='par_1_2' lang='grc' title="bbox 590 1419 604 1485">
+     <span class='ocr_line' id='line_1_5' title="bbox 590 1419 604 1485; textangle 90; x_size 15.342342; x_descenders 2.3423424; x_ascenders 4.333333">
+      <span class='ocrx_word' id='word_1_5' title='bbox 590 1419 604 1485; x_wconf 61'>ἘΖΩ</span>
+     </span>
+    </p>
+   </div>
+   <div class='ocr_carea' id='block_1_8' title="bbox 620 1597 844 1666">
+    <p class='ocr_par' id='par_1_3' lang='eng' title="bbox 620 1601 844 1662">
+     <span class='ocr_caption' id='line_1_6' title="bbox 753 1601 844 1613; baseline 0.011 -7; x_size 26.5; x_descenders 5.5; x_ascenders 5.75">
+      <span class='ocrx_word' id='word_1_6' title='bbox 753 1601 844 1613; x_wconf 34'>a</span>
+     </span>
+     <span class='ocr_caption' id='line_1_7' title="bbox 645 1601 840 1621; baseline 0.01 -14; x_size 26.5; x_descenders 5.5; x_ascenders 5.75">
+      <span class='ocrx_word' id='word_1_7' title='bbox 645 1601 696 1609; x_wconf 13'>SS</span>
+      <span class='ocrx_word' id='word_1_8' title='bbox 707 1601 840 1621; x_wconf 13'>ERS</span>
+     </span>
+     <span class='ocr_caption' id='line_1_8' title="bbox 690 1597 820 1638; baseline 0.106 -17.423; x_size 24; x_descenders 4; x_ascenders 5">
+      <span class='ocrx_word' id='word_1_9' title='bbox 690 1597 820 1638; x_wconf 50'>SSSSS</span>
+     </span>
+     <span class='ocr_caption' id='line_1_9' title="bbox 672 1620 779 1643; baseline 0 -5; x_size 24; x_descenders 5; x_ascenders 8">
+      <span class='ocrx_word' id='word_1_10' title='bbox 672 1620 779 1643; x_wconf 43'>RRS</span>
+     </span>
+     <span class='ocr_caption' id='line_1_10' title="bbox 620 1628 756 1666; baseline 0.008 -22; x_size 12.619047; x_descenders 2.6190474; x_ascenders 2.7380953">
+      <span class='ocrx_word' id='word_1_11' title='bbox 620 1628 756 1666; x_wconf 46'>RS</span>
+     </span>
+    </p>
+   </div>
+   <div class='ocr_photo' id='block_1_9' title="bbox 246 302 1449 1706"></div>
+   <div class='ocr_separator' id='block_1_10' title="bbox 250 1693 998 1701"></div>
+   <div class='ocr_separator' id='block_1_11' title="bbox 1445 301 1451 1700"></div>
+  </div>
+ </body>
+</html>

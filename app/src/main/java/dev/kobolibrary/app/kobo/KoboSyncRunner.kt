@@ -50,7 +50,8 @@ class KoboSyncRunner(
         private fun plural(n: Int) = if (n == 1) tr("1 book") else tr("{0} books", n)
     }
 
-    suspend fun run(session: KoboSession): Outcome = withContext(Dispatchers.IO) {
+    /** [onKoboDone] is called once nothing more is read from or written to the Kobo, so it can be ejected. */
+    suspend fun run(session: KoboSession, onKoboDone: () -> Unit = {}): Outcome = withContext(Dispatchers.IO) {
         // Record changes from an earlier connection weren't made before the Kobo was unplugged, so it
         // took those books in as new ones, without their collections: compare those afresh.
         val stale = pending.takeStale(session.connectedAtMillis)
@@ -90,7 +91,7 @@ class KoboSyncRunner(
                     ).joinToString("; ") + ".",
                 )
             }
-            after = repo.writeDatabase(session) { editor ->
+            after = repo.writeDatabase(session, onWritten = onKoboDone) { editor ->
                 var n = 0
                 for (c in forKobo) {
                     if (editor.hasCollections) {
@@ -104,6 +105,7 @@ class KoboSyncRunner(
             } ?: session
             pending.done(records.keys)
         }
+        onKoboDone()
         // Only now that the Kobo has them does the library record what both sides agree on.
         val forLibrary = plan.changes.filter { it.touchesLibrary }
         library.applyKoboAgreement(forLibrary.map { Triple(it.bookId, it.libraryCollections, it.agreed) })

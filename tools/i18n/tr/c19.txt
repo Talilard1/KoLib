@@ -1,0 +1,816 @@
+@fr
+1540|Mise à jour des collections et des détails des livres sur la Kobo
+1541|« {0} » est revenu à ses pages numérisées.
+1542|Impossible de revenir aux pages numérisées : {0}
+1543|« {0} » est maintenant du texte. Comparez-le avec ses pages pour le vérifier.
+1544|Comparer
+1545|Impossible de convertir « {0} » en texte : {1}.
+1546|Mise à jour des collections sur la Kobo… Ne l’éjectez pas encore.
+1547|Pas dans la bibliothèque
+1548|Mise à jour des collections et des détails des livres sur la Kobo… Attendez la fin avant d’éjecter.
+1549|L’appli met à jour les collections et les détails des livres sur la Kobo. Attendez quelques secondes qu’elle ait fini.
+1551|D’abord le convertir en texte…
+1552|D’abord les convertir en texte…
+1553|Ouvrir les livres à la luminosité du système
+1554|Un changement fait pendant la lecture dure jusqu’à la fermeture du livre. Désactivé, les livres s’ouvrent à la dernière luminosité réglée ici.
+1555|Taille des titres courants
+1556|Espace sous les titres courants
+1557|Comme dans un livre imprimé, les titres courants font à peu près la taille du texte, avec une ligne d’espace entre eux et le texte.
+1558|Débuts de chapitre
+1559|Commencer les chapitres sur une page de droite
+1560|Avec deux pages côte à côte, chaque chapitre commence à droite, la page d’à côté restant blanche, comme dans un livre imprimé.
+1561|Numéro et titre du chapitre comme dans un livre imprimé
+1562|Le numéro (« Prologue », « Chapitre 1 ») en grandes capitales espacées, et le titre en dessous en italique, quel que soit le style du livre. Désactivé, l’aspect propre au livre.
+1563|Lettrine
+1564|La première lettre de chaque chapitre descend sur trois lignes, comme dans un livre imprimé. Un livre qui a ses propres lettrines les garde.
+1565|Comparer avec les pages
+1566|À gauche de la ligne, la page numérisée ; à droite, les mots tels qu’ils ont été reconnus. Les mots incertains sont en orange. Faites glisser la ligne, ou touchez là où elle doit aller ; pincez pour zoomer.
+1567|Revenir aux pages numérisées
+1568|Le PDF à partir duquel ce livre a été ajouté est introuvable.
+1569|Cette page n’a pas encore été lue.
+1570|Aucun mot n’a été trouvé sur cette page.
+1571|En attente des livres précédents…
+1572|Téléchargement des données de langue : {0} sur {1} Mo
+1573|Préparation…
+1574| · encore environ {0}
+1575|Assemblage du livre…
+1576|Texte des pages numérisées
+1577|Le convertir en texte
+1578|Cela continue même l’appli fermée. Vous pouvez consulter les pages déjà lues.
+1579|Les mots ont été reconnus dans les images de ses pages ({0}), ils peuvent donc contenir des erreurs.
+1580|Les mots ont été reconnus dans les images de ses pages, ils peuvent donc contenir des erreurs.
+1581| Son PDF est conservé : il peut toujours être lu tel que numérisé.
+1582|Ce PDF est trop gros pour être converti en EPUB ici, il ne peut donc être lu et envoyé qu’en PDF. Si ses pages sont des numérisations, KoLib peut reconnaître leurs mots et en faire un livre dont le texte s’adapte à l’écran.
+1583|Les pages de ce PDF sont des images, il ne peut donc être lu et envoyé qu’en PDF. KoLib peut reconnaître leurs mots et en faire un livre dont le texte s’adapte à l’écran.
+1584|Pages lues jusqu’ici : {0} sur {1}.
+1585|Continuer
+1586|Convertir en texte…
+1587|Autres langues…
+1588|Conversion de « {0} » en texte
+1589|Convertir « {0} » en texte
+1590|Convertir {0} livres en texte
+1591|KoLib reconnaît les mots dans les images des pages, ici sur cet appareil, et en fait un livre dont le texte s’adapte à l’écran. Cela prend quelques secondes par page, donc un long livre prend un moment ; cela continue même l’appli fermée.
+1592|Le texte peut contenir des erreurs, surtout avec des caractères anciens ou petits, des tableaux, des notes de bas de page et d’autres alphabets. Les pages numérisées sont conservées : vous pouvez comparer le texte avec elles page par page, et y revenir.
+1593|Langues du livre
+1594|Choisissez toutes les langues dans lesquelles il est écrit. Chacune le ralentit un peu.
+1595|D’abord, {0} de données de langue sont téléchargés depuis le projet Tesseract.
+1596|Tout ce qu’il faut est déjà sur cet appareil.
+1597|Convertir en texte
+1598|Revenir aux pages numérisées ?
+1599|« {0} » est de nouveau lu et envoyé en PDF, comme avant. Ce qui a été reconnu est conservé : le reconvertir en texte dans les mêmes langues est donc rapide.
+1600|Le texte de ce livre n’a pas été reconnu à partir de ses pages.
+1601|PDF de pages numérisées, converti en texte
+1602|Comme dans un livre
+1603|Plus grand
+1604|Une ligne
+1605|La Kobo a une modification inachevée de sa base de données. Éjectez-la et attendez qu’elle affiche ses livres, puis reconnectez-la.
+1606|La base de données de la Kobo est plus courte que prévu.
+1607|La base de données de la Kobo n’a pas la bonne taille.
+1608|Une partie de la base de données de la Kobo ne s’est pas relue telle qu’elle avait été écrite.
+1609|Le journal à côté de la base de données de la Kobo n’a pas pu être supprimé, la modification a donc été annulée.
+1610|La Kobo a cessé de répondre pendant la mise à jour de sa base de données. La Kobo annule elle-même la modification inachevée une fois éjectée.
+1611|La reconnaissance du texte n’a pas pu démarrer. Ses données de langue sont peut-être abîmées : réessayez pour les télécharger à nouveau.
+1612|Aucun texte n’a été trouvé sur les pages.
+1613|Anglais
+1614|Français
+1615|Allemand
+1616|Espagnol
+1617|Italien
+1618|Néerlandais
+1619|Portugais
+1620|Russe
+1621|Japonais
+1622|Japonais, écrit verticalement
+1623|Grec ancien
+1624|Grec moderne
+1625|Latin
+1626|Échec du téléchargement : {0} ({1}).
+1627|Arrêté.
+1628|Le téléchargement ({0}) n’était pas celui attendu, il n’a donc pas été utilisé.
+1629|Impossible d’enregistrer le téléchargement ({0}).
+1630|Le PDF à partir duquel ce livre a été ajouté est introuvable, ses pages ne peuvent donc pas être lues.
+1631|Conversion de livres numérisés en texte
+1632|Avancement de la reconnaissance du texte
+1633| · {0} en attente
+1634|Téléchargement des données de langue…
+1635|{0} minute
+1636|{0} minutes
+1637|{0} heure
+1638|{0} heures
+1639|Moins
+1640|Plus
+1641| · moins d’une minute restante
+@de
+1540|Sammlungen und Buchdetails auf dem Kobo werden aktualisiert
+1541|„{0}“ besteht wieder aus seinen gescannten Seiten.
+1542|Zurück zum Scan nicht möglich: {0}
+1543|„{0}“ ist jetzt Text. Vergleiche ihn mit seinen Seiten, um ihn zu prüfen.
+1544|Vergleichen
+1545|„{0}“ konnte nicht in Text umgewandelt werden: {1}.
+1546|Sammlungen auf dem Kobo werden aktualisiert… Noch nicht auswerfen.
+1547|Nicht in der Bibliothek
+1548|Sammlungen und Buchdetails auf dem Kobo werden aktualisiert… Warte damit, bis es fertig ist, bevor du auswirfst.
+1549|Die App aktualisiert Sammlungen und Buchdetails auf dem Kobo. Warte ein paar Sekunden, bis sie fertig ist.
+1551|Zuerst in Text umwandeln…
+1552|Zuerst alle in Text umwandeln…
+1553|Bücher mit der Systemhelligkeit öffnen
+1554|Eine Änderung beim Lesen gilt, bis du das Buch schließt. Aus: Bücher öffnen sich mit der Helligkeit, die du hier zuletzt eingestellt hast.
+1555|Größe der Kolumnentitel
+1556|Abstand unter den Kolumnentiteln
+1557|Wie in einem gedruckten Buch sind die Kolumnentitel etwa so groß wie der Text, mit einer Zeile Abstand zwischen ihnen und dem Text.
+1558|Kapitelanfänge
+1559|Kapitel auf einer rechten Seite beginnen
+1560|Bei zwei Seiten nebeneinander beginnt jedes Kapitel rechts, und die Seite daneben bleibt leer, wie in einem gedruckten Buch.
+1561|Kapitelnummer und -titel wie im Druck
+1562|Die Nummer („Prolog“, „Kapitel 1“) in großen, gesperrten Großbuchstaben und der Titel darunter kursiv, egal wie das Buch es gestaltet. Aus: das eigene Aussehen des Buchs.
+1563|Initiale
+1564|Der erste Buchstabe jedes Kapitels reicht drei Zeilen tief, wie im Druck. Ein Buch mit eigenen Initialen behält sie.
+1565|Mit den Seiten vergleichen
+1566|Links der Linie die gescannte Seite, rechts davon die Wörter, wie sie erkannt wurden. Unsichere Wörter sind orange. Ziehe die Linie oder tippe dorthin, wo sie hin soll; zum Vergrößern mit zwei Fingern auseinanderziehen.
+1567|Zurück zum Scan
+1568|Das PDF, als das dieses Buch hinzugefügt wurde, fehlt.
+1569|Diese Seite wurde noch nicht gelesen.
+1570|Auf dieser Seite wurden keine Wörter gefunden.
+1571|Wartet auf die Bücher davor…
+1572|Sprachdaten werden geladen: {0} von {1} MB
+1573|Wird vorbereitet…
+1574| · noch etwa {0}
+1575|Das Buch wird zusammengestellt…
+1576|Text aus den gescannten Seiten
+1577|In Text umwandeln
+1578|Es läuft weiter, auch wenn die App geschlossen ist. Du kannst die bisher gelesenen Seiten ansehen.
+1579|Die Wörter wurden in den Bildern seiner Seiten erkannt ({0}) und können daher Fehler enthalten.
+1580|Die Wörter wurden in den Bildern seiner Seiten erkannt und können daher Fehler enthalten.
+1581| Sein PDF bleibt erhalten: Es kann weiterhin als Scan gelesen werden.
+1582|Dieses PDF ist zu groß, um hier ein EPUB daraus zu machen, daher kann es nur als PDF gelesen und gesendet werden. Wenn seine Seiten Scans sind, kann KoLib die Wörter darin erkennen und ein Buch daraus machen, dessen Text sich dem Bildschirm anpasst.
+1583|Die Seiten dieses PDFs sind Bilder, daher kann es nur als PDF gelesen und gesendet werden. KoLib kann die Wörter darin erkennen und ein Buch daraus machen, dessen Text sich dem Bildschirm anpasst.
+1584|Bisher gelesene Seiten: {0} von {1}.
+1585|Weitermachen
+1586|In Text umwandeln…
+1587|Andere Sprachen…
+1588|„{0}“ wird in Text umgewandelt
+1589|„{0}“ in Text umwandeln
+1590|{0} Bücher in Text umwandeln
+1591|KoLib erkennt die Wörter in den Bildern der Seiten, hier auf diesem Gerät, und macht daraus ein Buch, dessen Text sich dem Bildschirm anpasst. Das dauert ein paar Sekunden pro Seite, ein langes Buch braucht also eine Weile; es läuft weiter, auch wenn die App geschlossen ist.
+1592|Der Text kann Fehler enthalten, besonders bei alter oder kleiner Schrift, Tabellen, Fußnoten und anderen Alphabeten. Der Scan bleibt erhalten: Du kannst den Text Seite für Seite damit vergleichen und zu ihm zurückkehren.
+1593|Sprachen im Buch
+1594|Wähle jede Sprache, in der es geschrieben ist. Jede macht es etwas langsamer.
+1595|Zuerst werden {0} Sprachdaten vom Tesseract-Projekt heruntergeladen.
+1596|Alles Nötige ist schon auf diesem Gerät.
+1597|In Text umwandeln
+1598|Zurück zum Scan?
+1599|„{0}“ wird wieder wie vorher als PDF gelesen und gesendet. Was erkannt wurde, bleibt erhalten, daher geht eine erneute Umwandlung in denselben Sprachen schnell.
+1600|Der Text dieses Buchs wurde nicht aus seinen Seiten erkannt.
+1601|PDF aus gescannten Seiten, in Text umgewandelt
+1602|Wie im Druck
+1603|Größer
+1604|Eine Zeile
+1605|Der Kobo hat eine unvollendete Änderung an seiner Datenbank. Wirf ihn aus und warte, bis er seine Bücher anzeigt, dann verbinde ihn erneut.
+1606|Die Datenbank des Kobo ist kürzer als erwartet.
+1607|Die Datenbank des Kobo hat die falsche Größe.
+1608|Ein Teil der Datenbank des Kobo ließ sich nicht so zurücklesen, wie er geschrieben wurde.
+1609|Das Journal neben der Datenbank des Kobo konnte nicht entfernt werden, daher wurde die Änderung rückgängig gemacht.
+1610|Der Kobo hat während der Aktualisierung seiner Datenbank nicht mehr geantwortet. Der Kobo macht die unvollendete Änderung selbst rückgängig, sobald er ausgeworfen ist.
+1611|Die Texterkennung konnte nicht starten. Ihre Sprachdaten sind vielleicht beschädigt: Versuche es erneut, um sie neu herunterzuladen.
+1612|Auf den Seiten wurde kein Text gefunden.
+1613|Englisch
+1614|Französisch
+1615|Deutsch
+1616|Spanisch
+1617|Italienisch
+1618|Niederländisch
+1619|Portugiesisch
+1620|Russisch
+1621|Japanisch
+1622|Japanisch, senkrecht geschrieben
+1623|Altgriechisch
+1624|Neugriechisch
+1625|Latein
+1626|Download fehlgeschlagen: {0} ({1}).
+1627|Gestoppt.
+1628|Der Download ({0}) war nicht wie erwartet und wurde daher nicht verwendet.
+1629|Der Download ({0}) konnte nicht gespeichert werden.
+1630|Das PDF, als das dieses Buch hinzugefügt wurde, fehlt, daher können seine Seiten nicht gelesen werden.
+1631|Gescannte Bücher werden in Text umgewandelt
+1632|Fortschritt der Texterkennung
+1633| · noch {0} in der Warteschlange
+1634|Sprachdaten werden geladen…
+1635|{0} Minute
+1636|{0} Minuten
+1637|{0} Stunde
+1638|{0} Stunden
+1639|Weniger
+1640|Mehr
+1641| · noch weniger als eine Minute
+@es
+1540|Actualizando colecciones y detalles de los libros en el Kobo
+1541|«{0}» vuelve a ser sus páginas escaneadas.
+1542|No se ha podido volver al escaneo: {0}
+1543|«{0}» ya es texto. Compáralo con sus páginas para revisarlo.
+1544|Comparar
+1545|No se ha podido convertir «{0}» en texto: {1}.
+1546|Actualizando colecciones en el Kobo… No lo expulses todavía.
+1547|No está en la biblioteca
+1548|Actualizando colecciones y detalles de los libros en el Kobo… Espera a que termine antes de expulsarlo.
+1549|La app está actualizando colecciones y detalles de los libros en el Kobo. Espera unos segundos a que termine.
+1551|Convertirlo en texto primero…
+1552|Convertirlos en texto primero…
+1553|Abrir los libros con el brillo del sistema
+1554|Un cambio hecho mientras lees dura hasta que cierras el libro. Si está desactivado, los libros se abren con el último brillo que pusiste aquí.
+1555|Tamaño de los encabezados
+1556|Espacio bajo los encabezados
+1557|Como en un libro impreso, los encabezados tienen más o menos el tamaño del texto, con una línea de espacio entre ellos y el texto.
+1558|Inicios de capítulo
+1559|Empezar los capítulos en una página derecha
+1560|Con dos páginas una al lado de otra, cada capítulo empieza a la derecha, con la página de al lado en blanco, como en un libro impreso.
+1561|Número y título del capítulo como en un libro impreso
+1562|El número («Prólogo», «Capítulo 1») en mayúsculas grandes y espaciadas, y el título debajo en cursiva, sea cual sea el estilo del libro. Si está desactivado, el aspecto propio del libro.
+1563|Letra capital
+1564|La primera letra de cada capítulo ocupa tres líneas, como en un libro impreso. Un libro con sus propias letras capitales las conserva.
+1565|Comparar con las páginas
+1566|A la izquierda de la línea, la página escaneada; a la derecha, las palabras tal como se reconocieron. Las palabras dudosas están en naranja. Arrastra la línea o toca donde debe ir; pellizca para ampliar.
+1567|Volver al escaneo
+1568|Falta el PDF con el que se añadió este libro.
+1569|Esta página aún no se ha leído.
+1570|No se han encontrado palabras en esta página.
+1571|Esperando a los libros anteriores…
+1572|Descargando los datos de idioma: {0} de {1} MB
+1573|Preparando…
+1574| · tiempo restante aprox.: {0}
+1575|Montando el libro…
+1576|Texto de las páginas escaneadas
+1577|Convertirlo en texto
+1578|Sigue aunque cierres la app. Puedes revisar las páginas leídas hasta ahora.
+1579|Las palabras se reconocieron en las imágenes de sus páginas ({0}), así que pueden tener errores.
+1580|Las palabras se reconocieron en las imágenes de sus páginas, así que pueden tener errores.
+1581| Su PDF se conserva: aún se puede leer como escaneo.
+1582|Este PDF es demasiado grande para convertirlo en EPUB aquí, así que solo se puede leer y enviar como PDF. Si sus páginas son escaneos, KoLib puede reconocer sus palabras y convertirlo en un libro cuyo texto se ajusta a la pantalla.
+1583|Las páginas de este PDF son imágenes, así que solo se puede leer y enviar como PDF. KoLib puede reconocer sus palabras y convertirlo en un libro cuyo texto se ajusta a la pantalla.
+1584|Páginas leídas hasta ahora: {0} de {1}.
+1585|Continuar
+1586|Convertir en texto…
+1587|Otros idiomas…
+1588|Convirtiendo «{0}» en texto
+1589|Convertir «{0}» en texto
+1590|Convertir {0} libros en texto
+1591|KoLib reconoce las palabras en las imágenes de las páginas, aquí en este dispositivo, y las convierte en un libro cuyo texto se ajusta a la pantalla. Tarda unos segundos por página, así que un libro largo lleva un rato; sigue aunque cierres la app.
+1592|El texto puede tener errores, sobre todo con letra antigua o pequeña, tablas, notas al pie y otros alfabetos. El escaneo se conserva: puedes comparar el texto con él página a página y volver a él.
+1593|Idiomas del libro
+1594|Elige todos los idiomas en los que está escrito. Cada uno lo hace un poco más lento.
+1595|Primero se descargan {0} de datos de idioma del proyecto Tesseract.
+1596|Todo lo necesario ya está en este dispositivo.
+1597|Convertir en texto
+1598|¿Volver al escaneo?
+1599|«{0}» vuelve a leerse y enviarse como su PDF, como antes. Lo reconocido se conserva, así que volver a convertirlo en texto en los mismos idiomas es rápido.
+1600|El texto de este libro no se reconoció a partir de sus páginas.
+1601|PDF de páginas escaneadas, convertido en texto
+1602|Como en un libro
+1603|Más grande
+1604|Una línea
+1605|El Kobo tiene un cambio sin terminar en su base de datos. Expúlsalo y espera a que muestre sus libros; luego vuelve a conectarlo.
+1606|La base de datos del Kobo es más corta de lo esperado.
+1607|La base de datos del Kobo ha quedado con un tamaño incorrecto.
+1608|Una parte de la base de datos del Kobo no se ha leído igual que se escribió.
+1609|No se ha podido eliminar el diario junto a la base de datos del Kobo, así que se ha deshecho el cambio.
+1610|El Kobo dejó de responder mientras se actualizaba su base de datos. El propio Kobo deshace el cambio sin terminar cuando se expulsa.
+1611|El reconocimiento de texto no ha podido empezar. Puede que sus datos de idioma estén dañados: vuelve a intentarlo para descargarlos de nuevo.
+1612|No se ha encontrado texto en las páginas.
+1613|Inglés
+1614|Francés
+1615|Alemán
+1616|Español
+1617|Italiano
+1618|Neerlandés
+1619|Portugués
+1620|Ruso
+1621|Japonés
+1622|Japonés, escrito en vertical
+1623|Griego antiguo
+1624|Griego moderno
+1625|Latín
+1626|Ha fallado la descarga: {0} ({1}).
+1627|Detenido.
+1628|La descarga ({0}) no era la esperada, así que no se ha usado.
+1629|No se ha podido guardar la descarga ({0}).
+1630|Falta el PDF con el que se añadió este libro, así que no se pueden leer sus páginas.
+1631|Convirtiendo libros escaneados en texto
+1632|Progreso del reconocimiento de texto
+1633| · {0} en espera
+1634|Descargando los datos de idioma…
+1635|{0} minuto
+1636|{0} minutos
+1637|{0} hora
+1638|{0} horas
+1639|Menos
+1640|Más
+1641| · queda menos de un minuto
+@it
+1540|Aggiornamento di raccolte e dettagli dei libri sul Kobo
+1541|«{0}» è tornato alle sue pagine scansionate.
+1542|Impossibile tornare alla scansione: {0}
+1543|«{0}» ora è testo. Confrontalo con le sue pagine per controllarlo.
+1544|Confronta
+1545|Impossibile convertire «{0}» in testo: {1}.
+1546|Aggiornamento delle raccolte sul Kobo… Non espellerlo ancora.
+1547|Non nella libreria
+1548|Aggiornamento di raccolte e dettagli dei libri sul Kobo… Attendi che finisca prima di espellerlo.
+1549|L’app sta aggiornando raccolte e dettagli dei libri sul Kobo. Attendi qualche secondo che finisca.
+1551|Prima convertilo in testo…
+1552|Prima convertili in testo…
+1553|Apri i libri con la luminosità di sistema
+1554|Una modifica fatta durante la lettura dura finché non chiudi il libro. Se disattivato, i libri si aprono con l’ultima luminosità impostata qui.
+1555|Dimensione dei titoli correnti
+1556|Spazio sotto i titoli correnti
+1557|Come in un libro stampato, i titoli correnti sono grandi più o meno come il testo, con una riga di spazio tra loro e il testo.
+1558|Inizi dei capitoli
+1559|Inizia i capitoli su una pagina destra
+1560|Con due pagine affiancate, ogni capitolo inizia a destra, con la pagina accanto bianca, come in un libro stampato.
+1561|Numero e titolo del capitolo come in un libro stampato
+1562|Il numero («Prologo», «Capitolo 1») in grandi maiuscole spaziate, e il titolo sotto in corsivo, qualunque sia lo stile del libro. Se disattivato, l’aspetto proprio del libro.
+1563|Capolettera
+1564|La prima lettera di ogni capitolo scende per tre righe, come in un libro stampato. Un libro con capilettera propri li mantiene.
+1565|Confronta con le pagine
+1566|A sinistra della linea, la pagina scansionata; a destra, le parole come sono state riconosciute. Le parole incerte sono in arancione. Trascina la linea o tocca dove deve andare; pizzica per ingrandire.
+1567|Torna alla scansione
+1568|Manca il PDF con cui è stato aggiunto questo libro.
+1569|Questa pagina non è ancora stata letta.
+1570|Nessuna parola trovata in questa pagina.
+1571|In attesa dei libri precedenti…
+1572|Download dei dati della lingua: {0} di {1} MB
+1573|Preparazione…
+1574| · tempo rimanente: circa {0}
+1575|Composizione del libro…
+1576|Testo dalle pagine scansionate
+1577|Convertilo in testo
+1578|Continua anche con l’app chiusa. Puoi controllare le pagine lette finora.
+1579|Le parole sono state riconosciute nelle immagini delle sue pagine ({0}), quindi possono contenere errori.
+1580|Le parole sono state riconosciute nelle immagini delle sue pagine, quindi possono contenere errori.
+1581| Il suo PDF viene conservato: si può ancora leggere come scansione.
+1582|Questo PDF è troppo grande per diventare un EPUB qui, quindi si può solo leggere e inviare come PDF. Se le sue pagine sono scansioni, KoLib può riconoscerne le parole e farne un libro il cui testo si adatta allo schermo.
+1583|Le pagine di questo PDF sono immagini, quindi si può solo leggere e inviare come PDF. KoLib può riconoscerne le parole e farne un libro il cui testo si adatta allo schermo.
+1584|Pagine lette finora: {0} di {1}.
+1585|Continua
+1586|Converti in testo…
+1587|Altre lingue…
+1588|Conversione di «{0}» in testo
+1589|Converti «{0}» in testo
+1590|Converti {0} libri in testo
+1591|KoLib riconosce le parole nelle immagini delle pagine, qui su questo dispositivo, e ne fa un libro il cui testo si adatta allo schermo. Ci vogliono alcuni secondi a pagina, quindi un libro lungo richiede un po’ di tempo; continua anche con l’app chiusa.
+1592|Il testo può contenere errori, soprattutto con caratteri antichi o piccoli, tabelle, note a piè di pagina e altri alfabeti. La scansione viene conservata: puoi confrontare il testo con essa pagina per pagina e tornarci.
+1593|Lingue del libro
+1594|Scegli tutte le lingue in cui è scritto. Ognuna lo rende un po’ più lento.
+1595|Prima vengono scaricati {0} di dati della lingua dal progetto Tesseract.
+1596|Tutto il necessario è già su questo dispositivo.
+1597|Converti in testo
+1598|Tornare alla scansione?
+1599|«{0}» torna a essere letto e inviato come PDF, come prima. Ciò che è stato riconosciuto viene conservato, quindi riconvertirlo in testo nelle stesse lingue è rapido.
+1600|Il testo di questo libro non è stato riconosciuto dalle sue pagine.
+1601|PDF di pagine scansionate, convertito in testo
+1602|Come in un libro
+1603|Più grande
+1604|Una riga
+1605|Il Kobo ha una modifica incompiuta al suo database. Espellilo e attendi che mostri i suoi libri, poi ricollegalo.
+1606|Il database del Kobo è più corto del previsto.
+1607|Il database del Kobo ha una dimensione sbagliata.
+1608|Una parte del database del Kobo non è stata riletta come era stata scritta.
+1609|Il journal accanto al database del Kobo non è stato rimosso, quindi la modifica è stata annullata.
+1610|Il Kobo ha smesso di rispondere mentre il suo database veniva aggiornato. Il Kobo annulla da solo la modifica incompiuta una volta espulso.
+1611|Il riconoscimento del testo non è riuscito ad avviarsi. I suoi dati della lingua potrebbero essere danneggiati: riprova per scaricarli di nuovo.
+1612|Nessun testo trovato nelle pagine.
+1613|Inglese
+1614|Francese
+1615|Tedesco
+1616|Spagnolo
+1617|Italiano
+1618|Olandese
+1619|Portoghese
+1620|Russo
+1621|Giapponese
+1622|Giapponese, scritto in verticale
+1623|Greco antico
+1624|Greco moderno
+1625|Latino
+1626|Download non riuscito: {0} ({1}).
+1627|Interrotto.
+1628|Il download ({0}) non era quello previsto, quindi non è stato usato.
+1629|Impossibile salvare il download ({0}).
+1630|Manca il PDF con cui è stato aggiunto questo libro, quindi le sue pagine non si possono leggere.
+1631|Conversione di libri scansionati in testo
+1632|Avanzamento del riconoscimento del testo
+1633| · {0} in attesa
+1634|Download dei dati della lingua…
+1635|{0} minuto
+1636|{0} minuti
+1637|{0} ora
+1638|{0} ore
+1639|Meno
+1640|Più
+1641| · manca meno di un minuto
+@nl
+1540|Collecties en boekgegevens op de Kobo worden bijgewerkt
+1541|‘{0}’ bestaat weer uit zijn gescande pagina’s.
+1542|Terug naar de scan is niet gelukt: {0}
+1543|‘{0}’ is nu tekst. Vergelijk het met de pagina’s om het te controleren.
+1544|Vergelijken
+1545|‘{0}’ omzetten naar tekst is niet gelukt: {1}.
+1546|Collecties op de Kobo worden bijgewerkt… Werp hem nog niet uit.
+1547|Niet in bibliotheek
+1548|Collecties en boekgegevens op de Kobo worden bijgewerkt… Wacht tot dit klaar is voordat je hem uitwerpt.
+1549|De app werkt collecties en boekgegevens op de Kobo bij. Wacht een paar seconden tot hij klaar is.
+1551|Eerst omzetten naar tekst…
+1552|Eerst allemaal omzetten naar tekst…
+1553|Boeken openen met de systeemhelderheid
+1554|Een wijziging tijdens het lezen blijft tot je het boek sluit. Uit: boeken openen met de helderheid die je hier het laatst hebt ingesteld.
+1555|Grootte van de paginakoppen
+1556|Ruimte onder de paginakoppen
+1557|Zoals in een gedrukt boek zijn de paginakoppen ongeveer zo groot als de tekst, met een regel ruimte tussen hen en de tekst.
+1558|Begin van hoofdstukken
+1559|Hoofdstukken op een rechterpagina laten beginnen
+1560|Met twee pagina’s naast elkaar begint elk hoofdstuk rechts, met de pagina ernaast leeg, zoals in een gedrukt boek.
+1561|Hoofdstuknummer en -titel zoals in druk
+1562|Het nummer (‘Proloog’, ‘Hoofdstuk 1’) in grote, gespatieerde hoofdletters en de titel eronder cursief, wat het boek ook instelt. Uit: het eigen uiterlijk van het boek.
+1563|Initiaal
+1564|De eerste letter van elk hoofdstuk loopt drie regels door, zoals in druk. Een boek met eigen initialen houdt die.
+1565|Vergelijken met de pagina’s
+1566|Links van de lijn de gescande pagina, rechts ervan de woorden zoals ze herkend zijn. Woorden waarover twijfel was, zijn oranje. Sleep de lijn of tik waar hij moet komen; knijp om in te zoomen.
+1567|Terug naar de scan
+1568|De pdf waarmee dit boek is toegevoegd, ontbreekt.
+1569|Deze pagina is nog niet gelezen.
+1570|Er zijn geen woorden op deze pagina gevonden.
+1571|Wachten op de boeken ervoor…
+1572|Taalgegevens downloaden: {0} van {1} MB
+1573|Voorbereiden…
+1574| · nog ongeveer {0}
+1575|Het boek samenstellen…
+1576|Tekst uit de gescande pagina’s
+1577|Omzetten naar tekst
+1578|Het gaat door, ook als de app gesloten is. Je kunt de pagina’s bekijken die al gelezen zijn.
+1579|De woorden zijn herkend in de afbeeldingen van de pagina’s ({0}), dus ze kunnen fouten bevatten.
+1580|De woorden zijn herkend in de afbeeldingen van de pagina’s, dus ze kunnen fouten bevatten.
+1581| De pdf blijft bewaard: hij kan nog steeds als scan gelezen worden.
+1582|Deze pdf is te groot om hier een EPUB van te maken, dus hij kan alleen als pdf gelezen en verstuurd worden. Als de pagina’s scans zijn, kan KoLib de woorden erin herkennen en er een boek van maken waarvan de tekst zich aan het scherm aanpast.
+1583|De pagina’s van deze pdf zijn afbeeldingen, dus hij kan alleen als pdf gelezen en verstuurd worden. KoLib kan de woorden erin herkennen en er een boek van maken waarvan de tekst zich aan het scherm aanpast.
+1584|Tot nu toe gelezen pagina’s: {0} van {1}.
+1585|Doorgaan
+1586|Omzetten naar tekst…
+1587|Andere talen…
+1588|‘{0}’ wordt omgezet naar tekst
+1589|‘{0}’ omzetten naar tekst
+1590|{0} boeken omzetten naar tekst
+1591|KoLib herkent de woorden in de afbeeldingen van de pagina’s, hier op dit apparaat, en maakt er een boek van waarvan de tekst zich aan het scherm aanpast. Het duurt een paar seconden per pagina, dus een lang boek kost even tijd; het gaat door, ook als de app gesloten is.
+1592|De tekst kan fouten bevatten, vooral bij oude of kleine letters, tabellen, voetnoten en andere alfabetten. De scan blijft bewaard: je kunt de tekst er pagina voor pagina mee vergelijken en ernaar teruggaan.
+1593|Talen in het boek
+1594|Kies elke taal waarin het geschreven is. Elke taal maakt het iets langzamer.
+1595|Eerst wordt {0} aan taalgegevens gedownload van het Tesseract-project.
+1596|Alles wat nodig is, staat al op dit apparaat.
+1597|Omzetten naar tekst
+1598|Terug naar de scan?
+1599|‘{0}’ wordt weer als pdf gelezen en verstuurd, zoals eerst. Wat herkend is, blijft bewaard, dus opnieuw omzetten naar tekst in dezelfde talen gaat snel.
+1600|De tekst van dit boek is niet uit de pagina’s herkend.
+1601|Pdf van gescande pagina’s, omgezet naar tekst
+1602|Zoals in druk
+1603|Groter
+1604|Eén regel
+1605|De Kobo heeft een onafgemaakte wijziging in zijn database. Werp hem uit en wacht tot hij zijn boeken toont; sluit hem daarna opnieuw aan.
+1606|De database van de Kobo is korter dan verwacht.
+1607|De database van de Kobo heeft de verkeerde grootte gekregen.
+1608|Een deel van de database van de Kobo las niet terug zoals het geschreven was.
+1609|Het journaal naast de database van de Kobo kon niet worden verwijderd, dus de wijziging is ongedaan gemaakt.
+1610|De Kobo reageerde niet meer terwijl zijn database werd bijgewerkt. De Kobo maakt de onafgemaakte wijziging zelf ongedaan zodra hij is uitgeworpen.
+1611|De tekstherkenning kon niet starten. De taalgegevens zijn misschien beschadigd: probeer het opnieuw om ze opnieuw te downloaden.
+1612|Er is geen tekst op de pagina’s gevonden.
+1613|Engels
+1614|Frans
+1615|Duits
+1616|Spaans
+1617|Italiaans
+1618|Nederlands
+1619|Portugees
+1620|Russisch
+1621|Japans
+1622|Japans, verticaal geschreven
+1623|Oudgrieks
+1624|Nieuwgrieks
+1625|Latijn
+1626|Download mislukt: {0} ({1}).
+1627|Gestopt.
+1628|De download ({0}) was niet zoals verwacht, dus hij is niet gebruikt.
+1629|De download ({0}) kon niet worden opgeslagen.
+1630|De pdf waarmee dit boek is toegevoegd, ontbreekt, dus de pagina’s kunnen niet gelezen worden.
+1631|Gescande boeken omzetten naar tekst
+1632|Voortgang van de tekstherkenning
+1633| · nog {0} in de wachtrij
+1634|Taalgegevens downloaden…
+1635|{0} minuut
+1636|{0} minuten
+1637|{0} uur
+1638|{0} uur
+1639|Minder
+1640|Meer
+1641| · nog minder dan een minuut
+@pt
+1540|Atualizando coleções e detalhes dos livros no Kobo
+1541|“{0}” voltou a ser suas páginas digitalizadas.
+1542|Não foi possível voltar à digitalização: {0}
+1543|“{0}” agora é texto. Compare com as páginas para conferir.
+1544|Comparar
+1545|Não foi possível converter “{0}” em texto: {1}.
+1546|Atualizando coleções no Kobo… Não ejete ainda.
+1547|Fora da biblioteca
+1548|Atualizando coleções e detalhes dos livros no Kobo… Espere terminar antes de ejetar.
+1549|O app está atualizando coleções e detalhes dos livros no Kobo. Espere alguns segundos até terminar.
+1551|Converter em texto primeiro…
+1552|Converter todos em texto primeiro…
+1553|Abrir livros com o brilho do sistema
+1554|Uma mudança feita durante a leitura dura até você fechar o livro. Desativado, os livros abrem com o último brilho definido aqui.
+1555|Tamanho dos cabeçalhos
+1556|Espaço abaixo dos cabeçalhos
+1557|Como num livro impresso, os cabeçalhos têm mais ou menos o tamanho do texto, com uma linha de espaço entre eles e o texto.
+1558|Aberturas de capítulo
+1559|Começar capítulos numa página da direita
+1560|Com duas páginas lado a lado, cada capítulo começa à direita, com a página ao lado em branco, como num livro impresso.
+1561|Número e título do capítulo como num livro impresso
+1562|O número (“Prólogo”, “Capítulo 1”) em maiúsculas grandes e espaçadas, e o título abaixo em itálico, seja qual for o estilo do livro. Desativado, a aparência própria do livro.
+1563|Letra capitular
+1564|A primeira letra de cada capítulo desce três linhas, como num livro impresso. Um livro com letras capitulares próprias as mantém.
+1565|Comparar com as páginas
+1566|À esquerda da linha, a página digitalizada; à direita, as palavras como foram reconhecidas. Palavras incertas ficam em laranja. Arraste a linha ou toque onde ela deve ficar; use o movimento de pinça para ampliar.
+1567|Voltar à digitalização
+1568|O PDF com que este livro foi adicionado está faltando.
+1569|Esta página ainda não foi lida.
+1570|Nenhuma palavra foi encontrada nesta página.
+1571|Aguardando os livros anteriores…
+1572|Baixando os dados de idioma: {0} de {1} MB
+1573|Preparando…
+1574| · tempo restante: cerca de {0}
+1575|Montando o livro…
+1576|Texto das páginas digitalizadas
+1577|Converter em texto
+1578|Continua mesmo com o app fechado. Você pode conferir as páginas lidas até agora.
+1579|As palavras foram reconhecidas nas imagens das páginas ({0}), então podem ter erros.
+1580|As palavras foram reconhecidas nas imagens das páginas, então podem ter erros.
+1581| O PDF é mantido: ainda pode ser lido como digitalização.
+1582|Este PDF é grande demais para virar EPUB aqui, então só pode ser lido e enviado como PDF. Se as páginas forem digitalizações, o KoLib pode reconhecer as palavras e transformá-lo num livro cujo texto se ajusta à tela.
+1583|As páginas deste PDF são imagens, então ele só pode ser lido e enviado como PDF. O KoLib pode reconhecer as palavras e transformá-lo num livro cujo texto se ajusta à tela.
+1584|Páginas lidas até agora: {0} de {1}.
+1585|Continuar
+1586|Converter em texto…
+1587|Outros idiomas…
+1588|Convertendo “{0}” em texto
+1589|Converter “{0}” em texto
+1590|Converter {0} livros em texto
+1591|O KoLib reconhece as palavras nas imagens das páginas, aqui neste aparelho, e as transforma num livro cujo texto se ajusta à tela. Leva alguns segundos por página, então um livro longo demora um pouco; continua mesmo com o app fechado.
+1592|O texto pode ter erros, principalmente com letras antigas ou pequenas, tabelas, notas de rodapé e outros alfabetos. A digitalização é mantida: você pode comparar o texto com ela página por página e voltar a ela.
+1593|Idiomas do livro
+1594|Escolha todos os idiomas em que ele está escrito. Cada um deixa o processo um pouco mais lento.
+1595|Primeiro, {0} de dados de idioma são baixados do projeto Tesseract.
+1596|Tudo o que é necessário já está neste aparelho.
+1597|Converter em texto
+1598|Voltar à digitalização?
+1599|“{0}” volta a ser lido e enviado como PDF, como antes. O que foi reconhecido é mantido, então converter em texto de novo nos mesmos idiomas é rápido.
+1600|O texto deste livro não foi reconhecido a partir das páginas.
+1601|PDF de páginas digitalizadas, convertido em texto
+1602|Como num livro
+1603|Maior
+1604|Uma linha
+1605|O Kobo tem uma alteração inacabada no banco de dados. Ejete-o e espere até que ele mostre os livros; depois conecte-o de novo.
+1606|O banco de dados do Kobo é menor do que o esperado.
+1607|O banco de dados do Kobo ficou com o tamanho errado.
+1608|Parte do banco de dados do Kobo não foi relida como foi gravada.
+1609|Não foi possível remover o diário ao lado do banco de dados do Kobo, então a alteração foi desfeita.
+1610|O Kobo parou de responder enquanto o banco de dados era atualizado. O próprio Kobo desfaz a alteração inacabada depois de ejetado.
+1611|O reconhecimento de texto não pôde começar. Os dados de idioma podem estar danificados: tente de novo para baixá-los novamente.
+1612|Nenhum texto foi encontrado nas páginas.
+1613|Inglês
+1614|Francês
+1615|Alemão
+1616|Espanhol
+1617|Italiano
+1618|Holandês
+1619|Português
+1620|Russo
+1621|Japonês
+1622|Japonês, escrito na vertical
+1623|Grego antigo
+1624|Grego moderno
+1625|Latim
+1626|Falha no download: {0} ({1}).
+1627|Parado.
+1628|O download ({0}) não era o esperado, então não foi usado.
+1629|Não foi possível salvar o download ({0}).
+1630|O PDF com que este livro foi adicionado está faltando, então as páginas não podem ser lidas.
+1631|Convertendo livros digitalizados em texto
+1632|Progresso do reconhecimento de texto
+1633| · {0} aguardando
+1634|Baixando os dados de idioma…
+1635|{0} minuto
+1636|{0} minutos
+1637|{0} hora
+1638|{0} horas
+1639|Menos
+1640|Mais
+1641| · falta menos de um minuto
+@ru
+1540|Обновление коллекций и сведений о книгах на Kobo
+1541|«{0}» снова состоит из отсканированных страниц.
+1542|Не удалось вернуться к скану: {0}
+1543|«{0}» теперь текст. Сравните его со страницами, чтобы проверить.
+1544|Сравнить
+1545|Не удалось распознать текст в «{0}»: {1}.
+1546|Обновление коллекций на Kobo… Пока не извлекайте его.
+1547|Не в библиотеке
+1548|Обновление коллекций и сведений о книгах на Kobo… Дождитесь окончания, прежде чем извлекать.
+1549|Приложение обновляет коллекции и сведения о книгах на Kobo. Подождите несколько секунд, пока это не закончится.
+1551|Сначала распознать текст…
+1552|Сначала распознать текст во всех…
+1553|Открывать книги с системной яркостью
+1554|Изменение во время чтения действует, пока вы не закроете книгу. Если выключено, книги открываются с яркостью, заданной здесь в последний раз.
+1555|Размер колонтитулов
+1556|Отступ под колонтитулами
+1557|Как в печатной книге: колонтитулы примерно размером с текст, а между ними и текстом — одна строка.
+1558|Начала глав
+1559|Начинать главы на правой странице
+1560|Когда две страницы рядом, каждая глава начинается справа, а соседняя страница остаётся пустой, как в печатной книге.
+1561|Номер и название главы как в печатной книге
+1562|Номер («Пролог», «Глава 1») крупными заглавными буквами вразрядку, а под ним название курсивом, как бы ни была оформлена книга. Если выключено — собственное оформление книги.
+1563|Буквица
+1564|Первая буква каждой главы занимает три строки, как в печатной книге. В книге со своими буквицами они остаются.
+1565|Сравнить со страницами
+1566|Слева от линии — отсканированная страница, справа — слова в том виде, в каком их распознали. Сомнительные слова выделены оранжевым. Перетащите линию или коснитесь места, куда её поставить; сведите или разведите пальцы, чтобы изменить масштаб.
+1567|Вернуться к скану
+1568|PDF, из которого была добавлена эта книга, отсутствует.
+1569|Эта страница ещё не прочитана.
+1570|На этой странице слов не найдено.
+1571|Ожидание предыдущих книг…
+1572|Загрузка языковых данных: {0} из {1} МБ
+1573|Подготовка…
+1574| · ещё примерно {0}
+1575|Сборка книги…
+1576|Текст из отсканированных страниц
+1577|Распознать текст
+1578|Работа продолжается и при закрытом приложении. Можно посмотреть уже прочитанные страницы.
+1579|Слова были распознаны на изображениях страниц ({0}), поэтому в них могут быть ошибки.
+1580|Слова были распознаны на изображениях страниц, поэтому в них могут быть ошибки.
+1581| PDF сохраняется: книгу всё ещё можно читать как скан.
+1582|Этот PDF слишком большой, чтобы сделать из него EPUB здесь, поэтому его можно только читать и отправлять как PDF. Если его страницы — сканы, KoLib может распознать на них слова и сделать книгу, текст которой подстраивается под экран.
+1583|Страницы этого PDF — изображения, поэтому его можно только читать и отправлять как PDF. KoLib может распознать на них слова и сделать книгу, текст которой подстраивается под экран.
+1584|Прочитано страниц: {0} из {1}.
+1585|Продолжить
+1586|Распознать текст…
+1587|Другие языки…
+1588|Распознавание текста в «{0}»
+1589|Распознать текст в «{0}»
+1590|Распознать текст в {0} {0:книге|книгах|книгах}
+1591|KoLib распознаёт слова на изображениях страниц прямо на этом устройстве и делает из них книгу, текст которой подстраивается под экран. На страницу уходит несколько секунд, так что длинная книга займёт время; работа продолжается и при закрытом приложении.
+1592|В тексте могут быть ошибки, особенно при старом или мелком шрифте, в таблицах, сносках и других алфавитах. Скан сохраняется: текст можно сравнить с ним постранично и вернуться к нему.
+1593|Языки книги
+1594|Выберите все языки, на которых она написана. Каждый язык немного замедляет работу.
+1595|Сначала с проекта Tesseract загружается {0} языковых данных.
+1596|Всё нужное уже есть на этом устройстве.
+1597|Распознать текст
+1598|Вернуться к скану?
+1599|«{0}» снова читается и отправляется как PDF, как раньше. Распознанное сохраняется, поэтому повторное распознавание на тех же языках пройдёт быстро.
+1600|Текст этой книги не был распознан со страниц.
+1601|PDF из отсканированных страниц, преобразован в текст
+1602|Как в книге
+1603|Крупнее
+1604|Одна строка
+1605|На Kobo осталось незавершённое изменение базы данных. Извлеките его и подождите, пока он покажет книги, затем подключите снова.
+1606|База данных Kobo короче, чем ожидалось.
+1607|База данных Kobo получилась неправильного размера.
+1608|Часть базы данных Kobo при обратном чтении не совпала с записанным.
+1609|Не удалось удалить журнал рядом с базой данных Kobo, поэтому изменение отменено.
+1610|Kobo перестал отвечать во время обновления базы данных. Kobo сам отменит незавершённое изменение после извлечения.
+1611|Не удалось запустить распознавание текста. Возможно, языковые данные повреждены: повторите попытку, чтобы загрузить их заново.
+1612|На страницах не найдено текста.
+1613|Английский
+1614|Французский
+1615|Немецкий
+1616|Испанский
+1617|Итальянский
+1618|Нидерландский
+1619|Португальский
+1620|Русский
+1621|Японский
+1622|Японский, вертикальное письмо
+1623|Древнегреческий
+1624|Новогреческий
+1625|Латынь
+1626|Не удалось загрузить: {0} ({1}).
+1627|Остановлено.
+1628|Загрузка ({0}) оказалась не той, что ожидалась, поэтому не использована.
+1629|Не удалось сохранить загрузку ({0}).
+1630|PDF, из которого была добавлена эта книга, отсутствует, поэтому его страницы нельзя прочитать.
+1631|Распознавание текста в отсканированных книгах
+1632|Ход распознавания текста
+1633| · в очереди ещё {0}
+1634|Загрузка языковых данных…
+1635|{0} минута
+1636|{0} {0:минута|минуты|минут}
+1637|{0} час
+1638|{0} {0:час|часа|часов}
+1639|Меньше
+1640|Больше
+1641| · осталось меньше минуты
+@ja
+1540|コレクションと本の情報を Kobo で更新しています
+1541|「{0}」はスキャンしたページに戻りました。
+1542|スキャンに戻せませんでした: {0}
+1543|「{0}」がテキストになりました。ページと比べて確認してください。
+1544|比べる
+1545|「{0}」をテキストにできませんでした: {1}。
+1546|Kobo のコレクションを更新しています… まだ取り出さないでください。
+1547|ライブラリにない本
+1548|コレクションと本の情報を Kobo で更新しています… 終わるまで取り出さないでください。
+1549|コレクションと本の情報を Kobo で更新しています。数秒お待ちください。
+1551|先にテキストにする…
+1552|先にすべてテキストにする…
+1553|本をシステムの明るさで開く
+1554|読書中に変えた明るさは、本を閉じるまで続きます。オフにすると、ここで最後に設定した明るさで本が開きます。
+1555|柱の大きさ
+1556|柱の下の余白
+1557|印刷された本のように、柱は本文とほぼ同じ大きさで、本文との間に 1 行分の余白があります。
+1558|章の始まり
+1559|章を右ページから始める
+1560|2 ページを並べて表示するとき、印刷された本のように各章を右ページから始め、隣のページは白紙にします。
+1561|章番号と章題を印刷された本のように
+1562|番号（「プロローグ」「第 1 章」）を字間を空けた大きな文字で、その下に章題を斜体で表示します。本のデザインにかかわらず適用します。オフにすると本のデザインのままです。
+1563|ドロップキャップ
+1564|各章の最初の文字を、印刷された本のように 3 行分の高さで表示します。独自のドロップキャップがある本はそのままです。
+1565|ページと比べる
+1566|線の左はスキャンしたページ、右は読み取った文字です。自信のない語はオレンジで示します。線をドラッグするか、置きたい場所をタップしてください。ピンチで拡大できます。
+1567|スキャンに戻す
+1568|この本を追加したときの PDF が見つかりません。
+1569|このページはまだ読み取っていません。
+1570|このページには文字が見つかりませんでした。
+1571|前の本を待っています…
+1572|言語データをダウンロードしています: {0} / {1} MB
+1573|準備しています…
+1574| · 残り約 {0}
+1575|本を組み立てています…
+1576|スキャンしたページのテキスト
+1577|テキストにする
+1578|アプリを閉じても続きます。読み取ったページはその都度確認できます。
+1579|文字はページの画像から読み取ったもの（{0}）なので、誤りがあることがあります。
+1580|文字はページの画像から読み取ったものなので、誤りがあることがあります。
+1581| PDF は残してあるので、スキャンのままでも読めます。
+1582|この PDF は大きすぎてここでは EPUB にできないため、PDF のまま読む・送ることしかできません。ページがスキャンなら、KoLib がその文字を読み取り、画面に合わせて文字が流れる本にできます。
+1583|この PDF のページは画像なので、PDF のまま読む・送ることしかできません。KoLib がその文字を読み取り、画面に合わせて文字が流れる本にできます。
+1584|これまでに読み取ったページ: {0} / {1}
+1585|続ける
+1586|テキストにする…
+1587|ほかの言語…
+1588|「{0}」をテキストにしています
+1589|「{0}」をテキストにする
+1590|{0} 冊をテキストにする
+1591|KoLib はこの端末の中でページの画像から文字を読み取り、画面に合わせて文字が流れる本にします。1 ページに数秒かかるので、長い本には時間がかかります。アプリを閉じても続きます。
+1592|古い活字や小さな文字、表、脚注、ほかの文字体系では特に誤りが出ることがあります。スキャンは残るので、テキストとページごとに比べたり、元に戻したりできます。
+1593|本の言語
+1594|本に使われている言語をすべて選んでください。言語が増えるほど少し遅くなります。
+1595|最初に、言語データ {0} を Tesseract プロジェクトからダウンロードします。
+1596|必要なものはすでにこの端末にあります。
+1597|テキストにする
+1598|スキャンに戻しますか？
+1599|「{0}」は以前と同じく PDF として読み、送るようになります。読み取った結果は残るので、同じ言語でもう一度テキストにするのはすぐです。
+1600|この本のテキストはページから読み取ったものではありません。
+1601|スキャンしたページの PDF（テキスト化済み）
+1602|印刷と同じ
+1603|大きく
+1604|1 行
+1605|Kobo のデータベースに途中の変更が残っています。Kobo を取り出し、本が表示されるまで待ってから、もう一度接続してください。
+1606|Kobo のデータベースが予想より短くなっています。
+1607|Kobo のデータベースのサイズが正しくありません。
+1608|Kobo のデータベースの一部が、書き込んだとおりに読み戻せませんでした。
+1609|Kobo のデータベースの横のジャーナルを削除できなかったため、変更を取り消しました。
+1610|データベースの更新中に Kobo が応答しなくなりました。取り出すと、Kobo が途中の変更を自分で取り消します。
+1611|文字の読み取りを開始できませんでした。言語データが壊れている可能性があります。もう一度試すとダウンロードし直します。
+1612|ページに文字が見つかりませんでした。
+1613|英語
+1614|フランス語
+1615|ドイツ語
+1616|スペイン語
+1617|イタリア語
+1618|オランダ語
+1619|ポルトガル語
+1620|ロシア語
+1621|日本語
+1622|日本語（縦書き）
+1623|古代ギリシャ語
+1624|現代ギリシャ語
+1625|ラテン語
+1626|ダウンロードに失敗しました: {0}（{1}）
+1627|中止しました。
+1628|ダウンロードした {0} が想定と違ったため、使いませんでした。
+1629|{0} のダウンロードを保存できませんでした。
+1630|この本を追加したときの PDF が見つからないため、ページを読み取れません。
+1631|スキャンした本をテキストにしています
+1632|文字の読み取りの進み具合
+1633| · ほかに {0} 冊待機中
+1634|言語データをダウンロードしています…
+1635|{0} 分
+1636|{0} 分
+1637|{0} 時間
+1638|{0} 時間
+1639|狭く
+1640|広く
+1641| · 残り 1 分未満

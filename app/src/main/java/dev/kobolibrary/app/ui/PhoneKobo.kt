@@ -252,6 +252,9 @@ private fun PhoneKoboFilters(browse: BrowseState, view: KoboView, extras: KoboEx
             browse.tags = chosen
             browse.tagsMatchAll = all
         }
+        InLibraryFilter.entries.forEach { f ->
+            PhoneToggleChip(f.label, browse.inLibrary == f) { browse.inLibrary = if (browse.inLibrary == f) null else f }
+        }
         StatusFilter.entries.forEach { f ->
             PhoneToggleChip(f.label, browse.status == f) { browse.status = if (browse.status == f) null else f }
         }

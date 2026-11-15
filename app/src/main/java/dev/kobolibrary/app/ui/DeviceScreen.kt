@@ -316,7 +316,7 @@ private fun SyncingBanner() {
             CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.onTertiaryContainer)
             Spacer(Modifier.width(12.dp))
             Text(
-                tr("Saving collections and book details to the Kobo… Wait until this finishes before ejecting."),
+                tr("Updating collections and book details on the Kobo… Wait until this finishes before ejecting."),
                 color = MaterialTheme.colorScheme.onTertiaryContainer,
                 style = MaterialTheme.typography.bodyMedium,
             )

@@ -121,6 +121,19 @@ class SafTree(private val resolver: ContentResolver, val treeUri: Uri) {
     fun openOutput(docId: String, mode: String = "wt"): OutputStream =
         resolver.openOutputStream(uriOf(docId), mode) ?: throw IOException(tr("Could not open {0} for writing", docId))
 
+    /** Opens a file in [mode] ("rw" to change it in place, "wt" to write it afresh), or null if the drive won't open it that way. */
+    fun openDescriptor(docId: String, mode: String): ParcelFileDescriptor? = try {
+        resolver.openFileDescriptor(uriOf(docId), mode)
+    } catch (e: FileNotFoundException) {
+        null
+    } catch (e: IllegalArgumentException) {
+        null
+    } catch (e: UnsupportedOperationException) {
+        null
+    } catch (e: SecurityException) {
+        null
+    }
+
     /** Creates a file and returns its document id (the provider may adjust the name if it already exists). */
     fun createFile(parentDocId: String, mimeType: String, name: String): String? =
         DocumentsContract.createDocument(resolver, uriOf(parentDocId), mimeType, name)

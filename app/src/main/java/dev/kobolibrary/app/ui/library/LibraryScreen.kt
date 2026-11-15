@@ -264,6 +264,7 @@ fun LibraryScreen(
     ) { padding ->
         Column(Modifier.padding(padding).fillMaxSize()) {
             if (job != null && !job.finished) JobStrip(job, onShowJob)
+            dev.kobolibrary.app.ui.ocr.OcrStrip(onShow = { id -> browse.selectedId = id })
             if (books.isEmpty()) {
                 EmptyLibrary(koboConnected, onAddFiles, onAddFromKobo, onNewBook)
                 return@Column
@@ -1035,6 +1036,7 @@ fun LibraryDetailPane(
             }
         }
         reading?.let { k -> ReadingLine(k, live = readingLive) }
+        dev.kobolibrary.app.ui.ocr.OcrSection(book)
         if (book.changedSinceOnKobo) {
             Row(Modifier.padding(top = 10.dp), verticalAlignment = Alignment.Top) {
                 Icon(Icons.Outlined.WarningAmber, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.error)

@@ -1,6 +1,7 @@
 package dev.kobolibrary.app.kobo
 
 import dev.kobolibrary.app.ui.BookSorting
+import dev.kobolibrary.app.ui.InLibraryFilter
 import dev.kobolibrary.app.ui.KoboSort
 import dev.kobolibrary.app.ui.KoboExtras
 import dev.kobolibrary.app.kobo.KoboTagStore
@@ -89,5 +90,27 @@ class BookSortingTest {
         // Progress: finished first when sorted most read first, then the one being read, then unread by title.
         assertEquals(listOf("2", "1", "4", "5", "3"), f(sort = KoboSort.PROGRESS))
         assertEquals(listOf("4", "5", "2", "3", "1"), f("library:no"))
+    }
+
+    @Test
+    fun filtersByWhetherTheLibraryHasACopy() {
+        val copies = listOf("Books/Dune.epub", "BOOKS/the final empire.epub").map { p ->
+            dev.kobolibrary.app.library.LibraryBook(
+                id = p, meta = dev.kobolibrary.app.epub.BookMetadata(title = p), collections = emptyList(),
+                fileSize = 0, hasCover = false, coverVersion = 0, addedAt = 0, modifiedAt = 0,
+                source = dev.kobolibrary.app.library.BookSource.KOBO, originalName = null, koboPath = p,
+            )
+        }
+        val extras = KoboExtras(copies)
+        fun f(which: InLibraryFilter?) =
+            ids(BookSorting.filter(books, emptyMap(), "", SourceFilter.ALL, null, KoboSort.TITLE, false, null, emptySet(), true, extras, which))
+        assertEquals(listOf("4", "5", "2", "3", "1"), f(null))
+        assertEquals(listOf("4", "2"), f(InLibraryFilter.IN))
+        assertEquals(listOf("5", "3", "1"), f(InLibraryFilter.NOT_IN))
+        val browse = dev.kobolibrary.app.ui.BrowseState()
+        browse.inLibrary = InLibraryFilter.NOT_IN
+        assertEquals(true, browse.narrowed)
+        browse.clearFilters()
+        assertEquals(null, browse.inLibrary)
     }
 }

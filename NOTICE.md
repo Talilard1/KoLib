@@ -14,6 +14,12 @@ read in the app (Library, then the ⓘ button).
 | AndroidX, Jetpack Compose, Material icons, Kotlin, kotlinx.coroutines | The app's framework | Apache 2.0 | `apache-2.0.txt` |
 | libarchive, © 2003–2018 Tim Kientzle and the libarchive contributors | Reading CBR (RAR) and CB7 (7z) comics | BSD 2-clause | `libarchive-BSD.txt` |
 | libarchive for Android (`me.zhanghai.android.libarchive`), © 2023 Hai Zhang | Using libarchive from the app | Apache 2.0 | `apache-2.0.txt` |
+| Tesseract 5, © Google LLC and the Tesseract contributors | Recognising the words in scanned pages (making a scanned PDF into text) | Apache 2.0 | `apache-2.0.txt` |
+| Tesseract language data (`tessdata_fast` 4.1.0), © Google LLC | What Tesseract knows of each language. Not in the app: downloaded from GitHub the first time a language is needed | Apache 2.0 | `apache-2.0.txt` |
+| Tesseract4Android (`cz.adaptech.tesseract4android`), © Robert Pösel, Robert Theis and contributors | Using Tesseract from the app; it brings the libraries below | Apache 2.0 | `apache-2.0.txt` |
+| Leptonica, © 2001 Leptonica | Pictures of scanned pages, for Tesseract | BSD 2-clause | `leptonica-BSD.txt` |
+| libjpeg, © 1991–2024 Thomas G. Lane, Guido Vollbeding. This software is based in part on the work of the Independent JPEG Group | JPEG pictures, for Tesseract | IJG | `libjpeg-IJG.txt` |
+| libpng, © 1995–2025 The PNG Reference Library Authors | PNG pictures, for Tesseract | PNG Reference Library License 2 | `libpng-LICENSE.txt` |
 
 Test-only libraries (JUnit, Robolectric, Roborazzi, sqlite-jdbc) are not part of the app.
 

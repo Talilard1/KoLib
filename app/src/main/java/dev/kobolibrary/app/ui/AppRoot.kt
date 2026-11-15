@@ -188,6 +188,47 @@ fun AppRoot(
     val libraryBrowse = remember { LibraryBrowseState() }
     var localMessage by remember { mutableStateOf<String?>(null) }
 
+    // Making scanned books into text: the dialog to start it, a book to take back to its scan, and what the screens can ask for.
+    val ocr = libraryVm.ocr
+    var ocrOffer by remember { mutableStateOf<List<String>?>(null) }
+    var goBackId by remember { mutableStateOf<String?>(null) }
+    val appContext = androidx.compose.ui.platform.LocalContext.current
+    val notifications = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
+    val askToNotify = {
+        // The notification says how far it's got; it goes on without one if it's not allowed.
+        if (android.os.Build.VERSION.SDK_INT >= 33 &&
+            androidx.core.content.ContextCompat.checkSelfPermission(appContext, android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) runCatching { notifications.launch(android.Manifest.permission.POST_NOTIFICATIONS) }
+    }
+    val ocrActions = remember {
+        dev.kobolibrary.app.ui.ocr.OcrActions(
+            offer = { list -> ocrOffer = list.map { it.id } },
+            carryOn = { book, languages ->
+                askToNotify()
+                ocr.start(listOf(book.id), languages)
+            },
+            stop = { book -> ocr.stop(book.id) },
+            compare = { book -> overlay = "compare:${book.id}" },
+            goBack = { book -> goBackId = book.id },
+        )
+    }
+    LaunchedEffect(Unit) {
+        ocr.news.collect { n ->
+            when (n) {
+                is dev.kobolibrary.app.ocr.OcrNews.Done -> {
+                    val r = snackbar.showSnackbar(
+                        tr("“{0}” is now text. Compare it with its pages to check it.", n.title),
+                        actionLabel = tr("Compare"),
+                        withDismissAction = true,
+                        duration = androidx.compose.material3.SnackbarDuration.Long,
+                    )
+                    if (r == androidx.compose.material3.SnackbarResult.ActionPerformed) overlay = "compare:${n.bookId}"
+                }
+                is dev.kobolibrary.app.ocr.OcrNews.Failed -> snackbar.showSnackbar(tr("Couldn't make “{0}” into text: {1}.", n.title, n.reason), withDismissAction = true)
+            }
+        }
+    }
+
     val treePicker = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         vm.onTreePicked(result.data?.data)
     }
@@ -333,6 +374,19 @@ fun AppRoot(
                     )
                 }
             }
+            current?.startsWith("compare:") == true -> {
+                val book = books.firstOrNull { it.id == current.removePrefix("compare:") }
+                if (book == null) {
+                    LaunchedEffect(Unit) { overlay = null }
+                } else {
+                    dev.kobolibrary.app.ui.ocr.CompareScreen(
+                        book = book,
+                        library = libraryVm.library,
+                        onClose = { overlay = null },
+                        onGoBack = if (book.isRecognised) ({ goBackId = book.id }) else null,
+                    )
+                }
+            }
             current?.startsWith("read:") == true -> {
                 val book = books.firstOrNull { it.id == current.removePrefix("read:") }
                 if (book == null) {
@@ -442,7 +496,7 @@ fun AppRoot(
                 onLook = { showLook = true },
             ) {
                 when (section) {
-                    Section.LIBRARY -> LibraryScreen(
+                    Section.LIBRARY -> CompositionLocalProvider(dev.kobolibrary.app.ui.ocr.LocalOcrActions provides ocrActions) { LibraryScreen(
                         books = books,
                         covers = libraryVm.covers,
                         browse = libraryBrowse,
@@ -454,7 +508,11 @@ fun AppRoot(
                         onShowJob = { showJob = true },
                         onEditDetails = { overlay = "edit:$it" },
                         onChangeCover = { overlay = "cover:$it" },
-                        onRead = { overlay = "read:$it" },
+                        onRead = {
+                            // A book opens at the tablet's own brightness (unless the reader's is to be kept).
+                            libraryVm.readerSettings.startReading()
+                            overlay = "read:$it"
+                        },
                         onEditText = { overlay = "text:$it" },
                         readingHere = readingHere,
                         onDelete = { ids ->
@@ -478,7 +536,7 @@ fun AppRoot(
                         onTheme = { showLook = true },
                         onMarkFinished = { ids -> libraryVm.markFinished(ids) },
                         onMarkUnread = { ids -> libraryVm.markUnread(ids) },
-                    )
+                    ) }
                     Section.KOBO -> when {
                         connection is Connection.Connected && koboView != null -> DeviceScreen(
                             view = koboView,
@@ -604,6 +662,10 @@ fun AppRoot(
                     },
                     onDismiss = { sendIds = null },
                     pathOnKobo = { b -> libraryVm.pathOnKobo(b, koboView?.snapshot) },
+                    onMakeText = { scans ->
+                        sendIds = null
+                        ocrOffer = scans.map { it.id }
+                    },
                 )
             }
         }
@@ -686,7 +748,7 @@ fun AppRoot(
         // saved (collections of books just sent, say) waits until next time. The Kobo screen has its own notice.
         val elsewhere = section != Section.KOBO || overlay != null
         val busy = making?.let { "$it…" }
-            ?: tr("Saving to the Kobo… Don't eject it yet.").takeIf { state.syncing && elsewhere }
+            ?: tr("Updating collections on the Kobo… Don't eject it yet.").takeIf { state.syncing && elsewhere }
             ?: tr("Checking the Kobo… Don't eject it yet.").takeIf { state.afterConnectRunning && elsewhere }
         busy?.let { what ->
             Surface(
@@ -700,6 +762,39 @@ fun AppRoot(
                     Spacer(Modifier.width(10.dp))
                     Text(what, color = MaterialTheme.colorScheme.inverseOnSurface, style = MaterialTheme.typography.labelLarge)
                 }
+            }
+        }
+
+        ocrOffer?.let { ids ->
+            val chosen = books.filter { it.id in ids && it.isScan }
+            if (chosen.isEmpty()) {
+                LaunchedEffect(Unit) { ocrOffer = null }
+            } else {
+                dev.kobolibrary.app.ui.ocr.OcrDialog(
+                    books = chosen,
+                    onStart = { languages ->
+                        ocrOffer = null
+                        askToNotify()
+                        ocr.start(chosen.map { it.id }, languages)
+                    },
+                    onDismiss = { ocrOffer = null },
+                )
+            }
+        }
+        goBackId?.let { id ->
+            val book = books.firstOrNull { it.id == id }
+            if (book == null) {
+                LaunchedEffect(Unit) { goBackId = null }
+            } else {
+                dev.kobolibrary.app.ui.ocr.GoBackToScanDialog(
+                    book = book,
+                    onGoBack = {
+                        goBackId = null
+                        if (overlay == "compare:$id") overlay = null
+                        libraryVm.goBackToScan(id)
+                    },
+                    onDismiss = { goBackId = null },
+                )
             }
         }
 

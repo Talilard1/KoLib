@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Only for finding covers online, when asked to. -->
+    <!-- For finding covers online, when asked to, and downloading the language data for text recognition. -->
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- To carry on making a scanned book into text with the app closed, with a notification saying how far it's got. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!-- Used only to recognise which Kobo model is plugged in. Not required to install. -->
     <uses-feature
@@ -89,6 +94,12 @@
             android:noHistory="true"
             android:process=":restart"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <!-- Reads scanned pages in the background (text recognition, on the device). -->
+        <service
+            android:name=".ocr.OcrService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

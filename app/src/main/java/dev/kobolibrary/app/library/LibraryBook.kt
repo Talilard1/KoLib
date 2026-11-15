@@ -44,7 +44,10 @@ data class LibraryBook(
     val sourceFormat: String? = null,
 ) {
     /** Added as a PDF, which is kept to read and send as it is. */
-    val isPdf: Boolean get() = sourceFormat == "PDF" || isScan
+    val isPdf: Boolean get() = sourceFormat == "PDF" || sourceFormat == BookFormats.PDF_OCR || isScan
+
+    /** A PDF of scanned pages, whose text was recognised in them: the PDF is kept, and its scan to go back to. */
+    val isRecognised: Boolean get() = sourceFormat == BookFormats.PDF_OCR
 
     /**
      * A PDF that's only read and sent as the PDF: scanned pages, which have no text, or one too big to
@@ -66,6 +69,7 @@ data class LibraryBook(
         null -> null
         BookFormats.PDF_SCAN -> tr("PDF of scanned pages or pictures")
         BookFormats.PDF_ONLY -> tr("PDF, too big to make into an EPUB")
+        BookFormats.PDF_OCR -> tr("PDF of scanned pages, made into text")
         "CBZ", "CBR", "CB7" -> tr("{0} comic, kept as it is", sourceFormat)
         else -> dev.kobolibrary.app.convert.SourceFormat.entries.firstOrNull { it.name == sourceFormat }?.let { tr("{0} file, made into an EPUB", it.label) }
     }

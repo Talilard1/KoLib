@@ -289,6 +289,7 @@ internal fun PhoneLibraryScreen(
                 }
             }
             if (job != null && !job.finished) JobStrip(job, onShowJob)
+            dev.kobolibrary.app.ui.ocr.OcrStrip(onShow = { id -> browse.selectedId = id })
             if (books.isEmpty()) {
                 EmptyLibrary(koboConnected, onAddFiles, onAddFromKobo, onNewBook)
                 return@Column
@@ -571,6 +572,7 @@ internal fun PhoneBookPage(
             }
             ReadStateButtons(finished, started = readHere != null && readHere > 0.005f, onMarkFinished, onMarkUnread, Modifier.padding(top = 10.dp))
             reading?.let { k -> ReadingLine(k, live = readingLive) }
+            dev.kobolibrary.app.ui.ocr.OcrSection(book)
             if (book.changedSinceOnKobo) {
                 Row(Modifier.padding(top = 10.dp), verticalAlignment = Alignment.Top) {
                     Icon(Icons.Outlined.WarningAmber, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.error)

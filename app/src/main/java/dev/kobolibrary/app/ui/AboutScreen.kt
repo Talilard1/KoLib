@@ -68,6 +68,12 @@ object Notices {
         Notice(tr("Kotlin"), tr("The language the app is written in, with kotlinx.coroutines."), APACHE, tr("© JetBrains s.r.o. and Kotlin contributors"), "apache-2.0.txt"),
         Notice("libarchive", tr("Reading CBR and CB7 comics."), tr("BSD 2-Clause License"), tr("© 2003–2018 Tim Kientzle and the libarchive contributors"), "libarchive-BSD.txt"),
         Notice(tr("libarchive for Android"), tr("Reading CBR and CB7 comics."), APACHE, tr("© 2023 Hai Zhang"), "apache-2.0.txt"),
+        Notice("Tesseract", tr("Recognising the words in scanned pages, to make them into text."), APACHE, tr("© Google LLC and the Tesseract contributors"), "apache-2.0.txt"),
+        Notice(tr("Tesseract language data"), tr("What Tesseract knows of each language, downloaded the first time it's needed."), APACHE, tr("© Google LLC"), "apache-2.0.txt"),
+        Notice("Tesseract4Android", tr("Using Tesseract from the app."), APACHE, tr("© Robert Pösel, Robert Theis and contributors"), "apache-2.0.txt"),
+        Notice("Leptonica", tr("Handling the pictures of scanned pages for Tesseract."), tr("BSD 2-Clause License"), tr("© 2001 Leptonica"), "leptonica-BSD.txt"),
+        Notice("libjpeg", tr("JPEG pictures, for Tesseract. This software is based in part on the work of the Independent JPEG Group."), tr("IJG License"), tr("© 1991–2024 Thomas G. Lane, Guido Vollbeding"), "libjpeg-IJG.txt"),
+        Notice("libpng", tr("PNG pictures, for Tesseract."), tr("PNG Reference Library License 2"), tr("© 1995–2025 The PNG Reference Library Authors"), "libpng-LICENSE.txt"),
     )
 
     /** KoLib itself: free software, to share and change under the GPL. */
@@ -119,7 +125,7 @@ fun AboutScreen(onBack: () -> Unit, onShowIntro: (() -> Unit)? = null) {
                         Text(tr("Version {0}", BuildConfig.VERSION_NAME), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Text(
-                        tr("Your books, and everything you do with them, stay on this device and your Kobo. KoLib only goes online when you search for a cover, and then only sends the words you search for."),
+                        tr("Your books, and everything you do with them, stay on this device and your Kobo. KoLib only goes online when you search for a cover, and then only sends the words you search for, and the first time you make a scanned book into text in a language, to download that language's data. The pages themselves are read on this device."),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Text(

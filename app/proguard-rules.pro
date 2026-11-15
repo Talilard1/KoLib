@@ -6,3 +6,7 @@
 -keepclassmembers class * {
     @android.webkit.JavascriptInterface <methods>;
 }
+
+# Tesseract and Leptonica (text recognition) are reached from their native code by name: keep them as they are.
+-keep class com.googlecode.tesseract.android.** { *; }
+-keep class com.googlecode.leptonica.android.** { *; }

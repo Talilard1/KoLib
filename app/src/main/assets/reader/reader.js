@@ -36,6 +36,9 @@
   // title page) in the middle of the screen, 'left' (a dedication), or as it lays out (on the right).
   var place = null;
   function centred() { return place === 'cover' || place === 'title' || place === 'centre'; }
+  // The chapter starts one of the book's chapters (the app says), rather than carrying one on: its number
+  // and name can be set as print has them, its first letter as a drop cap, and its first page on the right.
+  var chapterOpening = true;
   // Two short pages from files of their own, shown side by side: the app puts the left one in a box in
   // front of the right one's body.
   function pairBox() { return document.getElementById('kl-pair'); }
@@ -69,6 +72,8 @@
     setVar('--kl-font-size', Math.round((s.fontScale || 1) * 100) + '%');
     if (s.font) { setVar('--kl-font', s.font); root.classList.add('kl-font'); } else root.classList.remove('kl-font');
     root.classList.toggle('kl-plain-links', !!s.plainLinks);
+    root.classList.toggle('kl-print-heads', !!s.printHeads);
+    root.classList.toggle('kl-dropcaps', !!s.dropCaps);
     if (s.line) { setVar('--kl-line', String(s.line)); root.classList.add('kl-lh'); } else root.classList.remove('kl-lh');
     root.classList.toggle('kl-hyphens', s.hyphens === 'on');
     root.classList.toggle('kl-nohyphens', s.hyphens === 'off');
@@ -407,6 +412,163 @@
 
   function forcedBreak(v) { return /^(page|always|left|right|recto|verso|column)$/.test(v || ''); }
 
+  // ---- a chapter's opening, as a printed book sets it ------------------------------------------------
+
+  /** The first paragraph of real text: one with 100 letters or more of its own. Null if there's none. */
+  function firstTextParagraph() {
+    var body = document.body;
+    if (!body) return null;
+    var all = body.getElementsByTagName('*');
+    for (var i = 0; i < all.length && i < 400; i++) {
+      var e = all[i];
+      if (!/^(p|div|blockquote|li)$/i.test(e.localName)) continue;
+      var own = '';
+      for (var n = e.firstChild; n; n = n.nextSibling) {
+        if (n.nodeType === 3) own += n.data;
+        else if (n.nodeType === 1 && !/^(p|div|blockquote|ul|ol|table|h[1-6]|figure|section)$/i.test(n.localName)) own += n.textContent || '';
+      }
+      if (own.replace(/\s+/g, ' ').trim().length >= 100) return e;
+    }
+    return null;
+  }
+
+  var numberWords = '(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|' +
+    'eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred)(?:[\\s-](?:one|two|three|four|five|six|seven|eight|nine))?';
+  /** A chapter's number on its own: "PROLOGUE", "Chapter 12", "Chapter Twelve", "XII", "12". */
+  var chapterNumber = new RegExp('^(?:(?:chapter|chap\\.|prologue|epilogue|interlude|prelude|preface|foreword|introduction|afterword|' +
+    'appendix|part|book|section|canto|act|chapitre|kapitel|cap[ií]tulo|capitolo|hoofdstuk|глава|часть|пролог|эпилог)' +
+    '(?:\\s+(?:\\d{1,4}|[ivxlcdm]{1,8}|' + numberWords + '))?|\\d{1,4}|[ivxlcdm]{1,8}|' + numberWords + ')[.:]?$', 'i');
+
+  function saidIn(el) { return (el.textContent || '').replace(/\s+/g, ' ').trim(); }
+
+  /** The book's own style sheets (not the reader's, nor the browser's) say [prop] for [el], or its own style attribute does. */
+  function bookSets(el, prop) {
+    if (el.style && el.style.getPropertyValue(prop)) return true;
+    var sheets = document.styleSheets;
+    for (var i = 0; i < sheets.length; i++) {
+      var sh = sheets[i];
+      if (sh.href && sh.href.indexOf('/app/reader/') >= 0) continue;
+      var rules;
+      try { rules = sh.cssRules; } catch (e) { continue; }
+      if (rules && rulesSet(rules, el, prop)) return true;
+    }
+    return false;
+  }
+  function rulesSet(rules, el, prop) {
+    for (var r = 0; r < rules.length; r++) {
+      var rule = rules[r];
+      if (rule.cssRules && !rule.selectorText) {
+        if (rulesSet(rule.cssRules, el, prop)) return true;
+        continue;
+      }
+      if (!rule.selectorText || !rule.style || !rule.style.getPropertyValue(prop)) continue;
+      try { if (el.matches(rule.selectorText)) return true; } catch (e) {}
+    }
+    return false;
+  }
+
+  /** The book gives [p] a big first letter of its own: a ::first-letter rule, or a letter (or picture) set apart at its start. */
+  function ownInitial(p) {
+    var sheets = document.styleSheets;
+    for (var i = 0; i < sheets.length; i++) {
+      var sh = sheets[i];
+      if (sh.href && sh.href.indexOf('/app/reader/') >= 0) continue;
+      var rules;
+      try { rules = sh.cssRules; } catch (e) { continue; }
+      if (rules && firstLetterRule(rules, p)) return true;
+    }
+    var pFont = parseFloat(getComputedStyle(p).fontSize) || 16;
+    for (var n = p.firstChild; n; n = n.nextSibling) {
+      if (n.nodeType === 3) { if (n.data.trim()) return false; continue; }
+      if (n.nodeType !== 1) continue;
+      if (/^(img|svg)$/i.test(n.localName)) return true;
+      var cs = getComputedStyle(n);
+      if (/(^|[\s_-])(drop|dropcap|initial|init|cap|dc|first-?letter|big)/i.test(n.getAttribute('class') || '')) return true;
+      if (cs.cssFloat && cs.cssFloat !== 'none') return true;
+      if ((parseFloat(cs.fontSize) || 0) > pFont * 1.3) return true;
+      return false;
+    }
+    return false;
+  }
+  function firstLetterRule(rules, p) {
+    for (var r = 0; r < rules.length; r++) {
+      var rule = rules[r];
+      if (rule.cssRules && !rule.selectorText) {
+        if (firstLetterRule(rule.cssRules, p)) return true;
+        continue;
+      }
+      var sel = rule.selectorText || '';
+      if (!/:?:first-letter/i.test(sel)) continue;
+      var parts = sel.split(',');
+      for (var k = 0; k < parts.length; k++) {
+        if (!/first-letter/i.test(parts[k])) continue;
+        var plain = parts[k].replace(/:?:first-letter/ig, '').trim() || '*';
+        try { if (p.matches(plain)) return true; } catch (e) {}
+      }
+    }
+    return false;
+  }
+
+  /** The book sets the look of [el] (or of what's in it) itself: its size, style or spacing. */
+  function bookStyles(el) {
+    var props = ['font-size', 'font-style', 'letter-spacing', 'text-transform', 'font-variant'];
+    var els = [el].concat(Array.prototype.slice.call(el.getElementsByTagName('*'), 0, 12));
+    for (var i = 0; i < els.length; i++) {
+      for (var p = 0; p < props.length; p++) if (bookSets(els[i], props[p])) return true;
+    }
+    return false;
+  }
+
+  /** A heading, or a short line set apart like one (bigger, centred, italic or bold). */
+  function headingLike(el, bodySize) {
+    if (/^h[1-6]$/i.test(el.localName)) return true;
+    var cs = getComputedStyle(el);
+    return (parseFloat(cs.fontSize) || 0) > bodySize * 1.1 || cs.textAlign === 'center' || cs.fontStyle === 'italic' || (parseInt(cs.fontWeight, 10) || 400) >= 600;
+  }
+
+  /**
+   * At the start of a chapter: its number ("PROLOGUE", "Chapter 12") and its name, marked to be set as a
+   * printed book has them (when the reader asks for that), and its first paragraph marked for a drop cap,
+   * unless the book gives it one of its own. Only the lines before the first paragraph of text are looked at.
+   */
+  function markOpening() {
+    var old = document.querySelectorAll('.kl-chapnum, .kl-chapname, .kl-dropcap');
+    for (var o = 0; o < old.length; o++) old[o].classList.remove('kl-chapnum', 'kl-chapname', 'kl-dropcap', 'kl-unstyled');
+    if (!chapterOpening) return;
+    var first = firstTextParagraph();
+    if (!first) return;
+    var bodySize = parseFloat(getComputedStyle(first).fontSize) || 16;
+    var lines = [];
+    var scopes = [document.getElementById('kl-opening'), document.body];
+    for (var s2 = 0; s2 < scopes.length && lines.length < 4; s2++) {
+      var scope = scopes[s2];
+      if (!scope) continue;
+      var all = scope.getElementsByTagName('*');
+      for (var i = 0; i < all.length && lines.length < 4; i++) {
+        var el = all[i];
+        if (el === first || (el.compareDocumentPosition(first) & Node.DOCUMENT_POSITION_PRECEDING)) break;
+        if (!/^(h[1-6]|p|div)$/i.test(el.localName)) continue;
+        var t = saidIn(el);
+        if (!t || t.length > 90) continue;
+        // The line itself, not a box round several.
+        if (el.querySelector('p, div, h1, h2, h3, h4, h5, h6, blockquote, li, table')) continue;
+        lines.push(el);
+      }
+    }
+    var number = null, name = null;
+    for (var k = 0; k < lines.length; k++) {
+      var line = lines[k];
+      if (!number && !name && chapterNumber.test(saidIn(line))) { number = line; continue; }
+      if (!name && (number || headingLike(line, bodySize))) { name = line; break; }
+    }
+    // Set as in print whatever the book says when the reader asks for that; otherwise only where the book
+    // doesn't set their look itself (kl-unstyled).
+    if (number) { number.classList.add('kl-chapnum'); if (!bookStyles(number)) number.classList.add('kl-unstyled'); }
+    if (name) { name.classList.add('kl-chapname'); if (!bookStyles(name)) name.classList.add('kl-unstyled'); }
+    // A drop cap where a chapter starts, as in print, unless the book has its own.
+    if ((number || name) && !ownInitial(first)) first.classList.add('kl-dropcap');
+  }
+
   /**
    * A chapter's opening (its number, an ornament, its title) stays with the first lines of the text:
    * page breaks the book asks for between them are dropped, and headings and pictures there keep
@@ -497,7 +659,7 @@
     // Counted without the filler, which then goes at the far edge of the last screen; and laid out as the
     // book has it, before a page alone is moved to the right or a wide picture across both pages.
     if (fill) fill.style.display = 'none';
-    root.classList.remove('kl-recto', 'kl-spread-pic', 'kl-centre', 'kl-spread-pair');
+    root.classList.remove('kl-recto', 'kl-spread-pic', 'kl-centre', 'kl-spread-pair', 'kl-recto-open');
     unplaceHalves();
     blankBefore = 0;
     spreadPicture = false;
@@ -546,6 +708,14 @@
         blankBefore = 1;
         root.classList.add('kl-recto');
       }
+    }
+    // A chapter starts on a right-hand page, as in print, the left-hand one beside it blank. (Its pages of
+    // text are counted as they were; only the screens they're on move along by a page.)
+    if (perScreen === 2 && settings.rectoOpenings && chapterOpening && !countingOnly && blankBefore === 0 &&
+        !pair && !halves && !spreadPicture && !centred() && !displayPage && place !== 'left') {
+      root.classList.add('kl-recto-open');
+      blankBefore = 1;
+      pages = Math.max(1, Math.ceil((columns + 1) / 2));
     }
     if (fill) {
       fill.style.left = (pages * W - 1) + 'px';
@@ -1068,7 +1238,7 @@
   /** What the pages were laid out at: the same chapter comes to the same pages while this stays the same. */
   function layoutKey() {
     return [W, H, perScreen, scrolled ? 1 : 0, padX, padTop + '/' + padBottom, bandTop, bandBottom, settings.fontScale, settings.font,
-      settings.line, settings.align, settings.hyphens, settings.lang].join('|');
+      settings.line, settings.align, settings.hyphens, settings.lang, settings.printHeads ? 1 : 0, settings.dropCaps ? 1 : 0].join('|');
   }
 
   var reportTimer = 0, reportedAt = 0;
@@ -1615,6 +1785,7 @@
     if (st.shell) { try { KL.counterReady(); } catch (e) { log(e); } return; }
     if (st.measure) { countOnly(st); return; }
     place = st.place || null;
+    chapterOpening = st.opening !== false;
     markFullPagePictures();
     try { keepPictureShapes(); } catch (e) { log(e); }
     try { centrePictures(); } catch (e) { log(e); }
@@ -1634,6 +1805,7 @@
         // The size may have settled while pictures and fonts loaded.
         if (screenWidth() !== W || screenHeight() !== H) measure();
         try { unmarkSmallPictures(); fitPictureBoxes(); } catch (e) { log(e); }
+        try { markOpening(); } catch (e) { log(e); }
         measureDensity();
         countPages();
         blendPictures();
@@ -1668,6 +1840,7 @@
   function readyToCount(st) {
     countingOnly = true;
     place = st.place || null;
+    chapterOpening = st.opening !== false;
     // As a fresh page has them: what the chapter counted before found doesn't carry over.
     picturePage = false;
     blankBefore = 0;
@@ -1689,6 +1862,7 @@
   function finishCount(id) {
     if (screenWidth() !== W || screenHeight() !== H) measure();
     try { unmarkSmallPictures(); fitPictureBoxes(); } catch (e) { log(e); }
+    try { markOpening(); } catch (e) { log(e); }
     measureDensity();
     countPages();
     try { KL.measured(JSON.stringify({ id: id, pages: pages, columns: columns, layout: layoutKey() })); } catch (e) { log(e); }

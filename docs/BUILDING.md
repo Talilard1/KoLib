@@ -54,6 +54,7 @@ All the app's text goes through `tr("...")`, with a table for each language in
 | `…/library/` | KoLib's own library: books, covers, folders of books |
 | `…/epub/` | Reading, checking and editing EPUBs, and making kepubs |
 | `…/convert/` | Turning PDF, MOBI, Word and other files into EPUBs |
+| `…/ocr/` | Making scanned PDFs into text with Tesseract: the language data, the pages read, the book made from them |
 | `…/comic/` | Comic files (CBZ, CBR, CB7) read page by page, and the comic reader's settings |
 | `…/reader/` | The reader: pages, settings, highlights |
 | `…/covers/` | Looking covers up online |
@@ -61,4 +62,5 @@ All the app's text goes through `tr("...")`, with a table for each language in
 | `app/src/main/assets/reader/` | The reader's page code (`reader.js`, `reader.css`) |
 | `app/src/test/` | Tests, including screenshots of every screen |
 | `tools/i18n/` | Translations |
+| `tools/ocr/` | Makes the scanned test pages for the text recognition tests, `app/src/test/resources/ocr/` |
 | `tools/opening-sound/` | Makes the opening sound, `app/src/main/res/raw/kolib_opening.ogg` |

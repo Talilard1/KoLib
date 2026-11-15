@@ -217,6 +217,17 @@ html.kl-paged.kl-recto body::before {
   break-after: column !important;
   -webkit-column-break-after: always !important;
 }
+/* Two pages side by side, a chapter starts on the right-hand page, as in print, with the left-hand one blank
+   (reader.js decides). Before everything, a chapter's opening put in front of it included. */
+html.kl-paged.kl-recto-open::before {
+  content: "" !important;
+  display: block !important;
+  height: 1px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  break-after: column !important;
+  -webkit-column-break-after: always !important;
+}
 /* Two short pages side by side (a title page and a notice, a dedication and a quote): the app puts the left
    one in front of the right one, which starts a new page. */
 html.kl-paged > #kl-pair {
@@ -331,3 +342,66 @@ html.kl-nohyphens #kl-pair, html.kl-nohyphens #kl-pair * { -webkit-hyphens: manu
 ::selection { background: var(--kl-sel); }
 ::highlight(kl-search) { background-color: var(--kl-hl); color: inherit; }
 ::highlight(kl-flash) { background-color: var(--kl-hl); color: inherit; }
+
+/* A chapter's number and name set as a printed book has them: the number in big capitals, spaced out; the
+   name under it, in italics. Whatever the book says when the reader asks for it (kl-print-heads), and
+   otherwise where the book doesn't set their look itself (kl-unstyled). reader.js marks them. */
+html.kl-print-heads .kl-chapnum, html .kl-chapnum.kl-unstyled {
+  font-size: 2.5em !important;
+  font-weight: normal !important;
+  /* A little heavier than the text, as print has it, in whatever font (most come only plain and bold). */
+  -webkit-text-stroke: 0.018em currentColor;
+  font-style: normal !important;
+  font-variant: normal !important;
+  letter-spacing: 0.3em !important;
+  text-transform: uppercase !important;
+  text-align: center !important;
+  text-indent: 0 !important;
+  line-height: 1.15 !important;
+  margin: 0.7em 0 0.45em !important;
+  /* The space after the last letter, balanced at the other end, so the word is in the middle. */
+  padding: 0 0 0 0.3em !important;
+  border: 0 !important;
+}
+html.kl-print-heads .kl-chapname, html .kl-chapname.kl-unstyled {
+  font-size: 1.6em !important;
+  font-weight: normal !important;
+  font-style: italic !important;
+  font-variant: normal !important;
+  letter-spacing: 0.01em !important;
+  text-transform: none !important;
+  text-align: center !important;
+  text-indent: 0 !important;
+  line-height: 1.25 !important;
+  margin: 0.45em 0 1.5em !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+html.kl-print-heads .kl-chapnum *, html.kl-print-heads .kl-chapname *,
+html .kl-chapnum.kl-unstyled *, html .kl-chapname.kl-unstyled * {
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  letter-spacing: inherit !important;
+  text-transform: inherit !important;
+}
+html.kl-print-heads .kl-chapname em, html.kl-print-heads .kl-chapname i,
+html .kl-chapname.kl-unstyled em, html .kl-chapname.kl-unstyled i { font-style: italic !important; }
+
+/* The first letter of a chapter dropped three lines, as in print (unless the book has its own). */
+html.kl-dropcaps .kl-dropcap { text-indent: 0 !important; }
+html.kl-dropcaps .kl-dropcap::first-letter {
+  initial-letter: 3;
+  -webkit-initial-letter: 3;
+  margin-inline-end: 0.06em;
+  font-weight: normal;
+  font-style: normal;
+  color: inherit;
+}
+@supports not ((initial-letter: 3) or (-webkit-initial-letter: 3)) {
+  html.kl-dropcaps .kl-dropcap::first-letter {
+    float: left;
+    font-size: 3.45em;
+    line-height: 0.8;
+    margin: 0.06em 0.06em 0 0;
+  }
+}

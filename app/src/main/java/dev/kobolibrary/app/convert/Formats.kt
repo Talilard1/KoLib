@@ -173,6 +173,9 @@ object BookFormats {
     /** A PDF too big to take the text out of on the device. */
     const val PDF_ONLY = "PDFONLY"
 
+    /** A PDF of scanned pages whose text was recognised in the pictures of its pages (see ocr/). */
+    const val PDF_OCR = "OCR"
+
     /** PDFs bigger than this aren't converted (the converter holds the whole file). */
     private const val BIG_PDF = 64L shl 20
 }

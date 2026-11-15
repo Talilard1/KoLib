@@ -407,10 +407,12 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             return
         }
         viewModelScope.launch {
+            // Whatever waits (a send saying "Sent") can go on once the Kobo has its changes.
+            val release = { waiting.forEach { it.complete(Unit) } }
             try {
-                sync()
+                sync(onKoboDone = release)
             } finally {
-                waiting.forEach { it.complete(Unit) }
+                release()
             }
         }
     }
@@ -422,7 +424,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     /** The collections the Kobo was last said not to have, and the connection that was in. */
     private var missingTold: Pair<Long, List<String>>? = null
 
-    private suspend fun sync() {
+    private suspend fun sync(onKoboDone: () -> Unit = {}) {
         syncLock.withLock {
             val conn = _state.value.connection as? Connection.Connected ?: return@withLock
             if (conn.unplugged) return@withLock
@@ -431,7 +433,11 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             val session = conn.session
             _state.update { it.copy(syncing = true) }
             try {
-                val outcome = syncRunner.run(session)
+                // "Don't eject" lasts only while the Kobo is being read or written; what's left is done on the tablet.
+                val outcome = syncRunner.run(session) {
+                    _state.update { it.copy(syncing = false) }
+                    onKoboDone()
+                }
                 if (outcome.session !== session) {
                     _state.update { s ->
                         val now = s.connection as? Connection.Connected
@@ -451,7 +457,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 _state.update { it.copy(message = e.message) }
             } catch (e: Exception) {
                 AppLog.e("Sync", "Updating the Kobo's database failed", e)
-                _state.update { it.copy(message = tr("Couldn't update the Kobo's collections and details: {0}. No changes were made to the Kobo.", e.message ?: e.javaClass.simpleName)) }
+                val why = (e.message ?: e.javaClass.simpleName).trimEnd('.')
+                _state.update { it.copy(message = tr("Couldn't update the Kobo's collections and details: {0}. No changes were made to the Kobo.", why)) }
             } finally {
                 _state.update { it.copy(syncing = false) }
             }

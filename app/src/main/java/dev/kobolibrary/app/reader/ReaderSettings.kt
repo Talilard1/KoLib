@@ -1,6 +1,7 @@
 package dev.kobolibrary.app.reader
 
 import dev.kobolibrary.app.tr
+import dev.kobolibrary.app.trc
 import android.content.Context
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -168,6 +169,20 @@ enum class HeadTitlePlace(val label: String) {
     SPINE(tr("Near the spine")),
 }
 
+/** How big the page headings' type is: as before, smaller than the text; as a printed book has it; or bigger. */
+enum class HeadSize(val label: String, val ofText: Float) {
+    SMALL(tr("Smaller"), 0f),
+    PRINT(tr("As in print"), 0.92f),
+    LARGE(tr("Larger"), 1.15f),
+}
+
+/** The space between the page headings and the text: as before, a line's worth as in print, or more. */
+enum class HeadGap(val label: String, val lines: Float) {
+    CLOSE(trc("space under headings", "Less"), 0f),
+    LINE(tr("A line"), 1f),
+    MORE(trc("space under headings", "More"), 1.6f),
+}
+
 /** In a book that holds several (an omnibus, a box set), the title over left-hand pages and in the margins. */
 enum class CollectionTitle(val label: String) {
     BOOK(tr("Current book")),
@@ -185,7 +200,7 @@ enum class MarginItem(val label: String, val example: String, val default: Margi
     TIME_LEFT(tr("Reading time left in chapter"), tr("12 min left"), MarginSpot.OFF),
     CLOCK(tr("Clock"), "3:42", MarginSpot.BOTTOM_CENTER),
     BATTERY(tr("Battery"), "70%", MarginSpot.BOTTOM_CENTER),
-    PERCENT(tr("Percent of book read"), "34%", MarginSpot.BOTTOM_RIGHT);
+    PERCENT(tr("Percent of book read"), "34%", MarginSpot.OFF);
 
     companion object {
         val DEFAULTS: Map<MarginItem, MarginSpot> = entries.associateWith { it.default }
@@ -225,17 +240,17 @@ data class MarginRoom(val top: Int = 0, val bottom: Int = 0) {
 
 data class ReaderSettings(
     val theme: ReaderTheme = ReaderTheme.PAPER,
-    val font: ReaderFont = ReaderFont.BOOK,
+    val font: ReaderFont = ReaderFont.GARAMOND,
     /** Text size, 1 = as the book sets it. */
-    val fontScale: Float = 1f,
+    val fontScale: Float = 1.45f,
     /** Line spacing; 0 = as the book sets it. */
     val lineSpacing: Float = 0f,
     val margins: ReaderMargins = ReaderMargins.MEDIUM,
     val align: ReaderAlign = ReaderAlign.BOOK,
     val hyphens: ReaderHyphens = ReaderHyphens.BOOK,
     val spread: ReaderSpread = ReaderSpread.AUTO,
-    val pageTurn: PageTurn = PageTurn.SLIDE,
-    val volumeKeys: Boolean = true,
+    val pageTurn: PageTurn = PageTurn.CURL,
+    val volumeKeys: Boolean = false,
     /**
      * A swipe in from the left side opens the contents, from the right the reading settings. Off, the
      * sides are left to Android's back swipe.
@@ -248,13 +263,19 @@ data class ReaderSettings(
     /** Page headings as a printed book has them: at the top of each page, the bottom, or none. */
     val runningHeads: RunningHeads = RunningHeads.TOP,
     /** Where the page headings' titles sit along the page. */
-    val headTitlePlace: HeadTitlePlace = HeadTitlePlace.CENTRED,
+    val headTitlePlace: HeadTitlePlace = HeadTitlePlace.SPINE,
+    /** How big the page headings are. */
+    val headSize: HeadSize = HeadSize.PRINT,
+    /** The space between the page headings and the text. */
+    val headGap: HeadGap = HeadGap.LINE,
     /** In a book of several books, whose title the headings and margins show: the one being read, or the whole book's. */
     val collectionTitle: CollectionTitle = CollectionTitle.BOOK,
     /** The screen stays on while reading. */
     val keepScreenOn: Boolean = true,
     /** Screen brightness while reading, 0 to 1; below 0, the tablet's own. */
     val brightness: Float = -1f,
+    /** Each book opens at the tablet's own brightness (changes while reading last until it's closed). */
+    val brightnessFromScreen: Boolean = true,
     /** The colour and style new highlights get (the last ones chosen). */
     val highlightColor: HighlightColor = HighlightColor.YELLOW,
     val highlightStyle: HighlightStyle = HighlightStyle.HIGHLIGHT,
@@ -267,19 +288,25 @@ data class ReaderSettings(
     val tapWidth: TapWidth = TapWidth.NARROW,
     val pictures: PictureBlend = PictureBlend.ORNAMENTS,
     /** Links in a colour of their own; off, they look like the text around them (and still work). */
-    val colourLinks: Boolean = true,
+    val colourLinks: Boolean = false,
     /** A chapter's opening page (its number, an ornament) shown with its text, when a book keeps it in a file of its own. */
     val joinOpenings: Boolean = true,
+    /** Two pages side by side, each chapter starts on a right-hand page, with the left-hand one blank, as in print. */
+    val rectoOpenings: Boolean = true,
+    /** A chapter's number and name set as print has them (big spaced capitals, then italics), whatever the book says. */
+    val printHeads: Boolean = true,
+    /** The first letter of each chapter dropped three lines, unless the book has a big first letter of its own. */
+    val dropCaps: Boolean = true,
     /** Pages to turn, or one long page to scroll. */
     val flow: ReaderFlow = ReaderFlow.PAGES,
     /** Autoscroll's speed, in words a minute. */
-    val autoWpm: Int = 230,
-    val autoEnd: AutoEnd = AutoEnd.WAIT,
-    val autoResume: AutoResume = AutoResume.SOON,
+    val autoWpm: Int = 300,
+    val autoEnd: AutoEnd = AutoEnd.STOP,
+    val autoResume: AutoResume = AutoResume.KEEP_GOING,
     /** How much of the book (or the chapter) has been read, as a line along the foot of the page. */
     val progressLine: ProgressLine = ProgressLine.BOOK,
     /** How strongly that line, and autoscroll's, is drawn. */
-    val barShade: BarShade = BarShade.TEXT,
+    val barShade: BarShade = BarShade.DIM,
 ) {
     val scrolling: Boolean get() = flow == ReaderFlow.SCROLL
 
@@ -333,19 +360,46 @@ data class ReaderSettings(
         return copy(runningHeads = h, marginItems = items)
     }
 
+    /** The size of the text's type, about, in dp: the book's usual 16, at the size chosen. */
+    private val textDp: Float get() = 16f * fontScale
+
+    /** The page headings' type size, in sp. */
+    val headFontSize: Float
+        get() = if (headSize == HeadSize.SMALL) HEAD_SMALL else (textDp * headSize.ofText).coerceIn(HEAD_SMALL, 34f)
+
+    /** The height of the page headings' row, in dp. */
+    val headRow: Int get() = maxOf(MarginRoom.ROW_HEIGHT, Math.round(headFontSize * 1.35f))
+
+    /** The space between the page headings and the text, in dp: as close as before, or a line of the text (or more). */
+    val headGapDp: Int
+        get() = if (headGap == HeadGap.CLOSE) MarginRoom.GAP
+        else maxOf(MarginRoom.GAP, Math.round(textDp * (if (lineSpacing > 0f) lineSpacing else 1.45f) * headGap.lines))
+
     /**
      * The room the margins need above and below the text, with a camera's cutout [cutoutTop] dp deep at
      * the top of the screen: a row at the top sits below it. None when scrolling, which has bands of its own.
+     * With the page headings at one end, the room there is for them and the space under them; at the
+     * other end, there's room for a chapter's first page to have its number there, as in print.
      */
     fun marginRoom(cutoutTop: Int = 0): MarginRoom {
         if (scrolling) return MarginRoom()
         val atTop = (headsShown && runningHeads.top) || MarginItem.entries.any { shownSpotOf(it).top }
         val atBottom = (headsShown && !runningHeads.top) || MarginItem.entries.any { shownSpotOf(it).let { s -> s != MarginSpot.OFF && !s.top } }
         val row = MarginRoom.ROW_HEIGHT + MarginRoom.GAP
-        return MarginRoom(
-            top = if (atTop) topRowAt(cutoutTop) + row else 0,
-            bottom = if (atBottom) bottomRowAt() + row else 0,
-        )
+        val headRoom = headRow + headGapDp
+        val top = when {
+            headsShown && runningHeads.top -> topRowAt(cutoutTop) + headRoom
+            atTop -> topRowAt(cutoutTop) + row
+            else -> 0
+        }
+        val bottom = when {
+            headsShown && !runningHeads.top -> bottomRowAt() + headRoom
+            // The page number of a chapter's first page goes at the foot too, as big as the headings'.
+            atBottom && headsShown -> bottomRowAt() + maxOf(row, headRow + MarginRoom.GAP)
+            atBottom -> bottomRowAt() + row
+            else -> 0
+        }
+        return MarginRoom(top = top, bottom = bottom)
     }
 
     /** How far down the top row of the margins sits: below a camera's cutout [cutoutTop] dp deep, if there is one. */
@@ -374,7 +428,7 @@ data class ReaderSettings(
      * (Turning pages, the room kept for the margins does too: see [marginRoom].)
      */
     fun pageOnly(): ReaderSettings = copy(
-        volumeKeys = true, edgePanels = true, edgeBack = false, keepScreenOn = true, brightness = -1f,
+        volumeKeys = true, edgePanels = true, edgeBack = false, keepScreenOn = true, brightness = -1f, brightnessFromScreen = true,
         marginItems = if (scrolling) marginItems else MarginItem.DEFAULTS,
         runningHeads = if (scrolling) runningHeads else RunningHeads.TOP,
         headTitlePlace = HeadTitlePlace.CENTRED, collectionTitle = CollectionTitle.BOOK,
@@ -419,6 +473,9 @@ data class ReaderSettings(
         put("tapWidth", tapWidth.fraction.toDouble())
         put("blend", pictures.js)
         put("plainLinks", !colourLinks)
+        put("printHeads", printHeads)
+        put("dropCaps", dropCaps)
+        put("rectoOpenings", rectoOpenings)
         put("barColor", css(barColor))
         language?.let { put("lang", it) }
     }.toString()
@@ -428,6 +485,8 @@ data class ReaderSettings(
         val FONT_SCALES = listOf(0.7f, 0.8f, 0.9f, 1f, 1.1f, 1.2f, 1.3f, 1.45f, 1.6f, 1.8f, 2f, 2.3f, 2.6f)
         val LINE_SPACINGS = listOf(0f, 1.2f, 1.4f, 1.6f, 1.8f, 2f)
         const val MAX_DIM = 0.7f
+        /** The page headings' size before they could be bigger, in sp. */
+        const val HEAD_SMALL = 13f
         /** How tall the bands are that margin items show in when scrolling, in dp (the page's pixels). */
         const val BAND = 36
         const val MIN_WPM = 80
@@ -445,6 +504,11 @@ class ReaderSettingsStore(context: Context) {
         val next = change(_settings.value)
         _settings.value = next
         save(next)
+    }
+
+    /** A book is being opened: it starts at the tablet's own brightness, unless the reader's last is to be kept. */
+    fun startReading() {
+        if (_settings.value.brightnessFromScreen) update { it.copy(brightness = -1f, dim = 0f) }
     }
 
     private fun save(next: ReaderSettings) {
@@ -482,6 +546,12 @@ class ReaderSettingsStore(context: Context) {
             .putString("barShade", next.barShade.name)
             .putString("heads", next.runningHeads.name)
             .putString("headTitles", next.headTitlePlace.name)
+            .putString("headSize", next.headSize.name)
+            .putString("headGap", next.headGap.name)
+            .putBoolean("brightnessFromScreen", next.brightnessFromScreen)
+            .putBoolean("rectoOpenings", next.rectoOpenings)
+            .putBoolean("printHeads", next.printHeads)
+            .putBoolean("dropCaps", next.dropCaps)
             .putString("collectionTitle", next.collectionTitle.name)
             .apply()
     }
@@ -542,6 +612,12 @@ class ReaderSettingsStore(context: Context) {
             marginItems = prefs.getString("marginItems", null)?.let { MarginItem.parse(it) } ?: marginsBefore(),
             runningHeads = enumOf("heads", d.runningHeads),
             headTitlePlace = enumOf("headTitles", d.headTitlePlace),
+            headSize = enumOf("headSize", d.headSize),
+            headGap = enumOf("headGap", d.headGap),
+            brightnessFromScreen = prefs.getBoolean("brightnessFromScreen", d.brightnessFromScreen),
+            rectoOpenings = prefs.getBoolean("rectoOpenings", d.rectoOpenings),
+            printHeads = prefs.getBoolean("printHeads", d.printHeads),
+            dropCaps = prefs.getBoolean("dropCaps", d.dropCaps),
             collectionTitle = enumOf("collectionTitle", d.collectionTitle),
             keepScreenOn = prefs.getBoolean("awake", d.keepScreenOn),
         )

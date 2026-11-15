@@ -14,6 +14,10 @@ dependencyResolutionManagement {
         google()
         maven("https://maven-central.storage-download.googleapis.com/maven2/")
         mavenCentral()
+        // Tesseract for Android (text recognition), and nothing else from here.
+        maven("https://jitpack.io") {
+            content { includeGroup("cz.adaptech.tesseract4android") }
+        }
     }
 }
 

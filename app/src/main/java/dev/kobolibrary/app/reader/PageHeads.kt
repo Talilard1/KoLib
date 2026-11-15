@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.reader
 
+import dev.kobolibrary.app.tr
 import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.max
@@ -73,12 +74,47 @@ object HeadTitles {
     private val sortRange = Regex("""^\s*([\[(]?)\s*(\d{1,3})\s*[-–—]\s*(\d{1,3})\s*([\])]?)(\s+[-–—]?\s*|\s*[-–—]\s+)(?=\S)""")
 
     /**
+     * A title as a file name often has it, with the author in front: "17 James H Billington - Fire in the
+     * Minds of Men", "Plato - The Republic". The number in front (if any), the author, and the title.
+     */
+    private val authorFirst = Regex("""^\s*(?:[\[(]?(\d{1,4})[\])]?\.?\s+)?([^\[\]()]{2,60}?)\s+[-–—]\s+(\S.*)$""")
+
+    /** The same with the author after the title: "The Republic - Plato". */
+    private val authorLast = Regex("""^(.*\S)\s+[-–—]\s+([^\[\]()]{2,60})$""")
+
+    /** A word of a name: a capital, and some small letters ("James", "O'Brien", "McDonald", "Jean-Paul"). */
+    private val nameWord = Regex("""^\p{Lu}[\p{L}'’]*\p{Ll}[\p{L}'’]*(?:-\p{L}[\p{L}'’]*)?,?$""")
+    private val initials = Regex("""^(?:\p{Lu}\.?){1,3},?$""")
+    private val nameParticles = setOf("de", "van", "von", "der", "den", "le", "la", "da", "di", "du", "del", "della", "bin", "ibn", "al")
+    private val noAuthor = setOf("unknown", "anonymous", "various", "author", "authors", "none")
+
+    private fun words(s: String): List<String> = s.lowercase().split(Regex("""[^\p{L}\p{N}]+""")).filter { it.isNotEmpty() }
+
+    /** Whether [name] is one of [authors] (or all of them), written any way round, with initials or not. */
+    private fun isAuthor(name: String, authors: List<String>): Boolean {
+        val said = words(name)
+        if (said.isEmpty()) return false
+        val all = authors.flatMap { words(it) }.toSet()
+        if (authors.any { words(it).toSet() == said.toSet() }) return true
+        if (said.size < 2) return false
+        return said.all { w -> w in all || (w.length == 1 && all.any { it.startsWith(w) }) } && said.any { it.length > 1 }
+    }
+
+    /** Whether [s] reads as a person's name: "James H Billington", "Ursula K. Le Guin", "Billington, James H.". */
+    private fun looksLikeName(s: String): Boolean {
+        val parts = s.trim().split(Regex("""\s+"""))
+        if (parts.size !in 2..5 || s.length > 40) return false
+        return parts.all { nameWord.matches(it) || initials.matches(it) || it in nameParticles } && parts.count { nameWord.matches(it) } >= 1
+    }
+
+    /**
      * [title] as a printed book's heading would have it: without a number in front that's only there to
      * sort the files (one with a nought in front, in brackets, set off with a dash or a full stop, or the
-     * same as its number in [seriesIndex]), and without series details in brackets at the end. A number
-     * that's part of the title stays: "1984", "2001: A Space Odyssey", "12 Rules for Life".
+     * same as its number in [seriesIndex]), without the author's name put in front of it or after it (one of
+     * [authors], or a name after a number, as file names often are), and without series details in brackets
+     * at the end. A number that's part of the title stays: "1984", "2001: A Space Odyssey", "12 Rules for Life".
      */
-    fun book(title: String, seriesIndex: Double? = null): String {
+    fun book(title: String, seriesIndex: Double? = null, authors: List<String> = emptyList()): String {
         var t = title.trim()
         sortRange.find(t)?.let { m ->
             val open = m.groupValues[1]
@@ -87,6 +123,21 @@ object HeadTitles {
             val to = m.groupValues[3].toInt()
             val rest = t.substring(m.range.last + 1).trim()
             if (from < to && open.isEmpty() == close.isEmpty() && rest.any { it.isLetter() }) t = rest
+        }
+        val known = authors.filter { a -> words(a).let { it.isNotEmpty() && !noAuthor.containsAll(it) } }
+        authorFirst.find(t)?.let { m ->
+            val numbered = m.groupValues[1].isNotEmpty()
+            val name = m.groupValues[2].trim()
+            val rest = m.groupValues[3].trim()
+            // The author, or with a number in front and no author known, someone's name.
+            val author = isAuthor(name, known) || (numbered && known.isEmpty() && looksLikeName(name))
+            if (author && rest.any { it.isLetterOrDigit() }) t = rest
+        }
+        if (known.isNotEmpty()) {
+            authorLast.find(t)?.let { m ->
+                val rest = m.groupValues[1].trim()
+                if (isAuthor(m.groupValues[2], known) && rest.any { it.isLetterOrDigit() }) t = rest
+            }
         }
         sortNumber.find(t)?.let { m ->
             val open = m.groupValues[1]
@@ -129,14 +180,35 @@ object HeadTitles {
     /** Words that read as Roman numerals: not taken for a number in front of a title unless set off from it. */
     private val romanWords = setOf("MIX", "LIV", "DIV", "CIV", "CV", "MC", "DC", "CD", "MD", "MM", "DI", "LI", "MI", "XL", "CC", "CM", "DIX")
 
+    /** A part of the book named in front of its title: "Prologue: The First Message", "Part Two — Winter". */
+    private val partLead = Regex(
+        """^\s*(prologue|epilogue|interlude|prelude|preface|foreword|introduction|afterword|appendix|part|book|section)\b""" +
+            """(\s+(\d{1,3}|[IVXLCDMivxlcdm]{1,7}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve))?\.?""" +
+            """(\s*[:|]\s*|\s+[-–—]\s*|\s*[–—]\s*)(?=\S)""",
+        RegexOption.IGNORE_CASE,
+    )
+
+    /** A title that's only a number: "12", "XII". */
+    private val bareNumber = Regex("""^\s*(\d{1,3}|[IVXLCDM]{1,7})\.?\s*$""")
+
     /**
-     * [title] as the heading over a right-hand page has it: without the chapter's number in front of it, in
-     * figures or Roman numerals ("1 An Empty Road" → "An Empty Road", "Chapter XII: The Battle" → "The
-     * Battle"). A title that's only its number keeps it ("Chapter 12", "XII"); so does one with its number
-     * after it ("Interlude II"), and one whose first word only looks like a numeral ("I Am Legend").
+     * [title] as the heading over a right-hand page has it, as print has it: just the chapter's name, without
+     * its number in front of it, in figures or Roman numerals ("1 An Empty Road" → "An Empty Road", "Chapter
+     * XII: The Battle" → "The Battle"), or the part of the book it is ("Prologue: The First Message" → "The
+     * First Message"). A title that's only its number keeps it ("Chapter 12"), and one that's only a number
+     * says it's a chapter ("12" → "Chapter 12"); one with its number after it stays ("Interlude II"), and so
+     * does one whose first word only looks like a numeral ("I Am Legend").
      */
     fun chapter(title: String): String {
         val t = title.trim()
+        bareNumber.matchEntire(t)?.let { b ->
+            val n = b.groupValues[1]
+            if (n.all { it.isDigit() } || roman.matches(n)) return tr("Chapter {0}", n)
+        }
+        partLead.find(t)?.let { p ->
+            val rest = t.substring(p.range.last + 1).trim()
+            if (rest.any { it.isLetter() }) return rest
+        }
         val m = chapterLead.find(t) ?: return t
         val word = m.groups[1] != null
         val arabic = m.groups[2]?.value
@@ -162,6 +234,36 @@ object HeadTitles {
             else -> false
         }
         return if (isNumber) rest else t
+    }
+
+    private val smallWords = setOf(
+        "a", "an", "the", "and", "or", "but", "nor", "of", "in", "on", "at", "to", "for", "by", "with", "from", "into", "as",
+        "de", "du", "des", "la", "le", "les", "et", "von", "van", "der", "den", "und", "y", "del", "di", "da",
+    )
+
+    /**
+     * A title set all in capitals ("LORD OF CHAOS"), as a heading in small capitals shows it in print: in
+     * ordinary capitals and small letters ("Lord of Chaos"), so its first letters stand taller. Roman numerals
+     * stay capitals; a title with small letters in it already is left as it is.
+     */
+    fun headingCase(title: String): String {
+        val letters = title.filter { it.isLetter() }
+        if (letters.length < 2 || letters.any { it.isLowerCase() }) return title
+        var first = true
+        return title.split(' ').joinToString(" ") { word ->
+            val core = word.trim { !it.isLetterOrDigit() }
+            val out = when {
+                core.isEmpty() -> word
+                core.length > 1 && core.all { it.isLetter() } && roman.matches(core) && core !in romanWords -> word
+                !first && core.lowercase() in smallWords -> word.lowercase()
+                else -> word.lowercase().split('-').joinToString("-") { part ->
+                    val i = part.indexOfFirst { it.isLetter() }
+                    if (i < 0) part else part.substring(0, i) + part[i].titlecase() + part.substring(i + 1)
+                }
+            }
+            if (core.isNotEmpty()) first = false
+            out
+        }
     }
 
     /** Small capitals for a heading: all of them small when the title is set in capitals already. */

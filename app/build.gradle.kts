@@ -28,8 +28,8 @@ android {
         applicationId = "dev.kobolibrary.app"
         minSdk = 29
         targetSdk = 36
-        versionCode = 54
-        versionName = "1.2"
+        versionCode = 55
+        versionName = "1.3"
     }
 
     // An APK for each kind of processor, a little smaller, and a universal one that runs on any of them.
@@ -123,6 +123,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     // Reads CBR (RAR, RAR5) and CB7 comics, as Mihon does (libarchive; BSD licence, the Android wrapper Apache 2.0).
     implementation("me.zhanghai.android.libarchive:library:1.1.6")
+    // Text recognition in scanned pages: Tesseract, with Leptonica (Apache 2.0, BSD).
+    implementation("cz.adaptech.tesseract4android:tesseract4android:4.9.0")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.xerial:sqlite-jdbc:3.53.4.0")

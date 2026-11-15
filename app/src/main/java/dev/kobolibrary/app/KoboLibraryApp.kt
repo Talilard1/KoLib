@@ -38,6 +38,9 @@ class KoboLibraryApp : Application() {
     /** How far each library book has been read in the app's reader. */
     val readingHere: ReadingHereIndex by lazy { ReadingHereIndex() }
 
+    /** Makes scanned books into text, in the background. */
+    val ocr: dev.kobolibrary.app.ocr.OcrManager by lazy { dev.kobolibrary.app.ocr.OcrManager(this) }
+
     // Before Android 13, the language chosen in KoLib is applied here (and to each screen).
     override fun attachBaseContext(base: android.content.Context) {
         super.attachBaseContext(AppLanguage.wrap(base))

@@ -91,25 +91,32 @@ There's no account to make and no ads.
 - Find a cover online (on Amazon, Google Books, Open Library or Google Images), use a picture of
   your own, or make one with the book's title in one of several designs.
 - Search and sort your books, and filter them by tag.
+- Make a PDF of scanned pages into a book whose text fits the screen: KoLib recognises the words in
+  the pages on your device, in English, French, German, Spanish, Italian, Dutch, Portuguese,
+  Russian, Japanese, Ancient or Modern Greek and Latin. Compare the text with the scanned pages side
+  by side, and go back to the scan whenever you like.
 
 ### Your Kobo
 
-- See every book and collection on your Kobo, and how far you've read.
+- See every book and collection on your Kobo, and how far you've read, and filter the Kobo's books
+  by whether they're in your library.
 - Send books as kepubs (or plain EPUBs if you'd rather), with covers fitted to the Kobo's screen.
   Send a book again and it's updated on the Kobo without losing your place.
 - Put books into your Kobo collections as you send them. KoLib can't create collections on the
   Kobo, so make the collection there first (My Books → Collections → New collection).
 - Copy books you put on the Kobo yourself into your library, or delete them from the Kobo.
 - Each time you connect and the Kobo's database has changed, KoLib keeps a backup of it on your
-  device before it changes anything.
+  device before it changes anything. Updates to collections and book details write only the parts
+  of the database that changed, so they're quick.
 
 ### Reading
 
 - Turn pages like a printed book or scroll, one page at a time or two side by side.
 - Choose the font, text size, line spacing, margins and page colour, including dark pages for
   reading at night.
-- Page headings and page numbers like a printed book, with page numbers through the whole book
-  that stay the same every time you open it.
+- Pages laid out like a printed book: page headings and page numbers, chapters that start on a
+  right-hand page, the chapter's number and title in print style, and a large first letter. Page
+  numbers run through the whole book and stay the same every time you open it.
 - Highlights, notes and bookmarks, search, autoscroll, and looking words up in your dictionary app.
 - Maps and pictures printed across two pages are shown whole.
 
@@ -143,7 +150,9 @@ KoLib follows your device's language, or you can pick one in its settings.
 ### Private
 
 Your books, and everything you do with them, stay on your device and your Kobo. KoLib only goes
-online when you look for a cover or look a word up.
+online when you look for a cover or look a word up, and the first time you make a scanned book into
+text in a language, to download that language's data from the Tesseract project on GitHub. The
+pages themselves are read on your device and never sent anywhere.
 
 ## Install
 
@@ -190,6 +199,8 @@ KoLib keeps a log of what it does (Kobo → Device → Open log). Please share t
   way kepubify does it.
 - **[libarchive](https://www.libarchive.org/)** and **[libarchive for Android](https://github.com/zhanghai/libarchive-android):**
   opening CBR and CB7 comics.
+- **[Tesseract](https://github.com/tesseract-ocr/tesseract)** and **[Tesseract4Android](https://github.com/adaptech-cz/Tesseract4Android):**
+  recognising the words in scanned pages.
 - The fonts (EB Garamond, Literata, Atkinson Hyperlegible, OpenDyslexic, Lora, Poppins and
   Liberation) and Android's own libraries. All of them, with their licences, are listed in
   [NOTICE.md](NOTICE.md).

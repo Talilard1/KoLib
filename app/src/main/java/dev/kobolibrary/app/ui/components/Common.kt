@@ -113,6 +113,26 @@ object Fmt {
     /** "1 book", "3 books": [one] and [many] are the English words; the phrase is in KoLib's language. */
     fun plural(n: Int, one: String, many: String = one + "s") = dev.kobolibrary.app.tr(if (n == 1) "{0} $one" else "{0} $many", n)
 
+    /** How long [millis] is, roughly, for "about … left": "1 minute", "25 minutes", "2 hours 10 minutes". */
+    fun duration(millis: Long): String {
+        val minutes = ((millis + 30_000) / 60_000).toInt().coerceAtLeast(1)
+        if (minutes < 60) return minutes(minutes)
+        val hours = minutes / 60
+        val rest = (minutes % 60 + 2) / 5 * 5
+        return when {
+            rest == 0 -> hours(hours)
+            rest == 60 -> hours(hours + 1)
+            else -> hours(hours) + " " + minutes(rest)
+        }
+    }
+
+    /** " · about 25 minutes left", for the time still to go in a line saying how far something has got. */
+    fun timeLeft(millis: Long): String =
+        if (millis < 60_000) dev.kobolibrary.app.tr(" · less than a minute left") else dev.kobolibrary.app.tr(" · about {0} left", duration(millis))
+
+    private fun minutes(n: Int) = if (n == 1) dev.kobolibrary.app.tr("{0} minute", n) else dev.kobolibrary.app.tr("{0} minutes", n)
+    private fun hours(n: Int) = if (n == 1) dev.kobolibrary.app.tr("{0} hour", n) else dev.kobolibrary.app.tr("{0} hours", n)
+
     /** A publication date as stored ("2003", "2003-02" or "2003-02-27"), written out for reading. */
     fun publication(iso: String?): String? {
         if (iso.isNullOrBlank()) return null

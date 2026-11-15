@@ -24,6 +24,12 @@ enum class StatusFilter(val label: String, val status: ReadStatus) {
     FINISHED(tr("Finished"), ReadStatus.FINISHED),
 }
 
+/** Books on the Kobo that do or don't have a copy in the library. */
+enum class InLibraryFilter(val label: String) {
+    IN(tr("In library")),
+    NOT_IN(tr("Not in library")),
+}
+
 /** The Kobo's sort orders: the library's, plus reading progress. Each starts in the direction that's usually wanted. */
 enum class KoboSort(val label: String, val startsDescending: Boolean, val ascending: String, val descending: String) {
     TITLE(tr("Title"), false, tr("A to Z"), tr("Z to A")),
@@ -43,6 +49,7 @@ class BrowseState {
     var query by mutableStateOf("")
     var source by mutableStateOf(SourceFilter.ALL)
     var status by mutableStateOf<StatusFilter?>(null)
+    var inLibrary by mutableStateOf<InLibraryFilter?>(null)
     var collection by mutableStateOf<String?>(null)
     var tags by mutableStateOf<Set<String>>(emptySet())
     /** With several tags chosen: books need all of them (true) or any one (false). */
@@ -83,12 +90,13 @@ class BrowseState {
     val sortDescription: String get() = "${dev.kobolibrary.app.L10n.midSentence(sort.label)}, ${if (descending) sort.descending else sort.ascending}"
 
     val narrowed: Boolean
-        get() = query.isNotBlank() || source != SourceFilter.ALL || status != null || collection != null || tags.isNotEmpty()
+        get() = query.isNotBlank() || source != SourceFilter.ALL || status != null || inLibrary != null || collection != null || tags.isNotEmpty()
 
     fun clearFilters() {
         query = ""
         source = SourceFilter.ALL
         status = null
+        inLibrary = null
         collection = null
         tags = emptySet()
     }
@@ -221,6 +229,7 @@ object BookSorting {
         tags: Set<String> = emptySet(),
         tagsMatchAll: Boolean = true,
         extras: KoboExtras = KoboExtras(),
+        inLibrary: InLibraryFilter? = null,
     ): List<KoboBook> {
         val node = LibraryQuery.parse(query)
         val wantedTags = tags.map { it.lowercase() }.toSet()
@@ -233,6 +242,13 @@ object BookSorting {
                 }
             }
             .filter { status == null || it.readStatus == status.status }
+            .filter { b ->
+                when (inLibrary) {
+                    null -> true
+                    InLibraryFilter.IN -> extras.inLibrary(b)
+                    InLibraryFilter.NOT_IN -> !extras.inLibrary(b)
+                }
+            }
             .filter { b -> collection == null || collectionsByBook[b.contentId]?.any { it.equals(collection, ignoreCase = true) } == true }
             .filter { b ->
                 if (wantedTags.isEmpty()) return@filter true

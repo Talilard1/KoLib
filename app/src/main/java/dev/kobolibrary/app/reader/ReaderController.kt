@@ -354,7 +354,7 @@ class ReaderController(
     val innerBook: InnerBook? get() = innerBooks.firstOrNull { chapterIndex in it.first..it.last }
 
     /** The whole book's title as the headings show it: without a number in front that's only there to sort it. */
-    private val ownHeadTitle: String by lazy { HeadTitles.book(bookTitle, bookSeriesIndex) }
+    private val ownHeadTitle: String by lazy { HeadTitles.book(bookTitle, bookSeriesIndex, listOfNotNull(bookAuthor)) }
 
     /**
      * The book's title as the headings (and the margins) show it: in a book of several books, the one being
@@ -467,6 +467,7 @@ class ReaderController(
                         .put("settings", JSONObject(settingsJs(settings)))
                         .put("chapters", aroundJs(i))
                         .put("words", wordsJs())
+                        .put("opening", startsChapter(i))
                         .apply { runCatching { pageKind(i).place }.getOrNull()?.let { put("place", it) } }
                         .toString()
                     val got = withTimeoutOrNull(20_000) {
@@ -664,6 +665,8 @@ class ReaderController(
             .put("chapters", aroundJs(index))
             .put("words", wordsJs())
             .apply { if (autoscroll) put("auto", autoJs().put("startDelay", 1500)) }
+            // It starts a chapter: its first page can go on the right, its first letter dropped (see reader.js).
+            .put("opening", startsChapter(index))
             .apply { runCatching { pageKind(index).place }.getOrNull()?.let { put("place", it) } }
             .toString()
         if (index == chapterIndex && !loading && webView?.url?.let { BookServer.pathOf(it)?.first } == c.path) {

@@ -88,20 +88,34 @@ class HeadingShots {
 
     @Test
     @Config(qualifiers = "w1280dp-h800dp-land-xhdpi")
-    fun tabletSpread() = shot("tab_spread", "tab_1", 1, 3, 5, true)
+    fun tabletSpread() = shot("tab_spread", "tab_1", 1, 6, 11, true, blank = 1)
 
     @Test
     @Config(qualifiers = "w1280dp-h800dp-land-xhdpi")
-    fun tabletOpening() = shot("tab_opening", "tab_0", 0, 3, 5, true)
+    fun tabletOpening() = shot("tab_opening", "tab_0", 0, 6, 11, true, blank = 1)
 
     @Test
     @Config(qualifiers = "w1280dp-h800dp-land-xhdpi")
-    fun tabletAtTheBottom() = shot("tab_bottom", "tabb_1", 1, 3, 5, true, ReaderSettings().withHeads(RunningHeads.OFF).copy(runningHeads = RunningHeads.OFF).withHeads(RunningHeads.BOTTOM))
+    fun tabletAtTheBottom() = shot("tab_bottom", "tabb_1", 1, 6, 10, true, ReaderSettings().withHeads(RunningHeads.BOTTOM), blank = 1)
 
-    /** The headings' titles toward the spine, as some printed books set them. */
+    /** The headings as they were: smaller than the text, close over it. */
     @Test
     @Config(qualifiers = "w1280dp-h800dp-land-xhdpi")
-    fun tabletTowardTheSpine() = shot("tab_spine", "tab_1", 1, 3, 5, true, ReaderSettings(headTitlePlace = dev.kobolibrary.app.reader.HeadTitlePlace.SPINE))
+    fun tabletSmallHeadings() = shot(
+        "tab_small", "tabs_1", 1, 6, 10, true, ReaderSettings(headSize = dev.kobolibrary.app.reader.HeadSize.SMALL, headGap = dev.kobolibrary.app.reader.HeadGap.CLOSE), blank = 1,
+    )
+
+    /** Bigger headings, with more room under them. */
+    @Test
+    @Config(qualifiers = "w1280dp-h800dp-land-xhdpi")
+    fun tabletLargeHeadings() = shot(
+        "tab_large", "tabl_1", 1, 6, 11, true, ReaderSettings(headSize = dev.kobolibrary.app.reader.HeadSize.LARGE, headGap = dev.kobolibrary.app.reader.HeadGap.MORE), blank = 1,
+    )
+
+    /** The headings' titles in the middle of their pages, rather than toward the spine as print often has them. */
+    @Test
+    @Config(qualifiers = "w1280dp-h800dp-land-xhdpi")
+    fun tabletCentred() = shot("tab_centred", "tab_1", 1, 6, 11, true, ReaderSettings(headTitlePlace = dev.kobolibrary.app.reader.HeadTitlePlace.CENTRED), blank = 1)
 
     /** A page on its own (the dedication): the right-hand one, with no heading over it, not even its number. */
     @Test
@@ -110,21 +124,33 @@ class HeadingShots {
 
     @Test
     @Config(qualifiers = "w411dp-h914dp-port-xxhdpi")
-    fun phoneLeftHand() = shot("phone_2", "phone_2", 2, 6, 6, false)
+    fun phoneLeftHand() = shot("phone_2", "phone_2", 2, 14, 14, false)
+
+    /** A chapter's first page: no heading over it, its number at the foot. */
+    @Test
+    @Config(qualifiers = "w411dp-h914dp-port-xxhdpi")
+    fun phoneOpening() = shot("phone_0", "phone_0", 0, 14, 14, false)
 
     @Test
     @Config(qualifiers = "w411dp-h914dp-port-xxhdpi")
-    fun phoneRightHand() = shot("phone_3", "phone_3", 3, 6, 6, false)
+    fun phoneRightHand() = shot("phone_3", "phone_3", 3, 14, 14, false)
 
     /** The page's settings, tall enough to show the headings' choice and the margins under it. */
     @Test
     @Config(qualifiers = "w411dp-h1800dp-port-xxhdpi")
-    fun phoneSettings() = shot("phone_settings", "phone_3", 3, 6, 6, false, panel = Panel.LOOK, prepare = { it.lookTab = dev.kobolibrary.app.ui.reader.LookTab.PAGE.ordinal })
+    fun phoneSettings() = shot("phone_settings", "phone_3", 3, 14, 14, false, panel = Panel.LOOK, prepare = { it.lookTab = dev.kobolibrary.app.ui.reader.LookTab.PAGE.ordinal })
+
+    /** The layout settings, with the choices for chapters' first pages. */
+    @Test
+    @Config(qualifiers = "w411dp-h1800dp-port-xxhdpi")
+    fun phoneLayoutSettings() = shot(
+        "phone_layout", "phone_3", 3, 14, 14, false, panel = Panel.LOOK, prepare = { it.lookTab = dev.kobolibrary.app.ui.reader.LookTab.LAYOUT.ordinal },
+    )
 
     @Test
     @Config(qualifiers = "w411dp-h1800dp-port-xxhdpi")
     fun phoneSettingsOff() = shot(
-        "phone_settings_off", "phone_3", 3, 6, 6, false, settings = ReaderSettings().withHeads(RunningHeads.OFF), panel = Panel.LOOK,
+        "phone_settings_off", "phone_3", 3, 14, 14, false, settings = ReaderSettings().withHeads(RunningHeads.OFF), panel = Panel.LOOK,
         prepare = { it.lookTab = dev.kobolibrary.app.ui.reader.LookTab.PAGE.ordinal },
     )
 }

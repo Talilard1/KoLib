@@ -71,6 +71,31 @@ class PageHeadsTest {
         // A number the same as the book's in its series is there to sort it.
         assertEquals("Lord of Chaos", HeadTitles.book("6 Lord of Chaos", seriesIndex = 6.0))
         assertEquals("12 Rules for Life", HeadTitles.book("12 Rules for Life", seriesIndex = 3.0))
+
+        // The author's name in front or after, as file names have it, goes, along with a number in front of it.
+        val fire = "Fire in the Minds of Men Origins of the Revolutionary Faith"
+        val billington = listOf("James H. Billington")
+        assertEquals(fire, HeadTitles.book("17 James H Billington - $fire", authors = billington))
+        assertEquals(fire, HeadTitles.book("17 James H Billington - $fire"))
+        assertEquals(fire, HeadTitles.book("17 James H Billington - $fire", authors = listOf("Unknown")))
+        assertEquals(fire, HeadTitles.book("[17] Billington, James H. - $fire", authors = billington))
+        assertEquals(fire, HeadTitles.book("17. J. H. Billington – $fire", authors = billington))
+        assertEquals(fire, HeadTitles.book("James H Billington - $fire", authors = billington))
+        assertEquals(fire, HeadTitles.book("$fire - James H. Billington", authors = billington))
+        assertEquals("The Republic", HeadTitles.book("Plato - The Republic", authors = listOf("Plato")))
+        assertEquals("Nausea", HeadTitles.book("03 Jean-Paul Sartre - Nausea"))
+        assertEquals("The Hobbit", HeadTitles.book("The Hobbit - J.R.R. Tolkien", authors = listOf("J. R. R. Tolkien")))
+        assertEquals("1984", HeadTitles.book("1984 - George Orwell", authors = listOf("George Orwell")))
+        assertEquals("12 Rules for Life", HeadTitles.book("12 Jordan B Peterson - 12 Rules for Life", authors = listOf("Jordan B. Peterson")))
+        assertEquals("Lord of Chaos", HeadTitles.book("6 - Lord of Chaos - Robert Jordan", authors = listOf("Robert Jordan")))
+        // Not without a number, unless it's the book's author; nor what isn't a name, nor someone else's.
+        assertEquals("James H Billington - $fire", HeadTitles.book("James H Billington - $fire"))
+        assertEquals("Star Wars - Heir to the Empire", HeadTitles.book("Star Wars - Heir to the Empire", authors = listOf("Timothy Zahn")))
+        assertEquals("12 Rules for Life - An Antidote to Chaos", HeadTitles.book("12 Rules for Life - An Antidote to Chaos", authors = listOf("Jordan B. Peterson")))
+        assertEquals("17 James H Billington - $fire", HeadTitles.book("17 James H Billington - $fire", authors = listOf("Richard Pipes")))
+        assertEquals("Lincoln - A Life", HeadTitles.book("Lincoln - A Life", authors = listOf("Abraham Lincoln")))
+        assertEquals("Churchill - Walking with Destiny", HeadTitles.book("Churchill - Walking with Destiny", authors = listOf("Andrew Roberts")))
+        assertEquals("1 Corinthians", HeadTitles.book("1 Corinthians", authors = listOf("Paul")))
         // A chapter's number in front of its title is left off the heading; one after it, or only a number, stays.
         val chapters = mapOf(
             "1 An Empty Road" to "An Empty Road",
@@ -86,13 +111,20 @@ class PageHeadsTest {
             "Chapter XII — The Battle" to "The Battle",
             "Chapter Twelve: The Battle" to "The Battle",
             "Chapter Twenty-One The Last" to "The Last",
-            "12" to "12",
-            "XII" to "XII",
+            "12" to "Chapter 12",
+            "XII" to "Chapter XII",
             "Chapter 12" to "Chapter 12",
             "Chapter One" to "Chapter One",
             "Interlude II" to "Interlude II",
             "The Road, Part 2" to "The Road, Part 2",
-            "Prologue: The First Message" to "Prologue: The First Message",
+            // The part of the book it is goes too, as print has it over its pages; alone, it stays.
+            "Prologue: The First Message" to "The First Message",
+            "Epilogue — The Last Battle" to "The Last Battle",
+            "Part Two: Winter" to "Winter",
+            "Prologue" to "Prologue",
+            "Book One" to "Book One",
+            "Introduction to Greek" to "Introduction to Greek",
+            "Book of Days" to "Book of Days",
             "I Am Legend" to "I Am Legend",
             "I, Robot" to "I, Robot",
             "One Night in Paris" to "One Night in Paris",
@@ -108,6 +140,13 @@ class PageHeadsTest {
         // All in capitals: all small capitals, so it isn't shouted.
         assertTrue(HeadTitles.smallCapsFeatures("LORD OF CHAOS").contains("c2sc"))
         assertFalse(HeadTitles.smallCapsFeatures("Lord of Chaos").contains("c2sc"))
+        // As print sets a heading: capitals and small letters, so its first letters stand taller.
+        assertEquals("Lord of Chaos", HeadTitles.headingCase("LORD OF CHAOS"))
+        assertEquals("The Eye of the World", HeadTitles.headingCase("THE EYE OF THE WORLD"))
+        assertEquals("Book II: Down the Rabbit-Hole", HeadTitles.headingCase("BOOK II: DOWN THE RABBIT-HOLE"))
+        assertEquals("“The Shadow” Rising", HeadTitles.headingCase("“THE SHADOW” RISING"))
+        assertEquals("Lord of Chaos", HeadTitles.headingCase("Lord of Chaos"))
+        assertEquals("A", HeadTitles.headingCase("A"))
     }
 
     @Test
@@ -137,9 +176,21 @@ class PageHeadsTest {
 
     @Test
     fun roomIsKeptOverTheTextAndBelowACameraCutout() {
-        val s = ReaderSettings()
+        // Headings as they were, small and close to the text.
+        val s = ReaderSettings(headSize = HeadSize.SMALL, headGap = HeadGap.CLOSE)
         // Headings at the top; the time and the rest at the bottom, over the progress bar.
         assertEquals(MarginRoom(top = 12 + 18 + 10, bottom = 10 + 18 + 10), s.marginRoom())
+        // As in print (to start with): about the text's size (23dp at 145%), with a line's space under them; at
+        // the foot, room for a chapter's first page number, as big.
+        val print = ReaderSettings()
+        assertEquals(HeadSize.PRINT, print.headSize)
+        assertEquals(HeadGap.LINE, print.headGap)
+        assertEquals(21.3f, print.headFontSize, 0.1f)
+        assertEquals(MarginRoom(top = 12 + 29 + 34, bottom = 10 + 29 + 10), print.marginRoom())
+        val big = print.copy(headSize = HeadSize.LARGE, headGap = HeadGap.MORE)
+        assertTrue(big.marginRoom().top > print.marginRoom().top + 15)
+        // A line's space follows the line spacing chosen.
+        assertEquals(Math.round(16 * 1.45f * 2f), print.copy(lineSpacing = 2f).headGapDp)
         // Under a camera's cutout 32dp deep, the top row goes below it.
         assertEquals(34 + 18 + 10, s.marginRoom(cutoutTop = 32).top)
         val js = JSONObject(s.toJs("en", cutoutTop = 32))

@@ -134,10 +134,13 @@ fun BooksTab(
     readingTags: Pair<Int, Int>? = null,
 ) {
     val snapshot = view.snapshot
-    val visible = remember(snapshot, extras, browse.query, browse.source, browse.status, browse.sort, browse.descending, browse.collection, browse.tags, browse.tagsMatchAll) {
+    val visible = remember(
+        snapshot, extras, browse.query, browse.source, browse.status, browse.inLibrary, browse.sort, browse.descending,
+        browse.collection, browse.tags, browse.tagsMatchAll,
+    ) {
         BookSorting.filter(
             snapshot.books, snapshot.collectionsByBook, browse.query, browse.source, browse.status, browse.sort, browse.descending,
-            browse.collection, browse.tags, browse.tagsMatchAll, extras,
+            browse.collection, browse.tags, browse.tagsMatchAll, extras, browse.inLibrary,
         )
     }
     val selected = browse.selectedBookId?.let { snapshot.booksById[it] }
@@ -464,6 +467,14 @@ private fun BrowserControls(browse: BrowseState, shown: Int, snapshot: KoboSnaps
                 FilterChip(
                     selected = browse.status == f,
                     onClick = { browse.status = if (browse.status == f) null else f },
+                    label = { Text(f.label) },
+                )
+            }
+            VerticalDivider(Modifier.height(24.dp).padding(horizontal = 4.dp))
+            InLibraryFilter.entries.forEach { f ->
+                FilterChip(
+                    selected = browse.inLibrary == f,
+                    onClick = { browse.inLibrary = if (browse.inLibrary == f) null else f },
                     label = { Text(f.label) },
                 )
             }

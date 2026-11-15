@@ -60,7 +60,8 @@ class LibraryFacts(val book: LibraryBook, private val onKoboAs: KoboBook?) : Sea
     /** What the book was added as ("PDF", "MOBI"...), or EPUB. */
     override val format get() = when (book.sourceFormat) {
         null -> "EPUB"
-        dev.kobolibrary.app.convert.BookFormats.PDF_SCAN, dev.kobolibrary.app.convert.BookFormats.PDF_ONLY -> "PDF"
+        dev.kobolibrary.app.convert.BookFormats.PDF_SCAN, dev.kobolibrary.app.convert.BookFormats.PDF_ONLY,
+        dev.kobolibrary.app.convert.BookFormats.PDF_OCR -> "PDF"
         else -> book.sourceFormat
     }
 }

@@ -34,6 +34,7 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -67,6 +68,8 @@ fun SendDialog(
     onDismiss: () -> Unit,
     /** Where each book already is on the Kobo, if it is. */
     pathOnKobo: (LibraryBook) -> String? = { it.koboPath },
+    /** Offers to make the books of scanned pages into text first (the dialog closes). */
+    onMakeText: ((List<LibraryBook>) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     var format by remember { mutableStateOf(initialFormat) }
@@ -152,6 +155,11 @@ fun SendDialog(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                    if (onMakeText != null) {
+                        TextButton(onClick = { onMakeText(books.filter { it.isScan }) }, contentPadding = PaddingValues(horizontal = 0.dp)) {
+                            Text(if (scans == 1) tr("Make it into text first…") else tr("Make them into text first…"))
+                        }
+                    }
                 }
                 Spacer(Modifier.height(16.dp))
                 Text(tr("Covers that don't fit the Kobo's screen"), style = MaterialTheme.typography.titleSmall)

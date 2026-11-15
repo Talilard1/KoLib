@@ -222,7 +222,7 @@ fun CoverEditorScreen(
 
     if (findingOnline) {
         CoverSearchScreen(
-            title = dev.kobolibrary.app.reader.HeadTitles.book(book.meta.title, book.meta.seriesIndex),
+            title = dev.kobolibrary.app.reader.HeadTitles.book(book.meta.title, book.meta.seriesIndex, book.meta.authors),
             authors = book.meta.authors,
             isbn = book.meta.isbn,
             onPick = { bytes, label ->

@@ -474,7 +474,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
                 savingAsked = true
                 val saved = CompletableDeferred<Unit>()
                 koboApp.koboSyncRequests.tryEmit(saved)
-                _job.update { it?.copy(current = tr("Saving collections and book details to the Kobo")) }
+                _job.update { it?.copy(current = tr("Updating collections and book details on the Kobo")) }
                 if (withTimeoutOrNull(3 * 60_000L) { saved.await() } == null) {
                     AppLog.w("Library", "Saving to the Kobo's database is taking a long time; not waiting for it any more.")
                 }
@@ -639,7 +639,25 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /** Makes scanned books into text (it runs on its own, outside this screen). */
+    val ocr: dev.kobolibrary.app.ocr.OcrManager get() = koboApp.ocr
+
+    /** A book made into text goes back to being read and sent as its scan. */
+    fun goBackToScan(id: String) {
+        viewModelScope.launch {
+            try {
+                val book = library.goBackToScan(id)
+                _message.value = tr("“{0}” is its scanned pages again.", book.title)
+            } catch (e: Exception) {
+                AppLog.e("Library", "Going back to the scan failed", e)
+                _message.value = tr("Couldn't go back to the scan: {0}", e.message ?: e.javaClass.simpleName)
+            }
+        }
+    }
+
     fun delete(ids: Collection<String>) {
+        // A book being made into text stops first.
+        ids.forEach { ocr.stop(it) }
         viewModelScope.launch {
             library.delete(ids)
             koboApp.readingHere.forget(ids)
@@ -776,7 +794,8 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
     /** What kind of file [book] was added as ("PDF"), when it wasn't an EPUB. */
     fun addedAsLabel(book: LibraryBook): String? = when (book.sourceFormat) {
         null -> null
-        dev.kobolibrary.app.convert.BookFormats.PDF_SCAN, dev.kobolibrary.app.convert.BookFormats.PDF_ONLY -> "PDF"
+        dev.kobolibrary.app.convert.BookFormats.PDF_SCAN, dev.kobolibrary.app.convert.BookFormats.PDF_ONLY,
+        dev.kobolibrary.app.convert.BookFormats.PDF_OCR -> "PDF"
         else -> dev.kobolibrary.app.convert.SourceFormat.entries.firstOrNull { it.name == book.sourceFormat }?.label
     }
 

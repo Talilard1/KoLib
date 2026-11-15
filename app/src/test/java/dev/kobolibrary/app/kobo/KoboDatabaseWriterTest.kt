@@ -185,6 +185,165 @@ class KoboDatabaseWriterTest {
         onDrive { db -> assertEquals("0", db.one("SELECT COUNT(*) FROM Shelf WHERE Name = 'Epics'")) }
     }
 
+    private fun inode(f: File): Any = java.nio.file.Files.getAttribute(f.toPath(), "unix:ino")
+
+    private fun walMode(on: Boolean) {
+        SQLiteDatabase.openDatabase(dbOnDrive.path, null, SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.NO_LOCALIZED_COLLATORS).use { db ->
+            db.rawQuery("PRAGMA journal_mode=" + if (on) "WAL" else "DELETE", null).use { it.moveToFirst() }
+        }
+        listOf("-wal", "-shm").forEach { File(dbOnDrive.path + it).delete() }
+    }
+
+    @Test
+    fun aSmallChangeRewritesOnlyItsPages() = runBlocking {
+        for (wal in listOf(false, true)) {
+            drive.deleteRecursively()
+            FakeKobo.create(drive)
+            walMode(wal)
+            val (repo, session) = connect()
+            val iliad = session.snapshot.books.first { it.title == "The Iliad" }
+            val before = dbOnDrive.readBytes()
+            val file = inode(dbOnDrive)
+            val after = repo.writeDatabase(session) { e -> if (e.addToCollection("Philosophy", iliad.contentId)) 1 else 0 }!!
+            // The same file, changed in place (copying swaps in a new one), with no journal left beside it.
+            assertEquals("wal=$wal", file, inode(dbOnDrive))
+            assertEquals(emptyList<String>(), leftovers())
+            val now = dbOnDrive.readBytes()
+            assertEquals(before[18], now[18])
+            val pages = before.size / 4096
+            val differ = (0 until pages).count { p -> !before.copyOfRange(p * 4096, (p + 1) * 4096).contentEquals(now.copyOfRange(p * 4096, (p + 1) * 4096)) }
+            assertTrue("only a few of $pages pages change: $differ", differ in 1..pages / 2)
+            onDrive { db ->
+                assertEquals("ok", db.one("PRAGMA integrity_check"))
+                assertEquals("false", db.one("SELECT _IsDeleted FROM ShelfContent WHERE ShelfName = 'Philosophy' AND ContentId = ?", iliad.contentId))
+            }
+            assertEquals(setOf("Classics", "Philosophy", "To Read"), after.snapshot.collectionsByBook[iliad.contentId].orEmpty().toSet())
+            // And again from there.
+            val third = repo.writeDatabase(after) { e -> if (e.removeFromCollection("Philosophy", iliad.contentId)) 1 else 0 }!!
+            assertEquals(file, inode(dbOnDrive))
+            assertEquals(setOf("Classics", "To Read"), third.snapshot.collectionsByBook[iliad.contentId].orEmpty().toSet())
+            onDrive { db -> assertEquals("true", db.one("SELECT _IsDeleted FROM ShelfContent WHERE ShelfName = 'Philosophy' AND ContentId = ?", iliad.contentId)) }
+        }
+    }
+
+    /**
+     * What the Kobo finds if it's unplugged part way through: the journal and some of the new pages. Its
+     * SQLite (here Android's) puts the old pages back from the journal the next time it opens the database.
+     */
+    @Test
+    fun aRewriteCutShortIsUndoneWhenTheKoboOpensItsDatabase() {
+        for (wal in listOf(false, true)) {
+            for (grow in listOf(false, true)) {
+                drive.deleteRecursively()
+                FakeKobo.create(drive)
+                walMode(wal)
+                val old = File(context.cacheDir, "old-" + UUID.randomUUID()).also { dbOnDrive.copyTo(it) }
+                val new = File(context.cacheDir, "new-" + UUID.randomUUID()).also { dbOnDrive.copyTo(it) }
+                KoboDatabaseWriter.open(new, wal).use { db ->
+                    db.execSQL("UPDATE content SET Title = 'Changed' WHERE Title = 'The Iliad'")
+                    if (grow) repeat(400) { db.execSQL("INSERT INTO Shelf (Name, InternalName, _IsDeleted) VALUES (?, ?, 'false')", arrayOf("Shelf $it" + "x".repeat(300), "Shelf $it")) }
+                    if (wal) db.rawQuery("PRAGMA wal_checkpoint(TRUNCATE)", null).use { it.moveToFirst() }
+                }
+                listOf("-wal", "-shm", "-journal").forEach { File(new.path + it).delete() }
+                val c = PageWriter.changes(old, new)!!
+                assertTrue(c.written.isNotEmpty())
+                assertEquals(grow, c.newPages > c.oldPages)
+                val oldBytes = old.readBytes()
+                val newBytes = new.readBytes()
+                val size = c.pageSize
+                for (cut in listOf(0, c.written.size / 2, c.written.size)) {
+                    old.copyTo(dbOnDrive, overwrite = true)
+                    PageWriter.writeJournal(
+                        File(drive, ".kobo/" + PageWriter.JOURNAL_NAME), size, c.oldPages,
+                        c.saved.map { it to oldBytes.copyOfRange(it * size, (it + 1) * size) },
+                    )
+                    java.io.RandomAccessFile(dbOnDrive, "rw").use { f ->
+                        for (p in c.written.take(cut)) {
+                            f.seek(p.toLong() * size)
+                            f.write(newBytes, p * size, size)
+                        }
+                    }
+                    // Opened in its own journal mode, as the Kobo would (Android's default would switch it).
+                    val title = KoboDatabaseWriter.open(dbOnDrive, wal).use { db ->
+                        assertEquals("wal=$wal grow=$grow cut=$cut", "ok", db.one("PRAGMA integrity_check"))
+                        db.one("SELECT COUNT(*) FROM content WHERE Title = 'The Iliad'")
+                    }
+                    assertEquals("wal=$wal grow=$grow cut=$cut: the old database is back", "1", title)
+                    assertFalse("the journal was played back and removed", File(drive, ".kobo/" + PageWriter.JOURNAL_NAME).exists())
+                    listOf("-wal", "-shm").forEach { File(dbOnDrive.path + it).delete() }
+                    assertArrayEquals("wal=$wal grow=$grow cut=$cut", oldBytes.copyOf(c.oldPages * size), dbOnDrive.readBytes().copyOf(c.oldPages * size))
+                    assertEquals(old.length(), dbOnDrive.length())
+                }
+            }
+        }
+    }
+
+    @Test
+    fun anUnfinishedChangeOnTheKoboStopsTheWrite() = runBlocking {
+        FakeKobo.create(drive)
+        val (repo, session) = connect()
+        val journal = File(drive, ".kobo/" + PageWriter.JOURNAL_NAME)
+        val iliad = session.snapshot.books.first { it.title == "The Iliad" }
+        // A blanked-out journal (SQLite leaves those in some modes) is nothing to undo, so it doesn't matter.
+        journal.writeBytes(ByteArray(512))
+        assertNotNull(repo.writeDatabase(session) { e -> if (e.addToCollection("Philosophy", iliad.contentId)) 1 else 0 })
+        val (repo2, session2) = connect()
+        val before = dbOnDrive.readBytes()
+        PageWriter.writeJournal(journal, 4096, (before.size / 4096), listOf(1 to before.copyOfRange(4096, 8192)))
+        try {
+            repo2.writeDatabase(session2) { e -> if (e.removeFromCollection("Philosophy", iliad.contentId)) 1 else 0 }
+            fail("expected the write to be refused")
+        } catch (e: KoboDatabaseChangedException) {
+            assertTrue(e.message!!, e.message!!.contains("unfinished change"))
+        }
+        assertArrayEquals(before, dbOnDrive.readBytes())
+    }
+
+    @Test
+    fun pagesThatArentAsReadMeanTheWholeFileIsCopied() = runBlocking {
+        FakeKobo.create(drive)
+        walMode(false)
+        val (repo, session) = connect()
+        // The header changes, the size doesn't: rewriting pages over it could mix two databases.
+        SQLiteDatabase.openDatabase(dbOnDrive.path, null, SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.NO_LOCALIZED_COLLATORS).use { db ->
+            db.execSQL("PRAGMA user_version = 7")
+        }
+        assertEquals(session.databaseBytes, dbOnDrive.length())
+        val file = inode(dbOnDrive)
+        val iliad = session.snapshot.books.first { it.title == "The Iliad" }
+        val after = repo.writeDatabase(session) { e -> if (e.addToCollection("Philosophy", iliad.contentId)) 1 else 0 }!!
+        assertTrue("a whole new file was swapped in", file != inode(dbOnDrive))
+        onDrive { db ->
+            assertEquals("ok", db.one("PRAGMA integrity_check"))
+            assertEquals("0", db.one("PRAGMA user_version"))
+        }
+        assertEquals(emptyList<String>(), leftovers())
+        assertEquals(dbOnDrive.length(), after.databaseBytes)
+    }
+
+    @Test
+    fun rewritingPagesIsOnlyForChangesSmallerThanTheFile() {
+        FakeKobo.create(drive)
+        walMode(false)
+        val old = File(context.cacheDir, "old-" + UUID.randomUUID()).also { dbOnDrive.copyTo(it) }
+        val small = File(context.cacheDir, "small-" + UUID.randomUUID()).also { dbOnDrive.copyTo(it) }
+        KoboDatabaseWriter.open(small, false).use { it.execSQL("UPDATE content SET ReadStatus = 2 WHERE Title = 'The Iliad'") }
+        assertTrue(PageWriter.changes(old, small)!!.worthIt)
+        // Saving and rewriting most of the pages is no quicker than copying the file.
+        fun pages(changed: Int): File = File(context.cacheDir, "pages-" + UUID.randomUUID()).apply {
+            val bytes = ByteArray(10 * 4096)
+            bytes[16] = 0x10 // page size 4096, as a database's header gives it
+            for (p in 1..changed) bytes[p * 4096 + 7] = 1
+            writeBytes(bytes)
+        }
+        val ten = pages(0)
+        val most = PageWriter.changes(ten, pages(7))!!
+        assertEquals(listOf(1, 2, 3, 4, 5, 6, 7), most.written)
+        assertFalse(most.worthIt)
+        assertTrue(PageWriter.changes(ten, pages(2))!!.worthIt)
+        assertNull("not a database", PageWriter.changes(ten, File(context.cacheDir, "x").apply { writeBytes(ByteArray(4096 * 3)) }))
+    }
+
     @Test
     fun aCollectionDeletedOnTheKoboIsntBroughtBack() = runBlocking {
         FakeKobo.create(drive)

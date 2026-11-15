@@ -75,8 +75,8 @@ class ReaderScrollingTest {
     @Test
     fun theBarsCanBeDimmedAndThePageIsToldTheirColour() {
         // Full strength: the text's colour.
-        val full = ReaderSettings(theme = ReaderTheme.BLACK)
-        assertEquals(BarShade.TEXT, full.barShade)
+        val full = ReaderSettings(theme = ReaderTheme.BLACK, barShade = BarShade.TEXT)
+        assertEquals(BarShade.DIM, ReaderSettings().barShade) // dimmed to start with
         assertEquals(0xFFC4C0B8, full.barColor)
         assertEquals("#c4c0b8", JSONObject(full.toJs("en")).getString("barColor"))
         // Dimmed: a solid colour about a third of the way from the page's colour to the text's.

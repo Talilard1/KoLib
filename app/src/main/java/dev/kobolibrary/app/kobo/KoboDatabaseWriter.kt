@@ -24,11 +24,13 @@ class KoboDatabaseChangedException(message: String) : IOException(message)
  *
  *  1. the database as it is on the Kobo now is backed up on the tablet, unless that exact copy already is;
  *  2. a fresh copy is changed in one transaction, folded into a single file and integrity-checked;
- *  3. it's written to the Kobo under a temporary name and read back, to be sure it arrived intact;
- *  4. the old database's -wal and -shm files are removed (what they held is already in the new file, and
+ *  3. usually just the pages that changed are rewritten on the Kobo, with a journal the Kobo uses to undo
+ *     them if it's unplugged part way (see [PageWriter]). Otherwise:
+ *  4. it's written to the Kobo under a temporary name and read back, to be sure it arrived intact;
+ *  5. the old database's -wal and -shm files are removed (what they held is already in the new file, and
  *     left behind they would be replayed over it), then the new file takes the old one's place.
  *
- * Until step 4 nothing on the Kobo has changed, so any failure before it leaves the Kobo as it was.
+ * Until step 3 or 5 nothing on the Kobo has changed, so any failure before it leaves the Kobo as it was.
  */
 class KoboDatabaseWriter(private val workRoot: File, private val backups: BackupManager) {
 
@@ -54,6 +56,15 @@ class KoboDatabaseWriter(private val workRoot: File, private val backups: Backup
         val walOnKobo = tree.child(koboDir.docId, "$DB_NAME-wal")?.size ?: 0L
         if (walOnKobo != (currentWal?.length() ?: 0L)) {
             throw KoboDatabaseChangedException(tr("The Kobo's database has changed since it was read. Connect the Kobo again first."))
+        }
+        // A change to the database that wasn't finished, which the Kobo undoes when it next opens it.
+        // Writing now could be undone along with it, or mix with it.
+        tree.child(koboDir.docId, PageWriter.JOURNAL_NAME)?.takeIf { it.size > 0 }?.let { journal ->
+            if (PageWriter.isHot(tree.openInput(journal.docId))) {
+                throw KoboDatabaseChangedException(
+                    tr("The Kobo has an unfinished change to its database. Eject it and wait until it shows its books, then connect it again.")
+                )
+            }
         }
 
         // 1. A backup of the database as it is now. No backup, no write.
@@ -93,9 +104,20 @@ class KoboDatabaseWriter(private val workRoot: File, private val backups: Backup
         }
         listOf("-wal", "-shm", "-journal").forEach { File(dir, DB_NAME + it).delete() }
         if (check != "ok") throw IOException(tr("The updated database failed its check ({0}), so it wasn't copied to the Kobo.", check))
+
+        // 4. Put it on the Kobo. Usually only a few pages changed, and rewriting just those is much quicker
+        // than copying the whole file; that can't be done with a write-ahead log waiting to be added to it.
+        if (walOnKobo == 0L) {
+            val quick = PageWriter.write(tree, koboDir.docId, onKobo.docId, current, db, File(dir, "journal"))
+            if (quick == PageWriter.Result.DONE) {
+                listOf("-wal", "-shm").forEach { end -> tree.child(koboDir.docId, DB_NAME + end)?.let { runCatching { tree.delete(it.docId) } } }
+                AppLog.i("KoboDb", "Wrote $changes change(s) to the Kobo's database (${db.length()} bytes) in ${System.currentTimeMillis() - started} ms.")
+                return Written(db, changes)
+            }
+        }
         val hash = sha256(db.inputStream())
 
-        // 4. Put it on the Kobo, under a temporary name first.
+        // Otherwise the whole file, under a temporary name first.
         tree.writeFile(".kobo/$TEMP_NAME", db)
         val temp = tree.child(koboDir.docId, TEMP_NAME) ?: throw IOException(tr("The updated database disappeared from the Kobo while it was being written."))
         val back = tree.openInput(temp.docId).use { sha256(it) }

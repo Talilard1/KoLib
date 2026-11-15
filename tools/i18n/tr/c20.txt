@@ -1,0 +1,152 @@
+@fr
+1642|Reconnaissance des mots dans les pages numérisées, pour les convertir en texte.
+1643|© Google LLC et les contributeurs de Tesseract
+1644|Données de langue de Tesseract
+1645|Ce que Tesseract sait de chaque langue, téléchargé la première fois qu’il en a besoin.
+1646|=
+1647|Utilisation de Tesseract depuis l’appli.
+1648|© Robert Pösel, Robert Theis et les contributeurs
+1649|Traitement des images des pages numérisées pour Tesseract.
+1650|=
+1651|Images JPEG, pour Tesseract. Ce logiciel est fondé en partie sur le travail de l’Independent JPEG Group.
+1652|Licence IJG
+1653|=
+1654|Images PNG, pour Tesseract.
+1655|Licence de la PNG Reference Library, version 2
+1656|=
+1657|Vos livres, et tout ce que vous en faites, restent sur cet appareil et sur votre Kobo. KoLib ne se connecte à Internet que lorsque vous cherchez une couverture, et n’envoie alors que les mots que vous cherchez, et la première fois que vous convertissez un livre numérisé en texte dans une langue, pour télécharger les données de cette langue. Les pages elles-mêmes sont lues sur cet appareil.
+@de
+1642|Erkennen der Wörter in gescannten Seiten, um sie in Text umzuwandeln.
+1643|© Google LLC und die Tesseract-Mitwirkenden
+1644|Sprachdaten von Tesseract
+1645|Was Tesseract über jede Sprache weiß, heruntergeladen, wenn sie zum ersten Mal gebraucht wird.
+1646|=
+1647|Nutzung von Tesseract aus der App.
+1648|© Robert Pösel, Robert Theis und Mitwirkende
+1649|Verarbeitung der Bilder gescannter Seiten für Tesseract.
+1650|=
+1651|JPEG-Bilder, für Tesseract. Diese Software basiert teilweise auf der Arbeit der Independent JPEG Group.
+1652|IJG-Lizenz
+1653|=
+1654|PNG-Bilder, für Tesseract.
+1655|PNG-Reference-Library-Lizenz 2
+1656|=
+1657|Deine Bücher und alles, was du mit ihnen machst, bleiben auf diesem Gerät und deinem Kobo. KoLib geht nur online, wenn du nach einem Cover suchst, und sendet dann nur die Wörter, nach denen du suchst, und wenn du zum ersten Mal ein gescanntes Buch in einer Sprache in Text umwandelst, um die Daten dieser Sprache herunterzuladen. Die Seiten selbst werden auf diesem Gerät gelesen.
+@es
+1642|Reconocimiento de las palabras de las páginas escaneadas, para convertirlas en texto.
+1643|© Google LLC y los colaboradores de Tesseract
+1644|Datos de idioma de Tesseract
+1645|Lo que Tesseract sabe de cada idioma, descargado la primera vez que hace falta.
+1646|=
+1647|Uso de Tesseract desde la app.
+1648|© Robert Pösel, Robert Theis y colaboradores
+1649|Tratamiento de las imágenes de las páginas escaneadas para Tesseract.
+1650|=
+1651|Imágenes JPEG, para Tesseract. Este software se basa en parte en el trabajo del Independent JPEG Group.
+1652|Licencia IJG
+1653|=
+1654|Imágenes PNG, para Tesseract.
+1655|Licencia de la PNG Reference Library 2
+1656|=
+1657|Tus libros, y todo lo que haces con ellos, se quedan en este dispositivo y en tu Kobo. KoLib solo se conecta a internet cuando buscas una portada, y entonces solo envía las palabras que buscas, y la primera vez que conviertes en texto un libro escaneado en un idioma, para descargar los datos de ese idioma. Las páginas en sí se leen en este dispositivo.
+@it
+1642|Riconoscimento delle parole nelle pagine scansionate, per convertirle in testo.
+1643|© Google LLC e i collaboratori di Tesseract
+1644|Dati della lingua di Tesseract
+1645|Ciò che Tesseract sa di ogni lingua, scaricato la prima volta che serve.
+1646|=
+1647|Uso di Tesseract dall’app.
+1648|© Robert Pösel, Robert Theis e collaboratori
+1649|Elaborazione delle immagini delle pagine scansionate per Tesseract.
+1650|=
+1651|Immagini JPEG, per Tesseract. Questo software si basa in parte sul lavoro dell’Independent JPEG Group.
+1652|Licenza IJG
+1653|=
+1654|Immagini PNG, per Tesseract.
+1655|Licenza della PNG Reference Library 2
+1656|=
+1657|I tuoi libri, e tutto quello che ci fai, restano su questo dispositivo e sul tuo Kobo. KoLib va online solo quando cerchi una copertina, e in quel caso invia solo le parole che cerchi, e la prima volta che converti in testo un libro scansionato in una lingua, per scaricare i dati di quella lingua. Le pagine stesse vengono lette su questo dispositivo.
+@nl
+1642|De woorden in gescande pagina’s herkennen, om ze naar tekst om te zetten.
+1643|© Google LLC en de bijdragers aan Tesseract
+1644|Taalgegevens van Tesseract
+1645|Wat Tesseract van elke taal weet, gedownload als het voor het eerst nodig is.
+1646|=
+1647|Tesseract gebruiken vanuit de app.
+1648|© Robert Pösel, Robert Theis en bijdragers
+1649|De afbeeldingen van gescande pagina’s verwerken voor Tesseract.
+1650|=
+1651|JPEG-afbeeldingen, voor Tesseract. Deze software is deels gebaseerd op het werk van de Independent JPEG Group.
+1652|IJG-licentie
+1653|=
+1654|PNG-afbeeldingen, voor Tesseract.
+1655|PNG Reference Library-licentie 2
+1656|=
+1657|Je boeken, en alles wat je ermee doet, blijven op dit apparaat en je Kobo. KoLib gaat alleen online als je een omslag zoekt, en stuurt dan alleen de woorden die je zoekt, en de eerste keer dat je een gescand boek in een taal naar tekst omzet, om de gegevens van die taal te downloaden. De pagina’s zelf worden op dit apparaat gelezen.
+@pt
+1642|Reconhecimento das palavras nas páginas digitalizadas, para convertê-las em texto.
+1643|© Google LLC e os colaboradores do Tesseract
+1644|Dados de idioma do Tesseract
+1645|O que o Tesseract sabe de cada idioma, baixado na primeira vez que é necessário.
+1646|=
+1647|Uso do Tesseract pelo app.
+1648|© Robert Pösel, Robert Theis e colaboradores
+1649|Tratamento das imagens das páginas digitalizadas para o Tesseract.
+1650|=
+1651|Imagens JPEG, para o Tesseract. Este software é baseado em parte no trabalho do Independent JPEG Group.
+1652|Licença IJG
+1653|=
+1654|Imagens PNG, para o Tesseract.
+1655|Licença da PNG Reference Library 2
+1656|=
+1657|Seus livros, e tudo o que você faz com eles, ficam neste dispositivo e no seu Kobo. O KoLib só acessa a internet quando você procura uma capa, e só envia as palavras que você procurou, e na primeira vez que você converte em texto um livro digitalizado num idioma, para baixar os dados desse idioma. As próprias páginas são lidas neste dispositivo.
+@ru
+1642|Распознавание слов на отсканированных страницах, чтобы получить из них текст.
+1643|© Google LLC и участники проекта Tesseract
+1644|Языковые данные Tesseract
+1645|То, что Tesseract знает о каждом языке; загружается, когда впервые понадобится.
+1646|=
+1647|Использование Tesseract в приложении.
+1648|© Robert Pösel, Robert Theis и участники
+1649|Обработка изображений отсканированных страниц для Tesseract.
+1650|=
+1651|Изображения JPEG для Tesseract. Это программное обеспечение частично основано на работе Independent JPEG Group.
+1652|Лицензия IJG
+1653|=
+1654|Изображения PNG для Tesseract.
+1655|Лицензия PNG Reference Library 2
+1656|=
+1657|Ваши книги и всё, что вы с ними делаете, остаются на этом устройстве и на вашем Kobo. KoLib выходит в интернет, только когда вы ищете обложку, и отправляет только слова, которые вы ищете, а также когда вы впервые распознаёте отсканированную книгу на каком-либо языке, — чтобы загрузить данные этого языка. Сами страницы обрабатываются на этом устройстве.
+@ja
+1642|スキャンしたページの文字の読み取り（テキスト化）。
+1643|© Google LLC と Tesseract の貢献者
+1644|Tesseract の言語データ
+1645|Tesseract が各言語について知っていること。初めて必要になったときにダウンロードします。
+1646|=
+1647|アプリからの Tesseract の利用。
+1648|© Robert Pösel、Robert Theis と貢献者
+1649|Tesseract のための、スキャンしたページの画像の処理。
+1650|=
+1651|Tesseract のための JPEG 画像。このソフトウェアは、一部 Independent JPEG Group の成果に基づいています。
+1652|IJG ライセンス
+1653|=
+1654|Tesseract のための PNG 画像。
+1655|PNG Reference Library ライセンス 2
+1656|=
+1657|本と、本に対して行うことはすべて、この端末と Kobo の中にとどまります。KoLib がインターネットに接続するのは、表紙を探すとき（送るのは検索した言葉だけです）と、ある言語のスキャンした本を初めてテキストにするとき（その言語のデータをダウンロードします）だけです。ページそのものはこの端末の中で読み取ります。
+@fr
+1658|Le numéro (« Prologue », « Chapitre 1 ») en grandes capitales espacées, et le titre en dessous en italique, quel que soit le style du livre. Désactivé, un livre qui leur donne son propre style le garde.
+@de
+1658|Die Nummer („Prolog“, „Kapitel 1“) in großen, gesperrten Großbuchstaben und der Titel darunter kursiv, egal wie das Buch es gestaltet. Aus: Ein Buch, das beides selbst gestaltet, behält sein Aussehen.
+@es
+1658|El número («Prólogo», «Capítulo 1») en mayúsculas grandes y espaciadas, y el título debajo en cursiva, sea cual sea el estilo del libro. Si está desactivado, un libro que les da su propio estilo lo conserva.
+@it
+1658|Il numero («Prologo», «Capitolo 1») in grandi maiuscole spaziate, e il titolo sotto in corsivo, qualunque sia lo stile del libro. Se disattivato, un libro che dà loro un proprio stile lo mantiene.
+@nl
+1658|Het nummer (‘Proloog’, ‘Hoofdstuk 1’) in grote, gespatieerde hoofdletters en de titel eronder cursief, wat het boek ook instelt. Uit: een boek dat ze een eigen uiterlijk geeft, houdt dat.
+@pt
+1658|O número (“Prólogo”, “Capítulo 1”) em maiúsculas grandes e espaçadas, e o título abaixo em itálico, seja qual for o estilo do livro. Desativado, um livro que dá a eles um estilo próprio o mantém.
+@ru
+1658|Номер («Пролог», «Глава 1») крупными заглавными буквами вразрядку, а под ним название курсивом, как бы ни была оформлена книга. Если выключено, книга со своим оформлением для них сохраняет его.
+@ja
+1658|番号（「プロローグ」「第 1 章」）を字間を空けた大きな文字で、その下に章題を斜体で表示します。本のデザインにかかわらず適用します。オフにすると、独自のデザインがある本はそのままです。

@@ -373,6 +373,9 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
             }
             originalTextFile(id).delete()
             bookDir(id).listFiles()?.filter { it.name.startsWith(ORIGINAL_COVER) }?.forEach { it.delete() }
+            // Text recognised in the old file's pages is no use for the new one.
+            scanStandIn(id).delete()
+            ocrStore(id).deleteAll()
             // The file it was made from now: the new one's, if it had one.
             sourceFile(id)?.delete()
             val newSource = heldSource(file)
@@ -622,6 +625,92 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
         }
     }
 
+    /** What's been recognised of a scanned book's pages, page by page. */
+    fun ocrStore(id: String) = dev.kobolibrary.app.ocr.OcrStore(File(bookDir(id), "ocr"))
+
+    /** A scanned book's stand-in, kept while its text is what was recognised in its pages, to go back to. */
+    private fun scanStandIn(id: String) = File(bookDir(id), SCAN_STAND_IN)
+
+    /** Puts the book's cover as it is now (it may have been changed) into [epub], which is to replace its file. */
+    private fun keepCoverIn(id: String, epub: File) {
+        val coverNow = runCatching {
+            EpubFile.open(epubFile(id)).use { e -> e.findCover()?.let { c -> e.readBytes(c.path)?.let { it to c.mediaType } } }
+        }.getOrNull() ?: return
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeByteArray(coverNow.first, 0, coverNow.first.size, bounds)
+        EpubEditor.replaceCover(epub, coverNow.first, coverNow.second, bounds.outWidth.coerceAtLeast(1), bounds.outHeight.coerceAtLeast(1))
+    }
+
+    /**
+     * Makes [epub], the text recognised in a scanned book's pages (in [languages]), the book's text. The
+     * book keeps its details and cover, and its PDF; its stand-in is kept, to go back to the scan.
+     */
+    suspend fun applyRecognisedText(id: String, epub: File, languages: List<String>): LibraryBook = withContext(Dispatchers.IO) {
+        lock.withLock {
+            val book = book(id) ?: throw IOException(tr("That book is no longer in the library."))
+            val store = ocrStore(id)
+            val was = store.applied?.was ?: book.sourceFormat
+            val file = epubFile(id)
+            val tmp = File(file.path + ".recognised")
+            try {
+                epub.copyTo(tmp, overwrite = true)
+                EpubEditor.writeMetadata(tmp, book.meta)
+                keepCoverIn(id, tmp)
+                EpubFile.open(tmp).close()
+                // The first time, the stand-in is kept (later, the book's file is already recognised text).
+                if (!scanStandIn(id).exists()) file.copyTo(scanStandIn(id), overwrite = true)
+                if (!tmp.renameTo(file)) {
+                    file.delete()
+                    if (!tmp.renameTo(file)) throw IOException(tr("Couldn't replace the file."))
+                }
+            } finally {
+                tmp.delete()
+            }
+            // Edits were to the stand-in's text: what's kept to undo them doesn't apply now.
+            originalTextFile(id).delete()
+            store.applied = dev.kobolibrary.app.ocr.OcrStore.Applied(was, languages, System.currentTimeMillis())
+            // It opens as the text now (it can still be read as the PDF).
+            val dir = bookDir(id)
+            val place = dev.kobolibrary.app.reader.ReaderStore.pdfPlace(dir) ?: dev.kobolibrary.app.reader.PdfPlace(0, 0)
+            dev.kobolibrary.app.reader.ReaderStore.savePdfPlace(dir, place.copy(asText = true))
+            refreshFromFile(id, "Made text from the scanned pages of") { it.copy(sourceFormat = BookFormats.PDF_OCR) }
+        }
+    }
+
+    /** Whether the book's text was recognised in its pages, and so can go back to being the scan. */
+    fun canGoBackToScan(id: String): Boolean = scanStandIn(id).exists() && ocrStore(id).applied != null
+
+    /** Puts a recognised book back as it was: its scanned pages, read and sent as the PDF. What was recognised is kept. */
+    suspend fun goBackToScan(id: String): LibraryBook = withContext(Dispatchers.IO) {
+        lock.withLock {
+            val book = book(id) ?: throw IOException(tr("That book is no longer in the library."))
+            val store = ocrStore(id)
+            val applied = store.applied
+            val standIn = scanStandIn(id)
+            if (applied == null || !standIn.exists()) throw IOException(tr("This book's text wasn't recognised from its pages."))
+            val file = epubFile(id)
+            val tmp = File(file.path + ".reverting")
+            try {
+                standIn.copyTo(tmp, overwrite = true)
+                EpubEditor.writeMetadata(tmp, book.meta)
+                keepCoverIn(id, tmp)
+                EpubFile.open(tmp).close()
+                if (!tmp.renameTo(file)) {
+                    file.delete()
+                    if (!tmp.renameTo(file)) throw IOException(tr("Couldn't restore the original"))
+                }
+            } finally {
+                tmp.delete()
+            }
+            standIn.delete()
+            originalTextFile(id).delete()
+            store.applied = null
+            val dir = bookDir(id)
+            dev.kobolibrary.app.reader.ReaderStore.pdfPlace(dir)?.let { dev.kobolibrary.app.reader.ReaderStore.savePdfPlace(dir, it.copy(asText = false)) }
+            refreshFromFile(id, "Went back to the scanned pages of") { it.copy(sourceFormat = applied.was ?: BookFormats.PDF_SCAN) }
+        }
+    }
+
     /** The cover picture inside the book itself, full size, for re-cropping. */
     suspend fun originalCover(id: String): ByteArray? = withContext(Dispatchers.IO) {
         runCatching { EpubFile.open(epubFile(id)).use { epub -> epub.findCover()?.let { epub.readBytes(it.path) } } }.getOrNull()
@@ -718,6 +807,8 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
     companion object {
         private const val ORIGINAL_COVER = "original-cover"
         private const val ORIGINAL_TEXT = "original.epub"
+        /** A scanned book's stand-in EPUB, while its text is what was recognised in its pages. */
+        private const val SCAN_STAND_IN = "scan.epub"
         /** The start of the name of the file a book was made from: "source.pdf". */
         private const val SOURCE = "source"
         private const val THUMB_WIDTH = 600

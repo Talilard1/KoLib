@@ -692,13 +692,13 @@ class AdvertShots140 {
     private fun readerNow(
         name: String, book: String, title: String, author: String, chapterFile: String, settings: ReaderSettings,
         page: String, screen: Int, screens: Int, columns: Int, twoUp: Boolean = true, controls: Boolean = false,
-        panel: Panel = Panel.NONE, lookTab: Int = 0, prepare: (ReaderController) -> Unit = {},
+        panel: Panel = Panel.NONE, lookTab: Int = 0, prepare: (ReaderController) -> Unit = {}, blankFirst: Boolean = twoUp,
     ) = withBook(book) { files, structure ->
         out = five
         val c = ReaderController(files, structure, title, "en", null, settings, context.assets, author)
         val at = c.chapters.indexOfFirst { it.path.endsWith(chapterFile) }
         counted(c)
-        val blank = if (twoUp) 1 else 0
+        val blank = if (blankFirst) 1 else 0
         c.showForPreview(at, screen, screens, columns, twoUp, blank)
         c.controlsVisible = controls
         c.lookTab = lookTab
@@ -783,4 +783,37 @@ class AdvertShots140 {
     private fun iliadMatteNow(white: Boolean) { out = five; matte("ad_matte_iliad", iliadBook, "The Iliad", "Homer", "book-1.xhtml", iliadNow(), 0, 27, white) }
     @Test @Config(qualifiers = TAB) fun fiveIliadMatteBlack() = iliadMatteNow(false)
     @Test @Config(qualifiers = TAB) fun fiveIliadMatteWhite() = iliadMatteNow(true)
+
+    // ---- the highlights on two pages, as in the first adverts: the chapter opening on the left -------------------
+
+    private fun prideDual() = nowSettings().copy(rectoOpenings = false)
+
+    @Test
+    @Config(qualifiers = TAB)
+    fun fiveStartPrideDual() = withBook(prideBook) { files, structure ->
+        val c = ReaderController(files, structure, "Pride and Prejudice", "en", null, prideDual(), context.assets, "Jane Austen")
+        counted(c)
+        val at = c.chapters.indexOfFirst { it.path.endsWith("chapter-1.xhtml") }
+        File(five, "start").mkdirs()
+        File(five, "start/pride_paper_dual.json").writeText(c.startForPreview(at))
+    }
+
+    @Test @Config(qualifiers = TAB) fun fivePrideDual() = readerNow("ad_reader_pride", prideBook, "Pride and Prejudice", "Jane Austen", "chapter-1.xhtml", prideDual(), "pride_dual_s1", 0, 2, 3, blankFirst = false)
+    @Test
+    @Config(qualifiers = TAB)
+    fun fivePrideDualNote() {
+        val note = Annotation(
+            path = "epub/text/chapter-1.xhtml", start = "1/0:0", end = "1/0:40",
+            text = "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.",
+            color = HighlightColor.YELLOW, note = "Still the best first line in all of fiction.", chapterTitle = "I", bookProgress = 0.01f, created = 1_794_300_000_000L,
+        )
+        val r = File("/home/claude/advert5work/pages/note_rect_dual.txt").readText().trim().split(',').map { it.trim().toFloat() }
+        readerNow(
+            "ad_rd_pride_note", prideBook, "Pride and Prejudice", "Jane Austen", "chapter-1.xhtml", prideDual(), "pride_dual_s1", 0, 2, 3, blankFirst = false,
+            prepare = { c ->
+                c.showAnnotationsForPreview(listOf(note))
+                c.openAnnotation = ReaderController.OpenAnnotation(note.id, android.graphics.RectF(r[0], r[1], r[2], r[3]))
+            },
+        )
+    }
 }

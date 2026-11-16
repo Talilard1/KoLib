@@ -94,7 +94,10 @@ There's no account to make and no ads.
   a snapshot, a wand, an owl and a raven. Pictures are painted for 47 genres, from epic fantasy, magic schools, dark magic and
   storm-swept epics to space opera, starship voyages, war, regency, dark romance, fluff and angst. The
   genre is guessed from the book's tags (fan fiction's fandoms and tags too), and you can swap the
-  picture for one of your own, then move and zoom it.
+  picture for one of your own, then move and zoom it. Pick from 32 colour schemes or a colour of
+  your own, and choose the title, author and series colours separately. A design with a picture can
+  use the book's own cover, and the series number can be in words ("Book Six of"), in figures, or
+  left off.
 - Search and sort your books, and filter them by tag.
 - Make a PDF of scanned pages into a book whose text fits the screen: KoLib recognises the words in
   the pages on your device, in English, French, German, Spanish, Italian, Dutch, Portuguese,
@@ -138,6 +141,8 @@ There's no account to make and no ads.
   highlights, shows them all small, in the order they come, each with its chapter (and its book, in
   a book of several). Tap one to see it full screen, swipe for the next or the one before, and go to
   its page if you like.
+- Save any picture in a book to your device, or share it: from the picture shown full screen, or by
+  holding it on the page.
 
 ### Comics
 
@@ -155,6 +160,8 @@ There's no account to make and no ads.
 - Edit a book's text: fix typos, find and replace (with a mode for renaming a character), and tidy
   up blank lines, quotes and dashes.
 - Rename, move, split and join chapters, and rebuild the contents from the chapter headings.
+  Hold a chapter to select it (hold another to select everything between), then move or delete
+  them all at once.
 - Copy a section (a title page, a copyright page, a chapter) with its pictures and styles, and add it
   to any book from the Copied panel. Copied sections stay until you delete them. A copied contents
   page can keep its look and list the chapters of the book you add it to.

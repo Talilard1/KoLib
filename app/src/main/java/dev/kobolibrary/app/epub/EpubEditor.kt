@@ -15,11 +15,12 @@ object EpubEditor {
      * Makes [image] the book's cover. An existing cover file of the same type is overwritten in place,
      * so cover pages inside the book show the new picture too; otherwise a new image is added and declared.
      */
-    fun replaceCover(file: File, image: ByteArray, mediaType: String, width: Int, height: Int) {
+    fun replaceCover(file: File, image: ByteArray, mediaType: String, width: Int, height: Int, namedOnly: Boolean = false) {
         val replace = LinkedHashMap<String, ByteArray>()
         val add = LinkedHashMap<String, ByteArray>()
         EpubFile.open(file).use { epub ->
-            val existing = epub.findCover()
+            // [namedOnly]: a picture on the first page that the book doesn't name as its cover is left as it is.
+            val existing = epub.findCover()?.takeIf { it.declared || !namedOnly }
             val sameType = existing != null && existing.mediaType == mediaType
             val coverPath: String
             if (existing != null && sameType) {

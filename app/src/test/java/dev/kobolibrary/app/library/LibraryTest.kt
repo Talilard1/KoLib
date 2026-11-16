@@ -149,6 +149,73 @@ class LibraryTest {
         }
     }
 
+    /** Two books in one, whose title page (given to both when it's split) has a picture on it. */
+    private fun omnibusWithAPictureOnItsTitlePage(): File {
+        val names = listOf("cover", "title", "a", "a1", "b", "b1")
+        val opf = """<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="id">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="id">urn:uuid:omni-pic</dc:identifier><dc:title>Both Books</dc:title><dc:language>en</dc:language></metadata>
+  <manifest>
+    <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
+    <item id="cimg" href="images/cover.jpg" media-type="image/jpeg" properties="cover-image"/>
+    <item id="logo" href="images/logo.jpg" media-type="image/jpeg"/>
+${names.joinToString("\n") { "    <item id=\"$it\" href=\"text/$it.xhtml\" media-type=\"application/xhtml+xml\"/>" }}
+  </manifest>
+  <spine>
+${names.joinToString("\n") { "    <itemref idref=\"$it\"/>" }}
+  </spine>
+</package>"""
+        val nav = """<?xml version="1.0" encoding="utf-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops"><head><title>Contents</title></head><body>
+<nav epub:type="toc"><ol><li><a href="text/title.xhtml">Title Page</a></li><li><a href="text/a.xhtml">Book A</a><ol><li><a href="text/a1.xhtml">A One</a></li></ol></li><li><a href="text/b.xhtml">Book B</a><ol><li><a href="text/b1.xhtml">B One</a></li></ol></li></ol></nav>
+</body></html>"""
+        fun page(title: String, body: String) = """<?xml version="1.0" encoding="utf-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>$title</title></head><body>$body</body></html>"""
+        val files = linkedMapOf(
+            "META-INF/container.xml" to TestEpubs.CONTAINER.toByteArray(),
+            "OEBPS/content.opf" to opf.toByteArray(),
+            "OEBPS/nav.xhtml" to nav.toByteArray(),
+            "OEBPS/images/cover.jpg" to realJpeg(600, 900, Color.RED),
+            "OEBPS/images/logo.jpg" to realJpeg(300, 200, Color.BLUE),
+            "OEBPS/text/cover.xhtml" to page("Cover", "<div><img src=\"../images/cover.jpg\" alt=\"Cover\"/></div>").toByteArray(),
+            "OEBPS/text/title.xhtml" to page("Title Page", "<div><img src=\"../images/logo.jpg\" alt=\"\"/></div><h1>Both Books</h1><p>A. Writer</p>").toByteArray(),
+        )
+        for ((n, t) in listOf("a" to "Book A", "a1" to "A One", "b" to "Book B", "b1" to "B One")) {
+            files["OEBPS/text/$n.xhtml"] = page(t, "<h1>$t</h1>" + "<p>Words of $t.</p>".repeat(20)).toByteArray()
+        }
+        return TestEpubs.build(File(context.cacheDir, "$name/omnibus-pic.epub").apply { parentFile?.mkdirs() }, files)
+    }
+
+    @Test
+    fun aSplitBookOpeningOnASharedTitlePageGetsACoverOfItsOwn() = runBlocking {
+        val lib = library().apply { load() }
+        val f = omnibusWithAPictureOnItsTitlePage()
+        val omni = (lib.import("omnibus.epub", { f.inputStream() }, BookSource.FILE) as ImportOutcome.Added).book
+        val pages = lib.pagesOf(omni.id)
+        val cut = pages.indexOfFirst { it.path.endsWith("b.xhtml") }
+        val title = pages.indexOfFirst { it.path.endsWith("title.xhtml") }
+        val parts = lib.splitBook(
+            omni.id, listOf(cut), listOf(dev.kobolibrary.app.epub.BookMetadata(title = "Book A"), dev.kobolibrary.app.epub.BookMetadata(title = "Book B")),
+            dev.kobolibrary.app.epub.BookAssembly.Shared(listOf(title), emptyList()),
+        )
+        // The first keeps the omnibus's cover; the second opens on the title page, whose picture isn't its cover.
+        assertTrue(parts[0].hasCover)
+        assertFalse(parts[1].hasCover)
+        // One drawn for it is added as its cover, and the title page keeps its picture.
+        val drawn = realJpeg(536, 724, Color.GREEN)
+        val covered = lib.updateCover(parts[1].id, drawn, "image/jpeg", 536, 724, first = true)
+        assertTrue(covered.hasCover)
+        dev.kobolibrary.app.epub.EpubFile.open(lib.epubFile(parts[1].id)).use { epub ->
+            val cover = epub.findCover()!!
+            assertTrue(cover.declared)
+            assertFalse(cover.path.endsWith("logo.jpg"))
+            assertArrayEquals(drawn, epub.readBytes(cover.path))
+            val logo = epub.opf.items.first { it.href.endsWith("logo.jpg") }
+            assertArrayEquals(realJpeg(300, 200, Color.BLUE), epub.readBytes(epub.resolve(logo.href)))
+            assertTrue(epub.readText(epub.resolve(epub.opf.spineHrefs().first()))!!.contains("logo.jpg"))
+        }
+    }
+
     @Test
     fun aBookAlreadyThereCanBeReplacedOrAddedAsWell() = runBlocking {
         val lib = library().apply { load() }

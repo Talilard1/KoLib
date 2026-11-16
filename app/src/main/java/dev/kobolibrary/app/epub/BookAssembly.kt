@@ -238,9 +238,23 @@ hr::after { content: "* * *"; }
         val isEmpty: Boolean get() = front.isEmpty() && back.isEmpty()
     }
 
+    /** Pages an omnibus opens with, by their names: a title page, a copyright notice, contents, its author's other books. */
+    private val openingNames = Regex(
+        """^(?:(?:full |half[ -]?)?title(?: page)?|copyright(?: page| notice)?|(?:table of )?contents|also by\b.*|other (?:books|titles|works) by\b.*|books by\b.*|by the same author.*|praise\b.*)$""",
+        RegexOption.IGNORE_CASE,
+    )
+
+    /** Pages an omnibus closes with, by their names: about its authors, their other books, a newsletter. */
+    private val closingNames = Regex(
+        """^(?:about the (?:authors?|publisher|translators?)|also by\b.*|other (?:books|titles|works) by\b.*|books by\b.*|by the same author.*|copyright(?: page| notice)?|.*newsletter.*|sign up\b.*|more from\b.*|discover more.*|praise\b.*)$""",
+        RegexOption.IGNORE_CASE,
+    )
+
     /**
-     * The pages to copy into every book when [pages] are cut at [cuts]: from the contents, where a book is a top-level
-     * entry with chapters under it, the ones before the first book and after the last.
+     * The pages to copy into every book when [pages] are cut at [cuts], the ones before the first book and after the
+     * last: from the contents, where a book is a top-level entry with chapters under it; or, where the contents don't
+     * say, the pages the omnibus opens and closes with that are named as such (a title page, a copyright notice,
+     * contents; about the author).
      */
     fun sharedPages(pages: List<Page>, cuts: List<Int>): Shared {
         val starts = (listOf(0) + cuts.filter { it in 1 until pages.size }).distinct().sorted()
@@ -251,11 +265,52 @@ hr::after { content: "* * *"; }
             (p.index + 1 until next).any { (pages.getOrNull(it)?.level ?: 0) >= 1 }
         }
         val firstBook = books.firstOrNull()?.index?.takeIf { it < starts[1] } ?: 0
-        val front = (0 until firstBook).filter { pages[it].linear && !pages[it].cover }
+        val front = (0 until firstBook).filter { pages[it].linear && !pages[it].cover }.ifEmpty {
+            val named = ArrayList<Int>()
+            for (i in 0 until starts[1]) {
+                val p = pages[i]
+                if (!p.linear || p.cover) continue
+                if (!openingNames.matches(p.title.trim())) break
+                named += i
+            }
+            named
+        }
         val lastBook = books.lastOrNull()?.index?.takeIf { it >= starts.last() }
-        val back = if (lastBook == null) emptyList() else {
+        val back = (if (lastBook == null) emptyList() else {
             val end = (lastBook + 1 until pages.size).firstOrNull { pages[it].level == 0 } ?: pages.size
             (end until pages.size).filter { pages[it].linear }
+        }).ifEmpty {
+            val named = ArrayList<Int>()
+            for (i in pages.indices.reversed()) {
+                if (i <= starts.last()) break
+                val p = pages[i]
+                if (!p.linear) continue
+                if (!closingNames.matches(p.title.trim())) break
+                named.add(0, i)
+            }
+            named
+        }
+        return Shared(front, back)
+    }
+
+    /**
+     * The pages that can be copied into every book, to choose from: the first book's opening pages (up to its first
+     * chapter of text, or a dozen) and the last book's closing ones.
+     */
+    fun sharedCandidates(pages: List<Page>, cuts: List<Int>): Shared {
+        val starts = (listOf(0) + cuts.filter { it in 1 until pages.size }).distinct().sorted()
+        if (starts.size < 2) return Shared(emptyList(), emptyList())
+        val front = ArrayList<Int>()
+        for (i in 0 until starts[1]) {
+            if (front.size >= 12) break
+            front += i
+            if (pages[i].words >= 3000 && !openingNames.matches(pages[i].title.trim())) break
+        }
+        val back = ArrayList<Int>()
+        for (i in pages.indices.reversed()) {
+            if (i <= starts.last() || back.size >= 12) break
+            back.add(0, i)
+            if (pages[i].words >= 3000 && !closingNames.matches(pages[i].title.trim())) break
         }
         return Shared(front, back)
     }
@@ -321,7 +376,7 @@ hr::after { content: "* * *"; }
      * them to [targets] with [metas]. Each book takes its pages, the pictures, styles and fonts they
      * use, and any pages they link to elsewhere in the book (notes, say) as pages read only by link.
      */
-    fun split(source: File, cuts: List<Int>, metas: List<BookMetadata>, targets: List<File>, shareFrontAndBack: Boolean = false) {
+    fun split(source: File, cuts: List<Int>, metas: List<BookMetadata>, targets: List<File>, shared: Shared? = null) {
         EpubFile.open(source).use { epub ->
             val book = readBook(epub)
             val spinePages = book.spine.filter { it.path in book.files }
@@ -332,15 +387,18 @@ hr::after { content: "* * *"; }
             // Pages read only by link (notes, mostly) go with every book that links to them.
             val byLinkOnly = spinePages.filter { !it.linear }.map { it.path }.toSet()
             val coverPath = epub.findCover()?.path
-            // The pages that go with every book (a title page, a copyright notice, a contents page), if asked for.
-            val shared = if (shareFrontAndBack) sharedPages(pagesOf(book, coverPath), starts.drop(1)) else Shared(emptyList(), emptyList())
-            val sharedPaths = (shared.front + shared.back).map { spinePages[it].path }.toSet()
+            // The pages that go with every book (a title page, a copyright notice, a contents page), if asked for: those
+            // before the first book that go in the others, and those after the last that go in the ones before it.
+            val given = shared ?: Shared(emptyList(), emptyList())
+            val sharedFront = given.front.filter { it in 0 until starts[1] }.distinct().sorted()
+            val sharedBack = given.back.filter { it in starts.last() until spinePages.size }.distinct().sorted()
+            val sharedPaths = (sharedFront + sharedBack).map { spinePages[it].path }.toSet()
             val levels = ContentsPage.levelsOf(book.toc)
             for ((k, start) in starts.withIndex()) {
                 val end = starts.getOrNull(k + 1) ?: spinePages.size
                 val own = spinePages.subList(start, end)
-                val front = if (k > 0) shared.front.map { spinePages[it] } else emptyList()
-                val back = if (k < starts.size - 1) shared.back.map { spinePages[it] } else emptyList()
+                val front = if (k > 0) sharedFront.map { spinePages[it] } else emptyList()
+                val back = if (k < starts.size - 1) sharedBack.map { spinePages[it] } else emptyList()
                 val pages = (front + own + back).distinctBy { it.path }
                 val docs = pages.map { it.path }.toMutableList()
                 val linkedOut = LinkedHashSet<String>()

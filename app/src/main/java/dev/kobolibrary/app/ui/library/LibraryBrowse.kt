@@ -1,5 +1,7 @@
 package dev.kobolibrary.app.ui.library
 
+import dev.kobolibrary.app.ui.PickRange
+
 import dev.kobolibrary.app.tr
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState
@@ -52,14 +54,25 @@ class LibraryBrowseState {
     /** Choosing several books (to send them, for instance). */
     var selecting by mutableStateOf(false)
     val picked = mutableStateMapOf<String, Boolean>()
+    private val range = PickRange()
 
-    fun togglePicked(id: String) {
-        if (picked.remove(id) == null) picked[id] = true
+    /** A tap while choosing: chooses [id], or unchooses it. */
+    fun togglePicked(id: String) = range.toggle(picked, id)
+
+    /** A hold: see [PickRange.hold]; [shown] is the books in the order they're shown. */
+    fun holdPick(id: String, shown: List<String>) {
+        if (!selecting) {
+            selecting = true
+            picked.clear()
+            range.reset()
+        }
+        range.hold(picked, id, shown)
     }
 
     fun stopSelecting() {
         selecting = false
         picked.clear()
+        range.reset()
     }
 
     /** Picks [order], or flips the direction if it's already the order. */

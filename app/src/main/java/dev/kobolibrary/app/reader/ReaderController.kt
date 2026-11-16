@@ -121,6 +121,9 @@ class ReaderController(
     var note by mutableStateOf<ReaderNote?>(null)
     var image by mutableStateOf<String?>(null)
 
+    /** A picture held down on the page (its address), for what can be done with it: open, share or save it. */
+    var heldImage by mutableStateOf<String?>(null)
+
     /** Pictures opened from the list of the book's pictures, to go through left and right: the list as shown, and where it opened. */
     data class Browse(val pictures: List<BookPicture>, val start: Int)
 
@@ -639,6 +642,15 @@ class ReaderController(
                 if (!url.startsWith(BookServer.ORIGIN)) externalLink = url
                 return true
             }
+        }
+        // A picture held down: what can be done with it, as for a comic's page. Anything else held is left to select words.
+        setOnLongClickListener { v ->
+            val hit = (v as WebView).hitTestResult
+            val src = hit.extra
+            val picture = (hit.type == WebView.HitTestResult.IMAGE_TYPE || hit.type == WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE) &&
+                src != null && BookServer.pathOf(src)?.first?.let { BookServer.mediaType(it).startsWith("image/") } == true
+            if (picture) heldImage = src
+            picture
         }
         addJavascriptInterface(Bridge(), "KL")
         webView = this

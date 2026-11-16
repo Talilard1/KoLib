@@ -7,6 +7,8 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
+import org.junit.Assert.assertThrows
+import dev.kobolibrary.app.tr
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.File
@@ -274,6 +276,40 @@ class BookEditingTest {
         assertFalse(e.t("text/notes.xhtml").contains("ch1.xhtml"))
         assertEquals(listOf("Chapter 2"), e.structure.toc[0].children.map { it.title })
         assertTrue(BookCheck.run(e).isEmpty())
+    }
+
+    @Test
+    fun deletingSeveralIsOneStep() = garden().use { e ->
+        val before = e.structure.chapters.map { it.title }
+        var r = ChapterOps.delete(e, e.structure, listOf("OEBPS/text/ch2.xhtml", "OEBPS/text/ch1.xhtml"))
+        assertEquals(tr("Deleted {0} chapters", 2), r.label)
+        // The chapter after the last one deleted opens.
+        assertEquals("OEBPS/text/part2.xhtml", r.focus)
+        e.apply(r.label, r.changes)
+        assertFalse(e.has("OEBPS/text/ch1.xhtml") || e.has("OEBPS/text/ch2.xhtml"))
+        assertTrue(e.t("text/ch3.xhtml").contains("Back in the first chapter and the second."))
+        assertFalse(e.t("text/notes.xhtml").contains("ch1.xhtml"))
+        assertEquals(emptyList<String>(), e.structure.toc[0].children.map { it.title })
+        assertTrue(BookCheck.run(e).isEmpty())
+        e.undo()
+        assertEquals(before, e.structure.chapters.map { it.title })
+
+        // A part and a chapter in another: the part's chapters move up a level; the other part loses its chapter.
+        r = ChapterOps.delete(e, e.structure, listOf("OEBPS/text/part1.xhtml", "OEBPS/text/ch3.xhtml"))
+        e.apply(r.label, r.changes)
+        assertEquals(listOf("Chapter 1: Rose", "Chapter 2", "Part Two", "Notes"), e.structure.toc.map { it.title })
+        assertEquals(emptyList<String>(), e.structure.toc[2].children.map { it.title })
+        assertTrue(BookCheck.run(e).isEmpty())
+        e.undo()
+
+        // A part with its own chapter in it: both go, and nothing is left over.
+        r = ChapterOps.delete(e, e.structure, listOf("OEBPS/text/part2.xhtml", "OEBPS/text/ch3.xhtml"))
+        e.apply(r.label, r.changes)
+        assertEquals(listOf("Part One", "Notes"), e.structure.toc.map { it.title })
+        assertEquals(listOf("Chapter 1: Rose", "Chapter 2"), e.structure.toc[0].children.map { it.title })
+        // The last ones can't all go.
+        val all = e.structure.chapters.map { it.path }
+        assertEquals(tr("A book must have at least one chapter."), assertThrows(ChapterOps.OpError::class.java) { ChapterOps.delete(e, e.structure, all) }.message)
     }
 
     @Test

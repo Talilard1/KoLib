@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import androidx.core.graphics.ColorUtils
 import androidx.test.core.app.ApplicationProvider
+import dev.kobolibrary.app.tr
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -114,6 +115,63 @@ class CoverGeneratorTest {
             val nobody = draw(text.copy(authors = emptyList()), style)
             assertEquals("${style.label}: Unknown isn't printed", 0, changed(unnamed, nobody, 0, h))
         }
+    }
+
+    @Test
+    fun theLetteringAndTheSeriesTakeTheColoursChosenForThemInEveryDesign() {
+        val green = Color.rgb(0x12, 0xE0, 0x5A)
+        val magenta = Color.rgb(0xF0, 0x10, 0xE0)
+        // (Near enough to count the series where a design softens it.)
+        fun Bitmap.near(colour: Int) = pixels().count {
+            Math.abs(Color.red(it) - Color.red(colour)) < 48 && Math.abs(Color.green(it) - Color.green(colour)) < 48 &&
+                Math.abs(Color.blue(it) - Color.blue(colour)) < 48
+        }
+        val found = mutableListOf<String>()
+        var wrong = false
+        for (style in CoverStyle.entries) {
+            val plain = generator.render(text, CoverDesign(style, CoverColors.themes[0]), w, h)
+            val lettered = generator.render(text, CoverDesign(style, CoverColors.themes[0], lettering = green), w, h)
+            val both = generator.render(text, CoverDesign(style, CoverColors.themes[0], lettering = green, seriesLettering = magenta), w, h)
+            val words = lettered.near(green) - plain.near(green)
+            val series = both.near(magenta) - lettered.near(magenta)
+            // The series keeps the design's colour when only the title and author's is chosen, and the other way round.
+            val seriesAlone = lettered.near(magenta) - plain.near(magenta)
+            val wordsWithSeries = both.near(green) - lettered.near(green)
+            found += "${style.label}: words $words, series $series ($seriesAlone, $wordsWithSeries)"
+            if (words < 1500 || series < 30 || seriesAlone != 0 || Math.abs(wordsWithSeries) > 40) wrong = true
+        }
+        assertTrue(found.joinToString("\n"), !wrong)
+    }
+
+    @Test
+    fun theSeriesNumberCanBeInWordsInFiguresOrLeftOff() {
+        assertEquals(tr("Book {0} of", "Six"), SeriesNumber.bookOf(6.0, SeriesNumber.WORDS))
+        assertEquals(tr("Book {0} of", "6"), SeriesNumber.bookOf(6.0, SeriesNumber.FIGURES))
+        assertEquals(tr("Book of"), SeriesNumber.bookOf(6.0, SeriesNumber.NONE))
+        // Past twenty, or not a whole book, it's in figures whichever is asked for.
+        assertEquals(SeriesNumber.written(21.0, SeriesNumber.FIGURES), SeriesNumber.written(21.0, SeriesNumber.WORDS))
+        assertEquals(SeriesNumber.written(2.5, SeriesNumber.FIGURES), SeriesNumber.written(2.5, SeriesNumber.WORDS))
+        fun draw(style: CoverStyle, how: SeriesNumber?) = generator.render(text, CoverDesign(style, CoverColors.themes[0], seriesNumber = how), w, h)
+        // The framed design: "Book Five of" as it was, and the other two each different.
+        val framed = SeriesNumber.entries.map { draw(CoverStyle.FRAMED, it) }
+        assertArrayEquals(draw(CoverStyle.FRAMED, null).pixels(), framed[0].pixels())
+        assertTrue(changed(framed[0], framed[1], 0, h) > 50 && changed(framed[0], framed[2], 0, h) > 50 && changed(framed[1], framed[2], 0, h) > 50)
+        // Another: "Sherlock Holmes · Book 5" as it was, in words, or the series' name alone.
+        val classic = SeriesNumber.entries.map { draw(CoverStyle.CLASSIC, it) }
+        assertArrayEquals(draw(CoverStyle.CLASSIC, null).pixels(), classic[1].pixels())
+        assertTrue(changed(classic[0], classic[1], 0, h) > 50 && changed(classic[1], classic[2], 0, h) > 50)
+    }
+
+    @Test
+    fun aPaleNameOnAStorybookGoesOnADarkPill() {
+        val plain = generator.render(text, CoverDesign(CoverStyle.STORYBOOK, CoverColors.themes[0]), w, h)
+        val pale = generator.render(text, CoverDesign(CoverStyle.STORYBOOK, CoverColors.themes[0], lettering = Color.WHITE), w, h)
+        // The pill at the foot, round the author's name: white with navy words, navy under white ones.
+        fun Bitmap.at(x: Int, y: Int) = getPixel(x, y)
+        val y = h - (0.07f * w).toInt() - 6
+        val x = w / 2 - (0.2f * w).toInt()
+        assertTrue("white pill", ColorUtils.calculateLuminance(plain.at(x, y)) > 0.7)
+        assertTrue("navy pill", ColorUtils.calculateLuminance(pale.at(x, y)) < 0.15)
     }
 
     @Test

@@ -195,6 +195,47 @@ p { text-indent: 1.5em; margin: 0; }
 </package>
 """
 
+    /** A book of [n] short chapters, "Chapter 1" to "Chapter n", listed in its contents. */
+    fun long(file: File, n: Int): File {
+        val ids = (1..n).map { "c$it" }
+        val opf = """<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="id">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:identifier id="id">urn:uuid:9012</dc:identifier>
+    <dc:title>Many Chapters</dc:title>
+    <dc:language>en</dc:language>
+    <meta property="dcterms:modified">2026-01-01T00:00:00Z</meta>
+  </metadata>
+  <manifest>
+    <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
+${ids.joinToString("\n") { "    <item id=\"$it\" href=\"text/$it.xhtml\" media-type=\"application/xhtml+xml\"/>" }}
+  </manifest>
+  <spine>
+${ids.joinToString("\n") { "    <itemref idref=\"$it\"/>" }}
+  </spine>
+</package>
+"""
+        val nav = """<?xml version="1.0" encoding="utf-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+<head><title>Contents</title></head>
+<body>
+  <nav epub:type="toc">
+    <ol>
+${(1..n).joinToString("\n") { "      <li><a href=\"text/c$it.xhtml\">Chapter $it</a></li>" }}
+    </ol>
+  </nav>
+</body>
+</html>
+"""
+        val entries = linkedMapOf(
+            "META-INF/container.xml" to TestEpubs.CONTAINER.toByteArray(),
+            "OEBPS/content.opf" to opf.toByteArray(),
+            "OEBPS/nav.xhtml" to nav.toByteArray(),
+        )
+        for (k in 1..n) entries["OEBPS/text/c$k.xhtml"] = simplePage("Chapter $k", "Text of chapter $k.").toByteArray()
+        return TestEpubs.build(file, entries)
+    }
+
     fun threeParts(file: File): File = TestEpubs.build(
         file,
         linkedMapOf(

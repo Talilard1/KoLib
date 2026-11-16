@@ -67,14 +67,25 @@ class BrowseState {
     /** Picking several books (to add them to the library). */
     var selecting by mutableStateOf(false)
     val picked = mutableStateMapOf<String, Boolean>()
+    private val range = PickRange()
 
-    fun togglePicked(contentId: String) {
-        if (picked.remove(contentId) == null) picked[contentId] = true
+    /** A tap while picking: picks [contentId], or unpicks it. */
+    fun togglePicked(contentId: String) = range.toggle(picked, contentId)
+
+    /** A hold: see [PickRange.hold]; [shown] is the books in the order they're shown. */
+    fun holdPick(contentId: String, shown: List<String>) {
+        if (!selecting) {
+            selecting = true
+            picked.clear()
+            range.reset()
+        }
+        range.hold(picked, contentId, shown)
     }
 
     fun stopSelecting() {
         selecting = false
         picked.clear()
+        range.reset()
     }
 
     /** Picks [order], or flips the direction if it's already the order. */

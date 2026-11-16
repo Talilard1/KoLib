@@ -393,9 +393,12 @@ class TextEditState(
     }
 
     fun rename(path: String, title: String, alsoHeading: Boolean) = change { ChapterOps.rename(edit, structure, path, title, alsoHeading) }
-    fun reorder(order: List<String>) = change { ChapterOps.reorder(edit, structure, order) }
+    fun reorder(order: List<String>, label: String = tr("Moved a chapter")) = change { ChapterOps.reorder(edit, structure, order, label) }
     fun mergeWithPrevious(path: String) = change { ChapterOps.mergeWithPrevious(edit, structure, path) }
     fun delete(path: String) = change { ChapterOps.delete(edit, structure, path) }
+
+    /** Deletes the chapters at [paths] together, as one step to undo. */
+    fun deleteAll(paths: Collection<String>) = change { ChapterOps.delete(edit, structure, paths) }
     fun setHidden(path: String, hidden: Boolean) = change { ChapterOps.setHidden(edit, structure, path, hidden) }
     fun setStart(path: String) = change { ChapterOps.setStart(edit, structure, path) }
     fun contentsFromHeadings() = change { ChapterOps.contentsFromHeadings(edit, structure) }

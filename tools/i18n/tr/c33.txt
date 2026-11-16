@@ -1,0 +1,56 @@
+@fr
+1962|Chaque nouveau livre reçoit ses chapitres, avec les images, styles et polices qu’ils utilisent, et les pages de notes vers lesquelles ils renvoient. Le premier livre garde la couverture d’origine. Les autres prennent leur propre page de couverture s’ils en ont une au début, ou reçoivent une nouvelle couverture avec leur titre. « {0} » lui-même ne change pas.
+1963|L’image n’a pas pu être enregistrée.
+1964|L’image n’a pas pu être partagée.
+1965|Tome de
+1966|Numéro dans la série
+1967|Sans numéro
+@de
+1962|Jedes neue Buch bekommt seine Kapitel mit den Bildern, Stilen und Schriften, die sie verwenden, und allen Anmerkungsseiten, auf die sie verweisen. Das erste Buch bekommt das ursprüngliche Cover. Die anderen bekommen ihre eigene Coverseite, wenn sie mit einer beginnen, oder ein neues Cover mit ihrem Titel. „{0}“ selbst ändert sich nicht.
+1963|Das Bild konnte nicht gespeichert werden.
+1964|Das Bild konnte nicht geteilt werden.
+1965|Band der Reihe
+1966|Nummer in der Reihe
+1967|Ohne Nummer
+@es
+1962|Cada libro nuevo recibe sus capítulos, con las imágenes, estilos y fuentes que usan y las páginas de notas a las que enlazan. El primer libro se queda con la portada original. Los demás usan su propia página de portada si empiezan con una, o reciben una portada nueva con su título. «{0}» en sí no cambia.
+1963|No se ha podido guardar la imagen.
+1964|No se ha podido compartir la imagen.
+1965|Libro de
+1966|Número en la serie
+1967|Sin número
+@it
+1962|Ogni nuovo libro riceve i suoi capitoli, con le immagini, gli stili e i font che usano e le pagine di note a cui rimandano. Il primo libro riceve la copertina originale. Gli altri usano la propria pagina di copertina, se iniziano con una, oppure ricevono una nuova copertina con il loro titolo. «{0}» non viene modificato.
+1963|Non è stato possibile salvare l’immagine.
+1964|Non è stato possibile condividere l’immagine.
+1965|Libro di
+1966|Numero nella serie
+1967|Senza numero
+@nl
+1962|Elk nieuw boek krijgt zijn hoofdstukken, met de afbeeldingen, stijlen en lettertypen die ze gebruiken en de notenpagina’s waarnaar ze linken. Het eerste boek krijgt de oorspronkelijke omslag. De andere gebruiken hun eigen omslagpagina als ze daarmee beginnen, of krijgen een nieuwe omslag met hun titel. ‘{0}’ zelf verandert niet.
+1963|De afbeelding kon niet worden opgeslagen.
+1964|De afbeelding kon niet worden gedeeld.
+1965|Deel van
+1966|Nummer in de reeks
+1967|Zonder nummer
+@pt
+1962|Cada livro novo recebe os capítulos dele, com as imagens, estilos e fontes que eles usam e as páginas de notas para as quais apontam. O primeiro livro fica com a capa original. Os outros usam a própria página de capa, se começarem com uma, ou recebem uma capa nova com o título. O próprio “{0}” não muda.
+1963|Não foi possível salvar a imagem.
+1964|Não foi possível compartilhar a imagem.
+1965|Livro de
+1966|Número na série
+1967|Sem número
+@ru
+1962|Каждая новая книга получает свои главы вместе с картинками, стилями и шрифтами, которые в них используются, и страницами примечаний, на которые они ссылаются. Первая книга получает исходную обложку. Остальные берут свою страницу обложки, если начинаются с неё, или получают новую обложку со своим названием. Сама книга «{0}» не меняется.
+1963|Не удалось сохранить картинку.
+1964|Не удалось поделиться картинкой.
+1965|Книга цикла
+1966|Номер в серии
+1967|Без номера
+@ja
+1962|新しい本にはそれぞれの章が入り、章で使われている画像、スタイル、フォント、リンク先の注釈ページも含まれます。最初の本には元の表紙が付きます。ほかの本は、表紙のページで始まる場合はそれを使い、そうでなければタイトル入りの新しい表紙が付きます。「{0}」自体は変わりません。
+1963|画像を保存できませんでした。
+1964|画像を共有できませんでした。
+1965|シリーズの一冊
+1966|シリーズの番号
+1967|番号なし

@@ -117,10 +117,8 @@ internal fun PhoneKoboBrowser(
     }
     val chosen = { books.filter { browse.picked.containsKey(it.contentId) } }
     val onTap: (KoboBook) -> Unit = { book -> if (browse.selecting) browse.togglePicked(book.contentId) else browse.selectedBookId = book.contentId }
-    val onHold: (KoboBook) -> Unit = { book ->
-        if (!browse.selecting) browse.selecting = true
-        browse.togglePicked(book.contentId)
-    }
+    // Holding a book picks it, and every book from the one picked last to it.
+    val onHold: (KoboBook) -> Unit = { book -> browse.holdPick(book.contentId, books.map { it.contentId }) }
     Box(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize()) {
             if (browse.selecting) {

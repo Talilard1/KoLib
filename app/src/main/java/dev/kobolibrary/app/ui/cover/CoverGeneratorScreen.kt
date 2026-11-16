@@ -9,6 +9,9 @@ import android.graphics.Bitmap
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.icons.outlined.Image
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.calculateCentroid
@@ -203,6 +206,8 @@ fun CoverGeneratorScreen(
     onCancel: () -> Unit,
     genre: CoverGenre = CoverGenre.LITERARY,
     initial: CoverDesign = remember { designFor(text, genre, anyColour = false) },
+    /** The book's cover as it is now, to use as the picture on a design that has one. */
+    currentCover: Bitmap? = null,
 ) {
     val context = LocalContext.current
     val generator = remember { CoverGenerator(context.applicationContext) }
@@ -217,7 +222,12 @@ fun CoverGeneratorScreen(
     var strength by remember { mutableStateOf(0.7f) }
     var dark by remember { mutableStateOf(true) }
     val colors = themeIndex?.let { CoverColors.themes[it] } ?: CoverColors.fromHue(hue, strength, dark)
-    val design = CoverDesign(style, colors, kind, seed)
+    // The title and author, and the series, in colours of their own, whatever the design; null: as the design has them.
+    var lettering by remember { mutableStateOf<Int?>(null) }
+    var seriesLettering by remember { mutableStateOf<Int?>(null) }
+    // How its number in the series is written; null: as the design has it.
+    var seriesNumber by remember { mutableStateOf<SeriesNumber?>(null) }
+    val design = CoverDesign(style, colors, kind, seed, lettering, seriesLettering, seriesNumber)
     var own by remember { mutableStateOf<OwnPicture?>(null) }
     var crop by remember { mutableStateOf(CoverCrop()) }
     // While the picture is being moved, the preview is drawn smaller, to keep up.
@@ -279,10 +289,10 @@ fun CoverGeneratorScreen(
         val h = (w / coverAspect).roundToInt()
         preview = withContext(drawing) { generator.render(text, design, w, h, shownPicture?.small, crop).asImageBitmap() }
     }
-    LaunchedEffect(colors, kind, seed, own, coverAspect) {
+    LaunchedEffect(colors, kind, seed, own, coverAspect, lettering, seriesLettering, seriesNumber) {
         thumbs = withContext(Dispatchers.Default) {
             CoverStyle.entries.associateWith {
-                generator.render(text, CoverDesign(it, colors, kind, seed), 134, (134 / coverAspect).roundToInt(), own?.small?.takeIf { _ -> it.picture }, crop).asImageBitmap()
+                generator.render(text, CoverDesign(it, colors, kind, seed, lettering, seriesLettering, seriesNumber), 134, (134 / coverAspect).roundToInt(), own?.small?.takeIf { _ -> it.picture }, crop).asImageBitmap()
             }
         }
     }
@@ -437,6 +447,13 @@ fun CoverGeneratorScreen(
                             Spacer(Modifier.width(8.dp))
                             Text(tr("New picture"))
                         }
+                        if (currentCover != null) {
+                            OutlinedButton(onClick = { take { currentCover } }, enabled = style.picture) {
+                                Icon(Icons.Outlined.Image, null, Modifier.size(18.dp))
+                                Spacer(Modifier.width(8.dp))
+                                Text(tr("The book's cover"))
+                            }
+                        }
                         OutlinedButton(
                             onClick = { runCatching { photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) } },
                             enabled = style.picture,
@@ -541,6 +558,37 @@ fun CoverGeneratorScreen(
                             Slider(value = strength, onValueChange = { strength = it }, valueRange = 0.1f..1f)
                         }
                     }
+                    // The words' colours, apart from the cover's, in any design.
+                    HorizontalDivider()
+                    Text(tr("Lettering"), style = MaterialTheme.typography.titleSmall)
+                    TextColourChooser(tr("Title and author"), lettering) { lettering = it }
+                    if (!text.series.isNullOrBlank()) TextColourChooser(tr("Series"), seriesLettering) { seriesLettering = it }
+                    // Its number in the series: in words, in figures, or none ("Book of", on the framed design).
+                    val index = text.seriesIndex
+                    if (!text.series.isNullOrBlank() && index != null) {
+                        val framed = style == CoverStyle.FRAMED
+                        val shown = seriesNumber ?: if (framed) SeriesNumber.WORDS else SeriesNumber.FIGURES
+                        Text(tr("Number in the series"), style = MaterialTheme.typography.labelLarge)
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            val choices = listOfNotNull(
+                                SeriesNumber.WORDS.takeIf { SeriesNumber.inWords(index) != null },
+                                SeriesNumber.FIGURES,
+                                SeriesNumber.NONE,
+                            )
+                            for (how in choices) {
+                                FilterChip(
+                                    selected = shown == how || (how == SeriesNumber.FIGURES && shown == SeriesNumber.WORDS && SeriesNumber.inWords(index) == null),
+                                    onClick = { seriesNumber = how },
+                                    label = {
+                                        Text(
+                                            if (framed) SeriesNumber.bookOf(index, how)
+                                            else SeriesNumber.written(index, how)?.let { tr("Book {0}", it) } ?: tr("No number"),
+                                        )
+                                    },
+                                )
+                            }
+                        }
+                    }
                     Text(
                         if (CoverScreen.fromKobo) tr("The cover shows the book's title, series and authors. It's made at {0} × {1} pixels, the size of your Kobo's screen.", CoverCrop.OUT_WIDTH, CoverCrop.OUT_HEIGHT)
                         else tr("The cover shows the book's title, series and authors. It's made at 1072 × 1448 pixels, the size of the Kobo Clara's screen."),
@@ -564,6 +612,86 @@ fun CoverGeneratorScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+/** Colours for a cover's lettering, from pale (for dark covers) to dark (for pale ones). */
+private val letteringColours: List<Pair<String, Int>> = listOf(
+    tr("Cream") to 0xFFF4EBD6.toInt(),
+    tr("White") to 0xFFFFFFFF.toInt(),
+    tr("Pale gold") to 0xFFEBD9A6.toInt(),
+    tr("Gold") to 0xFFE0B458.toInt(),
+    tr("Copper") to 0xFFD49A5C.toInt(),
+    tr("Silver") to 0xFFC8CED6.toInt(),
+    tr("Rose") to 0xFFE7A4AE.toInt(),
+    tr("Scarlet") to 0xFFC8323C.toInt(),
+    tr("Forest green") to 0xFF1F4035.toInt(),
+    tr("Navy") to 0xFF1B2A49.toInt(),
+    tr("Brown") to 0xFF3E2B20.toInt(),
+    tr("Black") to 0xFF1C1C1C.toInt(),
+)
+
+/**
+ * A choice of colour for some of a cover's words, apart from the cover's colours: as the design has them,
+ * one of [letteringColours], or any colour, by hue and lightness.
+ */
+@Composable
+private fun TextColourChooser(label: String, chosen: Int?, onChoose: (Int?) -> Unit) {
+    var own by remember { mutableStateOf(false) }
+    var hue by remember { mutableStateOf(40f) }
+    var light by remember { mutableStateOf(0.7f) }
+    fun ownColour() = androidx.core.graphics.ColorUtils.HSLToColor(floatArrayOf(hue, 0.65f, light))
+    Text(label, style = MaterialTheme.typography.labelLarge)
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        WordSwatch(0, tr("As the design has it"), selected = chosen == null && !own, auto = true) { own = false; onChoose(null) }
+        for ((name, colour) in letteringColours) WordSwatch(colour, name, selected = chosen == colour && !own) { own = false; onChoose(colour) }
+        WordSwatch(ownColour(), tr("Your colour"), selected = own, rainbow = true) { own = true; onChoose(ownColour()) }
+    }
+    if (own) {
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(12.dp)
+                .clip(RoundedCornerShape(6.dp))
+                .background(Brush.horizontalGradient((0..12).map { Color.hsv(it * 30f % 360f, 0.55f, 0.85f) }))
+        )
+        Slider(value = hue, onValueChange = { hue = it; onChoose(ownColour()) }, valueRange = 0f..360f)
+        Text(tr("Lightness"), style = MaterialTheme.typography.labelMedium)
+        Slider(value = light, onValueChange = { light = it; onChoose(ownColour()) }, valueRange = 0.08f..0.95f)
+    }
+}
+
+/**
+ * A round swatch of a colour for words, named [name] for those who can't see it; [auto] (as the design has it)
+ * is an "A" instead, [rainbow] (a colour of one's own) every hue.
+ */
+@Composable
+private fun WordSwatch(colour: Int, name: String, selected: Boolean, auto: Boolean = false, rainbow: Boolean = false, onClick: () -> Unit) {
+    val mark = when {
+        auto -> MaterialTheme.colorScheme.onSurface
+        androidx.core.graphics.ColorUtils.calculateLuminance(colour) > 0.45 -> Color(0xFF1C1C1C)
+        else -> Color.White
+    }
+    Box(
+        Modifier
+            .size(34.dp)
+            .clip(CircleShape)
+            .then(
+                when {
+                    rainbow -> Modifier.background(Brush.sweepGradient((0..6).map { Color.hsv(it * 60f % 360f, 0.6f, 0.9f) }))
+                    auto -> Modifier.background(MaterialTheme.colorScheme.surfaceVariant)
+                    else -> Modifier.background(Color(colour))
+                }
+            )
+            .border(if (selected) 3.dp else 1.dp, if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant, CircleShape)
+            .clickable(onClick = onClick)
+            .semantics { contentDescription = name },
+        contentAlignment = Alignment.Center,
+    ) {
+        when {
+            selected -> Icon(Icons.Filled.Check, null, tint = if (rainbow) Color.White else mark, modifier = Modifier.size(16.dp))
+            auto -> Text("A", style = MaterialTheme.typography.labelMedium, color = mark)
         }
     }
 }

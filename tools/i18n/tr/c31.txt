@@ -1,0 +1,144 @@
+@fr
+1921|Titre et auteur
+1922|Lignes, ornements et série
+1923|Crème
+1924|Or pâle
+1925|Or
+1926|Cuivre
+1927|Argent
+1928|Rose
+1929|Écarlate
+1930|Vert forêt
+1931|Marine
+1932|Brun
+1933|Comme les couleurs de la couverture
+1934|Luminosité
+@de
+1921|Titel und Autor
+1922|Linien, Ornamente und Reihe
+1923|Creme
+1924|Blassgold
+1925|Gold
+1926|Kupfer
+1927|Silber
+1928|Rosa
+1929|Scharlachrot
+1930|Waldgrün
+1931|Marineblau
+1932|Braun
+1933|Wie die Farben des Covers
+1934|Helligkeit
+@es
+1921|Título y autor
+1922|Líneas, adornos y serie
+1923|Crema
+1924|Oro pálido
+1925|Oro
+1926|Cobre
+1927|Plata
+1928|Rosa
+1929|Escarlata
+1930|Verde bosque
+1931|Azul marino
+1932|Marrón
+1933|Como los colores de la portada
+1934|Luminosidad
+@it
+1921|Titolo e autore
+1922|Linee, ornamenti e serie
+1923|Crema
+1924|Oro chiaro
+1925|Oro
+1926|Rame
+1927|Argento
+1928|Rosa
+1929|Scarlatto
+1930|Verde bosco
+1931|Blu navy
+1932|Marrone
+1933|Come i colori della copertina
+1934|Luminosità
+@nl
+1921|Titel en auteur
+1922|Lijnen, versieringen en reeks
+1923|Crème
+1924|Lichtgoud
+1925|Goud
+1926|Koper
+1927|Zilver
+1928|Roze
+1929|Scharlaken
+1930|Bosgroen
+1931|Marineblauw
+1932|Bruin
+1933|Zoals de kleuren van de omslag
+1934|Helderheid
+@pt
+1921|Título e autor
+1922|Linhas, ornamentos e série
+1923|Creme
+1924|Dourado-claro
+1925|Dourado
+1926|Cobre
+1927|Prata
+1928|Rosa
+1929|Escarlate
+1930|Verde-floresta
+1931|Azul-marinho
+1932|Marrom
+1933|Como as cores da capa
+1934|Luminosidade
+@ru
+1921|Название и автор
+1922|Линии, украшения и серия
+1923|Кремовый
+1924|Бледное золото
+1925|Золотой
+1926|Медный
+1927|Серебряный
+1928|Розовый
+1929|Алый
+1930|Лесной зелёный
+1931|Тёмно-синий
+1932|Коричневый
+1933|Как цвета обложки
+1934|Яркость
+@ja
+1921|タイトルと著者
+1922|線・飾り・シリーズ
+1923|クリーム
+1924|淡い金
+1925|金
+1926|銅
+1927|銀
+1928|ローズ
+1929|緋色
+1930|フォレストグリーン
+1931|ネイビー
+1932|茶
+1933|表紙の色に合わせる
+1934|明るさ
+@fr
+1935|Lettrage
+1936|Comme dans le modèle
+@de
+1935|Schrift
+1936|Wie im Design
+@es
+1935|Letras
+1936|Como en el diseño
+@it
+1935|Scritte
+1936|Come nel modello
+@nl
+1935|Letters
+1936|Zoals in het ontwerp
+@pt
+1935|Letras
+1936|Como no modelo
+@ru
+1935|Надписи
+1936|Как в стиле
+@ja
+1935|文字
+1936|デザインどおり

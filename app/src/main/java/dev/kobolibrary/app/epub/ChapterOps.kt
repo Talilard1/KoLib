@@ -399,53 +399,62 @@ object ChapterOps {
 
     // ---- delete ------------------------------------------------------------------------------
 
-    fun delete(files: BookFiles, structure: BookStructure, path: String): Result {
-        val chapter = structure.chapterAt(path) ?: throw OpError(tr("That chapter is no longer in the book."))
-        if (structure.chapters.size <= 1) throw OpError(tr("A book must have at least one chapter."))
+    fun delete(files: BookFiles, structure: BookStructure, path: String): Result = delete(files, structure, listOf(path))
+
+    /** Deletes the chapters at [paths] together, as one change. */
+    fun delete(files: BookFiles, structure: BookStructure, paths: Collection<String>): Result {
+        val gone = paths.toSet()
+        val chapters = gone.map { structure.chapterAt(it) ?: throw OpError(tr("That chapter is no longer in the book.")) }.sortedBy { it.index }
+        if (chapters.isEmpty()) throw OpError(tr("That chapter is no longer in the book."))
+        if (structure.chapters.size <= gone.size) throw OpError(tr("A book must have at least one chapter."))
         val opf = structure.opf
-        val item = opf.item(chapter.id) ?: throw OpError(tr("That chapter isn't in the book's list of files."))
         val text = structure.opfText
         val edits = TextEdits(text)
-        edits.removeWithLeadingSpace(item.element)
-        opf.spineRefs().filter { it.idref == chapter.id }.forEach { edits.removeWithLeadingSpace(it.element) }
+        for (chapter in chapters) {
+            val item = opf.item(chapter.id) ?: throw OpError(tr("That chapter isn't in the book's list of files."))
+            edits.removeWithLeadingSpace(item.element)
+            opf.spineRefs().filter { it.idref == chapter.id }.forEach { edits.removeWithLeadingSpace(it.element) }
+        }
         opf.guideElement?.elements()?.filter { r ->
-            r.localName.equals("reference", true) && r.attributes["href"]?.let { EpubFile.resolvePath(structure.opfDir, it) } == path
+            r.localName.equals("reference", true) && r.attributes["href"]?.let { EpubFile.resolvePath(structure.opfDir, it) } in gone
         }?.forEach { edits.removeWithLeadingSpace(it) }
         val changes = LinkedHashMap<String, ByteArray?>()
         changes[structure.opfPath] = bytes(edits.apply())
-        changes[path] = null
-        // Links to it from elsewhere become plain text.
+        for (p in gone) changes[p] = null
+        // Links to them from elsewhere become plain text.
         for (other in structure.chapters) {
-            if (other.path == path) continue
+            if (other.path in gone) continue
             val t = files.text(other.path) ?: continue
-            val fixed = unwrapLinksTo(t, other.path, path)
+            val fixed = unwrapLinksTo(t, other.path, gone)
             if (fixed != t) changes[other.path] = bytes(fixed)
         }
-        // Its contents entries go; entries under them move up.
-        val flat = Contents.flatten(structure.toc)
+        // Their contents entries go; entries under them move up, a level for each that went.
         val kept = ArrayList<Pair<TocNode, Int>>()
-        var removedLevel = -1
-        for ((node, level) in flat) {
-            if (removedLevel >= 0 && level <= removedLevel) removedLevel = -1
-            if (node.path == path) {
-                if (removedLevel < 0) removedLevel = level
+        val removedLevels = ArrayList<Int>()
+        for ((node, level) in Contents.flatten(structure.toc)) {
+            while (removedLevels.isNotEmpty() && level <= removedLevels.last()) removedLevels.removeAt(removedLevels.size - 1)
+            if (node.path in gone) {
+                removedLevels += level
                 continue
             }
-            kept += node to if (removedLevel >= 0) level - 1 else level
+            kept += node to level - removedLevels.size
         }
         changes.putAll(Contents.write(files, structure, Contents.nest(kept), changes))
-        // The navigation document may itself point at it (landmarks).
+        // The navigation document may itself point at them (landmarks).
         opf.navItem()?.let { nav ->
             val navPath = structure.pathOf(nav)
             val navText = changes[navPath]?.let { EpubFile.decodeText(it) } ?: files.text(navPath) ?: return@let
-            val fixed = removeLandmarksTo(navText, navPath, path)
+            val fixed = removeLandmarksTo(navText, navPath, gone)
             if (fixed != navText) changes[navPath] = bytes(fixed)
         }
-        val next = structure.chapters.getOrNull(chapter.index + 1) ?: structure.chapters.getOrNull(chapter.index - 1)
-        return Result(tr("Deleted “{0}”", chapter.title), changes, next?.path)
+        // The chapter after the last one deleted opens, or else the one before the first.
+        val next = structure.chapters.drop(chapters.last().index + 1).firstOrNull { it.path !in gone }
+            ?: structure.chapters.take(chapters.first().index).lastOrNull { it.path !in gone }
+        val label = if (chapters.size == 1) tr("Deleted “{0}”", chapters[0].title) else tr("Deleted {0} chapters", chapters.size)
+        return Result(label, changes, next?.path)
     }
 
-    private fun unwrapLinksTo(text: String, docPath: String, target: String): String {
+    private fun unwrapLinksTo(text: String, docPath: String, targets: Set<String>): String {
         val doc = runCatching { Xml.parse(text) }.getOrNull() ?: return text
         val dir = docPath.substringBeforeLast('/', "")
         val edits = TextEdits(text)
@@ -454,7 +463,7 @@ object ChapterOps {
             if (!a.localName.equals("a", true)) continue
             val href = a.attributes["href"] ?: continue
             if (href.startsWith("#") || href.contains("://")) continue
-            if (EpubFile.resolvePath(dir, href) != target) continue
+            if (EpubFile.resolvePath(dir, href) !in targets) continue
             if (a.selfClosing) edits.replace(a.start, a.end, "")
             else {
                 edits.replace(a.start, a.startTagEnd, "")
@@ -465,7 +474,7 @@ object ChapterOps {
         return if (any) edits.apply() else text
     }
 
-    private fun removeLandmarksTo(text: String, navPath: String, target: String): String {
+    private fun removeLandmarksTo(text: String, navPath: String, targets: Set<String>): String {
         val doc = runCatching { Xml.parse(text) }.getOrNull() ?: return text
         val dir = navPath.substringBeforeLast('/', "")
         val edits = TextEdits(text)
@@ -476,7 +485,7 @@ object ChapterOps {
             for (li in nav.descendants().filter { it.localName.equals("li", true) }) {
                 val a = li.elements().firstOrNull { it.localName.equals("a", true) } ?: continue
                 val href = a.attributes["href"] ?: continue
-                if (EpubFile.resolvePath(dir, href) == target) {
+                if (EpubFile.resolvePath(dir, href) in targets) {
                     edits.removeWithLeadingSpace(li)
                     any = true
                 }

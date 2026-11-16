@@ -176,44 +176,16 @@ class KoboSender(private val context: Context) {
         var oldPath = koboPath?.takeIf { !it.equals(target, ignoreCase = true) }
         val temps = mutableListOf<File>()
         try {
-            // The cover shaped for this Kobo's screen. When the book's own cover is another shape, the
-            // copy sent gets the shaped one, so whatever the Kobo makes from the file looks right too.
             val screen = session.info.screen ?: CoverScreen.current
-            val shaped = try {
-                KoboCovers.shape(file, covers, screen)
-            } catch (e: Exception) {
-                AppLog.w("Send", "Couldn't shape the cover of '$title'; it goes as it is", e)
-                null
+            val made = try {
+                make(title, file, format, covers, screen, temps)
+            } catch (e: KepubFailed) {
+                return@withContext SendOutcome.Failed(title, tr("Couldn't convert it to kepub ({0}).", e.cause?.message ?: e.cause?.javaClass?.simpleName), conversionFailed = true)
             }
-            var source = file
-            var reshaped = false
-            shaped?.jpegForBook?.let { jpeg ->
-                val copy = File(work, "${System.nanoTime()}.epub").also { temps += it }
-                try {
-                    file.copyTo(copy, overwrite = true)
-                    EpubEditor.replaceCover(copy, jpeg, "image/jpeg", screen.width, screen.height)
-                    source = copy
-                    reshaped = true
-                    AppLog.i("Send", "'$title': its ${shaped.sourceWidth} × ${shaped.sourceHeight} cover was fitted to the Kobo's screen (${covers.label}).")
-                } catch (e: Exception) {
-                    AppLog.w("Send", "Couldn't put the fitted cover into '$title'; its own cover goes instead", e)
-                }
-            }
-            var leftAlone = 0
-            val upload = if (format == SendFormat.KEPUB) {
-                val out = File(work, "${System.nanoTime()}.kepub.epub").also { temps += it }
-                try {
-                    val result = EpubEditor.toKepub(source, out)
-                    leftAlone = result.skipped.size
-                    if (result.skipped.isNotEmpty()) {
-                        AppLog.w("Send", "'$title': ${result.skipped.size} of ${result.documents} text files weren't valid XHTML and were sent unconverted.")
-                    }
-                } catch (e: Exception) {
-                    AppLog.e("Send", "Kepub conversion of '$title' failed", e)
-                    return@withContext SendOutcome.Failed(title, tr("Couldn't convert it to kepub ({0}).", e.message ?: e.javaClass.simpleName), conversionFailed = true)
-                }
-                out
-            } else source
+            val shaped = made.shaped
+            val reshaped = made.reshaped
+            val leftAlone = made.leftAlone
+            val upload = made.file
 
             // A book the Kobo already has: keep its record if the new file fits it, else send it afresh.
             val record = session.snapshot.booksById[KoboPaths.contentId(target)]?.takeIf { it.isSideloaded }
@@ -288,6 +260,102 @@ class KoboSender(private val context: Context) {
         } catch (e: SecurityException) {
             AppLog.e("Send", "Sending '$title' failed", e)
             SendOutcome.Failed(title, tr("Android didn't allow writing to the Kobo."))
+        } finally {
+            temps.forEach { it.delete() }
+        }
+    }
+
+    /** The book as it goes to the Kobo ([file], or a copy made of it), with how its cover went. */
+    private class Made(val file: File, val shaped: ShapedCover?, val reshaped: Boolean, val leftAlone: Int)
+
+    /** Making the kepub failed: [cause] says why. */
+    private class KepubFailed(cause: Exception) : Exception(cause)
+
+    /**
+     * The book as it goes to the Kobo: its cover shaped for the Kobo's [screen] (when the book's own cover is
+     * another shape, the copy sent gets the shaped one, so whatever the Kobo makes from the file looks right too),
+     * then made a kepub when that's the [format]. Copies made go in [temps], to delete when done.
+     */
+    private fun make(title: String, file: File, format: SendFormat, covers: CoverFitting, screen: KoboScreen, temps: MutableList<File>): Made {
+        val shaped = try {
+            KoboCovers.shape(file, covers, screen)
+        } catch (e: Exception) {
+            AppLog.w("Send", "Couldn't shape the cover of '$title'; it goes as it is", e)
+            null
+        }
+        var source = file
+        var reshaped = false
+        shaped?.jpegForBook?.let { jpeg ->
+            val copy = File(work, "${System.nanoTime()}.epub").also { temps += it }
+            try {
+                file.copyTo(copy, overwrite = true)
+                EpubEditor.replaceCover(copy, jpeg, "image/jpeg", screen.width, screen.height)
+                source = copy
+                reshaped = true
+                AppLog.i("Send", "'$title': its ${shaped.sourceWidth} × ${shaped.sourceHeight} cover was fitted to the Kobo's screen (${covers.label}).")
+            } catch (e: Exception) {
+                AppLog.w("Send", "Couldn't put the fitted cover into '$title'; its own cover goes instead", e)
+            }
+        }
+        var leftAlone = 0
+        val upload = if (format == SendFormat.KEPUB) {
+            val out = File(work, "${System.nanoTime()}.kepub.epub").also { temps += it }
+            try {
+                val result = EpubEditor.toKepub(source, out)
+                leftAlone = result.skipped.size
+                if (result.skipped.isNotEmpty()) {
+                    AppLog.w("Send", "'$title': ${result.skipped.size} of ${result.documents} text files weren't valid XHTML and were sent unconverted.")
+                }
+            } catch (e: Exception) {
+                AppLog.e("Send", "Kepub conversion of '$title' failed", e)
+                throw KepubFailed(e)
+            }
+            out
+        } else source
+        return Made(upload, shaped, reshaped, leftAlone)
+    }
+
+    /**
+     * [title] as a file for the Kobo to download over Wi-Fi ([dev.kobolibrary.app.kobo.KoboWifiServer]): made just as
+     * it is to go over the cable, put in [dir]. A PDF or a comic ([asIs]) goes as it is (a CB7 as a CBZ).
+     */
+    fun fileForDownload(title: String, file: File, asIs: File?, format: SendFormat, covers: CoverFitting, dir: File, unique: String, name: String): WifiFile {
+        dir.mkdirs()
+        if (asIs != null) {
+            val kind = asIs.name.substringAfterLast('.', "pdf").lowercase()
+            val ending = when (kind) {
+                "cbz", "cb7" -> "cbz"
+                "cbr" -> "cbr"
+                else -> "pdf"
+            }
+            val target = File(dir, "$unique.$ending")
+            if (kind == "cb7") {
+                try {
+                    dev.kobolibrary.app.comic.ComicArchives.open(asIs).use { dev.kobolibrary.app.comic.ComicRepack.toCbz(it, target) }
+                } catch (e: IOException) {
+                    target.delete()
+                    AppLog.e("Send", "Couldn't make a CBZ of '$title'", e)
+                    throw IOException(tr("This comic couldn't be made into a CBZ for the Kobo."))
+                }
+            } else {
+                asIs.copyTo(target, overwrite = true)
+            }
+            return WifiFile(target, name, KoboWifiServer.mimeFor(ending))
+        }
+        val temps = mutableListOf<File>()
+        try {
+            val made = try {
+                make(title, file, format, covers, CoverScreen.current, temps)
+            } catch (e: KepubFailed) {
+                throw IOException(tr("Couldn't convert it to kepub ({0}).", e.cause?.message ?: e.cause?.javaClass?.simpleName))
+            }
+            val target = File(dir, unique + format.extension)
+            if (made.file in temps) {
+                if (!made.file.renameTo(target)) made.file.copyTo(target, overwrite = true)
+            } else {
+                made.file.copyTo(target, overwrite = true)
+            }
+            return WifiFile(target, name, KoboWifiServer.mimeFor("epub"))
         } finally {
             temps.forEach { it.delete() }
         }

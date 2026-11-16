@@ -1,0 +1,296 @@
+@fr
+2085|Choisissez les livres, touchez Envoyer sur la Kobo, puis Par Wi-Fi.
+2086|Envoyer sur la Kobo par Wi-Fi
+2087|Le livre est sur votre Kobo. Vous pouvez fermer cet écran.
+2088|Tous les livres sont sur votre Kobo. Vous pouvez fermer cet écran.
+2089|Sur votre Kobo
+2090|Connectez-la au même réseau Wi-Fi que cet appareil, ou au point d’accès de cet appareil.
+2091|Ouvrez son navigateur Web : Plus, puis Fonctionnalités bêta, puis Navigateur Web.
+2092|Saisissez cette adresse en haut, puis touchez chaque livre pour le télécharger :
+2093|La page pour la Kobo n’a pas pu être lancée.
+2094|Cet appareil n’est sur aucun réseau. Rejoignez un réseau Wi-Fi, ou activez son point d’accès.
+2095|Cet appareil est sur plusieurs réseaux : utilisez l’adresse de celui où se trouve la Kobo.
+2096|Par Wi-Fi, la Kobo ajoute les livres elle-même : KoLib ne peut pas les mettre dans des collections, mettre à jour les livres déjà présents, ni récupérer où vous en êtes. Branchez la Kobo pour cela.
+2097|Gardez KoLib ouvert sur cet écran jusqu’à ce que les livres soient sur la Kobo. Si un téléchargement s’arrête en cours, fermez le navigateur de la Kobo et rouvrez-le avant le suivant.
+2098|Téléchargé
+2099|En attente de préparation
+2100|Préparation…
+2101|Prêt à télécharger · {0}
+2102|Téléchargement · {0} %
+2103|Sur la Kobo
+2104|Il n’a pas pu être préparé : {0}
+2105|Ou envoyez-les par Wi-Fi, via le navigateur Web de la Kobo. La Kobo les ajoute elle-même : ils ne peuvent donc pas aller dans des collections de cette façon.
+2106|Par Wi-Fi
+2107|Recherche à chaque adresse…
+2108|Chercher à nouveau
+2109|Votre Kobo, par Wi-Fi
+2110|Envoyez des livres sur votre Kobo sans câble, via son navigateur Web : choisissez-les dans votre bibliothèque, touchez Envoyer sur la Kobo, puis Par Wi-Fi.
+2111|La Kobo les ajoute elle-même : ils ne peuvent donc pas aller dans des collections de cette façon, les livres déjà présents ne sont pas mis à jour, et votre progression ne revient pas. Branchez-la pour cela.
+2112|Choisir des livres
+2113|Ce livre n’est plus proposé.
+2114|« {0} » n’a pas pu être préparé : {1}
+2115|Il n’y a aucun livre à envoyer.
+2116|Télécharger
+2117|Touchez un livre pour le télécharger. Votre Kobo l’ajoute à sa bibliothèque.
+2118|Si un téléchargement s’arrête en cours, fermez le navigateur de la Kobo et rouvrez-le avant le suivant.
+2119|Retour aux livres
+2120|« {0} » · {1} sur {2} · {3} %
+@de
+2085|Wähle die Bücher aus, tippe auf „An den Kobo senden“ und dann auf „Über WLAN“.
+2086|Über WLAN an den Kobo senden
+2087|Das Buch ist auf deinem Kobo. Du kannst das hier jetzt schließen.
+2088|Alle Bücher sind auf deinem Kobo. Du kannst das hier jetzt schließen.
+2089|Auf deinem Kobo
+2090|Verbinde ihn mit demselben WLAN wie dieses Gerät oder mit dem Hotspot dieses Geräts.
+2091|Öffne seinen Webbrowser: Mehr, dann Beta-Funktionen, dann Webbrowser.
+2092|Gib oben diese Adresse ein und tippe dann auf jedes Buch, um es herunterzuladen:
+2093|Die Seite für den Kobo konnte nicht gestartet werden.
+2094|Dieses Gerät ist in keinem Netzwerk. Verbinde es mit einem WLAN oder schalte seinen Hotspot ein.
+2095|Dieses Gerät ist in mehreren Netzwerken: Nimm die Adresse des Netzwerks, in dem der Kobo ist.
+2096|Über WLAN fügt der Kobo die Bücher selbst hinzu, daher kann KoLib sie nicht in Sammlungen legen, Bücher aktualisieren, die schon auf ihm sind, oder deinen Lesefortschritt zurückholen. Schließ den Kobo dafür per Kabel an.
+2097|Lass KoLib auf diesem Bildschirm geöffnet, bis die Bücher auf dem Kobo sind. Bricht ein Download mittendrin ab, schließ den Browser des Kobo und öffne ihn vor dem nächsten erneut.
+2098|Heruntergeladen
+2099|Wartet auf Vorbereitung
+2100|Wird vorbereitet…
+2101|Bereit zum Herunterladen · {0}
+2102|Wird heruntergeladen · {0} %
+2103|Auf dem Kobo
+2104|Es konnte nicht vorbereitet werden: {0}
+2105|Oder sende sie über WLAN, über den Webbrowser des Kobo. Der Kobo fügt sie selbst hinzu, daher können sie so nicht in Sammlungen kommen.
+2106|Über WLAN
+2107|Suche an jeder Adresse…
+2108|Erneut suchen
+2109|Dein Kobo über WLAN
+2110|Sende Bücher ohne Kabel an deinen Kobo, über seinen Webbrowser: Wähle sie in deiner Bibliothek aus, tippe auf „An den Kobo senden“ und dann auf „Über WLAN“.
+2111|Der Kobo fügt sie selbst hinzu, daher können sie so nicht in Sammlungen kommen, Bücher, die schon auf ihm sind, werden nicht aktualisiert, und dein Lesefortschritt kommt nicht zurück. Schließ ihn dafür per Kabel an.
+2112|Bücher auswählen
+2113|Dieses Buch wird nicht mehr angeboten.
+2114|„{0}“ konnte nicht vorbereitet werden: {1}
+2115|Es gibt keine Bücher zum Senden.
+2116|Herunterladen
+2117|Tippe auf ein Buch, um es herunterzuladen. Dein Kobo fügt es seiner Bibliothek hinzu.
+2118|Bricht ein Download mittendrin ab, schließ den Browser des Kobo und öffne ihn vor dem nächsten erneut.
+2119|Zurück zu den Büchern
+2120|„{0}“ · {1} von {2} · {3} %
+@es
+2085|Elige los libros, toca Enviar al Kobo y luego Por wifi.
+2086|Enviar al Kobo por wifi
+2087|El libro está en tu Kobo. Ya puedes cerrar esto.
+2088|Todos los libros están en tu Kobo. Ya puedes cerrar esto.
+2089|En tu Kobo
+2090|Conéctalo a la misma red wifi que este dispositivo o al punto de acceso de este dispositivo.
+2091|Abre su navegador web: Más, luego Funciones beta y luego Navegador web.
+2092|Escribe esta dirección arriba y luego toca cada libro para descargarlo:
+2093|No se ha podido iniciar la página para el Kobo.
+2094|Este dispositivo no está en ninguna red. Conéctate a una red wifi o activa su punto de acceso.
+2095|Este dispositivo está en más de una red: usa la dirección de la red en la que está el Kobo.
+2096|Por wifi, el Kobo añade los libros él mismo, así que KoLib no puede ponerlos en colecciones, actualizar los libros que ya tiene ni recuperar cuánto has leído. Conecta el Kobo por cable para eso.
+2097|Mantén KoLib abierto en esta pantalla hasta que los libros estén en el Kobo. Si una descarga se corta a medias, cierra el navegador del Kobo y vuelve a abrirlo antes de la siguiente.
+2098|Descargado
+2099|Esperando a prepararse
+2100|Preparándolo…
+2101|Listo para descargar · {0}
+2102|Descargando · {0} %
+2103|En el Kobo
+2104|No se ha podido preparar: {0}
+2105|O envíalos por wifi, a través del navegador web del Kobo. El Kobo los añade él mismo, así que de esa forma no pueden ir a colecciones.
+2106|Por wifi
+2107|Buscando en cada dirección…
+2108|Volver a buscar
+2109|Tu Kobo, por wifi
+2110|Envía libros a tu Kobo sin cable, a través de su navegador web: elígelos en tu biblioteca, toca Enviar al Kobo y luego Por wifi.
+2111|El Kobo los añade él mismo, así que de esa forma no pueden ir a colecciones, los libros que ya tiene no se actualizan y lo que has leído no vuelve. Conéctalo por cable para eso.
+2112|Elegir libros
+2113|Ese libro ya no se ofrece.
+2114|No se ha podido preparar «{0}»: {1}
+2115|No hay libros para enviar.
+2116|Descargar
+2117|Toca un libro para descargarlo. Tu Kobo lo añade a su biblioteca.
+2118|Si una descarga se corta a medias, cierra el navegador del Kobo y vuelve a abrirlo antes de la siguiente.
+2119|Volver a los libros
+2120|«{0}» · {1} de {2} · {3} %
+@it
+2085|Scegli i libri, tocca Invia al Kobo e poi Via Wi-Fi.
+2086|Invia al Kobo via Wi-Fi
+2087|Il libro è sul tuo Kobo. Ora puoi chiudere.
+2088|Tutti i libri sono sul tuo Kobo. Ora puoi chiudere.
+2089|Sul tuo Kobo
+2090|Collegalo alla stessa rete Wi-Fi di questo dispositivo o all’hotspot di questo dispositivo.
+2091|Apri il suo browser web: Altro, poi Funzioni beta, poi Browser web.
+2092|Scrivi questo indirizzo in alto, poi tocca ogni libro per scaricarlo:
+2093|Impossibile avviare la pagina per il Kobo.
+2094|Questo dispositivo non è in nessuna rete. Collegati a una rete Wi-Fi o attiva il suo hotspot.
+2095|Questo dispositivo è in più di una rete: usa l’indirizzo di quella in cui si trova il Kobo.
+2096|Via Wi-Fi il Kobo aggiunge i libri da solo, quindi KoLib non può metterli nelle raccolte, aggiornare i libri che ha già o recuperare quanto hai letto. Collega il Kobo con il cavo per questo.
+2097|Tieni KoLib aperto su questa schermata finché i libri non sono sul Kobo. Se un download si interrompe a metà, chiudi il browser del Kobo e riaprilo prima del successivo.
+2098|Scaricato
+2099|In attesa di preparazione
+2100|Preparazione…
+2101|Pronto da scaricare · {0}
+2102|Download · {0}%
+2103|Sul Kobo
+2104|Impossibile prepararlo: {0}
+2105|Oppure inviali via Wi-Fi, tramite il browser web del Kobo. Il Kobo li aggiunge da solo, quindi in questo modo non possono finire nelle raccolte.
+2106|Via Wi-Fi
+2107|Ricerca a ogni indirizzo…
+2108|Cerca di nuovo
+2109|Il tuo Kobo, via Wi-Fi
+2110|Invia libri al tuo Kobo senza cavo, tramite il suo browser web: sceglili nella libreria, tocca Invia al Kobo e poi Via Wi-Fi.
+2111|Il Kobo li aggiunge da solo, quindi in questo modo non possono finire nelle raccolte, i libri che ha già non vengono aggiornati e quanto hai letto non torna indietro. Collegalo con il cavo per questo.
+2112|Scegli i libri
+2113|Quel libro non è più offerto.
+2114|Impossibile preparare «{0}»: {1}
+2115|Non ci sono libri da inviare.
+2116|Scarica
+2117|Tocca un libro per scaricarlo. Il tuo Kobo lo aggiunge alla sua libreria.
+2118|Se un download si interrompe a metà, chiudi il browser del Kobo e riaprilo prima del successivo.
+2119|Torna ai libri
+2120|«{0}» · {1} di {2} · {3}%
+@nl
+2085|Kies de boeken, tik op Naar Kobo sturen en dan op Via wifi.
+2086|Via wifi naar de Kobo sturen
+2087|Het boek staat op je Kobo. Je kunt dit nu sluiten.
+2088|Alle boeken staan op je Kobo. Je kunt dit nu sluiten.
+2089|Op je Kobo
+2090|Verbind hem met hetzelfde wifinetwerk als dit apparaat, of met de hotspot van dit apparaat.
+2091|Open de webbrowser: Meer, dan Bètafuncties, dan Webbrowser.
+2092|Typ dit adres bovenaan en tik dan op elk boek om het te downloaden:
+2093|De pagina voor de Kobo kon niet worden gestart.
+2094|Dit apparaat is niet op een netwerk. Maak verbinding met een wifinetwerk, of zet de hotspot aan.
+2095|Dit apparaat is op meer dan één netwerk: gebruik het adres van het netwerk waar de Kobo op zit.
+2096|Via wifi voegt de Kobo de boeken zelf toe, dus KoLib kan ze niet in collecties zetten, boeken bijwerken die er al op staan, of terughalen hoe ver je bent. Sluit de Kobo daarvoor met de kabel aan.
+2097|Houd KoLib open op dit scherm tot de boeken op de Kobo staan. Stopt een download halverwege, sluit dan de browser van de Kobo en open hem opnieuw voor de volgende.
+2098|Gedownload
+2099|Wacht op voorbereiding
+2100|Wordt voorbereid…
+2101|Klaar om te downloaden · {0}
+2102|Downloaden · {0}%
+2103|Op de Kobo
+2104|Het kon niet worden voorbereid: {0}
+2105|Of stuur ze via wifi, via de webbrowser van de Kobo. De Kobo voegt ze zelf toe, dus zo kunnen ze niet in collecties komen.
+2106|Via wifi
+2107|Zoeken op elk adres…
+2108|Opnieuw zoeken
+2109|Je Kobo, via wifi
+2110|Stuur boeken zonder kabel naar je Kobo, via de webbrowser: kies ze in je bibliotheek, tik op Naar Kobo sturen en dan op Via wifi.
+2111|De Kobo voegt ze zelf toe, dus zo kunnen ze niet in collecties komen, boeken die er al op staan worden niet bijgewerkt, en hoe ver je bent komt niet terug. Sluit hem daarvoor met de kabel aan.
+2112|Boeken kiezen
+2113|Dat boek wordt niet meer aangeboden.
+2114|‘{0}’ kon niet worden voorbereid: {1}
+2115|Er zijn geen boeken om te sturen.
+2116|Downloaden
+2117|Tik op een boek om het te downloaden. Je Kobo voegt het toe aan zijn bibliotheek.
+2118|Stopt een download halverwege, sluit dan de browser van de Kobo en open hem opnieuw voor de volgende.
+2119|Terug naar de boeken
+2120|‘{0}’ · {1} van {2} · {3}%
+@pt
+2085|Escolha os livros, toque em Enviar ao Kobo e depois em Por Wi-Fi.
+2086|Enviar ao Kobo por Wi-Fi
+2087|O livro está no seu Kobo. Você já pode fechar isto.
+2088|Todos os livros estão no seu Kobo. Você já pode fechar isto.
+2089|No seu Kobo
+2090|Conecte-o à mesma rede Wi-Fi deste dispositivo ou ao ponto de acesso deste dispositivo.
+2091|Abra o navegador da web dele: Mais, depois Recursos beta, depois Navegador da web.
+2092|Digite este endereço no alto e toque em cada livro para baixá-lo:
+2093|Não foi possível iniciar a página para o Kobo.
+2094|Este dispositivo não está em nenhuma rede. Conecte-se a uma rede Wi-Fi ou ative o ponto de acesso dele.
+2095|Este dispositivo está em mais de uma rede: use o endereço da rede em que o Kobo está.
+2096|Por Wi-Fi o Kobo adiciona os livros sozinho, então o KoLib não consegue colocá-los em coleções, atualizar livros que já estão nele nem trazer de volta até onde você leu. Conecte o Kobo pelo cabo para isso.
+2097|Mantenha o KoLib aberto nesta tela até os livros estarem no Kobo. Se um download parar no meio, feche o navegador do Kobo e abra-o de novo antes do próximo.
+2098|Baixado
+2099|Aguardando preparação
+2100|Preparando…
+2101|Pronto para baixar · {0}
+2102|Baixando · {0}%
+2103|No Kobo
+2104|Não foi possível prepará-lo: {0}
+2105|Ou envie-os por Wi-Fi, pelo navegador da web do Kobo. O Kobo os adiciona sozinho, então assim eles não podem ir para coleções.
+2106|Por Wi-Fi
+2107|Procurando em cada endereço…
+2108|Procurar de novo
+2109|Seu Kobo, por Wi-Fi
+2110|Envie livros ao seu Kobo sem cabo, pelo navegador da web dele: escolha-os na sua biblioteca, toque em Enviar ao Kobo e depois em Por Wi-Fi.
+2111|O Kobo os adiciona sozinho, então assim eles não podem ir para coleções, livros que já estão nele não são atualizados e até onde você leu não volta. Conecte-o pelo cabo para isso.
+2112|Escolher livros
+2113|Esse livro não é mais oferecido.
+2114|Não foi possível preparar “{0}”: {1}
+2115|Não há livros para enviar.
+2116|Baixar
+2117|Toque em um livro para baixá-lo. Seu Kobo o adiciona à biblioteca dele.
+2118|Se um download parar no meio, feche o navegador do Kobo e abra-o de novo antes do próximo.
+2119|Voltar aos livros
+2120|“{0}” · {1} de {2} · {3}%
+@ru
+2085|Выберите книги, нажмите «Отправить на Kobo», а затем «По Wi-Fi».
+2086|Отправить на Kobo по Wi-Fi
+2087|Книга на вашем Kobo. Это окно можно закрыть.
+2088|Все книги на вашем Kobo. Это окно можно закрыть.
+2089|На вашем Kobo
+2090|Подключите его к той же сети Wi-Fi, что и это устройство, или к точке доступа этого устройства.
+2091|Откройте его веб-браузер: «Ещё», затем «Бета-функции», затем «Веб-браузер».
+2092|Введите этот адрес вверху, затем нажимайте на книги, чтобы скачать их:
+2093|Не удалось запустить страницу для Kobo.
+2094|Это устройство не подключено к сети. Подключитесь к Wi-Fi или включите на нём точку доступа.
+2095|Это устройство подключено к нескольким сетям: используйте адрес той сети, где Kobo.
+2096|По Wi-Fi Kobo добавляет книги сам, поэтому KoLib не может добавить их в коллекции, обновить книги, которые уже на нём, или вернуть, сколько вы прочитали. Для этого подключите Kobo кабелем.
+2097|Не закрывайте KoLib на этом экране, пока книги не окажутся на Kobo. Если загрузка прервётся на полпути, закройте браузер Kobo и откройте его снова перед следующей.
+2098|Скачано
+2099|Ждёт подготовки
+2100|Подготовка…
+2101|Готово к скачиванию · {0}
+2102|Скачивается · {0} %
+2103|На Kobo
+2104|Не удалось подготовить: {0}
+2105|Или отправьте их по Wi-Fi, через веб-браузер Kobo. Kobo добавляет их сам, поэтому так они не попадут в коллекции.
+2106|По Wi-Fi
+2107|Поиск по каждому адресу…
+2108|Искать снова
+2109|Ваш Kobo по Wi-Fi
+2110|Отправляйте книги на Kobo без кабеля, через его веб-браузер: выберите их в библиотеке, нажмите «Отправить на Kobo», а затем «По Wi-Fi».
+2111|Kobo добавляет их сам, поэтому так они не попадут в коллекции, книги, которые уже на нём, не обновятся, а то, сколько вы прочитали, не вернётся. Для этого подключите его кабелем.
+2112|Выбрать книги
+2113|Эта книга больше не предлагается.
+2114|Не удалось подготовить «{0}»: {1}
+2115|Нет книг для отправки.
+2116|Скачать
+2117|Нажмите на книгу, чтобы скачать её. Kobo добавит её в свою библиотеку.
+2118|Если загрузка прервётся на полпути, закройте браузер Kobo и откройте его снова перед следующей.
+2119|Назад к книгам
+2120|«{0}» · {1} из {2} · {3} %
+@ja
+2085|本を選び、「Kobo に送る」をタップしてから「Wi-Fi 経由」をタップしてください。
+2086|Wi-Fi で Kobo に送る
+2087|本は Kobo に届きました。この画面は閉じてかまいません。
+2088|すべての本が Kobo に届きました。この画面は閉じてかまいません。
+2089|Kobo での操作
+2090|このデバイスと同じ Wi-Fi ネットワーク、またはこのデバイスのテザリングに接続します。
+2091|ウェブブラウザを開きます:「その他」→「ベータ機能」→「ウェブブラウザ」。
+2092|上部にこのアドレスを入力し、本をタップしてダウンロードします:
+2093|Kobo 用のページを開始できませんでした。
+2094|このデバイスはネットワークに接続していません。Wi-Fi に接続するか、テザリングをオンにしてください。
+2095|このデバイスは複数のネットワークに接続しています。Kobo が接続しているネットワークのアドレスを使ってください。
+2096|Wi-Fi では Kobo が自分で本を追加するため、KoLib はコレクションへの追加、Kobo にすでにある本の更新、読書の進み具合の取得ができません。これらにはケーブルで接続してください。
+2097|本が Kobo に届くまで、KoLib をこの画面で開いたままにしてください。ダウンロードが途中で止まった場合は、次のダウンロードの前に Kobo のブラウザを閉じて開き直してください。
+2098|ダウンロード済み
+2099|準備待ち
+2100|準備しています…
+2101|ダウンロードできます · {0}
+2102|ダウンロード中 · {0}%
+2103|Kobo にあります
+2104|準備できませんでした: {0}
+2105|Kobo のウェブブラウザを使って Wi-Fi で送ることもできます。Kobo が自分で追加するため、この方法ではコレクションに入れられません。
+2106|Wi-Fi 経由
+2107|すべてのアドレスを確認しています…
+2108|もう一度探す
+2109|Wi-Fi で Kobo へ
+2110|ケーブルなしで、Kobo のウェブブラウザから本を送れます。ライブラリで本を選び、「Kobo に送る」をタップしてから「Wi-Fi 経由」をタップしてください。
+2111|Kobo が自分で追加するため、この方法ではコレクションに入れられず、すでにある本は更新されず、読書の進み具合も戻りません。これらにはケーブルで接続してください。
+2112|本を選ぶ
+2113|その本はもう提供されていません。
+2114|「{0}」を準備できませんでした: {1}
+2115|送る本がありません。
+2116|ダウンロード
+2117|本をタップするとダウンロードされ、Kobo のライブラリに追加されます。
+2118|ダウンロードが途中で止まった場合は、次のダウンロードの前に Kobo のブラウザを閉じて開き直してください。
+2119|本の一覧に戻る
+2120|「{0}」· {1}/{2} · {3}%

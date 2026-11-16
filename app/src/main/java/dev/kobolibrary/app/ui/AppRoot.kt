@@ -164,6 +164,8 @@ fun AppRoot(
     var showLanguage by remember { mutableStateOf(false) }
     /** Books waiting in the send dialog. */
     var sendIds by remember { mutableStateOf<List<String>?>(null) }
+    /** The page offering books to the Kobo's web browser, while it's open. */
+    var koboWifi by remember { mutableStateOf<dev.kobolibrary.app.kobo.KoboWifiServer?>(null) }
     /** Making books: the new-book dialog, books to put together, a book to split. */
     var showNewBook by remember { mutableStateOf(false) }
     var mergeIds by remember { mutableStateOf<List<String>?>(null) }
@@ -188,8 +190,13 @@ fun AppRoot(
         if (uri != null && e != null) libraryVm.exportBooks(e.first, e.second, uri)
     }
     val snackbar = remember { SnackbarHostState() }
-    val browse = remember { BrowseState() }
-    val libraryBrowse = remember { LibraryBrowseState() }
+    val listContext = androidx.compose.ui.platform.LocalContext.current
+    // Each list sorted and shown as it was last time.
+    val browse = remember { BrowseState().also { ListLooks.restore(listContext, kobo = it) } }
+    val libraryBrowse = remember { LibraryBrowseState().also { ListLooks.restore(listContext, library = it) } }
+    LaunchedEffect(Unit) {
+        androidx.compose.runtime.snapshotFlow { ListLooks.Now(libraryBrowse, browse) }.collect { ListLooks.save(listContext, it) }
+    }
     var localMessage by remember { mutableStateOf<String?>(null) }
 
     // Making scanned books into text: the dialog to start it, a book to take back to its scan, and what the screens can ask for.
@@ -309,6 +316,13 @@ fun AppRoot(
                     dev.kobolibrary.app.link.LinkService.start(appContext)
                 }
             },
+            lookAgain = { linkScope.launch { link.lookAround() } },
+            koboOverWifi = {
+                section = Section.LIBRARY
+                libraryBrowse.selectedId = null
+                libraryBrowse.selecting = true
+                localMessage = tr("Choose the books, then tap Send to Kobo, then Over Wi-Fi.")
+            },
         )
     }
 
@@ -426,6 +440,13 @@ fun AppRoot(
         val current = overlay
         when {
             current == "log" -> LogScreen(onBack = { overlay = null }, onMessage = { localMessage = it })
+            current == "kobo-wifi" -> koboWifi.let { server ->
+                if (server == null) LaunchedEffect(Unit) { overlay = null }
+                else KoboWifiScreen(server, onClose = {
+                    koboWifi = null
+                    overlay = null
+                })
+            }
             current == "about" -> AboutScreen(
                 onBack = { overlay = null },
                 onShowIntro = {
@@ -762,6 +783,12 @@ fun AppRoot(
                     onMakeText = { scans ->
                         sendIds = null
                         ocrOffer = scans.map { it.id }
+                    },
+                    onWifi = { format, covers, pdfs ->
+                        sendIds = null
+                        libraryBrowse.stopSelecting()
+                        koboWifi = libraryVm.koboOverWifi(ids, format, covers, pdfs)
+                        overlay = "kobo-wifi"
                     },
                 )
             }

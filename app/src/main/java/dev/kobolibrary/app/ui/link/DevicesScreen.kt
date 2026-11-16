@@ -31,6 +31,7 @@ import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.TabletAndroid
 import androidx.compose.material.icons.outlined.UploadFile
+import androidx.compose.material.icons.outlined.Wifi
 import androidx.compose.material.icons.outlined.WifiOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -91,6 +92,8 @@ data class DevicesView(
     val nearby: List<LinkManager.Nearby>,
     val transfers: List<Transfer>,
     val settings: LinkSettings,
+    /** Looking for KoLib at every address on the network now. */
+    val looking: Boolean = false,
 )
 
 /** What can be done from the Devices screen. */
@@ -105,6 +108,10 @@ class DevicesActions(
     val forget: (PairedDevice) -> Unit,
     val keepPlacesInStep: (Boolean) -> Unit,
     val stayReachable: (Boolean) -> Unit,
+    /** Chooses books in the library to send to the Kobo over Wi-Fi. */
+    val koboOverWifi: () -> Unit = {},
+    /** Looks for KoLib at every address on the network (a hotspot may pass on no device's announcements). */
+    val lookAgain: () -> Unit = {},
 )
 
 /** The Devices section: this device, the ones paired with it, the ones nearby to pair with, and how the link behaves. */
@@ -112,9 +119,22 @@ class DevicesActions(
 fun DevicesScreen(link: LinkManager, actions: DevicesActions) {
     val paired by link.paired.collectAsStateWithLifecycle()
     val nearby by link.nearby.collectAsStateWithLifecycle()
-    val transfers by link.transfers.collectAsStateWithLifecycle()
+    val live by link.transfers.collectAsStateWithLifecycle()
+    var transfers by remember { mutableStateOf(live) }
+    LaunchedEffect(live) {
+        if (live.isEmpty()) delay(1_500)
+        transfers = live
+    }
     val settings by link.settings.collectAsStateWithLifecycle()
     val port by link.listeningPort.collectAsStateWithLifecycle()
+    val looking by link.looking.collectAsStateWithLifecycle()
+    // Nothing heard after a moment (a phone's hotspot often passes on no announcements): look at every address.
+    LaunchedEffect(Unit) {
+        delay(3_000)
+        val pairedIds = link.paired.value.map { it.id }.toSet()
+        val strangers = link.nearby.value.count { it.id !in pairedIds }
+        if (strangers == 0 || pairedIds.any { !link.isHere(it) }) link.lookAround()
+    }
     var addresses by remember { mutableStateOf(emptyList<String>()) }
     // The networks this device is on can change while the screen is open.
     LaunchedEffect(Unit) {
@@ -123,7 +143,7 @@ fun DevicesScreen(link: LinkManager, actions: DevicesActions) {
             delay(3_000)
         }
     }
-    DevicesContent(DevicesView(link.identity.name, addresses, port, paired, nearby, transfers, settings), actions)
+    DevicesContent(DevicesView(link.identity.name, addresses, port, paired, nearby, transfers, settings, looking), actions)
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -186,7 +206,16 @@ fun DevicesContent(view: DevicesView, actions: DevicesActions) {
                 }
             }
 
-            if (view.transfers.isNotEmpty()) Transfers(view.transfers)
+            androidx.compose.animation.AnimatedVisibility(
+                visible = view.transfers.isNotEmpty(),
+                enter = androidx.compose.animation.expandVertically() + androidx.compose.animation.fadeIn(),
+                exit = androidx.compose.animation.shrinkVertically() + androidx.compose.animation.fadeOut(),
+            ) {
+                // What was last shown stays while it shrinks away.
+                var last by remember { mutableStateOf(view.transfers) }
+                if (view.transfers.isNotEmpty()) last = view.transfers
+                Transfers(last)
+            }
 
             // Paired devices.
             SectionCard(tr("Paired"), icon = Icons.Outlined.Shield) {
@@ -230,9 +259,32 @@ fun DevicesContent(view: DevicesView, actions: DevicesActions) {
                     }
                 }
                 Spacer(Modifier.height(4.dp))
-                TextButton(onClick = { connecting = true }, contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 4.dp)) {
-                    Text(tr("Not found? Connect by address"))
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    TextButton(
+                        onClick = actions.lookAgain,
+                        enabled = !view.looking && view.addresses.isNotEmpty(),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 4.dp),
+                    ) { Text(if (view.looking) tr("Looking at every address…") else tr("Look again")) }
+                    TextButton(onClick = { connecting = true }, contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 4.dp)) {
+                        Text(tr("Not found? Connect by address"))
+                    }
                 }
+            }
+
+            // The Kobo, with no cable: through its own web browser.
+            SectionCard(tr("Your Kobo, over Wi-Fi"), icon = Icons.Outlined.Wifi) {
+                Text(
+                    tr("Send books to your Kobo without the cable, through its web browser: choose them in your library, tap Send to Kobo, then Over Wi-Fi."),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    tr("The Kobo adds them itself, so they can't go into collections that way, books already on it aren't updated, and how far you've read doesn't come back. Plug it in for those."),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(Modifier.height(10.dp))
+                LinkButton(Icons.AutoMirrored.Outlined.SendToMobile, tr("Choose books")) { actions.koboOverWifi() }
             }
 
             SectionCard(tr("Settings")) {
@@ -331,18 +383,22 @@ private fun SwitchLine(title: String, body: String, on: Boolean, onChange: (Bool
 private fun Transfers(transfers: List<Transfer>) {
     SectionCard(tr("Sending and receiving"), icon = Icons.Outlined.Sync) {
         transfers.forEach { t ->
-            val percent = if (t.total > 0) (t.done * 100 / t.total).toInt() else 0
             Text(
                 if (t.outgoing) tr("“{0}” to {1}", t.what, t.device) else tr("“{0}” from {1}", t.what, t.device),
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
                 overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
             )
+            if (t.items > 1) Text(
+                tr("{0} of {1}", t.item, t.items),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
             Spacer(Modifier.height(6.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                LinearProgressIndicator(progress = { percent / 100f }, Modifier.weight(1f))
+                LinearProgressIndicator(progress = { t.fraction }, Modifier.weight(1f))
                 Spacer(Modifier.width(10.dp))
-                Text("$percent%", style = MaterialTheme.typography.labelMedium)
+                Text("${t.percent}%", style = MaterialTheme.typography.labelMedium)
             }
             Spacer(Modifier.height(10.dp))
         }

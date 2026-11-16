@@ -490,6 +490,57 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /**
+     * A page for the Kobo's own web browser offering [ids], each made just as it would go over the cable: as [format],
+     * with its cover fitted as [covers] says, books added as PDFs as their PDF when [pdfs], and comics as they are.
+     * It runs while [KoboWifiServer.start]ed, for when the Kobo isn't plugged in.
+     */
+    fun koboOverWifi(ids: List<String>, format: SendFormat, covers: CoverFitting, pdfs: Boolean): dev.kobolibrary.app.kobo.KoboWifiServer {
+        sendFormat = format
+        coverFitting = covers
+        sendPdfs = pdfs
+        // Books made ready go in a folder of their own, let go of when the page stops (and any left from before now).
+        val dir = java.io.File(java.io.File(getApplication<Application>().cacheDir, "kobo-wifi").apply { deleteRecursively() }, "${System.nanoTime()}").apply { mkdirs() }
+        val taken = HashSet<String>()
+        val books = ids.mapNotNull { library.book(it) }.mapIndexed { i, b ->
+            val kind = when {
+                b.isComic -> if (b.sourceFormat == "CBR") "CBR" else "CBZ"
+                b.goesAsPdf(pdfs) -> "PDF"
+                format == SendFormat.KEPUB -> "kepub"
+                else -> "EPUB"
+            }
+            val ending = dev.kobolibrary.app.kobo.KoboWifiServer.endingFor(kind)
+            var name = dev.kobolibrary.app.kobo.KoboWifiServer.downloadName(b.meta, ending, b.id.take(8))
+            // Two books of the same name: the Kobo would keep only one of them.
+            var n = 2
+            while (!taken.add(name.lowercase())) name = dev.kobolibrary.app.kobo.KoboWifiServer.downloadName(b.meta, " (${n++})$ending", b.id.take(8))
+            dev.kobolibrary.app.kobo.WifiBook(i, b.id, b.title, b.authorLine, kind, name, hasCover = b.hasCover)
+        }
+        AppLog.i("WiFi", "Offering ${books.size} book(s) to the Kobo over Wi-Fi as ${format.label}.")
+        return dev.kobolibrary.app.kobo.KoboWifiServer(
+            books = books,
+            scope = viewModelScope,
+            make = { w ->
+                withContext(Dispatchers.IO) {
+                    val b = library.book(w.id) ?: throw java.io.IOException(tr("It's no longer in the library."))
+                    // A PDF goes as it is when asked; scanned pages always do, and so do comics.
+                    val asIs = if (b.goesAsPdf(pdfs) || b.isComic) library.sourceFile(b.id) else null
+                    // A cover set to "Leave unchanged" is never fitted to the screen.
+                    val fitting = if (b.coverAsIs) CoverFitting.AS_IS else covers
+                    sender.fileForDownload(b.title, library.epubFile(b.id), asIs, format, fitting, dir, b.id, w.name)
+                }
+            },
+            cover = { w ->
+                withContext(Dispatchers.IO) {
+                    val file = library.coverFile(w.id).takeIf { it.isFile } ?: return@withContext null
+                    val bitmap = android.graphics.BitmapFactory.decodeFile(file.path) ?: return@withContext null
+                    dev.kobolibrary.app.ui.cover.CoverRendering.toJpeg(dev.kobolibrary.app.kobo.KoboCovers.boxed(bitmap, 160, 240), 80)
+                }
+            },
+            onStopped = { dir.deleteRecursively() },
+        )
+    }
+
     private fun sendTitle(n: Int) = if (n == 1) tr("Sending to the Kobo") else tr("Sending {0} books to the Kobo", n)
 
     /** Places on the Kobo (as [KoboPaths.stem]s) that library books other than [book] are linked to. */

@@ -103,7 +103,8 @@ There's no account to make and no ads.
   your own, and choose the colours of the title and author, the series, and the lines and ornaments
   separately. A design with a picture can use the book's own cover, and the series number can be in
   words ("Book Six of"), in figures, left off ("Book of"), or "A book of".
-- Search and sort your books, and filter them by tag.
+- Search and sort your books, and filter them by tag. The library and the Kobo's books stay sorted
+  the way you left them, the next time you open KoLib.
 - Make a PDF of scanned pages into a book whose text fits the screen: KoLib recognises the words in
   the pages on your device, in English, French, German, Spanish, Italian, Dutch, Portuguese,
   Russian, Japanese, Ancient or Modern Greek and Latin. The recognition data for each language is
@@ -120,6 +121,10 @@ There's no account to make and no ads.
 - Put books into your Kobo collections as you send them. KoLib can't create collections on the
   Kobo, so make the collection there first (My Books → Collections → New collection).
 - Copy books you put on the Kobo yourself into your library, or delete them from the Kobo.
+- No cable to hand? Send books over Wi-Fi through the Kobo's own web browser: KoLib shows an address
+  to type in on the Kobo, and the Kobo downloads each book and adds it to its library. The Kobo adds
+  them itself that way, so KoLib can't put them in collections, update books already on it, or bring
+  back how far you've read. Plug it in for those.
 - Each time you connect and the Kobo's database has changed, KoLib keeps a backup of it on your
   device before it changes anything. Updates to collections and book details write only the parts
   of the database that changed, so they're quick.

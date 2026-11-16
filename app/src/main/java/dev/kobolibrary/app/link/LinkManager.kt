@@ -122,8 +122,25 @@ data class BookPlace(val id: String, val title: String, val author: String?, val
     }
 }
 
-/** Something being sent or received now, for its progress bar. */
-data class Transfer(val key: Long, val device: String, val what: String, val outgoing: Boolean, val done: Long, val total: Long)
+/**
+ * Something being sent or received now, for its progress bar: [what] is the [item]th of [items] (books, or files) going
+ * together, [done] bytes of its [total] so far.
+ */
+data class Transfer(
+    val key: Long,
+    val device: String,
+    val what: String,
+    val outgoing: Boolean,
+    val done: Long,
+    val total: Long,
+    val item: Int = 1,
+    val items: Int = 1,
+) {
+    /** How far through all of them, 0 to 1. */
+    val fraction: Float get() = (((item - 1) + if (total > 0) done.toFloat() / total else 0f) / items.coerceAtLeast(1)).coerceIn(0f, 1f)
+
+    val percent: Int get() = (fraction * 100).toInt()
+}
 
 /**
  * Pairing with [name], as it stands: [incoming] when the other device asked. [code] is shown on both, once they're
@@ -175,9 +192,14 @@ class LinkManager(
     /** The port this device takes connections on, while it does (0 when it doesn't). */
     val listeningPort: StateFlow<Int> = _port.asStateFlow()
 
+    private val _looking = MutableStateFlow(false)
+    /** Looking for KoLib at every address on this device's local networks ([lookAround]). */
+    val looking: StateFlow<Boolean> = _looking.asStateFlow()
+
     private var server: ServerSocket? = null
     private var serverJob: Job? = null
     private var expiry: Job? = null
+    private var checking: Job? = null
     private var users = 0
     private val discovery = LinkDiscovery(
         announcement = { if (_port.value > 0) identity.let { LinkDiscovery.announcement(it.id, it.name, _port.value) } else null },
@@ -206,6 +228,21 @@ class LinkManager(
                 _nearby.update { list -> list.filter { it.at >= now - FORGET_AFTER } }
             }
         }
+        if (discover) checking = scope.launch(Dispatchers.IO) {
+            // Paired devices are looked for where they were last, every so often: on a network that passes on
+            // nobody's announcements (a phone's hotspot, often), that's how they're found. One not there is looked
+            // for everywhere on this device's networks, once.
+            delay(3_000)
+            var lookedAround = false
+            while (isActive) {
+                val missing = checkPaired()
+                if (missing && !lookedAround) {
+                    lookedAround = true
+                    lookAround()
+                }
+                delay(15_000)
+            }
+        }
     }
 
     @Synchronized
@@ -218,6 +255,7 @@ class LinkManager(
             onRunning(false)
         }
         expiry?.cancel()
+        checking?.cancel()
         serverJob?.cancel()
         runCatching { server?.close() }
         server = null
@@ -249,19 +287,35 @@ class LinkManager(
     /** Whether a device has been heard on the network lately (or reached by its address). */
     fun isHere(id: String): Boolean = _nearby.value.any { it.id == id }
 
+    private val repliedAt = java.util.concurrent.ConcurrentHashMap<String, Long>()
+
     private fun heard(h: LinkDiscovery.Heard) {
-        val me = identity.id
-        if (h.id == me) return
+        if (h.id == identity.id) return
         val now = System.currentTimeMillis()
-        val wasHere = _nearby.value.any { it.id == h.id }
-        _nearby.update { list ->
-            val old = list.firstOrNull { it.id == h.id }
-            list.filter { it.id != h.id } + Nearby(h.id, h.name, h.address, h.port, maxOf(now, old?.at ?: 0))
+        found(h.id, h.name, h.address, h.port, now)
+        // It may not hear what this device sends to everyone (a phone's hotspot often keeps that from the devices
+        // on it), so it's told directly too, every few seconds while it's heard: both then see each other.
+        if (discover && now - (repliedAt[h.id] ?: 0L) >= 4_000) {
+            repliedAt[h.id] = now
+            discovery.announceTo(h.address)
         }
-        val paired = store.device(h.id) ?: return
-        store.seen(h.id, h.name, h.address, h.port, now)
-        // A paired device just come along: bring places in books into step with it (one of the two does).
-        if (!wasHere && me < h.id && store.settings.value.keepPlacesInStep) {
+    }
+
+    /**
+     * A device is here, at [address]: it's kept in the list until [until] (or it's heard again). Returns whether it's
+     * newly found. A paired device newly found has its places in books brought into step (by one of the two).
+     */
+    private fun found(id: String, name: String, address: String, port: Int, until: Long): Boolean {
+        val me = identity.id
+        if (id == me) return false
+        val wasHere = _nearby.value.any { it.id == id }
+        _nearby.update { list ->
+            val old = list.firstOrNull { it.id == id }
+            list.filter { it.id != id } + Nearby(id, name, address, port, maxOf(until, old?.at ?: 0))
+        }
+        val paired = store.device(id) ?: return !wasHere
+        store.seen(id, name, address, port)
+        if (!wasHere && me < id && store.settings.value.keepPlacesInStep) {
             scope.launch(Dispatchers.IO) {
                 try {
                     syncPlaces(paired, quiet = true)
@@ -270,6 +324,46 @@ class LinkManager(
                 }
             }
         }
+        return !wasHere
+    }
+
+    /** Looks for each paired device not found lately where it was last. Returns whether any is still missing. */
+    private suspend fun checkPaired(): Boolean {
+        var missing = false
+        for (d in store.devices.value) {
+            if (isHere(d.id)) continue
+            val address = d.address
+            val found = address != null && reach("$address:${d.port ?: PORT}", quick = true, keepFor = CHECKED_GRACE) != null
+            if (!found) missing = true
+        }
+        return missing
+    }
+
+    /**
+     * Looks for KoLib at every address on this device's local networks (on a phone's hotspot, say, where devices don't
+     * hear each other's announcements). Returns how many devices were found.
+     */
+    suspend fun lookAround(targets: List<String>? = null): Int = withContext(Dispatchers.IO) {
+        if (!_looking.compareAndSet(false, true)) return@withContext 0
+        try {
+            val targets = targets ?: LinkDiscovery.neighbours()
+            val gate = kotlinx.coroutines.sync.Semaphore(32)
+            val count = java.util.concurrent.atomic.AtomicInteger()
+            kotlinx.coroutines.coroutineScope {
+                for (t in targets) launch {
+                    gate.acquire()
+                    try {
+                        if (reach(t, quick = true, keepFor = CHECKED_GRACE) != null) count.incrementAndGet()
+                    } finally {
+                        gate.release()
+                    }
+                }
+            }
+            if (targets.isNotEmpty()) AppLog.i("Link", "Looked for KoLib at ${targets.size} addresses; found ${count.get()}.")
+            count.get()
+        } finally {
+            _looking.value = false
+        }
     }
 
     // ---- connecting ---------------------------------------------------------------------------------------
@@ -277,10 +371,10 @@ class LinkManager(
     /** What's asked of another device, with where this one takes connections, so it can reach back. */
     private fun request(op: String) = JSONObject().put("op", op).put("port", _port.value)
 
-    private fun open(address: String, port: Int, pairing: Boolean): LinkSession {
+    private fun open(address: String, port: Int, pairing: Boolean, connectTimeout: Int = 5_000): LinkSession {
         val socket = Socket()
         try {
-            socket.connect(InetSocketAddress(address, port), 5_000)
+            socket.connect(InetSocketAddress(address, port), connectTimeout)
             socket.soTimeout = 15_000
             return LinkHandshake.client(socket, identity, pairing)
         } catch (e: Exception) {
@@ -313,20 +407,22 @@ class LinkManager(
      * Looks for KoLib at [address] ("192.168.1.20", or with its port: "192.168.1.20:47161"), for a network where
      * devices can't hear each other; null if it isn't there.
      */
-    suspend fun reach(address: String): Nearby? = withContext(Dispatchers.IO) {
+    suspend fun reach(address: String, quick: Boolean = false, keepFor: Long = MANUAL_GRACE): Nearby? = withContext(Dispatchers.IO) {
         val text = address.trim()
         val host = text.substringBefore(':').trim()
         val port = text.substringAfter(':', "").trim().toIntOrNull()?.takeIf { it in 1..65535 } ?: PORT
         if (host.isEmpty()) return@withContext null
-        val session = runCatching { open(host, port, pairing = false) }.getOrNull() ?: return@withContext null
+        val session = runCatching { open(host, port, pairing = false, connectTimeout = if (quick) 700 else 5_000) }.getOrNull() ?: return@withContext null
         session.use {
             runCatching { it.channel.sendJson(request("hello")) }
             if (it.peerId == identity.id) return@withContext null
+            // A paired device's key must be the one it paired with to count as it.
+            val known = store.device(it.peerId)
+            if (known != null && !LinkCrypto.same(known.keyBytes(), it.peerKey)) return@withContext null
             // Not heard on the network, so kept for a while longer than one that is.
-            val n = Nearby(it.peerId, it.peerName, host, port, System.currentTimeMillis() + MANUAL_GRACE)
-            _nearby.update { list -> list.filter { x -> x.id != n.id } + n }
-            store.device(n.id)?.let { d -> if (LinkCrypto.same(d.keyBytes(), it.peerKey)) store.seen(d.id, n.name, host, port) }
-            n
+            val until = System.currentTimeMillis() + keepFor
+            found(it.peerId, it.peerName, host, port, until)
+            Nearby(it.peerId, it.peerName, host, port, until)
         }
     }
 
@@ -482,12 +578,8 @@ class LinkManager(
                 // Where the other device is, and takes connections: it's here, and can be reached there.
                 val from = socket.inetAddress?.hostAddress
                 val theirPort = request.optInt("port").takeIf { it in 1..65535 }
-                if (from != null && theirPort != null && s.peerId != identity.id) {
-                    val now = System.currentTimeMillis()
-                    _nearby.update { list ->
-                        val old = list.firstOrNull { it.id == s.peerId }
-                        list.filter { it.id != s.peerId } + Nearby(s.peerId, s.peerName, from, theirPort, maxOf(now + CONNECTED_GRACE, old?.at ?: 0))
-                    }
+                if (from != null && theirPort != null && s.peerId != identity.id && (known != null || store.device(s.peerId) == null)) {
+                    found(s.peerId, s.peerName, from, theirPort, System.currentTimeMillis() + CONNECTED_GRACE)
                 }
                 when {
                     op == "hello" -> Unit
@@ -517,18 +609,19 @@ class LinkManager(
     private suspend fun serveFiles(s: LinkSession, request: JSONObject) {
         val list = request.getJSONArray("files")
         var where = ""
-        for (i in 0 until list.length()) {
-            val f = list.getJSONObject(i)
-            val name = safeName(f.getString("name"))
-            val size = f.getLong("size")
-            val key = begin(s.peerName, name, outgoing = false, total = size)
-            try {
+        var key = 0L
+        try {
+            for (i in 0 until list.length()) {
+                val f = list.getJSONObject(i)
+                val name = safeName(f.getString("name"))
+                val size = f.getLong("size")
+                if (i == 0) key = begin(s.peerName, name, outgoing = false, total = size, items = list.length()) else step(key, i + 1, name, size)
                 where = host.receiveFile(name, f.optString("type").takeIf { it.isNotBlank() }, size, s.peerName) { out ->
                     s.channel.receiveStream(out, size) { done -> progress(key, done) }
                 }
-            } finally {
-                end(key)
             }
+        } finally {
+            if (key != 0L) end(key)
         }
         s.channel.sendJson(JSONObject().put("ok", true))
         _messages.tryEmit(
@@ -540,12 +633,16 @@ class LinkManager(
     private suspend fun serveBooks(s: LinkSession, request: JSONObject) {
         val count = request.getInt("count")
         val counts = IntArray(BookReceived.entries.size)
+        var key = 0L
+        try {
         for (n in 0 until count) {
             val head = s.channel.receiveJson()
             val record = head.getJSONObject("book")
             val reading = head.optJSONObject("reading") ?: JSONObject()
             val files = head.getJSONArray("files")
             val total = (0 until files.length()).sumOf { files.getJSONObject(it).getLong("size") }
+            val title = record.optJSONObject("meta")?.optString("title").orEmpty()
+            if (n == 0) key = begin(s.peerName, title, outgoing = false, total = total, items = count) else step(key, n + 1, title, total)
             val want = try {
                 host.wantBook(record, reading)
             } catch (e: Exception) {
@@ -566,8 +663,6 @@ class LinkManager(
             }
             s.channel.sendJson(JSONObject().put("want", true))
             val dir = File(host.scratch(), "in-" + System.nanoTime()).apply { mkdirs() }
-            val title = record.optJSONObject("meta")?.optString("title").orEmpty()
-            val key = begin(s.peerName, title, outgoing = false, total = total)
             try {
                 var before = 0L
                 for (i in 0 until files.length()) {
@@ -587,9 +682,11 @@ class LinkManager(
                 counts[result.ordinal]++
                 s.channel.sendJson(JSONObject().put("result", result.name))
             } finally {
-                end(key)
                 dir.deleteRecursively()
             }
+        }
+        } finally {
+            if (key != 0L) end(key)
         }
         _messages.tryEmit(booksMessage(s.peerName, counts, incoming = true))
     }
@@ -620,15 +717,16 @@ class LinkManager(
             s.channel.sendJson(request("files").put("files", JSONArray().apply {
                 files.forEach { put(JSONObject().put("name", it.name).putOpt("type", it.type).put("size", it.size)) }
             }))
-            for (f in files) {
-                val key = begin(device.name, f.name, outgoing = true, total = f.size)
-                try {
+            val key = begin(device.name, files[0].name, outgoing = true, total = files[0].size, items = files.size)
+            try {
+                files.forEachIndexed { i, f ->
+                    if (i > 0) step(key, i + 1, f.name, f.size)
                     f.open().use { input -> s.channel.sendStream(input, f.size) { done -> progress(key, done) } }
-                } finally {
-                    end(key)
                 }
+                check(s.channel.receiveJson())
+            } finally {
+                end(key)
             }
-            check(s.channel.receiveJson())
             _messages.tryEmit(if (files.size == 1) tr("Sent “{0}” to {1}.", files[0].name, device.name) else tr("Sent {0} files to {1}.", files.size, device.name))
         }
     }
@@ -644,8 +742,11 @@ class LinkManager(
             s.channel.sendJson(request("books").put("count", books.size))
             val counts = IntArray(BookReceived.entries.size)
             var noSpace = false
-            for (b in books) {
+            val key = begin(device.name, books[0].title, outgoing = true, total = 0, items = books.size)
+            try {
+            books.forEachIndexed { n, b ->
                 val sizes = b.files.map { it.length() }
+                step(key, n + 1, b.title, sizes.sum())
                 s.channel.sendJson(
                     JSONObject().put("book", b.record).put("reading", b.reading).put("files", JSONArray().apply {
                         b.files.forEachIndexed { i, f -> put(JSONObject().put("name", f.name).put("size", sizes[i])) }
@@ -656,20 +757,18 @@ class LinkManager(
                     val r = BookReceived.entries.firstOrNull { it.name == reply.optString("result") } ?: BookReceived.FAILED
                     if (reply.optString("error") == "space") noSpace = true
                     counts[r.ordinal]++
-                    continue
+                    return@forEachIndexed
                 }
-                val key = begin(device.name, b.title, outgoing = true, total = sizes.sum())
-                try {
-                    var before = 0L
-                    b.files.forEachIndexed { i, f ->
-                        f.inputStream().buffered().use { input -> s.channel.sendStream(input, sizes[i]) { done -> progress(key, before + done) } }
-                        before += sizes[i]
-                    }
-                } finally {
-                    end(key)
+                var before = 0L
+                b.files.forEachIndexed { i, f ->
+                    f.inputStream().buffered().use { input -> s.channel.sendStream(input, sizes[i]) { done -> progress(key, before + done) } }
+                    before += sizes[i]
                 }
                 val r = BookReceived.entries.firstOrNull { it.name == s.channel.receiveJson().optString("result") } ?: BookReceived.FAILED
                 counts[r.ordinal]++
+            }
+            } finally {
+                end(key)
             }
             _messages.tryEmit(booksMessage(device.name, counts, incoming = false) + if (noSpace) " " + tr("{0} hasn't enough space left.", device.name) else "")
         }
@@ -720,17 +819,32 @@ class LinkManager(
 
     // ---- progress -----------------------------------------------------------------------------------------
 
-    private fun begin(device: String, what: String, outgoing: Boolean, total: Long): Long {
+    private val told = java.util.concurrent.ConcurrentHashMap<Long, Long>()
+
+    /** Starts something being sent or received: [items] of them, the first [what], [total] bytes. */
+    private fun begin(device: String, what: String, outgoing: Boolean, total: Long, items: Int = 1): Long {
         val key = transferKeys.incrementAndGet()
-        _transfers.update { it + Transfer(key, device, what, outgoing, 0, total) }
+        _transfers.update { it + Transfer(key, device, what, outgoing, 0, total, 1, items) }
         return key
     }
 
+    /** On to the [item]th of them, [what], [total] bytes. */
+    private fun step(key: Long, item: Int, what: String, total: Long) {
+        _transfers.update { list -> list.map { if (it.key == key) it.copy(what = what, item = item, done = 0, total = total) else it } }
+    }
+
+    /** [done] bytes of the one going now; told a few times a second at most, so the screen isn't redrawn for every piece. */
     private fun progress(key: Long, done: Long) {
+        val now = System.nanoTime()
+        val last = told[key] ?: 0L
+        val total = _transfers.value.firstOrNull { it.key == key }?.total ?: return
+        if (done < total && now - last < 200_000_000L) return
+        told[key] = now
         _transfers.update { list -> list.map { if (it.key == key) it.copy(done = done) else it } }
     }
 
     private fun end(key: Long) {
+        told.remove(key)
         _transfers.update { list -> list.filter { it.key != key } }
     }
 
@@ -742,6 +856,8 @@ class LinkManager(
         private const val MANUAL_GRACE = 5 * 60_000L
         /** A device that connected stays this much longer, not being heard. */
         private const val CONNECTED_GRACE = 60_000L
+        /** A device found by looking for it stays this much longer (it's looked for again every 15 seconds). */
+        private const val CHECKED_GRACE = 40_000L
         /** How long pairing waits for both to say yes. */
         private const val PAIRING_WAIT = 120_000L
         /** Room kept free when taking in books. */

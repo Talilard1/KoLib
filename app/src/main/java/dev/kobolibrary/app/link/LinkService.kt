@@ -122,10 +122,9 @@ class LinkService : Service() {
         val t = transfers.firstOrNull()
         if (t != null) {
             val more = if (transfers.size > 1) tr(" · {0} more", transfers.size - 1) else ""
-            val percent = if (t.total > 0) (t.done * 100 / t.total).toInt() else 0
             b.setContentTitle(if (t.outgoing) tr("Sending to {0}", t.device) else tr("Receiving from {0}", t.device))
-                .setContentText(tr("“{0}” · {1}%", t.what, percent) + more)
-                .setProgress(100, percent, t.total <= 0)
+                .setContentText((if (t.items > 1) tr("“{0}” · {1} of {2} · {3}%", t.what, t.item, t.items, t.percent) else tr("“{0}” · {1}%", t.what, t.percent)) + more)
+                .setProgress(100, t.percent, false)
         } else {
             val stop = PendingIntent.getService(
                 this, 1, Intent(this, LinkService::class.java).setAction(ACTION_STOP),

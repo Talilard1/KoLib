@@ -12,7 +12,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.TravelExplore
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -47,67 +47,74 @@ fun searchTheInternet(context: Context, text: String) {
         .onFailure { Toast.makeText(context, tr("There's no browser to open it in."), Toast.LENGTH_SHORT).show() }
 }
 
-/** What finds a series' books in a search: `series:"Name"`. */
-fun seriesSearch(series: String): String = "series:\"" + series.replace('"', ' ').trim() + "\""
+/** A search field with [value] as a phrase: `field:"value"`. */
+private fun phrase(field: String, value: String) = field + ":\"" + value.replace('"', ' ').trim() + "\""
 
-/** A book's title in its details. A tap copies it; holding it offers to look it up on the internet. */
+/** What finds a series' books in a search: `series:"Name"`. */
+fun seriesSearch(series: String): String = phrase("series", series)
+
+/** What finds a book by its title in a search: `title:"Title"`. */
+fun titleSearch(title: String): String = phrase("title", title)
+
+/** What finds the books by any of [authors] in a search: `author:"A" or author:"B"`; null if there are none. */
+fun authorSearch(authors: List<String>): String? =
+    authors.map { it.trim() }.filter { it.isNotEmpty() && !it.equals(tr("Unknown"), ignoreCase = true) }.distinct()
+        .takeIf { it.isNotEmpty() }?.joinToString(" or ") { phrase("author", it) }
+
+/**
+ * A book's title, author or series in its details, all three alike. A tap copies it ([copy], saying [copied] where
+ * Android doesn't); holding it offers to look for it in KoLib ([inApp], a search for the tab it's in, by [onSearch]) or on
+ * the internet ([web]).
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun BookTitleText(title: String, style: TextStyle, modifier: Modifier = Modifier, textAlign: TextAlign? = null) {
+fun DetailText(
+    text: String,
+    style: TextStyle,
+    copied: String,
+    modifier: Modifier = Modifier,
+    color: Color = Color.Unspecified,
+    textAlign: TextAlign? = null,
+    copy: String = text,
+    inApp: String? = null,
+    onSearch: ((String) -> Unit)? = null,
+    web: String = copy,
+) {
     val context = LocalContext.current
     var menu by remember { mutableStateOf(false) }
     Box(modifier) {
         Text(
-            title,
+            text,
             style = style,
+            color = color,
             textAlign = textAlign,
-            // (A title set in the middle is tapped anywhere across.)
+            // (Text set in the middle is tapped anywhere across.)
             modifier = (if (textAlign == TextAlign.Center) Modifier.fillMaxWidth() else Modifier).combinedClickable(
-                onClickLabel = tr("Copy the title"),
-                onLongClickLabel = tr("More"),
+                onClickLabel = tr("Copy"),
+                onLongClickLabel = tr("Search"),
                 onLongClick = { menu = true },
-                onClick = { copyToClipboard(context, title, tr("Title copied")) },
+                onClick = { copyToClipboard(context, copy, copied) },
             ),
         )
         DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+            if (inApp != null && onSearch != null) {
+                DropdownMenuItem(
+                    text = { Text(tr("Search in KoLib")) },
+                    leadingIcon = { Icon(Icons.Outlined.Search, null) },
+                    onClick = {
+                        menu = false
+                        onSearch(inApp)
+                    },
+                )
+            }
             DropdownMenuItem(
                 text = { Text(tr("Search the internet")) },
                 leadingIcon = { Icon(Icons.Outlined.TravelExplore, null) },
                 onClick = {
                     menu = false
-                    searchTheInternet(context, title)
-                },
-            )
-            DropdownMenuItem(
-                text = { Text(tr("Copy")) },
-                leadingIcon = { Icon(Icons.Outlined.ContentCopy, null) },
-                onClick = {
-                    menu = false
-                    copyToClipboard(context, title, tr("Title copied"))
+                    searchTheInternet(context, web)
                 },
             )
         }
     }
-}
-
-/**
- * The series a book is in, in its details ([label]: with its number). A tap shows the series' books, by [onSeries] with
- * the series' name; holding it copies the name.
- */
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun SeriesText(label: String, series: String, style: TextStyle, color: Color, onSeries: ((String) -> Unit)?, modifier: Modifier = Modifier, textAlign: TextAlign? = null) {
-    val context = LocalContext.current
-    Text(
-        label,
-        style = style,
-        color = color,
-        textAlign = textAlign,
-        modifier = modifier.combinedClickable(
-            onClickLabel = tr("Show the books in this series"),
-            onLongClickLabel = tr("Copy the series"),
-            onLongClick = { copyToClipboard(context, series, tr("Series copied")) },
-            onClick = { onSeries?.invoke(series) },
-        ),
-    )
 }

@@ -83,10 +83,14 @@ class LibraryQueryTest {
     }
 
     @Test
-    fun aTapOnABooksSeriesFindsTheSeries() {
+    fun aBooksTitleAuthorOrSeriesCanBeSearchedFor() {
         // What a tap on "Sherlock Holmes #2" in a book's details searches for: the series by its name, without the number.
         assertEquals("series:\"Sherlock Holmes\"", dev.kobolibrary.app.ui.components.seriesSearch("Sherlock Holmes"))
         assertEquals(listOf("The Sign of the Four", "A Study in Scarlet"), search(dev.kobolibrary.app.ui.components.seriesSearch("Sherlock Holmes")))
+        // And a book by its title, and the books by any of its authors.
+        assertEquals(listOf("The Sign of the Four"), search(dev.kobolibrary.app.ui.components.titleSearch("The Sign of the Four")))
+        assertEquals(listOf("The Sign of the Four", "A Study in Scarlet"), search(dev.kobolibrary.app.ui.components.authorSearch(listOf("Arthur Conan Doyle"))!!))
+        assertEquals("author:\"A\" or author:\"B\"", dev.kobolibrary.app.ui.components.authorSearch(listOf("A", " B ", "Unknown", "")))
         // Quotes in a name don't break the search.
         assertEquals("series:\"The  Name\"", dev.kobolibrary.app.ui.components.seriesSearch("The \"Name\""))
     }

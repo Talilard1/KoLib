@@ -2,9 +2,10 @@
 
 package dev.kobolibrary.app.ui.library
 
-import dev.kobolibrary.app.ui.components.BookTitleText
-import dev.kobolibrary.app.ui.components.SeriesText
 import dev.kobolibrary.app.ui.components.seriesSearch
+import dev.kobolibrary.app.ui.components.DetailText
+import dev.kobolibrary.app.ui.components.titleSearch
+import dev.kobolibrary.app.ui.components.authorSearch
 import androidx.compose.ui.text.rememberTextMeasurer
 import dev.kobolibrary.app.tr
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -205,8 +206,8 @@ internal fun PhoneLibraryScreen(
                 browse.tags = setOf(tag)
                 browse.selectedId = null
             },
-            onSeries = { name ->
-                browse.query = seriesSearch(name)
+            onSearch = { search ->
+                browse.query = search
                 browse.collection = null
                 browse.tags = emptySet()
                 browse.selectedId = null
@@ -485,8 +486,8 @@ internal fun PhoneBookPage(
     onMarkUnread: (() -> Unit)? = null,
     /** Moving the app's reader to where the Kobo is in the book. */
     onContinueFromKobo: ((KoboBook) -> Unit)? = null,
-    /** Shows the books in a series (by its name), from a tap on the book's. */
-    onSeries: ((String) -> Unit)? = null,
+    /** Searches for books (a search for the tab: the book's title, author or series), from holding one of those. */
+    onSearch: ((String) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val meta = book.meta
@@ -527,13 +528,18 @@ internal fun PhoneBookPage(
                 )
             }
             Spacer(Modifier.height(20.dp))
-            BookTitleText(meta.title, MaterialTheme.typography.headlineSmall, Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+            // A tap on the title, author or series copies it; holding it, a search for it here or on the internet.
+            DetailText(meta.title, MaterialTheme.typography.headlineSmall, tr("Title copied"), Modifier.fillMaxWidth(), textAlign = TextAlign.Center,
+                inApp = titleSearch(meta.title), onSearch = onSearch)
             book.authorLine?.let {
                 Spacer(Modifier.height(4.dp))
-                Text(it, style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                DetailText(it, MaterialTheme.typography.titleMedium, tr("Author copied"), Modifier.fillMaxWidth(), textAlign = TextAlign.Center,
+                    inApp = authorSearch(meta.authors), onSearch = onSearch)
             }
-            meta.seriesLabel?.let {
-                SeriesText(it, meta.series.orEmpty(), SeriesStyle(), MaterialTheme.colorScheme.primary, onSeries, Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+            meta.seriesLabel?.let { label ->
+                val name = meta.series.orEmpty()
+                DetailText(label, SeriesStyle(), tr("Series copied"), Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.Center,
+                    copy = name, inApp = seriesSearch(name), onSearch = onSearch)
             }
             meta.rating?.takeIf { it > 0 }?.let { r ->
                 Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.Center) {

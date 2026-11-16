@@ -3,8 +3,10 @@
 package dev.kobolibrary.app.ui
 
 import dev.kobolibrary.app.tr
-import dev.kobolibrary.app.ui.components.BookTitleText
-import dev.kobolibrary.app.ui.components.SeriesText
+import dev.kobolibrary.app.ui.components.DetailText
+import dev.kobolibrary.app.ui.components.titleSearch
+import dev.kobolibrary.app.ui.components.authorSearch
+import dev.kobolibrary.app.ui.components.seriesSearch
 import androidx.compose.ui.graphics.Color
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -300,8 +302,8 @@ internal fun PhoneKoboBookPage(
     onTag: (String) -> Unit,
     stars: Double,
     pages: Int?,
-    /** Shows the books in a series (by its name), from a tap on the book's. */
-    onSeries: ((String) -> Unit)? = null,
+    /** Searches for books (a search for the tab: the book's title, author or series), from holding one of those. */
+    onSearch: ((String) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val scroll = rememberScrollState()
@@ -339,16 +341,21 @@ internal fun PhoneKoboBookPage(
                 BookCover(book, covers, CoverSize.FULL, Modifier.width(184.dp), showProgress = false)
             }
             Spacer(Modifier.height(20.dp))
-            BookTitleText(book.title, MaterialTheme.typography.headlineSmall, Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+            // A tap on the title, author or series copies it; holding it, a search for it here or on the internet.
+            DetailText(book.title, MaterialTheme.typography.headlineSmall, tr("Title copied"), Modifier.fillMaxWidth(), textAlign = TextAlign.Center,
+                inApp = titleSearch(book.title), onSearch = onSearch)
             book.subtitle?.let {
                 Text(it, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
             }
             book.author?.let {
                 Spacer(Modifier.height(4.dp))
-                Text(it, style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                DetailText(it, MaterialTheme.typography.titleMedium, tr("Author copied"), Modifier.fillMaxWidth(), textAlign = TextAlign.Center,
+                    inApp = authorSearch(listOf(it)), onSearch = onSearch)
             }
-            book.seriesLabel?.let {
-                SeriesText(it, book.series.orEmpty(), SeriesStyle(), MaterialTheme.colorScheme.primary, onSeries, Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+            book.seriesLabel?.let { label ->
+                val name = book.series.orEmpty()
+                DetailText(label, SeriesStyle(), tr("Series copied"), Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.Center,
+                    copy = name, inApp = seriesSearch(name), onSearch = onSearch)
             }
             if (stars > 0) {
                 Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.Center) {

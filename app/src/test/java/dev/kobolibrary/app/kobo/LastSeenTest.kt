@@ -46,6 +46,14 @@ class LastSeenTest {
         assertEquals(seen, back)
         assertEquals(session.snapshot.books.size, back.snapshot.books.size)
 
+        // How the Kobo shares a book out between its chapters comes back too.
+        val first = session.snapshot.allBooks.first()
+        val spans = listOf(KoboChapterSpan("${first.contentId}!!OEBPS/ch1.xhtml", null, 0.0, 12.5), KoboChapterSpan("x", "OEBPS/ch2.xhtml", 12.5, 87.5))
+        val withSpans = seen.copy(snapshot = session.snapshot.copy(allBooks = listOf(first.copy(chapterSpans = spans)) + session.snapshot.allBooks.drop(1)))
+        store.save(withSpans)
+        assertEquals(spans, store.load()!!.snapshot.allBooks.first().chapterSpans)
+        store.save(seen)
+
         // A damaged copy is ignored rather than crashing the app.
         File(store.coverDir.parentFile, "last-seen.json").writeText("{ \"version\": 1, \"books\": [")
         assertNull(store.load())

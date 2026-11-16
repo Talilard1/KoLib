@@ -62,6 +62,11 @@ class ReaderController(
     val bookAuthor: String? = null,
     /** The book's number in its series, if it has one: a title starting with it has it there to sort by. */
     private val bookSeriesIndex: Double? = null,
+    /**
+     * How the Kobo shares this book out between its chapters, when the Kobo has a place in it: how far through
+     * the book is then counted as the Kobo counts it, so the two say the same.
+     */
+    private val koboSpans: List<dev.kobolibrary.app.kobo.KoboChapterSpan> = emptyList(),
 ) {
     /** The book's language, for looking words up in the right Wikipedia. */
     val bookLanguage: String? get() = language
@@ -218,9 +223,15 @@ class ReaderController(
     private var webView: WebView? = null
     private var saveJob: Job? = null
 
-    /** How much text each chapter has, for progress through the whole book. */
+    /** How much text each chapter has, for working out pages not laid out yet. */
     private var weights: FloatArray = FloatArray(chapters.size) { 1f }
-    private var weightTotal = chapters.size.toFloat()
+
+    /**
+     * Each chapter's share of the book, for progress through it: how much text it has, or, for a book the Kobo has
+     * a place in, the share the Kobo gives it (so the two show the same percentage).
+     */
+    private var shares: FloatArray = FloatArray(chapters.size) { 1f }
+    private var shareTotal = chapters.size.toFloat()
 
     /** The chapters' lengths have been counted. */
     private var lengthsKnown by mutableStateOf(false)
@@ -237,8 +248,8 @@ class ReaderController(
         get() {
             if (chapters.isEmpty()) return 0f
             var before = 0f
-            for (i in 0 until chapterIndex) before += weights[i]
-            return ((before + weights.getOrElse(chapterIndex) { 0f } * chapterProgress) / weightTotal).coerceIn(0f, 1f)
+            for (i in 0 until chapterIndex) before += shares[i]
+            return ((before + shares.getOrElse(chapterIndex) { 0f } * chapterProgress) / shareTotal).coerceIn(0f, 1f)
         }
 
     /** Minutes left in the chapter at an ordinary reading speed. */
@@ -272,7 +283,11 @@ class ReaderController(
             chapterWords = counted.map { EpubText.countWords(it) }.toIntArray()
             wordsCounted = true
             weights = counted.map { maxOf(1f, it.length.toFloat()) }.toFloatArray()
-            weightTotal = weights.sum()
+            val kobo = runCatching { dev.kobolibrary.app.kobo.KoboPlaces.shares(chapters, koboSpans, weights) }.getOrNull()
+            if (kobo != null) AppLog.i("Reader", "Counting how far through the book as the Kobo does, from its ${koboSpans.size} chapters.")
+            else if (koboSpans.isNotEmpty()) AppLog.i("Reader", "The Kobo's chapters don't match this copy of the book; counting how far through it from its text.")
+            shares = kobo ?: weights.copyOf()
+            shareTotal = shares.sum().takeIf { it > 0f } ?: 1f
             findOpenings()
             lengthsKnown = true
             findSidewaysPictures()
@@ -546,11 +561,12 @@ class ReaderController(
     /** Where the progress bar at [f] goes: the chapter, and how far through it. */
     private fun chapterAtBookProgress(f: Float): Pair<Int, Float>? {
         if (chapters.isEmpty()) return null
-        val wanted = f.coerceIn(0f, 1f) * weightTotal
+        val wanted = f.coerceIn(0f, 1f) * shareTotal
         var acc = 0f
         for (i in chapters.indices) {
-            val w = weights[i]
-            if (acc + w >= wanted || i == chapters.size - 1) return i to ((wanted - acc) / w).coerceIn(0f, 1f)
+            val w = shares[i]
+            // (A chapter the Kobo doesn't count has no share: the bar never stops in it.)
+            if ((w > 0f && acc + w >= wanted) || i == chapters.size - 1) return i to (if (w > 0f) ((wanted - acc) / w).coerceIn(0f, 1f) else 0f)
             acc += w
         }
         return null
@@ -850,12 +866,33 @@ class ReaderController(
                 files.bytes(p)?.let { ImageSize.of(it) }?.let { (w, h) -> PictureTurns.size(w, h, turns[p] ?: 0) }
             }
             val bookStart = i == firstLinear || innerBooks.any { it.first == i }
-            // A book inside this one starts with its cover, or its title page: the title page, after a cover if it has one.
-            val titlePlace = innerBooks.any { it.first == i || (it.first == i - 1 && pageKind(i - 1) == PageKind.COVER) }
+            // A book inside this one starts with its cover, or its title page: the title page, after a cover if it has
+            // one. The book's own title page, among its opening pages, is shown the same way.
+            val titlePlace = innerBooks.any { it.first == i || (it.first == i - 1 && pageKind(i - 1) == PageKind.COVER) } ||
+                isOwnTitlePage(i, f)
             PagePlacement.kind(f, coverPlace = bookStart, titlePlace = titlePlace)
         }
         kinds[i] = kind
         kind
+    }
+
+    /**
+     * Chapter [i], with [f] on its page, is the book's own title page: one of its first few pages, before any
+     * chapter of text and before any book inside it starts, that's named or marked as a title page (or starts
+     * with the book's title).
+     */
+    private fun isOwnTitlePage(i: Int, f: PagePlacement.Facts): Boolean {
+        val firstInner = innerBooks.minOfOrNull { it.first } ?: Int.MAX_VALUE
+        if (i >= firstInner || !chapters[i].linear) return false
+        val opening = (0 until i).filter { chapters[it].linear }
+        if (opening.size >= 6) return false
+        // Not after a chapter of text.
+        for (j in opening) {
+            val words = chapterWords.getOrNull(j)?.takeIf { wordsCounted }
+                ?: files.text(chapters[j].path)?.let { EpubText.countWords(EpubText.plainText(it)) } ?: 0
+            if (words > PagePlacement.SHORT_WORDS) return false
+        }
+        return PagePlacement.isTitlePage(f, chapters[i].path, bookTitle)
     }
 
     /**
@@ -1333,8 +1370,8 @@ class ReaderController(
             val out = ArrayList<Float>()
             var acc = 0f
             for (i in chapters.indices) {
-                if (i > 0 && chapters[i].linear && !isKnownJoined(i - 1)) out += acc / weightTotal
-                acc += weights.getOrElse(i) { 0f }
+                if (i > 0 && chapters[i].linear && !isKnownJoined(i - 1)) out += acc / shareTotal
+                acc += shares.getOrElse(i) { 0f }
             }
             return out
         }
@@ -1403,8 +1440,8 @@ class ReaderController(
         annotations.firstOrNull { it.path == c.path && it.start == sel.optString("start") && it.end == sel.optString("end") }?.let { return it }
         val chapterAt = sel.optDouble("progress", 0.0).toFloat()
         var before = 0f
-        for (i in 0 until chapterIndex) before += weights.getOrElse(i) { 0f }
-        val book = ((before + weights.getOrElse(chapterIndex) { 0f } * chapterAt) / weightTotal).coerceIn(0f, 1f)
+        for (i in 0 until chapterIndex) before += shares.getOrElse(i) { 0f }
+        val book = ((before + shares.getOrElse(chapterIndex) { 0f } * chapterAt) / shareTotal).coerceIn(0f, 1f)
         val a = Annotation(
             path = c.path,
             start = sel.optString("start"),

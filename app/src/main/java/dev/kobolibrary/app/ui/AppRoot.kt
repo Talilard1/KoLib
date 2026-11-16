@@ -433,6 +433,9 @@ fun AppRoot(
                             readingHere = libraryVm.readingHere,
                             onReadAsPdf = if (book.isPdf) ({ readAs(false) }) else null,
                             onAppSettings = { showLook = true },
+                            // The Kobo's copy, if it has a place in it: how far through is counted as the Kobo counts it.
+                            koboSpans = book.koboPath?.let { koboView?.snapshot?.booksById?.get(dev.kobolibrary.app.kobo.KoboPaths.contentId(it)) }
+                                ?.chapterSpans.orEmpty(),
                         )
                     }
                 }
@@ -717,9 +720,9 @@ fun AppRoot(
                 SplitBookDialog(
                     book = book,
                     loadPages = { libraryVm.pagesOf(id) },
-                    onSplit = { cuts, titles, series ->
+                    onSplit = { cuts, titles, series, share ->
                         splitId = null
-                        libraryVm.splitBook(id, cuts, titles, series) { made -> made.firstOrNull()?.let { libraryBrowse.selectedId = it } }
+                        libraryVm.splitBook(id, cuts, titles, series, share) { made -> made.firstOrNull()?.let { libraryBrowse.selectedId = it } }
                     },
                     onDismiss = { splitId = null },
                 )

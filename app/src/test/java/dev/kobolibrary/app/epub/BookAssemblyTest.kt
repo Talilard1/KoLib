@@ -2,6 +2,7 @@ package dev.kobolibrary.app.epub
 
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -110,6 +111,84 @@ class BookAssemblyTest {
                 assertTrue(!epub.has("OEBPS/text/ch1.xhtml"))
             }
         }
+    }
+
+    /** An omnibus: a cover, a title page and a contents page, two books (each a title page and two chapters), and about the author. */
+    private fun omnibus(): java.io.File {
+        val names = listOf("cover", "title", "contents", "a", "a1", "a2", "b", "b1", "b2", "about")
+        val titles = mapOf("title" to "Title Page", "contents" to "Contents", "a" to "Book A", "a1" to "A One", "a2" to "A Two",
+            "b" to "Book B", "b1" to "B One", "b2" to "B Two", "about" to "About the Author")
+        fun entry(n: String, cls: String) = """  <p class="$cls"><a href="$n.xhtml">${titles[n]}</a></p>"""
+        val contents = """<?xml version="1.0" encoding="utf-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Contents</title></head><body>
+  <h1>Contents</h1>
+${listOf("a" to "tb", "a1" to "tc", "a2" to "tc", "b" to "tb", "b1" to "tc", "b2" to "tc", "about" to "tb").joinToString("\n") { (n, c) -> entry(n, c) }}
+</body></html>"""
+        val opf = """<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="id">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="id">urn:uuid:omni</dc:identifier><dc:title>Both Books</dc:title><dc:language>en</dc:language></metadata>
+  <manifest>
+    <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
+    <item id="cimg" href="images/cover.png" media-type="image/png" properties="cover-image"/>
+${names.joinToString("\n") { "    <item id=\"$it\" href=\"text/$it.xhtml\" media-type=\"application/xhtml+xml\"/>" }}
+  </manifest>
+  <spine>
+${names.joinToString("\n") { "    <itemref idref=\"$it\"/>" }}
+  </spine>
+</package>"""
+        fun li(n: String, kids: String = "") = "<li><a href=\"text/$n.xhtml\">${titles[n]}</a>$kids</li>"
+        val nav = """<?xml version="1.0" encoding="utf-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops"><head><title>Contents</title></head><body>
+<nav epub:type="toc"><ol>${li("title")}${li("contents")}${li("a", "<ol>${li("a1")}${li("a2")}</ol>")}${li("b", "<ol>${li("b1")}${li("b2")}</ol>")}${li("about")}</ol></nav>
+</body></html>"""
+        val files = linkedMapOf(
+            "META-INF/container.xml" to TestEpubs.CONTAINER.toByteArray(),
+            "OEBPS/content.opf" to opf.toByteArray(),
+            "OEBPS/nav.xhtml" to nav.toByteArray(),
+            "OEBPS/images/cover.png" to ByteArray(32) { it.toByte() },
+            "OEBPS/text/cover.xhtml" to """<?xml version="1.0" encoding="utf-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Cover</title></head><body><div><img src="../images/cover.png" alt="Cover"/></div></body></html>""".toByteArray(),
+            "OEBPS/text/contents.xhtml" to contents.toByteArray(),
+        )
+        for (n in names.drop(1)) if (n != "contents") files["OEBPS/text/$n.xhtml"] = TestBooks.simplePage(titles.getValue(n), "Words of ${titles[n]}.").toByteArray()
+        return TestEpubs.build(tmp.newFile("omnibus.epub"), files)
+    }
+
+    @Test
+    fun everyBookCanGetTheOmnibussOpeningAndClosingPages() {
+        val src = omnibus()
+        val pages = BookAssembly.pages(src)
+        assertTrue(pages[0].cover)
+        val cut = pages.indexOfFirst { it.title == "Book B" }
+        // Before the first book (not its cover): the title page and contents; after the last: about the author.
+        val shared = BookAssembly.sharedPages(pages, listOf(cut))
+        assertEquals(listOf("Title Page", "Contents"), shared.front.map { pages[it].title })
+        assertEquals(listOf("About the Author"), shared.back.map { pages[it].title })
+
+        val outs = listOf(tmp.newFile("a.epub"), tmp.newFile("b.epub"))
+        BookAssembly.split(src, listOf(cut), listOf(BookMetadata(title = "A"), BookMetadata(title = "B")), outs, shareFrontAndBack = true)
+        outs.forEach { assertSound(it) }
+        val (_, first, e1) = structure(outs[0])
+        val (_, second, e2) = structure(outs[1])
+        e1.use {
+            e2.use {
+                assertEquals(listOf("cover", "title", "contents", "a", "a1", "a2", "about"), first.chapters.map { it.path.substringAfterLast('/').substringBefore('.') })
+                assertEquals(listOf("title", "contents", "b", "b1", "b2", "about"), second.chapters.map { it.path.substringAfterLast('/').substringBefore('.') })
+                assertEquals(listOf("Title Page", "Contents", "Book B", "About the Author"), second.toc.map { it.title })
+                // Each book's contents page lists its own chapters, in the page's own style.
+                val page2 = e2.readText(second.chapters[1].path)!!
+                assertTrue(page2, page2.contains("""<p class="tb"><a href="b.xhtml">Book B</a></p>"""))
+                assertTrue(page2, page2.contains("""<p class="tc"><a href="b1.xhtml">B One</a></p>"""))
+                assertTrue(page2, page2.contains("""<p class="tb"><a href="about.xhtml">About the Author</a></p>"""))
+                assertFalse(page2.contains("Book A") || page2.contains("A One"))
+                val page1 = e1.readText(first.chapters[2].path)!!
+                assertTrue(page1, page1.contains("""<p class="tc"><a href="a2.xhtml">A Two</a></p>"""))
+                assertFalse(page1.contains("B One"))
+            }
+        }
+        // Without: as before.
+        BookAssembly.split(src, listOf(cut), listOf(BookMetadata(title = "A"), BookMetadata(title = "B")), outs)
+        structure(outs[1]).third.use { e -> assertEquals(listOf("b", "b1", "b2", "about"), BookStructure(EpubFileFiles(e)).chapters.map { it.path.substringAfterLast('/').substringBefore('.') }) }
     }
 
     @Test

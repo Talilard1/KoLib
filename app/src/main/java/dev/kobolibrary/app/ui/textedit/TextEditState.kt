@@ -61,6 +61,8 @@ class TextEditState(
     private val scope: CoroutineScope,
     private val assets: AssetManager,
     initialPath: String?,
+    /** Sections copied out of books, to put into this one (and this one's to copy into). */
+    val copied: dev.kobolibrary.app.library.CopiedSections? = null,
 ) {
     val edit = BookEdit(library.epubFile(bookId))
     private val main = Handler(Looper.getMainLooper())
@@ -421,6 +423,47 @@ class TextEditState(
         val out = ByteArrayOutputStream()
         cover.compress(Bitmap.CompressFormat.JPEG, 90, out)
         ChapterOps.addCoverPage(edit, structure, ChapterOps.NewPicture(out.toByteArray(), "image/jpeg", cover.width, cover.height))
+    }
+
+    // ---- copied sections ------------------------------------------------------------------------
+
+    /** The panel of copied sections is open. */
+    var copiedOpen by mutableStateOf(false)
+
+    /** Copies the chapter at [path] (with its pictures and styles) into the copied sections, to put into any book. */
+    fun copySection(path: String) {
+        val store = copied ?: return
+        go {
+            flush()
+            try {
+                val page = withContext(Dispatchers.Default) { ChapterOps.copyPage(edit, structure, path) }
+                withContext(Dispatchers.IO) { store.add(page, title) }
+                message = tr("Copied “{0}”. Find it in Copied, beside Code, in this book or any other.", page.title)
+            } catch (e: ChapterOps.OpError) {
+                message = e.message
+            } catch (e: Exception) {
+                AppLog.e("Editor", "Copying a section failed", e)
+                message = tr("That couldn't be copied: {0}", e.message ?: e.javaClass.simpleName)
+            }
+        }
+    }
+
+    /**
+     * Puts the copied section [id] into the book after the chapter open now. A contents page can be made to list this
+     * book's chapters instead of its own ([relist]).
+     */
+    fun pasteSection(id: String, relist: Boolean) {
+        val store = copied ?: return
+        val after = currentPath
+        change {
+            val page = withContext(Dispatchers.IO) { store.load(id) } ?: throw ChapterOps.OpError(tr("That copied section couldn't be read."))
+            ChapterOps.paste(edit, structure, after, page, relist)
+        }
+    }
+
+    fun deleteCopied(id: String) {
+        val store = copied ?: return
+        go { withContext(Dispatchers.IO) { store.delete(id) } }
     }
 
     fun splitPoints(path: String): List<ChapterOps.SplitPoint> =

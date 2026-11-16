@@ -1,0 +1,256 @@
+@fr
+1884|Donner à chaque livre les pages du début et de la fin
+1885|Avant le premier livre : {0}.
+1886|Après le dernier : {0}.
+1887|Si l’une d’elles est une table des matières, elle liste les chapitres de chaque livre.
+1888|Sections copiées
+1889|Fermer les sections copiées
+1890|Rien n’a encore été copié. Pour copier un chapitre, une page de titre ou toute autre section, touchez ⋮ à côté d’elle dans la liste des chapitres, puis Copier. Elle reste ici, pour n’importe quel livre, jusqu’à ce que vous la supprimiez.
+1891|Ajouter place une copie après « {0} », le chapitre ouvert, avec ses images et ses styles.
+1892|Ajouter place une copie dans ce livre, avec ses images et ses styles.
+1893|Lister les chapitres de ce livre ?
+1894|« {0} » est une table des matières de « {1} ». KoLib peut garder son apparence et sa mise en page et lui faire lister les chapitres de ce livre à la place, avec des liens vers eux. Ou l’ajouter telle quelle, avec des liens seulement vers les chapitres que ce livre contient.
+1895|Lister les chapitres de ce livre
+1896|Ajouter telle quelle
+1897|Supprimer « {0} » des sections copiées ?
+1898|Elle n’est supprimée que d’ici. Les livres auxquels elle a été ajoutée gardent leur copie.
+1899|Section sans titre
+1900|De « {0} »
+1901|Table des matières
+1902|1 image
+1903|{0} images
+1904|Supprimer « {0} » des sections copiées
+1905|Ajouter à ce livre
+1906|« {0} » a été copié. Vous le trouverez dans Copiées, à côté de Code, dans ce livre ou un autre.
+1907|Impossible de copier cela : {0}
+1908|Impossible de lire cette section copiée.
+1909|Copiées ({0})
+1910|Copiées
+1911|Impossible de lire comment la Kobo répartit les livres en chapitres ({0}).
+1912|Impossible de lire ce chapitre.
+1913|Chacune est ajoutée après « {0} », le chapitre ouvert, avec ses images et ses styles.
+1914|Chacune est ajoutée avec ses images et ses styles.
+@de
+1884|Jedem Buch die Seiten vom Anfang und vom Ende geben
+1885|Vor dem ersten Buch: {0}.
+1886|Nach dem letzten: {0}.
+1887|Ist eine davon ein Inhaltsverzeichnis, listet es die Kapitel des jeweiligen Buchs auf.
+1888|Kopierte Abschnitte
+1889|Kopierte Abschnitte schließen
+1890|Noch nichts kopiert. Um ein Kapitel, eine Titelseite oder einen anderen Abschnitt zu kopieren, tippe in der Kapitelliste daneben auf ⋮ und dann auf „Kopieren“. Er bleibt hier für jedes Buch, bis du ihn löschst.
+1891|„Hinzufügen“ setzt eine Kopie hinter „{0}“, das geöffnete Kapitel, mit Bildern und Formatvorlagen.
+1892|„Hinzufügen“ setzt eine Kopie in dieses Buch, mit Bildern und Formatvorlagen.
+1893|Die Kapitel dieses Buchs auflisten?
+1894|„{0}“ ist ein Inhaltsverzeichnis aus „{1}“. KoLib kann sein Aussehen und seinen Aufbau behalten und darin stattdessen die Kapitel dieses Buchs auflisten, mit Links dorthin. Oder es kommt unverändert hinein, mit Links nur zu Kapiteln, die dieses Buch hat.
+1895|Die Kapitel dieses Buchs auflisten
+1896|Unverändert hinzufügen
+1897|„{0}“ aus den kopierten Abschnitten löschen?
+1898|Er wird nur hier gelöscht. Bücher, denen er hinzugefügt wurde, behalten ihre Kopie.
+1899|Abschnitt ohne Titel
+1900|Aus „{0}“
+1901|Inhaltsverzeichnis
+1902|1 Bild
+1903|{0} Bilder
+1904|„{0}“ aus den kopierten Abschnitten löschen
+1905|Zu diesem Buch hinzufügen
+1906|„{0}“ kopiert. Du findest es unter „Kopiert“ neben „Code“, in diesem Buch oder jedem anderen.
+1907|Das konnte nicht kopiert werden: {0}
+1908|Dieser kopierte Abschnitt konnte nicht gelesen werden.
+1909|Kopiert ({0})
+1910|Kopiert
+1911|Konnte nicht lesen, wie der Kobo Bücher in Kapitel aufteilt ({0}).
+1912|Dieses Kapitel konnte nicht gelesen werden.
+1913|Jeder kommt hinter „{0}“, das geöffnete Kapitel, mit seinen Bildern und Formatvorlagen.
+1914|Jeder kommt mit seinen Bildern und Formatvorlagen hinein.
+@es
+1884|Dar a cada libro las páginas del principio y del final
+1885|Antes del primer libro: {0}.
+1886|Después del último: {0}.
+1887|Si una es una tabla de contenido, enumera los capítulos de cada libro.
+1888|Secciones copiadas
+1889|Cerrar las secciones copiadas
+1890|Todavía no has copiado nada. Para copiar un capítulo, una página de título o cualquier otra sección, toca ⋮ a su lado en la lista de capítulos y luego Copiar. Se queda aquí para cualquier libro hasta que la elimines.
+1891|Añadir pone una copia después de «{0}», el capítulo abierto, con sus imágenes y estilos.
+1892|Añadir pone una copia en este libro, con sus imágenes y estilos.
+1893|¿Enumerar los capítulos de este libro?
+1894|«{0}» es una tabla de contenido de «{1}». KoLib puede conservar su aspecto y su diseño y hacer que enumere los capítulos de este libro, con enlaces a ellos. O puede entrar tal cual, con enlaces solo a los capítulos que tiene este libro.
+1895|Enumerar los capítulos de este libro
+1896|Añadir tal cual
+1897|¿Eliminar «{0}» de las secciones copiadas?
+1898|Solo se elimina de aquí. Los libros a los que se añadió conservan su copia.
+1899|Sección sin título
+1900|De «{0}»
+1901|Tabla de contenido
+1902|1 imagen
+1903|{0} imágenes
+1904|Eliminar «{0}» de las secciones copiadas
+1905|Añadir a este libro
+1906|«{0}» copiada. La encontrarás en Copiadas, junto a Código, en este libro o en cualquier otro.
+1907|No se pudo copiar: {0}
+1908|No se pudo leer esa sección copiada.
+1909|Copiadas ({0})
+1910|Copiadas
+1911|No se pudo leer cómo divide el Kobo los libros en capítulos ({0}).
+1912|No se pudo leer ese capítulo.
+1913|Cada una se añade después de «{0}», el capítulo abierto, con sus imágenes y estilos.
+1914|Cada una se añade con sus imágenes y estilos.
+@it
+1884|Dare a ogni libro le pagine iniziali e finali
+1885|Prima del primo libro: {0}.
+1886|Dopo l’ultimo: {0}.
+1887|Se una è un indice, elenca i capitoli di ciascun libro.
+1888|Sezioni copiate
+1889|Chiudi le sezioni copiate
+1890|Ancora niente di copiato. Per copiare un capitolo, un frontespizio o qualsiasi altra sezione, tocca ⋮ accanto a essa nell’elenco dei capitoli, poi Copia. Resta qui per qualsiasi libro finché non la elimini.
+1891|Aggiungi inserisce una copia dopo «{0}», il capitolo aperto, con le sue immagini e i suoi stili.
+1892|Aggiungi inserisce una copia in questo libro, con le sue immagini e i suoi stili.
+1893|Elencare i capitoli di questo libro?
+1894|«{0}» è un indice di «{1}». KoLib può mantenerne l’aspetto e l’impaginazione e fargli elencare invece i capitoli di questo libro, con i collegamenti. Oppure può entrare così com’è, con collegamenti solo ai capitoli che questo libro ha.
+1895|Elenca i capitoli di questo libro
+1896|Aggiungi così com’è
+1897|Eliminare «{0}» dalle sezioni copiate?
+1898|Viene eliminata solo da qui. I libri a cui è stata aggiunta mantengono la loro copia.
+1899|Sezione senza titolo
+1900|Da «{0}»
+1901|Indice
+1902|1 immagine
+1903|{0} immagini
+1904|Elimina «{0}» dalle sezioni copiate
+1905|Aggiungi a questo libro
+1906|«{0}» copiata. La trovi in Copiate, accanto a Codice, in questo libro o in qualsiasi altro.
+1907|Impossibile copiarla: {0}
+1908|Impossibile leggere la sezione copiata.
+1909|Copiate ({0})
+1910|Copiate
+1911|Impossibile leggere come il Kobo divide i libri in capitoli ({0}).
+1912|Impossibile leggere il capitolo.
+1913|Ognuna viene aggiunta dopo «{0}», il capitolo aperto, con le sue immagini e i suoi stili.
+1914|Ognuna viene aggiunta con le sue immagini e i suoi stili.
+@nl
+1884|Elk boek de pagina’s van het begin en het eind geven
+1885|Voor het eerste boek: {0}.
+1886|Na het laatste: {0}.
+1887|Zit er een inhoudsopgave bij, dan staan daarin de hoofdstukken van elk boek zelf.
+1888|Gekopieerde onderdelen
+1889|Gekopieerde onderdelen sluiten
+1890|Nog niets gekopieerd. Om een hoofdstuk, een titelpagina of een ander onderdeel te kopiëren, tik je in de lijst met hoofdstukken op ⋮ ernaast en dan op Kopiëren. Het blijft hier voor elk boek tot je het verwijdert.
+1891|Toevoegen zet een kopie na ‘{0}’, het geopende hoofdstuk, met de afbeeldingen en opmaak.
+1892|Toevoegen zet een kopie in dit boek, met de afbeeldingen en opmaak.
+1893|De hoofdstukken van dit boek vermelden?
+1894|‘{0}’ is een inhoudsopgave uit ‘{1}’. KoLib kan het uiterlijk en de opbouw ervan houden en er in plaats daarvan de hoofdstukken van dit boek in zetten, met links ernaartoe. Of het gaat erin zoals het is, met alleen links naar hoofdstukken die dit boek heeft.
+1895|De hoofdstukken van dit boek vermelden
+1896|Toevoegen zoals het is
+1897|‘{0}’ uit de gekopieerde onderdelen verwijderen?
+1898|Het wordt alleen hier verwijderd. Boeken waaraan het is toegevoegd, houden hun kopie.
+1899|Naamloos onderdeel
+1900|Uit ‘{0}’
+1901|Inhoudsopgave
+1902|1 afbeelding
+1903|{0} afbeeldingen
+1904|‘{0}’ uit de gekopieerde onderdelen verwijderen
+1905|Aan dit boek toevoegen
+1906|‘{0}’ gekopieerd. Je vindt het bij Gekopieerd, naast Code, in dit boek of een ander.
+1907|Dat kon niet worden gekopieerd: {0}
+1908|Dat gekopieerde onderdeel kon niet worden gelezen.
+1909|Gekopieerd ({0})
+1910|Gekopieerd
+1911|Kon niet lezen hoe de Kobo boeken in hoofdstukken verdeelt ({0}).
+1912|Dat hoofdstuk kon niet worden gelezen.
+1913|Elk komt na ‘{0}’, het geopende hoofdstuk, met de afbeeldingen en opmaak.
+1914|Elk komt erin met de afbeeldingen en opmaak.
+@pt
+1884|Dar a cada livro as páginas do começo e do fim
+1885|Antes do primeiro livro: {0}.
+1886|Depois do último: {0}.
+1887|Se uma delas for um sumário, ela lista os capítulos de cada livro.
+1888|Seções copiadas
+1889|Fechar as seções copiadas
+1890|Nada copiado ainda. Para copiar um capítulo, uma página de rosto ou qualquer outra seção, toque em ⋮ ao lado dela na lista de capítulos e depois em Copiar. Ela fica aqui para qualquer livro até você excluí-la.
+1891|Adicionar coloca uma cópia depois de “{0}”, o capítulo aberto, com as imagens e os estilos dela.
+1892|Adicionar coloca uma cópia neste livro, com as imagens e os estilos dela.
+1893|Listar os capítulos deste livro?
+1894|“{0}” é um sumário de “{1}”. O KoLib pode manter a aparência e o layout dele e fazer com que ele liste os capítulos deste livro, com links para eles. Ou ele pode entrar como está, com links só para os capítulos que este livro tem.
+1895|Listar os capítulos deste livro
+1896|Adicionar como está
+1897|Excluir “{0}” das seções copiadas?
+1898|Ela só é excluída daqui. Os livros aos quais foi adicionada ficam com a cópia deles.
+1899|Seção sem título
+1900|De “{0}”
+1901|Sumário
+1902|1 imagem
+1903|{0} imagens
+1904|Excluir “{0}” das seções copiadas
+1905|Adicionar a este livro
+1906|“{0}” copiada. Ela fica em Copiadas, ao lado de Código, neste livro ou em qualquer outro.
+1907|Não foi possível copiar: {0}
+1908|Não foi possível ler essa seção copiada.
+1909|Copiadas ({0})
+1910|Copiadas
+1911|Não foi possível ler como o Kobo divide os livros em capítulos ({0}).
+1912|Não foi possível ler esse capítulo.
+1913|Cada uma é adicionada depois de “{0}”, o capítulo aberto, com as imagens e os estilos dela.
+1914|Cada uma é adicionada com as imagens e os estilos dela.
+@ru
+1884|Добавить в каждую книгу начальные и конечные страницы
+1885|Перед первой книгой: {0}.
+1886|После последней: {0}.
+1887|Если среди них есть оглавление, в нём будут главы каждой книги.
+1888|Скопированные разделы
+1889|Закрыть скопированные разделы
+1890|Пока ничего не скопировано. Чтобы скопировать главу, титульную страницу или другой раздел, нажмите ⋮ рядом с ним в списке глав, затем «Копировать». Он останется здесь для любой книги, пока вы его не удалите.
+1891|«Добавить» вставляет копию после «{0}» — открытой главы — вместе с картинками и стилями.
+1892|«Добавить» вставляет копию в эту книгу вместе с картинками и стилями.
+1893|Перечислить главы этой книги?
+1894|«{0}» — оглавление из книги «{1}». KoLib может сохранить его вид и вёрстку и перечислить в нём главы этой книги со ссылками на них. Или добавить его как есть, оставив ссылки только на главы, которые есть в этой книге.
+1895|Перечислить главы этой книги
+1896|Добавить как есть
+1897|Удалить «{0}» из скопированных разделов?
+1898|Он удалится только отсюда. Книги, в которые его добавили, сохранят свою копию.
+1899|Раздел без названия
+1900|Из «{0}»
+1901|Оглавление
+1902|1 картинка
+1903|{0} {0:картинка|картинки|картинок}
+1904|Удалить «{0}» из скопированных разделов
+1905|Добавить в эту книгу
+1906|«{0}» скопирован. Он в разделе «Скопировано» рядом с «Код» — в этой книге и в любой другой.
+1907|Не удалось скопировать: {0}
+1908|Не удалось прочитать скопированный раздел.
+1909|Скопировано ({0})
+1910|Скопировано
+1911|Не удалось прочитать, как Kobo делит книги на главы ({0}).
+1912|Не удалось прочитать эту главу.
+1913|Каждый добавляется после «{0}» — открытой главы — вместе с картинками и стилями.
+1914|Каждый добавляется вместе с картинками и стилями.
+@ja
+1884|各本に最初と最後のページを入れる
+1885|最初の本の前：{0}。
+1886|最後の本の後：{0}。
+1887|その中に目次があれば、それぞれの本の章が並びます。
+1888|コピーしたセクション
+1889|コピーしたセクションを閉じる
+1890|まだ何もコピーしていません。章や扉ページなどのセクションをコピーするには、章の一覧でその横の ⋮ をタップし、「コピー」をタップします。削除するまで、どの本でもここに残ります。
+1891|「追加」すると、開いている章「{0}」の後に、画像やスタイルごとコピーが入ります。
+1892|「追加」すると、この本に画像やスタイルごとコピーが入ります。
+1893|この本の章を並べますか？
+1894|「{0}」は「{1}」の目次です。KoLib は見た目とレイアウトをそのままに、この本の章をリンク付きで並べ直せます。そのまま追加することもでき、その場合はこの本にある章へのリンクだけが残ります。
+1895|この本の章を並べる
+1896|そのまま追加
+1897|「{0}」をコピーしたセクションから削除しますか？
+1898|ここから削除されるだけです。追加した本のコピーはそのまま残ります。
+1899|タイトルのないセクション
+1900|「{0}」から
+1901|目次
+1902|画像 1 枚
+1903|画像 {0} 枚
+1904|「{0}」をコピーしたセクションから削除
+1905|この本に追加
+1906|「{0}」をコピーしました。「コード」の隣の「コピー済み」から、この本でもほかの本でも使えます。
+1907|コピーできませんでした：{0}
+1908|そのコピーしたセクションを読み込めませんでした。
+1909|コピー済み ({0})
+1910|コピー済み
+1911|Kobo が本を章に分ける方法を読み取れませんでした ({0})。
+1912|その章を読み込めませんでした。
+1913|開いている章「{0}」の後に、画像やスタイルごと追加されます。
+1914|画像やスタイルごと追加されます。

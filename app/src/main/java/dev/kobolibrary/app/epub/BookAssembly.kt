@@ -200,22 +200,64 @@ hr::after { content: "* * *"; }
     // ---- splitting ----------------------------------------------------------------------------------
 
     /** A chapter of a book, for choosing where it splits. */
-    data class Page(val index: Int, val path: String, val title: String, val linear: Boolean, val words: Int, val level: Int?)
+    data class Page(
+        val index: Int,
+        val path: String,
+        val title: String,
+        val linear: Boolean,
+        val words: Int,
+        val level: Int?,
+        /** It's the book's cover page: little more than its cover picture. */
+        val cover: Boolean = false,
+    )
 
     /**
      * The pages of a book in reading order, each with a title (from the contents where it has one) and
      * the depth of that contents entry: top-level entries (Book One, Part Two) are where omnibuses split.
      */
-    fun pages(source: File): List<Page> = EpubFile.open(source).use { epub ->
-        // Counted exactly as split counts them, so a page's index is where the book is cut.
-        val book = readBook(epub)
+    fun pages(source: File): List<Page> = EpubFile.open(source).use { epub -> pagesOf(readBook(epub), epub.findCover()?.path) }
+
+    /** [book]'s pages, counted exactly as split counts them, so a page's index is where the book is cut. */
+    private fun pagesOf(book: SourceBook, coverPath: String?): List<Page> {
         val levels = HashMap<String, Int>()
         for ((node, level) in Contents.flatten(book.toc)) if (node.linked && node.fragment == null) levels.putIfAbsent(node.path, level)
         for ((node, level) in Contents.flatten(book.toc)) if (node.linked) levels.putIfAbsent(node.path, level)
-        book.spine.filter { it.path in book.files }.mapIndexed { i, s ->
+        return book.spine.filter { it.path in book.files }.mapIndexed { i, s ->
             val words = if (book.files.getValue(s.path).isContent) runCatching { EpubText.countWords(EpubText.plainText(book.text(s.path))) }.getOrDefault(0) else 0
-            Page(i, s.path, book.titleOf(s.path), s.linear, words, levels[s.path])
+            val cover = i < 3 && coverPath != null && coverOfOpening(book, s.path) == coverPath
+            Page(i, s.path, book.titleOf(s.path), s.linear, words, levels[s.path], cover)
         }
+    }
+
+    /**
+     * The pages of an omnibus that aren't any one of its books' but go with all of them, as indexes into its pages:
+     * [front], those before the first book starts (a title page, a copyright notice, a contents page, but not the
+     * cover), and [back], those after the last one ends (about the author, say).
+     */
+    data class Shared(val front: List<Int>, val back: List<Int>) {
+        val isEmpty: Boolean get() = front.isEmpty() && back.isEmpty()
+    }
+
+    /**
+     * The pages to copy into every book when [pages] are cut at [cuts]: from the contents, where a book is a top-level
+     * entry with chapters under it, the ones before the first book and after the last.
+     */
+    fun sharedPages(pages: List<Page>, cuts: List<Int>): Shared {
+        val starts = (listOf(0) + cuts.filter { it in 1 until pages.size }).distinct().sorted()
+        if (starts.size < 2) return Shared(emptyList(), emptyList())
+        val tops = pages.filter { it.level == 0 }
+        val books = tops.filterIndexed { i, p ->
+            val next = tops.getOrNull(i + 1)?.index ?: pages.size
+            (p.index + 1 until next).any { (pages.getOrNull(it)?.level ?: 0) >= 1 }
+        }
+        val firstBook = books.firstOrNull()?.index?.takeIf { it < starts[1] } ?: 0
+        val front = (0 until firstBook).filter { pages[it].linear && !pages[it].cover }
+        val lastBook = books.lastOrNull()?.index?.takeIf { it >= starts.last() }
+        val back = if (lastBook == null) emptyList() else {
+            val end = (lastBook + 1 until pages.size).firstOrNull { pages[it].level == 0 } ?: pages.size
+            (end until pages.size).filter { pages[it].linear }
+        }
+        return Shared(front, back)
     }
 
     /**
@@ -279,7 +321,7 @@ hr::after { content: "* * *"; }
      * them to [targets] with [metas]. Each book takes its pages, the pictures, styles and fonts they
      * use, and any pages they link to elsewhere in the book (notes, say) as pages read only by link.
      */
-    fun split(source: File, cuts: List<Int>, metas: List<BookMetadata>, targets: List<File>) {
+    fun split(source: File, cuts: List<Int>, metas: List<BookMetadata>, targets: List<File>, shareFrontAndBack: Boolean = false) {
         EpubFile.open(source).use { epub ->
             val book = readBook(epub)
             val spinePages = book.spine.filter { it.path in book.files }
@@ -290,9 +332,16 @@ hr::after { content: "* * *"; }
             // Pages read only by link (notes, mostly) go with every book that links to them.
             val byLinkOnly = spinePages.filter { !it.linear }.map { it.path }.toSet()
             val coverPath = epub.findCover()?.path
+            // The pages that go with every book (a title page, a copyright notice, a contents page), if asked for.
+            val shared = if (shareFrontAndBack) sharedPages(pagesOf(book, coverPath), starts.drop(1)) else Shared(emptyList(), emptyList())
+            val sharedPaths = (shared.front + shared.back).map { spinePages[it].path }.toSet()
+            val levels = ContentsPage.levelsOf(book.toc)
             for ((k, start) in starts.withIndex()) {
                 val end = starts.getOrNull(k + 1) ?: spinePages.size
-                val pages = spinePages.subList(start, end)
+                val own = spinePages.subList(start, end)
+                val front = if (k > 0) shared.front.map { spinePages[it] } else emptyList()
+                val back = if (k < starts.size - 1) shared.back.map { spinePages[it] } else emptyList()
+                val pages = (front + own + back).distinctBy { it.path }
                 val docs = pages.map { it.path }.toMutableList()
                 val linkedOut = LinkedHashSet<String>()
                 val needed = LinkedHashSet<String>()
@@ -315,18 +364,31 @@ hr::after { content: "* * *"; }
                 }
                 // The first book keeps the cover.
                 if (k == 0 && coverPath != null && coverPath in book.files) needed += coverPath
-                val partCover = if (k == 0) coverPath else coverOfOpening(book, pages.first().path)
-                val parts = needed.filter { it in book.files }.map { path ->
-                    val item = book.files.getValue(path)
-                    val props = item.properties - "nav" - "cover-image" + (if (path == partCover) setOf("cover-image") else emptySet())
-                    Part(path, item.mediaType, book.bytes(path), props)
-                }
+                val partCover = if (k == 0) coverPath else coverOfOpening(book, own.first().path)
                 val spine = pages.map { SpineEntry(it.path, it.linear) } + linkedOut.map { SpineEntry(it, linear = false) }
                 // The contents entries for these pages, lifted to the top.
                 val flat = Contents.flatten(book.toc).filter { (n, _) -> n.path in docs }
                 val minLevel = flat.minOfOrNull { it.second } ?: 0
                 var toc = Contents.nest(flat.map { (n, level) -> n.copy(children = emptyList()) to (level - minLevel) })
                 if (toc.isEmpty()) toc = pages.filter { it.linear }.map { TocNode(book.titleOf(it.path), it.path, null) }
+                // The pages every book has: a contents page lists this book's chapters, in its own style; links to pages
+                // in the other books are taken out (their words stay).
+                val inBook = needed + spine.map { it.path }
+                val rewritten = HashMap<String, ByteArray>()
+                for (path in sharedPaths) {
+                    if (path !in docs || book.files[path]?.isContent != true) continue
+                    var text = book.text(path)
+                    if (ContentsPage.isContents(text, path, book.titleOf(path))) {
+                        ContentsPage.relist(text, path, ContentsPage.entriesOf(toc, except = path), levels)?.let { text = it }
+                    }
+                    text = ContentsPage.unlinkMissing(text, path) { it in inBook }
+                    rewritten[path] = text.toByteArray(Charsets.UTF_8)
+                }
+                val parts = needed.filter { it in book.files }.map { path ->
+                    val item = book.files.getValue(path)
+                    val props = item.properties - "nav" - "cover-image" + (if (path == partCover) setOf("cover-image") else emptySet())
+                    Part(path, item.mediaType, rewritten[path] ?: book.bytes(path), props)
+                }
                 write(targets[k], metas[k], parts, spine, toc)
             }
         }

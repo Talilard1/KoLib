@@ -285,12 +285,15 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
     /** The pages of a book, for choosing where to split it. */
     suspend fun pagesOf(id: String): List<BookAssembly.Page> = withContext(Dispatchers.IO) { BookAssembly.pages(epubFile(id)) }
 
-    /** Books cut from [id] at [cuts] (page indexes where each new one starts), one for each of [metas]. The book itself stays as it is. */
-    suspend fun splitBook(id: String, cuts: List<Int>, metas: List<BookMetadata>): List<LibraryBook> {
+    /**
+     * Books cut from [id] at [cuts] (page indexes where each new one starts), one for each of [metas]. The book itself
+     * stays as it is. [shareFrontAndBack]: the pages before the first book and after the last go into every one.
+     */
+    suspend fun splitBook(id: String, cuts: List<Int>, metas: List<BookMetadata>, shareFrontAndBack: Boolean = false): List<LibraryBook> {
         val source = book(id) ?: throw IOException(tr("That book is no longer in the library."))
         val files = metas.indices.map { scratch("part-${it + 1}") }
         try {
-            withContext(Dispatchers.IO) { BookAssembly.split(epubFile(id), cuts, metas, files) }
+            withContext(Dispatchers.IO) { BookAssembly.split(epubFile(id), cuts, metas, files, shareFrontAndBack) }
             return files.map { takeMade(it, source.collections) }.also { AppLog.i("Library", "Split '${source.title}' into ${it.size} books.") }
         } finally {
             files.forEach { it.delete() }

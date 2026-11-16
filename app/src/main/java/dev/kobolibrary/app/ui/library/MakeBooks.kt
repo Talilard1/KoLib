@@ -276,7 +276,7 @@ private fun CoverChoice(selected: Boolean, text: String, onClick: () -> Unit) {
 fun SplitBookDialog(
     book: LibraryBook,
     loadPages: suspend () -> List<BookAssembly.Page>,
-    onSplit: (cuts: List<Int>, titles: List<String>, series: String?) -> Unit,
+    onSplit: (cuts: List<Int>, titles: List<String>, series: String?, shareFrontAndBack: Boolean) -> Unit,
     onDismiss: () -> Unit,
     /** For previews: the pages, already loaded. */
     initialPages: List<BookAssembly.Page>? = null,
@@ -291,6 +291,7 @@ fun SplitBookDialog(
     val typed = remember { mutableStateMapOf<Int, String>() }
     var numbered by remember { mutableStateOf(true) }
     var series by remember { mutableStateOf(book.title) }
+    var share by remember { mutableStateOf(true) }
     LaunchedEffect(book.id) {
         if (pages != null) return@LaunchedEffect
         try {
@@ -310,6 +311,8 @@ fun SplitBookDialog(
     val starts = listOf(0) + sortedCuts
     val defaults = remember(list, sortedCuts) { list?.let { BookAssembly.partTitles(it, sortedCuts, book.title) }.orEmpty() }
     fun titleOf(k: Int) = typed[starts[k]] ?: defaults.getOrElse(k) { tr("{0} (part {1})", book.title, k + 1) }
+    // The pages before the first book and after the last, which can go into every one.
+    val shared = remember(list, sortedCuts) { list?.let { BookAssembly.sharedPages(it, sortedCuts) } ?: BookAssembly.Shared(emptyList(), emptyList()) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -401,6 +404,30 @@ fun SplitBookDialog(
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
+                    if (!shared.isEmpty) {
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .toggleable(value = share, role = Role.Switch, onValueChange = { share = it })
+                                .padding(vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Column(Modifier.weight(1f)) {
+                                Text(tr("Give every book the opening and closing pages"), style = MaterialTheme.typography.bodyLarge)
+                                Text(
+                                    listOfNotNull(
+                                        shared.front.takeIf { it.isNotEmpty() }?.let { f -> tr("Before the first book: {0}.", f.joinToString(", ") { list[it].title }) },
+                                        shared.back.takeIf { it.isNotEmpty() }?.let { b -> tr("After the last: {0}.", b.joinToString(", ") { list[it].title }) },
+                                        tr("If one is a contents page, it lists each book's own chapters."),
+                                    ).joinToString(" "),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                            Spacer(Modifier.width(8.dp))
+                            Switch(checked = share, onCheckedChange = null)
+                        }
+                    }
                     Spacer(Modifier.height(4.dp))
                     starts.forEachIndexed { k, start ->
                         val end = starts.getOrNull(k + 1) ?: list.size
@@ -432,7 +459,7 @@ fun SplitBookDialog(
                 problem != null || list == null -> TextButton(onClick = onDismiss) { Text(tr("Close")) }
                 step == 0 -> TextButton(onClick = { step = 1 }, enabled = sortedCuts.isNotEmpty()) { Text(tr("Next")) }
                 else -> TextButton(
-                    onClick = { onSplit(sortedCuts, starts.indices.map { titleOf(it) }, series.trim().takeIf { numbered && it.isNotEmpty() }) },
+                    onClick = { onSplit(sortedCuts, starts.indices.map { titleOf(it) }, series.trim().takeIf { numbered && it.isNotEmpty() }, share && !shared.isEmpty) },
                     enabled = starts.indices.all { titleOf(it).isNotBlank() },
                 ) { Text(tr("Split")) }
             }

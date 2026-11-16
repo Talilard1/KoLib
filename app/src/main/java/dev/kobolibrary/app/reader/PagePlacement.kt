@@ -9,7 +9,7 @@ enum class PageKind {
     TEXT,
     /** The book's cover, or the cover of a book inside it: in the middle of the screen. */
     COVER,
-    /** The title page of a book inside a book of several: in the middle of the screen. */
+    /** A book's title page, or the title page of a book inside a book of several: in the middle of the screen. */
     TITLE,
     /** A dedication: on the left-hand page. */
     DEDICATION,
@@ -138,6 +138,26 @@ object PagePlacement {
         )
     }
 
+    /** How a book's title page is named: in the contents, its file's name, or the book's own marks (epub:type and so on). */
+    private val titleMark = Regex("""(?:^|[^a-z])(?:title[ _-]?page|half[ _-]?title(?:[ _-]?page)?|fulltitle)(?:[^a-z]|$)""")
+    private val titleFile = Regex("""^(?:.*[_-])?(?:title|titlepage|tp)(?:[_-].*)?\.x?html?$""")
+    private val titleHeading = Regex("""^\s*(?:title|title page|half title)\s*$""", RegexOption.IGNORE_CASE)
+
+    /**
+     * The page is the book's title page: named as one in the contents (“Title Page”), by its file
+     * (“titlepage.xhtml”, “…_tp_r1.xhtml”) or by the book's own marks (epub:type="titlepage"); or a short page
+     * whose first line is the book's title, [bookTitle].
+     */
+    fun isTitlePage(f: Facts, path: String, bookTitle: String?): Boolean {
+        if (f.words > SHORT_WORDS) return false
+        if (titleMark.containsMatchIn(f.marks) || titleHeading.matches(f.title)) return true
+        if (titleFile.matches(path.substringAfterLast('/').lowercase())) return true
+        val wanted = bookTitle?.let { normalTitle(it) }?.takeIf { it.length >= 3 } ?: return false
+        return f.words in 1..60 && normalTitle(f.firstLine).startsWith(wanted)
+    }
+
+    private fun normalTitle(s: String) = s.lowercase().replace(Regex("""[^\p{L}\p{N}]+"""), " ").trim()
+
     /** A picture [w] by [h] pixels is an ornament (a divider, a flourish): small, or long and low. */
     fun isOrnament(w: Int, h: Int) = w > 0 && h > 0 && ((w < 700 && h < 400) || (w >= 3 * h && h < 500))
 
@@ -146,6 +166,8 @@ object PagePlacement {
      * page, or the first of a book inside it). [titlePlace]: where the title page of a book inside it is.
      */
     fun kind(f: Facts, coverPlace: Boolean, titlePlace: Boolean): PageKind {
+        // A title page that's only a picture (the title set as an image): the title page, in the middle.
+        if (titlePlace && !coverPlace && f.words == 0 && f.pictures >= 1) return PageKind.TITLE
         // Pictures with next to no words; but only a mark if they're small and there are words (a title page's).
         val mark = f.words > 0 && f.biggestPicture in 1 until MARK_SIZE
         val picture = f.pictures >= 1 && f.words <= PICTURE_WORDS && !mark

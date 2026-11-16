@@ -41,6 +41,11 @@ class KoboLibraryApp : Application() {
     /** Makes scanned books into text, in the background. */
     val ocr: dev.kobolibrary.app.ocr.OcrManager by lazy { dev.kobolibrary.app.ocr.OcrManager(this) }
 
+    /** Sections copied out of books in the text editor, to put into others; kept until deleted. */
+    val copiedSections: dev.kobolibrary.app.library.CopiedSections by lazy {
+        dev.kobolibrary.app.library.CopiedSections(java.io.File(filesDir, "copied-sections"))
+    }
+
     // Before Android 13, the language chosen in KoLib is applied here (and to each screen).
     override fun attachBaseContext(base: android.content.Context) {
         super.attachBaseContext(AppLanguage.wrap(base))

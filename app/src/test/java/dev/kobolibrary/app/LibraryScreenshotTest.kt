@@ -329,7 +329,7 @@ class LibraryScreenshotTest {
     private fun historiesPages(): List<BookAssembly.Page> {
         val muses = listOf("Clio", "Euterpe", "Thalia", "Melpomene", "Terpsichore", "Erato", "Polymnia", "Urania", "Calliope")
         val pages = ArrayList<BookAssembly.Page>()
-        fun add(title: String, words: Int, level: Int?) { pages += BookAssembly.Page(pages.size, "p${pages.size}", title, true, words, level) }
+        fun add(title: String, words: Int, level: Int?) { pages += BookAssembly.Page(pages.size, "p${pages.size}", title, true, words, level, cover = title == "Cover") }
         add("Cover", 2, 0)
         add("Title Page", 24, 0)
         add("Introduction", 5200, 0)
@@ -346,7 +346,7 @@ class LibraryScreenshotTest {
     fun splitWhere() {
         val (lib, _) = library()
         shot("62_split_where") {
-            SplitBookDialog(lib.titled("The Histories"), loadPages = { historiesPages() }, onSplit = { _, _, _ -> }, onDismiss = {}, initialPages = historiesPages())
+            SplitBookDialog(lib.titled("The Histories"), loadPages = { historiesPages() }, onSplit = { _, _, _, _ -> }, onDismiss = {}, initialPages = historiesPages())
         }
     }
 
@@ -355,7 +355,7 @@ class LibraryScreenshotTest {
     fun splitNames() {
         val (lib, _) = library()
         shot("63_split_names") {
-            SplitBookDialog(lib.titled("The Histories"), loadPages = { historiesPages() }, onSplit = { _, _, _ -> }, onDismiss = {}, initialPages = historiesPages(), initialStep = 1)
+            SplitBookDialog(lib.titled("The Histories"), loadPages = { historiesPages() }, onSplit = { _, _, _, _ -> }, onDismiss = {}, initialPages = historiesPages(), initialStep = 1)
         }
     }
 

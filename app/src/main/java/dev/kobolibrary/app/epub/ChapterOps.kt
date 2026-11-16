@@ -778,6 +778,189 @@ object ChapterOps {
         return Result(tr("Added “{0}”", name), changes, newPath)
     }
 
+    // ---- copying a page into another book ---------------------------------------------------------
+
+    /** A file a copied page needs (a picture, a style sheet, a font), by its path in the book it came from. */
+    class CopiedFile(val path: String, val mediaType: String, val bytes: ByteArray)
+
+    /**
+     * A page copied out of a book with all it needs to go into another: its [text], the [files] it uses (pictures,
+     * style sheets, and the fonts and pictures those use), and, for a contents page, how deep each entry was in its
+     * book's contents ([levels], by [ContentsPage.key]), so it can be made to list another book's chapters alike.
+     */
+    class CopiedPage(
+        val title: String,
+        /** Where it was in its book. */
+        val path: String,
+        val text: String,
+        val files: List<CopiedFile>,
+        val levels: Map<String, Int>,
+        val isContents: Boolean,
+    )
+
+    private val usedAttr = Regex("""\s(?:src|href|xlink:href|poster|data)\s*=\s*(["'])(.*?)\1""", RegexOption.IGNORE_CASE)
+    private val cssUrl = Regex("""url\(\s*(['"]?)([^'")]+?)\1\s*\)|@import\s+(['"])([^'"]+)\3""", RegexOption.IGNORE_CASE)
+    private val externalRef = Regex("^[a-zA-Z][a-zA-Z0-9+.-]*:")
+    private fun isPageType(type: String) = type == "application/xhtml+xml" || type == "text/html" || type == "application/x-dtbncx+xml"
+
+    /** The files [text] (at [path]) uses or links to, as paths in the book; [css] for a style sheet. */
+    private fun referencesIn(text: String, path: String, css: Boolean): List<String> {
+        val dir = path.substringBeforeLast('/', "")
+        val raw = ArrayList<String>()
+        if (!css) usedAttr.findAll(text).forEach { raw += it.groupValues[2] }
+        cssUrl.findAll(text).forEach { m -> raw += m.groupValues[2].ifEmpty { m.groupValues[4] } }
+        return raw.asSequence().map { Xml.unescape(it.trim()) }
+            .filter { it.isNotEmpty() && !it.startsWith("#") && !it.startsWith("//") && !externalRef.containsMatchIn(it) }
+            .map { EpubFile.resolvePath(dir, it) }.filter { it != path }.distinct().toList()
+    }
+
+    /** The page at [path] copied, with what it needs, to put into another book with [paste]. */
+    fun copyPage(files: BookFiles, structure: BookStructure, path: String): CopiedPage {
+        val chapter = structure.chapterAt(path) ?: throw OpError(tr("That chapter is no longer in the book."))
+        val text = files.text(path) ?: throw OpError(tr("That chapter couldn't be read."))
+        val types = structure.opf.items.associate { structure.pathOf(it) to it.mediaType }
+        val needed = LinkedHashMap<String, String>()
+        val queue = ArrayDeque(referencesIn(text, path, css = false))
+        while (queue.isNotEmpty()) {
+            val p = queue.removeFirst()
+            val type = types[p] ?: continue
+            if (p in needed || isPageType(type)) continue
+            needed[p] = type
+            if (type == "text/css") files.text(p)?.let { css -> queue += referencesIn(css, p, css = true) }
+        }
+        val copied = needed.mapNotNull { (p, type) -> files.bytes(p)?.let { CopiedFile(p, type, it) } }
+        val contents = ContentsPage.isContents(text, path, chapter.title)
+        return CopiedPage(chapter.title, path, text, copied, if (contents) ContentsPage.levelsOf(structure.toc) else emptyMap(), contents)
+    }
+
+    /** The folder a file of [mediaType] goes in: where most of the book's files of its kind are, else one for them. */
+    private fun folderFor(structure: BookStructure, mediaType: String): String {
+        fun kind(t: String) = when {
+            t.startsWith("image/") -> "images"
+            t == "text/css" -> "styles"
+            t.startsWith("font/") || t.contains("font") || t.contains("opentype") -> "fonts"
+            else -> "misc"
+        }
+        val wanted = kind(mediaType)
+        return structure.opf.items.filter { kind(it.mediaType) == wanted }.map { structure.pathOf(it).substringBeforeLast('/', "") }
+            .groupingBy { it }.eachCount().maxByOrNull { it.value }?.key
+            ?: listOf(structure.opfDir, wanted).filter { it.isNotEmpty() }.joinToString("/")
+    }
+
+    /** [name] in [folder], or "name-2" and so on, not taken in the book nor in [taken]. */
+    private fun freePath(files: BookFiles, folder: String, name: String, taken: Set<String>): String {
+        val base = name.substringBeforeLast('.').ifEmpty { "file" }
+        val ext = name.substringAfterLast('.', "").let { if (it.isEmpty()) "" else ".$it" }
+        var n = 1
+        fun candidate() = (if (folder.isEmpty()) "" else "$folder/") + (if (n == 1) "$base$ext" else "$base-$n$ext")
+        while (files.has(candidate()) || candidate() in taken) n++
+        return candidate()
+    }
+
+    /** [css] (at [from]) with its url()s and @imports written for where it now is, [to], with [moved] files' new paths. */
+    private fun rewriteCss(css: String, from: String, to: String, moved: Map<String, String>): String {
+        val dir = from.substringBeforeLast('/', "")
+        return cssUrl.replace(css) { m ->
+            val raw = m.groupValues[2].ifEmpty { m.groupValues[4] }
+            val value = raw.trim()
+            if (value.isEmpty() || value.startsWith("#") || value.startsWith("//") || externalRef.containsMatchIn(value)) return@replace m.value
+            val target = EpubFile.resolvePath(dir, value)
+            val href = Contents.encodeHref(EpubFile.relativeHref(to, moved[target] ?: target))
+            m.value.replace(raw, href)
+        }
+    }
+
+    /**
+     * [page], copied from another book, put into this one after [afterPath] (or after the last chapter read through):
+     * with the pictures, style sheets and fonts it uses (one the book has already, the same, is used as it is), its
+     * links written for where it is now, and its own entry in the contents. Links to pages this book hasn't got are
+     * taken out (their words stay). A contents page can instead be made to list this book's chapters, in its own style
+     * ([relist]).
+     */
+    fun paste(files: BookFiles, structure: BookStructure, afterPath: String?, page: CopiedPage, relist: Boolean = false): Result {
+        val opf = structure.opf
+        val manifest = opf.manifestElement ?: throw OpError(tr("The book has no list of files."))
+        val spineEl = opf.spineElement ?: throw OpError(tr("The book has no reading order."))
+        val after = afterPath?.let { structure.chapterAt(it) } ?: structure.chapters.lastOrNull { it.linear } ?: structure.chapters.lastOrNull()
+        val dir = after?.path?.substringBeforeLast('/', "") ?: (if (structure.opfDir.isEmpty()) "text" else "${structure.opfDir}/text")
+        val taken = HashSet<String>()
+        val newPath = freePath(files, dir, page.path.substringAfterLast('/').ifEmpty { "page.xhtml" }, taken).also { taken += it }
+
+        // Where its files go: one the book has already, the same, is used as it is.
+        val moved = HashMap<String, String>()
+        moved[page.path] = newPath
+        val added = ArrayList<CopiedFile>()
+        for (f in page.files) {
+            val folder = folderFor(structure, f.mediaType)
+            val name = f.path.substringAfterLast('/')
+            val same = listOf(f.path, (if (folder.isEmpty()) "" else "$folder/") + name)
+                .firstOrNull { p -> files.bytes(p)?.contentEquals(f.bytes) == true }
+            if (same != null) {
+                moved[f.path] = same
+                continue
+            }
+            val target = freePath(files, folder, name, taken)
+            taken += target
+            moved[f.path] = target
+            added += f
+        }
+        val changes = LinkedHashMap<String, ByteArray?>()
+        for (f in added) {
+            val target = moved.getValue(f.path)
+            changes[target] = if (f.mediaType == "text/css") bytes(rewriteCss(EpubFile.decodeText(f.bytes), f.path, target, moved)) else f.bytes
+        }
+
+        // The page, its links written for where it is now (links to other pages still go where they went).
+        var text = rewriteLinks(page.text, page.path, writeFrom = newPath) { p, fragment -> (moved[p] ?: p) to fragment }
+        text = rewriteCss(text, page.path, newPath, moved)
+
+        // Its entry in the contents: after the chapter it follows, beside it.
+        val node = TocNode(page.title.ifBlank { newPath.substringAfterLast('/').substringBeforeLast('.') }, newPath, null)
+        val flat = Contents.flatten(structure.toc).toMutableList()
+        val last = after?.let { a -> flat.indexOfLast { it.first.path == a.path } } ?: -1
+        if (last >= 0) {
+            flat.add(last + 1, node to flat.filter { it.first.path == after!!.path }.minOf { it.second })
+        } else {
+            val order = structure.chapters.map { it.path }.toMutableList()
+            order.add(after?.let { order.indexOf(it.path) + 1 } ?: order.size, newPath)
+            insertInOrder(structure, flat, node, order)
+        }
+        val toc = Contents.nest(flat)
+        if (relist) text = ContentsPage.relist(text, newPath, ContentsPage.entriesOf(toc, except = newPath), page.levels) ?: text
+        val inBook = files.names().toSet()
+        text = ContentsPage.unlinkMissing(text, newPath) { p -> p in inBook || p in changes || p == newPath }
+        changes[newPath] = bytes(text)
+
+        // The package file: the page and its files listed, and the page in the reading order after [after].
+        val oe = TextEdits(structure.opfText)
+        val indent = opf.indentOf(manifest) ?: "    "
+        val itemName = manifest.prefix?.let { "$it:item" } ?: "item"
+        val afterItem = after?.let { opf.item(it.id) }
+        val pageId = uniqueId(opf, newPath.substringAfterLast('/').substringBeforeLast('.'))
+        val props = if (opf.isEpub3 && Regex("""<(?:\w+:)?svg\b""").containsMatchIn(text)) " properties=\"svg\"" else ""
+        val listed = StringBuilder()
+        listed.append("\n$indent<$itemName id=\"$pageId\" href=\"${Xml.escapeAttr(Contents.encodeHref(EpubFile.relativeHref(structure.opfPath, newPath)))}\" media-type=\"application/xhtml+xml\"$props/>")
+        val ids = HashSet<String>().apply { add(pageId) }
+        for (f in added) {
+            var id = uniqueId(opf, "kl-" + moved.getValue(f.path).substringAfterLast('/').substringBeforeLast('.'))
+            var n = 2
+            val start = id
+            while (id in ids) id = "$start-${n++}"
+            ids += id
+            listed.append("\n$indent<$itemName id=\"$id\" href=\"${Xml.escapeAttr(Contents.encodeHref(EpubFile.relativeHref(structure.opfPath, moved.getValue(f.path))))}\" media-type=\"${Xml.escapeAttr(f.mediaType)}\"/>")
+        }
+        oe.insert(afterItem?.element?.end ?: manifest.elements().lastOrNull()?.end ?: manifest.startTagEnd, listed.toString())
+        val afterRef = after?.let { spineRef(opf, it.id) }
+        val refName = afterRef?.element?.name ?: spineEl.prefix?.let { "$it:itemref" } ?: "itemref"
+        oe.insert(
+            afterRef?.element?.end ?: spineEl.elements().lastOrNull()?.end ?: spineEl.startTagEnd,
+            "\n${opf.indentOf(spineEl) ?: "    "}<$refName idref=\"$pageId\"/>",
+        )
+        changes[structure.opfPath] = bytes(oe.apply())
+        changes.putAll(Contents.write(files, structure, toc, changes))
+        return Result(tr("Added “{0}”", node.title), changes, newPath)
+    }
+
     // ---- pictures ----------------------------------------------------------------------------
 
     /** Where a new picture goes: the folder most of the book's pictures are in, with a free name. */

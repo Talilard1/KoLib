@@ -73,6 +73,56 @@ object KoboPlaces {
         return p.takeIf { it.isNotEmpty() }
     }
 
+    /**
+     * Each of [chapters]' share of the book (in percent) as the Kobo gives it, from its [spans]: null if they
+     * don't match the chapters well enough to count by (the Kobo has another version of the book, say). A chapter
+     * the Kobo has no row for has no share. [weights] (the text in each chapter) say what's well enough: the
+     * chapters read through that the Kobo has rows for must hold nearly all the book's text.
+     */
+    fun shares(chapters: List<Chapter>, spans: List<KoboChapterSpan>, weights: FloatArray): FloatArray? {
+        if (spans.isEmpty() || chapters.isEmpty()) return null
+        val out = FloatArray(chapters.size)
+        val found = BooleanArray(chapters.size)
+        val index = chapters.withIndex().associate { (i, c) -> c.path to i }
+        for (s in spans) {
+            val chapter = spanPaths(s).firstNotNullOfOrNull { chapterFor(chapters, it) } ?: continue
+            val i = index[chapter.path] ?: continue
+            out[i] += s.size.coerceAtLeast(0.0).toFloat()
+            found[i] = true
+        }
+        val total = out.sum()
+        if (total < 90f || total > 110f) return null
+        var text = 0f
+        var covered = 0f
+        for (i in chapters.indices) {
+            if (!chapters[i].linear) continue
+            val w = weights.getOrElse(i) { 0f }
+            text += w
+            if (found[i]) covered += w
+        }
+        if (text <= 0f || covered / text < 0.98f) return null
+        return out
+    }
+
+    /**
+     * The chapter files a row of the Kobo's chapters might name, most likely first: its ContentID
+     * ("book id!OEBPS!Text/chapter3.xhtml", "file:///mnt/onboard/Book.epub#(3)OEBPS/chapter3.xhtml") and its
+     * title, when that's a file's path.
+     */
+    internal fun spanPaths(s: KoboChapterSpan): List<String> {
+        fun clean(raw: String): String? {
+            var p = raw.trim()
+            p = if (p.contains("#(")) p.substringAfter("#(").substringAfter(')') else p.substringBefore('#')
+            // A file with several entries in the contents is listed once for each: "chapter3.xhtml-2".
+            Regex("""^(.*\.(?:x?html?|xml))-\d+$""", RegexOption.IGNORE_CASE).matchEntire(p)?.let { p = it.groupValues[1] }
+            if (p.contains('!')) p = p.split('!').drop(1).filter { it.isNotEmpty() }.joinToString("/")
+            return cleanPath(p)
+        }
+        val fromId = clean(s.id)
+        val fromTitle = s.title?.takeIf { it.contains('/') || Regex("""\.(?:x?html?|xml)$""", RegexOption.IGNORE_CASE).containsMatchIn(it) }?.let { clean(it) }
+        return listOfNotNull(fromId, fromTitle).distinct()
+    }
+
     /** The library's chapter for the Kobo's [path]: the same path, or failing that the one path that ends the same way. */
     fun chapterFor(chapters: List<Chapter>, path: String): Chapter? {
         chapters.firstOrNull { it.path == path }?.let { return it }

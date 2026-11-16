@@ -7,6 +7,11 @@ import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.runtime.collectAsState
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.outlined.ContentPaste
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -145,13 +150,16 @@ fun TextEditorScreen(
     BackHandler {
         when {
             state.find.open -> state.find.close()
+            state.copiedOpen -> state.copiedOpen = false
             else -> close()
         }
     }
+    val copiedItems by (state.copied?.items ?: remember { kotlinx.coroutines.flow.MutableStateFlow(emptyList()) }).collectAsState()
 
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
         EditorTopBar(state, onBack = close, onRead = { scope.launch { state.flush(); onRead(state.currentPath) } },
-            onFind = { state.find.open = !state.find.open }, onCleanups = { showCleanups = true }, onRevert = { confirmRevert = true })
+            onFind = { state.find.open = !state.find.open; if (state.find.open) state.copiedOpen = false },
+            onCleanups = { showCleanups = true }, onRevert = { confirmRevert = true })
         BoxWithConstraints(Modifier.fillMaxSize().imePadding()) {
             val wide = maxWidth >= 1000.dp
             val medium = maxWidth >= 600.dp
@@ -159,10 +167,12 @@ fun TextEditorScreen(
                 ChaptersPane(state, onOpen = { state.open(it); narrowShowsEditor = true }, onAction = { action = it }, modifier = m)
             }
             val findPanel: @Composable (Modifier) -> Unit = { m -> FindPanel(state.find, m, onClose = { state.find.close() }) }
+            val copiedPanel: @Composable (Modifier) -> Unit = { m -> CopiedPanel(state, copiedItems, m, onClose = { state.copiedOpen = false }) }
             val editor: @Composable (Modifier) -> Unit = { m ->
                 EditorPane(state, dark, pagePreview, onPicture = { pickPicture.launch("image/*") }, modifier = m,
-                    onChapters = if (!medium) ({ narrowShowsEditor = false }) else null)
+                    onChapters = if (!medium) ({ narrowShowsEditor = false }) else null, copiedCount = copiedItems.size)
             }
+            val copiedOpen = state.copiedOpen && state.copied != null && !state.find.open
             when {
                 wide -> Row(Modifier.fillMaxSize()) {
                     chapters(Modifier.width(290.dp).fillMaxHeight())
@@ -171,15 +181,23 @@ fun TextEditorScreen(
                     if (state.find.open) {
                         VerticalDivider()
                         findPanel(Modifier.width(390.dp).fillMaxHeight().background(MaterialTheme.colorScheme.surfaceContainerLow))
+                    } else if (copiedOpen) {
+                        VerticalDivider()
+                        copiedPanel(Modifier.width(360.dp).fillMaxHeight().background(MaterialTheme.colorScheme.surfaceContainerLow))
                     }
                 }
                 medium -> Row(Modifier.fillMaxSize()) {
                     if (state.find.open) findPanel(Modifier.width(340.dp).fillMaxHeight().background(MaterialTheme.colorScheme.surfaceContainerLow))
-                    else chapters(Modifier.width(270.dp).fillMaxHeight())
-                    VerticalDivider()
+                    else if (!copiedOpen) chapters(Modifier.width(270.dp).fillMaxHeight())
+                    if (!copiedOpen) VerticalDivider()
                     editor(Modifier.weight(1f).fillMaxHeight())
+                    if (copiedOpen) {
+                        VerticalDivider()
+                        copiedPanel(Modifier.width(320.dp).fillMaxHeight().background(MaterialTheme.colorScheme.surfaceContainerLow))
+                    }
                 }
                 state.find.open -> findPanel(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceContainerLow))
+                copiedOpen -> copiedPanel(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceContainerLow))
                 narrowShowsEditor -> editor(Modifier.fillMaxSize())
                 else -> chapters(Modifier.fillMaxSize())
             }
@@ -357,9 +375,10 @@ private fun EditorPane(
     onPicture: () -> Unit,
     modifier: Modifier,
     onChapters: (() -> Unit)?,
+    copiedCount: Int = 0,
 ) {
     Column(modifier) {
-        EditorToolbar(state, onPicture, onChapters)
+        EditorToolbar(state, onPicture, onChapters, copiedCount)
         HorizontalDivider()
         Box(Modifier.fillMaxSize()) {
             if (pagePreview != null) pagePreview() else {
@@ -374,7 +393,7 @@ private fun EditorPane(
 }
 
 @Composable
-private fun EditorToolbar(state: TextEditState, onPicture: () -> Unit, onChapters: (() -> Unit)?) {
+private fun EditorToolbar(state: TextEditState, onPicture: () -> Unit, onChapters: (() -> Unit)?, copiedCount: Int = 0) {
     val t = state.toolbar
     val page = !state.showCode
     val on = IconButtonDefaults.iconToggleButtonColors(
@@ -415,6 +434,28 @@ private fun EditorToolbar(state: TextEditState, onPicture: () -> Unit, onChapter
                     Text(if (t.image != null) tr("Replace picture") else tr("Picture"))
                 }
                 IconButton(onClick = { state.splitAtCursor() }, enabled = page) { Icon(Icons.Outlined.CallSplit, tr("Split the chapter here")) }
+            }
+            // Sections copied out of books (this one or others), to add here: they open in a panel on the right.
+            if (state.copied != null) {
+                val open = state.copiedOpen
+                val toggle = { state.copiedOpen = !open; if (!open) state.find.open = false }
+                if (androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 600) {
+                    // On a phone, just the icon, with how many there are.
+                    IconToggleButton(checked = open, onCheckedChange = { toggle() }, colors = on) {
+                        BadgedBox(badge = { if (copiedCount > 0) Badge { Text("$copiedCount") } }) {
+                            Icon(Icons.Outlined.ContentPaste, tr("Copied sections"))
+                        }
+                    }
+                } else {
+                    TextButton(
+                        onClick = toggle,
+                        colors = if (open) ButtonDefaults.textButtonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer) else ButtonDefaults.textButtonColors(),
+                    ) {
+                        Icon(Icons.Outlined.ContentPaste, null, Modifier.size(18.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text(if (copiedCount > 0) tr("Copied ({0})", copiedCount) else tr("Copied"), maxLines = 1)
+                    }
+                }
             }
             VerticalDivider(Modifier.height(28.dp).padding(horizontal = 6.dp))
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { state.setCode(!state.showCode) }.padding(start = 4.dp, end = 2.dp)) {

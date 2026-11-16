@@ -150,6 +150,8 @@ class LibraryScreenshotTest {
         importing: JobProgress? = null,
         theme: ThemeChoice = ThemeChoice.SYSTEM,
         continueFromKobo: Boolean = false,
+        /** A phone or tablet is paired, so books can be sent to it. */
+        linked: Boolean = false,
         act: (() -> Unit)? = null,
         configure: LibraryBrowseState.(Library) -> Unit = {},
     ) {
@@ -157,6 +159,9 @@ class LibraryScreenshotTest {
         val browse = LibraryBrowseState().apply { configure(lib) }
         shot(name, theme, act) {
             AppFrame(Section.LIBRARY, {}, koboConnected = true, onNarrow = {}) {
+                androidx.compose.runtime.CompositionLocalProvider(
+                    dev.kobolibrary.app.ui.link.LocalLinkActions provides if (linked) dev.kobolibrary.app.ui.link.LinkActions {} else null,
+                ) {
                 LibraryScreen(
                     books = if (empty) emptyList() else lib.books.value,
                     covers = covers,
@@ -174,6 +179,7 @@ class LibraryScreenshotTest {
                     ),
                     onContinueFromKobo = if (continueFromKobo) ({ _, _ -> }) else null,
                 )
+                }
             }
         }
     }
@@ -309,6 +315,28 @@ class LibraryScreenshotTest {
         selecting = true
         listOf("The Histories", "Dracula", "The Republic").forEach { t -> picked[it.titled(t).id] = true }
     }
+
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun choosingBooksWithADevicePaired() = libraryScreen("34b_library_choosing_linked", linked = true) {
+        selecting = true
+        listOf("The Histories", "Dracula").forEach { t -> picked[it.titled(t).id] = true }
+    }
+
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun aBookWithADevicePaired() = libraryScreen("34c_library_book_linked", linked = true) { selectedId = it.titled("The Histories").id }
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun choosingBooksOnAPhoneWithADevicePaired() = libraryScreen("34d_phone_choosing_linked", linked = true) {
+        selecting = true
+        picked[it.titled("Dracula").id] = true
+    }
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun aBookOnAPhoneWithADevicePaired() = libraryScreen("34e_phone_book_linked", linked = true) { selectedId = it.titled("The Histories").id }
 
     @Test
     @Config(qualifiers = LANDSCAPE)

@@ -43,6 +43,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.SendToMobile
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.automirrored.outlined.CallSplit
@@ -365,6 +366,9 @@ internal fun PhoneLibraryScreen(
             val any = browse.picked.isNotEmpty()
             PhoneActionBar(Modifier.align(Alignment.BottomCenter)) {
                 PhoneAction(Icons.AutoMirrored.Filled.Send, tr("Send"), { onSend(chosen()) }, enabled = any, main = true)
+                dev.kobolibrary.app.ui.link.LocalLinkActions.current?.let { link ->
+                    PhoneAction(Icons.AutoMirrored.Outlined.SendToMobile, tr("To device"), { link.sendBooks(chosen()) }, enabled = any)
+                }
                 PhoneAction(Icons.Outlined.SaveAlt, tr("Save"), { onExport(chosen()) }, enabled = any)
                 PhoneAction(Icons.Outlined.ContentCopy, tr("Duplicate"), { onDuplicate(chosen()) }, enabled = any)
                 PhoneAction(Icons.Outlined.Merge, tr("Combine"), { onMerge(chosen()) }, enabled = browse.picked.size >= 2)
@@ -625,10 +629,15 @@ internal fun PhoneBookPage(
                 Triple(Icons.AutoMirrored.Outlined.CallSplit, tr("Split into books"), onSplit).takeUnless { book.isComic },
                 Triple(Icons.Outlined.SaveAlt, tr("Save as file"), onExport),
                 Triple(Icons.Outlined.ContentCopy, tr("Duplicate"), onDuplicate),
+                dev.kobolibrary.app.ui.link.LocalLinkActions.current?.let { link ->
+                    Triple(Icons.AutoMirrored.Outlined.SendToMobile, tr("Send to device"), { link.sendBooks(listOf(book.id)) })
+                },
             )
             tiles.chunked(3).forEach { row ->
                 Row(Modifier.fillMaxWidth().padding(bottom = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     row.forEach { (icon, label, action) -> ActionTile(icon, label, action, Modifier.weight(1f)) }
+                    // A short last row keeps its tiles the size of the others.
+                    repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
                 }
             }
 

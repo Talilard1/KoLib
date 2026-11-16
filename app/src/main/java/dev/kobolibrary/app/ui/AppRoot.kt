@@ -29,6 +29,8 @@ import androidx.compose.material.icons.filled.LocalLibrary
 import androidx.compose.material.icons.filled.Usb
 import androidx.compose.material.icons.outlined.LocalLibrary
 import androidx.compose.material.icons.outlined.Usb
+import androidx.compose.material.icons.filled.Devices
+import androidx.compose.material.icons.outlined.Devices
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
@@ -114,11 +116,12 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.runtime.CompositionLocalProvider
+import kotlinx.coroutines.launch
 import dev.kobolibrary.app.ui.components.FrameBars
 import dev.kobolibrary.app.ui.components.LocalFrameBars
 import dev.kobolibrary.app.ui.components.phoneLayout
 
-enum class Section { LIBRARY, KOBO }
+enum class Section { LIBRARY, KOBO, DEVICES }
 
 @Composable
 fun AppRoot(
@@ -230,6 +233,85 @@ fun AppRoot(
         }
     }
 
+    // KoLib on the user's other devices: pairing, what comes in and goes out, and what to say about it.
+    val link = remember { (appContext.applicationContext as dev.kobolibrary.app.KoboLibraryApp).link }
+    val paired by link.paired.collectAsStateWithLifecycle()
+    val linkNearby by link.nearby.collectAsStateWithLifecycle()
+    val pairing by link.pairing.collectAsStateWithLifecycle()
+    val linkScope = androidx.compose.runtime.rememberCoroutineScope()
+    LaunchedEffect(Unit) { link.messages.collect { snackbar.showSnackbar(it, withDismissAction = true) } }
+    /** Books chosen to send, waiting for which device to send them to. */
+    var booksToDevice by remember { mutableStateOf<List<String>?>(null) }
+    /** The device "Send books" was chosen for in the Devices section, while the books are chosen in the library. */
+    var booksFor by remember { mutableStateOf<String?>(null) }
+    var filesFor by remember { mutableStateOf<dev.kobolibrary.app.link.PairedDevice?>(null) }
+    val sendBooksTo: (dev.kobolibrary.app.link.PairedDevice, List<String>) -> Unit = { device, ids ->
+        link.sendBooks(device, ids)
+        libraryBrowse.stopSelecting()
+        localMessage = if (ids.size == 1) tr("Sending “{0}” to {1}…", books.firstOrNull { it.id == ids[0] }?.title.orEmpty(), device.name)
+        else tr("Sending {0} books to {1}…", ids.size, device.name)
+    }
+    val linkActions = remember(paired.isNotEmpty()) {
+        if (paired.isEmpty()) null else dev.kobolibrary.app.ui.link.LinkActions { ids ->
+            val devices = link.paired.value
+            val chosen = booksFor?.let { id -> devices.firstOrNull { it.id == id } }
+            booksFor = null
+            when {
+                ids.isEmpty() -> Unit
+                chosen != null -> sendBooksTo(chosen, ids)
+                devices.size == 1 -> sendBooksTo(devices[0], ids)
+                devices.isNotEmpty() -> booksToDevice = ids
+            }
+        }
+    }
+    val sendFilesPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
+        val device = filesFor
+        filesFor = null
+        if (device != null && uris.isNotEmpty()) linkScope.launch {
+            val files = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                uris.mapNotNull { runCatching { dev.kobolibrary.app.link.LinkFiles.fromUri(appContext, it) }.getOrNull() }
+            }
+            if (files.isEmpty()) localMessage = tr("The file couldn't be read.") else link.sendFiles(device, files)
+        }
+    }
+    val devicesActions = remember {
+        dev.kobolibrary.app.ui.link.DevicesActions(
+            pair = link::pair,
+            reach = link::reach,
+            sendBooks = { d ->
+                booksFor = d.id
+                section = Section.LIBRARY
+                libraryBrowse.selectedId = null
+                libraryBrowse.selecting = true
+                localMessage = tr("Choose the books, then send them to {0}.", d.name)
+            },
+            sendFiles = { d ->
+                filesFor = d
+                try {
+                    sendFilesPicker.launch(arrayOf("*/*"))
+                } catch (e: ActivityNotFoundException) {
+                    filesFor = null
+                    localMessage = tr("This device has no file picker.")
+                }
+            },
+            sendClipboard = { d ->
+                val clip = appContext.getSystemService(android.content.ClipboardManager::class.java)
+                val text = runCatching { clip?.primaryClip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(appContext)?.toString() }.getOrNull()
+                if (text.isNullOrEmpty()) localMessage = tr("The clipboard is empty.") else link.sendText(d, text)
+            },
+            syncPlaces = { d -> link.syncPlaces(d) },
+            forget = { d -> link.forget(d.id) },
+            keepPlacesInStep = { on -> link.changeSettings { it.copy(keepPlacesInStep = on) } },
+            stayReachable = { on ->
+                link.changeSettings { it.copy(stayReachable = on) }
+                if (on) {
+                    askToNotify()
+                    dev.kobolibrary.app.link.LinkService.start(appContext)
+                }
+            },
+        )
+    }
+
     val treePicker = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         vm.onTreePicked(result.data?.data)
     }
@@ -328,7 +410,7 @@ fun AppRoot(
     }
 
     BackHandler(enabled = overlay == "log" || overlay == "backups" || overlay == "about") { overlay = null }
-    BackHandler(enabled = overlay == null && section == Section.KOBO) { section = Section.LIBRARY }
+    BackHandler(enabled = overlay == null && section != Section.LIBRARY) { section = Section.LIBRARY }
 
     val koboExtras = remember(books, state.koboTags) { KoboExtras(books, state.koboTags) }
     val connection = state.connection
@@ -498,8 +580,11 @@ fun AppRoot(
                 koboConnected = liveSession != null,
                 onNarrow = { narrow = it },
                 onLook = { showLook = true },
+                devicesHere = paired.any { d -> linkNearby.any { it.id == d.id } },
             ) {
+                CompositionLocalProvider(dev.kobolibrary.app.ui.link.LocalLinkActions provides linkActions) {
                 when (section) {
+                    Section.DEVICES -> dev.kobolibrary.app.ui.link.DevicesScreen(link, devicesActions)
                     Section.LIBRARY -> CompositionLocalProvider(dev.kobolibrary.app.ui.ocr.LocalOcrActions provides ocrActions) { LibraryScreen(
                         books = books,
                         covers = libraryVm.covers,
@@ -600,6 +685,7 @@ fun AppRoot(
                             onSettings = { showLook = true },
                         )
                     }
+                }
                 }
             }
         }
@@ -860,6 +946,19 @@ fun AppRoot(
             )
         }
         if (showConnectHelp) ConnectHelpDialog(connection, chooseDrive, onDismiss = { showConnectHelp = false })
+        booksToDevice?.let { ids ->
+            dev.kobolibrary.app.ui.link.ChooseDeviceDialog(
+                devices = paired,
+                here = linkNearby.map { it.id }.toSet(),
+                what = if (ids.size == 1) tr("“{0}”", books.firstOrNull { it.id == ids[0] }?.title.orEmpty()) else tr("{0} books", ids.size),
+                onPick = { d ->
+                    booksToDevice = null
+                    sendBooksTo(d, ids)
+                },
+                onDismiss = { booksToDevice = null },
+            )
+        }
+        pairing?.let { p -> dev.kobolibrary.app.ui.link.PairingDialog(p, link::answer) }
 
         SnackbarHost(
             snackbar,
@@ -896,7 +995,7 @@ fun AppRoot(
     }
 }
 
-/** The Library and Kobo sections: a rail down the side on tablets, a bar along the bottom on phones. */
+/** The Library, Kobo and Devices sections: a rail down the side on tablets, a bar along the bottom on phones. */
 @Composable
 internal fun AppFrame(
     section: Section,
@@ -904,8 +1003,15 @@ internal fun AppFrame(
     koboConnected: Boolean,
     onNarrow: (Boolean) -> Unit,
     onLook: (() -> Unit)? = null,
+    /** A paired device is on the network now. */
+    devicesHere: Boolean = false,
     content: @Composable () -> Unit,
 ) {
+    val devicesIcon: @Composable () -> Unit = {
+        BadgedBox(badge = { if (devicesHere) Badge(containerColor = MaterialTheme.colorScheme.tertiary) }) {
+            Icon(if (section == Section.DEVICES) Icons.Filled.Devices else Icons.Outlined.Devices, null)
+        }
+    }
     val libraryIcon: @Composable () -> Unit = {
         Icon(if (section == Section.LIBRARY) Icons.Filled.LocalLibrary else Icons.Outlined.LocalLibrary, null)
     }
@@ -947,6 +1053,13 @@ internal fun AppFrame(
                         label = { Text(tr("Kobo")) },
                         colors = itemColors,
                     )
+                    NavigationRailItem(
+                        selected = section == Section.DEVICES,
+                        onClick = { onSection(Section.DEVICES) },
+                        icon = devicesIcon,
+                        label = { Text(tr("Devices")) },
+                        colors = itemColors,
+                    )
                     if (onLook != null) {
                         Spacer(Modifier.weight(1f))
                         NavigationRailItem(
@@ -969,7 +1082,7 @@ internal fun AppFrame(
             }
         } else {
             // On a phone the theme is in the library's menu, so the bar along the bottom holds only the
-            // two sections. A screen can hide the bar to put its own there (see HideBottomBar).
+            // sections. A screen can hide the bar to put its own there (see HideBottomBar).
             val bars = remember { FrameBars() }
             val showBar = bars.hiders == 0
             Column(Modifier.fillMaxSize()) {
@@ -1006,6 +1119,13 @@ internal fun AppFrame(
                                 onClick = { onSection(Section.KOBO) },
                                 icon = koboIcon,
                                 label = { Text(tr("Kobo")) },
+                                colors = itemColors,
+                            )
+                            NavigationBarItem(
+                                selected = section == Section.DEVICES,
+                                onClick = { onSection(Section.DEVICES) },
+                                icon = devicesIcon,
+                                label = { Text(tr("Devices")) },
                                 colors = itemColors,
                             )
                         }

@@ -33,6 +33,10 @@ Kobo keeps your reading stats, and put them straight into your Kobo collections.
 **Lets you read them.** A full reader for books, and a comic reader modelled on Mihon's, with your
 choice of font and page colour, highlights, notes and bookmarks.
 
+**Shares them between your devices.** Pair KoLib on your phone with KoLib on your tablet, then send
+books, files and text from one to the other over your Wi-Fi, and pick up on one where you left off on
+the other.
+
 **Edits them, and makes new ones.** Fix typos, find and replace, and sort out chapters. Split an
 omnibus into separate books or join books into one. Turn Word files, PDFs, text and comics into
 EPUBs, or write a new book from scratch.
@@ -120,6 +124,22 @@ There's no account to make and no ads.
   device before it changes anything. Updates to collections and book details write only the parts
   of the database that changed, so they're quick.
 
+### Your phone and tablet together
+
+- Pair KoLib on your phone with KoLib on your tablet in the Devices section. Both show the same
+  six-figure code when you pair, so you know it's really them.
+- Send books from one to the other with their details, covers and collections, and your highlights,
+  bookmarks and place in them. A book the other already has isn't sent again; only your reading is
+  brought across.
+- Keep your place in books the same on both: whenever the two find each other, each book goes to
+  wherever you read it to last.
+- Send files to the other's Downloads folder, and text to its clipboard. From other apps, Share →
+  Send to device does the same.
+- It works on any Wi-Fi network, or with one device sharing its hotspot with the other. Everything
+  goes straight between the two over your own network, encrypted, and only paired devices can send.
+- KoLib needs to be open on both, unless you let it stay reachable when it's closed (it shows a
+  notification while it is).
+
 ### Reading
 
 - Turn pages like a printed book or scroll, one page at a time or two side by side.
@@ -183,10 +203,11 @@ KoLib follows your device's language, or you can pick one in its settings.
 
 ### Private
 
-Your books, and everything you do with them, stay on your device and your Kobo. KoLib only goes
+Your books, and everything you do with them, stay on your devices and your Kobo. KoLib only goes
 online when you look for a cover or look a word up, and the first time you make a scanned book into
 text in a language, to download that language's data from the Tesseract project on GitHub. The
-pages themselves are read on your device and never sent anywhere.
+pages themselves are read on your device and never sent anywhere. What you send between your own
+devices goes straight from one to the other over your own network, encrypted, not over the internet.
 
 ## Install
 

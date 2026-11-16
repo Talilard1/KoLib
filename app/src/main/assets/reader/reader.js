@@ -1399,6 +1399,48 @@
     return node || null;
   }
 
+  /**
+   * A saved place: "path:offset" (pathOf's path, and the character), or "chars=N", N letters into the
+   * chapter (where the Kobo's place was found; see ChapterLetters in the app).
+   */
+  function placeOf(value) {
+    var s = String(value || '');
+    if (s.indexOf('chars=') === 0) return pointAtLetters(parseInt(s.slice(6), 10) || 0);
+    var bits = s.split(':');
+    var node = nodeAt(bits[0]);
+    return node ? { node: node, offset: parseInt(bits[1] || '0', 10) } : null;
+  }
+
+  /** Not counted as letters: spaces, control characters and the invisible ones. The app counts the same way. */
+  function uncounted(x) {
+    return x <= 0x20 || (x >= 0x7F && x <= 0xA0) || x === 0xAD || x === 0x1680 || (x >= 0x2000 && x <= 0x200F) ||
+      (x >= 0x2028 && x <= 0x202F) || (x >= 0x205F && x <= 0x2064) || x === 0x3000 || x === 0xFEFF;
+  }
+
+  /** Text that isn't part of what's read, as the app leaves it out too. */
+  var NOT_READ = /^(script|style|noscript|template|noembed|noframes|xmp|iframe)$/i;
+
+  /** The [n]th letter of the chapter (from 0), or its last one if it has fewer. */
+  function pointAtLetters(n) {
+    var w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+    var k = 0, last = null;
+    for (var t = w.nextNode(); t; t = w.nextNode()) {
+      var skip = false;
+      for (var e = t.parentNode; e && e !== document.body; e = e.parentNode) {
+        if (e.nodeType === 1 && NOT_READ.test(e.localName || '')) { skip = true; break; }
+      }
+      if (skip) continue;
+      var d = t.data;
+      for (var j = 0; j < d.length; j++) {
+        if (uncounted(d.charCodeAt(j))) continue;
+        if (k === n) return { node: t, offset: j };
+        k++;
+        last = { node: t, offset: j };
+      }
+    }
+    return last;
+  }
+
   function snippetFrom(node, offset) {
     var out = '';
     var w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
@@ -1562,9 +1604,8 @@
       case 'page': y = (t.value | 0) * stepH(); break;
       case 'progress': y = (t.value || 0) * max; break;
       case 'anchor': {
-        var bits = String(t.value || '').split(':');
-        var node = nodeAt(bits[0]);
-        var a = node ? nearTop(yOf(node, parseInt(bits[1] || '0', 10))) : null;
+        var at = placeOf(t.value);
+        var a = at ? nearTop(yOf(at.node, at.offset)) : null;
         y = a != null ? a : (t.progress || 0) * max;
         break;
       }
@@ -1618,9 +1659,8 @@
       case 'page': target = t.value | 0; break;
       case 'progress': target = Math.round((t.value || 0) * (pages - 1)); break;
       case 'anchor': {
-        var bits = String(t.value || '').split(':');
-        var node = nodeAt(bits[0]);
-        var p = node ? pageOf(node, parseInt(bits[1] || '0', 10)) : null;
+        var at = placeOf(t.value);
+        var p = at ? pageOf(at.node, at.offset) : null;
         if (p == null && t.progress != null) p = Math.round(t.progress * (pages - 1));
         target = p || 0;
         break;

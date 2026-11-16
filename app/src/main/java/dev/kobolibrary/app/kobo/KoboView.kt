@@ -145,6 +145,9 @@ class LastSeenStore(private val dir: File) {
         putOpt("seriesId", b.seriesId)
         putOpt("rating", b.rating)
         putOpt("words", b.words)
+        putOpt("bookmark", b.chapterBookmark)
+        putOpt("adobe", b.adobeLocation)
+        putOpt("chapterProgress", b.chapterProgress)
     }
 
     private fun fromJson(o: JSONObject): LastSeen {
@@ -213,6 +216,9 @@ class LastSeenStore(private val dir: File) {
         seriesId = o.optStringOrNull("seriesId"),
         rating = o.optIntOrNull("rating"),
         words = o.optIntOrNull("words"),
+        chapterBookmark = o.optStringOrNull("bookmark"),
+        adobeLocation = o.optStringOrNull("adobe"),
+        chapterProgress = if (o.has("chapterProgress") && !o.isNull("chapterProgress")) o.getDouble("chapterProgress") else null,
     )
 
     private fun JSONObject.optStringOrNull(k: String): String? = if (has(k) && !isNull(k)) getString(k) else null

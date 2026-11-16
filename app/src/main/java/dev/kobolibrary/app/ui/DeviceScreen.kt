@@ -84,6 +84,8 @@ fun DeviceScreen(
     /** Books are being sent, so ejecting now would cut one off. */
     sending: Boolean = false,
     initialCollectionKey: String? = null,
+    /** Opens the app's Eject dialog (otherwise this screen shows its own). */
+    onEject: (() -> Unit)? = null,
 ) {
     val snapshot = view.snapshot
     val live = view.live && !unplugged
@@ -160,7 +162,7 @@ fun DeviceScreen(
                 },
                 actions = {
                     if (live) {
-                        TextButton(onClick = { showEject = true }) {
+                        TextButton(onClick = { if (onEject != null) onEject() else showEject = true }) {
                             Icon(Icons.Outlined.Eject, null)
                             Spacer(Modifier.width(6.dp))
                             Text(tr("Eject"))

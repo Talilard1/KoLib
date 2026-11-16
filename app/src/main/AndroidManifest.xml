@@ -9,7 +9,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-    <!-- Used only to recognise which Kobo model is plugged in. Not required to install. -->
+    <!-- To recognise which Kobo model is plugged in, and to eject it. Not required to install. -->
     <uses-feature
         android:name="android.hardware.usb.host"
         android:required="false" />
@@ -20,6 +20,19 @@
             <action android:name="android.intent.action.PROCESS_TEXT" />
             <data android:mimeType="text/plain" />
         </intent>
+        <!-- Android's own screens for unmounting the Kobo's drive, which Eject offers when they're there. -->
+        <intent>
+            <action android:name="android.provider.action.DOCUMENT_ROOT_SETTINGS" />
+            <data android:scheme="content" android:host="com.android.externalstorage.documents" android:mimeType="vnd.android.document/root" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="content" android:host="com.android.externalstorage.documents" android:mimeType="vnd.android.document/root" />
+        </intent>
+        <intent>
+            <action android:name="android.settings.INTERNAL_STORAGE_SETTINGS" />
+        </intent>
+        <package android:name="com.sec.android.app.myfiles" />
     </queries>
 
     <application

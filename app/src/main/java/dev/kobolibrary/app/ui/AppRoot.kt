@@ -536,6 +536,12 @@ fun AppRoot(
                         onTheme = { showLook = true },
                         onMarkFinished = { ids -> libraryVm.markFinished(ids) },
                         onMarkUnread = { ids -> libraryVm.markUnread(ids) },
+                        onContinueFromKobo = { id, kobo ->
+                            libraryVm.continueFromKobo(id, kobo) {
+                                libraryVm.readerSettings.startReading()
+                                overlay = "read:$id"
+                            }
+                        },
                     ) }
                     Section.KOBO -> when {
                         connection is Connection.Connected && koboView != null -> DeviceScreen(
@@ -557,6 +563,7 @@ fun AppRoot(
                             onDeleteFromKobo = vm::deleteFromKobo,
                             sending = job?.let { it.kind == JobKind.SEND && !it.finished } == true,
                             onSettings = { showLook = true },
+                            onEject = { showEject = true },
                         )
                         connection is Connection.Waiting && koboView != null -> DeviceScreen(
                             view = koboView,
@@ -799,10 +806,18 @@ fun AppRoot(
         }
 
         if (showEject) {
+            // Ejecting over USB is offered when Android lists the Kobo there.
+            val onUsb = remember { vm.koboOnUsb() }
             EjectDialog(
-                onDismiss = { showEject = false },
+                onDismiss = {
+                    showEject = false
+                    vm.clearUsbEject()
+                },
                 busy = job?.let { it.kind == JobKind.SEND && !it.finished } == true,
-                savingDatabase = state.syncing,
+                savingDatabase = state.syncing || state.afterConnectRunning,
+                treeUri = liveSession?.treeUri,
+                usb = state.usbEject,
+                onUsbEject = if (onUsb || state.usbEject != null) vm::ejectOverUsb else null,
             )
         }
         if (showLook) LookDialog(

@@ -23,6 +23,8 @@ import dev.kobolibrary.app.ui.BrowseState
 import dev.kobolibrary.app.ui.KoboExtras
 import dev.kobolibrary.app.ui.ConnectScreen
 import dev.kobolibrary.app.ui.DeviceScreen
+import dev.kobolibrary.app.ui.EjectDialog
+import dev.kobolibrary.app.kobo.UnmountScreens
 import dev.kobolibrary.app.ui.LogScreen
 import dev.kobolibrary.app.ui.NO_COLLECTION_KEY
 import dev.kobolibrary.app.ui.theme.AppSurface
@@ -265,4 +267,58 @@ class ScreenshotTest {
     @Test
     @Config(qualifiers = LANDSCAPE)
     fun savingToTheKobosDatabase() = deviceScreen("43_kobo_saving", syncing = true)
+
+    // ---- Eject: the ways to do it side by side, and how ejecting over USB goes --------------------
+
+    private val ejectScreens = listOf(
+        UnmountScreens.Screen(UnmountScreens.Kind.SETTINGS, android.content.Intent(), "com.android.settings/Settings\$PublicVolumeSettingsActivity"),
+        UnmountScreens.Screen(UnmountScreens.Kind.FILES, android.content.Intent(), "com.google.android.documentsui/FilesActivity"),
+        UnmountScreens.Screen(UnmountScreens.Kind.MY_FILES, android.content.Intent(), "com.sec.android.app.myfiles/MainActivity"),
+    )
+
+    private fun ejectShot(name: String, usb: UsbEjectState? = null, busy: Boolean = false) {
+        val (_, s) = session()
+        val state = UiState(connection = Connection.Connected(s, false))
+        shot(name) {
+            DeviceScreen(
+                view = KoboView.of(s), unplugged = false, state = state, browse = BrowseState(),
+                onReconnect = {}, onWriteCheck = {}, onBackupNow = {}, onForget = {}, onOpenBackups = {}, onOpenLog = {},
+            )
+            EjectDialog(onDismiss = {}, busy = busy, usb = usb, onUsbEject = {}, screens = ejectScreens)
+        }
+    }
+
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun ejectChoices() = ejectShot("eject_choices")
+
+    @Test
+    @Config(qualifiers = "w411dp-h891dp-port-mdpi")
+    fun ejectChoicesPhone() = ejectShot("eject_choices_phone")
+
+    @Test
+    @Config(qualifiers = PORTRAIT)
+    fun ejectWhileSending() = ejectShot("eject_while_sending", busy = true)
+
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun ejectingOverUsb() = ejectShot("eject_running", UsbEjectState(true, tr("Ejecting…")))
+
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun ejectedOverUsb() = ejectShot(
+        "eject_done",
+        UsbEjectState(false, tr("Ejected. The Kobo is adding your new books, and you can unplug it whenever you like."), ok = true),
+    )
+
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun ejectTurnedDown() = ejectShot(
+        "eject_refused",
+        UsbEjectState(
+            false,
+            tr("The Kobo didn't accept being ejected (sense {0}).", "5/20/00") + " " + tr("Unplug it instead: everything KoLib changed is on it."),
+            ok = false,
+        ),
+    )
 }

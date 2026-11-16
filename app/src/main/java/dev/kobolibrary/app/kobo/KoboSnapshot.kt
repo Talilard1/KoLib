@@ -59,6 +59,15 @@ data class KoboBook(
     val rating: Int? = null,
     /** The Kobo's own word count, when it has worked one out. */
     val words: Int? = null,
+    /**
+     * Where the Kobo is in the book (its ChapterIDBookmarked): the chapter file, and in a kepub the
+     * sentence, e.g. "OEBPS/Text/chapter3.xhtml#kobo.12.1". See [KoboPlaces].
+     */
+    val chapterBookmark: String? = null,
+    /** In an EPUB the Kobo reads with Adobe's renderer, the spot in the chapter, e.g. "point(/1/4/2/1:0)". */
+    val adobeLocation: String? = null,
+    /** How far through the chapter the Kobo is, 0 to 1, when its database says. */
+    val chapterProgress: Double? = null,
 ) {
     /** Books that are actually on the device and that you would see in its library. */
     val isOnDevice: Boolean

@@ -173,6 +173,7 @@ internal fun PhoneLibraryScreen(
     onTheme: (() -> Unit)?,
     onMarkFinished: (List<String>) -> Unit = {},
     onMarkUnread: (List<String>) -> Unit = {},
+    onContinueFromKobo: ((String, KoboBook) -> Unit)? = null,
 ) {
     if (selected != null && !browse.selecting) {
         BackHandler { browse.selectedId = null }
@@ -207,6 +208,7 @@ internal fun PhoneLibraryScreen(
             finished = readingHere[selected.id]?.finished == true,
             onMarkFinished = { onMarkFinished(listOf(selected.id)) },
             onMarkUnread = { onMarkUnread(listOf(selected.id)) },
+            onContinueFromKobo = onContinueFromKobo?.let { f -> { k: KoboBook -> f(selected.id, k) } },
         )
         return
     }
@@ -474,6 +476,8 @@ internal fun PhoneBookPage(
     finished: Boolean = false,
     onMarkFinished: (() -> Unit)? = null,
     onMarkUnread: (() -> Unit)? = null,
+    /** Moving the app's reader to where the Kobo is in the book. */
+    onContinueFromKobo: ((KoboBook) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val meta = book.meta
@@ -571,7 +575,12 @@ internal fun PhoneBookPage(
                 }
             }
             ReadStateButtons(finished, started = readHere != null && readHere > 0.005f, onMarkFinished, onMarkUnread, Modifier.padding(top = 10.dp))
-            reading?.let { k -> ReadingLine(k, live = readingLive) }
+            reading?.let { k ->
+                ReadingLine(
+                    k, live = readingLive, here = readHere, wideButton = true,
+                    onContinue = onContinueFromKobo?.takeIf { book.canReadFromKoboPlace }?.let { f -> { f(k) } },
+                )
+            }
             dev.kobolibrary.app.ui.ocr.OcrSection(book)
             if (book.changedSinceOnKobo) {
                 Row(Modifier.padding(top = 10.dp), verticalAlignment = Alignment.Top) {

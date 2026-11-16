@@ -141,6 +141,9 @@ class KoboDatabaseReader(private val db: SqlSource) {
             seriesId = row.string("SeriesID")?.trim()?.takeIf { it.isNotEmpty() },
             words = row.long("WordCount")?.toInt()?.takeIf { it > 0 },
             relativePath = relativePath,
+            chapterBookmark = row.string("ChapterIDBookmarked")?.trim()?.takeIf { it.isNotEmpty() },
+            adobeLocation = row.string("adobe_location")?.trim()?.takeIf { it.isNotEmpty() },
+            chapterProgress = row.double("CurrentChapterProgress")?.takeIf { it in 0.0..1.0 },
         )
     }
 
@@ -268,6 +271,8 @@ class KoboDatabaseReader(private val db: SqlSource) {
             "___PercentRead", "DateLastRead", "DateAdded", "Series", "SeriesNumber", "SeriesNumberFloat",
             "___FileSize", "___ExpirationStatus", "Accessibility", "IsDownloaded", "___UserID",
             "DateCreated", "SeriesID", "WordCount",
+            // Where the Kobo is in the book.
+            "ChapterIDBookmarked", "adobe_location", "CurrentChapterProgress",
         )
         val SHELF_COLUMNS = listOf(
             "Id", "Name", "InternalName", "Type", "CreationDate", "LastModified",

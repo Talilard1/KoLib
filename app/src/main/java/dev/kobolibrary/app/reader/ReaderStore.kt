@@ -281,6 +281,16 @@ class ReaderStore(
             return ReadHere(1f, now, finished = true)
         }
 
+        /**
+         * Moves the book's place to [position] (where the Kobo is): it shows as read that far, and opens
+         * there. Its bookmarks and highlights are kept; marking it as finished is undone.
+         */
+        fun movePosition(bookDir: File, position: ReaderPosition) = rewrite(bookDir) { o ->
+            o.put("position", position.toJson())
+            o.remove("finished")
+            o.remove("finishedAt")
+        }
+
         /** Marks the book as not started: its place is let go (it opens at the beginning); bookmarks and highlights are kept. */
         fun markUnread(bookDir: File) = rewrite(bookDir.also { forgetPdfPage(it) }) { o ->
             o.remove("position")

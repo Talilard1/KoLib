@@ -27,6 +27,7 @@ import dev.kobolibrary.app.kobo.KoboTagReader
 import dev.kobolibrary.app.kobo.KoboTagStore
 import dev.kobolibrary.app.kobo.KoboView
 import dev.kobolibrary.app.kobo.KoboSession
+import dev.kobolibrary.app.kobo.UsbEject
 import dev.kobolibrary.app.kobo.VolumeCandidate
 import dev.kobolibrary.app.kobo.WriteCheckResult
 import dev.kobolibrary.app.log.AppLog
@@ -81,6 +82,8 @@ data class UiState(
     val koboTags: Map<String, KoboTagStore.Entry> = emptyMap(),
     /** While tags are being read from the Kobo's books: how many done, out of how many. */
     val readingTags: Pair<Int, Int>? = null,
+    /** Ejecting the Kobo by telling it over USB: what's happening, or how it went. */
+    val usbEject: UsbEjectState? = null,
 ) {
     /** What the Kobo screens show: the live Kobo if connected, otherwise the last-seen copy. */
     val koboView: KoboView?
@@ -89,6 +92,9 @@ data class UiState(
             else -> lastSeen?.let { v -> KoboView(v.info, v.snapshot.without(removedIds), v.covers, v.readAtMillis, v.databaseBytes, v.databaseHadWal, null) }
         }
 }
+
+/** Ejecting the Kobo over USB: [running], or done, and then [ok] (null if it can't be told). */
+data class UsbEjectState(val running: Boolean, val text: String, val ok: Boolean? = null)
 
 class MainViewModel(app: Application) : AndroidViewModel(app) {
 
@@ -502,6 +508,62 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     private fun fail(message: String, candidate: VolumeCandidate?) {
         val best = candidate ?: runCatching { repo.removableVolumes().firstOrNull { !it.isLikelySdCard } }.getOrNull()
         _state.update { it.copy(connection = Connection.Failed(message, best)) }
+    }
+
+    private val usbEject = UsbEject(app)
+
+    /** Whether Android lists a Kobo plugged in over USB (so it can be ejected that way). */
+    fun koboOnUsb(): Boolean = usbEject.kobo() != null
+
+    /**
+     * Ejects the Kobo by sending it the eject commands over USB, as a computer does (see [UsbEject]): it
+     * then adds its new books without being unplugged. Waits for any update to its database to finish.
+     */
+    fun ejectOverUsb() {
+        if (_state.value.usbEject?.running == true) return
+        fun show(text: String, running: Boolean = true, ok: Boolean? = null) =
+            _state.update { it.copy(usbEject = UsbEjectState(running, text, ok)) }
+        viewModelScope.launch {
+            val device = usbEject.kobo()
+            if (device == null) {
+                show(tr("Android doesn't list a Kobo plugged in by USB."), running = false, ok = false)
+                return@launch
+            }
+            show(tr("Asking Android to let KoLib use the Kobo…"))
+            if (!usbEject.permission(device)) {
+                show(tr("Android didn't let KoLib use the Kobo's USB connection."), running = false, ok = false)
+                return@launch
+            }
+            // Nothing of KoLib's may be using the drive when Android lets go of it.
+            syncLock.withLock {
+                show(tr("Ejecting…"))
+                val result = try {
+                    usbEject.eject(device)
+                } catch (e: Exception) {
+                    AppLog.e("Eject", "Ejecting over USB failed", e)
+                    UsbEject.Result.Refused(e.message ?: e.javaClass.simpleName)
+                }
+                val unplug = tr("Unplug it instead: everything KoLib changed is on it.")
+                when (result) {
+                    is UsbEject.Result.Ejected -> show(tr("Ejected. The Kobo is adding your new books, and you can unplug it whenever you like."), running = false, ok = true)
+                    UsbEject.Result.StoppedAnswering -> show(tr("KoLib told the Kobo to eject, and it stopped answering. If it's adding your books, it worked; if not, unplug it."), running = false, ok = null)
+                    UsbEject.Result.NoKobo -> show(tr("Android doesn't list a Kobo plugged in by USB."), running = false, ok = false)
+                    UsbEject.Result.NotAllowed -> show(tr("Android didn't let KoLib use the Kobo's USB connection."), running = false, ok = false)
+                    is UsbEject.Result.CouldNotOpen -> show(result.why + " " + unplug, running = false, ok = false)
+                    is UsbEject.Result.Refused -> show(result.why + " " + unplug, running = false, ok = false)
+                }
+                if (result is UsbEject.Result.Ejected || result == UsbEject.Result.StoppedAnswering) {
+                    _state.update { s -> (s.connection as? Connection.Connected)?.let { s.copy(connection = it.copy(unplugged = true)) } ?: s }
+                } else {
+                    refresh(auto = true)
+                }
+            }
+        }
+    }
+
+    /** The eject's result has been seen. */
+    fun clearUsbEject() {
+        if (_state.value.usbEject?.running != true) _state.update { it.copy(usbEject = null) }
     }
 
     fun forgetKobo() {

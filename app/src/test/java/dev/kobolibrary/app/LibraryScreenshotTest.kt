@@ -10,6 +10,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import dev.kobolibrary.app.ui.AppRoot
 import androidx.test.core.app.ApplicationProvider
 import com.github.takahirom.roborazzi.captureRoboImage
@@ -86,11 +87,19 @@ class LibraryScreenshotTest {
     @Before
     fun inLanguage() = TestLanguage.apply()
 
-    private fun shot(name: String, theme: ThemeChoice = ThemeChoice.SYSTEM, content: @Composable () -> Unit) {
+    private fun shot(name: String, theme: ThemeChoice = ThemeChoice.SYSTEM, act: (() -> Unit)? = null, content: @Composable () -> Unit) {
         compose.mainClock.autoAdvance = false
         compose.setContent { AppSurface(theme) { content() } }
         compose.mainClock.advanceTimeBy(1_000)
-        compose.onRoot().captureRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/$name.png")
+        val path = "${TestLanguage.folder("build/outputs/roborazzi")}/$name.png"
+        if (act == null) {
+            compose.onRoot().captureRoboImage(path)
+        } else {
+            act()
+            compose.mainClock.advanceTimeBy(1_000)
+            // Whatever it opened, dialogs included.
+            captureScreenRoboImage(path)
+        }
     }
 
     /** The fake Kobo the library was filled from, for its reading progress. */
@@ -134,11 +143,13 @@ class LibraryScreenshotTest {
         empty: Boolean = false,
         importing: JobProgress? = null,
         theme: ThemeChoice = ThemeChoice.SYSTEM,
+        continueFromKobo: Boolean = false,
+        act: (() -> Unit)? = null,
         configure: LibraryBrowseState.(Library) -> Unit = {},
     ) {
         val (lib, covers) = library()
         val browse = LibraryBrowseState().apply { configure(lib) }
-        shot(name, theme) {
+        shot(name, theme, act) {
             AppFrame(Section.LIBRARY, {}, koboConnected = true, onNarrow = {}) {
                 LibraryScreen(
                     books = if (empty) emptyList() else lib.books.value,
@@ -155,6 +166,7 @@ class LibraryScreenshotTest {
                         lib.titled("Dracula").id to ReadHere(0.08f, 1_794_300_000_000L),
                         lib.titled("Meditations").id to ReadHere(1f, 1_794_200_000_000L, finished = true),
                     ),
+                    onContinueFromKobo = if (continueFromKobo) ({ _, _ -> }) else null,
                 )
             }
         }
@@ -561,4 +573,34 @@ class LibraryScreenshotTest {
     fun descriptionEditor() = shot("31_description_editor") {
         DescriptionEditor("<p>Some <b>text</b>.</p>", "The Histories", onDone = {}, onCancel = {})
     }
+
+    // ---- Continue from the Kobo: under how far the Kobo has got, with a check when the app is further on ----
+
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun continueFromTheKobo() = libraryScreen("kobo_place_button", continueFromKobo = true) { selectedId = it.titled("The Sign of the Four").id }
+
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun continueFromTheKoboWhenTheAppIsFurtherOn() = libraryScreen(
+        "kobo_place_ask", continueFromKobo = true,
+        act = {
+            compose.onNodeWithText(tr("Continue from the Kobo")).performClick()
+            // The dialog has a window of its own, made once the main thread's queue has run.
+            val asks = androidx.compose.ui.test.hasText(tr("Go back to the Kobo's place?"))
+            var tries = 0
+            while (compose.onAllNodes(asks).fetchSemanticsNodes().isEmpty() && tries++ < 40) {
+                org.robolectric.shadows.ShadowLooper.idleMainLooper()
+                compose.mainClock.advanceTimeBy(100)
+            }
+            compose.onNode(asks).assertExists()
+        },
+    ) { selectedId = it.titled("The Histories").id }
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun continueFromTheKoboOnAPhone() = libraryScreen(
+        "kobo_place_phone", continueFromKobo = true,
+        act = { compose.onNodeWithText(tr("Continue from the Kobo")).performScrollTo() },
+    ) { selectedId = it.titled("The Sign of the Four").id }
 }

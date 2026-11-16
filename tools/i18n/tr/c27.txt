@@ -1,0 +1,280 @@
+@fr
+1845|La position de la Kobo est introuvable dans ce livre.
+1846|Android n’indique aucune Kobo branchée en USB.
+1847|Demande à Android d’autoriser KoLib à utiliser la Kobo…
+1848|Android n’a pas autorisé KoLib à utiliser la connexion USB de la Kobo.
+1849|Éjection…
+1850|Débranchez-la plutôt : tout ce que KoLib a modifié s’y trouve.
+1851|Éjectée. La Kobo ajoute vos nouveaux livres, et vous pouvez la débrancher quand vous voulez.
+1852|KoLib a demandé à la Kobo de s’éjecter, et elle ne répond plus. Si elle ajoute vos livres, ça a marché ; sinon, débranchez-la.
+1853|Tout ce que KoLib a modifié est déjà sur la Kobo : vous pouvez aussi simplement la débrancher.
+1854|Éjecter depuis KoLib
+1855|La Kobo ajoute vos nouveaux livres tout de suite, sans être débranchée.
+1856|Essai
+1857|Démonter dans les Paramètres
+1858|Ouvre la page de la Kobo dans les paramètres d’Android. Touchez Démonter, puis débranchez-la.
+1859|Éjecter dans Fichiers
+1860|Ouvre la Kobo dans l’appli Fichiers d’Android. Ouvrez son menu (☰) et touchez ⏏ à côté de la clé USB.
+1861|Démonter dans Mes fichiers
+1862|Touchez la clé USB, puis ⋮ (en haut à droite) → Démonter.
+1863|Trouvez la clé USB et touchez Démonter.
+1864|Reprendre où en est la Kobo
+1865|Revenir à la position de la Kobo ?
+1866|Le lecteur de KoLib est plus loin ({0} %) que la Kobo ({1} %).
+1867|Revenir
+1868|la commande n’est pas passée
+1869|la Kobo ne répond plus
+1870|la réponse de la Kobo n’avait aucun sens
+1871|la Kobo a perdu le fil de la commande
+1872|La Kobo n’a pas proposé son stockage en USB.
+1873|Le stockage de la Kobo n’avait ni entrée ni sortie.
+1874|Android n’a pas voulu ouvrir la connexion USB de la Kobo.
+1875|Android n’a pas voulu céder le stockage de la Kobo.
+1876|La Kobo n’a pas accepté d’être éjectée (code {0}).
+1877|L’échange avec la Kobo a échoué : {0}.
+1878|La Kobo n’a pas accepté d’être éjectée.
+@de
+1845|Die Stelle des Kobo wurde in diesem Buch nicht gefunden.
+1846|Android zeigt keinen per USB angeschlossenen Kobo an.
+1847|Android wird gefragt, ob KoLib den Kobo verwenden darf …
+1848|Android hat KoLib die USB-Verbindung des Kobo nicht verwenden lassen.
+1849|Wird ausgeworfen …
+1850|Zieh ihn stattdessen ab: Alles, was KoLib geändert hat, ist darauf.
+1851|Ausgeworfen. Der Kobo fügt deine neuen Bücher hinzu, und du kannst ihn abziehen, wann du willst.
+1852|KoLib hat dem Kobo gesagt, dass er ausgeworfen wird, und er antwortet nicht mehr. Wenn er deine Bücher hinzufügt, hat es geklappt; sonst zieh ihn ab.
+1853|Alles, was KoLib geändert hat, ist schon auf dem Kobo – du kannst ihn also auch einfach abziehen.
+1854|Aus KoLib auswerfen
+1855|Der Kobo fügt deine neuen Bücher sofort hinzu, ohne abgezogen zu werden.
+1856|Test
+1857|In den Einstellungen auswerfen
+1858|Öffnet die Seite des Kobo in den Android-Einstellungen. Tippe dort auf „Auswerfen“ und zieh ihn dann ab.
+1859|In „Dateien“ auswerfen
+1860|Öffnet den Kobo in der Android-App „Dateien“. Öffne ihr Menü (☰) und tippe neben dem USB-Laufwerk auf ⏏.
+1861|In „Eigene Dateien“ auswerfen
+1862|Tippe auf das USB-Laufwerk, dann auf ⋮ (oben rechts) → Auswerfen.
+1863|Suche das USB-Laufwerk und tippe auf „Auswerfen“.
+1864|Ab der Stelle des Kobo weiterlesen
+1865|Zurück zur Stelle des Kobo?
+1866|Der Reader von KoLib ist weiter ({0} %) als der Kobo ({1} %).
+1867|Zurück
+1868|der Befehl kam nicht durch
+1869|der Kobo antwortet nicht mehr
+1870|die Antwort des Kobo ergab keinen Sinn
+1871|der Kobo hat den Befehl aus den Augen verloren
+1872|Der Kobo hat seinen Speicher nicht über USB angeboten.
+1873|Der Speicher des Kobo hatte keinen Weg hinein oder hinaus.
+1874|Android wollte die USB-Verbindung des Kobo nicht öffnen.
+1875|Android wollte den Speicher des Kobo nicht hergeben.
+1876|Der Kobo hat das Auswerfen nicht angenommen (Code {0}).
+1877|Der Austausch mit dem Kobo ist abgebrochen: {0}.
+1878|Der Kobo hat das Auswerfen nicht angenommen.
+@es
+1845|No se ha encontrado en este libro el punto donde va el Kobo.
+1846|Android no muestra ningún Kobo conectado por USB.
+1847|Pidiendo a Android que deje a KoLib usar el Kobo…
+1848|Android no ha dejado que KoLib use la conexión USB del Kobo.
+1849|Expulsando…
+1850|Mejor desconéctalo: todo lo que KoLib ha cambiado está en él.
+1851|Expulsado. El Kobo está añadiendo tus libros nuevos y puedes desconectarlo cuando quieras.
+1852|KoLib le dijo al Kobo que se expulsara y dejó de responder. Si está añadiendo tus libros, ha funcionado; si no, desconéctalo.
+1853|Todo lo que KoLib ha cambiado ya está en el Kobo, así que también puedes simplemente desconectarlo.
+1854|Expulsar desde KoLib
+1855|El Kobo añade tus libros nuevos al momento, sin desconectarlo.
+1856|Prueba
+1857|Desmontar en Ajustes
+1858|Abre la página del Kobo en los ajustes de Android. Toca Desmontar allí y luego desconéctalo.
+1859|Expulsar en Archivos
+1860|Abre el Kobo en la app Archivos de Android. Abre su menú (☰) y toca ⏏ junto a la unidad USB.
+1861|Desmontar en Mis archivos
+1862|Toca la unidad USB y luego ⋮ (arriba a la derecha) → Desmontar.
+1863|Busca la unidad USB y toca Desmontar.
+1864|Seguir desde donde va el Kobo
+1865|¿Volver al punto donde va el Kobo?
+1866|El lector de KoLib va más adelante ({0} %) que el Kobo ({1} %).
+1867|Volver
+1868|la orden no llegó
+1869|el Kobo dejó de responder
+1870|la respuesta del Kobo no tenía sentido
+1871|el Kobo perdió el hilo de la orden
+1872|El Kobo no ofreció su almacenamiento por USB.
+1873|El almacenamiento del Kobo no tenía entrada ni salida.
+1874|Android no quiso abrir la conexión USB del Kobo.
+1875|Android no quiso ceder el almacenamiento del Kobo.
+1876|El Kobo no aceptó ser expulsado (código {0}).
+1877|El intercambio con el Kobo se interrumpió: {0}.
+1878|El Kobo no aceptó ser expulsado.
+@it
+1845|Il punto in cui è il Kobo non è stato trovato in questo libro.
+1846|Android non elenca nessun Kobo collegato via USB.
+1847|Chiedo ad Android di lasciare che KoLib usi il Kobo…
+1848|Android non ha permesso a KoLib di usare la connessione USB del Kobo.
+1849|Espulsione…
+1850|Scollegalo e basta: tutto ciò che KoLib ha modificato è già lì.
+1851|Espulso. Il Kobo sta aggiungendo i tuoi nuovi libri e puoi scollegarlo quando vuoi.
+1852|KoLib ha detto al Kobo di espellersi, e non risponde più. Se sta aggiungendo i tuoi libri, ha funzionato; altrimenti scollegalo.
+1853|Tutto ciò che KoLib ha modificato è già sul Kobo, quindi puoi anche semplicemente scollegarlo.
+1854|Espelli da KoLib
+1855|Il Kobo aggiunge subito i tuoi nuovi libri, senza essere scollegato.
+1856|Prova
+1857|Smonta in Impostazioni
+1858|Apre la pagina del Kobo nelle impostazioni di Android. Tocca Smonta lì, poi scollegalo.
+1859|Espelli in File
+1860|Apre il Kobo nell’app File di Android. Apri il suo menu (☰) e tocca ⏏ accanto all’unità USB.
+1861|Smonta in Archivio
+1862|Tocca l’unità USB, poi ⋮ (in alto a destra) → Smonta.
+1863|Trova l’unità USB e tocca Smonta.
+1864|Continua da dove è il Kobo
+1865|Tornare al punto del Kobo?
+1866|Il lettore di KoLib è più avanti ({0}%) del Kobo ({1}%).
+1867|Torna indietro
+1868|il comando non è passato
+1869|il Kobo ha smesso di rispondere
+1870|la risposta del Kobo non aveva senso
+1871|il Kobo ha perso il filo del comando
+1872|Il Kobo non ha offerto la sua memoria via USB.
+1873|La memoria del Kobo non aveva né entrata né uscita.
+1874|Android non ha voluto aprire la connessione USB del Kobo.
+1875|Android non ha voluto cedere la memoria del Kobo.
+1876|Il Kobo non ha accettato di essere espulso (codice {0}).
+1877|Lo scambio con il Kobo si è interrotto: {0}.
+1878|Il Kobo non ha accettato di essere espulso.
+@nl
+1845|De plek waar de Kobo is, staat niet in dit boek.
+1846|Android ziet geen Kobo die via USB is aangesloten.
+1847|Android vragen of KoLib de Kobo mag gebruiken…
+1848|Android liet KoLib de USB-verbinding van de Kobo niet gebruiken.
+1849|Uitwerpen…
+1850|Koppel hem dan gewoon los: alles wat KoLib heeft gewijzigd, staat erop.
+1851|Uitgeworpen. De Kobo voegt je nieuwe boeken toe en je kunt hem loskoppelen wanneer je wilt.
+1852|KoLib heeft de Kobo gevraagd zich uit te werpen, en hij reageert niet meer. Voegt hij je boeken toe, dan is het gelukt; zo niet, koppel hem los.
+1853|Alles wat KoLib heeft gewijzigd, staat al op de Kobo, dus je kunt hem ook gewoon loskoppelen.
+1854|Uitwerpen vanuit KoLib
+1855|De Kobo voegt je nieuwe boeken meteen toe, zonder dat je hem loskoppelt.
+1856|Test
+1857|Ontkoppelen in Instellingen
+1858|Opent de pagina van de Kobo in de Android-instellingen. Tik daar op Ontkoppelen en koppel hem dan los.
+1859|Uitwerpen in Bestanden
+1860|Opent de Kobo in de app Bestanden van Android. Open het menu (☰) en tik op ⏏ naast de USB-schijf.
+1861|Ontkoppelen in Mijn bestanden
+1862|Tik op de USB-schijf en dan op ⋮ (rechtsboven) → Ontkoppelen.
+1863|Zoek de USB-schijf en tik op Ontkoppelen.
+1864|Verder vanaf de plek van de Kobo
+1865|Terug naar de plek van de Kobo?
+1866|De lezer van KoLib is verder ({0}%) dan de Kobo ({1}%).
+1867|Terug
+1868|de opdracht kwam niet door
+1869|de Kobo reageert niet meer
+1870|het antwoord van de Kobo sloeg nergens op
+1871|de Kobo is de draad van de opdracht kwijt
+1872|De Kobo bood zijn opslag niet via USB aan.
+1873|De opslag van de Kobo had geen weg erin of eruit.
+1874|Android wilde de USB-verbinding van de Kobo niet openen.
+1875|Android wilde de opslag van de Kobo niet afstaan.
+1876|De Kobo accepteerde het uitwerpen niet (code {0}).
+1877|Het contact met de Kobo liep vast: {0}.
+1878|De Kobo accepteerde het uitwerpen niet.
+@pt
+1845|Não foi possível encontrar neste livro o ponto onde o Kobo está.
+1846|O Android não mostra nenhum Kobo conectado por USB.
+1847|Pedindo ao Android para deixar o KoLib usar o Kobo…
+1848|O Android não deixou o KoLib usar a conexão USB do Kobo.
+1849|Ejetando…
+1850|Desconecte-o mesmo assim: tudo o que o KoLib alterou já está nele.
+1851|Ejetado. O Kobo está adicionando seus livros novos, e você pode desconectá-lo quando quiser.
+1852|O KoLib mandou o Kobo ejetar, e ele parou de responder. Se ele estiver adicionando seus livros, funcionou; se não, desconecte-o.
+1853|Tudo o que o KoLib alterou já está no Kobo, então você também pode simplesmente desconectá-lo.
+1854|Ejetar pelo KoLib
+1855|O Kobo adiciona seus livros novos na hora, sem ser desconectado.
+1856|Teste
+1857|Desmontar em Configurações
+1858|Abre a página do Kobo nas configurações do Android. Toque em Desmontar lá e depois desconecte-o.
+1859|Ejetar em Arquivos
+1860|Abre o Kobo no app Arquivos do Android. Abra o menu (☰) e toque em ⏏ ao lado da unidade USB.
+1861|Desmontar em Meus arquivos
+1862|Toque na unidade USB e depois em ⋮ (canto superior direito) → Desmontar.
+1863|Encontre a unidade USB e toque em Desmontar.
+1864|Continuar de onde o Kobo está
+1865|Voltar para onde o Kobo está?
+1866|O leitor do KoLib está mais adiante ({0}%) que o Kobo ({1}%).
+1867|Voltar
+1868|o comando não passou
+1869|o Kobo parou de responder
+1870|a resposta do Kobo não fazia sentido
+1871|o Kobo perdeu o fio do comando
+1872|O Kobo não ofereceu o armazenamento por USB.
+1873|O armazenamento do Kobo não tinha entrada nem saída.
+1874|O Android não quis abrir a conexão USB do Kobo.
+1875|O Android não quis entregar o armazenamento do Kobo.
+1876|O Kobo não aceitou ser ejetado (código {0}).
+1877|A comunicação com o Kobo falhou: {0}.
+1878|O Kobo não aceitou ser ejetado.
+@ru
+1845|Место, где сейчас Kobo, в этой книге не найдено.
+1846|Android не видит Kobo, подключённый по USB.
+1847|KoLib просит у Android разрешения работать с Kobo…
+1848|Android не разрешил KoLib использовать USB-подключение Kobo.
+1849|Извлечение…
+1850|Тогда просто выньте кабель: всё, что изменил KoLib, уже на Kobo.
+1851|Извлечено. Kobo добавляет новые книги, и кабель можно вынуть в любой момент.
+1852|KoLib велел Kobo извлечься, и тот перестал отвечать. Если он добавляет книги, всё получилось; если нет, выньте кабель.
+1853|Всё, что изменил KoLib, уже на Kobo, так что можно и просто вынуть кабель.
+1854|Извлечь из KoLib
+1855|Kobo сразу добавит новые книги — кабель вынимать не нужно.
+1856|Проба
+1857|Отключить в настройках
+1858|Открывает страницу Kobo в настройках Android. Нажмите там «Отключить», затем выньте кабель.
+1859|Извлечь в «Файлах»
+1860|Открывает Kobo в приложении Android «Файлы». Откройте его меню (☰) и нажмите ⏏ рядом с USB-накопителем.
+1861|Отключить в «Моих файлах»
+1862|Нажмите на USB-накопитель, затем ⋮ (вверху справа) → «Отключить».
+1863|Найдите USB-накопитель и нажмите «Отключить».
+1864|Продолжить с места Kobo
+1865|Вернуться к месту Kobo?
+1866|Читалка KoLib ушла дальше ({0}%), чем Kobo ({1}%).
+1867|Вернуться
+1868|команда не прошла
+1869|Kobo перестал отвечать
+1870|ответ Kobo не имел смысла
+1871|Kobo потерял нить команды
+1872|Kobo не предоставил свою память по USB.
+1873|У памяти Kobo не было ни входа, ни выхода.
+1874|Android не открыл USB-подключение Kobo.
+1875|Android не отдал память Kobo.
+1876|Kobo не принял извлечение (код {0}).
+1877|Связь с Kobo прервалась: {0}.
+1878|Kobo не принял извлечение.
+@ja
+1845|この本の中で Kobo の読書位置が見つかりませんでした。
+1846|USB で接続された Kobo が Android に表示されていません。
+1847|KoLib が Kobo を使えるよう Android に許可を求めています…
+1848|Android が KoLib に Kobo の USB 接続の使用を許可しませんでした。
+1849|取り出し中…
+1850|代わりにケーブルを抜いてください。KoLib が変更した内容はすべて Kobo にあります。
+1851|取り出しました。Kobo が新しい本を追加しています。いつでもケーブルを抜いてかまいません。
+1852|KoLib が Kobo に取り出しを指示したところ、応答がなくなりました。本を追加していれば成功です。そうでなければケーブルを抜いてください。
+1853|KoLib が変更した内容はすでにすべて Kobo にあるので、そのままケーブルを抜いてもかまいません。
+1854|KoLib から取り出す
+1855|ケーブルを抜かなくても、Kobo がすぐに新しい本を追加します。
+1856|試験版
+1857|設定でマウント解除
+1858|Android の設定で Kobo のページを開きます。そこで「マウント解除」をタップしてから、ケーブルを抜いてください。
+1859|ファイルで取り出す
+1860|Android の「ファイル」アプリで Kobo を開きます。メニュー（☰）を開き、USB ドライブの横の ⏏ をタップします。
+1861|マイファイルでマウント解除
+1862|USB ドライブをタップし、⋮（右上）→「マウント解除」をタップします。
+1863|USB ドライブを見つけて「マウント解除」をタップします。
+1864|Kobo の続きから読む
+1865|Kobo の位置に戻りますか？
+1866|KoLib のリーダーのほうが先まで進んでいます（{0}%）。Kobo は {1}% です。
+1867|戻る
+1868|コマンドが届きませんでした
+1869|Kobo が応答しなくなりました
+1870|Kobo の応答が意味をなしませんでした
+1871|Kobo がコマンドを見失いました
+1872|Kobo が USB でストレージを提供しませんでした。
+1873|Kobo のストレージに入出力の経路がありませんでした。
+1874|Android が Kobo の USB 接続を開きませんでした。
+1875|Android が Kobo のストレージを引き渡しませんでした。
+1876|Kobo が取り出しを受け付けませんでした（コード {0}）。
+1877|Kobo とのやり取りが途切れました：{0}。
+1878|Kobo が取り出しを受け付けませんでした。

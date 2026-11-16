@@ -40,6 +40,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.SaveAlt
+import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.Merge
 import androidx.compose.material.icons.automirrored.outlined.CallSplit
 import androidx.compose.material.icons.automirrored.outlined.NoteAdd
@@ -188,6 +189,8 @@ fun LibraryScreen(
     /** Marking books as finished, or as unread, in the app's reader. */
     onMarkFinished: (List<String>) -> Unit = {},
     onMarkUnread: (List<String>) -> Unit = {},
+    /** Moving the app's reader to where the Kobo is in a book, and opening it there. */
+    onContinueFromKobo: ((String, KoboBook) -> Unit)? = null,
 ) {
     val reading: (LibraryBook) -> KoboBook? = remember(onKobo) {
         { b -> b.koboPath?.let { onKobo[KoboPaths.contentId(it)] } }
@@ -205,6 +208,7 @@ fun LibraryScreen(
             onChangeCover = onChangeCover, onDelete = onDelete, onSend = onSend, onRead = onRead, onEditText = onEditText,
             onNewBook = onNewBook, onMerge = onMerge, onSplit = onSplit, onExport = onExport, onDuplicate = onDuplicate,
             onAbout = onAbout, onTheme = onTheme, onMarkFinished = onMarkFinished, onMarkUnread = onMarkUnread,
+            onContinueFromKobo = onContinueFromKobo,
         )
         return
     }
@@ -290,6 +294,7 @@ fun LibraryScreen(
                         onDuplicate = { onDuplicate(listOf(book.id)) },
                         reading = reading(book),
                         readingLive = koboLive,
+                        onContinueFromKobo = onContinueFromKobo?.let { f -> { k: KoboBook -> f(book.id, k) } },
                         onCollection = { name ->
                             browse.collection = name
                             if (!twoPanes) browse.selectedId = null
@@ -918,6 +923,8 @@ fun LibraryDetailPane(
     finished: Boolean = false,
     onMarkFinished: (() -> Unit)? = null,
     onMarkUnread: (() -> Unit)? = null,
+    /** Moving the app's reader to where the Kobo is in the book. */
+    onContinueFromKobo: ((KoboBook) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     var confirmDelete by remember { mutableStateOf(false) }
@@ -1035,7 +1042,9 @@ fun LibraryDetailPane(
                 Text(tr("Remove"))
             }
         }
-        reading?.let { k -> ReadingLine(k, live = readingLive) }
+        reading?.let { k ->
+            ReadingLine(k, live = readingLive, here = readHere, onContinue = onContinueFromKobo?.takeIf { book.canReadFromKoboPlace }?.let { f -> { f(k) } })
+        }
         dev.kobolibrary.app.ui.ocr.OcrSection(book)
         if (book.changedSinceOnKobo) {
             Row(Modifier.padding(top = 10.dp), verticalAlignment = Alignment.Top) {
@@ -1124,7 +1133,16 @@ fun LibraryDetailPane(
 
 /** How far the book has been read on the Kobo. */
 @Composable
-internal fun ReadingLine(k: KoboBook, live: Boolean) {
+internal fun ReadingLine(
+    k: KoboBook,
+    live: Boolean,
+    /** How far through the book the app's reader is (0 to 1), if it's been started. */
+    here: Float? = null,
+    /** Moves the app's reader to where the Kobo is, and opens it there. */
+    onContinue: (() -> Unit)? = null,
+    /** Its button across the page, as the phone's other buttons are. */
+    wideButton: Boolean = false,
+) {
     val text = when (k.readStatus) {
         ReadStatus.UNREAD -> tr("Not started on the Kobo")
         ReadStatus.READING -> tr("{0}% read on the Kobo", k.percentRead)
@@ -1148,8 +1166,31 @@ internal fun ReadingLine(k: KoboBook, live: Boolean) {
                 drawStopIndicator = {},
             )
         }
+        if (onContinue != null && k.readStatus == ReadStatus.READING) {
+            // Going back from further on in the app's reader is checked first: that place would be lost.
+            var ask by remember { mutableStateOf(false) }
+            val ahead = here != null && here * 100f > k.percentRead + 1
+            OutlinedButton(
+                onClick = { if (ahead) ask = true else onContinue() },
+                modifier = Modifier.padding(top = 8.dp).then(if (wideButton) Modifier.fillMaxWidth() else Modifier),
+            ) {
+                Icon(Icons.Outlined.Sync, null, Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text(tr("Continue from the Kobo"))
+            }
+            if (ask) AlertDialog(
+                onDismissRequest = { ask = false },
+                title = { Text(tr("Go back to the Kobo's place?")) },
+                text = { Text(tr("KoLib's reader is further on ({0}%) than the Kobo ({1}%).", ((here ?: 0f) * 100).roundToInt(), k.percentRead)) },
+                confirmButton = { TextButton(onClick = { ask = false; onContinue() }) { Text(tr("Go back")) } },
+                dismissButton = { TextButton(onClick = { ask = false }) { Text(tr("Cancel")) } },
+            )
+        }
     }
 }
+
+/** Books the app's reader opens as text, where the Kobo's place can be found: not comics, nor PDFs read as PDFs. */
+internal val LibraryBook.canReadFromKoboPlace: Boolean get() = !isComic && !isPdf
 
 /** Whether a job's kind is about the library (shown on the library screen) rather than the Kobo. */
 internal val JobProgress.isLibraryJob: Boolean get() = kind != JobKind.SEND

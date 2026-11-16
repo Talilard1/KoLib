@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import dev.kobolibrary.app.reader.ReaderStore
 import dev.kobolibrary.app.epub.BookMetadata
 import dev.kobolibrary.app.kobo.KoboBook
+import dev.kobolibrary.app.kobo.KoboPlaces
 import dev.kobolibrary.app.kobo.CoverFitting
 import dev.kobolibrary.app.kobo.KoboPaths
 import dev.kobolibrary.app.kobo.KoboSender
@@ -627,6 +628,28 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
             }
             done.forEach { (id, here) -> koboApp.readingHere.set(id, here) }
             _message.value = if (ids.size == 1) tr("Marked as finished.") else tr("Marked {0} books as finished.", ids.size)
+        }
+    }
+
+    /**
+     * Moves the app's reader to where the Kobo is in the book (as the Kobo's database had it when it was
+     * last connected), then [onReady] opens the book there.
+     */
+    fun continueFromKobo(id: String, kobo: KoboBook, onReady: () -> Unit) {
+        viewModelScope.launch {
+            val found = withContext(Dispatchers.IO) {
+                runCatching { KoboPlaces.find(library.epubFile(id), kobo) }
+                    .onFailure { AppLog.e("Kobo place", "Finding the Kobo's place in “${kobo.title}” failed", it) }
+                    .getOrNull()
+            }
+            if (found == null) {
+                _message.value = tr("The Kobo's place couldn't be found in this book.")
+                return@launch
+            }
+            withContext(Dispatchers.IO) { ReaderStore.movePosition(library.bookDir(id), found.position) }
+            koboApp.readingHere.update(id, found.position)
+            AppLog.i("Kobo place", "The reader is now at ${found.position.path} (${found.position.anchor ?: "no exact spot"}), found by ${found.match}.")
+            onReady()
         }
     }
 

@@ -174,6 +174,18 @@ class KoboRepository(private val context: Context) {
         null
     }
 
+    /**
+     * Android's name for an attached Kobo's USB device, if it lists one (no permission needed to look). The
+     * name changes each time it's plugged in.
+     */
+    fun attachedKoboUsbName(): String? = try {
+        val usb = context.getSystemService(UsbManager::class.java)
+        usb?.deviceList?.values?.firstOrNull { it.vendorId == KoboModels.USB_VENDOR_ID }?.deviceName
+    } catch (e: Exception) {
+        AppLog.w("Kobo", "Could not list USB devices: ${e.message}")
+        null
+    }
+
     fun openTreeIntent(candidate: VolumeCandidate?): Intent =
         candidate?.volume?.createOpenDocumentTreeIntent() ?: Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
 

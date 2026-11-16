@@ -32,7 +32,7 @@
     <string name="intro_kobo_step2">Kobo の画面で「接続」をタップします。</string>
     <string name="intro_kobo_step3">初回のみ、KoLib に Kobo のドライブへのアクセスを許可します。</string>
     <string name="intro_kobo_waiting">Kobo を待っています…</string>
-    <string name="intro_kobo_detected">Kobo が見つかりました。Kobo の画面で「接続」をタップしてください。</string>
+    <string name="intro_kobo_detected">Kobo を開いています… ケーブルを抜かないでください。</string>
     <string name="intro_kobo_allow">Kobo へのアクセスを許可</string>
     <string name="intro_kobo_allow_help">Android のフォルダ選択画面が Kobo のドライブで開きます。「このフォルダを使用」をタップしてから「許可」をタップしてください。</string>
     <string name="intro_kobo_working">Kobo を開いています…</string>

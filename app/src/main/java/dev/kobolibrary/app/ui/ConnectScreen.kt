@@ -1,5 +1,7 @@
 package dev.kobolibrary.app.ui
 
+import androidx.compose.material.icons.outlined.CheckCircle
+import dev.kobolibrary.app.UsbKobo
 import dev.kobolibrary.app.tr
 import dev.kobolibrary.app.ui.components.GoldButton
 import androidx.compose.foundation.layout.Arrangement
@@ -153,12 +155,16 @@ private fun StatusArea(
 ) {
     when (connection) {
         is Connection.Waiting -> Row(verticalAlignment = Alignment.CenterVertically) {
-            CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
+            if (connection.usb == UsbKobo.UNMOUNTED) {
+                Icon(Icons.Outlined.CheckCircle, null, tint = MaterialTheme.colorScheme.primary)
+            } else {
+                CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
+            }
             Spacer(Modifier.width(12.dp))
             Text(
-                if (connection.usbKoboAttached) tr("Kobo detected. Tap Connect on the Kobo's screen.")
-                else tr("Waiting for the Kobo…"),
+                usbKoboText(connection.usb) ?: tr("Waiting for the Kobo…"),
                 style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.weight(1f, fill = false),
             )
         }
 
@@ -209,6 +215,14 @@ private fun StatusArea(
     }
 }
 
+/** What a Kobo plugged in over USB is doing, when there's something to say. */
+fun usbKoboText(usb: UsbKobo): String? = when (usb) {
+    UsbKobo.NONE -> null
+    UsbKobo.OPENING -> tr("Opening the Kobo… Don't unplug it.")
+    UsbKobo.SLOW -> tr("Still waiting for Android to open the Kobo. Check that the Kobo says it's connected.")
+    UsbKobo.UNMOUNTED -> tr("The Kobo is unmounted. It's safe to unplug it now.")
+}
+
 /** How to connect, for when the saved copy of the Kobo is showing. */
 @Composable
 fun ConnectHelpDialog(connection: Connection, onChooseDrive: (VolumeCandidate?) -> Unit, onDismiss: () -> Unit) {
@@ -221,8 +235,8 @@ fun ConnectHelpDialog(connection: Connection, onChooseDrive: (VolumeCandidate?) 
                 Step(1, tr("Plug the Kobo into this device with a USB-C data cable."))
                 Step(2, tr("On the Kobo's screen, tap Connect."))
                 Step(3, tr("The app finds it automatically and loads it again."))
-                if (connection is Connection.Waiting && connection.usbKoboAttached) {
-                    Text(tr("The Kobo is plugged in. Tap Connect on its screen."), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
+                if (connection is Connection.Waiting) usbKoboText(connection.usb)?.let {
+                    Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
                 }
             }
         },

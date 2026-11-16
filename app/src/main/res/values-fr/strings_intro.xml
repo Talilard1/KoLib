@@ -40,7 +40,7 @@
     <string name="intro_kobo_step2">Sur l’écran de la Kobo, touchez Connecter.</string>
     <string name="intro_kobo_step3">La première fois seulement, autorisez KoLib à accéder au stockage de la Kobo.</string>
     <string name="intro_kobo_waiting">En attente de la Kobo…</string>
-    <string name="intro_kobo_detected">Kobo détectée. Touchez Connecter sur son écran.</string>
+    <string name="intro_kobo_detected">Ouverture de la Kobo… Ne la débranchez pas.</string>
     <string name="intro_kobo_allow">Autoriser l’accès à la Kobo</string>
     <string name="intro_kobo_allow_help">Android ouvre son sélecteur de dossiers sur le stockage de la Kobo. Touchez « Utiliser ce dossier », puis « Autoriser ».</string>
     <string name="intro_kobo_working">Ouverture de la Kobo…</string>

@@ -1,0 +1,48 @@
+@fr
+1879|Démontez-la avant de la débrancher : sinon, Android devra peut-être redémarrer avant que la Kobo puisse se reconnecter.
+1880|La Kobo est démontée. Vous pouvez la débrancher sans risque.
+1881|Ouverture de la Kobo… Ne la débranchez pas.
+1882|En attente qu'Android ouvre la Kobo…
+1883|Android n'a toujours pas ouvert la Kobo. Vérifiez que la Kobo indique qu'elle est connectée.
+@de
+1879|Wirf ihn aus, bevor du ihn abziehst – sonst muss Android vielleicht neu gestartet werden, bevor sich der Kobo wieder verbindet.
+1880|Der Kobo ist ausgeworfen. Du kannst ihn jetzt sicher abziehen.
+1881|Der Kobo wird geöffnet… Zieh ihn nicht ab.
+1882|Warte, bis Android den Kobo öffnet…
+1883|Android hat den Kobo immer noch nicht geöffnet. Prüfe, ob der Kobo anzeigt, dass er verbunden ist.
+@es
+1879|Desmóntalo antes de desconectarlo: si no, puede que haya que reiniciar Android antes de que el Kobo vuelva a conectarse.
+1880|El Kobo está desmontado. Ya puedes desconectarlo sin peligro.
+1881|Abriendo el Kobo… No lo desconectes.
+1882|Esperando a que Android abra el Kobo…
+1883|Android todavía no ha abierto el Kobo. Comprueba que el Kobo indique que está conectado.
+@it
+1879|Smontalo prima di scollegarlo: altrimenti potrebbe essere necessario riavviare Android prima che il Kobo si ricolleghi.
+1880|Il Kobo è smontato. Ora puoi scollegarlo in sicurezza.
+1881|Apertura del Kobo… Non scollegarlo.
+1882|In attesa che Android apra il Kobo…
+1883|Android non ha ancora aperto il Kobo. Controlla che il Kobo indichi di essere collegato.
+@nl
+1879|Ontkoppel hem in Android voordat je de kabel eruit haalt: anders moet Android misschien opnieuw opstarten voordat de Kobo weer verbinding maakt.
+1880|De Kobo is ontkoppeld. Je kunt de kabel er nu veilig uit halen.
+1881|De Kobo wordt geopend… Haal de kabel er niet uit.
+1882|Wachten tot Android de Kobo opent…
+1883|Android heeft de Kobo nog steeds niet geopend. Controleer of de Kobo aangeeft dat hij verbonden is.
+@pt
+1879|Desmonte-o antes de desconectar: senão, o Android pode precisar ser reiniciado antes de o Kobo se conectar de novo.
+1880|O Kobo foi desmontado. Agora é seguro desconectá-lo.
+1881|Abrindo o Kobo… Não o desconecte.
+1882|Aguardando o Android abrir o Kobo…
+1883|O Android ainda não abriu o Kobo. Verifique se o Kobo mostra que está conectado.
+@ru
+1879|Отключите его в Android, прежде чем вынимать кабель: иначе Android может понадобиться перезагрузить, прежде чем Kobo снова подключится.
+1880|Kobo отключён в Android. Теперь кабель можно безопасно вынуть.
+1881|Открываем Kobo… Не вынимайте кабель.
+1882|Ждём, пока Android откроет Kobo…
+1883|Android всё ещё не открыл Kobo. Проверьте, что на экране Kobo написано, что он подключён.
+@ja
+1879|ケーブルを抜く前にマウント解除してください。そうしないと、Kobo を再び接続する前に Android の再起動が必要になることがあります。
+1880|Kobo のマウントを解除しました。ケーブルを安全に抜けます。
+1881|Kobo を開いています… ケーブルを抜かないでください。
+1882|Android が Kobo を開くのを待っています…
+1883|Android はまだ Kobo を開いていません。Kobo の画面に接続中と表示されているか確認してください。

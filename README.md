@@ -201,8 +201,13 @@ New versions install over the one you have, and your library and settings stay a
 3. The first time only, Android asks which folder KoLib may use. It opens on the Kobo's drive, so
    tap **Use this folder**, then **Allow**.
 
-When you're done, eject the Kobo before you unplug it. KoLib shows you where Android's **Unmount**
-option is. Once it's unplugged, the Kobo adds the books you sent to its library.
+Android takes a few seconds to open the Kobo's drive after you tap **Connect**. KoLib says it's
+opening the Kobo in the meantime, so leave it plugged in.
+
+When you're done, tap **Eject** in KoLib. It opens the Kobo's page in Android's settings, where you
+tap **Unmount**, and then KoLib tells you it's safe to unplug the Kobo. If you unplug it without
+unmounting it, Android may need restarting before the Kobo will connect again. Once it's unplugged,
+the Kobo adds the books you sent to its library.
 
 KoLib was made with a Kobo Clara 2E, a Galaxy Tab S9 and a Galaxy A72. Other Kobo e-readers keep
 their books the same way, so they should work too. KoLib knows the screen size of every Kobo from

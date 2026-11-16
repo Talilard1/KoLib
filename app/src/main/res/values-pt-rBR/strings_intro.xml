@@ -40,7 +40,7 @@
     <string name="intro_kobo_step2">Na tela do Kobo, toque em Conectar.</string>
     <string name="intro_kobo_step3">Só na primeira vez: permita que o KoLib use a unidade do Kobo.</string>
     <string name="intro_kobo_waiting">Aguardando o Kobo…</string>
-    <string name="intro_kobo_detected">Kobo encontrado. Toque em Conectar na tela dele.</string>
+    <string name="intro_kobo_detected">Abrindo o Kobo… Não o desconecte.</string>
     <string name="intro_kobo_allow">Permitir acesso ao Kobo</string>
     <string name="intro_kobo_allow_help">O Android abre o seletor de pastas na unidade do Kobo. Toque em “Usar esta pasta” e depois em “Permitir”.</string>
     <string name="intro_kobo_working">Abrindo o Kobo…</string>

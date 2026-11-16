@@ -36,7 +36,7 @@
     <string name="intro_kobo_step2">Tippe auf dem Bildschirm des Kobo auf „Verbinden“.</string>
     <string name="intro_kobo_step3">Nur beim ersten Mal: Erlaube KoLib den Zugriff auf das Laufwerk des Kobo.</string>
     <string name="intro_kobo_waiting">Warte auf den Kobo…</string>
-    <string name="intro_kobo_detected">Kobo gefunden. Tippe auf seinem Bildschirm auf „Verbinden“.</string>
+    <string name="intro_kobo_detected">Der Kobo wird geöffnet… Zieh ihn nicht ab.</string>
     <string name="intro_kobo_allow">Zugriff auf den Kobo erlauben</string>
     <string name="intro_kobo_allow_help">Android öffnet die Ordnerauswahl auf dem Laufwerk des Kobo. Tippe auf „Diesen Ordner verwenden“ und dann auf „Zulassen“.</string>
     <string name="intro_kobo_working">Kobo wird geöffnet…</string>

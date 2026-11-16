@@ -40,7 +40,7 @@
     <string name="intro_kobo_step2">On the Kobo\'s screen, tap Connect.</string>
     <string name="intro_kobo_step3">The first time only, allow KoLib to use the Kobo\'s drive.</string>
     <string name="intro_kobo_waiting">Waiting for the Kobo…</string>
-    <string name="intro_kobo_detected">Kobo found. Tap Connect on its screen.</string>
+    <string name="intro_kobo_detected">Opening the Kobo… Don\'t unplug it.</string>
     <string name="intro_kobo_allow">Allow access to the Kobo</string>
     <string name="intro_kobo_allow_help">Android opens its folder picker on the Kobo\'s drive. Tap “Use this folder”, then “Allow”.</string>
     <string name="intro_kobo_working">Opening the Kobo…</string>

@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui.onboarding
 
+import dev.kobolibrary.app.UsbKobo
 import dev.kobolibrary.app.tr
 import android.app.Activity
 import androidx.activity.compose.BackHandler
@@ -380,7 +381,8 @@ private fun KoboStatus(connection: Connection, onChooseDrive: (VolumeCandidate?)
         is Connection.Waiting -> Row(verticalAlignment = Alignment.CenterVertically) {
             CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp, color = KoLibGold.gold)
             Spacer(Modifier.width(12.dp))
-            Body(stringResource(if (connection.usbKoboAttached) R.string.intro_kobo_detected else R.string.intro_kobo_waiting))
+            val opening = connection.usb == UsbKobo.OPENING || connection.usb == UsbKobo.SLOW
+            Body(stringResource(if (opening) R.string.intro_kobo_detected else R.string.intro_kobo_waiting))
         }
         is Connection.NeedsAccess -> Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
             OutlinedButton(onClick = { onChooseDrive(connection.candidate) }) { Text(stringResource(R.string.intro_kobo_allow), color = KoLibGold.light) }

@@ -411,15 +411,20 @@ enum class SeriesNumber {
     WORDS, FIGURES, NONE;
 
     companion object {
-        private val englishNumbers = listOf(
-            "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen",
-            "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen", "Twenty",
+        private val units = listOf(
+            "Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen",
+            "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen",
         )
+        private val tens = listOf("", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety")
 
-        /** [index] in words ("Six"), where it can be (English, a whole number up to twenty); null where it can't. */
+        /**
+         * [index] in words ("Six", "Zero" for a prequel, "Twenty-One"), where it can be: in English, a whole number below a
+         * hundred. Null where it can't.
+         */
         fun inWords(index: Double): String? {
-            val whole = index.toInt().takeIf { it.toDouble() == index && it in 1..20 } ?: return null
-            return if (dev.kobolibrary.app.L10n.language == "en") englishNumbers[whole] else null
+            val whole = index.toInt().takeIf { it.toDouble() == index && it in 0..99 } ?: return null
+            if (dev.kobolibrary.app.L10n.language != "en") return null
+            return if (whole < 20) units[whole] else tens[whole / 10] + if (whole % 10 == 0) "" else "-" + units[whole % 10]
         }
 
         /** The number as [how] has it: in words if it can be, otherwise figures; null for none. */

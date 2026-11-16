@@ -561,15 +561,13 @@ fun CoverGeneratorScreen(
                     // The words' colours, apart from the cover's, in any design.
                     HorizontalDivider()
                     Text(tr("Lettering"), style = MaterialTheme.typography.titleSmall)
-                    TextColourChooser(tr("Title and author"), lettering) { lettering = it }
-                    if (!text.series.isNullOrBlank()) TextColourChooser(tr("Series"), seriesLettering) { seriesLettering = it }
                     // Its number in the series: in words, in figures, or none ("Book of", on the framed design).
                     val index = text.seriesIndex
                     if (!text.series.isNullOrBlank() && index != null) {
                         val framed = style == CoverStyle.FRAMED
                         val shown = seriesNumber ?: if (framed) SeriesNumber.WORDS else SeriesNumber.FIGURES
                         Text(tr("Number in the series"), style = MaterialTheme.typography.labelLarge)
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             val choices = listOfNotNull(
                                 SeriesNumber.WORDS.takeIf { SeriesNumber.inWords(index) != null },
                                 SeriesNumber.FIGURES,
@@ -589,6 +587,8 @@ fun CoverGeneratorScreen(
                             }
                         }
                     }
+                    TextColourChooser(tr("Title and author"), lettering) { lettering = it }
+                    if (!text.series.isNullOrBlank()) TextColourChooser(tr("Series"), seriesLettering) { seriesLettering = it }
                     Text(
                         if (CoverScreen.fromKobo) tr("The cover shows the book's title, series and authors. It's made at {0} × {1} pixels, the size of your Kobo's screen.", CoverCrop.OUT_WIDTH, CoverCrop.OUT_HEIGHT)
                         else tr("The cover shows the book's title, series and authors. It's made at 1072 × 1448 pixels, the size of the Kobo Clara's screen."),

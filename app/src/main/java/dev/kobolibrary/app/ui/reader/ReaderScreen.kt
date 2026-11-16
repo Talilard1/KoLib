@@ -3,6 +3,12 @@ package dev.kobolibrary.app.ui.reader
 import dev.kobolibrary.app.ui.components.FittedText
 import dev.kobolibrary.app.tr
 import dev.kobolibrary.app.ui.components.phoneLayout
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material.icons.outlined.ZoomIn
+import androidx.compose.material.icons.outlined.Save
+import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.Toc
 import androidx.compose.material.icons.outlined.BorderColor
 import androidx.compose.material.icons.outlined.TextFields
@@ -479,6 +485,7 @@ internal fun ReaderScreen(
             })
         }
         controller.image?.let { src -> ImageViewer(controller, src, onClose = { controller.image = null }) }
+        controller.heldImage?.let { src -> HeldPicture(controller, src, onDone = { controller.heldImage = null }) }
         controller.browsing?.let { browse ->
             // Opened afresh each time, where it's opened at.
             key(browse) {
@@ -1774,13 +1781,65 @@ private fun ZoomablePicture(bitmap: Result<ImageBitmap>?, key: Any, onZoomed: (B
     }
 }
 
-/** Over a picture shown full screen: turning it (if it's a picture of its own, at [path]), and closing. */
+/** What can be done with a picture held down on the page: open it, share it, or save it to the device. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HeldPicture(controller: ReaderController, src: String, onDone: () -> Unit) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val path = remember(src) { BookServer.pathOf(src)?.first } ?: return onDone()
+    val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    fun withBytes(work: suspend (ByteArray) -> Unit) {
+        onDone()
+        scope.launch { withContext(Dispatchers.IO) { controller.pictureBytes(path) }?.let { work(it) } }
+    }
+    ModalBottomSheet(onDismissRequest = onDone, sheetState = sheet) {
+        Text(tr("Picture"), style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp))
+        ListItem(
+            headlineContent = { Text(tr("Open")) },
+            leadingContent = { Icon(Icons.Outlined.ZoomIn, null) },
+            modifier = Modifier.clickable { onDone(); controller.image = src },
+        )
+        ListItem(
+            headlineContent = { Text(tr("Share")) },
+            leadingContent = { Icon(Icons.Outlined.Share, null) },
+            modifier = Modifier.clickable { withBytes { SavedPictures.share(context, it, path, controller.bookTitle) } },
+        )
+        ListItem(
+            headlineContent = { Text(tr("Save to Pictures")) },
+            leadingContent = { Icon(Icons.Outlined.Save, null) },
+            modifier = Modifier.clickable { withBytes { SavedPictures.save(context, it, path, controller.bookTitle) } },
+        )
+        Spacer(Modifier.height(16.dp))
+    }
+}
+
+/** Over a picture shown full screen: turning it, sharing and saving it (if it's a picture of its own, at [path]), and closing. */
 @Composable
 private fun BoxScope.ViewerButtons(controller: ReaderController, path: String?, onClose: () -> Unit) {
     // The buttons sit on a dark round backing, so they show over a pale picture too.
     val backing = Color.Black.copy(alpha = 0.5f)
-    IconButton(onClick = onClose, modifier = Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(8.dp).clip(CircleShape).background(backing)) {
-        Icon(Icons.Filled.Close, tr("Close picture"), tint = Color.White)
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    Row(
+        Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (path != null) {
+            fun withBytes(work: suspend (ByteArray) -> Unit) {
+                scope.launch { withContext(Dispatchers.IO) { controller.pictureBytes(path) }?.let { work(it) } }
+            }
+            IconButton(modifier = Modifier.clip(CircleShape).background(backing), onClick = { withBytes { SavedPictures.share(context, it, path, controller.bookTitle) } }) {
+                Icon(Icons.Outlined.Share, tr("Share"), tint = Color.White)
+            }
+            IconButton(modifier = Modifier.clip(CircleShape).background(backing), onClick = { withBytes { SavedPictures.save(context, it, path, controller.bookTitle) } }) {
+                Icon(Icons.Outlined.Save, tr("Save to Pictures"), tint = Color.White)
+            }
+        }
+        IconButton(onClick = onClose, modifier = Modifier.clip(CircleShape).background(backing)) {
+            Icon(Icons.Filled.Close, tr("Close picture"), tint = Color.White)
+        }
     }
     if (path != null) {
         Row(

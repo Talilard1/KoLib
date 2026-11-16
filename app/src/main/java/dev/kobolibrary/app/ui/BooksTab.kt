@@ -253,10 +253,8 @@ private fun BookBrowser(
         val onTap: (KoboBook) -> Unit = { book ->
             if (browse.selecting) browse.togglePicked(book.contentId) else browse.selectedBookId = book.contentId
         }
-        val onLongPress: (KoboBook) -> Unit = { book ->
-            if (!browse.selecting) browse.selecting = true
-            browse.togglePicked(book.contentId)
-        }
+        // Holding a book picks it, and every book from the one picked last to it.
+        val onLongPress: (KoboBook) -> Unit = { book -> browse.holdPick(book.contentId, books.map { it.contentId }) }
         if (browse.grid) ShelfGridBox(minCell = 132.dp, coverPadding = 8.dp) {
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(132.dp),

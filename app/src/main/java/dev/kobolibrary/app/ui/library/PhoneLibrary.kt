@@ -222,10 +222,8 @@ internal fun PhoneLibraryScreen(
     }
     val chosen = { visible.filter { browse.picked.containsKey(it.id) }.map { it.id } }
     val onTap: (LibraryBook) -> Unit = { b -> if (browse.selecting) browse.togglePicked(b.id) else browse.selectedId = b.id }
-    val onHold: (LibraryBook) -> Unit = { b ->
-        if (!browse.selecting) browse.selecting = true
-        browse.togglePicked(b.id)
-    }
+    // Holding a book chooses it, and every book from the one chosen last to it.
+    val onHold: (LibraryBook) -> Unit = { b -> browse.holdPick(b.id, visible.map { it.id }) }
     // The Add books button shrinks to its icon once the list is scrolled, to show more of the covers.
     val atTop by remember {
         derivedStateOf { if (browse.grid) browse.gridState.firstVisibleItemIndex == 0 else browse.listState.firstVisibleItemIndex == 0 }

@@ -272,11 +272,72 @@ private fun CoverChoice(selected: Boolean, text: String, onClick: () -> Unit) {
  * One book cut into several: first where each new book starts (the chapters that look like the
  * start of a book are ticked already), then their titles and whether they're numbered as a series.
  */
+/**
+ * Choosing which pages go into every book a split makes: the first book's opening pages (a title page, a copyright
+ * notice, a contents page) and the last book's closing ones (about the author), with those [chosen] ticked.
+ */
+@Composable
+private fun SharedPagesDialog(
+    pages: List<BookAssembly.Page>,
+    candidates: BookAssembly.Shared,
+    chosen: BookAssembly.Shared,
+    onDone: (front: Set<Int>, back: Set<Int>) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val front = remember { mutableStateMapOf<Int, Boolean>().apply { chosen.front.forEach { put(it, true) } } }
+    val back = remember { mutableStateMapOf<Int, Boolean>().apply { chosen.back.forEach { put(it, true) } } }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(tr("Pages for every book")) },
+        text = {
+            LazyColumn(Modifier.heightIn(max = 460.dp)) {
+                for ((heading, indexes, ticked) in listOf(
+                    Triple(tr("From the start of the first book"), candidates.front, front),
+                    Triple(tr("From the end of the last book"), candidates.back, back),
+                )) {
+                    if (indexes.isEmpty()) continue
+                    item(key = heading) {
+                        Text(heading, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(top = 8.dp, bottom = 2.dp))
+                    }
+                    items(indexes, key = { "$heading-$it" }) { i ->
+                        val p = pages[i]
+                        val on = ticked.containsKey(i)
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .toggleable(value = on, role = Role.Checkbox, onValueChange = { v -> if (v) ticked[i] = true else ticked.remove(i) })
+                                .padding(vertical = 2.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Checkbox(checked = on, onCheckedChange = null)
+                            Spacer(Modifier.width(4.dp))
+                            Column(Modifier.weight(1f)) {
+                                Text(p.title, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                Text(
+                                    listOfNotNull(
+                                        if (p.cover) tr("Cover") else null,
+                                        if (p.words == 1) tr("1 word") else tr("{0} words", "%,d".format(p.words)),
+                                    ).joinToString(" · "),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = { onDone(front.keys.toSet(), back.keys.toSet()) }) { Text(tr("Done")) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Cancel")) } },
+    )
+}
+
 @Composable
 fun SplitBookDialog(
     book: LibraryBook,
     loadPages: suspend () -> List<BookAssembly.Page>,
-    onSplit: (cuts: List<Int>, titles: List<String>, series: String?, shareFrontAndBack: Boolean) -> Unit,
+    onSplit: (cuts: List<Int>, titles: List<String>, series: String?, shared: BookAssembly.Shared?) -> Unit,
     onDismiss: () -> Unit,
     /** For previews: the pages, already loaded. */
     initialPages: List<BookAssembly.Page>? = null,
@@ -291,7 +352,12 @@ fun SplitBookDialog(
     val typed = remember { mutableStateMapOf<Int, String>() }
     var numbered by remember { mutableStateOf(true) }
     var series by remember { mutableStateOf(book.title) }
-    var share by remember { mutableStateOf(true) }
+    /** Pages go into every book: null until changed, which means yes if any were found. */
+    var share by remember { mutableStateOf<Boolean?>(null) }
+    /** The pages chosen for every book, by the page they are; null: the ones found. */
+    var chosenFront by remember { mutableStateOf<Set<Int>?>(null) }
+    var chosenBack by remember { mutableStateOf<Set<Int>?>(null) }
+    var choosing by remember { mutableStateOf(false) }
     LaunchedEffect(book.id) {
         if (pages != null) return@LaunchedEffect
         try {
@@ -311,9 +377,29 @@ fun SplitBookDialog(
     val starts = listOf(0) + sortedCuts
     val defaults = remember(list, sortedCuts) { list?.let { BookAssembly.partTitles(it, sortedCuts, book.title) }.orEmpty() }
     fun titleOf(k: Int) = typed[starts[k]] ?: defaults.getOrElse(k) { tr("{0} (part {1})", book.title, k + 1) }
-    // The pages before the first book and after the last, which can go into every one.
-    val shared = remember(list, sortedCuts) { list?.let { BookAssembly.sharedPages(it, sortedCuts) } ?: BookAssembly.Shared(emptyList(), emptyList()) }
+    // The pages before the first book and after the last, which can go into every one: those found, or chosen.
+    val found = remember(list, sortedCuts) { list?.let { BookAssembly.sharedPages(it, sortedCuts) } ?: BookAssembly.Shared(emptyList(), emptyList()) }
+    val candidates = remember(list, sortedCuts) { list?.let { BookAssembly.sharedCandidates(it, sortedCuts) } ?: BookAssembly.Shared(emptyList(), emptyList()) }
+    val shared = BookAssembly.Shared(
+        (chosenFront?.toList() ?: found.front).filter { it < (starts.getOrNull(1) ?: 0) }.sorted(),
+        (chosenBack?.toList() ?: found.back).filter { it > starts.last() }.sorted(),
+    )
+    val sharing = (share ?: !found.isEmpty) && !shared.isEmpty
 
+    if (choosing && list != null) {
+        SharedPagesDialog(
+            pages = list,
+            candidates = candidates,
+            chosen = shared,
+            onDone = { f, b ->
+                chosenFront = f
+                chosenBack = b
+                share = f.isNotEmpty() || b.isNotEmpty()
+                choosing = false
+            },
+            onDismiss = { choosing = false },
+        )
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.AutoMirrored.Outlined.CallSplit, null) },
@@ -404,29 +490,35 @@ fun SplitBookDialog(
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
-                    if (!shared.isEmpty) {
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .toggleable(value = share, role = Role.Switch, onValueChange = { share = it })
-                                .padding(vertical = 6.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Column(Modifier.weight(1f)) {
-                                Text(tr("Give every book the opening and closing pages"), style = MaterialTheme.typography.bodyLarge)
-                                Text(
-                                    listOfNotNull(
-                                        shared.front.takeIf { it.isNotEmpty() }?.let { f -> tr("Before the first book: {0}.", f.joinToString(", ") { list[it].title }) },
-                                        shared.back.takeIf { it.isNotEmpty() }?.let { b -> tr("After the last: {0}.", b.joinToString(", ") { list[it].title }) },
-                                        tr("If one is a contents page, it lists each book's own chapters."),
-                                    ).joinToString(" "),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                            Spacer(Modifier.width(8.dp))
-                            Switch(checked = share, onCheckedChange = null)
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .toggleable(value = sharing, role = Role.Switch, onValueChange = { on ->
+                                share = on
+                                // Nothing found to give them: choose which.
+                                if (on && shared.isEmpty) choosing = true
+                            })
+                            .padding(top = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(Modifier.weight(1f)) {
+                            Text(tr("Give every book the opening and closing pages"), style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                if (shared.isEmpty) tr("Pages like a title page or a copyright notice, from the start of the first book or the end of the last. None were found: choose them.")
+                                else listOfNotNull(
+                                    shared.front.takeIf { it.isNotEmpty() }?.let { f -> tr("Before the first book: {0}.", f.joinToString(", ") { list[it].title }) },
+                                    shared.back.takeIf { it.isNotEmpty() }?.let { b -> tr("After the last: {0}.", b.joinToString(", ") { list[it].title }) },
+                                    tr("If one is a contents page, it lists each book's own chapters."),
+                                ).joinToString(" "),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
                         }
+                        Spacer(Modifier.width(8.dp))
+                        Switch(checked = sharing, onCheckedChange = null)
+                    }
+                    TextButton(onClick = { choosing = true }, enabled = !(candidates.front.isEmpty() && candidates.back.isEmpty())) {
+                        Text(tr("Choose pages…"))
                     }
                     Spacer(Modifier.height(4.dp))
                     starts.forEachIndexed { k, start ->
@@ -446,7 +538,7 @@ fun SplitBookDialog(
                         Icon(Icons.Outlined.Info, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(Modifier.width(8.dp))
                         Text(
-                            tr("Each new book gets its chapters, with the pictures, styles and fonts they use, and any notes pages they link to. The first book gets the original cover. The others use the first picture in their opening pages, or get a new cover with their title. “{0}” itself isn't changed.", book.title),
+                            tr("Each new book gets its chapters, with the pictures, styles and fonts they use, and any notes pages they link to. The first book gets the original cover. The others use their own cover page, if they open with one, or get a new cover with their title. “{0}” itself isn't changed.", book.title),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -459,7 +551,7 @@ fun SplitBookDialog(
                 problem != null || list == null -> TextButton(onClick = onDismiss) { Text(tr("Close")) }
                 step == 0 -> TextButton(onClick = { step = 1 }, enabled = sortedCuts.isNotEmpty()) { Text(tr("Next")) }
                 else -> TextButton(
-                    onClick = { onSplit(sortedCuts, starts.indices.map { titleOf(it) }, series.trim().takeIf { numbered && it.isNotEmpty() }, share && !shared.isEmpty) },
+                    onClick = { onSplit(sortedCuts, starts.indices.map { titleOf(it) }, series.trim().takeIf { numbered && it.isNotEmpty() }, shared.takeIf { sharing }) },
                     enabled = starts.indices.all { titleOf(it).isNotBlank() },
                 ) { Text(tr("Split")) }
             }

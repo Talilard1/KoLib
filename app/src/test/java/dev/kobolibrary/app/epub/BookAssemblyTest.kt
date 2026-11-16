@@ -166,7 +166,7 @@ ${names.joinToString("\n") { "    <itemref idref=\"$it\"/>" }}
         assertEquals(listOf("About the Author"), shared.back.map { pages[it].title })
 
         val outs = listOf(tmp.newFile("a.epub"), tmp.newFile("b.epub"))
-        BookAssembly.split(src, listOf(cut), listOf(BookMetadata(title = "A"), BookMetadata(title = "B")), outs, shareFrontAndBack = true)
+        BookAssembly.split(src, listOf(cut), listOf(BookMetadata(title = "A"), BookMetadata(title = "B")), outs, shared)
         outs.forEach { assertSound(it) }
         val (_, first, e1) = structure(outs[0])
         val (_, second, e2) = structure(outs[1])
@@ -186,6 +186,15 @@ ${names.joinToString("\n") { "    <itemref idref=\"$it\"/>" }}
                 assertFalse(page1.contains("B One"))
             }
         }
+        // Where the contents don't say which are books, the pages named as an omnibus's opening and closing ones.
+        val flat = pages.map { it.copy(level = 0) }
+        val named = BookAssembly.sharedPages(flat, listOf(cut))
+        assertEquals(listOf("Title Page", "Contents"), named.front.map { pages[it].title })
+        assertEquals(listOf("About the Author"), named.back.map { pages[it].title })
+        // To choose from: the first book's opening pages and the last book's closing ones.
+        val choices = BookAssembly.sharedCandidates(pages, listOf(cut))
+        assertEquals((0 until cut).toList(), choices.front)
+        assertEquals(listOf("B One", "B Two", "About the Author"), choices.back.map { pages[it].title })
         // Without: as before.
         BookAssembly.split(src, listOf(cut), listOf(BookMetadata(title = "A"), BookMetadata(title = "B")), outs)
         structure(outs[1]).third.use { e -> assertEquals(listOf("b", "b1", "b2", "about"), BookStructure(EpubFileFiles(e)).chapters.map { it.path.substringAfterLast('/').substringBefore('.') }) }

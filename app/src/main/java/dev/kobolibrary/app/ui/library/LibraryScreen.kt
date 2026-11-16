@@ -312,7 +312,7 @@ fun LibraryScreen(
                         Box(Modifier.weight(1f).fillMaxHeight()) {
                             if (selected != null && !browse.selecting) detail(selected, null)
                             else if (browse.selecting) SelectionHelp(browse.picked.size)
-                            else EmptyState(Icons.Outlined.AutoStories, tr("Tap a book"), tr("Its details will show here. To work with several books at once, tap Select, or press and hold a book."))
+                            else EmptyState(Icons.Outlined.AutoStories, tr("Tap a book"), tr("Its details will show here. To work with several books at once, tap Select, or press and hold a book. Then press and hold another to choose every book between them."))
                         }
                     }
                 } else if (selected != null && !browse.selecting) {
@@ -425,10 +425,8 @@ private fun LibraryBrowser(
     if (browse.selecting) BackHandler { browse.stopSelecting() }
     var confirmRemove by remember { mutableStateOf<List<String>?>(null) }
     val onTap: (LibraryBook) -> Unit = { b -> if (browse.selecting) browse.togglePicked(b.id) else browse.selectedId = b.id }
-    val onHold: (LibraryBook) -> Unit = { b ->
-        if (!browse.selecting) browse.selecting = true
-        browse.togglePicked(b.id)
-    }
+    // Holding a book chooses it, and every book from the one chosen last to it.
+    val onHold: (LibraryBook) -> Unit = { b -> browse.holdPick(b.id, books.map { it.id }) }
     Column(modifier.fillMaxHeight()) {
         if (browse.selecting) {
             val chosen = { books.filter { browse.picked.containsKey(it.id) }.map { it.id } }

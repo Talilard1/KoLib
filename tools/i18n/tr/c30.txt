@@ -1,0 +1,56 @@
+@fr
+1915|Ses détails s’afficheront ici. Pour agir sur plusieurs livres à la fois, touchez Sélectionner, ou appuyez longuement sur un livre. Appuyez ensuite longuement sur un autre pour choisir tous les livres entre les deux.
+1916|Pages pour chaque livre
+1917|Au début du premier livre
+1918|À la fin du dernier livre
+1919|Des pages comme une page de titre ou une mention de copyright, au début du premier livre ou à la fin du dernier. Aucune n’a été trouvée : choisissez-les.
+1920|Choisir les pages…
+@de
+1915|Hier erscheinen seine Details. Um mit mehreren Büchern auf einmal zu arbeiten, tippe auf „Auswählen“ oder halte ein Buch gedrückt. Halte dann ein anderes gedrückt, um alle Bücher dazwischen auszuwählen.
+1916|Seiten für jedes Buch
+1917|Vom Anfang des ersten Buchs
+1918|Vom Ende des letzten Buchs
+1919|Seiten wie eine Titelseite oder ein Copyright-Vermerk, vom Anfang des ersten Buchs oder vom Ende des letzten. Keine gefunden: Wähle sie aus.
+1920|Seiten auswählen…
+@es
+1915|Aquí se mostrarán sus detalles. Para trabajar con varios libros a la vez, toca Seleccionar o mantén pulsado un libro. Después mantén pulsado otro para elegir todos los libros que hay entre ambos.
+1916|Páginas para cada libro
+1917|Del principio del primer libro
+1918|Del final del último libro
+1919|Páginas como una página de título o un aviso de copyright, del principio del primer libro o del final del último. No se encontró ninguna: elígelas.
+1920|Elegir páginas…
+@it
+1915|Qui verranno mostrati i suoi dettagli. Per lavorare su più libri insieme, tocca Seleziona o tieni premuto un libro. Poi tieni premuto un altro per scegliere tutti i libri compresi tra i due.
+1916|Pagine per ogni libro
+1917|Dall’inizio del primo libro
+1918|Dalla fine dell’ultimo libro
+1919|Pagine come un frontespizio o una nota di copyright, dall’inizio del primo libro o dalla fine dell’ultimo. Non ne è stata trovata nessuna: sceglile tu.
+1920|Scegli le pagine…
+@nl
+1915|Hier verschijnen de gegevens. Tik op Selecteren of houd een boek ingedrukt om met meerdere boeken tegelijk te werken. Houd daarna een ander ingedrukt om alle boeken daartussen te kiezen.
+1916|Pagina’s voor elk boek
+1917|Van het begin van het eerste boek
+1918|Van het eind van het laatste boek
+1919|Pagina’s zoals een titelpagina of een copyrightvermelding, van het begin van het eerste boek of het eind van het laatste. Er zijn er geen gevonden: kies ze zelf.
+1920|Pagina’s kiezen…
+@pt
+1915|Os detalhes aparecem aqui. Para trabalhar com vários livros de uma vez, toque em Selecionar ou toque e segure um livro. Depois toque e segure outro para escolher todos os livros entre os dois.
+1916|Páginas para cada livro
+1917|Do começo do primeiro livro
+1918|Do fim do último livro
+1919|Páginas como uma página de rosto ou um aviso de direitos autorais, do começo do primeiro livro ou do fim do último. Nenhuma foi encontrada: escolha-as.
+1920|Escolher páginas…
+@ru
+1915|Здесь появятся её сведения. Чтобы работать с несколькими книгами сразу, нажмите «Выбрать» или нажмите и удерживайте книгу. Затем нажмите и удерживайте другую, чтобы выбрать все книги между ними.
+1916|Страницы для каждой книги
+1917|Из начала первой книги
+1918|Из конца последней книги
+1919|Страницы вроде титульной или с уведомлением об авторских правах — из начала первой книги или конца последней. Таких не нашлось: выберите их.
+1920|Выбрать страницы…
+@ja
+1915|ここに本の情報が表示されます。複数の本をまとめて扱うには、「選択」をタップするか、本を長押ししてください。続けて別の本を長押しすると、その間の本がすべて選択されます。
+1916|各本に入れるページ
+1917|最初の本の始まりから
+1918|最後の本の終わりから
+1919|扉ページや著作権表示など、最初の本の始まりや最後の本の終わりにあるページです。見つからなかったので、選んでください。
+1920|ページを選ぶ…

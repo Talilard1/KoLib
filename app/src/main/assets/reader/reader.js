@@ -2486,6 +2486,9 @@
       return;
     }
     var img = t && t.closest ? t.closest('img, image') : null;
+    // A picture fitted to the page (a cover, a plate) is drawn smaller than its box: a tap in the space beside it
+    // isn't on it, but a tap on the page, for the controls or to turn it.
+    if (img && img.localName === 'img' && !onDrawnPicture(img, e.clientX, e.clientY)) img = null;
     if (img && placedHalves.length === 2 && img.classList && img.classList.contains('kl-spread-half')) {
       // Half of a map across two pages: the app shows the whole of it.
       try {
@@ -2510,6 +2513,36 @@
     else if (zone > 0) next(y);
     else KL.tap('center');
   }, true);
+
+  /**
+   * The point (x, y) is on [img]'s picture as drawn: a picture fitted into its box (object-fit "contain", as covers
+   * and plates are) is drawn smaller than the box, where object-position puts it (the middle, mostly).
+   */
+  function onDrawnPicture(img, x, y) {
+    var r = img.getBoundingClientRect();
+    var left = r.left, top = r.top, w = r.width, h = r.height;
+    var cs = window.getComputedStyle ? getComputedStyle(img) : null;
+    var fit = cs ? cs.objectFit : '';
+    if ((fit === 'contain' || fit === 'scale-down') && img.naturalWidth && img.naturalHeight && r.width && r.height) {
+      var k = Math.min(r.width / img.naturalWidth, r.height / img.naturalHeight);
+      if (fit === 'scale-down') k = Math.min(k, 1);
+      w = img.naturalWidth * k;
+      h = img.naturalHeight * k;
+      var pos = ((cs && cs.objectPosition) || '50% 50%').trim().split(/\s+/);
+      var at = function (v, free) {
+        if (!v || v === 'center') return free / 2;
+        if (/%$/.test(v)) return free * parseFloat(v) / 100;
+        if (/px$/.test(v)) return parseFloat(v);
+        if (v === 'left' || v === 'top') return 0;
+        if (v === 'right' || v === 'bottom') return free;
+        return free / 2;
+      };
+      left = r.left + at(pos[0], r.width - w);
+      top = r.top + at(pos.length > 1 ? pos[1] : pos[0], r.height - h);
+    }
+    var slack = 2;
+    return x >= left - slack && x <= left + w + slack && y >= top - slack && y <= top + h + slack;
+  }
 
   /** What a tap at (x, y) does, as the reader's set: -1 back, 1 on, 0 the controls (always the middle). */
   function tapZone(x, y) {

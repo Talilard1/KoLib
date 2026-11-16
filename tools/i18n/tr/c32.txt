@@ -1,0 +1,208 @@
+@fr
+1937|{0} chapitres déplacés
+1938|Tout désélectionner
+1939|Déplacer vers…
+1940|Faites glisser pour réordonner, maintenez pour sélectionner · {0}
+1941|Sélectionner des chapitres
+1942|Déplacer {0} vers…
+1943|Le début du livre
+1944|Après « {0} »
+1945|Supprimer {0} ?
+1946|Ils seront supprimés avec leurs entrées dans la table des matières, et les liens vers eux deviendront du texte simple. Vous pouvez annuler tant que l’éditeur est ouvert.
+1947|Suie
+1948|Ébène
+1949|Crépuscule
+1950|Indigo
+1951|Aubergine
+1952|Sang-de-bœuf
+1953|Palissandre
+1954|Écorce
+1955|Mousse
+1956|Olive
+1957|Épicéa
+1958|{0} chapitres supprimés
+1959|Touchez des chapitres pour les sélectionner
+1960|1 chapitre sélectionné
+1961|{0} chapitres sélectionnés
+@de
+1937|{0} Kapitel verschoben
+1938|Auswahl aufheben
+1939|Verschieben nach…
+1940|Ziehen zum Umsortieren, halten zum Auswählen · {0}
+1941|Kapitel auswählen
+1942|{0} verschieben nach…
+1943|Anfang des Buchs
+1944|Nach „{0}“
+1945|{0} löschen?
+1946|Sie und ihre Einträge im Inhaltsverzeichnis werden gelöscht, und Links darauf werden zu normalem Text. Du kannst das rückgängig machen, bis du den Editor schließt.
+1947|Ruß
+1948|Ebenholz
+1949|Dämmerung
+1950|Indigo
+1951|Aubergine
+1952|Ochsenblut
+1953|Rosenholz
+1954|Rinde
+1955|Moos
+1956|Oliv
+1957|Fichte
+1958|{0} Kapitel gelöscht
+1959|Tippe auf Kapitel, um sie auszuwählen
+1960|1 Kapitel ausgewählt
+1961|{0} Kapitel ausgewählt
+@es
+1937|{0} capítulos movidos
+1938|Quitar selección
+1939|Mover a…
+1940|Arrastra para reordenar, mantén pulsado para seleccionar · {0}
+1941|Seleccionar capítulos
+1942|Mover {0} a…
+1943|El principio del libro
+1944|Después de «{0}»
+1945|¿Eliminar {0}?
+1946|Se eliminarán junto con sus entradas en el índice, y los enlaces a ellos se convertirán en texto normal. Puedes deshacerlo hasta que cierres el editor.
+1947|Hollín
+1948|Ébano
+1949|Anochecer
+1950|Índigo
+1951|Berenjena
+1952|Sangre de toro
+1953|Palisandro
+1954|Corteza
+1955|Musgo
+1956|Oliva
+1957|Abeto
+1958|{0} capítulos eliminados
+1959|Toca capítulos para seleccionarlos
+1960|1 capítulo seleccionado
+1961|{0} capítulos seleccionados
+@it
+1937|{0} capitoli spostati
+1938|Deseleziona tutto
+1939|Sposta in…
+1940|Trascina per riordinare, tieni premuto per selezionare · {0}
+1941|Seleziona capitoli
+1942|Sposta {0} in…
+1943|L’inizio del libro
+1944|Dopo «{0}»
+1945|Eliminare {0}?
+1946|Verranno eliminati insieme alle loro voci nell’indice, e i link verso di essi diventeranno testo semplice. Puoi annullare finché non chiudi l’editor.
+1947|Fuliggine
+1948|Ebano
+1949|Crepuscolo
+1950|Indaco
+1951|Melanzana
+1952|Sangue di bue
+1953|Palissandro
+1954|Corteccia
+1955|Muschio
+1956|Oliva
+1957|Abete
+1958|{0} capitoli eliminati
+1959|Tocca i capitoli per selezionarli
+1960|1 capitolo selezionato
+1961|{0} capitoli selezionati
+@nl
+1937|{0} hoofdstukken verplaatst
+1938|Niets selecteren
+1939|Verplaatsen naar…
+1940|Sleep om te ordenen, houd vast om te selecteren · {0}
+1941|Hoofdstukken selecteren
+1942|{0} verplaatsen naar…
+1943|Het begin van het boek
+1944|Na ‘{0}’
+1945|{0} verwijderen?
+1946|Ze worden verwijderd met hun items in de inhoudsopgave, en links ernaar worden gewone tekst. Je kunt dit ongedaan maken tot je de editor sluit.
+1947|Roet
+1948|Ebben
+1949|Schemering
+1950|Indigo
+1951|Aubergine
+1952|Ossenbloed
+1953|Palissander
+1954|Schors
+1955|Mos
+1956|Olijf
+1957|Spar
+1958|{0} hoofdstukken verwijderd
+1959|Tik op hoofdstukken om ze te selecteren
+1960|1 hoofdstuk geselecteerd
+1961|{0} hoofdstukken geselecteerd
+@pt
+1937|{0} capítulos movidos
+1938|Desmarcar tudo
+1939|Mover para…
+1940|Arraste para reordenar, toque e segure para selecionar · {0}
+1941|Selecionar capítulos
+1942|Mover {0} para…
+1943|O início do livro
+1944|Depois de “{0}”
+1945|Excluir {0}?
+1946|Eles e as entradas deles no sumário serão excluídos, e os links para eles virarão texto simples. Você pode desfazer até fechar o editor.
+1947|Fuligem
+1948|Ébano
+1949|Crepúsculo
+1950|Índigo
+1951|Berinjela
+1952|Sangue de boi
+1953|Pau-rosa
+1954|Casca
+1955|Musgo
+1956|Oliva
+1957|Abeto
+1958|{0} capítulos excluídos
+1959|Toque nos capítulos para selecioná-los
+1960|1 capítulo selecionado
+1961|{0} capítulos selecionados
+@ru
+1937|{0:Перемещена|Перемещено|Перемещено} {0} {0:глава|главы|глав}
+1938|Снять выбор
+1939|Переместить…
+1940|Перетаскивайте, чтобы изменить порядок, удерживайте, чтобы выбрать · {0}
+1941|Выбрать главы
+1942|Переместить {0}…
+1943|В начало книги
+1944|После «{0}»
+1945|Удалить {0}?
+1946|Они и их строки в оглавлении будут удалены, а ссылки на них станут обычным текстом. Это можно отменить, пока вы не закрыли редактор.
+1947|Сажа
+1948|Эбеновое дерево
+1949|Сумерки
+1950|Индиго
+1951|Баклажан
+1952|Бычья кровь
+1953|Палисандр
+1954|Кора
+1955|Мох
+1956|Оливковый
+1957|Ель
+1958|{0:Удалена|Удалено|Удалено} {0} {0:глава|главы|глав}
+1959|Нажимайте на главы, чтобы выбрать их
+1960|Выбрана 1 глава
+1961|{0:Выбрана|Выбрано|Выбрано} {0} {0:глава|главы|глав}
+@ja
+1937|{0} 章を移動しました
+1938|選択を解除
+1939|移動先…
+1940|ドラッグで並べ替え、長押しで選択 · {0}
+1941|章を選択
+1942|{0}の移動先
+1943|本の最初
+1944|「{0}」の後
+1945|{0}を削除しますか？
+1946|章と目次の項目が削除され、これらの章へのリンクは普通の文字になります。エディタを閉じるまでは元に戻せます。
+1947|すす
+1948|黒檀
+1949|夕闇
+1950|インディゴ
+1951|ナス紺
+1952|オックスブラッド
+1953|ローズウッド
+1954|樹皮
+1955|苔
+1956|オリーブ
+1957|スプルース
+1958|{0} 章を削除しました
+1959|章をタップして選択
+1960|1 章を選択中
+1961|{0} 章を選択中

@@ -1,10 +1,34 @@
 package dev.kobolibrary.app.ui.textedit
 
 import dev.kobolibrary.app.tr
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
+import androidx.compose.foundation.gestures.awaitVerticalTouchSlopOrCancellation
+import androidx.compose.foundation.gestures.verticalDrag
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.CheckBox
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerInputScope
+import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.onLongClick
+import androidx.compose.ui.semantics.semantics
+import dev.kobolibrary.app.ui.PickRange
+import kotlin.math.abs
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +41,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -70,7 +95,6 @@ import dev.kobolibrary.app.epub.Chapter
 import dev.kobolibrary.app.epub.EpubText
 import dev.kobolibrary.app.ui.components.Fmt
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 
@@ -80,13 +104,38 @@ sealed interface ChapterAction {
     data class Split(val chapter: Chapter) : ChapterAction
     data class Merge(val chapter: Chapter) : ChapterAction
     data class Delete(val chapter: Chapter) : ChapterAction
+    /** Several chapters, chosen together, to delete. */
+    data class DeleteMany(val chapters: List<Chapter>) : ChapterAction
     /** A new, empty chapter after [after] (the last one if null). */
     data class Add(val after: String?) : ChapterAction
 }
 
+/** Moving chosen chapters together, keeping them in the order they were in. */
+internal object ChapterMoves {
+    /** [order] with each of [picked] a place earlier ([by] < 0) or later; any already at that end stay there. */
+    fun step(order: List<String>, picked: Set<String>, by: Int): List<String> {
+        val o = order.toMutableList()
+        if (by < 0) {
+            for (i in 1 until o.size) if (o[i] in picked && o[i - 1] !in picked) o[i - 1] = o[i].also { o[i] = o[i - 1] }
+        } else {
+            for (i in o.size - 2 downTo 0) if (o[i] in picked && o[i + 1] !in picked) o[i + 1] = o[i].also { o[i] = o[i + 1] }
+        }
+        return o
+    }
+
+    /** [order] with [picked] taken out and put back together, in their order, after [after] (at the start if null). */
+    fun after(order: List<String>, picked: Set<String>, after: String?): List<String> {
+        val moving = order.filter { it in picked }
+        val rest = order.filter { it !in picked }
+        val at = if (after == null) 0 else rest.indexOf(after) + 1
+        return rest.take(at) + moving + rest.drop(at)
+    }
+}
+
 /**
- * The book's chapters in reading order. Drag one by its handle (or press and hold it) to move it;
- * its menu renames, splits, joins, hides, deletes or makes it the start or the cover page.
+ * The book's chapters in reading order. Drag one by its handle, or hold it and drag, to move it; held and let
+ * go, it's chosen, and more can be chosen to move or delete together. Its menu renames, splits, joins, hides,
+ * deletes or makes it the start or the cover page.
  */
 @Composable
 fun ChaptersPane(
@@ -100,85 +149,223 @@ fun ChaptersPane(
     val startPath = state.startPath
     val coverPath = state.coverPath
     val context = LocalContext.current
+    val haptics = LocalHapticFeedback.current
     val words by produceState(emptyMap<String, Int>(), version) {
         value = withContext(Dispatchers.Default) {
             chapters.associate { c -> c.path to (state.edit.text(c.path)?.let { EpubText.countWords(EpubText.plainText(it)) } ?: 0) }
         }
     }
-    var order by remember(version) { mutableStateOf(chapters.map { it.path }) }
     var dragging by remember { mutableStateOf<String?>(null) }
     var dragOffset by remember { mutableFloatStateOf(0f) }
+    // Which way the finger last went (-1 up, 1 down), so the list only runs on the way it's being dragged.
+    var heading by remember { mutableIntStateOf(0) }
+    // The order shown, which follows the book; a drag still going when the book changes keeps its place.
+    val lastOrder = remember { arrayOfNulls<MutableState<List<String>>>(1) }
+    val orderState = remember(version) {
+        val book = chapters.map { it.path }
+        val inFlight = lastOrder[0]?.value?.takeIf { dragging != null && it.toSet() == book.toSet() }
+        mutableStateOf(inFlight ?: book).also { lastOrder[0] = it }
+    }
+    val order by orderState
+    // The gestures outlive changes to the book, so they go by these, which always hold the latest.
+    val latestOrder by rememberUpdatedState(orderState)
+    val latestChapters by rememberUpdatedState(chapters)
     val listState = rememberLazyListState()
     val byPath = remember(chapters) { chapters.associateBy { it.path } }
 
+    // ---- choosing several ---------------------------------------------------------------------
+    var selecting by remember { mutableStateOf(false) }
+    val picked = remember { mutableStateMapOf<String, Boolean>() }
+    val range = remember { PickRange() }
+    var moving by remember { mutableStateOf(false) }
+
+    fun stopSelecting() {
+        selecting = false
+        picked.clear()
+        range.reset()
+    }
+
+    /** Held: chooses it, or, choosing already, everything between it and the one chosen last. */
+    fun hold(path: String) {
+        if (!selecting) {
+            selecting = true
+            picked.clear()
+            range.reset()
+        }
+        range.hold(picked, path, latestOrder.value)
+    }
+
+    fun tap(path: String) {
+        if (!selecting) {
+            onOpen(path)
+            return
+        }
+        range.toggle(picked, path)
+        if (picked.isEmpty()) stopSelecting()
+    }
+
+    // Chosen chapters that were deleted are let go; with none left, choosing ends.
+    LaunchedEffect(chapters) {
+        val live = chapters.mapTo(HashSet()) { it.path }
+        val gone = picked.keys.filter { it !in live }
+        if (gone.isNotEmpty()) {
+            gone.forEach { picked.remove(it) }
+            if (picked.isEmpty()) stopSelecting()
+        }
+    }
+    BackHandler(enabled = selecting) { stopSelecting() }
+
+    fun reorderTo(next: List<String>, count: Int) {
+        if (next == latestOrder.value) return
+        latestOrder.value = next
+        state.reorder(next, if (count == 1) tr("Moved a chapter") else tr("Moved {0} chapters", count))
+    }
+
+    // ---- dragging -----------------------------------------------------------------------------
     fun dragBy(dy: Float) {
         val key = dragging ?: return
         dragOffset += dy
-        val info = listState.layoutInfo.visibleItemsInfo
+        val layout = listState.layoutInfo
+        val info = layout.visibleItemsInfo
         val cur = info.firstOrNull { it.key == key } ?: return
-        val center = cur.offset + dragOffset + cur.size / 2f
-        val target = info.firstOrNull { it.key != key && it.key is String && center >= it.offset && center <= it.offset + it.size } ?: return
-        val from = order.indexOf(key)
-        val to = order.indexOf(target.key as String)
+        val now = latestOrder.value
+        // Until the list has been laid out again after the last move, it's not known where things are.
+        if (cur.index != now.indexOf(key)) return
+        // Dragged past the top or bottom, it goes to whichever chapter is at that edge.
+        val center = (cur.offset + dragOffset + cur.size / 2f)
+            .coerceIn(layout.viewportStartOffset.toFloat(), (layout.viewportEndOffset - 1).toFloat().coerceAtLeast(layout.viewportStartOffset.toFloat()))
+        val target = info.firstOrNull { it.key != key && it.key is String && center >= it.offset && center < it.offset + it.size } ?: return
+        val from = now.indexOf(key)
+        val to = now.indexOf(target.key as String)
         if (from < 0 || to < 0) return
-        order = order.toMutableList().apply { add(to, removeAt(from)) }
-        dragOffset += (cur.offset - target.offset)
+        // The list keeps its top chapter in place when the chapters move; when that's one of these two, it stays where it is instead.
+        val first = listState.firstVisibleItemIndex
+        if (cur.index == first || target.index == first) listState.requestScrollToItem(first, listState.firstVisibleItemScrollOffset)
+        latestOrder.value = now.toMutableList().apply { add(to, removeAt(from)) }
+        val landsAt = if (target.index > cur.index) target.offset + target.size - cur.size else target.offset
+        dragOffset += (cur.offset - landsAt)
+    }
+
+    fun startDrag(path: String) {
+        if (dragging != null) return
+        dragging = path
+        dragOffset = 0f
+        heading = 0
+        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+    }
+
+    fun fingerBy(dy: Float) {
+        if (dy != 0f) heading = if (dy < 0) -1 else 1
+        dragBy(dy)
     }
 
     fun endDrag() {
-        if (dragging != null && order != chapters.map { it.path }) state.reorder(order)
+        val now = latestOrder.value
+        if (dragging != null && now != latestChapters.map { it.path }) state.reorder(now)
         dragging = null
         dragOffset = 0f
+        heading = 0
     }
 
-    // Near the top or bottom while dragging, the list scrolls.
+    // Near the top or bottom while dragging that way, the list runs, faster the further past the edge.
+    val density = LocalDensity.current
+    val edge = with(density) { 56.dp.toPx() }
+    val fastest = with(density) { 14.dp.toPx() }
     LaunchedEffect(dragging) {
         while (isActive && dragging != null) {
+            withFrameNanos { }
+            val key = dragging ?: break
             val info = listState.layoutInfo
-            val cur = info.visibleItemsInfo.firstOrNull { it.key == dragging }
-            if (cur != null) {
-                val top = cur.offset + dragOffset
-                val bottom = top + cur.size
-                val step = when {
-                    top < info.viewportStartOffset + 40 -> -18f
-                    bottom > info.viewportEndOffset - 40 -> 18f
-                    else -> 0f
-                }
-                if (step != 0f) {
-                    val moved = listState.scrollBy(step)
-                    dragBy(moved)
-                }
+            val cur = info.visibleItemsInfo.firstOrNull { it.key == key } ?: continue
+            val top = cur.offset + dragOffset
+            val bottom = top + cur.size
+            val step = when {
+                heading < 0 && top < info.viewportStartOffset + edge -> -fastest * ((info.viewportStartOffset + edge - top) / edge).coerceIn(0.2f, 1f)
+                heading > 0 && bottom > info.viewportEndOffset - edge -> fastest * ((bottom - info.viewportEndOffset + edge) / edge).coerceIn(0.2f, 1f)
+                else -> 0f
             }
-            delay(16)
+            if (step != 0f) {
+                val moved = listState.scrollBy(step)
+                if (moved != 0f) dragBy(moved)
+            }
         }
     }
 
     Column(modifier) {
-        Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 8.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text(tr("Chapters"), style = MaterialTheme.typography.titleMedium)
-                Text(tr("Drag to reorder · {0}", Fmt.plural(chapters.size, "chapter")), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            TextButton(onClick = { onAction(ChapterAction.Add(state.currentPath)) }) {
-                Icon(Icons.Filled.Add, null, Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text(tr("Add"))
-            }
-            var menu by remember { mutableStateOf(false) }
-            Box {
-                IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, tr("Table of contents options")) }
-                DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
-                    DropdownMenuItem(
-                        text = { Text(tr("Rebuild contents from headings")) },
-                        leadingIcon = { Icon(Icons.Outlined.Toc, null) },
-                        onClick = { menu = false; state.contentsFromHeadings() },
+        if (selecting) {
+            val all = picked.size == order.size
+            val chosen = picked.keys.toSet()
+            val canUp = order.indices.any { i -> i > 0 && order[i] in chosen && order[i - 1] !in chosen }
+            val canDown = order.indices.any { i -> i < order.size - 1 && order[i] in chosen && order[i + 1] !in chosen }
+            val someLeft = picked.isNotEmpty() && !all
+            Column(Modifier.fillMaxWidth().padding(start = 4.dp, end = 4.dp, top = 4.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = { stopSelecting() }) { Icon(Icons.Filled.Close, tr("Stop selecting")) }
+                    Text(
+                        when (picked.size) {
+                            0 -> tr("Tap chapters to select them")
+                            1 -> tr("1 chapter selected")
+                            else -> tr("{0} chapters selected", picked.size)
+                        },
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f),
                     )
-                    DropdownMenuItem(
-                        text = { Text(tr("Make a cover page")) },
-                        leadingIcon = { Icon(Icons.Outlined.AddPhotoAlternate, null) },
-                        enabled = coverPath == null,
-                        onClick = { menu = false; state.makeCoverPage(context) },
-                    )
+                    TextButton(onClick = {
+                        if (all) {
+                            picked.clear()
+                            range.reset()
+                        } else order.forEach { picked[it] = true }
+                    }) { Text(if (all) tr("Select none") else tr("Select all")) }
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = { reorderTo(ChapterMoves.step(latestOrder.value, chosen, -1), chosen.size) }, enabled = canUp) {
+                        Icon(Icons.Outlined.ArrowUpward, tr("Move up"))
+                    }
+                    IconButton(onClick = { reorderTo(ChapterMoves.step(latestOrder.value, chosen, 1), chosen.size) }, enabled = canDown) {
+                        Icon(Icons.Outlined.ArrowDownward, tr("Move down"))
+                    }
+                    TextButton(onClick = { moving = true }, enabled = someLeft) { Text(tr("Move to…")) }
+                    Spacer(Modifier.weight(1f))
+                    TextButton(
+                        onClick = { onAction(ChapterAction.DeleteMany(order.filter { it in chosen }.mapNotNull { byPath[it] })) },
+                        enabled = someLeft,
+                    ) {
+                        Text(tr("Delete…"), color = if (someLeft) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f))
+                    }
+                }
+            }
+        } else {
+            Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 8.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text(tr("Chapters"), style = MaterialTheme.typography.titleMedium)
+                    Text(tr("Drag to reorder, hold to select · {0}", Fmt.plural(chapters.size, "chapter")), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                TextButton(onClick = { onAction(ChapterAction.Add(state.currentPath)) }) {
+                    Icon(Icons.Filled.Add, null, Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text(tr("Add"))
+                }
+                var menu by remember { mutableStateOf(false) }
+                Box {
+                    IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, tr("Table of contents options")) }
+                    DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                        DropdownMenuItem(
+                            text = { Text(tr("Select chapters")) },
+                            leadingIcon = { Icon(Icons.Outlined.CheckBox, null) },
+                            onClick = { menu = false; selecting = true },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(tr("Rebuild contents from headings")) },
+                            leadingIcon = { Icon(Icons.Outlined.Toc, null) },
+                            onClick = { menu = false; state.contentsFromHeadings() },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(tr("Make a cover page")) },
+                            leadingIcon = { Icon(Icons.Outlined.AddPhotoAlternate, null) },
+                            enabled = coverPath == null,
+                            onClick = { menu = false; state.makeCoverPage(context) },
+                        )
+                    }
                 }
             }
         }
@@ -194,17 +381,20 @@ fun ChaptersPane(
                     isStart = path == startPath,
                     isCover = path == coverPath,
                     dragged = isDragged,
+                    selecting = selecting,
+                    picked = picked[path] == true,
                     first = index == 0,
                     last = index == order.size - 1,
-                    onOpen = { onOpen(path) },
+                    onTap = { tap(path) },
+                    onHold = { hold(path) },
                     onAction = onAction,
                     onMove = { delta ->
-                        val o = order.toMutableList()
+                        val o = latestOrder.value.toMutableList()
                         val i = o.indexOf(path)
                         val j = (i + delta).coerceIn(0, o.size - 1)
-                        if (i != j) {
+                        if (i >= 0 && i != j) {
                             o.add(j, o.removeAt(i))
-                            state.reorder(o)
+                            reorderTo(o, 1)
                         }
                     },
                     onHide = { state.setHidden(path, c.linear) },
@@ -212,27 +402,135 @@ fun ChaptersPane(
                     onCover = { state.setCoverPage(path) },
                     onCopy = if (state.copied != null) ({ state.copySection(path) }) else null,
                     handle = Modifier.pointerInput(path) {
-                        detectDragGestures(
-                            onDragStart = { dragging = path; dragOffset = 0f },
-                            onDrag = { change, amount -> change.consume(); dragBy(amount.y) },
-                            onDragEnd = { endDrag() },
-                            onDragCancel = { endDrag() },
-                        )
+                        dragAtOnce(onStart = { startDrag(path) }, onDrag = { fingerBy(it) }, onEnd = { endDrag() })
                     },
                     modifier = Modifier
                         .zIndex(if (isDragged) 1f else 0f)
-                        .graphicsLayer { translationY = if (isDragged) dragOffset else 0f }
+                        .graphicsLayer {
+                            translationY = if (!isDragged) 0f else {
+                                // Kept in sight while the list runs under it.
+                                val info = listState.layoutInfo
+                                val cur = info.visibleItemsInfo.firstOrNull { it.key == path }
+                                val low = cur?.let { (info.viewportStartOffset - it.offset).toFloat() }
+                                val high = cur?.let { (info.viewportEndOffset - it.offset - it.size).toFloat() }
+                                if (low == null || high == null || high < low) dragOffset else dragOffset.coerceIn(low, high)
+                            }
+                        }
                         .then(if (dragging == null) Modifier.animateItem() else Modifier)
                         .pointerInput(path) {
-                            detectDragGesturesAfterLongPress(
-                                onDragStart = { dragging = path; dragOffset = 0f },
-                                onDrag = { change, amount -> change.consume(); dragBy(amount.y) },
-                                onDragEnd = { endDrag() },
-                                onDragCancel = { endDrag() },
+                            holdOrDrag(
+                                canDrag = { !selecting },
+                                onHold = {
+                                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    hold(path)
+                                },
+                                onStart = { startDrag(path) },
+                                onDrag = { fingerBy(it) },
+                                onEnd = { endDrag() },
                             )
-                        },
+                        }
+                        .semantics { onLongClick(tr("Select")) { hold(path); true } },
                 )
             }
+        }
+    }
+
+    if (moving) {
+        val chosen = picked.keys.toSet()
+        val rest = order.filter { it !in chosen }
+        fun place(after: String?) {
+            moving = false
+            reorderTo(ChapterMoves.after(latestOrder.value, chosen, after), chosen.size)
+        }
+        AlertDialog(
+            onDismissRequest = { moving = false },
+            title = { Text(tr("Move {0} to…", Fmt.plural(chosen.size, "chapter"))) },
+            text = {
+                LazyColumn(Modifier.heightIn(max = 420.dp)) {
+                    item { MovePlace(null, tr("The start of the book")) { place(null) } }
+                    items(rest, key = { it }) { p -> MovePlace(order.indexOf(p) + 1, tr("After “{0}”", byPath[p]?.title ?: p)) { place(p) } }
+                }
+            },
+            confirmButton = {},
+            dismissButton = { TextButton(onClick = { moving = false }) { Text(tr("Cancel")) } },
+        )
+    }
+}
+
+/** A place chosen chapters can be moved to: the start, or after chapter [number]. */
+@Composable
+private fun MovePlace(number: Int?, label: String, onClick: () -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).clickable(onClick = onClick).padding(horizontal = 8.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(number?.toString() ?: "", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(30.dp))
+        Text(label, style = MaterialTheme.typography.bodyMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+    }
+}
+
+/** A drag on a chapter's handle: it starts as soon as the finger moves. Whether lifted or not, it ends ([onEnd]). */
+private suspend fun PointerInputScope.dragAtOnce(onStart: () -> Unit, onDrag: (Float) -> Unit, onEnd: () -> Unit) {
+    awaitEachGesture {
+        val down = awaitFirstDown(requireUnconsumed = false)
+        var over = 0f
+        val slop = awaitVerticalTouchSlopOrCancellation(down.id) { change, overSlop ->
+            change.consume()
+            over = overSlop
+        } ?: return@awaitEachGesture
+        onStart()
+        try {
+            onDrag(over)
+            verticalDrag(slop.id) { change ->
+                onDrag(change.positionChange().y)
+                change.consume()
+            }
+        } finally {
+            onEnd()
+        }
+    }
+}
+
+/**
+ * A chapter's row held down: let go where it is, it's [onHold]; moved, it's dragged ([onStart], [onDrag],
+ * [onEnd]) if [canDrag]. Either way, the press doesn't count as a tap too.
+ */
+private suspend fun PointerInputScope.holdOrDrag(
+    canDrag: () -> Boolean,
+    onHold: () -> Unit,
+    onStart: () -> Unit,
+    onDrag: (Float) -> Unit,
+    onEnd: () -> Unit,
+) {
+    awaitEachGesture {
+        val down = awaitFirstDown(requireUnconsumed = false)
+        val held = awaitLongPressOrCancellation(down.id) ?: return@awaitEachGesture
+        var dragged = false
+        var moved = 0f
+        try {
+            while (true) {
+                // Taken before the row sees it, so the press isn't also a tap.
+                val event = awaitPointerEvent(PointerEventPass.Initial)
+                val change = event.changes.firstOrNull { it.id == held.id } ?: break
+                if (!change.pressed) {
+                    change.consume()
+                    if (!dragged) onHold()
+                    break
+                }
+                val dy = change.positionChange().y
+                change.consume()
+                if (dragged) onDrag(dy)
+                else {
+                    moved += dy
+                    if (abs(moved) > viewConfiguration.touchSlop && canDrag()) {
+                        dragged = true
+                        onStart()
+                        onDrag(moved)
+                    }
+                }
+            }
+        } finally {
+            if (dragged) onEnd()
         }
     }
 }
@@ -246,9 +544,12 @@ private fun ChapterRow(
     isStart: Boolean,
     isCover: Boolean,
     dragged: Boolean,
+    selecting: Boolean,
+    picked: Boolean,
     first: Boolean,
     last: Boolean,
-    onOpen: () -> Unit,
+    onTap: () -> Unit,
+    onHold: () -> Unit,
     onAction: (ChapterAction) -> Unit,
     onMove: (Int) -> Unit,
     onHide: () -> Unit,
@@ -263,7 +564,8 @@ private fun ChapterRow(
     Surface(
         color = when {
             dragged -> MaterialTheme.colorScheme.surfaceContainerHighest
-            current -> MaterialTheme.colorScheme.secondaryContainer
+            picked -> MaterialTheme.colorScheme.primaryContainer
+            current && !selecting -> MaterialTheme.colorScheme.secondaryContainer
             else -> Color.Transparent
         },
         shape = RoundedCornerShape(12.dp),
@@ -272,11 +574,17 @@ private fun ChapterRow(
             .padding(horizontal = 6.dp, vertical = 1.dp)
             .then(if (dragged) Modifier.shadow(6.dp, RoundedCornerShape(12.dp)) else Modifier)
             .clip(RoundedCornerShape(12.dp))
-            .clickable(onClick = onOpen),
+            .clickable(onClick = onTap),
     ) {
-        Row(Modifier.padding(start = 2.dp, top = 6.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(handle.size(40.dp), contentAlignment = Alignment.Center) {
-                Icon(Icons.Filled.DragIndicator, tr("Drag to reorder"), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        Row(Modifier.padding(start = 2.dp, top = 6.dp, bottom = 6.dp, end = if (selecting) 8.dp else 0.dp), verticalAlignment = Alignment.CenterVertically) {
+            if (selecting) {
+                Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) {
+                    Checkbox(checked = picked, onCheckedChange = { onTap() })
+                }
+            } else {
+                Box(handle.size(40.dp), contentAlignment = Alignment.Center) {
+                    Icon(Icons.Filled.DragIndicator, tr("Drag to reorder"), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
             Text("$number", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(26.dp))
             Column(Modifier.weight(1f)) {
@@ -299,7 +607,7 @@ private fun ChapterRow(
                     color = if (isStart) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            Box {
+            if (!selecting) Box {
                 IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, tr("Options for “{0}”", chapter.title)) }
                 DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                     DropdownMenuItem(text = { Text(tr("Rename…")) }, leadingIcon = { Icon(Icons.Outlined.DriveFileRenameOutline, null) },
@@ -308,6 +616,8 @@ private fun ChapterRow(
                         DropdownMenuItem(text = { Text(tr("Copy")) }, leadingIcon = { Icon(Icons.Outlined.ContentCopy, null) },
                             onClick = { menu = false; copy() })
                     }
+                    DropdownMenuItem(text = { Text(tr("Select")) }, leadingIcon = { Icon(Icons.Outlined.CheckBox, null) },
+                        onClick = { menu = false; onHold() })
                     DropdownMenuItem(text = { Text(tr("Add chapter after…")) }, leadingIcon = { Icon(Icons.Filled.Add, null) },
                         onClick = { menu = false; onAction(ChapterAction.Add(chapter.path)) })
                     DropdownMenuItem(text = { Text(tr("Split into two…")) }, leadingIcon = { Icon(Icons.Outlined.CallSplit, null) },

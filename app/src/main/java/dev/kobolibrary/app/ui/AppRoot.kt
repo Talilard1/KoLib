@@ -720,9 +720,9 @@ fun AppRoot(
                 SplitBookDialog(
                     book = book,
                     loadPages = { libraryVm.pagesOf(id) },
-                    onSplit = { cuts, titles, series, share ->
+                    onSplit = { cuts, titles, series, shared ->
                         splitId = null
-                        libraryVm.splitBook(id, cuts, titles, series, share) { made -> made.firstOrNull()?.let { libraryBrowse.selectedId = it } }
+                        libraryVm.splitBook(id, cuts, titles, series, shared) { made -> made.firstOrNull()?.let { libraryBrowse.selectedId = it } }
                     },
                     onDismiss = { splitId = null },
                 )

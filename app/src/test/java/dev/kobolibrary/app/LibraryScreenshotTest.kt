@@ -7,6 +7,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
@@ -479,6 +480,27 @@ class LibraryScreenshotTest {
     @Test
     @Config(qualifiers = PORTRAIT)
     fun coverGeneratorPortrait() = generatorScreen("41_cover_generator_portrait")
+
+    /** The lettering in colours of its own: the title and author in gold, the series in white. */
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun coverGeneratorLettering() {
+        val text = CoverText("The Hound of the Baskervilles", listOf("Arthur Conan Doyle"), "Sherlock Holmes", 5.0)
+        shot("40d_cover_generator_lettering", act = {
+            compose.mainClock.autoAdvance = true
+            compose.onAllNodesWithContentDescription(tr("Gold"))[0].performScrollTo().performClick()
+            compose.onAllNodesWithContentDescription(tr("White"))[1].performScrollTo().performClick()
+            compose.waitForIdle()
+            // The preview is drawn away from the main thread.
+            Thread.sleep(2_000)
+            compose.waitForIdle()
+            compose.mainClock.autoAdvance = false
+        }) {
+            CoverGeneratorScreen(text, onUse = { _, _ -> }, onCancel = {}, initial = CoverDesign(CoverStyle.CLASSIC, CoverColors.themes[0]))
+        }
+        compose.mainClock.autoAdvance = true
+        compose.onNodeWithText(tr("Lettering")).assertExists()
+    }
 
     /** Every design in every theme and in two colours of its own, to look over. */
     @Test

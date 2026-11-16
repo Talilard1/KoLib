@@ -712,14 +712,17 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
 
     // ---- making books: a new one, one from several, several from one ----------------------------------
 
-    /** A book without a cover of its own gets one drawn, as the cover editor's Generate would. */
-    private suspend fun withCover(book: LibraryBook): LibraryBook {
+    /**
+     * A book without a cover of its own gets one drawn, as the cover editor's Generate would. A [split] book's is added
+     * as a cover of its own, leaving any picture on its first page (a title page shared from the book it came from) be.
+     */
+    private suspend fun withCover(book: LibraryBook, split: Boolean = false): LibraryBook {
         if (book.hasCover) return book
         return try {
             val generator = dev.kobolibrary.app.ui.cover.CoverGenerator(getApplication())
             val text = dev.kobolibrary.app.ui.cover.CoverText(book.meta.title, book.meta.authors, book.meta.series, book.meta.seriesIndex)
             val bmp = withContext(Dispatchers.Default) { generator.render(text, dev.kobolibrary.app.ui.cover.CoverDesign.random()) }
-            library.updateCover(book.id, dev.kobolibrary.app.ui.cover.CoverRendering.toJpeg(bmp), "image/jpeg", bmp.width, bmp.height)
+            library.updateCover(book.id, dev.kobolibrary.app.ui.cover.CoverRendering.toJpeg(bmp), "image/jpeg", bmp.width, bmp.height, first = split)
         } catch (e: Exception) {
             AppLog.w("Library", "Couldn't draw a cover for '${book.title}'", e)
             book
@@ -785,10 +788,10 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
 
     /**
      * [id] cut into books at [cuts], titled [titles]; numbered as a series called [series] if it's
-     * given. The book itself stays as it is. [shareFrontAndBack]: the pages before the first book and after the last
-     * (a title page, a copyright notice, a contents page) go into every one.
+     * given. The book itself stays as it is. [shared]: pages before the first book and after the last (a title page, a
+     * copyright notice, a contents page) that go into every one.
      */
-    fun splitBook(id: String, cuts: List<Int>, titles: List<String>, series: String?, shareFrontAndBack: Boolean = false, onDone: (List<String>) -> Unit) = making(tr("Splitting the book")) {
+    fun splitBook(id: String, cuts: List<Int>, titles: List<String>, series: String?, shared: dev.kobolibrary.app.epub.BookAssembly.Shared? = null, onDone: (List<String>) -> Unit) = making(tr("Splitting the book")) {
         val source = library.book(id) ?: return@making
         val metas = titles.mapIndexed { k, t ->
             source.meta.copy(
@@ -801,7 +804,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
                 seriesIndex = if (!series.isNullOrBlank()) (k + 1).toDouble() else null,
             )
         }
-        val made = library.splitBook(id, cuts, metas, shareFrontAndBack).map { withCover(it) }
+        val made = library.splitBook(id, cuts, metas, shared).map { withCover(it, split = true) }
         _message.value = tr("Split “{0}” into {1} books.", source.title, made.size)
         onDone(made.map { it.id })
     }

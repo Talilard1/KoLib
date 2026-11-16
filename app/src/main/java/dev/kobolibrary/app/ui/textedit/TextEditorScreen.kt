@@ -7,6 +7,7 @@ import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import dev.kobolibrary.app.ui.components.Fmt
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.runtime.collectAsState
@@ -236,6 +237,21 @@ fun TextEditorScreen(
             title = { Text(tr("Delete “{0}”?", a.chapter.title)) },
             text = { Text(tr("The chapter and its entry in the contents will be deleted, and links to it will become plain text. You can undo this until you close the editor.")) },
             confirmButton = { TextButton(onClick = { state.delete(a.chapter.path); action = null }) { Text(tr("Delete"), color = MaterialTheme.colorScheme.error) } },
+            dismissButton = { TextButton(onClick = { action = null }) { Text(tr("Cancel")) } },
+        )
+        is ChapterAction.DeleteMany -> AlertDialog(
+            onDismissRequest = { action = null },
+            title = { Text(tr("Delete {0}?", Fmt.plural(a.chapters.size, "chapter"))) },
+            text = {
+                Column(Modifier.heightIn(max = 360.dp).verticalScroll(rememberScrollState())) {
+                    a.chapters.forEach { c -> Text("• " + c.title, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+                    Spacer(Modifier.height(12.dp))
+                    Text(tr("They and their entries in the contents will be deleted, and links to them will become plain text. You can undo this until you close the editor."))
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { state.deleteAll(a.chapters.map { it.path }); action = null }) { Text(tr("Delete"), color = MaterialTheme.colorScheme.error) }
+            },
             dismissButton = { TextButton(onClick = { action = null }) { Text(tr("Cancel")) } },
         )
         null -> Unit

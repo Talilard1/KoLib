@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher
@@ -459,6 +460,23 @@ class ReaderEditorScreenshotTest {
     @Config(qualifiers = LANDSCAPE)
     fun readerLook() = reader("52_reader_look", ReaderTheme.NIGHT, Panel.LOOK)
 
+    /** A picture held down on the page: open it, share it or save it. */
+    @Test
+    @Config(qualifiers = PORTRAIT)
+    fun readerHeldPicture() {
+        val (files, structure) = garden()
+        val c = ReaderController(files, structure, "The Garden", "en", null, ReaderSettings(theme = ReaderTheme.PAPER), context.assets)
+        c.showForPreview(1, 3, 12)
+        c.controlsVisible = false
+        c.heldImage = dev.kobolibrary.app.reader.BookServer.BOOK + "OEBPS/images/rose.jpg"
+        compose.mainClock.autoAdvance = false
+        compose.setContent { AppSurface(ThemeChoice.SYSTEM) { ReaderScreen(c, onSettings = {}, onClose = {}, pagePreview = { FakePage(ReaderTheme.PAPER, 1) }) } }
+        compose.mainClock.advanceTimeBy(1_000)
+        captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/53b_reader_held_picture.png")
+        compose.mainClock.autoAdvance = true
+        compose.onNodeWithText(tr("Save to Pictures")).assertExists()
+    }
+
     @Test
     @Config(qualifiers = PORTRAIT)
     fun readerContents() = reader("53_reader_contents_portrait", ReaderTheme.PAPER, Panel.CONTENTS, columns = 1)
@@ -546,6 +564,28 @@ class ReaderEditorScreenshotTest {
     @Test
     @Config(qualifiers = PHONE)
     fun editorPhone() = editor("57_editor_phone", find = false)
+
+    /** Chapters chosen together, to move or delete. */
+    private fun editorChoosing(name: String) {
+        val state = editorState()
+        compose.mainClock.autoAdvance = true
+        compose.setContent { AppSurface(ThemeChoice.SYSTEM) { TextEditorScreen(state, onClose = {}, onRead = {}, pagePreview = { FakeEditorPage() }) } }
+        compose.waitForIdle()
+        compose.onNodeWithText("Chapter 1: Rose").performTouchInput { longClick() }
+        compose.waitForIdle()
+        compose.onNodeWithText("Part Two").performTouchInput { longClick() }
+        compose.waitForIdle()
+        compose.onNodeWithText(tr("{0} chapters selected", 3)).assertExists()
+        compose.onRoot().captureRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/$name.png")
+    }
+
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun editorChoosingChapters() = editorChoosing("59_editor_choosing")
+
+    @Test
+    @Config(qualifiers = PORTRAIT)
+    fun editorChoosingChaptersPortrait() = editorChoosing("59b_editor_choosing_portrait")
 
     @Test
     @Config(qualifiers = LANDSCAPE)

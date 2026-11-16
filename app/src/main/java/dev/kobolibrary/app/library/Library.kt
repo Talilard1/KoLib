@@ -106,6 +106,11 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
         hold: Boolean = false,
         /** The file this EPUB was made from (see [sourceFile]) and what kind it is, to keep with it. */
         attach: Pair<File, String>? = null,
+        /**
+         * Only a cover the book names counts, not a picture that happens to be on its first page (a book split from
+         * another can open on that one's title page).
+         */
+        namedCoverOnly: Boolean = false,
     ): ImportOutcome = withContext(Dispatchers.IO) {
         if (koboPath != null) byKoboPath(koboPath)?.let { return@withContext ImportOutcome.AlreadyThere(name, it) }
         incoming.mkdirs()
@@ -164,7 +169,7 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
             var words: Int? = null
             val fromFile = try {
                 EpubFile.open(temp).use { epub ->
-                    coverBytes = epub.findCover()?.let { epub.readBytes(it.path) }
+                    coverBytes = epub.findCover()?.takeIf { it.declared || !namedCoverOnly }?.let { epub.readBytes(it.path) }
                     words = runCatching { EpubText.countWords(epub) }.getOrNull()
                     epub.opf.readMetadata()
                 }
@@ -247,11 +252,11 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
     // ---- books made here ----------------------------------------------------------------------------
 
     /** Takes in a book the app has just written to [file], and returns it. */
-    private suspend fun takeMade(file: File, collections: List<String>): LibraryBook {
+    private suspend fun takeMade(file: File, collections: List<String>, namedCoverOnly: Boolean = false): LibraryBook {
         try {
             val name = withContext(Dispatchers.IO) { runCatching { EpubFile.open(file).use { it.opf.readMetadata().title } }.getOrNull() }
                 ?.ifBlank { null }?.let { "$it.epub" } ?: "book.epub"
-            return when (val r = import(name, { file.inputStream() }, BookSource.FILE, collections = collections, made = true)) {
+            return when (val r = import(name, { file.inputStream() }, BookSource.FILE, collections = collections, made = true, namedCoverOnly = namedCoverOnly)) {
                 is ImportOutcome.Added -> r.book
                 is ImportOutcome.AlreadyThere -> r.existing
                 is ImportOutcome.Failed -> throw IOException(r.reason)
@@ -287,14 +292,16 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
 
     /**
      * Books cut from [id] at [cuts] (page indexes where each new one starts), one for each of [metas]. The book itself
-     * stays as it is. [shareFrontAndBack]: the pages before the first book and after the last go into every one.
+     * stays as it is. [shared]: pages before the first book and after the last that go into every one.
      */
-    suspend fun splitBook(id: String, cuts: List<Int>, metas: List<BookMetadata>, shareFrontAndBack: Boolean = false): List<LibraryBook> {
+    suspend fun splitBook(id: String, cuts: List<Int>, metas: List<BookMetadata>, shared: BookAssembly.Shared? = null): List<LibraryBook> {
         val source = book(id) ?: throw IOException(tr("That book is no longer in the library."))
         val files = metas.indices.map { scratch("part-${it + 1}") }
         try {
-            withContext(Dispatchers.IO) { BookAssembly.split(epubFile(id), cuts, metas, files, shareFrontAndBack) }
-            return files.map { takeMade(it, source.collections) }.also { AppLog.i("Library", "Split '${source.title}' into ${it.size} books.") }
+            withContext(Dispatchers.IO) { BookAssembly.split(epubFile(id), cuts, metas, files, shared) }
+            // Each book's cover is the one the split gave it (the first book's, or a part's own cover page); one that
+            // opens on a page shared from the first book doesn't take that page's picture for its cover.
+            return files.map { takeMade(it, source.collections, namedCoverOnly = true) }.also { AppLog.i("Library", "Split '${source.title}' into ${it.size} books.") }
         } finally {
             files.forEach { it.delete() }
         }
@@ -477,12 +484,18 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
      * unchanged, never fitted to the Kobo's screen. A picture that is the book's cover already
      * isn't written again; only how it's to be treated changes.
      */
-    suspend fun updateCover(id: String, image: ByteArray, mediaType: String, width: Int, height: Int, asIs: Boolean = false): LibraryBook {
-        val current = withContext(Dispatchers.IO) { runCatching { originalCover(id) }.getOrNull() }
-        if (current != null && current.contentEquals(image)) {
-            return setCoverAsIs(id, asIs, edit = true) ?: throw IOException(tr("That book is no longer in the library."))
+    /**
+     * Gives the book a new cover. A [first] cover, for a book that has none, is added as one; a picture on its first page
+     * isn't taken for an old cover and replaced.
+     */
+    suspend fun updateCover(id: String, image: ByteArray, mediaType: String, width: Int, height: Int, asIs: Boolean = false, first: Boolean = false): LibraryBook {
+        if (!first) {
+            val current = withContext(Dispatchers.IO) { runCatching { originalCover(id) }.getOrNull() }
+            if (current != null && current.contentEquals(image)) {
+                return setCoverAsIs(id, asIs, edit = true) ?: throw IOException(tr("That book is no longer in the library."))
+            }
         }
-        return replaceCoverWith(id, image, mediaType, width, height, if (asIs) "Saved an unchanged cover for" else "Saved a new cover for", asIs)
+        return replaceCoverWith(id, image, mediaType, width, height, if (asIs) "Saved an unchanged cover for" else "Saved a new cover for", asIs, first)
     }
 
     /**
@@ -534,12 +547,14 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
         }.onFailure { AppLog.w("Library", "Couldn't keep the original cover of $id", it) }
     }
 
-    private suspend fun replaceCoverWith(id: String, image: ByteArray, mediaType: String, width: Int, height: Int, what: String, asIs: Boolean): LibraryBook = withContext(Dispatchers.IO) {
+    private suspend fun replaceCoverWith(
+        id: String, image: ByteArray, mediaType: String, width: Int, height: Int, what: String, asIs: Boolean, first: Boolean = false,
+    ): LibraryBook = withContext(Dispatchers.IO) {
         lock.withLock {
             val book = book(id) ?: throw IOException(tr("That book is no longer in the library."))
             val file = epubFile(id)
-            keepOriginalCover(id)
-            EpubEditor.replaceCover(file, image, mediaType, width, height)
+            if (!first) keepOriginalCover(id)
+            EpubEditor.replaceCover(file, image, mediaType, width, height, namedOnly = first)
             val hasCover = writeThumbnail(image, coverFile(id))
             val updated = book.copy(
                 hasCover = hasCover,

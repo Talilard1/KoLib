@@ -10,6 +10,7 @@ import android.content.IntentFilter
 import android.hardware.usb.UsbManager
 import android.net.Uri
 import android.os.Build
+import android.os.SystemClock
 import android.os.storage.StorageManager
 import android.os.storage.StorageVolume
 import androidx.core.content.ContextCompat
@@ -27,7 +28,6 @@ import dev.kobolibrary.app.kobo.KoboTagReader
 import dev.kobolibrary.app.kobo.KoboTagStore
 import dev.kobolibrary.app.kobo.KoboView
 import dev.kobolibrary.app.kobo.KoboSession
-import dev.kobolibrary.app.kobo.UsbEject
 import dev.kobolibrary.app.kobo.VolumeCandidate
 import dev.kobolibrary.app.kobo.WriteCheckResult
 import dev.kobolibrary.app.log.AppLog
@@ -49,8 +49,8 @@ import kotlinx.coroutines.withContext
 import java.io.FileNotFoundException
 
 sealed interface Connection {
-    /** No Kobo drive is mounted. [usbKoboAttached] means a Kobo is plugged in but hasn't been told to connect. */
-    data class Waiting(val usbKoboAttached: Boolean) : Connection
+    /** No Kobo drive is mounted. [usb] says whether a Kobo is plugged in all the same, and what it's doing. */
+    data class Waiting(val usb: UsbKobo = UsbKobo.NONE) : Connection
 
     /** A drive is mounted but we don't have permission for it yet. */
     data class NeedsAccess(val candidate: VolumeCandidate, val others: List<VolumeCandidate>) : Connection
@@ -63,7 +63,7 @@ sealed interface Connection {
 }
 
 data class UiState(
-    val connection: Connection = Connection.Waiting(usbKoboAttached = false),
+    val connection: Connection = Connection.Waiting(),
     val backups: List<DatabaseBackup> = emptyList(),
     /** The backup and health check that run after connecting: null while running. */
     val afterConnect: AfterConnect? = null,
@@ -82,8 +82,8 @@ data class UiState(
     val koboTags: Map<String, KoboTagStore.Entry> = emptyMap(),
     /** While tags are being read from the Kobo's books: how many done, out of how many. */
     val readingTags: Pair<Int, Int>? = null,
-    /** Ejecting the Kobo by telling it over USB: what's happening, or how it went. */
-    val usbEject: UsbEjectState? = null,
+    /** A Kobo plugged in over USB: being opened by Android, or unmounted and safe to unplug. */
+    val usbKobo: UsbKobo = UsbKobo.NONE,
 ) {
     /** What the Kobo screens show: the live Kobo if connected, otherwise the last-seen copy. */
     val koboView: KoboView?
@@ -92,9 +92,6 @@ data class UiState(
             else -> lastSeen?.let { v -> KoboView(v.info, v.snapshot.without(removedIds), v.covers, v.readAtMillis, v.databaseBytes, v.databaseHadWal, null) }
         }
 }
-
-/** Ejecting the Kobo over USB: [running], or done, and then [ok] (null if it can't be told). */
-data class UsbEjectState(val running: Boolean, val text: String, val ok: Boolean? = null)
 
 class MainViewModel(app: Application) : AndroidViewModel(app) {
 
@@ -116,6 +113,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     /** Drive uuids we already tried to open automatically since they were mounted (avoids retry loops). */
     private val autoTried = mutableSetOf<String>()
+
+    private val usbKobo = UsbKoboTracker()
+    private var unmountedNews: Job? = null
 
     private val volumeCallback: Any? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         object : StorageManager.StorageVolumeCallback() {
@@ -183,7 +183,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         pollJob?.cancel()
         pollJob = viewModelScope.launch {
             while (isActive && foreground) {
-                delay(2500)
+                // While Android opens a Kobo's drive, look often, so it's read as soon as it's there.
+                delay(if (_state.value.usbKobo == UsbKobo.OPENING) 500 else 2500)
                 val c = _state.value.connection
                 if (c is Connection.Waiting || c is Connection.NeedsAccess || (c is Connection.Connected && c.unplugged)) {
                     refresh(auto = true)
@@ -202,6 +203,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         }
         val mountedUuids = volumes.mapNotNull { it.uuid }.toSet()
         autoTried.retainAll(mountedUuids) // unplugged drives may be retried after the next plug-in
+        // An SD card in the tablet isn't the Kobo's drive.
+        val usb = followUsbKobo(driveOpen = volumes.any { !it.isLikelySdCard })
 
         when (val c = _state.value.connection) {
             is Connection.Working -> return
@@ -234,7 +237,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 if (current is Connection.Failed && current.candidate?.uuid == best.uuid) current
                 else Connection.NeedsAccess(best, volumes.drop(1))
             }
-            else -> Connection.Waiting(usbKoboAttached = repo.attachedKoboUsbProductId() != null)
+            else -> Connection.Waiting(usb)
         }
         if (_state.value.connection != next) _state.update { it.copy(connection = next) }
     }
@@ -244,7 +247,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     /** "Try again" after a failure: forget earlier automatic attempts and look afresh. */
     fun retry() {
         autoTried.clear()
-        _state.update { it.copy(connection = Connection.Waiting(usbKoboAttached = false)) }
+        _state.update { it.copy(connection = Connection.Waiting()) }
         refresh(auto = true)
     }
 
@@ -510,66 +513,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         _state.update { it.copy(connection = Connection.Failed(message, best)) }
     }
 
-    private val usbEject = UsbEject(app)
-
-    /** Whether Android lists a Kobo plugged in over USB (so it can be ejected that way). */
-    fun koboOnUsb(): Boolean = usbEject.kobo() != null
-
-    /**
-     * Ejects the Kobo by sending it the eject commands over USB, as a computer does (see [UsbEject]): it
-     * then adds its new books without being unplugged. Waits for any update to its database to finish.
-     */
-    fun ejectOverUsb() {
-        if (_state.value.usbEject?.running == true) return
-        fun show(text: String, running: Boolean = true, ok: Boolean? = null) =
-            _state.update { it.copy(usbEject = UsbEjectState(running, text, ok)) }
-        viewModelScope.launch {
-            val device = usbEject.kobo()
-            if (device == null) {
-                show(tr("Android doesn't list a Kobo plugged in by USB."), running = false, ok = false)
-                return@launch
-            }
-            show(tr("Asking Android to let KoLib use the Kobo…"))
-            if (!usbEject.permission(device)) {
-                show(tr("Android didn't let KoLib use the Kobo's USB connection."), running = false, ok = false)
-                return@launch
-            }
-            // Nothing of KoLib's may be using the drive when Android lets go of it.
-            syncLock.withLock {
-                show(tr("Ejecting…"))
-                val result = try {
-                    usbEject.eject(device)
-                } catch (e: Exception) {
-                    AppLog.e("Eject", "Ejecting over USB failed", e)
-                    UsbEject.Result.Refused(e.message ?: e.javaClass.simpleName)
-                }
-                val unplug = tr("Unplug it instead: everything KoLib changed is on it.")
-                when (result) {
-                    is UsbEject.Result.Ejected -> show(tr("Ejected. The Kobo is adding your new books, and you can unplug it whenever you like."), running = false, ok = true)
-                    UsbEject.Result.StoppedAnswering -> show(tr("KoLib told the Kobo to eject, and it stopped answering. If it's adding your books, it worked; if not, unplug it."), running = false, ok = null)
-                    UsbEject.Result.NoKobo -> show(tr("Android doesn't list a Kobo plugged in by USB."), running = false, ok = false)
-                    UsbEject.Result.NotAllowed -> show(tr("Android didn't let KoLib use the Kobo's USB connection."), running = false, ok = false)
-                    is UsbEject.Result.CouldNotOpen -> show(result.why + " " + unplug, running = false, ok = false)
-                    is UsbEject.Result.Refused -> show(result.why + " " + unplug, running = false, ok = false)
-                }
-                if (result is UsbEject.Result.Ejected || result == UsbEject.Result.StoppedAnswering) {
-                    _state.update { s -> (s.connection as? Connection.Connected)?.let { s.copy(connection = it.copy(unplugged = true)) } ?: s }
-                } else {
-                    refresh(auto = true)
-                }
-            }
-        }
-    }
-
-    /** The eject's result has been seen. */
-    fun clearUsbEject() {
-        if (_state.value.usbEject?.running != true) _state.update { it.copy(usbEject = null) }
-    }
-
     fun forgetKobo() {
         repo.forgetKobo()
         autoTried.clear()
-        _state.update { it.copy(connection = Connection.Waiting(false), writeCheck = null) }
+        _state.update { it.copy(connection = Connection.Waiting(), writeCheck = null) }
         refresh(auto = false)
     }
 
@@ -621,6 +568,37 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     fun refreshBackups() = _state.update { it.copy(backups = repo.backups.list()) }
 
     fun consumeMessage() = _state.update { it.copy(message = null) }
+
+    /**
+     * Follows a Kobo plugged in over USB. It appears once Connect is tapped on it, and its drive a few seconds
+     * later, once Android has checked it: until then, KoLib says it's opening, so it isn't unplugged in the
+     * belief that nothing is happening. A drive that goes while the Kobo stays plugged in was unmounted, and
+     * then it's safe to unplug.
+     */
+    private fun followUsbKobo(driveOpen: Boolean): UsbKobo {
+        val now = SystemClock.elapsedRealtime()
+        val usb = usbKobo.update(repo.attachedKoboUsbName(), driveOpen, now)
+        val before = _state.value.usbKobo
+        if (usb == before) return usb
+        _state.update { it.copy(usbKobo = usb) }
+        when {
+            usb == UsbKobo.OPENING -> AppLog.i("Kobo", "A Kobo was plugged in. Waiting for Android to open its drive.")
+            usb == UsbKobo.SLOW -> AppLog.w("Kobo", "The Kobo has been plugged in for ${usbKobo.patienceMs / 1000} s, and Android hasn't opened its drive.")
+            before == UsbKobo.OPENING || before == UsbKobo.SLOW -> if (usb == UsbKobo.NONE && driveOpen) {
+                AppLog.i("Kobo", "Android opened the Kobo's drive ${"%.1f".format((now - usbKobo.since) / 1000.0)} s after it was plugged in.")
+            }
+        }
+        unmountedNews?.cancel()
+        if (usb == UsbKobo.UNMOUNTED) unmountedNews = viewModelScope.launch {
+            // Pulling the cable out can take the drive away a moment before the Kobo: make sure it's still there.
+            delay(1500)
+            if (_state.value.usbKobo == UsbKobo.UNMOUNTED && repo.attachedKoboUsbName() == usbKobo.name) {
+                AppLog.i("Kobo", "The Kobo's drive was unmounted, and the Kobo is still plugged in.")
+                _state.update { it.copy(message = tr("The Kobo is unmounted. It's safe to unplug it now.")) }
+            }
+        }
+        return usb
+    }
 
     override fun onCleared() {
         val app = getApplication<Application>()

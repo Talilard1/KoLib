@@ -419,7 +419,7 @@ class PhoneShots {
     @Config(qualifiers = PHONE)
     fun connect() = shot("p36_connect", ThemeChoice.BOOKCASE) {
         AppFrame(Section.KOBO, {}, koboConnected = false, onNarrow = {}, onLook = {}) {
-            ConnectScreen(Connection.Waiting(usbKoboAttached = false), backupCount = 3, onChooseDrive = {}, onRetry = {}, onOpenBackups = {}, onOpenLog = {}, onSettings = {})
+            ConnectScreen(Connection.Waiting(), backupCount = 3, onChooseDrive = {}, onRetry = {}, onOpenBackups = {}, onOpenLog = {}, onSettings = {})
         }
     }
 

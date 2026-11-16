@@ -26,7 +26,7 @@ class IntroShots {
 
     private val found = FolderScan.Found("Download/Books", List(132) { FoundBook(Uri.parse("content://x/$it"), "Book $it.epub", 1000) })
 
-    private fun shoot(name: String, page: Int, scan: FolderScan? = null, connection: Connection = Connection.Waiting(usbKoboAttached = false)) {
+    private fun shoot(name: String, page: Int, scan: FolderScan? = null, connection: Connection = Connection.Waiting()) {
         // The pictures move for as long as they're shown: time is moved on by hand.
         compose.mainClock.autoAdvance = false
         compose.setContent {
@@ -41,7 +41,7 @@ class IntroShots {
     @Test @Config(qualifiers = "w411dp-h914dp-port-xxhdpi") fun phoneLanguage() = shoot("phone_1_language", 0)
     @Test @Config(qualifiers = "w411dp-h914dp-port-xxhdpi") fun phoneFolder() = shoot("phone_2_folder", 1)
     @Test @Config(qualifiers = "w411dp-h914dp-port-xxhdpi") fun phoneFolderFound() = shoot("phone_2_folder_found", 1, scan = found)
-    @Test @Config(qualifiers = "w411dp-h914dp-port-xxhdpi") fun phoneKobo() = shoot("phone_3_kobo", 2, connection = Connection.Waiting(usbKoboAttached = true))
+    @Test @Config(qualifiers = "w411dp-h914dp-port-xxhdpi") fun phoneKobo() = shoot("phone_3_kobo", 2, connection = Connection.Waiting(UsbKobo.OPENING))
     @Test @Config(qualifiers = "w411dp-h914dp-port-xxhdpi") fun phoneCollections() = shoot("phone_4_collections", 3)
     @Test @Config(qualifiers = "w411dp-h914dp-port-xxhdpi") fun phoneDone() = shoot("phone_5_done", 4)
     @Test @Config(qualifiers = "fr-w411dp-h914dp-port-xxhdpi") fun phoneFrench() = shoot("phone_fr_collections", 3)

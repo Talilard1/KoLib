@@ -1877,5 +1877,10 @@
 "Android wouldn't hand the Kobo's storage over.",
 "The Kobo didn't accept being ejected (sense {0}).",
 "The exchange with the Kobo broke down: {0}.",
-"The Kobo didn't accept being ejected."
+"The Kobo didn't accept being ejected.",
+"Unmount it before unplugging: otherwise Android may need restarting before the Kobo will connect again.",
+"The Kobo is unmounted. It's safe to unplug it now.",
+"Opening the Kobo… Don't unplug it.",
+"Waiting for Android to open the Kobo…",
+"Still waiting for Android to open the Kobo. Check that the Kobo says it's connected."
 ]

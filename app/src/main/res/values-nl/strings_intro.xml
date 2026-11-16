@@ -36,7 +36,7 @@
     <string name="intro_kobo_step2">Tik op het scherm van de Kobo op Verbinden.</string>
     <string name="intro_kobo_step3">Alleen de eerste keer: geef KoLib toegang tot de schijf van de Kobo.</string>
     <string name="intro_kobo_waiting">Wachten op de Kobo…</string>
-    <string name="intro_kobo_detected">Kobo gevonden. Tik op het scherm op Verbinden.</string>
+    <string name="intro_kobo_detected">De Kobo wordt geopend… Haal de kabel er niet uit.</string>
     <string name="intro_kobo_allow">Toegang tot de Kobo geven</string>
     <string name="intro_kobo_allow_help">Android opent de mapkiezer op de schijf van de Kobo. Tik op ‘Deze map gebruiken’ en daarna op ‘Toestaan’.</string>
     <string name="intro_kobo_working">De Kobo wordt geopend…</string>

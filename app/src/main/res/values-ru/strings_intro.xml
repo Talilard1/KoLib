@@ -48,7 +48,7 @@
     <string name="intro_kobo_step2">На экране Kobo нажмите «Подключить».</string>
     <string name="intro_kobo_step3">Только в первый раз: разрешите KoLib пользоваться диском Kobo.</string>
     <string name="intro_kobo_waiting">Ожидание Kobo…</string>
-    <string name="intro_kobo_detected">Kobo найден. Нажмите «Подключить» на его экране.</string>
+    <string name="intro_kobo_detected">Открываем Kobo… Не вынимайте кабель.</string>
     <string name="intro_kobo_allow">Разрешить доступ к Kobo</string>
     <string name="intro_kobo_allow_help">Android откроет выбор папки на диске Kobo. Нажмите «Использовать эту папку», а затем «Разрешить».</string>
     <string name="intro_kobo_working">Открытие Kobo…</string>

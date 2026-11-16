@@ -102,6 +102,7 @@ class ScreenshotTest {
         extras: KoboExtras = KoboExtras(),
         theme: ThemeChoice = ThemeChoice.SYSTEM,
         syncing: Boolean = false,
+        usbKobo: UsbKobo = UsbKobo.NONE,
     ) {
         val (repo, s) = session()
         val browse = BrowseState().apply { deviceTab = tab }.apply(configure)
@@ -111,6 +112,7 @@ class ScreenshotTest {
             afterConnect = after,
             writeCheck = WriteCheckResult(true, tr("Writing works: a 64 KB test file was written, read back and deleted in {0} ms.", 41)),
             syncing = syncing,
+            usbKobo = usbKobo,
         )
         shot(name, theme) {
             DeviceScreen(
@@ -204,7 +206,7 @@ class ScreenshotTest {
             DeviceScreen(
                 view = view,
                 unplugged = false,
-                state = UiState(connection = Connection.Waiting(false), lastSeen = view),
+                state = UiState(connection = Connection.Waiting(), lastSeen = view),
                 browse = browse,
                 onReconnect = {}, onWriteCheck = {}, onBackupNow = {}, onForget = {}, onOpenBackups = {}, onOpenLog = {},
             )
@@ -214,7 +216,7 @@ class ScreenshotTest {
     @Test
     @Config(qualifiers = LANDSCAPE)
     fun connectWaiting() = shot("11_connect_waiting") {
-        ConnectScreen(Connection.Waiting(usbKoboAttached = true), 3, {}, {}, {}, {}, onSettings = {})
+        ConnectScreen(Connection.Waiting(UsbKobo.OPENING), 3, {}, {}, {}, {}, onSettings = {})
     }
 
     @Test
@@ -268,15 +270,13 @@ class ScreenshotTest {
     @Config(qualifiers = LANDSCAPE)
     fun savingToTheKobosDatabase() = deviceScreen("43_kobo_saving", syncing = true)
 
-    // ---- Eject: the ways to do it side by side, and how ejecting over USB goes --------------------
+    // ---- Eject: the one screen that unmounts the Kobo ----------------------------------------------
 
-    private val ejectScreens = listOf(
-        UnmountScreens.Screen(UnmountScreens.Kind.SETTINGS, android.content.Intent(), "com.android.settings/Settings\$PublicVolumeSettingsActivity"),
-        UnmountScreens.Screen(UnmountScreens.Kind.FILES, android.content.Intent(), "com.google.android.documentsui/FilesActivity"),
-        UnmountScreens.Screen(UnmountScreens.Kind.MY_FILES, android.content.Intent(), "com.sec.android.app.myfiles/MainActivity"),
+    private val settingsPage = UnmountScreens.Screen(
+        UnmountScreens.Kind.SETTINGS, android.content.Intent(), "com.android.settings/Settings\$PublicVolumeSettingsActivity",
     )
 
-    private fun ejectShot(name: String, usb: UsbEjectState? = null, busy: Boolean = false) {
+    private fun ejectShot(name: String, busy: Boolean = false) {
         val (_, s) = session()
         val state = UiState(connection = Connection.Connected(s, false))
         shot(name) {
@@ -284,41 +284,29 @@ class ScreenshotTest {
                 view = KoboView.of(s), unplugged = false, state = state, browse = BrowseState(),
                 onReconnect = {}, onWriteCheck = {}, onBackupNow = {}, onForget = {}, onOpenBackups = {}, onOpenLog = {},
             )
-            EjectDialog(onDismiss = {}, busy = busy, usb = usb, onUsbEject = {}, screens = ejectScreens)
+            EjectDialog(onDismiss = {}, busy = busy, screen = settingsPage)
         }
     }
 
     @Test
     @Config(qualifiers = LANDSCAPE)
-    fun ejectChoices() = ejectShot("eject_choices")
+    fun ejectDialog() = ejectShot("eject_dialog")
+
+    /** Unmounted in Android's settings, and still plugged in. */
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun safeToUnplug() = deviceScreen("eject_safe_to_unplug", unplugged = true, usbKobo = UsbKobo.UNMOUNTED)
+
+    /** Plugged in again and Connect tapped: Android is opening the Kobo's drive. */
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun koboOpening() = deviceScreen("kobo_opening", unplugged = true, usbKobo = UsbKobo.OPENING)
 
     @Test
     @Config(qualifiers = "w411dp-h891dp-port-mdpi")
-    fun ejectChoicesPhone() = ejectShot("eject_choices_phone")
+    fun ejectDialogPhone() = ejectShot("eject_dialog_phone")
 
     @Test
     @Config(qualifiers = PORTRAIT)
     fun ejectWhileSending() = ejectShot("eject_while_sending", busy = true)
-
-    @Test
-    @Config(qualifiers = LANDSCAPE)
-    fun ejectingOverUsb() = ejectShot("eject_running", UsbEjectState(true, tr("Ejecting…")))
-
-    @Test
-    @Config(qualifiers = LANDSCAPE)
-    fun ejectedOverUsb() = ejectShot(
-        "eject_done",
-        UsbEjectState(false, tr("Ejected. The Kobo is adding your new books, and you can unplug it whenever you like."), ok = true),
-    )
-
-    @Test
-    @Config(qualifiers = LANDSCAPE)
-    fun ejectTurnedDown() = ejectShot(
-        "eject_refused",
-        UsbEjectState(
-            false,
-            tr("The Kobo didn't accept being ejected (sense {0}).", "5/20/00") + " " + tr("Unplug it instead: everything KoLib changed is on it."),
-            ok = false,
-        ),
-    )
 }

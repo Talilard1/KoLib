@@ -1,5 +1,6 @@
 package dev.kobolibrary.app.ui
 
+import dev.kobolibrary.app.UsbKobo
 import dev.kobolibrary.app.tr
 import android.content.ActivityNotFoundException
 import androidx.activity.compose.BackHandler
@@ -754,7 +755,15 @@ fun AppRoot(
         // saving to the Kobo's database, which must be done before the Kobo is ejected, or what was to be
         // saved (collections of books just sent, say) waits until next time. The Kobo screen has its own notice.
         val elsewhere = section != Section.KOBO || overlay != null
+        // From plugging the Kobo in to having read it, there's a wait: say what's happening, wherever you are.
+        val koboOpening = when {
+            !elsewhere -> null
+            connection is Connection.Working || state.usbKobo == UsbKobo.OPENING -> tr("Opening the Kobo… Don't unplug it.")
+            state.usbKobo == UsbKobo.SLOW -> tr("Waiting for Android to open the Kobo…")
+            else -> null
+        }
         val busy = making?.let { "$it…" }
+            ?: koboOpening
             ?: tr("Updating collections on the Kobo… Don't eject it yet.").takeIf { state.syncing && elsewhere }
             ?: tr("Checking the Kobo… Don't eject it yet.").takeIf { state.afterConnectRunning && elsewhere }
         busy?.let { what ->
@@ -806,18 +815,11 @@ fun AppRoot(
         }
 
         if (showEject) {
-            // Ejecting over USB is offered when Android lists the Kobo there.
-            val onUsb = remember { vm.koboOnUsb() }
             EjectDialog(
-                onDismiss = {
-                    showEject = false
-                    vm.clearUsbEject()
-                },
+                onDismiss = { showEject = false },
                 busy = job?.let { it.kind == JobKind.SEND && !it.finished } == true,
                 savingDatabase = state.syncing || state.afterConnectRunning,
                 treeUri = liveSession?.treeUri,
-                usb = state.usbEject,
-                onUsbEject = if (onUsb || state.usbEject != null) vm::ejectOverUsb else null,
             )
         }
         if (showLook) LookDialog(

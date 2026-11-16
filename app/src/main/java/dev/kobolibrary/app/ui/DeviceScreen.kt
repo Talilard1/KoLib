@@ -22,6 +22,7 @@ import androidx.compose.material.icons.outlined.Eject
 import androidx.compose.material.icons.outlined.LinkOff
 import androidx.compose.material.icons.outlined.Restore
 import androidx.compose.material.icons.outlined.Usb
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.UsbOff
 import dev.kobolibrary.app.ui.components.AlertDialog
 import androidx.compose.material3.DropdownMenu
@@ -51,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import dev.kobolibrary.app.kobo.KoboBook
 import dev.kobolibrary.app.kobo.KoboView
 import dev.kobolibrary.app.UiState
+import dev.kobolibrary.app.UsbKobo
 import dev.kobolibrary.app.ui.components.Fmt
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.foundation.layout.size
@@ -238,7 +240,11 @@ fun DeviceScreen(
                 .fillMaxSize()
         ) {
             if (!choosing) {
+                val notOpen = !view.live || unplugged
                 when {
+                    notOpen && (state.usbKobo == UsbKobo.OPENING || state.usbKobo == UsbKobo.SLOW) ->
+                        OpeningBanner(slow = state.usbKobo == UsbKobo.SLOW)
+                    notOpen && state.usbKobo == UsbKobo.UNMOUNTED -> SafeToUnplugBanner()
                     !view.live -> OfflineBanner(view.readAtMillis, onHowToConnect)
                     unplugged -> UnpluggedBanner(view.readAtMillis)
                     state.syncing -> SyncingBanner()
@@ -319,6 +325,41 @@ private fun SyncingBanner() {
             Spacer(Modifier.width(12.dp))
             Text(
                 tr("Updating collections and book details on the Kobo… Wait until this finishes before ejecting."),
+                color = MaterialTheme.colorScheme.onTertiaryContainer,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
+    }
+}
+
+/**
+ * A Kobo has been plugged in (Connect tapped on it), and Android is checking and opening its drive. This takes a
+ * few seconds, and without this the app would look as if nothing were happening.
+ */
+@Composable
+private fun OpeningBanner(slow: Boolean) {
+    Surface(color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.fillMaxWidth()) {
+        Row(Modifier.padding(horizontal = 20.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+            CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.onPrimaryContainer)
+            Spacer(Modifier.width(12.dp))
+            Text(
+                usbKoboText(if (slow) UsbKobo.SLOW else UsbKobo.OPENING).orEmpty(),
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
+    }
+}
+
+/** The Kobo has been unmounted and is still plugged in: it can be unplugged. */
+@Composable
+private fun SafeToUnplugBanner() {
+    Surface(color = MaterialTheme.colorScheme.tertiaryContainer, modifier = Modifier.fillMaxWidth()) {
+        Row(Modifier.padding(horizontal = 20.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Outlined.CheckCircle, null, tint = MaterialTheme.colorScheme.onTertiaryContainer)
+            Spacer(Modifier.width(12.dp))
+            Text(
+                usbKoboText(UsbKobo.UNMOUNTED).orEmpty(),
                 color = MaterialTheme.colorScheme.onTertiaryContainer,
                 style = MaterialTheme.typography.bodyMedium,
             )

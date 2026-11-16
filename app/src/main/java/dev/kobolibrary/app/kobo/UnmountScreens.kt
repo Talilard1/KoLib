@@ -45,7 +45,10 @@ object UnmountScreens {
     fun filesIntent(root: Uri): Intent =
         Intent(Intent.ACTION_VIEW).addCategory(Intent.CATEGORY_DEFAULT).setDataAndType(root, DocumentsContract.Root.MIME_TYPE_ITEM)
 
-    /** The screens this device has for the drive KoLib was given ([treeUri]), best first. */
+    /**
+     * The screens this device has for the drive KoLib was given ([treeUri]), best first: the Kobo's own
+     * page in Settings; failing that My Files (on a Samsung), Android's Files app, then storage settings.
+     */
     fun available(context: Context, treeUri: Uri?): List<Screen> {
         val pm = context.packageManager
         val root = treeUri?.let { rootUri(it) }
@@ -55,16 +58,15 @@ object UnmountScreens {
             val by = handlers(pm, intent)
             if (by.isNotEmpty()) out += Screen(kind, intent, by.joinToString())
         }
-        if (root != null) {
-            add(Kind.SETTINGS, settingsIntent(root))
-            add(Kind.FILES, filesIntent(root))
-        }
+        if (root != null) add(Kind.SETTINGS, settingsIntent(root))
         add(Kind.MY_FILES, pm.getLaunchIntentForPackage(MY_FILES))
-        if (out.none { it.kind == Kind.SETTINGS || it.kind == Kind.MY_FILES }) {
-            add(Kind.STORAGE_SETTINGS, Intent(Settings.ACTION_INTERNAL_STORAGE_SETTINGS))
-        }
+        if (root != null) add(Kind.FILES, filesIntent(root))
+        add(Kind.STORAGE_SETTINGS, Intent(Settings.ACTION_INTERNAL_STORAGE_SETTINGS))
         return out
     }
+
+    /** The one screen to send you to: the best this device has. */
+    fun best(context: Context, treeUri: Uri?): Screen? = available(context, treeUri).firstOrNull()
 
     @Suppress("DEPRECATION")
     private fun handlers(pm: PackageManager, intent: Intent): List<String> = try {

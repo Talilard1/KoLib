@@ -3,6 +3,8 @@
 package dev.kobolibrary.app.ui
 
 import dev.kobolibrary.app.tr
+import dev.kobolibrary.app.ui.components.BookTitleText
+import dev.kobolibrary.app.ui.components.SeriesText
 import androidx.compose.ui.graphics.Color
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -298,6 +300,8 @@ internal fun PhoneKoboBookPage(
     onTag: (String) -> Unit,
     stars: Double,
     pages: Int?,
+    /** Shows the books in a series (by its name), from a tap on the book's. */
+    onSeries: ((String) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val scroll = rememberScrollState()
@@ -335,7 +339,7 @@ internal fun PhoneKoboBookPage(
                 BookCover(book, covers, CoverSize.FULL, Modifier.width(184.dp), showProgress = false)
             }
             Spacer(Modifier.height(20.dp))
-            Text(book.title, style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+            BookTitleText(book.title, MaterialTheme.typography.headlineSmall, Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
             book.subtitle?.let {
                 Text(it, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
             }
@@ -344,7 +348,7 @@ internal fun PhoneKoboBookPage(
                 Text(it, style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
             }
             book.seriesLabel?.let {
-                Text(it, style = SeriesStyle(), color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                SeriesText(it, book.series.orEmpty(), SeriesStyle(), MaterialTheme.colorScheme.primary, onSeries, Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
             }
             if (stars > 0) {
                 Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.Center) {

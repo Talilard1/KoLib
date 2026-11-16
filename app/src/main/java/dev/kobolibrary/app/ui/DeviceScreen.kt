@@ -132,6 +132,13 @@ fun DeviceScreen(
                     browse.selectedBookId = null
                     fromCollection = false
                 },
+                onSeries = { name ->
+                    browse.query = dev.kobolibrary.app.ui.components.seriesSearch(name)
+                    browse.collection = null
+                    browse.tags = emptySet()
+                    browse.selectedBookId = null
+                    fromCollection = false
+                },
                 stars = extras.stars(book),
                 pages = extras.pages(book),
             )

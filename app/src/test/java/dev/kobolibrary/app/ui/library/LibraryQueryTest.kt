@@ -83,6 +83,15 @@ class LibraryQueryTest {
     }
 
     @Test
+    fun aTapOnABooksSeriesFindsTheSeries() {
+        // What a tap on "Sherlock Holmes #2" in a book's details searches for: the series by its name, without the number.
+        assertEquals("series:\"Sherlock Holmes\"", dev.kobolibrary.app.ui.components.seriesSearch("Sherlock Holmes"))
+        assertEquals(listOf("The Sign of the Four", "A Study in Scarlet"), search(dev.kobolibrary.app.ui.components.seriesSearch("Sherlock Holmes")))
+        // Quotes in a name don't break the search.
+        assertEquals("series:\"The  Name\"", dev.kobolibrary.app.ui.components.seriesSearch("The \"Name\""))
+    }
+
+    @Test
     fun combinations() {
         assertEquals(listOf("Art History Basics"), search("tag:history and not tag:greece"))
         assertEquals(listOf("Art History Basics"), search("tag:history -tag:greece"))

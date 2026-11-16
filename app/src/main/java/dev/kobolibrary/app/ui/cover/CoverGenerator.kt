@@ -209,6 +209,9 @@ enum class CoverStyle(val label: String, val suits: Set<CoverGenre> = emptySet()
             FRAMED, GILDED, PAINTING, GOTHIC, STARFIELD, BLOSSOM, STORYBOOK, GRIMOIRE, THORNS, NEON, PULP, POSTER, SNAPSHOT, WAND, OWL, RAVEN,
         )
 
+        /** The designs with lines and ornaments (frames, rules, lozenges) whose colour can be chosen apart. */
+        val decorated: Set<CoverStyle> = setOf(LABEL, CLASSIC, FRAMED, NOIR, GOTHIC, DECO, BLOSSOM, GRIMOIRE, THORNS, PULP, POSTER, RAVEN)
+
         /** The designs that suit [genre] best, then the rest. */
         fun forGenre(genre: CoverGenre): List<CoverStyle> = entries.filter { genre in it.suits } + entries.filter { genre !in it.suits }
     }
@@ -311,6 +314,8 @@ data class CoverDesign(
     val seriesLettering: Int? = null,
     /** How the book's number in its series is written; null: as the design has it (in words on the framed design, figures elsewhere). */
     val seriesNumber: SeriesNumber? = null,
+    /** The colour of its lines and ornaments (frames, rules, lozenges), whatever the design; null: as the design has them. */
+    val decoration: Int? = null,
 ) {
     companion object {
         /**
@@ -406,9 +411,9 @@ data class CoverDesign(
     }
 }
 
-/** How a book's place in its series is written on its cover: "Book Six", "Book 6", or no number. */
+/** How a book's place in its series is written on its cover: "Book Six", "Book 6", no number, or "A book of" (framed). */
 enum class SeriesNumber {
-    WORDS, FIGURES, NONE;
+    WORDS, FIGURES, NONE, A_BOOK;
 
     companion object {
         private val units = listOf(
@@ -431,11 +436,12 @@ enum class SeriesNumber {
         fun written(index: Double, how: SeriesNumber): String? = when (how) {
             WORDS -> inWords(index) ?: Names.formatIndex(index)
             FIGURES -> Names.formatIndex(index)
-            NONE -> null
+            NONE, A_BOOK -> null
         }
 
-        /** "Book Six of", "Book 6 of" or "Book of", as the framed design says which book of the series it is. */
-        fun bookOf(index: Double, how: SeriesNumber): String = written(index, how)?.let { tr("Book {0} of", it) } ?: tr("Book of")
+        /** "Book Six of", "Book 6 of", "Book of" or "A book of", as the framed design says which book of the series it is. */
+        fun bookOf(index: Double, how: SeriesNumber): String =
+            if (how == A_BOOK) tr("A book of") else written(index, how)?.let { tr("Book {0} of", it) } ?: tr("Book of")
     }
 }
 
@@ -485,7 +491,7 @@ class CoverGenerator(context: Context) {
         picture: Bitmap? = null, crop: CoverCrop = CoverCrop(),
     ): Bitmap {
         val bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        val sheet = Sheet(Canvas(bmp), width.toFloat(), height.toFloat(), design.colors, design.lettering, design.seriesLettering)
+        val sheet = Sheet(Canvas(bmp), width.toFloat(), height.toFloat(), design.colors, design.lettering, design.seriesLettering, design.decoration)
         val title = text.title.trim().ifEmpty { tr("Untitled") }
         val author = authorLine(text)
         val words = Words(
@@ -707,7 +713,7 @@ class CoverGenerator(context: Context) {
     /** The page being drawn. [u] is a hundredth of its width, the unit every measurement is in. */
     private class Sheet(
         val canvas: Canvas, val w: Float, val h: Float, val c: CoverColors,
-        private val lettering: Int? = null, private val seriesLettering: Int? = null,
+        private val lettering: Int? = null, private val seriesLettering: Int? = null, private val decoration: Int? = null,
     ) {
         val u = w / 100f
 
@@ -716,6 +722,9 @@ class CoverGenerator(context: Context) {
 
         /** The series' colour: the one chosen for it, if any, otherwise [own], the design's. */
         fun seriesWords(own: Int) = seriesLettering ?: own
+
+        /** A line's or an ornament's colour: the one chosen for them, if any, as faint as [own] is; otherwise [own]. */
+        fun deco(own: Int) = decoration?.let { ColorUtils.setAlphaComponent(it, Color.alpha(own)) } ?: own
 
         fun fill(colour: Int) = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = colour; style = Paint.Style.FILL }
 
@@ -775,17 +784,17 @@ class CoverGenerator(context: Context) {
         val pasted = s.fill(s.c.accent).apply { setShadowLayer(1.6f * u, 0f, 0.7f * u, faint(Color.BLACK, 90)) }
         s.canvas.drawRect(sticker, pasted)
         val edge = 1.6f * u
-        s.canvas.drawRect(sticker.left + edge, sticker.top + edge, sticker.right - edge, sticker.bottom - edge, s.stroke(faint(s.c.accentInk, 150), 0.3f * u))
+        s.canvas.drawRect(sticker.left + edge, sticker.top + edge, sticker.right - edge, sticker.bottom - edge, s.stroke(s.deco(faint(s.c.accentInk, 150)), 0.3f * u))
         title.draw(s.canvas, sticker.left + pad, sticker.top + pad, s.words(s.c.accentInk))
         if (series != null) {
             val y = sticker.top + pad + title.height + gap
-            s.rule(cx, y, 14f * u, 0.3f * u, faint(s.c.accentInk, 150))
+            s.rule(cx, y, 14f * u, 0.3f * u, s.deco(faint(s.c.accentInk, 150)))
             series.draw(s.canvas, sticker.left + pad, y + gap, s.seriesWords(s.c.accentInk))
         }
 
         val author = fit(t.author?.let(::caps), sans, 3.7f * u, 2.4f * u, 74f * u, 15f * u, tracking = 0.12f, pitch = 1.5f) ?: return
         val y = s.h - 11f * u - author.height
-        s.rule(cx, y - 4.5f * u, 10f * u, 0.3f * u, faint(s.c.ink, 140))
+        s.rule(cx, y - 4.5f * u, 10f * u, 0.3f * u, s.deco(faint(s.c.ink, 140)))
         author.draw(s.canvas, cx - 37f * u, y, s.words(s.c.ink))
     }
 
@@ -794,7 +803,7 @@ class CoverGenerator(context: Context) {
         val u = s.u
         s.canvas.drawColor(s.c.ground)
         val out = 4.5f * u
-        s.canvas.drawRect(out, out, s.w - out, s.h - out, s.stroke(s.c.accent, 0.9f * u))
+        s.canvas.drawRect(out, out, s.w - out, s.h - out, s.stroke(s.deco(s.c.accent), 0.9f * u))
         val l = 7.4f * u
         val r = s.w - l
         val top = l
@@ -812,8 +821,8 @@ class CoverGenerator(context: Context) {
             arcTo(RectF(l - scoop, top - scoop, l + scoop, top + scoop), 90f, -90f)
             close()
         }
-        s.canvas.drawPath(frame, s.stroke(s.c.accent, 0.3f * u))
-        for (x in floatArrayOf(l, r)) for (y in floatArrayOf(top, bottom)) s.canvas.drawCircle(x, y, 0.75f * u, s.fill(s.c.accent))
+        s.canvas.drawPath(frame, s.stroke(s.deco(s.c.accent), 0.3f * u))
+        for (x in floatArrayOf(l, r)) for (y in floatArrayOf(top, bottom)) s.canvas.drawCircle(x, y, 0.75f * u, s.fill(s.deco(s.c.accent)))
 
         val cx = s.w / 2
         val wide = 68f * u
@@ -821,9 +830,9 @@ class CoverGenerator(context: Context) {
         var y = 20f * u
         title.draw(s.canvas, cx - wide / 2, y, s.words(s.c.ink))
         y += title.height + 6.5f * u
-        s.diamond(cx, y, 1.3f * u, s.c.accent)
-        s.rule(cx - 10f * u, y, 13f * u, 0.3f * u, s.c.accent)
-        s.rule(cx + 10f * u, y, 13f * u, 0.3f * u, s.c.accent)
+        s.diamond(cx, y, 1.3f * u, s.deco(s.c.accent))
+        s.rule(cx - 10f * u, y, 13f * u, 0.3f * u, s.deco(s.c.accent))
+        s.rule(cx + 10f * u, y, 13f * u, 0.3f * u, s.deco(s.c.accent))
         fit(t.series, serifItalic, 4.6f * u, 3f * u, wide, 11f * u)?.draw(s.canvas, cx - wide / 2, y + 5.5f * u, s.seriesWords(s.c.accent))
 
         val author = fit(t.author?.let(::caps), serif, 4f * u, 2.6f * u, wide, 15f * u, tracking = 0.14f, pitch = 1.45f) ?: return
@@ -1056,11 +1065,11 @@ class CoverGenerator(context: Context) {
         val gold = s.c.accent
         val shade = faint(Color.BLACK, 130)
         val o = 3.6f * u
-        c.drawRect(o, o, s.w - o, s.h - o, s.stroke(faint(gold, 190), 0.24f * u))
+        c.drawRect(o, o, s.w - o, s.h - o, s.stroke(s.deco(faint(gold, 190)), 0.24f * u))
         val i = 4.7f * u
-        c.drawRect(i, i, s.w - i, s.h - i, s.stroke(faint(gold, 120), 0.12f * u))
+        c.drawRect(i, i, s.w - i, s.h - i, s.stroke(s.deco(faint(gold, 120)), 0.12f * u))
         val cx = s.w / 2
-        ornament(s, cx, 8f * u, gold)
+        ornament(s, cx, 8f * u, s.deco(gold))
 
         val frame = pictureFrame(CoverStyle.FRAMED, s.w, s.h)!!
         val authorTop = 12f * u
@@ -1071,7 +1080,7 @@ class CoverGenerator(context: Context) {
 
         paint(c, frame, art)
         c.drawRect(frame, s.stroke(faint(Color.BLACK, 110), 0.7f * u))
-        c.drawRect(frame.left - 0.9f * u, frame.top - 0.9f * u, frame.right + 0.9f * u, frame.bottom + 0.9f * u, s.stroke(faint(gold, 210), 0.22f * u))
+        c.drawRect(frame.left - 0.9f * u, frame.top - 0.9f * u, frame.right + 0.9f * u, frame.bottom + 0.9f * u, s.stroke(s.deco(faint(gold, 210)), 0.22f * u))
 
         val below = frame.bottom + 4.4f * u
         val bottom = s.h - 7.5f * u
@@ -1087,8 +1096,8 @@ class CoverGenerator(context: Context) {
             f.draw(c, cx - 25f * u, y, s.seriesWords(s.c.ink))
             val gap = f.width / 2 + 2.4f * u
             val ruleY = y + f.height * 0.45f
-            s.rule(cx - gap - 7f * u, ruleY, 14f * u, 0.18f * u, faint(gold, 210))
-            s.rule(cx + gap + 7f * u, ruleY, 14f * u, 0.18f * u, faint(gold, 210))
+            s.rule(cx - gap - 7f * u, ruleY, 14f * u, 0.18f * u, s.deco(faint(gold, 210)))
+            s.rule(cx + gap + 7f * u, ruleY, 14f * u, 0.18f * u, s.deco(faint(gold, 210)))
             y += f.height + 2.6f * u
         }
         seriesF?.draw(c, cx - 38f * u, y, s.seriesWords(s.c.ink))
@@ -1164,7 +1173,7 @@ class CoverGenerator(context: Context) {
         c.drawPath(man, s.fill(Color.rgb(7, 7, 9)))
         p.grain(0.9f)
         val accent = s.c.accent
-        c.drawRect(8f * u, 8f * u, 9.4f * u, 48f * u, s.fill(accent))
+        c.drawRect(8f * u, 8f * u, 9.4f * u, 48f * u, s.fill(s.deco(accent)))
         val paper = Color.rgb(0xF2, 0xEE, 0xE6)
         var ty = 8f * u
         t.author?.let { fit(caps(it), condensed, 6.2f * u, 3.6f * u, 62f * u, 13f * u, Layout.Alignment.ALIGN_NORMAL, pitch = 1.05f, tracking = 0.08f) }?.let { f ->
@@ -1202,7 +1211,7 @@ class CoverGenerator(context: Context) {
         val dark = setOf(CoverGenre.HORROR, CoverGenre.VAMPIRES, CoverGenre.DARK_MAGIC, CoverGenre.HALLOWEEN, CoverGenre.COSMIC_HORROR, CoverGenre.WITCHES)
         paint(c, RectF(l, apex, r, bottom), Art(if (art.genre in dark) art.genre else CoverGenre.HORROR, art.seed, null, art.crop))
         c.restore()
-        c.drawPath(arch, s.stroke(faint(gold, 220), 0.5f * u))
+        c.drawPath(arch, s.stroke(s.deco(faint(gold, 220)), 0.5f * u))
         val outer = Path().apply {
             val g = 1.6f * u
             moveTo(l - g, bottom + g)
@@ -1212,8 +1221,8 @@ class CoverGenerator(context: Context) {
             lineTo(r + g, bottom + g)
             close()
         }
-        c.drawPath(outer, s.stroke(faint(gold, 140), 0.2f * u))
-        s.diamond(s.w / 2, apex - 3.4f * u, 1f * u, gold)
+        c.drawPath(outer, s.stroke(s.deco(faint(gold, 140)), 0.2f * u))
+        s.diamond(s.w / 2, apex - 3.4f * u, 1f * u, s.deco(gold))
         val cx = s.w / 2
         val bone = mix(s.c.ink, Color.WHITE, 0.3f)
         val glow = faint(Color.BLACK, 220)
@@ -1294,22 +1303,22 @@ class CoverGenerator(context: Context) {
         for (k in 0..36) {
             val a = Math.toRadians(180.0 + k * 5.0)
             c.drawLine(cx + (kotlin.math.cos(a) * 30f * u).toFloat(), sy + (kotlin.math.sin(a) * 30f * u).toFloat(),
-                cx + (kotlin.math.cos(a) * s.h).toFloat(), sy + (kotlin.math.sin(a) * s.h).toFloat(), s.stroke(faint(gold, if (k % 2 == 0) 130 else 60), 0.18f * u))
+                cx + (kotlin.math.cos(a) * s.h).toFloat(), sy + (kotlin.math.sin(a) * s.h).toFloat(), s.stroke(s.deco(faint(gold, if (k % 2 == 0) 130 else 60)), 0.18f * u))
         }
-        for (k in 0 until 4) c.drawCircle(cx, sy, (18f + k * 5.5f) * u, s.stroke(faint(gold, 170), 0.25f * u))
-        steppedFrame(s, 4.2f * u, 4f * u, s.stroke(gold, 0.3f * u))
-        steppedFrame(s, 5.6f * u, 3.2f * u, s.stroke(faint(gold, 140), 0.14f * u))
+        for (k in 0 until 4) c.drawCircle(cx, sy, (18f + k * 5.5f) * u, s.stroke(s.deco(faint(gold, 170)), 0.25f * u))
+        steppedFrame(s, 4.2f * u, 4f * u, s.stroke(s.deco(gold), 0.3f * u))
+        steppedFrame(s, 5.6f * u, 3.2f * u, s.stroke(s.deco(faint(gold, 140)), 0.14f * u))
         val panel = RectF(15f * u, 22f * u, 85f * u, 98f * u)
         c.drawRect(panel, s.fill(s.c.ground))
-        c.drawRect(panel, s.stroke(gold, 0.3f * u))
-        c.drawRect(panel.left + 1.3f * u, panel.top + 1.3f * u, panel.right - 1.3f * u, panel.bottom - 1.3f * u, s.stroke(faint(gold, 150), 0.14f * u))
+        c.drawRect(panel, s.stroke(s.deco(gold), 0.3f * u))
+        c.drawRect(panel.left + 1.3f * u, panel.top + 1.3f * u, panel.right - 1.3f * u, panel.bottom - 1.3f * u, s.stroke(s.deco(faint(gold, 150)), 0.14f * u))
         // A fan over the panel.
         val fanR = 10f * u
         c.drawArc(RectF(cx - fanR, panel.top - fanR, cx + fanR, panel.top + fanR), 180f, 180f, true, s.fill(s.c.ground))
-        c.drawArc(RectF(cx - fanR, panel.top - fanR, cx + fanR, panel.top + fanR), 180f, 180f, false, s.stroke(gold, 0.3f * u))
+        c.drawArc(RectF(cx - fanR, panel.top - fanR, cx + fanR, panel.top + fanR), 180f, 180f, false, s.stroke(s.deco(gold), 0.3f * u))
         for (k in 1..7) {
             val a = Math.toRadians(180.0 + k * 22.5)
-            c.drawLine(cx, panel.top, cx + (kotlin.math.cos(a) * fanR).toFloat(), panel.top + (kotlin.math.sin(a) * fanR).toFloat(), s.stroke(faint(gold, 200), 0.2f * u))
+            c.drawLine(cx, panel.top, cx + (kotlin.math.cos(a) * fanR).toFloat(), panel.top + (kotlin.math.sin(a) * fanR).toFloat(), s.stroke(s.deco(faint(gold, 200)), 0.2f * u))
         }
         c.drawArc(RectF(cx - fanR * 0.45f, panel.top - fanR * 0.45f, cx + fanR * 0.45f, panel.top + fanR * 0.45f), 180f, 180f, true, s.fill(gold))
 
@@ -1327,9 +1336,9 @@ class CoverGenerator(context: Context) {
         title.draw(c, cx - wide / 2, y, s.words(gold))
         y += title.height + 4f * u
         if (author != null) {
-            s.diamond(cx, y, 0.9f * u, gold)
-            s.rule(cx - 7f * u, y, 9f * u, 0.18f * u, gold)
-            s.rule(cx + 7f * u, y, 9f * u, 0.18f * u, gold)
+            s.diamond(cx, y, 0.9f * u, s.deco(gold))
+            s.rule(cx - 7f * u, y, 9f * u, 0.18f * u, s.deco(gold))
+            s.rule(cx + 7f * u, y, 9f * u, 0.18f * u, s.deco(gold))
             author.draw(c, cx - wide / 2, y + 4f * u, s.words(s.c.ink))
         }
     }
@@ -1363,7 +1372,7 @@ class CoverGenerator(context: Context) {
         title.draw(c, cx - wide / 2, y, s.words(mix(s.c.accent, s.c.ink, 0.25f)))
         y += title.height + 3.5f * u
         if (author != null) {
-            s.rule(cx, y, 10f * u, 0.2f * u, faint(s.c.accent, 200))
+            s.rule(cx, y, 10f * u, 0.2f * u, s.deco(faint(s.c.accent, 200)))
             author.draw(c, cx - wide / 2, y + 3.5f * u, s.words(s.c.ink))
         }
     }
@@ -1487,7 +1496,7 @@ class CoverGenerator(context: Context) {
         val gold = s.c.accent
         val pressed = faint(Color.BLACK, 160)
         // Stitching round the edge, and a tooled panel.
-        val stitch = s.stroke(faint(gold, 150), 0.25f * u).apply { pathEffect = android.graphics.DashPathEffect(floatArrayOf(1.4f * u, 1f * u), 0f) }
+        val stitch = s.stroke(s.deco(faint(gold, 150)), 0.25f * u).apply { pathEffect = android.graphics.DashPathEffect(floatArrayOf(1.4f * u, 1f * u), 0f) }
         c.drawRoundRect(3.2f * u, 3.2f * u, s.w - 3.2f * u, s.h - 3.2f * u, 2f * u, 2f * u, stitch)
         c.drawRect(7f * u, 7f * u, s.w - 7f * u, s.h - 7f * u, s.stroke(faint(Color.BLACK, 110), 0.5f * u))
         c.drawRect(7.4f * u, 7.4f * u, s.w - 6.6f * u, s.h - 6.6f * u, s.stroke(faint(Color.WHITE, 30), 0.2f * u))
@@ -1509,7 +1518,7 @@ class CoverGenerator(context: Context) {
         val cx = s.w / 2
         val cy = s.h * 0.58f
         val r = 27f * u
-        runeCircle(s, cx, cy, r, gold, art.seed)
+        runeCircle(s, cx, cy, r, s.deco(gold), art.seed)
         val ink = Paint(Paint.ANTI_ALIAS_FLAG).apply { shader = foil(s, gold); setShadowLayer(0.3f * u, 0.1f * u, 0.2f * u, pressed) }
         CoverArt.stamp(c, RectF(cx - r * 0.56f, cy - r * 0.56f, cx + r * 0.56f, cy + r * 0.56f), art.genre, art.seed, ink, weight = 1.5f)
         // The title at the head, the series under it, the author at the foot.
@@ -1568,9 +1577,9 @@ class CoverGenerator(context: Context) {
         }
         title.draw(c, cx - 32f * u, y, s.words(s.c.ink), shadow = glow, shadowRadius = 2f * u)
         y += title.height + 3f * u
-        s.diamond(cx, y, 0.9f * u, rose)
-        s.rule(cx - 7f * u, y, 9f * u, 0.18f * u, rose)
-        s.rule(cx + 7f * u, y, 9f * u, 0.18f * u, rose)
+        s.diamond(cx, y, 0.9f * u, s.deco(rose))
+        s.rule(cx - 7f * u, y, 9f * u, 0.18f * u, s.deco(rose))
+        s.rule(cx + 7f * u, y, 9f * u, 0.18f * u, s.deco(rose))
         t.author?.let { fit(caps(it), romanLight, 4.2f * u, 2.8f * u, 60f * u, 10f * u, tracking = 0.2f, pitch = 1.4f) }?.let { f ->
             f.draw(c, cx - 30f * u, s.h - 10f * u - f.height, s.words(s.c.ink))
         }
@@ -1678,11 +1687,11 @@ class CoverGenerator(context: Context) {
         // The picture, printed.
         paint(c, frame, art)
         halftone(c, frame, u)
-        c.drawRect(frame, s.stroke(Color.rgb(0x1A, 0x14, 0x10), 0.6f * u))
+        c.drawRect(frame, s.stroke(s.deco(Color.rgb(0x1A, 0x14, 0x10)), 0.6f * u))
         // The title band.
         val band = RectF(5f * u, 5f * u, s.w - 5f * u, 30f * u)
         c.drawRect(band, s.fill(s.c.ground))
-        c.drawRect(band, s.stroke(Color.rgb(0x1A, 0x14, 0x10), 0.6f * u))
+        c.drawRect(band, s.stroke(s.deco(Color.rgb(0x1A, 0x14, 0x10)), 0.6f * u))
         val ink = Color.rgb(0x1A, 0x14, 0x10)
         val number = t.seriesIndex?.let { Names.formatIndex(it) }
         val room = if (number != null) 66f * u else 84f * u
@@ -1731,15 +1740,15 @@ class CoverGenerator(context: Context) {
         // The emblem in a ring.
         val r = 30f * u
         c.drawCircle(cx, cy, r, s.fill(mix(s.c.ground, Color.BLACK, 0.25f)))
-        c.drawCircle(cx, cy, r, s.stroke(s.c.accent, 1.2f * u))
-        c.drawCircle(cx, cy, r - 2.2f * u, s.stroke(s.c.accent, 0.3f * u))
+        c.drawCircle(cx, cy, r, s.stroke(s.deco(s.c.accent), 1.2f * u))
+        c.drawCircle(cx, cy, r - 2.2f * u, s.stroke(s.deco(s.c.accent), 0.3f * u))
         val emblem = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = s.c.accent }
         CoverArt.stamp(c, RectF(cx - r * 0.66f, cy - r * 0.66f, cx + r * 0.66f, cy + r * 0.66f), art.genre, art.seed, emblem, weight = 2.2f)
         // The author in a box at the head.
         t.author?.let { fit(caps(it), condensed, 6f * u, 3.6f * u, 70f * u, 8f * u, tracking = 0.1f) }?.let { f ->
             val by = 5f * u
             c.drawRect(cx - f.width / 2 - 3f * u, by, cx + f.width / 2 + 3f * u, by + f.height + 3f * u, s.fill(s.c.ground))
-            c.drawRect(cx - f.width / 2 - 3f * u, by, cx + f.width / 2 + 3f * u, by + f.height + 3f * u, s.stroke(s.c.accent, 0.4f * u))
+            c.drawRect(cx - f.width / 2 - 3f * u, by, cx + f.width / 2 + 3f * u, by + f.height + 3f * u, s.stroke(s.deco(s.c.accent), 0.4f * u))
             f.draw(c, cx - 35f * u, by + 1.5f * u, s.words(s.c.ink))
         }
         // The banner, with notched ends folding back.
@@ -2039,10 +2048,10 @@ class CoverGenerator(context: Context) {
         p.glow(cx, spring - 8f * u, 40f * u, n.glow, 110)
         // (Its outline in the theme's own accent, however dark; the light in it is lightened to show.)
         val rim = n.accentOn(mix(n.dark, Color.BLACK, 0.4f))
-        c.drawPath(arch(0f, closed = false), s.stroke(rim, 0.6f * u))
+        c.drawPath(arch(0f, closed = false), s.stroke(s.deco(rim), 0.6f * u))
         c.drawPath(arch(2.2f * u, closed = false), s.stroke(faint(n.glow, 120), 0.25f * u))
-        s.diamond(18f * u, sill, 1.1f * u, rim)
-        s.diamond(s.w - 18f * u, sill, 1.1f * u, rim)
+        s.diamond(18f * u, sill, 1.1f * u, s.deco(rim))
+        s.diamond(s.w - 18f * u, sill, 1.1f * u, s.deco(rim))
         // The raven.
         val bird = Path()
         val lines = Path()

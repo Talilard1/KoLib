@@ -11,6 +11,9 @@ import dev.kobolibrary.app.ui.theme.ThemeSettings
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 class KoboLibraryApp : Application() {
 
@@ -40,6 +43,44 @@ class KoboLibraryApp : Application() {
 
     /** Makes scanned books into text, in the background. */
     val ocr: dev.kobolibrary.app.ocr.OcrManager by lazy { dev.kobolibrary.app.ocr.OcrManager(this) }
+
+    /** Work that goes on whatever is on the screen: the link to the user's other devices. */
+    val appScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Default)
+
+    /** KoLib on the user's other devices (a phone and a tablet, say): pairing with them, and sending between them. */
+    val link: dev.kobolibrary.app.link.LinkManager by lazy {
+        val wifi = applicationContext.getSystemService(android.net.wifi.WifiManager::class.java)
+        var lock: android.net.wifi.WifiManager.MulticastLock? = null
+        dev.kobolibrary.app.link.LinkManager(
+            store = dev.kobolibrary.app.link.LinkStore(java.io.File(filesDir, "link")),
+            host = dev.kobolibrary.app.link.AppLinkHost(this, library, readingHere),
+            deviceName = ::deviceName,
+            scope = appScope,
+            // Some Wi-Fi hands an app what's sent to every device on the network only while it holds this.
+            onRunning = { on ->
+                if (on) {
+                    lock = runCatching { wifi?.createMulticastLock("KoLib")?.apply { setReferenceCounted(false); acquire() } }.getOrNull()
+                } else {
+                    runCatching { lock?.release() }
+                    lock = null
+                }
+            },
+        ).also { m ->
+            appScope.launch {
+                // Kept running while anything is sent or taken in, whatever's on the screen.
+                m.transfers.map { it.isNotEmpty() }.distinctUntilChanged().collect { busy -> if (busy) dev.kobolibrary.app.link.LinkService.start(this@KoboLibraryApp) }
+            }
+            appScope.launch {
+                // KoLib is offered in other apps' Share only once there's a device to send to.
+                m.paired.map { it.isNotEmpty() }.distinctUntilChanged().collect { any -> dev.kobolibrary.app.link.ShareToDeviceActivity.offer(this@KoboLibraryApp, any) }
+            }
+        }
+    }
+
+    /** This device's name, as it's set in Android's settings ("Galaxy Tab S9"), for the user's other devices. */
+    fun deviceName(): String =
+        runCatching { android.provider.Settings.Global.getString(contentResolver, android.provider.Settings.Global.DEVICE_NAME) }.getOrNull()
+            ?.takeIf { it.isNotBlank() } ?: android.os.Build.MODEL ?: "KoLib"
 
     /** Sections copied out of books in the text editor, to put into others; kept until deleted. */
     val copiedSections: dev.kobolibrary.app.library.CopiedSections by lazy {

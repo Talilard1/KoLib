@@ -6,6 +6,15 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 
+    <!-- "Send to device" from other apps' Share: a card over the app it was shared from. -->
+    <style name="Theme.KoboLibrary.Share" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+    </style>
+
     <!-- While the app starts: the dark the opening animation begins from. -->
     <style name="Theme.KoboLibrary.Starting">
         <item name="android:windowBackground">@color/opening_night</item>

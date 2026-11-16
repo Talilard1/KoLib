@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- For finding covers online, when asked to, and downloading the language data for text recognition. -->
+    <!-- For finding covers online, when asked to, downloading the language data for text recognition, and talking
+         to KoLib on the user's other devices on the same network. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- So the Wi-Fi hands KoLib the "here I am" other devices with KoLib send to everyone on the network. -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
 
     <!-- To carry on making a scanned book into text with the app closed, with a notification saying how far it's got. -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- To carry on sending to (or taking in from) the user's other devices with the app closed, and to stay
+         reachable from them when asked to. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
 
     <!-- Used only to recognise which Kobo model is plugged in. Not required to install. -->
     <uses-feature
@@ -119,6 +125,30 @@
             android:name=".ocr.OcrService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
+
+        <!-- Sends to, and takes in from, KoLib on the user's other devices while the app is closed. -->
+        <service
+            android:name=".link.LinkService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice" />
+
+        <!-- "Send to device" in other apps' Share: text to a paired device's clipboard, files to its Downloads.
+             Turned on once a device is paired. -->
+        <activity
+            android:name=".link.ShareToDeviceActivity"
+            android:label="@string/send_to_device"
+            android:exported="true"
+            android:enabled="false"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
+            android:theme="@style/Theme.KoboLibrary.Share">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+        </activity>
 
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="add_to_library">Zu KoLib hinzufügen</string>
+    <string name="send_to_device">An Gerät senden</string>
 </resources>

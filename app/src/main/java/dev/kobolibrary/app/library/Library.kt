@@ -435,6 +435,60 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
         return m
     }
 
+    // ---- books from another device ------------------------------------------------------------------------
+
+    /**
+     * The book here that's [incoming] (a book sent from another device): the same book (sent between them before, so
+     * with the same id), or one added here separately that has the same details; null if the library hasn't got it.
+     */
+    fun sameBookAs(incoming: LibraryBook): LibraryBook? = book(incoming.id) ?: findDuplicate(incoming.meta, incoming.koboPath)
+
+    /**
+     * Takes in a book sent from another device, its files in [files] (see [dev.kobolibrary.app.link.LinkBooks.sendable]):
+     * added with the same id, so the two devices know it for the same book from then on, or put in place of this
+     * device's copy when it's a newer version of it. Where it was left reading isn't changed here.
+     * Returns the book, and whether it was added (not updated).
+     */
+    suspend fun takeFromDevice(incoming: LibraryBook, files: File): Pair<LibraryBook, Boolean> = withContext(Dispatchers.IO) {
+        val epub = File(files, "book.epub")
+        if (!epub.isFile || epub.length() == 0L) throw IOException(tr("The book's file didn't come."))
+        try {
+            EpubFile.open(epub).close()
+        } catch (e: EpubException) {
+            throw IOException(e.message ?: tr("This isn't an EPUB file."))
+        }
+        lock.withLock {
+            val here = book(incoming.id)
+            val dir = bookDir(incoming.id).apply { mkdirs() }
+            if (here != null) {
+                // The files that make up the book go; where it was left reading, and its recognised text, stay.
+                dir.listFiles()?.filter { f ->
+                    f.isFile && (dev.kobolibrary.app.link.LinkBooks.sendable(f.name) || f.name == "pages.json" || f.name == SCAN_STAND_IN)
+                }?.forEach { it.delete() }
+            }
+            files.listFiles()?.filter { it.isFile && dev.kobolibrary.app.link.LinkBooks.sendable(it.name) }?.forEach { f ->
+                val target = File(dir, f.name)
+                if (!f.renameTo(target)) f.copyTo(target, overwrite = true)
+            }
+            val book = incoming.copy(
+                fileSize = epubFile(incoming.id).length(),
+                hasCover = coverFile(incoming.id).exists(),
+                // Pictures kept of the old cover are let go.
+                coverVersion = if (here != null) maxOf(here.coverVersion, incoming.coverVersion) + 1 else incoming.coverVersion,
+                collections = incoming.collections.distinctBy { it.lowercase() },
+                addedAt = here?.addedAt ?: incoming.addedAt,
+                // Both devices send to the same Kobo: what this one knows of it is kept, and what the other knows added.
+                koboPath = here?.koboPath ?: incoming.koboPath,
+                sentAt = listOfNotNull(here?.sentAt, incoming.sentAt).maxOrNull(),
+                koboCollections = here?.koboCollections ?: incoming.koboCollections,
+            )
+            db.upsert(book)
+            _books.update { list -> if (here != null) list.map { if (it.id == book.id) book else it } else list + book }
+            AppLog.i("Library", "${if (here != null) "Updated" else "Added"} '${book.title}' from another device.")
+            book to (here == null)
+        }
+    }
+
     private fun findDuplicate(meta: BookMetadata, koboPath: String?): LibraryBook? {
         val books = _books.value
         if (koboPath != null) books.firstOrNull { it.koboPath.equals(koboPath, true) }?.let { return it }

@@ -43,6 +43,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.SendToMobile
 import androidx.compose.material.icons.outlined.SaveAlt
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.Merge
@@ -464,6 +465,13 @@ private fun LibraryBrowser(
                     Icon(Icons.Outlined.Merge, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
                     Text(tr("Combine"))
+                }
+                dev.kobolibrary.app.ui.link.LocalLinkActions.current?.let { link ->
+                    OutlinedButton(onClick = { link.sendBooks(chosen()) }, enabled = browse.picked.isNotEmpty(), contentPadding = SelectionButtonPadding) {
+                        Icon(Icons.AutoMirrored.Outlined.SendToMobile, null, Modifier.size(18.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text(tr("Send to device"))
+                    }
                 }
                 Button(onClick = { onSend(chosen()) }, enabled = browse.picked.isNotEmpty(), contentPadding = SelectionButtonPadding) {
                     Icon(Icons.AutoMirrored.Filled.Send, null, Modifier.size(18.dp))
@@ -1046,6 +1054,13 @@ fun LibraryDetailPane(
                         else -> tr("Send to Kobo")
                     }
                 )
+            }
+            dev.kobolibrary.app.ui.link.LocalLinkActions.current?.let { link ->
+                OutlinedButton(onClick = { link.sendBooks(listOf(book.id)) }) {
+                    Icon(Icons.AutoMirrored.Outlined.SendToMobile, null, Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text(tr("Send to device"))
+                }
             }
             OutlinedButton(
                 onClick = { confirmDelete = true },

@@ -121,10 +121,20 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         vm.onForeground()
+        // KoLib on the user's other devices can find and reach this one while it's open.
+        val app = application as KoboLibraryApp
+        if (!underTest) {
+            app.link.start()
+            if (app.link.settings.value.stayReachable) dev.kobolibrary.app.link.LinkService.start(this)
+        }
     }
 
     override fun onStop() {
         vm.onBackground()
+        if (!underTest) (application as KoboLibraryApp).link.stop()
         super.onStop()
     }
+
+    /** Robolectric, which runs the tests: no network there. */
+    private val underTest get() = Build.FINGERPRINT == "robolectric"
 }

@@ -304,7 +304,20 @@ class ReaderStore(
             if (place.asText) savePdfPlace(bookDir, place.copy(page = 0, pages = 0)) else pdfFile(bookDir).delete()
         }
 
-        private fun rewrite(bookDir: File, change: (JSONObject) -> Unit) {
+        /** Writes a place in the PDF brought from another device as it is (a book finished later stays finished). */
+        internal fun writePdfPlace(bookDir: File, place: JSONObject) {
+            runCatching {
+                bookDir.mkdirs()
+                val tmp = File(bookDir, "pdf.json.part")
+                tmp.writeText(place.toString())
+                if (!tmp.renameTo(pdfFile(bookDir))) {
+                    pdfFile(bookDir).delete()
+                    tmp.renameTo(pdfFile(bookDir))
+                }
+            }.onFailure { AppLog.w("Reader", "The place in the PDF couldn't be saved", it) }
+        }
+
+        internal fun rewrite(bookDir: File, change: (JSONObject) -> Unit) {
             val f = File(bookDir, "reader.json")
             val o = if (f.exists()) runCatching { JSONObject(f.readText()) }.getOrDefault(JSONObject()) else JSONObject()
             change(o)

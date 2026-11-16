@@ -1,0 +1,848 @@
+@fr
+1979|Envoi de « {0} » à {1}…
+1980|Envoi de {0} livres à {1}…
+1981|Le fichier n’a pas pu être lu.
+1983|Le presse-papiers est vide.
+1984|Appareils
+1985|Envoyer à un appareil
+1986|Appareil
+1987|Vos appareils
+1988|Envoyez des livres, des fichiers et du texte entre KoLib sur votre téléphone et votre tablette, et gardez la même position dans vos livres sur les deux.
+1989|Cet appareil
+1990|Pas de réseau. Rejoignez un réseau Wi-Fi, ou le point d’accès de l’autre appareil.
+1991|Sur le réseau à l’adresse {0}
+1992|Associés
+1993|Aucun pour l’instant. Ouvrez KoLib sur votre autre appareil, sur le même réseau Wi-Fi que celui-ci (ou le point d’accès de l’un des deux), puis associez-les ci-dessous.
+1994|À proximité
+1995|Rejoignez un réseau pour trouver vos autres appareils.
+1996|Recherche de KoLib sur les autres appareils de ce réseau…
+1997|Associer
+1998|Introuvable ? Se connecter par adresse
+1999|Synchroniser la position dans les livres
+2000|Quand un appareil associé est trouvé, chaque livre reprend à la plus récente des deux positions où il a été laissé.
+2001|Rester joignable quand KoLib est fermé
+2002|Les appareils associés peuvent envoyer à celui-ci quand KoLib n’est pas ouvert. Une notification s’affiche pendant ce temps.
+2003|Ce qui passe entre vos appareils est chiffré, et seuls les appareils associés peuvent envoyer. Tout passe par votre propre réseau, pas par Internet.
+2004|Ici
+2005|Introuvable sur ce réseau
+2006|Oublier cet appareil
+2007|Envoyer des livres
+2008|Envoyer des fichiers
+2009|Envoyer le presse-papiers
+2010|Synchroniser les positions
+2011|Envois et réceptions
+2012|« {0} » vers {1}
+2013|« {0} » depuis {1}
+2014|Se connecter par adresse
+2015|Sur l’autre appareil, la section Appareils indique son adresse sur le réseau. Saisissez-la ici.
+2016|Aucun KoLib trouvé à cette adresse. Vérifiez qu’il est ouvert sur l’autre appareil.
+2017|Non associé
+2018|Connexion à {0}…
+2019|En attente de {0}…
+2020|{0} veut s’associer
+2021|Associer avec {0} ?
+2022|Gardez KoLib ouvert sur {0}.
+2023|Acceptez aussi sur {0}, s’il affiche ce code.
+2024|Vérifiez que {0} affiche le même code. Sinon, n’associez pas.
+2025|OK
+2026|Ne pas associer
+2027|Envoyer à quel appareil ?
+2028|Le fichier du livre n’est pas arrivé.
+2029|De {0}
+2030|Téléchargements, dans le dossier {0}
+2031|Les détails du livre n’ont pas pu être lus.
+2032|{0} n’est pas sur ce réseau. Ouvrez-y KoLib.
+2033|{0} est injoignable. Ouvrez-y KoLib, sur le même réseau que celui-ci.
+2034|L’appareil trouvé là n’est pas {0}.
+2035|Associé avec {0}.
+2036|{0} ne s’est pas associé.
+2037|Personne n’a accepté à temps. Réessayez.
+2038|{0} est injoignable.
+2039|Le texte de {0} est dans le presse-papiers.
+2040|« {0} » est arrivé de {1}. Il se trouve dans {2}.
+2041|{0} fichiers sont arrivés de {1}. Ils se trouvent dans {2}.
+2042|Les positions dans les livres sont synchronisées avec {0}.
+2043|Envoyé dans le presse-papiers de {0}.
+2044|« {0} » envoyé à {1}.
+2045|{0} fichiers envoyés à {1}.
+2046|{0} n’a plus assez d’espace.
+2047|Ça n’a pas atteint {0} : {1}
+2048|L’autre appareil ne connaît plus celui-ci. Associez-les de nouveau.
+2049|L’autre appareil a refusé.
+2050|1 livre ajouté
+2051|{0} livres ajoutés
+2052|1 livre mis à jour
+2053|{0} livres mis à jour
+2054|1 y était déjà
+2055|{0} y étaient déjà
+2056|1 n’a pas pu être reçu
+2057|{0} n’ont pas pu être reçus
+2058|De {0} : {1}.
+2059|Vers {0} : {1}.
+2060|Vos autres appareils
+2061|Envois vers et depuis vos autres appareils
+2062| · {0} de plus
+2063|Envoi à {0}
+2064|Réception depuis {0}
+2065|« {0} » · {1} %
+2066|Vos autres appareils peuvent joindre KoLib
+2067|Les appareils associés peuvent lui envoyer pendant qu’il est fermé.
+2068|Un message de l’autre appareil était abîmé.
+2069|Un message ne venait pas de l’autre appareil, ou a été modifié en route.
+2070|Un message de l’autre appareil était trop gros.
+2071|Le fichier a changé pendant son envoi.
+2072|Ce n’est pas KoLib.
+2073|L’autre appareil a une autre version de KoLib. Mettez les deux à la même version.
+2074|Le message d’accueil de l’autre appareil n’a pas pu être lu.
+2075|L’autre appareil n’a pas pu prouver son identité.
+2076|L’autre appareil a raccroché.
+2077|Il n’y a rien ici que KoLib puisse envoyer.
+2078|Du texte, pour le presse-papiers de l’autre appareil : « {0} »
+2079|1 fichier, pour les Téléchargements de l’autre appareil.
+2080|{0} fichiers, pour les Téléchargements de l’autre appareil.
+2081|Envoi à {0}…
+2082|Aucun appareil n’est associé. Associez-en un d’abord dans la section Appareils de KoLib.
+2083|Pas encore trouvé sur ce réseau
+2084|Choisissez les livres, puis envoyez-les à {0}.
+@de
+1979|„{0}“ wird an {1} gesendet…
+1980|{0} Bücher werden an {1} gesendet…
+1981|Die Datei konnte nicht gelesen werden.
+1983|Die Zwischenablage ist leer.
+1984|Geräte
+1985|An Gerät senden
+1986|An Gerät
+1987|Deine Geräte
+1988|Sende Bücher, Dateien und Text zwischen KoLib auf deinem Handy und deinem Tablet, und behalte auf beiden dieselbe Stelle in deinen Büchern.
+1989|Dieses Gerät
+1990|Nicht in einem Netzwerk. Verbinde dich mit einem WLAN oder mit dem Hotspot des anderen Geräts.
+1991|Im Netzwerk unter {0}
+1992|Gekoppelt
+1993|Noch keine. Öffne KoLib auf deinem anderen Gerät, im selben WLAN wie dieses (oder am Hotspot eines der beiden), und kopple sie dann unten.
+1994|In der Nähe
+1995|Verbinde dich mit einem Netzwerk, um deine anderen Geräte zu finden.
+1996|Suche nach KoLib auf anderen Geräten in diesem Netzwerk…
+1997|Koppeln
+1998|Nicht gefunden? Über Adresse verbinden
+1999|Lesestellen abgleichen
+2000|Wird ein gekoppeltes Gerät gefunden, geht jedes Buch an die spätere der beiden Stellen, an denen es zuletzt gelesen wurde.
+2001|Erreichbar bleiben, wenn KoLib geschlossen ist
+2002|Gekoppelte Geräte können an dieses senden, während KoLib nicht geöffnet ist. Solange wird eine Benachrichtigung angezeigt.
+2003|Was zwischen deinen Geräten gesendet wird, ist verschlüsselt, und nur gekoppelte Geräte können senden. Es geht über dein eigenes Netzwerk, nicht über das Internet.
+2004|Hier
+2005|Nicht in diesem Netzwerk gefunden
+2006|Dieses Gerät vergessen
+2007|Bücher senden
+2008|Dateien senden
+2009|Zwischenablage senden
+2010|Lesestellen abgleichen
+2011|Senden und Empfangen
+2012|„{0}“ an {1}
+2013|„{0}“ von {1}
+2014|Über Adresse verbinden
+2015|Auf dem anderen Gerät zeigt der Bereich „Geräte“, wo es im Netzwerk ist. Gib das hier ein.
+2016|Dort wurde kein KoLib gefunden. Prüfe, ob es auf dem anderen Gerät geöffnet ist.
+2017|Nicht gekoppelt
+2018|Verbindung mit {0} wird hergestellt…
+2019|Warte auf {0}…
+2020|{0} möchte sich koppeln
+2021|Mit {0} koppeln?
+2022|Lass KoLib auf {0} geöffnet.
+2023|Bestätige auch auf {0}, wenn dort dieser Code steht.
+2024|Prüfe, ob {0} denselben Code zeigt. Wenn nicht, kopple sie nicht.
+2025|OK
+2026|Nicht koppeln
+2027|An welches Gerät senden?
+2028|Die Datei des Buchs ist nicht angekommen.
+2029|Von {0}
+2030|„Downloads“, im Ordner {0}
+2031|Die Angaben zum Buch konnten nicht gelesen werden.
+2032|{0} ist nicht in diesem Netzwerk. Öffne dort KoLib.
+2033|{0} ist nicht erreichbar. Öffne dort KoLib, im selben Netzwerk wie dieses Gerät.
+2034|Das dort gefundene Gerät ist nicht {0}.
+2035|Mit {0} gekoppelt.
+2036|{0} hat sich nicht gekoppelt.
+2037|Niemand hat rechtzeitig bestätigt. Versuch es noch einmal.
+2038|{0} ist nicht erreichbar.
+2039|Text von {0} ist in der Zwischenablage.
+2040|„{0}“ kam von {1}. Es liegt in {2}.
+2041|{0} Dateien kamen von {1}. Sie liegen in {2}.
+2042|Die Lesestellen sind mit {0} abgeglichen.
+2043|In die Zwischenablage von {0} gesendet.
+2044|„{0}“ an {1} gesendet.
+2045|{0} Dateien an {1} gesendet.
+2046|{0} hat nicht mehr genug Platz.
+2047|Das hat {0} nicht erreicht: {1}
+2048|Das andere Gerät kennt dieses nicht mehr. Kopple sie erneut.
+2049|Das andere Gerät hat abgelehnt.
+2050|1 Buch hinzugefügt
+2051|{0} Bücher hinzugefügt
+2052|1 Buch aktualisiert
+2053|{0} Bücher aktualisiert
+2054|1 war schon da
+2055|{0} waren schon da
+2056|1 konnte nicht übernommen werden
+2057|{0} konnten nicht übernommen werden
+2058|Von {0}: {1}.
+2059|An {0}: {1}.
+2060|Deine anderen Geräte
+2061|Senden an und von deinen anderen Geräten
+2062| · {0} weitere
+2063|Wird an {0} gesendet
+2064|Wird von {0} empfangen
+2065|„{0}“ · {1} %
+2066|Deine anderen Geräte können KoLib erreichen
+2067|Gekoppelte Geräte können an KoLib senden, während es geschlossen ist.
+2068|Eine Nachricht vom anderen Gerät war beschädigt.
+2069|Eine Nachricht kam nicht vom anderen Gerät oder wurde unterwegs verändert.
+2070|Eine Nachricht vom anderen Gerät war zu groß.
+2071|Die Datei hat sich beim Senden verändert.
+2072|Das ist nicht KoLib.
+2073|Das andere Gerät hat eine andere Version von KoLib. Bring beide auf dieselbe Version.
+2074|Die Begrüßung des anderen Geräts konnte nicht gelesen werden.
+2075|Das andere Gerät konnte nicht beweisen, wer es ist.
+2076|Das andere Gerät hat aufgelegt.
+2077|Hier gibt es nichts, was KoLib senden kann.
+2078|Text für die Zwischenablage des anderen Geräts: „{0}“
+2079|1 Datei für „Downloads“ auf dem anderen Gerät.
+2080|{0} Dateien für „Downloads“ auf dem anderen Gerät.
+2081|Wird an {0} gesendet…
+2082|Kein Gerät ist gekoppelt. Kopple zuerst eines im Bereich „Geräte“ von KoLib.
+2083|In diesem Netzwerk noch nicht gefunden
+2084|Wähle die Bücher aus und sende sie dann an {0}.
+@es
+1979|Enviando «{0}» a {1}…
+1980|Enviando {0} libros a {1}…
+1981|No se ha podido leer el archivo.
+1983|El portapapeles está vacío.
+1984|Dispositivos
+1985|Enviar a un dispositivo
+1986|Dispositivo
+1987|Tus dispositivos
+1988|Envía libros, archivos y texto entre KoLib en tu móvil y tu tableta, y mantén el mismo punto de lectura en ambos.
+1989|Este dispositivo
+1990|Sin red. Conéctate a una red wifi o al punto de acceso del otro dispositivo.
+1991|En la red en {0}
+1992|Vinculados
+1993|Ninguno todavía. Abre KoLib en tu otro dispositivo, en la misma red wifi que este (o en el punto de acceso de uno de ellos), y vincúlalos abajo.
+1994|Cerca
+1995|Conéctate a una red para encontrar tus otros dispositivos.
+1996|Buscando KoLib en otros dispositivos de esta red…
+1997|Vincular
+1998|¿No aparece? Conectar por dirección
+1999|Sincronizar el punto de lectura
+2000|Cuando se encuentra un dispositivo vinculado, cada libro pasa al más reciente de los dos puntos donde se dejó.
+2001|Seguir accesible con KoLib cerrado
+2002|Los dispositivos vinculados pueden enviar a este aunque KoLib no esté abierto. Mientras tanto se muestra una notificación.
+2003|Lo que se envía entre tus dispositivos va cifrado, y solo pueden enviar los dispositivos vinculados. Va por tu propia red, no por internet.
+2004|Aquí
+2005|No está en esta red
+2006|Olvidar este dispositivo
+2007|Enviar libros
+2008|Enviar archivos
+2009|Enviar portapapeles
+2010|Sincronizar puntos de lectura
+2011|Envíos y recepciones
+2012|«{0}» a {1}
+2013|«{0}» de {1}
+2014|Conectar por dirección
+2015|En el otro dispositivo, la sección Dispositivos muestra dónde está en la red. Escríbelo aquí.
+2016|No se ha encontrado KoLib ahí. Comprueba que esté abierto en el otro dispositivo.
+2017|No vinculado
+2018|Conectando con {0}…
+2019|Esperando a {0}…
+2020|{0} quiere vincularse
+2021|¿Vincular con {0}?
+2022|Mantén KoLib abierto en {0}.
+2023|Acepta también en {0}, si muestra este código.
+2024|Comprueba que {0} muestre el mismo código. Si no, no lo vincules.
+2025|Aceptar
+2026|No vincular
+2027|¿A qué dispositivo enviar?
+2028|El archivo del libro no ha llegado.
+2029|De {0}
+2030|Descargas, en la carpeta {0}
+2031|No se han podido leer los datos del libro.
+2032|{0} no está en esta red. Abre KoLib en él.
+2033|No se puede conectar con {0}. Abre KoLib en él, en la misma red que este.
+2034|El dispositivo encontrado ahí no es {0}.
+2035|Vinculado con {0}.
+2036|{0} no se ha vinculado.
+2037|Nadie ha aceptado a tiempo. Vuelve a intentarlo.
+2038|No se puede conectar con {0}.
+2039|El texto de {0} está en el portapapeles.
+2040|«{0}» ha llegado de {1}. Está en {2}.
+2041|{0} archivos han llegado de {1}. Están en {2}.
+2042|Los puntos de lectura están sincronizados con {0}.
+2043|Enviado al portapapeles de {0}.
+2044|«{0}» enviado a {1}.
+2045|{0} archivos enviados a {1}.
+2046|A {0} no le queda espacio suficiente.
+2047|No ha llegado a {0}: {1}
+2048|El otro dispositivo ya no reconoce este. Vuelve a vincularlos.
+2049|El otro dispositivo ha dicho que no.
+2050|1 libro añadido
+2051|{0} libros añadidos
+2052|1 libro actualizado
+2053|{0} libros actualizados
+2054|1 ya estaba
+2055|{0} ya estaban
+2056|1 no se ha podido recibir
+2057|{0} no se han podido recibir
+2058|De {0}: {1}.
+2059|A {0}: {1}.
+2060|Tus otros dispositivos
+2061|Envíos entre tus dispositivos
+2062| · {0} más
+2063|Enviando a {0}
+2064|Recibiendo de {0}
+2065|«{0}» · {1} %
+2066|Tus otros dispositivos pueden conectar con KoLib
+2067|Los dispositivos vinculados pueden enviarle aunque esté cerrado.
+2068|Un mensaje del otro dispositivo llegó dañado.
+2069|Un mensaje no venía del otro dispositivo o se modificó por el camino.
+2070|Un mensaje del otro dispositivo era demasiado grande.
+2071|El archivo cambió mientras se enviaba.
+2072|Eso no es KoLib.
+2073|El otro dispositivo tiene otra versión de KoLib. Pon los dos en la misma versión.
+2074|No se ha podido leer el saludo del otro dispositivo.
+2075|El otro dispositivo no ha podido demostrar quién es.
+2076|El otro dispositivo ha colgado.
+2077|Aquí no hay nada que KoLib pueda enviar.
+2078|Texto para el portapapeles del otro dispositivo: «{0}»
+2079|1 archivo, para las Descargas del otro dispositivo.
+2080|{0} archivos, para las Descargas del otro dispositivo.
+2081|Enviando a {0}…
+2082|No hay ningún dispositivo vinculado. Vincula uno primero en la sección Dispositivos de KoLib.
+2083|Aún no está en esta red
+2084|Elige los libros y luego envíalos a {0}.
+@it
+1979|Invio di «{0}» a {1}…
+1980|Invio di {0} libri a {1}…
+1981|Impossibile leggere il file.
+1983|Gli appunti sono vuoti.
+1984|Dispositivi
+1985|Invia a un dispositivo
+1986|Dispositivo
+1987|I tuoi dispositivi
+1988|Invia libri, file e testo tra KoLib sul telefono e sul tablet, e mantieni lo stesso punto nei libri su entrambi.
+1989|Questo dispositivo
+1990|Nessuna rete. Collegati a una rete Wi-Fi o all’hotspot dell’altro dispositivo.
+1991|In rete all’indirizzo {0}
+1992|Associati
+1993|Ancora nessuno. Apri KoLib sull’altro dispositivo, sulla stessa rete Wi-Fi di questo (o sull’hotspot di uno dei due), poi associali qui sotto.
+1994|Nelle vicinanze
+1995|Collegati a una rete per trovare gli altri dispositivi.
+1996|Ricerca di KoLib sugli altri dispositivi di questa rete…
+1997|Associa
+1998|Non lo trovi? Connetti tramite indirizzo
+1999|Sincronizza il punto nei libri
+2000|Quando viene trovato un dispositivo associato, ogni libro passa al più recente dei due punti in cui era stato lasciato.
+2001|Resta raggiungibile con KoLib chiuso
+2002|I dispositivi associati possono inviare a questo anche quando KoLib non è aperto. Nel frattempo viene mostrata una notifica.
+2003|Ciò che passa tra i tuoi dispositivi è crittografato, e solo i dispositivi associati possono inviare. Passa dalla tua rete, non da Internet.
+2004|Qui
+2005|Non trovato su questa rete
+2006|Dimentica questo dispositivo
+2007|Invia libri
+2008|Invia file
+2009|Invia appunti
+2010|Sincronizza i punti
+2011|Invii e ricezioni
+2012|«{0}» a {1}
+2013|«{0}» da {1}
+2014|Connetti tramite indirizzo
+2015|Sull’altro dispositivo, la sezione Dispositivi mostra dov’è sulla rete. Scrivilo qui.
+2016|Nessun KoLib trovato lì. Controlla che sia aperto sull’altro dispositivo.
+2017|Non associato
+2018|Connessione a {0}…
+2019|In attesa di {0}…
+2020|{0} vuole associarsi
+2021|Associare con {0}?
+2022|Tieni KoLib aperto su {0}.
+2023|Conferma anche su {0}, se mostra questo codice.
+2024|Controlla che {0} mostri lo stesso codice. Se no, non associare.
+2025|OK
+2026|Non associare
+2027|A quale dispositivo inviare?
+2028|Il file del libro non è arrivato.
+2029|Da {0}
+2030|Download, nella cartella {0}
+2031|Impossibile leggere i dati del libro.
+2032|{0} non è su questa rete. Apri KoLib lì.
+2033|Impossibile raggiungere {0}. Apri KoLib lì, sulla stessa rete di questo.
+2034|Il dispositivo trovato lì non è {0}.
+2035|Associato con {0}.
+2036|{0} non si è associato.
+2037|Nessuno ha confermato in tempo. Riprova.
+2038|Impossibile raggiungere {0}.
+2039|Il testo da {0} è negli appunti.
+2040|«{0}» è arrivato da {1}. Si trova in {2}.
+2041|{0} file sono arrivati da {1}. Si trovano in {2}.
+2042|I punti nei libri sono sincronizzati con {0}.
+2043|Inviato agli appunti di {0}.
+2044|«{0}» inviato a {1}.
+2045|{0} file inviati a {1}.
+2046|{0} non ha più spazio sufficiente.
+2047|Non è arrivato a {0}: {1}
+2048|L’altro dispositivo non riconosce più questo. Associali di nuovo.
+2049|L’altro dispositivo ha rifiutato.
+2050|1 libro aggiunto
+2051|{0} libri aggiunti
+2052|1 libro aggiornato
+2053|{0} libri aggiornati
+2054|1 c’era già
+2055|{0} c’erano già
+2056|1 non è stato ricevuto
+2057|{0} non sono stati ricevuti
+2058|Da {0}: {1}.
+2059|A {0}: {1}.
+2060|Gli altri tuoi dispositivi
+2061|Invii da e verso gli altri tuoi dispositivi
+2062| · altri {0}
+2063|Invio a {0}
+2064|Ricezione da {0}
+2065|«{0}» · {1}%
+2066|Gli altri tuoi dispositivi possono raggiungere KoLib
+2067|I dispositivi associati possono inviargli anche quando è chiuso.
+2068|Un messaggio dall’altro dispositivo era danneggiato.
+2069|Un messaggio non veniva dall’altro dispositivo o è stato modificato lungo il percorso.
+2070|Un messaggio dall’altro dispositivo era troppo grande.
+2071|Il file è cambiato durante l’invio.
+2072|Non è KoLib.
+2073|L’altro dispositivo ha un’altra versione di KoLib. Aggiorna entrambi alla stessa versione.
+2074|Impossibile leggere il saluto dell’altro dispositivo.
+2075|L’altro dispositivo non ha potuto dimostrare chi è.
+2076|L’altro dispositivo ha chiuso la connessione.
+2077|Qui non c’è niente che KoLib possa inviare.
+2078|Testo per gli appunti dell’altro dispositivo: «{0}»
+2079|1 file, per i Download dell’altro dispositivo.
+2080|{0} file, per i Download dell’altro dispositivo.
+2081|Invio a {0}…
+2082|Nessun dispositivo associato. Associane uno prima nella sezione Dispositivi di KoLib.
+2083|Non ancora trovato su questa rete
+2084|Scegli i libri, poi inviali a {0}.
+@nl
+1979|‘{0}’ wordt naar {1} gestuurd…
+1980|{0} boeken worden naar {1} gestuurd…
+1981|Het bestand kon niet worden gelezen.
+1983|Het klembord is leeg.
+1984|Apparaten
+1985|Naar apparaat sturen
+1986|Naar apparaat
+1987|Je apparaten
+1988|Stuur boeken, bestanden en tekst tussen KoLib op je telefoon en tablet, en houd je plek in boeken op beide gelijk.
+1989|Dit apparaat
+1990|Niet op een netwerk. Maak verbinding met een wifinetwerk, of met de hotspot van het andere apparaat.
+1991|Op het netwerk op {0}
+1992|Gekoppeld
+1993|Nog geen. Open KoLib op je andere apparaat, op hetzelfde wifinetwerk als dit (of de hotspot van een van beide), en koppel ze hieronder.
+1994|In de buurt
+1995|Maak verbinding met een netwerk om je andere apparaten te vinden.
+1996|Zoeken naar KoLib op andere apparaten op dit netwerk…
+1997|Koppelen
+1998|Niet gevonden? Verbinden via adres
+1999|Plek in boeken gelijk houden
+2000|Als een gekoppeld apparaat wordt gevonden, gaat elk boek naar de latere van de twee plekken waar het is gebleven.
+2001|Bereikbaar blijven als KoLib dicht is
+2002|Gekoppelde apparaten kunnen naar dit apparaat sturen terwijl KoLib niet open is. Zolang dat zo is, staat er een melding.
+2003|Wat tussen je apparaten gaat, is versleuteld, en alleen gekoppelde apparaten kunnen sturen. Het gaat via je eigen netwerk, niet via internet.
+2004|Hier
+2005|Niet gevonden op dit netwerk
+2006|Dit apparaat vergeten
+2007|Boeken sturen
+2008|Bestanden sturen
+2009|Klembord sturen
+2010|Plekken gelijkzetten
+2011|Versturen en ontvangen
+2012|‘{0}’ naar {1}
+2013|‘{0}’ van {1}
+2014|Verbinden via adres
+2015|Op het andere apparaat staat in het onderdeel Apparaten waar het op het netwerk is. Typ dat hier in.
+2016|Daar is geen KoLib gevonden. Controleer of het open is op het andere apparaat.
+2017|Niet gekoppeld
+2018|Verbinden met {0}…
+2019|Wachten op {0}…
+2020|{0} wil koppelen
+2021|Koppelen met {0}?
+2022|Houd KoLib open op {0}.
+2023|Zeg ook ja op {0}, als die deze code toont.
+2024|Controleer of {0} dezelfde code toont. Zo niet, koppel dan niet.
+2025|OK
+2026|Niet koppelen
+2027|Naar welk apparaat sturen?
+2028|Het bestand van het boek is niet aangekomen.
+2029|Van {0}
+2030|Downloads, in de map {0}
+2031|De gegevens van het boek konden niet worden gelezen.
+2032|{0} is niet op dit netwerk. Open KoLib daarop.
+2033|{0} is niet bereikbaar. Open KoLib daarop, op hetzelfde netwerk als dit apparaat.
+2034|Het apparaat dat daar is gevonden, is niet {0}.
+2035|Gekoppeld met {0}.
+2036|{0} heeft niet gekoppeld.
+2037|Niemand zei op tijd ja. Probeer het opnieuw.
+2038|{0} is niet bereikbaar.
+2039|Tekst van {0} staat op het klembord.
+2040|‘{0}’ is binnengekomen van {1}. Het staat in {2}.
+2041|{0} bestanden zijn binnengekomen van {1}. Ze staan in {2}.
+2042|De plekken in boeken zijn gelijk met {0}.
+2043|Naar het klembord van {0} gestuurd.
+2044|‘{0}’ naar {1} gestuurd.
+2045|{0} bestanden naar {1} gestuurd.
+2046|{0} heeft niet genoeg ruimte meer.
+2047|Dat heeft {0} niet bereikt: {1}
+2048|Het andere apparaat kent dit apparaat niet meer. Koppel ze opnieuw.
+2049|Het andere apparaat zei nee.
+2050|1 boek toegevoegd
+2051|{0} boeken toegevoegd
+2052|1 boek bijgewerkt
+2053|{0} boeken bijgewerkt
+2054|1 was er al
+2055|{0} waren er al
+2056|1 kon niet worden overgenomen
+2057|{0} konden niet worden overgenomen
+2058|Van {0}: {1}.
+2059|Naar {0}: {1}.
+2060|Je andere apparaten
+2061|Versturen naar en van je andere apparaten
+2062| · nog {0}
+2063|Versturen naar {0}
+2064|Ontvangen van {0}
+2065|‘{0}’ · {1}%
+2066|Je andere apparaten kunnen KoLib bereiken
+2067|Gekoppelde apparaten kunnen ernaar sturen terwijl het dicht is.
+2068|Een bericht van het andere apparaat was beschadigd.
+2069|Een bericht kwam niet van het andere apparaat, of is onderweg veranderd.
+2070|Een bericht van het andere apparaat was te groot.
+2071|Het bestand veranderde tijdens het versturen.
+2072|Dat is geen KoLib.
+2073|Het andere apparaat heeft een andere versie van KoLib. Zet beide op dezelfde versie.
+2074|De begroeting van het andere apparaat kon niet worden gelezen.
+2075|Het andere apparaat kon niet bewijzen wie het is.
+2076|Het andere apparaat heeft opgehangen.
+2077|Er is hier niets wat KoLib kan sturen.
+2078|Tekst, voor het klembord van het andere apparaat: ‘{0}’
+2079|1 bestand, voor Downloads op het andere apparaat.
+2080|{0} bestanden, voor Downloads op het andere apparaat.
+2081|Versturen naar {0}…
+2082|Er is geen apparaat gekoppeld. Koppel er eerst een in het onderdeel Apparaten van KoLib.
+2083|Nog niet gevonden op dit netwerk
+2084|Kies de boeken en stuur ze dan naar {0}.
+@pt
+1979|Enviando “{0}” para {1}…
+1980|Enviando {0} livros para {1}…
+1981|Não foi possível ler o arquivo.
+1983|A área de transferência está vazia.
+1984|Dispositivos
+1985|Enviar para um dispositivo
+1986|Dispositivo
+1987|Seus dispositivos
+1988|Envie livros, arquivos e texto entre o KoLib no seu celular e no seu tablet, e mantenha o mesmo ponto nos livros nos dois.
+1989|Este dispositivo
+1990|Sem rede. Conecte-se a uma rede Wi-Fi ou ao ponto de acesso do outro dispositivo.
+1991|Na rede em {0}
+1992|Pareados
+1993|Nenhum ainda. Abra o KoLib no seu outro dispositivo, na mesma rede Wi-Fi que este (ou no ponto de acesso de um deles), e depois pareie os dois abaixo.
+1994|Por perto
+1995|Conecte-se a uma rede para encontrar seus outros dispositivos.
+1996|Procurando o KoLib em outros dispositivos desta rede…
+1997|Parear
+1998|Não encontrou? Conectar pelo endereço
+1999|Manter o ponto nos livros igual
+2000|Quando um dispositivo pareado é encontrado, cada livro vai para o mais recente dos dois pontos onde foi deixado.
+2001|Continuar acessível com o KoLib fechado
+2002|Os dispositivos pareados podem enviar para este enquanto o KoLib não está aberto. Enquanto isso, aparece uma notificação.
+2003|O que é enviado entre seus dispositivos é criptografado, e só dispositivos pareados podem enviar. Tudo passa pela sua própria rede, não pela internet.
+2004|Aqui
+2005|Não encontrado nesta rede
+2006|Esquecer este dispositivo
+2007|Enviar livros
+2008|Enviar arquivos
+2009|Enviar área de transferência
+2010|Igualar os pontos
+2011|Enviando e recebendo
+2012|“{0}” para {1}
+2013|“{0}” de {1}
+2014|Conectar pelo endereço
+2015|No outro dispositivo, a seção Dispositivos mostra onde ele está na rede. Digite isso aqui.
+2016|Nenhum KoLib encontrado ali. Verifique se ele está aberto no outro dispositivo.
+2017|Não pareado
+2018|Conectando a {0}…
+2019|Aguardando {0}…
+2020|{0} quer parear
+2021|Parear com {0}?
+2022|Mantenha o KoLib aberto em {0}.
+2023|Aceite também em {0}, se ele mostrar este código.
+2024|Verifique se {0} mostra o mesmo código. Se não mostrar, não pareie.
+2025|OK
+2026|Não parear
+2027|Enviar para qual dispositivo?
+2028|O arquivo do livro não chegou.
+2029|De {0}
+2030|Downloads, na pasta {0}
+2031|Não foi possível ler os dados do livro.
+2032|{0} não está nesta rede. Abra o KoLib nele.
+2033|Não foi possível alcançar {0}. Abra o KoLib nele, na mesma rede que este.
+2034|O dispositivo encontrado ali não é {0}.
+2035|Pareado com {0}.
+2036|{0} não pareou.
+2037|Ninguém aceitou a tempo. Tente de novo.
+2038|Não foi possível alcançar {0}.
+2039|O texto de {0} está na área de transferência.
+2040|“{0}” chegou de {1}. Está em {2}.
+2041|{0} arquivos chegaram de {1}. Estão em {2}.
+2042|Os pontos nos livros estão iguais aos de {0}.
+2043|Enviado para a área de transferência de {0}.
+2044|“{0}” enviado para {1}.
+2045|{0} arquivos enviados para {1}.
+2046|{0} não tem mais espaço suficiente.
+2047|Isso não chegou a {0}: {1}
+2048|O outro dispositivo não reconhece mais este. Pareie os dois de novo.
+2049|O outro dispositivo recusou.
+2050|1 livro adicionado
+2051|{0} livros adicionados
+2052|1 livro atualizado
+2053|{0} livros atualizados
+2054|1 já estava lá
+2055|{0} já estavam lá
+2056|1 não pôde ser recebido
+2057|{0} não puderam ser recebidos
+2058|De {0}: {1}.
+2059|Para {0}: {1}.
+2060|Seus outros dispositivos
+2061|Envios entre seus dispositivos
+2062| · mais {0}
+2063|Enviando para {0}
+2064|Recebendo de {0}
+2065|“{0}” · {1}%
+2066|Seus outros dispositivos podem acessar o KoLib
+2067|Os dispositivos pareados podem enviar para ele enquanto está fechado.
+2068|Uma mensagem do outro dispositivo chegou danificada.
+2069|Uma mensagem não veio do outro dispositivo ou foi alterada no caminho.
+2070|Uma mensagem do outro dispositivo era grande demais.
+2071|O arquivo mudou enquanto era enviado.
+2072|Isso não é o KoLib.
+2073|O outro dispositivo tem outra versão do KoLib. Deixe os dois na mesma versão.
+2074|Não foi possível ler a saudação do outro dispositivo.
+2075|O outro dispositivo não conseguiu provar quem é.
+2076|O outro dispositivo desligou.
+2077|Não há nada aqui que o KoLib possa enviar.
+2078|Texto, para a área de transferência do outro dispositivo: “{0}”
+2079|1 arquivo, para os Downloads do outro dispositivo.
+2080|{0} arquivos, para os Downloads do outro dispositivo.
+2081|Enviando para {0}…
+2082|Nenhum dispositivo pareado. Pareie um primeiro na seção Dispositivos do KoLib.
+2083|Ainda não encontrado nesta rede
+2084|Escolha os livros e depois envie para {0}.
+@ru
+1979|Отправка «{0}» на {1}…
+1980|Отправка {0} {0:книги|книг|книг} на {1}…
+1981|Не удалось прочитать файл.
+1983|Буфер обмена пуст.
+1984|Устройства
+1985|Отправить на устройство
+1986|На устройство
+1987|Ваши устройства
+1988|Отправляйте книги, файлы и текст между KoLib на телефоне и планшете и сохраняйте одно и то же место в книгах на обоих.
+1989|Это устройство
+1990|Нет сети. Подключитесь к Wi-Fi или к точке доступа другого устройства.
+1991|В сети по адресу {0}
+1992|Сопряжённые
+1993|Пока нет. Откройте KoLib на другом устройстве в той же сети Wi-Fi, что и это (или через точку доступа одного из них), и выполните сопряжение ниже.
+1994|Рядом
+1995|Подключитесь к сети, чтобы найти другие устройства.
+1996|Поиск KoLib на других устройствах в этой сети…
+1997|Сопрячь
+1998|Не нашлось? Подключиться по адресу
+1999|Синхронизировать места в книгах
+2000|Когда находится сопряжённое устройство, каждая книга переходит к более позднему из двух мест, где её оставили.
+2001|Оставаться доступным, когда KoLib закрыт
+2002|Сопряжённые устройства могут отправлять на это, пока KoLib не открыт. В это время показывается уведомление.
+2003|Всё, что передаётся между вашими устройствами, зашифровано, и отправлять могут только сопряжённые устройства. Всё идёт через вашу сеть, а не через интернет.
+2004|Здесь
+2005|Не найдено в этой сети
+2006|Забыть это устройство
+2007|Отправить книги
+2008|Отправить файлы
+2009|Отправить буфер обмена
+2010|Синхронизировать места
+2011|Отправка и получение
+2012|«{0}» на {1}
+2013|«{0}» с {1}
+2014|Подключиться по адресу
+2015|На другом устройстве в разделе «Устройства» показано, где оно в сети. Введите это здесь.
+2016|KoLib там не найден. Проверьте, что он открыт на другом устройстве.
+2017|Не сопряжено
+2018|Подключение к {0}…
+2019|Ожидание {0}…
+2020|{0} хочет выполнить сопряжение
+2021|Выполнить сопряжение с {0}?
+2022|Не закрывайте KoLib на {0}.
+2023|Подтвердите и на {0}, если там этот код.
+2024|Проверьте, что {0} показывает тот же код. Если нет, не выполняйте сопряжение.
+2025|OK
+2026|Не сопрягать
+2027|На какое устройство отправить?
+2028|Файл книги не пришёл.
+2029|С {0}
+2030|папке {0} в «Загрузках»
+2031|Не удалось прочитать сведения о книге.
+2032|{0} нет в этой сети. Откройте на нём KoLib.
+2033|Не удалось связаться с {0}. Откройте на нём KoLib в той же сети, что и это устройство.
+2034|Найденное там устройство — не {0}.
+2035|Сопряжено с {0}.
+2036|{0} не выполнил сопряжение.
+2037|Никто не подтвердил вовремя. Попробуйте ещё раз.
+2038|Не удалось связаться с {0}.
+2039|Текст с {0} в буфере обмена.
+2040|Файл «{0}» пришёл с {1}. Он в {2}.
+2041|{0} {0:файл пришёл|файла пришли|файлов пришли} с {1}. Они в {2}.
+2042|Места в книгах синхронизированы с {0}.
+2043|Отправлено в буфер обмена {0}.
+2044|«{0}» отправлен на {1}.
+2045|На {1} отправлено файлов: {0}.
+2046|На {0} не хватает места.
+2047|Не дошло до {0}: {1}
+2048|Другое устройство больше не знает это. Выполните сопряжение заново.
+2049|Другое устройство отказало.
+2050|1 книга добавлена
+2051|{0} {0:книга добавлена|книги добавлены|книг добавлено}
+2052|1 книга обновлена
+2053|{0} {0:книга обновлена|книги обновлены|книг обновлено}
+2054|1 уже была там
+2055|{0} уже {0:была|были|было} там
+2056|1 не удалось принять
+2057|{0} не удалось принять
+2058|С {0}: {1}.
+2059|На {0}: {1}.
+2060|Ваши другие устройства
+2061|Отправка на ваши другие устройства и с них
+2062| · ещё {0}
+2063|Отправка на {0}
+2064|Получение с {0}
+2065|«{0}» · {1} %
+2066|Другие устройства могут связаться с KoLib
+2067|Сопряжённые устройства могут отправлять на него, пока он закрыт.
+2068|Сообщение с другого устройства повреждено.
+2069|Сообщение пришло не с другого устройства или было изменено по пути.
+2070|Сообщение с другого устройства слишком большое.
+2071|Файл изменился во время отправки.
+2072|Это не KoLib.
+2073|На другом устройстве другая версия KoLib. Обновите оба до одной версии.
+2074|Не удалось прочитать приветствие другого устройства.
+2075|Другое устройство не смогло подтвердить, кто оно.
+2076|Другое устройство разорвало связь.
+2077|Здесь нет ничего, что KoLib может отправить.
+2078|Текст для буфера обмена другого устройства: «{0}»
+2079|1 файл для «Загрузок» другого устройства.
+2080|{0} {0:файл|файла|файлов} для «Загрузок» другого устройства.
+2081|Отправка на {0}…
+2082|Нет сопряжённых устройств. Сначала выполните сопряжение в разделе «Устройства» в KoLib.
+2083|Пока не найдено в этой сети
+2084|Выберите книги, а затем отправьте их на {0}.
+@ja
+1979|「{0}」を {1} に送信しています…
+1980|{0} 冊を {1} に送信しています…
+1981|ファイルを読み込めませんでした。
+1983|クリップボードは空です。
+1984|デバイス
+1985|デバイスに送信
+1986|デバイスへ
+1987|あなたのデバイス
+1988|スマートフォンとタブレットの KoLib の間で本・ファイル・テキストを送り、両方で本の読書位置をそろえます。
+1989|このデバイス
+1990|ネットワークに接続していません。Wi-Fi ネットワークか、もう一方のデバイスのテザリングに接続してください。
+1991|ネットワーク上のアドレス: {0}
+1992|ペアリング済み
+1993|まだありません。もう一方のデバイスで、このデバイスと同じ Wi-Fi ネットワーク（またはどちらかのテザリング）に接続して KoLib を開き、下でペアリングしてください。
+1994|近くのデバイス
+1995|ほかのデバイスを見つけるには、ネットワークに接続してください。
+1996|このネットワーク上のほかのデバイスで KoLib を探しています…
+1997|ペアリング
+1998|見つかりませんか？アドレスで接続
+1999|本の読書位置をそろえる
+2000|ペアリング済みのデバイスが見つかると、各本は 2 台で最後に読んだ位置のうち新しいほうに合わせられます。
+2001|KoLib を閉じていても接続を受け付ける
+2002|KoLib を開いていなくても、ペアリング済みのデバイスからこのデバイスに送信できます。その間は通知が表示されます。
+2003|デバイス間で送られるものは暗号化され、送信できるのはペアリング済みのデバイスだけです。インターネットではなく、ご自身のネットワークを通ります。
+2004|このネットワーク上にあります
+2005|このネットワーク上に見つかりません
+2006|このデバイスの登録を解除
+2007|本を送信
+2008|ファイルを送信
+2009|クリップボードを送信
+2010|読書位置をそろえる
+2011|送受信
+2012|{1} へ「{0}」
+2013|{1} から「{0}」
+2014|アドレスで接続
+2015|もう一方のデバイスの「デバイス」セクションに、ネットワーク上のアドレスが表示されます。それをここに入力してください。
+2016|そこに KoLib は見つかりませんでした。もう一方のデバイスで KoLib が開いているか確認してください。
+2017|ペアリングされていません
+2018|{0} に接続しています…
+2019|{0} を待っています…
+2020|{0} がペアリングを求めています
+2021|{0} とペアリングしますか？
+2022|{0} で KoLib を開いたままにしてください。
+2023|{0} にもこのコードが表示されていれば、そちらでも許可してください。
+2024|{0} に同じコードが表示されているか確認してください。違う場合はペアリングしないでください。
+2025|OK
+2026|ペアリングしない
+2027|どのデバイスに送信しますか？
+2028|本のファイルが届きませんでした。
+2029|{0} から
+2030|ダウンロードの {0} フォルダ
+2031|本の情報を読み込めませんでした。
+2032|{0} はこのネットワーク上にありません。そちらで KoLib を開いてください。
+2033|{0} に接続できませんでした。このデバイスと同じネットワークで、そちらの KoLib を開いてください。
+2034|そこで見つかったデバイスは {0} ではありません。
+2035|{0} とペアリングしました。
+2036|{0} はペアリングしませんでした。
+2037|時間内に許可されませんでした。もう一度お試しください。
+2038|{0} に接続できませんでした。
+2039|{0} からのテキストをクリップボードに入れました。
+2040|{1} から「{0}」が届きました。{2}にあります。
+2041|{1} からファイルが {0} 件届きました。{2}にあります。
+2042|本の読書位置を {0} とそろえました。
+2043|{0} のクリップボードに送信しました。
+2044|「{0}」を {1} に送信しました。
+2045|{0} 件のファイルを {1} に送信しました。
+2046|{0} の空き容量が足りません。
+2047|{0} に届きませんでした: {1}
+2048|もう一方のデバイスがこのデバイスを認識していません。もう一度ペアリングしてください。
+2049|もう一方のデバイスが拒否しました。
+2050|1 冊を追加
+2051|{0} 冊を追加
+2052|1 冊を更新
+2053|{0} 冊を更新
+2054|1 冊はすでにありました
+2055|{0} 冊はすでにありました
+2056|1 冊を受け取れませんでした
+2057|{0} 冊を受け取れませんでした
+2058|{0} から: {1}。
+2059|{0} へ: {1}。
+2060|ほかのデバイス
+2061|ほかのデバイスとの送受信
+2062| ・ほか {0} 件
+2063|{0} に送信中
+2064|{0} から受信中
+2065|「{0}」・{1}%
+2066|ほかのデバイスから KoLib に接続できます
+2067|閉じている間も、ペアリング済みのデバイスから送信できます。
+2068|もう一方のデバイスからのメッセージが壊れていました。
+2069|メッセージがもう一方のデバイスから来たものではないか、途中で書き換えられました。
+2070|もう一方のデバイスからのメッセージが大きすぎます。
+2071|送信中にファイルが変更されました。
+2072|KoLib ではありません。
+2073|もう一方のデバイスの KoLib はバージョンが違います。両方を同じバージョンにしてください。
+2074|もう一方のデバイスのあいさつを読み取れませんでした。
+2075|もう一方のデバイスは本人であることを証明できませんでした。
+2076|もう一方のデバイスが接続を切りました。
+2077|KoLib で送信できるものがありません。
+2078|もう一方のデバイスのクリップボード用のテキスト:「{0}」
+2079|もう一方のデバイスの「ダウンロード」に送るファイル 1 件。
+2080|もう一方のデバイスの「ダウンロード」に送るファイル {0} 件。
+2081|{0} に送信しています…
+2082|ペアリング済みのデバイスがありません。先に KoLib の「デバイス」セクションでペアリングしてください。
+2083|このネットワーク上にまだ見つかりません
+2084|本を選んでから、{0} に送信してください。

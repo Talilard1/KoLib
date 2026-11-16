@@ -136,4 +136,40 @@ class DevicesScreenshotTest {
     fun choosingWhereToSend() = shot("chooseDevice", screen = true) {
         ChooseDeviceDialog(listOf(phone, other), setOf("phone-1"), "3 books", {}, {})
     }
+
+    private val wifiBooks = listOf(
+        dev.kobolibrary.app.kobo.WifiBook(0, "a", "The Histories", "Herodotus", "kepub", "The Histories - Herodotus.kepub.epub"),
+        dev.kobolibrary.app.kobo.WifiBook(1, "b", "Dracula", "Bram Stoker", "kepub", "Dracula - Bram Stoker.kepub.epub"),
+        dev.kobolibrary.app.kobo.WifiBook(2, "c", "Meditations", "Marcus Aurelius", "PDF", "Meditations - Marcus Aurelius.pdf"),
+        dev.kobolibrary.app.kobo.WifiBook(3, "d", "Moby-Dick", "Herman Melville", "kepub", "Moby-Dick - Herman Melville.kepub.epub"),
+    )
+    private val wifiStates = mapOf(
+        0 to dev.kobolibrary.app.kobo.WifiState.Sent(1_250_000),
+        1 to dev.kobolibrary.app.kobo.WifiState.Sending(420_000, 1_000_000),
+        2 to dev.kobolibrary.app.kobo.WifiState.Ready(8_400_000),
+        3 to dev.kobolibrary.app.kobo.WifiState.Making,
+    )
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun theKoboOverWifiOnThePhone() = shot("koboWifiPhone") {
+        dev.kobolibrary.app.ui.KoboWifiContent(wifiBooks, wifiStates, listOf("192.168.1.31"), 8080) {}
+    }
+
+    @Test
+    @Config(qualifiers = TABLET)
+    fun theKoboOverWifiOnTheTablet() = shot("koboWifiTablet") {
+        dev.kobolibrary.app.ui.KoboWifiContent(wifiBooks.take(2), wifiStates.mapValues { dev.kobolibrary.app.kobo.WifiState.Sent(1_000_000) }, listOf("192.168.1.23", "10.12.40.1"), 8080) {}
+    }
+
+    @Test
+    @Config(qualifiers = TABLET)
+    fun theKobosOwnPage() {
+        // What the Kobo's browser is given, as a page this device's browser can show.
+        val server = dev.kobolibrary.app.kobo.KoboWifiServer(wifiBooks, kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO), make = { throw java.io.IOException() }, cover = { null })
+        val html = server.page()
+        java.io.File(TestLanguage.folder("build/outputs/roborazzi")).mkdirs()
+        java.io.File("${TestLanguage.folder("build/outputs/roborazzi")}/koboPage.html").writeText(html)
+        assert("The Histories" in html)
+    }
 }

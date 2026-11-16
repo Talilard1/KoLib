@@ -171,6 +171,39 @@ class LinkManagerTest {
     }
 
     @Test
+    fun devicesThatCantHearEachOtherAreFoundByLookingAround() {
+        val tablet = device("Tablet")
+        val phone = device("Phone")
+        // Nothing on the network but closed ports, and the tablet.
+        val found = runBlocking { phone.link.lookAround(listOf("127.0.0.1:1", "127.0.0.1:${tablet.link.listeningPort.value}")) }
+        assertEquals(1, found)
+        assertEquals(listOf("Tablet"), phone.link.nearby.value.map { it.name })
+        // The tablet learnt of the phone from its looking, and where to reach it.
+        waitFor("the tablet to know the phone") { tablet.link.nearby.value.any { it.name == "Phone" } }
+        assertEquals(phone.link.listeningPort.value, tablet.link.nearby.value.single().port)
+        assertTrue(!phone.link.looking.value)
+    }
+
+    @Test
+    fun theAddressesToLookAtAreTheOthersOnEachNetwork() {
+        fun ip(s: String) = java.net.InetAddress.getByName(s) as java.net.Inet4Address
+        val around = LinkDiscovery.neighbours(listOf(ip("192.168.67.79") to 24))
+        assertEquals(253, around.size)
+        assertTrue("192.168.67.1" in around && "192.168.67.254" in around && "192.168.67.79" !in around && "192.168.67.255" !in around)
+        // A big network: only the 254 around this device.
+        assertEquals(253, LinkDiscovery.neighbours(listOf(ip("10.1.2.3") to 16)).size)
+        assertEquals("192.168.67.255", LinkDiscovery.broadcastOf(ip("192.168.67.79"), 24).hostAddress)
+        assertEquals("10.1.255.255", LinkDiscovery.broadcastOf(ip("10.1.2.3"), 16).hostAddress)
+    }
+
+    @Test
+    fun aBatchIsOneSteadyTransfer() {
+        val t = Transfer(1, "Tablet", "Dune", outgoing = true, done = 50, total = 100, item = 3, items = 4)
+        assertEquals((2 + 0.5f) / 4, t.fraction, 0.0001f)
+        assertEquals(62, t.percent)
+    }
+
+    @Test
     fun saidNoOnEitherSideIsntPaired() {
         val tablet = device("Tablet")
         val phone = device("Phone")

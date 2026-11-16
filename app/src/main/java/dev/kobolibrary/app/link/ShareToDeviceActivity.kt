@@ -161,7 +161,7 @@ class ShareToDeviceActivity : ComponentActivity() {
                             val t = transfers.firstOrNull()
                             Text(tr("Sending to {0}…", busy), style = MaterialTheme.typography.bodyLarge)
                             Spacer(Modifier.height(10.dp))
-                            if (t != null && t.total > 0) LinearProgressIndicator(progress = { t.done.toFloat() / t.total }, Modifier.fillMaxWidth())
+                            if (t != null && (t.total > 0 || t.items > 1)) LinearProgressIndicator(progress = { t.fraction }, Modifier.fillMaxWidth())
                             else LinearProgressIndicator(Modifier.fillMaxWidth())
                         }
                         paired.isEmpty() -> Text(

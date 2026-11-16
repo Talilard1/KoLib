@@ -70,6 +70,8 @@ fun SendDialog(
     pathOnKobo: (LibraryBook) -> String? = { it.koboPath },
     /** Offers to make the books of scanned pages into text first (the dialog closes). */
     onMakeText: ((List<LibraryBook>) -> Unit)? = null,
+    /** Sends them over Wi-Fi instead, through the Kobo's web browser, when it isn't plugged in. */
+    onWifi: ((SendFormat, CoverFitting, Boolean) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     var format by remember { mutableStateOf(initialFormat) }
@@ -219,11 +221,18 @@ fun SendDialog(
                     tr("Total size: {0}.", Fmt.bytes(context, size)) + (freeBytes?.let { tr(" Free space on the Kobo: {0}.", Fmt.bytes(context, it)) } ?: ""),
                 )
                 if (!connected) Note(Icons.Outlined.WarningAmber, tr("The Kobo isn't connected. Plug it in and tap Connect on its screen."), warning = true)
+                if (!connected && onWifi != null) Note(
+                    Icons.Outlined.Info,
+                    tr("Or send them over Wi-Fi, through the Kobo's web browser. The Kobo adds them itself, so they can't go into collections that way."),
+                )
             }
         },
         confirmButton = {
             if (connected) TextButton(onClick = { onSend(format, covers, pdfs) }) { Text(tr("Send")) }
-            else TextButton(onClick = onConnect) { Text(tr("Go to Kobo")) }
+            else Row {
+                if (onWifi != null) TextButton(onClick = { onWifi(format, covers, pdfs) }) { Text(tr("Over Wi-Fi")) }
+                TextButton(onClick = onConnect) { Text(tr("Go to Kobo")) }
+            }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Cancel")) } },
     )

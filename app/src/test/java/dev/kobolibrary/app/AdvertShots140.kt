@@ -287,7 +287,7 @@ class AdvertShots140 {
         }
         add("Endnotes", 6000, 0)
         shot("ad_split") {
-            SplitBookDialog(lib.titled("Les Misérables"), loadPages = { pages }, onSplit = { _, _, _ -> }, onDismiss = {}, initialPages = pages)
+            SplitBookDialog(lib.titled("Les Misérables"), loadPages = { pages }, onSplit = { _, _, _, _ -> }, onDismiss = {}, initialPages = pages)
         }
     }
 

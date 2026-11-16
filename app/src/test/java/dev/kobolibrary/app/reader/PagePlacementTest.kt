@@ -59,6 +59,28 @@ class PagePlacementTest {
     }
 
     @Test
+    fun aBooksOwnTitlePage() {
+        fun facts(body: String, path: String = "text/page.xhtml", title: String = "", extra: String = "") =
+            PagePlacement.facts(page(body, extra), path, title) { sizes[it] ?: (1200 to 1800) }
+        // Named as one in the contents, by its file, or by the book's own marks.
+        assertEquals(true, PagePlacement.isTitlePage(facts("""<div><img src="tp.jpg"/></div>""", title = "Title Page"), "OEBPS/x.xhtml", "The Wheel of Time"))
+        assertEquals(true, PagePlacement.isTitlePage(facts("""<p>DUNE</p>"""), "OEBPS/text/titlepage.xhtml", null))
+        assertEquals(true, PagePlacement.isTitlePage(facts("""<p>DUNE</p>"""), "OEBPS/Jord_9781250256232_epub3_tp_r1.xhtml", null))
+        assertEquals(true, PagePlacement.isTitlePage(facts("""<p>DUNE</p>""", extra = """ epub:type="titlepage""""), "OEBPS/p2.xhtml", null))
+        // Or a short page that starts with the book's title.
+        assertEquals(true, PagePlacement.isTitlePage(facts("""<h1>THE WHEEL OF TIME</h1><p>ROBERT JORDAN</p>"""), "OEBPS/p2.xhtml", "The Wheel of Time"))
+        // Not a list of the author's books that names it, a chapter, or a long page.
+        assertEquals(false, PagePlacement.isTitlePage(facts("""<p>Also by Robert Jordan</p><p>The Wheel of Time</p>"""), "OEBPS/p3.xhtml", "The Wheel of Time"))
+        assertEquals(false, PagePlacement.isTitlePage(facts("""<h2>Chapter 1</h2><p>Rose walked into the garden.</p>"""), "OEBPS/subtitle.xhtml", "Dune"))
+        assertEquals(false, PagePlacement.isTitlePage(facts("<p>$lorem</p>", title = "Title Page"), "OEBPS/p2.xhtml", null))
+        // A title page that's only a picture (the title set as an image) is still the title page, in the middle; where
+        // the cover goes, it's the cover.
+        assertEquals(PageKind.TITLE, kind("""<div><img src="tp.jpg" alt="The Wheel of Time"/></div>""", titlePlace = true))
+        assertEquals(PageKind.COVER, kind("""<div><img src="c.jpg"/></div>""", cover = true, titlePlace = true))
+        assertEquals(PageKind.TITLE, kind("""<h1>THE WHEEL OF TIME</h1><p>ROBERT JORDAN</p><p><img src="tor.png"/></p>""", titlePlace = true))
+    }
+
+    @Test
     fun picturesSizesFromTheirFiles() {
         // PNG: 8-byte signature, IHDR length and type, then width and height.
         val png = byteArrayOf(0x89.toByte(), 'P'.code.toByte(), 'N'.code.toByte(), 'G'.code.toByte(), 13, 10, 26, 10, 0, 0, 0, 13, 'I'.code.toByte(), 'H'.code.toByte(), 'D'.code.toByte(), 'R'.code.toByte(),

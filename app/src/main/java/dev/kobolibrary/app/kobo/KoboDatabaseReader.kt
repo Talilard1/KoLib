@@ -26,7 +26,11 @@ class KoboDatabaseReader(private val db: SqlSource) {
 
         val dbVersion = readDbVersion(warnings)
         val ratings = if ("ratings" in tables) readRatings(warnings) else emptyMap()
-        val books = readBooks(warnings).map { b -> ratings[b.contentId]?.let { b.copy(rating = it) } ?: b }
+        val spans = readChapterSpans(warnings)
+        val books = readBooks(warnings).map { b ->
+            val rated = ratings[b.contentId]?.let { b.copy(rating = it) } ?: b
+            spans[b.contentId]?.let { rated.copy(chapterSpans = it) } ?: rated
+        }
         val (collections, byBook) = readCollections(tables, books.associateBy { it.contentId }, warnings)
 
         return KoboSnapshot(
@@ -64,6 +68,32 @@ class KoboDatabaseReader(private val db: SqlSource) {
         }.toMap()
     } catch (e: Exception) {
         warnings += tr("Could not read the Kobo's ratings ({0}).", e.message)
+        emptyMap()
+    }
+
+    /**
+     * The chapters of the books the Kobo has a place in (rows of ContentType 9, by their book's ContentID), with
+     * where each starts and how much of the book it is: how the Kobo works out its percentage read.
+     */
+    private fun readChapterSpans(warnings: MutableList<String>): Map<String, List<KoboChapterSpan>> = try {
+        val cols = columns("content")
+        val needed = listOf("ContentID", "ContentType", "BookID", "___FileOffset", "___FileSize", "ChapterIDBookmarked")
+        if (!cols.containsAll(needed)) emptyMap() else {
+            val title = if ("Title" in cols) ", Title" else ""
+            val rows = db.query(
+                "SELECT BookID, ContentID$title, ___FileOffset, ___FileSize FROM content WHERE ContentType = 9 AND BookID IN " +
+                    "(SELECT ContentID FROM content WHERE ContentType = 6 AND ChapterIDBookmarked IS NOT NULL AND ChapterIDBookmarked != '')",
+            )
+            rows.mapNotNull { r ->
+                val book = r.string("BookID") ?: return@mapNotNull null
+                val id = r.string("ContentID") ?: return@mapNotNull null
+                val offset = r.double("___FileOffset") ?: return@mapNotNull null
+                val size = r.double("___FileSize") ?: return@mapNotNull null
+                book to KoboChapterSpan(id, r.string("Title")?.takeIf { it.isNotBlank() }, offset, size)
+            }.groupBy({ it.first }, { it.second }).mapValues { (_, list) -> list.sortedBy { it.offset } }
+        }
+    } catch (e: Exception) {
+        warnings += tr("Could not read how the Kobo divides books into chapters ({0}).", e.message)
         emptyMap()
     }
 

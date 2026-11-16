@@ -210,6 +210,26 @@ class KoboDatabaseReaderTest {
     }
 
     @Test
+    fun readsHowTheKoboSharesOutTheBooksItHasAPlaceIn() {
+        populate()
+        val book = "file:///mnt/onboard/Books/Sea.kepub.epub"
+        insertBook(book, "The Sea", "Someone", readStatus = 1, percent = 38)
+        exec("UPDATE content SET ChapterIDBookmarked = 'OEBPS/Text/ch2.xhtml#kobo.3.1' WHERE ContentID = '$book'")
+        // Its chapters, with where each starts and how much of the book it is (in percent, not whole numbers).
+        for ((i, row) in listOf(Triple("ch1", 0.0, 20.5), Triple("ch2", 20.5, 49.25), Triple("ch3", 69.75, 30.25)).withIndex()) {
+            insertBook("$book!!OEBPS/Text/${row.first}.xhtml", "Chapter ${i + 1}", null, contentType = "9", bookId = book)
+            exec("UPDATE content SET ___FileOffset = ${row.second}, ___FileSize = ${row.third} WHERE ContentID = '$book!!OEBPS/Text/${row.first}.xhtml'")
+        }
+        val snap = KoboDatabaseReader(JdbcSource(conn)).read()
+        val spans = snap.booksById.getValue(book).chapterSpans
+        assertEquals(listOf("$book!!OEBPS/Text/ch1.xhtml", "$book!!OEBPS/Text/ch2.xhtml", "$book!!OEBPS/Text/ch3.xhtml"), spans.map { it.id })
+        assertEquals(listOf(0.0, 20.5, 69.75), spans.map { it.offset })
+        assertEquals(49.25, spans[1].size, 0.0)
+        // Only for books it has a place in: the finished one's chapter isn't kept.
+        assertTrue(snap.booksById.getValue(mistborn).chapterSpans.isEmpty())
+    }
+
+    @Test
     fun readsCollections() {
         populate()
         val snap = KoboDatabaseReader(JdbcSource(conn)).read()

@@ -370,9 +370,11 @@
       }
       return;
     }
-    // Two short pages side by side, or a book's title page: a picture there is a publisher's mark.
-    if (!body || place === 'title') return;
+    // Two short pages side by side, or a book's title page with words on it: a picture there is a
+    // publisher's mark. (A title page that's only a picture, the title set as an image, is the page.)
+    if (!body) return;
     var text = (body.textContent || '').replace(/\s+/g, '');
+    if (place === 'title' && text.length > 0) return;
     if (text.length >= 80) return;
     var pics = body.querySelectorAll('img, svg');
     var svgs = body.querySelectorAll('svg');

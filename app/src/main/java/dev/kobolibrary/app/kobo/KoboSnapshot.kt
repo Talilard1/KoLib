@@ -68,6 +68,11 @@ data class KoboBook(
     val adobeLocation: String? = null,
     /** How far through the chapter the Kobo is, 0 to 1, when its database says. */
     val chapterProgress: Double? = null,
+    /**
+     * How the Kobo shares the book out between its chapters, for its percentage read: where each starts and how
+     * much of the book it is. Only for books it has a place in. See [KoboChapterSpan].
+     */
+    val chapterSpans: List<KoboChapterSpan> = emptyList(),
 ) {
     /** Books that are actually on the device and that you would see in its library. */
     val isOnDevice: Boolean
@@ -90,6 +95,13 @@ data class KoboBook(
         }
     }
 }
+
+/**
+ * One of a book's chapters as the Kobo's database has it (a row of ContentType 9): its ContentID and title, which
+ * between them name the chapter's file, and where it starts and how much of the book it is, in percent. The Kobo's
+ * percentage read is the [offset] of the chapter it's in plus that share of its [size].
+ */
+data class KoboChapterSpan(val id: String, val title: String?, val offset: Double, val size: Double)
 
 data class KoboCollection(
     /** The collection's name as shown on the Kobo. */

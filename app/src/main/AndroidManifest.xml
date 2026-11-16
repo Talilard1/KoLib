@@ -53,6 +53,12 @@
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode|density"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize">
+            <!-- Android 16 ignores an app's choice of portrait or landscape on tablets (smallest width 600dp and
+                 up) unless the app opts out, and the readers' "Screen rotation" setting depends on that choice.
+                 KoLib fits any shape of screen; this only lets the readers turn the screen when asked to. -->
+            <property
+                android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+                android:value="true" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

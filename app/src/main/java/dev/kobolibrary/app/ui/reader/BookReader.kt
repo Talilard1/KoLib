@@ -50,6 +50,8 @@ fun BookReader(
     onReadAsPdf: (() -> Unit)? = null,
     /** Opens the app's own settings: its look, language and books folder. */
     onAppSettings: (() -> Unit)? = null,
+    /** How the Kobo shares the book out between its chapters, when it has a place in it (see [ReaderController]). */
+    koboSpans: List<dev.kobolibrary.app.kobo.KoboChapterSpan> = emptyList(),
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -81,6 +83,7 @@ fun BookReader(
                     assets = context.assets,
                     bookAuthor = book.authorLine,
                     bookSeriesIndex = book.meta.seriesIndex,
+                    koboSpans = koboSpans,
                 ).apply {
                     // Plates printed on their side (as light novels have scenes across two pages) found from the words in
                     // them, with the text recognition's data for the book's language or English, if it's on the device.

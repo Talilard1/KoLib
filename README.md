@@ -155,9 +155,14 @@ There's no account to make and no ads.
 - Edit a book's text: fix typos, find and replace (with a mode for renaming a character), and tidy
   up blank lines, quotes and dashes.
 - Rename, move, split and join chapters, and rebuild the contents from the chapter headings.
+- Copy a section (a title page, a copyright page, a chapter) with its pictures and styles, and add it
+  to any book from the Copied panel. Copied sections stay until you delete them. A copied contents
+  page can keep its look and list the chapters of the book you add it to.
 - Give a book a cover page: make one from its cover (or from a cover made for it, if it has none),
   or mark one of its pages as the cover.
-- Split an omnibus into separate books, or combine several books into one.
+- Split an omnibus into separate books, or combine several books into one. When splitting, every
+  book can get the omnibus's opening and closing pages, with its contents page listing that book's
+  own chapters.
 - Turn Word, OpenDocument, PDF, MOBI, FB2, RTF, text, Markdown and HTML files, and comics, into
   EPUBs.
 - Write a new book from scratch.

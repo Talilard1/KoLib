@@ -25,6 +25,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DragIndicator
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.AddPhotoAlternate
 import androidx.compose.material.icons.outlined.ArrowDownward
 import androidx.compose.material.icons.outlined.ArrowUpward
@@ -209,6 +210,7 @@ fun ChaptersPane(
                     onHide = { state.setHidden(path, c.linear) },
                     onStart = { state.setStart(path) },
                     onCover = { state.setCoverPage(path) },
+                    onCopy = if (state.copied != null) ({ state.copySection(path) }) else null,
                     handle = Modifier.pointerInput(path) {
                         detectDragGestures(
                             onDragStart = { dragging = path; dragOffset = 0f },
@@ -252,6 +254,8 @@ private fun ChapterRow(
     onHide: () -> Unit,
     onStart: () -> Unit,
     onCover: () -> Unit,
+    /** Copies it into the copied sections, to add to any book. */
+    onCopy: (() -> Unit)? = null,
     handle: Modifier,
     modifier: Modifier,
 ) {
@@ -300,6 +304,10 @@ private fun ChapterRow(
                 DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                     DropdownMenuItem(text = { Text(tr("Rename…")) }, leadingIcon = { Icon(Icons.Outlined.DriveFileRenameOutline, null) },
                         onClick = { menu = false; onAction(ChapterAction.Rename(chapter)) })
+                    onCopy?.let { copy ->
+                        DropdownMenuItem(text = { Text(tr("Copy")) }, leadingIcon = { Icon(Icons.Outlined.ContentCopy, null) },
+                            onClick = { menu = false; copy() })
+                    }
                     DropdownMenuItem(text = { Text(tr("Add chapter after…")) }, leadingIcon = { Icon(Icons.Filled.Add, null) },
                         onClick = { menu = false; onAction(ChapterAction.Add(chapter.path)) })
                     DropdownMenuItem(text = { Text(tr("Split into two…")) }, leadingIcon = { Icon(Icons.Outlined.CallSplit, null) },

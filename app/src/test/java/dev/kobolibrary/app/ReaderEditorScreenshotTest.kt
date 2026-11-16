@@ -465,13 +465,13 @@ class ReaderEditorScreenshotTest {
 
     // ---- the editor --------------------------------------------------------------------------------
 
-    private fun editorState(): TextEditState {
+    private fun editorState(copied: dev.kobolibrary.app.library.CopiedSections? = null): TextEditState {
         val lib = Library(context, File(context.filesDir, "p5lib-" + UUID.randomUUID()), null)
         runBlocking { lib.load() }
         val f = TestBooks.garden(File(context.cacheDir, "g-${UUID.randomUUID()}.epub"))
         runBlocking { lib.import("garden.epub", { f.inputStream() }, BookSource.FILE) }
         val book = lib.books.value.first()
-        return TextEditState(book.id, book.title, lib, CoroutineScope(Dispatchers.Unconfined), context.assets, "OEBPS/text/ch1.xhtml")
+        return TextEditState(book.id, book.title, lib, CoroutineScope(Dispatchers.Unconfined), context.assets, "OEBPS/text/ch1.xhtml", copied)
     }
 
     @Composable
@@ -516,6 +516,28 @@ class ReaderEditorScreenshotTest {
     @Test
     @Config(qualifiers = PORTRAIT)
     fun editorPortrait() = editor("55_editor_portrait", find = false)
+
+    /** Sections copied out of books, in the panel on the right, to add to the book open. */
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun editorCopiedSections() {
+        val store = dev.kobolibrary.app.library.CopiedSections(File(context.filesDir, "copied-" + UUID.randomUUID()))
+        val state = editorState(store)
+        val page = """<html xmlns="http://www.w3.org/1999/xhtml"><head><title>T</title></head><body><p>x</p></body></html>"""
+        store.add(dev.kobolibrary.app.epub.ChapterOps.CopiedPage("Copyright Notice", "OEBPS/c.xhtml", page.replace("x", (1..105).joinToString(" ") { "word" }),
+            emptyList(), emptyMap(), false), "The Wheel of Time")
+        Thread.sleep(3)
+        store.add(dev.kobolibrary.app.epub.ChapterOps.CopiedPage("Table of Contents", "OEBPS/toc.xhtml", page.replace("x", (1..2905).joinToString(" ") { "word" }),
+            emptyList(), emptyMap(), true), "The Wheel of Time")
+        Thread.sleep(3)
+        store.add(dev.kobolibrary.app.epub.ChapterOps.CopiedPage("Title Page", "OEBPS/tp.xhtml", page.replace("<p>x</p>", "<img src=\"tp.jpg\"/>"),
+            listOf(dev.kobolibrary.app.epub.ChapterOps.CopiedFile("OEBPS/tp.jpg", "image/jpeg", byteArrayOf(1))), emptyMap(), false), "The Wheel of Time")
+        state.copiedOpen = true
+        compose.mainClock.autoAdvance = true
+        compose.setContent { AppSurface(ThemeChoice.SYSTEM) { TextEditorScreen(state, onClose = {}, onRead = {}, pagePreview = { FakeEditorPage() }) } }
+        compose.waitForIdle()
+        compose.onRoot().captureRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/58_editor_copied.png")
+    }
 
     @Test
     @Config(qualifiers = LANDSCAPE_NIGHT)

@@ -103,6 +103,28 @@ class KoboPlaceTest {
     }
 
     @Test
+    fun countsHowFarThroughTheBookAsTheKoboDoes() {
+        val chapters = dev.kobolibrary.app.epub.BookStructure(dev.kobolibrary.app.epub.EpubFileFiles(dev.kobolibrary.app.epub.EpubFile.open(book()))).chapters
+        val weights = FloatArray(chapters.size) { 100f }
+        val id = "file:///mnt/onboard/Books/Sea.kepub.epub"
+        // A sideloaded kepub's rows, a store book's, and an EPUB's (read with Adobe's renderer) name the files differently.
+        for (form in listOf("$id!!OEBPS/Text/%s.xhtml", "0N3773Z7HFPXB!OEBPS!Text/%s.xhtml-1", "$id#(2)OEBPS/Text/%s.xhtml")) {
+            val spans = listOf(KoboChapterSpan(form.format("ch1"), null, 0.0, 20.0), KoboChapterSpan(form.format("ch2"), null, 20.0, 50.0),
+                KoboChapterSpan(form.format("ch3"), null, 70.0, 30.0))
+            val shares = KoboPlaces.shares(chapters, spans, weights)
+            assertNotNull(form, shares)
+            assertEquals(listOf(20f, 50f, 30f), chapters.indices.map { shares!![it] }.filter { it > 0f })
+        }
+        // Or by the title, when that's the file.
+        val byTitle = listOf(KoboChapterSpan("a", "OEBPS/Text/ch1.xhtml", 0.0, 34.0), KoboChapterSpan("b", "OEBPS/Text/ch2.xhtml", 34.0, 33.0),
+            KoboChapterSpan("c", "OEBPS/Text/ch3.xhtml", 67.0, 33.0))
+        assertNotNull(KoboPlaces.shares(chapters, byTitle, weights))
+        // Another version of the book, whose chapters aren't these: counted from its own text instead.
+        val other = listOf(KoboChapterSpan("$id!!OEBPS/Text/part1.xhtml", null, 0.0, 60.0), KoboChapterSpan("$id!!OEBPS/Text/ch3.xhtml", null, 60.0, 40.0))
+        assertNull(KoboPlaces.shares(chapters, other, weights))
+    }
+
+    @Test
     fun lettersLeaveOutSpacesScriptsAndTheInvisible() {
         val x = """<html xmlns="http://www.w3.org/1999/xhtml"><head><title>T</title><style>p{}</style></head>
             <body> <p>A b&#160;c</p><script>var x = 1;</script><p id="p2">d&#173;e&#8203;f</p></body></html>"""

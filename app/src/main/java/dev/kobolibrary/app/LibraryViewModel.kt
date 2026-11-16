@@ -785,9 +785,10 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
 
     /**
      * [id] cut into books at [cuts], titled [titles]; numbered as a series called [series] if it's
-     * given. The book itself stays as it is.
+     * given. The book itself stays as it is. [shareFrontAndBack]: the pages before the first book and after the last
+     * (a title page, a copyright notice, a contents page) go into every one.
      */
-    fun splitBook(id: String, cuts: List<Int>, titles: List<String>, series: String?, onDone: (List<String>) -> Unit) = making(tr("Splitting the book")) {
+    fun splitBook(id: String, cuts: List<Int>, titles: List<String>, series: String?, shareFrontAndBack: Boolean = false, onDone: (List<String>) -> Unit) = making(tr("Splitting the book")) {
         val source = library.book(id) ?: return@making
         val metas = titles.mapIndexed { k, t ->
             source.meta.copy(
@@ -800,7 +801,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
                 seriesIndex = if (!series.isNullOrBlank()) (k + 1).toDouble() else null,
             )
         }
-        val made = library.splitBook(id, cuts, metas).map { withCover(it) }
+        val made = library.splitBook(id, cuts, metas, shareFrontAndBack).map { withCover(it) }
         _message.value = tr("Split “{0}” into {1} books.", source.title, made.size)
         onDone(made.map { it.id })
     }
@@ -908,7 +909,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         textEdit?.let { if (it.bookId == bookId) return it else closeTextEditor() }
         val book = library.book(bookId) ?: return null
         return try {
-            TextEditState(bookId, book.title, library, viewModelScope, getApplication<Application>().assets, path).also { textEdit = it }
+            TextEditState(bookId, book.title, library, viewModelScope, getApplication<Application>().assets, path, koboApp.copiedSections).also { textEdit = it }
         } catch (e: Exception) {
             AppLog.e("Editor", "The book couldn't be opened for editing", e)
             _message.value = tr("This book can't be edited: {0}", e.message)

@@ -148,8 +148,13 @@ class CoverGeneratorTest {
         assertEquals(tr("Book {0} of", "Six"), SeriesNumber.bookOf(6.0, SeriesNumber.WORDS))
         assertEquals(tr("Book {0} of", "6"), SeriesNumber.bookOf(6.0, SeriesNumber.FIGURES))
         assertEquals(tr("Book of"), SeriesNumber.bookOf(6.0, SeriesNumber.NONE))
-        // Past twenty, or not a whole book, it's in figures whichever is asked for.
-        assertEquals(SeriesNumber.written(21.0, SeriesNumber.FIGURES), SeriesNumber.written(21.0, SeriesNumber.WORDS))
+        // A prequel, book nought, and the books past twenty have words too.
+        assertEquals(tr("Book {0} of", "Zero"), SeriesNumber.bookOf(0.0, SeriesNumber.WORDS))
+        assertEquals("Fourteen", SeriesNumber.inWords(14.0))
+        assertEquals("Twenty-One", SeriesNumber.inWords(21.0))
+        assertEquals("Forty", SeriesNumber.inWords(40.0))
+        // From a hundred, or not a whole book, it's in figures whichever is asked for.
+        assertEquals(SeriesNumber.written(120.0, SeriesNumber.FIGURES), SeriesNumber.written(120.0, SeriesNumber.WORDS))
         assertEquals(SeriesNumber.written(2.5, SeriesNumber.FIGURES), SeriesNumber.written(2.5, SeriesNumber.WORDS))
         fun draw(style: CoverStyle, how: SeriesNumber?) = generator.render(text, CoverDesign(style, CoverColors.themes[0], seriesNumber = how), w, h)
         // The framed design: "Book Five of" as it was, and the other two each different.

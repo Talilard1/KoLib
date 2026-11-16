@@ -481,6 +481,28 @@ class LibraryScreenshotTest {
     @Config(qualifiers = PORTRAIT)
     fun coverGeneratorPortrait() = generatorScreen("41_cover_generator_portrait")
 
+    /** A prequel, book nought of its series, on the framed design: its number in words, in figures, or none. */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp-port-mdpi")
+    fun coverGeneratorSeriesNumber() {
+        val text = CoverText("New Dawn", listOf("Mara Ellison"), "The Ninefold Gate", 0.0)
+        shot("40e_cover_generator_number", act = {
+            compose.mainClock.autoAdvance = true
+            compose.onNodeWithText(tr("Number in the series")).performScrollTo()
+            compose.waitForIdle()
+            compose.mainClock.autoAdvance = false
+        }) {
+            CoverGeneratorScreen(
+                text, onUse = { _, _ -> }, onCancel = {}, genre = dev.kobolibrary.app.ui.cover.CoverGenre.FANTASY,
+                initial = CoverDesign(CoverStyle.FRAMED, CoverColors.themes.first { it.name == tr("Spruce") }, dev.kobolibrary.app.ui.cover.CoverGenre.FANTASY, 7),
+            )
+        }
+        compose.mainClock.autoAdvance = true
+        compose.onNodeWithText(tr("Book {0} of", "Zero")).assertExists()
+        compose.onNodeWithText(tr("Book {0} of", "0")).assertExists()
+        compose.onNodeWithText(tr("Book of")).assertExists()
+    }
+
     /** The lettering in colours of its own: the title and author in gold, the series in white. */
     @Test
     @Config(qualifiers = LANDSCAPE)

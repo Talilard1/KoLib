@@ -4,9 +4,10 @@ package dev.kobolibrary.app.ui
 
 import dev.kobolibrary.app.tr
 import androidx.activity.compose.BackHandler
-import dev.kobolibrary.app.ui.components.BookTitleText
-import dev.kobolibrary.app.ui.components.SeriesText
 import dev.kobolibrary.app.ui.components.seriesSearch
+import dev.kobolibrary.app.ui.components.DetailText
+import dev.kobolibrary.app.ui.components.titleSearch
+import dev.kobolibrary.app.ui.components.authorSearch
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -176,8 +177,8 @@ fun BooksTab(
                     browse.tags = setOf(tag)
                     if (!twoPanes) browse.selectedBookId = null
                 },
-                onSeries = { name ->
-                    browse.query = seriesSearch(name)
+                onSearch = { search ->
+                    browse.query = search
                     browse.collection = null
                     browse.tags = emptySet()
                     if (!twoPanes) browse.selectedBookId = null
@@ -692,8 +693,8 @@ fun BookDetailPane(
     /** Stars from the Kobo, or the book's own rating; 0 when it has none. */
     stars: Double = 0.0,
     pages: Int? = null,
-    /** Shows the books in a series (by its name), from a tap on the book's. */
-    onSeries: ((String) -> Unit)? = null,
+    /** Searches for books (a search for the tab: the book's title, author or series), from holding one of those. */
+    onSearch: ((String) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     var confirmDelete by remember { mutableStateOf(false) }
@@ -734,14 +735,16 @@ fun BookDetailPane(
         Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
             BookCover(book, covers, CoverSize.FULL, Modifier.width(if (onBack != null) 200.dp else 160.dp), showProgress = false)
             Column(Modifier.weight(1f)) {
-                BookTitleText(book.title, MaterialTheme.typography.headlineSmall)
+                // A tap on the title, author or series copies it; holding it, a search for it here or on the internet.
+                DetailText(book.title, MaterialTheme.typography.headlineSmall, tr("Title copied"), inApp = titleSearch(book.title), onSearch = onSearch)
                 book.subtitle?.let {
                     Text(it, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Spacer(Modifier.height(6.dp))
-                book.author?.let { Text(it, style = MaterialTheme.typography.titleMedium) }
-                book.seriesLabel?.let {
-                    SeriesText(it, book.series.orEmpty(), SeriesStyle(), MaterialTheme.colorScheme.primary, onSeries)
+                book.author?.let { DetailText(it, MaterialTheme.typography.titleMedium, tr("Author copied"), inApp = authorSearch(listOf(it)), onSearch = onSearch) }
+                book.seriesLabel?.let { label ->
+                    val name = book.series.orEmpty()
+                    DetailText(label, SeriesStyle(), tr("Series copied"), color = MaterialTheme.colorScheme.primary, copy = name, inApp = seriesSearch(name), onSearch = onSearch)
                 }
                 if (stars > 0) {
                     Row(Modifier.padding(top = 6.dp)) {

@@ -1,0 +1,24 @@
+@fr
+1977|Auteur copié
+1978|Rechercher dans KoLib
+@de
+1977|Autor kopiert
+1978|In KoLib suchen
+@es
+1977|Autor copiado
+1978|Buscar en KoLib
+@it
+1977|Autore copiato
+1978|Cerca in KoLib
+@nl
+1977|Auteur gekopieerd
+1978|Zoeken in KoLib
+@pt
+1977|Autor copiado
+1978|Pesquisar no KoLib
+@ru
+1977|Автор скопирован
+1978|Искать в KoLib
+@ja
+1977|著者をコピーしました
+1978|KoLib で検索

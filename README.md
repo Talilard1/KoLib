@@ -87,8 +87,8 @@ There's no account to make and no ads.
 - Open EPUB, kepub, PDF, MOBI, AZW and AZW3, FB2, Word (.docx), OpenDocument (.odt), RTF, plain
   text, Markdown and HTML files, and CBZ, CBR and CB7 comics. Each book is kept as an EPUB you can
   edit, along with the file you added.
-- Edit titles, authors, series, tags, ratings and descriptions. In a book's details, tap its title to
-  copy it (hold it to search the internet for it), and tap its series to see all its books.
+- Edit titles, authors, series, tags, ratings and descriptions. In a book's details, tap its title,
+  author or series to copy it, or hold it to search for it in KoLib or on the internet.
 - Find a cover online (on Amazon, Google Books, Open Library or Google Images), use a picture of
   your own, or make one with the book's title. There are 25 designs, among them a framed picture, a
   full painting, gold-stamped cloth, a spell book, thorns and roses, neon, a pulp magazine, a poster,

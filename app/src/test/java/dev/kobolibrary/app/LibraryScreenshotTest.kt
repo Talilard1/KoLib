@@ -12,6 +12,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.performTouchInput
 import org.junit.Assert.assertEquals
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
@@ -364,16 +365,19 @@ class LibraryScreenshotTest {
         }
     }
 
-    /** In a book's details, holding its title offers to search the internet; a tap on its series shows the series' books. */
+    /**
+     * In a book's details, the title, author and series all work alike: a tap copies it, and holding it offers a search
+     * for it in KoLib or on the internet.
+     */
     @Test
     @Config(qualifiers = LANDSCAPE)
-    fun detailsTitleAndSeries() {
+    fun detailsTitleAuthorAndSeries() {
         var browse: LibraryBrowseState? = null
+        // The details are on the right, beside the list (which can show the same words on a book's card).
+        fun biggest(text: String) = compose.onAllNodesWithText(text).fetchSemanticsNodes().maxBy { it.boundsInRoot.left }.boundsInRoot.center
         libraryScreen("65b_details_title_menu", act = {
             compose.mainClock.autoAdvance = true
-            // The details' title: the largest of the book's titles on the screen (the other is in the list).
-            val title = compose.onAllNodesWithText("The Sign of the Four").fetchSemanticsNodes().maxBy { it.boundsInRoot.height }
-            compose.onRoot().performTouchInput { longClick(title.boundsInRoot.center) }
+            compose.onRoot().performTouchInput { longClick(biggest("The Sign of the Four")) }
             compose.waitForIdle()
             compose.mainClock.autoAdvance = false
         }, configure = { lib ->
@@ -382,12 +386,21 @@ class LibraryScreenshotTest {
         })
         compose.mainClock.autoAdvance = true
         compose.onNodeWithText(tr("Search the internet")).assertExists()
-        // Copy, from the same menu, puts the title on the clipboard.
-        compose.onNodeWithText(tr("Copy")).performClick()
+        compose.onNodeWithText(tr("Search in KoLib")).performClick()
         compose.waitForIdle()
+        assertEquals(dev.kobolibrary.app.ui.components.titleSearch("The Sign of the Four"), browse!!.query)
         val clipboard = context.getSystemService(android.content.ClipboardManager::class.java)
-        assertEquals("The Sign of the Four", clipboard.primaryClip?.getItemAt(0)?.text?.toString())
-        compose.onNodeWithText("Sherlock Holmes #2").performClick()
+        fun copied() = clipboard.primaryClip?.getItemAt(0)?.text?.toString()
+        // A tap copies each: the title, the author, and the series' name without its number.
+        compose.onRoot().performTouchInput { click(biggest("The Sign of the Four")) }
+        assertEquals("The Sign of the Four", copied())
+        compose.onRoot().performTouchInput { click(biggest("Arthur Conan Doyle")) }
+        assertEquals("Arthur Conan Doyle", copied())
+        compose.onRoot().performTouchInput { click(biggest("Sherlock Holmes #2")) }
+        assertEquals("Sherlock Holmes", copied())
+        compose.onRoot().performTouchInput { longClick(biggest("Sherlock Holmes #2")) }
+        compose.waitForIdle()
+        compose.onNodeWithText(tr("Search in KoLib")).performClick()
         compose.waitForIdle()
         assertEquals(dev.kobolibrary.app.ui.components.seriesSearch("Sherlock Holmes"), browse!!.query)
     }

@@ -2,6 +2,9 @@
 
 package dev.kobolibrary.app.ui.library
 
+import dev.kobolibrary.app.ui.components.BookTitleText
+import dev.kobolibrary.app.ui.components.SeriesText
+import dev.kobolibrary.app.ui.components.seriesSearch
 import androidx.compose.ui.text.rememberTextMeasurer
 import dev.kobolibrary.app.tr
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -200,6 +203,12 @@ internal fun PhoneLibraryScreen(
             },
             onTag = { tag ->
                 browse.tags = setOf(tag)
+                browse.selectedId = null
+            },
+            onSeries = { name ->
+                browse.query = seriesSearch(name)
+                browse.collection = null
+                browse.tags = emptySet()
                 browse.selectedId = null
             },
             readHere = readingHere[selected.id]?.takeIf { !it.finished }?.progress,
@@ -476,6 +485,8 @@ internal fun PhoneBookPage(
     onMarkUnread: (() -> Unit)? = null,
     /** Moving the app's reader to where the Kobo is in the book. */
     onContinueFromKobo: ((KoboBook) -> Unit)? = null,
+    /** Shows the books in a series (by its name), from a tap on the book's. */
+    onSeries: ((String) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val meta = book.meta
@@ -516,13 +527,13 @@ internal fun PhoneBookPage(
                 )
             }
             Spacer(Modifier.height(20.dp))
-            Text(meta.title, style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+            BookTitleText(meta.title, MaterialTheme.typography.headlineSmall, Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
             book.authorLine?.let {
                 Spacer(Modifier.height(4.dp))
                 Text(it, style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
             }
             meta.seriesLabel?.let {
-                Text(it, style = SeriesStyle(), color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                SeriesText(it, meta.series.orEmpty(), SeriesStyle(), MaterialTheme.colorScheme.primary, onSeries, Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
             }
             meta.rating?.takeIf { it > 0 }?.let { r ->
                 Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.Center) {

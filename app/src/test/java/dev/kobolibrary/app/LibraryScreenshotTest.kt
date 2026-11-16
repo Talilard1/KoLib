@@ -8,6 +8,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.longClick
+import androidx.compose.ui.test.performTouchInput
+import org.junit.Assert.assertEquals
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
@@ -360,6 +364,34 @@ class LibraryScreenshotTest {
         }
     }
 
+    /** In a book's details, holding its title offers to search the internet; a tap on its series shows the series' books. */
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun detailsTitleAndSeries() {
+        var browse: LibraryBrowseState? = null
+        libraryScreen("65b_details_title_menu", act = {
+            compose.mainClock.autoAdvance = true
+            // The details' title: the largest of the book's titles on the screen (the other is in the list).
+            val title = compose.onAllNodesWithText("The Sign of the Four").fetchSemanticsNodes().maxBy { it.boundsInRoot.height }
+            compose.onRoot().performTouchInput { longClick(title.boundsInRoot.center) }
+            compose.waitForIdle()
+            compose.mainClock.autoAdvance = false
+        }, configure = { lib ->
+            selectedId = lib.titled("The Sign of the Four").id
+            browse = this
+        })
+        compose.mainClock.autoAdvance = true
+        compose.onNodeWithText(tr("Search the internet")).assertExists()
+        // Copy, from the same menu, puts the title on the clipboard.
+        compose.onNodeWithText(tr("Copy")).performClick()
+        compose.waitForIdle()
+        val clipboard = context.getSystemService(android.content.ClipboardManager::class.java)
+        assertEquals("The Sign of the Four", clipboard.primaryClip?.getItemAt(0)?.text?.toString())
+        compose.onNodeWithText("Sherlock Holmes #2").performClick()
+        compose.waitForIdle()
+        assertEquals(dev.kobolibrary.app.ui.components.seriesSearch("Sherlock Holmes"), browse!!.query)
+    }
+
     @Test
     @Config(qualifiers = LANDSCAPE)
     fun addBooksMenu() {
@@ -501,6 +533,27 @@ class LibraryScreenshotTest {
         compose.onNodeWithText(tr("Book {0} of", "Zero")).assertExists()
         compose.onNodeWithText(tr("Book {0} of", "0")).assertExists()
         compose.onNodeWithText(tr("Book of")).assertExists()
+    }
+
+    /** The framed design's lines and ornaments in a colour of their own, and "A book of". */
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun coverGeneratorLines() {
+        val text = CoverText("Strike at the Northern Pass", listOf("Mara Ellison"), "The Ninefold Gate", 15.0)
+        shot("40f_cover_generator_lines", act = {
+            compose.mainClock.autoAdvance = true
+            compose.onNodeWithText(tr("A book of")).performScrollTo().performClick()
+            compose.onAllNodesWithContentDescription(tr("Silver"))[2].performScrollTo().performClick()
+            compose.waitForIdle()
+            Thread.sleep(2_000)
+            compose.waitForIdle()
+            compose.mainClock.autoAdvance = false
+        }) {
+            CoverGeneratorScreen(
+                text, onUse = { _, _ -> }, onCancel = {}, genre = dev.kobolibrary.app.ui.cover.CoverGenre.FANTASY,
+                initial = CoverDesign(CoverStyle.FRAMED, CoverColors.themes.first { it.name == tr("Dusk") }, dev.kobolibrary.app.ui.cover.CoverGenre.FANTASY, 7),
+            )
+        }
     }
 
     /** The lettering in colours of its own: the title and author in gold, the series in white. */

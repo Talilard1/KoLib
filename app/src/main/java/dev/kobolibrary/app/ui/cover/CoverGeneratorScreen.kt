@@ -227,7 +227,9 @@ fun CoverGeneratorScreen(
     var seriesLettering by remember { mutableStateOf<Int?>(null) }
     // How its number in the series is written; null: as the design has it.
     var seriesNumber by remember { mutableStateOf<SeriesNumber?>(null) }
-    val design = CoverDesign(style, colors, kind, seed, lettering, seriesLettering, seriesNumber)
+    // Its lines and ornaments in a colour of their own; null: as the design has them.
+    var decoration by remember { mutableStateOf<Int?>(null) }
+    val design = CoverDesign(style, colors, kind, seed, lettering, seriesLettering, seriesNumber, decoration)
     var own by remember { mutableStateOf<OwnPicture?>(null) }
     var crop by remember { mutableStateOf(CoverCrop()) }
     // While the picture is being moved, the preview is drawn smaller, to keep up.
@@ -289,10 +291,10 @@ fun CoverGeneratorScreen(
         val h = (w / coverAspect).roundToInt()
         preview = withContext(drawing) { generator.render(text, design, w, h, shownPicture?.small, crop).asImageBitmap() }
     }
-    LaunchedEffect(colors, kind, seed, own, coverAspect, lettering, seriesLettering, seriesNumber) {
+    LaunchedEffect(colors, kind, seed, own, coverAspect, lettering, seriesLettering, seriesNumber, decoration) {
         thumbs = withContext(Dispatchers.Default) {
             CoverStyle.entries.associateWith {
-                generator.render(text, CoverDesign(it, colors, kind, seed, lettering, seriesLettering, seriesNumber), 134, (134 / coverAspect).roundToInt(), own?.small?.takeIf { _ -> it.picture }, crop).asImageBitmap()
+                generator.render(text, CoverDesign(it, colors, kind, seed, lettering, seriesLettering, seriesNumber, decoration), 134, (134 / coverAspect).roundToInt(), own?.small?.takeIf { _ -> it.picture }, crop).asImageBitmap()
             }
         }
     }
@@ -572,10 +574,13 @@ fun CoverGeneratorScreen(
                                 SeriesNumber.WORDS.takeIf { SeriesNumber.inWords(index) != null },
                                 SeriesNumber.FIGURES,
                                 SeriesNumber.NONE,
+                                // "A book of" is the framed design's; elsewhere it's the series' name alone, as with no number.
+                                SeriesNumber.A_BOOK.takeIf { framed },
                             )
                             for (how in choices) {
                                 FilterChip(
-                                    selected = shown == how || (how == SeriesNumber.FIGURES && shown == SeriesNumber.WORDS && SeriesNumber.inWords(index) == null),
+                                    selected = shown == how || (how == SeriesNumber.FIGURES && shown == SeriesNumber.WORDS && SeriesNumber.inWords(index) == null) ||
+                                        (how == SeriesNumber.NONE && shown == SeriesNumber.A_BOOK && !framed),
                                     onClick = { seriesNumber = how },
                                     label = {
                                         Text(
@@ -589,6 +594,7 @@ fun CoverGeneratorScreen(
                     }
                     TextColourChooser(tr("Title and author"), lettering) { lettering = it }
                     if (!text.series.isNullOrBlank()) TextColourChooser(tr("Series"), seriesLettering) { seriesLettering = it }
+                    if (style in CoverStyle.decorated) TextColourChooser(tr("Lines and ornaments"), decoration) { decoration = it }
                     Text(
                         if (CoverScreen.fromKobo) tr("The cover shows the book's title, series and authors. It's made at {0} × {1} pixels, the size of your Kobo's screen.", CoverCrop.OUT_WIDTH, CoverCrop.OUT_HEIGHT)
                         else tr("The cover shows the book's title, series and authors. It's made at 1072 × 1448 pixels, the size of the Kobo Clara's screen."),

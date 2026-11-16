@@ -1,0 +1,80 @@
+@fr
+1968|Aucun navigateur pour l’ouvrir.
+1969|Copier le titre
+1970|Titre copié
+1971|Rechercher sur Internet
+1972|Afficher les livres de cette série
+1973|Copier la série
+1974|Série copiée
+1975|Un tome de
+1976|Lignes et ornements
+@de
+1968|Es gibt keinen Browser, um es zu öffnen.
+1969|Titel kopieren
+1970|Titel kopiert
+1971|Im Internet suchen
+1972|Die Bücher dieser Reihe zeigen
+1973|Reihe kopieren
+1974|Reihe kopiert
+1975|Ein Band der Reihe
+1976|Linien und Ornamente
+@es
+1968|No hay ningún navegador para abrirlo.
+1969|Copiar el título
+1970|Título copiado
+1971|Buscar en Internet
+1972|Mostrar los libros de esta serie
+1973|Copiar la serie
+1974|Serie copiada
+1975|Un libro de
+1976|Líneas y adornos
+@it
+1968|Non c’è un browser per aprirlo.
+1969|Copia il titolo
+1970|Titolo copiato
+1971|Cerca su Internet
+1972|Mostra i libri di questa serie
+1973|Copia la serie
+1974|Serie copiata
+1975|Un libro di
+1976|Linee e ornamenti
+@nl
+1968|Er is geen browser om het te openen.
+1969|Titel kopiëren
+1970|Titel gekopieerd
+1971|Op internet zoeken
+1972|De boeken in deze reeks tonen
+1973|Reeks kopiëren
+1974|Reeks gekopieerd
+1975|Een deel van
+1976|Lijnen en versieringen
+@pt
+1968|Não há navegador para abrir.
+1969|Copiar o título
+1970|Título copiado
+1971|Pesquisar na internet
+1972|Mostrar os livros desta série
+1973|Copiar a série
+1974|Série copiada
+1975|Um livro de
+1976|Linhas e ornamentos
+@ru
+1968|Нет браузера, чтобы открыть это.
+1969|Скопировать название
+1970|Название скопировано
+1971|Искать в интернете
+1972|Показать книги этой серии
+1973|Скопировать серию
+1974|Серия скопирована
+1975|Одна из книг цикла
+1976|Линии и украшения
+@ja
+1968|開くためのブラウザがありません。
+1969|タイトルをコピー
+1970|タイトルをコピーしました
+1971|インターネットで検索
+1972|このシリーズの本を表示
+1973|シリーズをコピー
+1974|シリーズをコピーしました
+1975|シリーズより
+1976|線と飾り

@@ -5,6 +5,9 @@ package dev.kobolibrary.app.ui.library
 import dev.kobolibrary.app.ui.components.FittedText
 import dev.kobolibrary.app.tr
 import androidx.activity.compose.BackHandler
+import dev.kobolibrary.app.ui.components.BookTitleText
+import dev.kobolibrary.app.ui.components.SeriesText
+import dev.kobolibrary.app.ui.components.seriesSearch
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -301,6 +304,12 @@ fun LibraryScreen(
                         },
                         onTag = { tag ->
                             browse.tags = setOf(tag)
+                            if (!twoPanes) browse.selectedId = null
+                        },
+                        onSeries = { name ->
+                            browse.query = seriesSearch(name)
+                            browse.collection = null
+                            browse.tags = emptySet()
                             if (!twoPanes) browse.selectedId = null
                         },
                     )
@@ -923,6 +932,8 @@ fun LibraryDetailPane(
     onMarkUnread: (() -> Unit)? = null,
     /** Moving the app's reader to where the Kobo is in the book. */
     onContinueFromKobo: ((KoboBook) -> Unit)? = null,
+    /** Shows the books in a series (by its name), from a tap on the book's. */
+    onSeries: ((String) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     var confirmDelete by remember { mutableStateOf(false) }
@@ -944,10 +955,10 @@ fun LibraryDetailPane(
         Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
             LibraryCover(book, covers, large = true, modifier = Modifier.width(if (onBack != null) 200.dp else 160.dp))
             Column(Modifier.weight(1f)) {
-                Text(meta.title, style = MaterialTheme.typography.headlineSmall)
+                BookTitleText(meta.title, MaterialTheme.typography.headlineSmall)
                 Spacer(Modifier.height(6.dp))
                 book.authorLine?.let { Text(it, style = MaterialTheme.typography.titleMedium) }
-                meta.seriesLabel?.let { Text(it, style = SeriesStyle(), color = MaterialTheme.colorScheme.primary) }
+                meta.seriesLabel?.let { SeriesText(it, meta.series.orEmpty(), SeriesStyle(), MaterialTheme.colorScheme.primary, onSeries) }
                 meta.rating?.takeIf { it > 0 }?.let { r ->
                     Row(Modifier.padding(top = 6.dp)) {
                         repeat(5) { i ->

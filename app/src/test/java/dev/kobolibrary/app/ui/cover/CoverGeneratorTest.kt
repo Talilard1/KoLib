@@ -168,6 +168,33 @@ class CoverGeneratorTest {
     }
 
     @Test
+    fun linesAndOrnamentsTakeTheColourChosenForThem() {
+        val magenta = Color.rgb(0xF0, 0x10, 0xE0)
+        fun Bitmap.magentaish() = pixels().count { Color.red(it) - Color.green(it) > 80 && Color.blue(it) - Color.green(it) > 80 }
+        val found = mutableListOf<String>()
+        var wrong = false
+        for (style in CoverStyle.entries) {
+            val plain = generator.render(text, CoverDesign(style, CoverColors.themes[0]), w, h)
+            val decorated = generator.render(text, CoverDesign(style, CoverColors.themes[0], decoration = magenta), w, h)
+            if (style in CoverStyle.decorated) {
+                val n = decorated.magentaish() - plain.magentaish()
+                found += "${style.label}: $n"
+                if (n < 40) wrong = true
+            } else if (changed(plain, decorated, 0, h) != 0) {
+                found += "${style.label} has no lines to colour, but changed"
+                wrong = true
+            }
+        }
+        assertTrue(found.joinToString("\n"), !wrong)
+        // The words keep their colours.
+        val framed = generator.render(text, CoverDesign(CoverStyle.FRAMED, CoverColors.themes[0], decoration = magenta), w, h)
+        val gold = CoverColors.themes[0].accent
+        fun Bitmap.goldish() = pixels().count { Math.abs(Color.red(it) - Color.red(gold)) < 30 && Math.abs(Color.green(it) - Color.green(gold)) < 30 && Math.abs(Color.blue(it) - Color.blue(gold)) < 30 }
+        assertTrue(framed.goldish() > 3000)
+        assertEquals(tr("A book of"), SeriesNumber.bookOf(6.0, SeriesNumber.A_BOOK))
+    }
+
+    @Test
     fun aPaleNameOnAStorybookGoesOnADarkPill() {
         val plain = generator.render(text, CoverDesign(CoverStyle.STORYBOOK, CoverColors.themes[0]), w, h)
         val pale = generator.render(text, CoverDesign(CoverStyle.STORYBOOK, CoverColors.themes[0], lettering = Color.WHITE), w, h)

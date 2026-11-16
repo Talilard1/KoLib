@@ -87,7 +87,8 @@ There's no account to make and no ads.
 - Open EPUB, kepub, PDF, MOBI, AZW and AZW3, FB2, Word (.docx), OpenDocument (.odt), RTF, plain
   text, Markdown and HTML files, and CBZ, CBR and CB7 comics. Each book is kept as an EPUB you can
   edit, along with the file you added.
-- Edit titles, authors, series, tags, ratings and descriptions.
+- Edit titles, authors, series, tags, ratings and descriptions. In a book's details, tap its title to
+  copy it (hold it to search the internet for it), and tap its series to see all its books.
 - Find a cover online (on Amazon, Google Books, Open Library or Google Images), use a picture of
   your own, or make one with the book's title. There are 25 designs, among them a framed picture, a
   full painting, gold-stamped cloth, a spell book, thorns and roses, neon, a pulp magazine, a poster,
@@ -95,9 +96,9 @@ There's no account to make and no ads.
   storm-swept epics to space opera, starship voyages, war, regency, dark romance, fluff and angst. The
   genre is guessed from the book's tags (fan fiction's fandoms and tags too), and you can swap the
   picture for one of your own, then move and zoom it. Pick from 32 colour schemes or a colour of
-  your own, and choose the title, author and series colours separately. A design with a picture can
-  use the book's own cover, and the series number can be in words ("Book Six of"), in figures, or
-  left off.
+  your own, and choose the colours of the title and author, the series, and the lines and ornaments
+  separately. A design with a picture can use the book's own cover, and the series number can be in
+  words ("Book Six of"), in figures, left off ("Book of"), or "A book of".
 - Search and sort your books, and filter them by tag.
 - Make a PDF of scanned pages into a book whose text fits the screen: KoLib recognises the words in
   the pages on your device, in English, French, German, Spanish, Italian, Dutch, Portuguese,

@@ -1,0 +1,112 @@
+@fr
+2242|Rouleau suspendu
+2243|Reliure cousue
+2244|Grues et soleil
+2245|Épéiste solitaire
+2246|Carpes koï
+2247|Bambou à l’encre
+2248|Portail de sanctuaire
+2249|Grues dans les nuages
+2250|Blason de famille
+2251|Lanternes de papier
+2252|Vermillon
+2253|estampe japonaise paysage
+2254|Samouraïs et Japon ancien
+@de
+2242|Hängerolle
+2243|Fadenbindung
+2244|Kraniche und Sonne
+2245|Einsamer Schwertkämpfer
+2246|Koi
+2247|Tuschebambus
+2248|Schreintor
+2249|Kraniche in Wolken
+2250|Familienwappen
+2251|Papierlaternen
+2252|Zinnober
+2253|japanischer Holzschnitt Landschaft
+2254|Samurai und altes Japan
+@es
+2242|Rollo colgante
+2243|Encuadernación cosida
+2244|Grullas y sol
+2245|Espadachín solitario
+2246|Carpas koi
+2247|Bambú a tinta
+2248|Puerta del santuario
+2249|Grullas entre nubes
+2250|Blasón familiar
+2251|Farolillos de papel
+2252|Bermellón
+2253|grabado japonés paisaje
+2254|Samuráis y el Japón antiguo
+@it
+2242|Rotolo appeso
+2243|Legatura cucita
+2244|Gru e sole
+2245|Spadaccino solitario
+2246|Carpe koi
+2247|Bambù a inchiostro
+2248|Portale del santuario
+2249|Gru tra le nuvole
+2250|Stemma di famiglia
+2251|Lanterne di carta
+2252|Vermiglio
+2253|stampa giapponese paesaggio
+2254|Samurai e antico Giappone
+@nl
+2242|Hangrol
+2243|Genaaide band
+2244|Kraanvogels en zon
+2245|Eenzame zwaardvechter
+2246|Koi
+2247|Bamboe in inkt
+2248|Schrijnpoort
+2249|Kraanvogels in de wolken
+2250|Familiewapen
+2251|Papieren lantaarns
+2252|Vermiljoen
+2253|Japanse houtsnede landschap
+2254|Samoerai en oud Japan
+@pt
+2242|Rolo suspenso
+2243|Encadernação costurada
+2244|Grous e sol
+2245|Espadachim solitário
+2246|Carpas koi
+2247|Bambu a nanquim
+2248|Portal do santuário
+2249|Grous entre nuvens
+2250|Brasão de família
+2251|Lanternas de papel
+2252|Vermelhão
+2253|xilogravura japonesa paisagem
+2254|Samurais e o Japão antigo
+@ru
+2242|Висячий свиток
+2243|Сшитый переплёт
+2244|Журавли и солнце
+2245|Одинокий мечник
+2246|Карпы кои
+2247|Бамбук тушью
+2248|Врата святилища
+2249|Журавли в облаках
+2250|Родовой герб
+2251|Бумажные фонари
+2252|Киноварь
+2253|японская гравюра пейзаж
+2254|Самураи и старая Япония
+@ja
+2242|掛け軸
+2243|和綴じ
+2244|鶴と太陽
+2245|孤高の剣士
+2246|錦鯉
+2247|墨竹
+2248|鳥居
+2249|雲鶴
+2250|家紋
+2251|提灯
+2252|朱色
+2253|浮世絵 風景
+2254|侍と昔の日本

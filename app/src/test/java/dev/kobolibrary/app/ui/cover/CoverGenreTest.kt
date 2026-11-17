@@ -48,6 +48,8 @@ class CoverGenreTest {
         assertEquals(CoverGenre.HALLOWEEN, guess("Halloween", "Spooky"))
         assertEquals(CoverGenre.VAMPIRES, guess("Vampires", "Werewolves"))
         assertEquals(CoverGenre.WUXIA, guess("Xianxia", "Cultivation"))
+        assertEquals(CoverGenre.SAMURAI, guess("Samurai", "Feudal Japan"))
+        assertEquals(CoverGenre.SAMURAI, guess("Ronin", "Edo period"))
         assertEquals(CoverGenre.CYBERPUNK, guess("Cyberpunk", "Hackers"))
         assertEquals(CoverGenre.WAR, guess("World War II", "Soldiers"))
         assertEquals(CoverGenre.REGENCY, guess("Regency Romance", "Duke"))

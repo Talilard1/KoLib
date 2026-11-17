@@ -36,6 +36,8 @@ class CoverDesignShots {
         CoverGenre.LITERARY to CoverText("The Quiet Year", listOf("Ruth Ainsley"), null, null),
         CoverGenre.NON_FICTION to CoverText("A Short History of Rivers", listOf("Dr Ian Sowerby"), null, null),
         CoverGenre.CHILDREN to CoverText("Pip and the Paper Moon", listOf("Lily Hart"), null, null),
+        CoverGenre.WUXIA to CoverText("The Jade Sword Sect", listOf("Wen Liang"), "Nine Heavens", 3.0),
+        CoverGenre.SAMURAI to CoverText("Snow on the Tokaido", listOf("Keiko Arai"), null, null),
     )
 
     private fun sheet(name: String, covers: List<Bitmap>, cols: Int) {
@@ -89,6 +91,40 @@ class CoverDesignShots {
                 }
             }
             sheet("close_%02d_%s".format(n, four.first().name.lowercase()), covers, four.size)
+        }
+    }
+
+    /** The designs named in COVERS_LARGE, each large and in three sets of colours, for looking closely. */
+    @Test
+    fun designsLarge() {
+        assumeTrue(out.isDirectory)
+        val only = System.getenv("COVERS_LARGE")?.split(',')?.map { it.trim() }?.filter { it.isNotEmpty() } ?: return
+        for (st in CoverStyle.entries.filter { it.name in only }) {
+            val suited = st.suits.toList()
+            val covers = (0..2).map { k ->
+                val genre = suited[(k * 2) % suited.size]
+                val rnd = kotlin.random.Random(st.ordinal * 31 + k * 7 + 1)
+                val colours = CoverDesign.colorsFor(st, rnd, anyColour = false, genre = genre)
+                generator.render(bookFor(genre), CoverDesign(st, colours, genre, 7 + k * 13), 536, 724)
+            }
+            val pale = generator.render(bookFor(suited[0]), CoverDesign(st, theme("Sage"), suited[0], 20), 536, 724)
+            sheet("large_" + st.name.lowercase(), covers + pale, 4)
+        }
+    }
+
+    /** The scenes of the genres named in COVERS_SCENES: as a full painting (twice), framed, and in the wide-screen crop. */
+    @Test
+    fun scenesLarge() {
+        assumeTrue(out.isDirectory)
+        val only = System.getenv("COVERS_SCENES")?.split(',')?.map { it.trim() }?.filter { it.isNotEmpty() } ?: return
+        for (g in CoverGenre.entries.filter { it.name in only }) {
+            val covers = listOf(
+                generator.render(bookFor(g), CoverDesign(CoverStyle.PAINTING, theme("Midnight"), g, 11), 536, 724),
+                generator.render(bookFor(g), CoverDesign(CoverStyle.PAINTING, theme("Crimson"), g, 12), 536, 724),
+                generator.render(bookFor(g), CoverDesign(CoverStyle.FRAMED, theme("Teal"), g, 5), 536, 724),
+                generator.render(bookFor(g), CoverDesign(CoverStyle.WIDESCREEN, theme("Midnight"), g, 7), 536, 724),
+            )
+            sheet("scene_" + g.name.lowercase(), covers, 4)
         }
     }
 

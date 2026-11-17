@@ -40,6 +40,7 @@ enum class CoverGenre(val label: String, val group: Group) {
     KNIGHTS(tr("Knights and battles"), Group.HISTORY),
     REGENCY(tr("Regency and period drama"), Group.HISTORY),
     ANCIENT(tr("Ancient worlds"), Group.HISTORY),
+    SAMURAI(tr("Samurai and old Japan"), Group.HISTORY),
     ADVENTURE(tr("Adventure"), Group.HISTORY),
     WESTERN(tr("Western"), Group.HISTORY),
 
@@ -115,8 +116,12 @@ enum class CoverGenre(val label: String, val group: Group) {
                 "hidden world", "magic in the modern world",
             ),
             WUXIA to listOf(
-                "wuxia", "xianxia", "xuanhuan", "cultivation", "cultivator", "cultivators", "jianghu", "martial arts", "kung fu", "samurai",
-                "ninja", "ninjas", "shogun", "chinese mythology", "japanese mythology", "danmei", "murim",
+                "wuxia", "xianxia", "xuanhuan", "cultivation", "cultivator", "cultivators", "jianghu", "martial arts", "kung fu",
+                "chinese mythology", "danmei", "murim", "ancient china", "imperial china",
+            ),
+            SAMURAI to listOf(
+                "samurai", "ronin", "ninja", "ninjas", "shinobi", "shogun", "shogunate", "feudal japan", "edo period", "sengoku", "bushido",
+                "katana", "geisha", "japanese mythology", "japanese folklore", "yokai", "historical japan", "old japan", "meiji",
             ),
             SCIENCE_FICTION to listOf(
                 "science fiction", "sci-fi", "scifi", "sf", "space", "alien", "aliens", "robot", "robots", "android", "androids", "time travel",
@@ -260,8 +265,10 @@ enum class CoverGenre(val label: String, val group: Group) {
                 "the cruel prince", "folk of the air", "from blood and ash")
             put(URBAN_FANTASY, null, "shadowhunters", "mortal instruments", "dresden files", "good omens", "american gods", "rivers of london", "the raven cycle", "lockwood")
             put(WUXIA, DARK_MAGIC, "mo dao zu shi", "grandmaster of demonic cultivation", "the untamed", "heaven official's blessing", "tian guan ci fu",
-                "scum villain", "svsss", "2ha", "erha", "word of honor", "naruto", "avatar: the last airbender", "the last airbender", "legend of korra",
-                "demon slayer", "kimetsu no yaiba", "sekiro", "ghost of tsushima", "nirvana in fire", "mulan")
+                "scum villain", "svsss", "2ha", "erha", "word of honor", "avatar: the last airbender", "the last airbender", "legend of korra",
+                "nirvana in fire", "mulan")
+            put(SAMURAI, null, "naruto", "demon slayer", "kimetsu no yaiba", "sekiro", "ghost of tsushima", "rurouni kenshin", "samurai champloo",
+                "inuyasha", "shogun (tv)", "blue eye samurai", "nioh", "vagabond", "dororo", "gintama", "princess mononoke")
             put(FAIRY_TALE, null, "once upon a time (tv)", "grimm's fairy tales", "hans christian andersen", "into the woods", "ever after high", "the princess bride",
                 "tangled", "shrek")
             put(DARK_MAGIC, null, "jujutsu kaisen", "hazbin hotel", "helluva boss", "chilling adventures of sabrina", "bleach (anime & manga)", "chainsaw man", "berserk")
@@ -347,7 +354,7 @@ enum class CoverGenre(val label: String, val group: Group) {
         /** The genres a modern, everyday setting rules out. */
         private val otherWorldly = setOf(
             FANTASY, MAGIC_SCHOOL, DARK_MAGIC, WITCHES, QUEST, STORM_EPIC, MYTHOLOGY, FAIRY_TALE, ROMANTASY, WUXIA,
-            SCIENCE_FICTION, SPACE_OPERA, STARSHIP, STEAMPUNK, DETECTIVE, HISTORICAL, WAR, KNIGHTS, REGENCY, ANCIENT, WESTERN,
+            SCIENCE_FICTION, SPACE_OPERA, STARSHIP, STEAMPUNK, DETECTIVE, HISTORICAL, WAR, KNIGHTS, REGENCY, ANCIENT, SAMURAI, WESTERN,
         )
 
         private fun normal(s: String?) = s.orEmpty().lowercase(Locale.ROOT)

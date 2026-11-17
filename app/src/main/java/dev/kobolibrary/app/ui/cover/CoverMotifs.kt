@@ -92,6 +92,7 @@ internal object CoverMotifs {
         CoverGenre.ROMANTASY -> listOf(CROWN, DAGGER, MOON, FLOWER, SERPENT, STAR)
         CoverGenre.URBAN_FANTASY -> listOf(MOON, KEY, EYE, BOLT, CAT, DAGGER)
         CoverGenre.WUXIA -> listOf(SWORD, FLOWER, CLOUD, MOON, LANTERN, LEAF)
+        CoverGenre.SAMURAI -> listOf(SWORD, FLOWER, SUN, MOON, LANTERN, HELMET)
         CoverGenre.SCIENCE_FICTION -> listOf(PLANET, ROCKET, ATOM, STAR, ROBOT, SAUCER)
         CoverGenre.SPACE_OPERA -> listOf(PLANET, ROCKET, STAR, SPARK, SAUCER, MOON)
         CoverGenre.STARSHIP -> listOf(ROCKET, PLANET, STAR, COMPASS, ATOM, SPARK)

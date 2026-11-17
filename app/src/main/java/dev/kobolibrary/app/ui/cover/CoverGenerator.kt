@@ -71,7 +71,7 @@ enum class CoverStyle(val label: String, val suits: Set<CoverGenre> = emptySet()
         tr("Framed picture"),
         setOf(
             CoverGenre.FANTASY, CoverGenre.MAGIC_SCHOOL, CoverGenre.DARK_MAGIC, CoverGenre.WITCHES, CoverGenre.QUEST, CoverGenre.STORM_EPIC,
-            CoverGenre.MYTHOLOGY, CoverGenre.FAIRY_TALE, CoverGenre.ROMANTASY, CoverGenre.URBAN_FANTASY, CoverGenre.WUXIA,
+            CoverGenre.MYTHOLOGY, CoverGenre.FAIRY_TALE, CoverGenre.ROMANTASY, CoverGenre.URBAN_FANTASY, CoverGenre.WUXIA, CoverGenre.SAMURAI,
             CoverGenre.SCIENCE_FICTION, CoverGenre.SPACE_OPERA, CoverGenre.STARSHIP, CoverGenre.STEAMPUNK, CoverGenre.DYSTOPIA,
             CoverGenre.HISTORICAL, CoverGenre.WAR, CoverGenre.KNIGHTS, CoverGenre.REGENCY, CoverGenre.ANCIENT, CoverGenre.ADVENTURE, CoverGenre.WESTERN,
             CoverGenre.HORROR, CoverGenre.VAMPIRES, CoverGenre.COSMIC_HORROR, CoverGenre.MYSTERY, CoverGenre.DETECTIVE, CoverGenre.LITERARY,
@@ -84,7 +84,7 @@ enum class CoverStyle(val label: String, val suits: Set<CoverGenre> = emptySet()
         tr("Gilded cloth"),
         setOf(
             CoverGenre.FANTASY, CoverGenre.MAGIC_SCHOOL, CoverGenre.DARK_MAGIC, CoverGenre.QUEST, CoverGenre.MYTHOLOGY, CoverGenre.FAIRY_TALE,
-            CoverGenre.ROMANTASY, CoverGenre.WUXIA, CoverGenre.LITERARY, CoverGenre.HISTORICAL, CoverGenre.REGENCY, CoverGenre.ANCIENT,
+            CoverGenre.ROMANTASY, CoverGenre.WUXIA, CoverGenre.SAMURAI, CoverGenre.LITERARY, CoverGenre.HISTORICAL, CoverGenre.REGENCY, CoverGenre.ANCIENT,
             CoverGenre.KNIGHTS, CoverGenre.ROMANCE, CoverGenre.CHILDREN, CoverGenre.ADVENTURE, CoverGenre.DETECTIVE, CoverGenre.COSY_MYSTERY,
             CoverGenre.CHRISTMAS, CoverGenre.STEAMPUNK,
         ),
@@ -111,7 +111,7 @@ enum class CoverStyle(val label: String, val suits: Set<CoverGenre> = emptySet()
     /** Blossoming branches and a flowing script. */
     BLOSSOM(
         tr("Blossom"),
-        setOf(CoverGenre.ROMANCE, CoverGenre.FLUFF, CoverGenre.MODERN_ROMANCE, CoverGenre.ROMANTASY, CoverGenre.FAIRY_TALE, CoverGenre.WUXIA, CoverGenre.REGENCY),
+        setOf(CoverGenre.ROMANCE, CoverGenre.FLUFF, CoverGenre.MODERN_ROMANCE, CoverGenre.ROMANTASY, CoverGenre.FAIRY_TALE, CoverGenre.WUXIA, CoverGenre.SAMURAI, CoverGenre.REGENCY),
     ),
 
     /** Green hills, a sun and a balloon, and round friendly lettering. */
@@ -236,7 +236,7 @@ enum class CoverStyle(val label: String, val suits: Set<CoverGenre> = emptySet()
         tr("Medallion"),
         setOf(
             CoverGenre.FANTASY, CoverGenre.FAIRY_TALE, CoverGenre.ROMANTASY, CoverGenre.MYTHOLOGY, CoverGenre.HISTORICAL, CoverGenre.ADVENTURE,
-            CoverGenre.WUXIA, CoverGenre.ANCIENT, CoverGenre.KNIGHTS, CoverGenre.CHRISTMAS, CoverGenre.QUEST,
+            CoverGenre.WUXIA, CoverGenre.SAMURAI, CoverGenre.ANCIENT, CoverGenre.KNIGHTS, CoverGenre.CHRISTMAS, CoverGenre.QUEST,
         ),
     ),
 
@@ -352,7 +352,7 @@ enum class CoverStyle(val label: String, val suits: Set<CoverGenre> = emptySet()
     SCALES(
         tr("Dragon scales"),
         setOf(
-            CoverGenre.FANTASY, CoverGenre.ROMANTASY, CoverGenre.QUEST, CoverGenre.STORM_EPIC, CoverGenre.DARK_MAGIC, CoverGenre.WUXIA,
+            CoverGenre.FANTASY, CoverGenre.ROMANTASY, CoverGenre.QUEST, CoverGenre.STORM_EPIC, CoverGenre.DARK_MAGIC, CoverGenre.WUXIA, CoverGenre.SAMURAI,
             CoverGenre.MYTHOLOGY, CoverGenre.KNIGHTS,
         ),
     ),
@@ -615,7 +615,7 @@ enum class CoverStyle(val label: String, val suits: Set<CoverGenre> = emptySet()
     WAVES(
         tr("Waves"),
         setOf(
-            CoverGenre.WUXIA, CoverGenre.ADVENTURE, CoverGenre.LITERARY, CoverGenre.HISTORICAL, CoverGenre.MYTHOLOGY, CoverGenre.SLICE_OF_LIFE,
+            CoverGenre.WUXIA, CoverGenre.SAMURAI, CoverGenre.ADVENTURE, CoverGenre.LITERARY, CoverGenre.HISTORICAL, CoverGenre.MYTHOLOGY, CoverGenre.SLICE_OF_LIFE,
             CoverGenre.ANCIENT,
         ),
     ),
@@ -624,7 +624,7 @@ enum class CoverStyle(val label: String, val suits: Set<CoverGenre> = emptySet()
     INK_WASH(
         tr("Ink wash"),
         setOf(
-            CoverGenre.WUXIA, CoverGenre.LITERARY, CoverGenre.HISTORICAL, CoverGenre.FANTASY, CoverGenre.QUEST, CoverGenre.ANGST,
+            CoverGenre.WUXIA, CoverGenre.SAMURAI, CoverGenre.LITERARY, CoverGenre.HISTORICAL, CoverGenre.FANTASY, CoverGenre.QUEST, CoverGenre.ANGST,
             CoverGenre.MYTHOLOGY,
         ),
     ),
@@ -790,7 +790,7 @@ enum class CoverStyle(val label: String, val suits: Set<CoverGenre> = emptySet()
         tr("Watercolour peaks"),
         setOf(
             CoverGenre.FANTASY, CoverGenre.QUEST, CoverGenre.FAIRY_TALE, CoverGenre.ROMANTASY, CoverGenre.MAGIC_SCHOOL, CoverGenre.ADVENTURE,
-            CoverGenre.STORM_EPIC, CoverGenre.KNIGHTS, CoverGenre.MYTHOLOGY, CoverGenre.WUXIA, CoverGenre.LITERARY, CoverGenre.CHILDREN,
+            CoverGenre.STORM_EPIC, CoverGenre.KNIGHTS, CoverGenre.MYTHOLOGY, CoverGenre.WUXIA, CoverGenre.SAMURAI, CoverGenre.LITERARY, CoverGenre.CHILDREN,
         ),
     ),
 
@@ -836,7 +836,7 @@ enum class CoverStyle(val label: String, val suits: Set<CoverGenre> = emptySet()
         tr("Sword and serpent"),
         setOf(
             CoverGenre.FANTASY, CoverGenre.ROMANTASY, CoverGenre.DARK_MAGIC, CoverGenre.KNIGHTS, CoverGenre.QUEST, CoverGenre.STORM_EPIC,
-            CoverGenre.MYTHOLOGY, CoverGenre.DARK_ROMANCE, CoverGenre.FAIRY_TALE, CoverGenre.WUXIA, CoverGenre.VAMPIRES, CoverGenre.WAR,
+            CoverGenre.MYTHOLOGY, CoverGenre.DARK_ROMANCE, CoverGenre.FAIRY_TALE, CoverGenre.WUXIA, CoverGenre.SAMURAI, CoverGenre.VAMPIRES, CoverGenre.WAR,
         ),
     ),
 
@@ -890,7 +890,7 @@ enum class CoverStyle(val label: String, val suits: Set<CoverGenre> = emptySet()
     WYRM(
         tr("Dragon"),
         setOf(
-            CoverGenre.FANTASY, CoverGenre.STORM_EPIC, CoverGenre.WUXIA, CoverGenre.QUEST, CoverGenre.MYTHOLOGY, CoverGenre.KNIGHTS,
+            CoverGenre.FANTASY, CoverGenre.STORM_EPIC, CoverGenre.WUXIA, CoverGenre.SAMURAI, CoverGenre.QUEST, CoverGenre.MYTHOLOGY, CoverGenre.KNIGHTS,
             CoverGenre.ROMANTASY, CoverGenre.MAGIC_SCHOOL, CoverGenre.FAIRY_TALE, CoverGenre.CHILDREN,
         ),
     ),
@@ -910,7 +910,7 @@ enum class CoverStyle(val label: String, val suits: Set<CoverGenre> = emptySet()
         tr("Scattered blooms"),
         setOf(
             CoverGenre.FANTASY, CoverGenre.ROMANCE, CoverGenre.ROMANTASY, CoverGenre.HISTORICAL, CoverGenre.WAR, CoverGenre.LITERARY,
-            CoverGenre.WUXIA, CoverGenre.FAIRY_TALE, CoverGenre.MODERN_ROMANCE, CoverGenre.REGENCY, CoverGenre.FLUFF,
+            CoverGenre.WUXIA, CoverGenre.SAMURAI, CoverGenre.FAIRY_TALE, CoverGenre.MODERN_ROMANCE, CoverGenre.REGENCY, CoverGenre.FLUFF,
         ),
     ),
 
@@ -1003,6 +1003,94 @@ enum class CoverStyle(val label: String, val suits: Set<CoverGenre> = emptySet()
             CoverGenre.CHRISTMAS, CoverGenre.KNIGHTS, CoverGenre.WITCHES, CoverGenre.LITERARY,
         ),
     ),
+
+    /** A hanging scroll: the picture mounted in silk, a rod above and a roller below. */
+    SCROLL(
+        tr("Hanging scroll"),
+        setOf(
+            CoverGenre.WUXIA, CoverGenre.SAMURAI, CoverGenre.HISTORICAL, CoverGenre.MYTHOLOGY, CoverGenre.LITERARY, CoverGenre.FANTASY,
+            CoverGenre.ANCIENT, CoverGenre.ADVENTURE,
+        ),
+        picture = true,
+    ),
+
+    /** A book stitched in the old way, with patterned paper covers and a title slip. */
+    STITCHED(
+        tr("Stitched binding"),
+        setOf(
+            CoverGenre.SAMURAI, CoverGenre.WUXIA, CoverGenre.HISTORICAL, CoverGenre.LITERARY, CoverGenre.NON_FICTION, CoverGenre.MYTHOLOGY,
+            CoverGenre.ANCIENT,
+        ),
+    ),
+
+    /** Cranes before a great sun, over a sea as the old prints draw it. */
+    SUN_CRANES(
+        tr("Cranes and sun"),
+        setOf(
+            CoverGenre.SAMURAI, CoverGenre.WUXIA, CoverGenre.HISTORICAL, CoverGenre.LITERARY, CoverGenre.ROMANCE, CoverGenre.MYTHOLOGY,
+            CoverGenre.ADVENTURE,
+        ),
+    ),
+
+    /** One figure on a hill before a huge sun: a swordsman, or a samurai in a straw hat. */
+    SWORDSMAN(
+        tr("Lone swordsman"),
+        setOf(CoverGenre.WUXIA, CoverGenre.ADVENTURE, CoverGenre.SAMURAI, CoverGenre.QUEST, CoverGenre.HISTORICAL, CoverGenre.STORM_EPIC),
+    ),
+
+    /** Two koi circling in a pond, with lily pads. */
+    KOI(
+        tr("Koi"),
+        setOf(
+            CoverGenre.WUXIA, CoverGenre.SAMURAI, CoverGenre.ROMANCE, CoverGenre.LITERARY, CoverGenre.FLUFF, CoverGenre.SLICE_OF_LIFE,
+            CoverGenre.FAIRY_TALE, CoverGenre.ANGST,
+        ),
+    ),
+
+    /** Bamboo in ink down one side, a moon behind it, and a red seal. */
+    BAMBOO(
+        tr("Ink bamboo"),
+        setOf(
+            CoverGenre.WUXIA, CoverGenre.SAMURAI, CoverGenre.LITERARY, CoverGenre.HISTORICAL, CoverGenre.NON_FICTION, CoverGenre.SLICE_OF_LIFE,
+            CoverGenre.ANGST,
+        ),
+    ),
+
+    /** A shrine gate standing in still water under the moon, lanterns afloat. */
+    TORII(
+        tr("Shrine gate"),
+        setOf(
+            CoverGenre.SAMURAI, CoverGenre.MYTHOLOGY, CoverGenre.URBAN_FANTASY, CoverGenre.FANTASY, CoverGenre.ROMANCE, CoverGenre.WUXIA,
+            CoverGenre.HORROR,
+        ),
+    ),
+
+    /** Silk woven with curling clouds, cranes among them, and the title on a plate. */
+    CLOUD_CRANES(
+        tr("Cranes in cloud"),
+        setOf(
+            CoverGenre.WUXIA, CoverGenre.SAMURAI, CoverGenre.ROMANTASY, CoverGenre.FAIRY_TALE, CoverGenre.MYTHOLOGY, CoverGenre.HISTORICAL,
+            CoverGenre.ROMANCE,
+        ),
+    ),
+
+    /** A family crest, large and plain on cloth. */
+    CREST(
+        tr("Family crest"),
+        setOf(
+            CoverGenre.SAMURAI, CoverGenre.WUXIA, CoverGenre.HISTORICAL, CoverGenre.WAR, CoverGenre.THRILLER, CoverGenre.LITERARY,
+            CoverGenre.NON_FICTION, CoverGenre.SPY,
+        ),
+    ),
+
+    /** Paper lanterns glowing on their strings at night, over the roofs of a town. */
+    LANTERNS(
+        tr("Paper lanterns"),
+        setOf(
+            CoverGenre.WUXIA, CoverGenre.SAMURAI, CoverGenre.ROMANCE, CoverGenre.ROMANTASY, CoverGenre.URBAN_FANTASY, CoverGenre.FAIRY_TALE,
+            CoverGenre.SLICE_OF_LIFE,
+        ),
+    ),
     ;
 
     companion object {
@@ -1016,6 +1104,7 @@ enum class CoverStyle(val label: String, val suits: Set<CoverGenre> = emptySet()
             CIRCUIT, GLITCH, CLOCKWORK, STENCIL, MOON_PHASES, BOOKSHELF,
             ENGRAVING, WATER_PEAKS, DEPTHS, MIST, DUNES, ECLIPSE, BLADE, STAG, WORLD_TREE, TOME, LINE_PEAKS, TOOLED, WYRM, DIAL, BLOOMS,
             STREETS, COSMOS, DAGGER, WATERCOLOUR, OAK_LEAVES, ROUNDEL, WINDSWEPT, APOTHECARY, CARVED, ORNATE,
+            SCROLL, STITCHED, SUN_CRANES, SWORDSMAN, KOI, BAMBOO, TORII, CLOUD_CRANES, CREST, LANTERNS,
         )
 
         /** The designs with lines and ornaments (frames, rules, lozenges) whose colour can be chosen apart. */
@@ -1073,6 +1162,7 @@ data class CoverColors(val name: String, val ground: Int, val accent: Int, val i
         val BUTTER = CoverColors(tr("Butter"), rgb(0xF6E7A8), rgb(0x5B2A6E), rgb(0x2A1633), rgb(0xFBF3D6))
         val CORAL = CoverColors(tr("Coral"), rgb(0xF4B9A4), rgb(0x1F3A5F), rgb(0x2A1A1F), rgb(0xFBE9E2))
         val TANGERINE = CoverColors(tr("Tangerine"), rgb(0xF28C28), rgb(0x1D2B45), rgb(0x1A2238), rgb(0xFDEBD6))
+        val VERMILION = CoverColors(tr("Vermilion"), rgb(0xB8322A), rgb(0xF2D9A0), rgb(0xFDF3E3), rgb(0x4A120E))
 
         // Muted cloth boards with pale gold lettering, as reissued fantasy series are often bound.
         private val paleGold = rgb(0xE6D9A0)
@@ -1094,7 +1184,7 @@ data class CoverColors(val name: String, val ground: Int, val accent: Int, val i
         val themes = listOf(
             MIDNIGHT, CLARET, FOREST, SLATE, CHARCOAL, UMBER, PLUM, TEAL, EMERALD, CRIMSON, SAPPHIRE, OBSIDIAN,
             SOOT, EBONY, DUSK, NAVY, INDIGO, AUBERGINE, OXBLOOD, ROSEWOOD, BARK, MOSS, OLIVE, SPRUCE, SYNTH,
-            PEACOCK, COBALT, ROSE, TERRACOTTA,
+            PEACOCK, COBALT, ROSE, TERRACOTTA, VERMILION,
             PARCHMENT, LINEN, BLUSH, LAVENDER, MINT, SAGE, SKY, GLACIER, BUTTER, CORAL, TANGERINE, SAFFRON, INK,
         )
 
@@ -1167,7 +1257,8 @@ data class CoverDesign(
             CoverStyle.WIDESCREEN,
             CoverStyle.DEPTHS, CoverStyle.ECLIPSE, CoverStyle.BLADE, CoverStyle.STAG, CoverStyle.WORLD_TREE, CoverStyle.TOOLED,
             CoverStyle.DIAL, CoverStyle.STREETS, CoverStyle.COSMOS, CoverStyle.DAGGER, CoverStyle.OAK_LEAVES, CoverStyle.ROUNDEL,
-            CoverStyle.ENGRAVING, CoverStyle.WINDSWEPT, CoverStyle.WYRM -> true
+            CoverStyle.ENGRAVING, CoverStyle.WINDSWEPT, CoverStyle.WYRM,
+            CoverStyle.TORII, CoverStyle.LANTERNS, CoverStyle.CLOUD_CRANES, CoverStyle.CREST -> true
             CoverStyle.BLOSSOM, CoverStyle.ESSAY, CoverStyle.SNAPSHOT,
             CoverStyle.FINE_PRESS, CoverStyle.MAP, CoverStyle.MEANDER, CoverStyle.TYPOGRAPHIC, CoverStyle.WOODCUT, CoverStyle.ENVELOPE,
             CoverStyle.BOTANICAL, CoverStyle.INK_WASH, CoverStyle.NEWSPRINT, CoverStyle.PLAYBILL, CoverStyle.CUT_PAPER, CoverStyle.ROMCOM,
@@ -1189,7 +1280,8 @@ data class CoverDesign(
                 CoverGenre.FAIRY_TALE -> listOf(PLUM, BLUSH, LAVENDER, TEAL)
                 CoverGenre.ROMANTASY -> listOf(PLUM, TEAL, OBSIDIAN, CLARET)
                 CoverGenre.URBAN_FANTASY -> listOf(PLUM, MIDNIGHT, SYNTH)
-                CoverGenre.WUXIA -> listOf(CRIMSON, PARCHMENT, INK, TEAL, PEACOCK)
+                CoverGenre.WUXIA -> listOf(CRIMSON, PARCHMENT, INK, TEAL, PEACOCK, VERMILION)
+                CoverGenre.SAMURAI -> listOf(CRIMSON, INK, MIDNIGHT, PARCHMENT, VERMILION, SAPPHIRE, OBSIDIAN)
                 CoverGenre.SCIENCE_FICTION -> listOf(MIDNIGHT, SLATE, SYNTH, TEAL, COBALT, GLACIER)
                 CoverGenre.SPACE_OPERA -> listOf(MIDNIGHT, OBSIDIAN, CHARCOAL, SAPPHIRE)
                 CoverGenre.STARSHIP -> listOf(SAPPHIRE, MIDNIGHT, SLATE, TEAL, COBALT)
@@ -1464,6 +1556,16 @@ class CoverGenerator(context: Context) {
             CoverStyle.LINE_PEAKS -> linePeaks(sheet, words, art)
             CoverStyle.TOOLED -> tooled(sheet, words, art)
             CoverStyle.WYRM -> wyrm(sheet, words, art)
+            CoverStyle.SCROLL -> scroll(sheet, words, art)
+            CoverStyle.STITCHED -> stitched(sheet, words, art)
+            CoverStyle.SUN_CRANES -> sunCranes(sheet, words, art)
+            CoverStyle.SWORDSMAN -> loneSwordsman(sheet, words, art)
+            CoverStyle.KOI -> koi(sheet, words, art)
+            CoverStyle.BAMBOO -> inkBamboo(sheet, words, art)
+            CoverStyle.TORII -> shrineGate(sheet, words, art)
+            CoverStyle.CLOUD_CRANES -> cloudCranes(sheet, words, art)
+            CoverStyle.CREST -> crest(sheet, words, art)
+            CoverStyle.LANTERNS -> paperLanterns(sheet, words, art)
             CoverStyle.DIAL -> dial(sheet, words, art)
             CoverStyle.BLOOMS -> blooms(sheet, words, art)
             CoverStyle.STREETS -> streets(sheet, words, art)
@@ -1956,6 +2058,7 @@ class CoverGenerator(context: Context) {
             // (A keyhole: a round above a skirt.)
             CoverStyle.KEYHOLE -> RectF(29f * u, 0.3f * h, 71f * u, kotlin.math.min(0.3f * h + 62f * u, h - 27f * u))
             CoverStyle.NEWSPRINT -> RectF(7f * u, 0.42f * h, 60f * u, 0.69f * h)
+            CoverStyle.SCROLL -> RectF(21f * u, 0.245f * h, 79f * u, 0.715f * h)
             else -> null
         }
     }

@@ -43,6 +43,11 @@
     <string name="intro_collections_title">Kobo のコレクション</string>
     <string name="intro_collections_text">KoLib は Kobo のコレクションに本を追加できますが、コレクションの作成はできません。先に Kobo でコレクションを作成してください。</string>
     <string name="intro_collections_how">Kobo で［マイブック］→［コレクション］を開き、［新しいコレクション］をタップします。</string>
+    <string name="intro_reading_title">リーダーを設定しましょう</string>
+    <string name="intro_reading_text">サンプルの本でページの色、フォント、文字サイズを選び、リーダーの使い方を確認します。1 分ほどで終わります。</string>
+    <string name="intro_reading_start">読書を設定する</string>
+    <string name="intro_reading_later">あとで</string>
+
     <string name="intro_done_title">準備ができました</string>
     <string name="intro_done_text">［本を追加］ボタンでいつでも本を追加できます。Kobo をつないだら、本を Kobo に送りましょう。</string>
     <string name="intro_start">ライブラリへ</string>

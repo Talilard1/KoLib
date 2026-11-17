@@ -120,6 +120,8 @@ class ReaderController(
     var loading by mutableStateOf(true)
         private set
     var controlsVisible by mutableStateOf(false)
+    /** A tap in the middle of the page doesn't bring up the controls: the reading setup isn't up to them yet. */
+    var menuLocked = false
     var note by mutableStateOf<ReaderNote?>(null)
     var image by mutableStateOf<String?>(null)
 
@@ -1266,6 +1268,12 @@ class ReaderController(
         }
     }
 
+    /** Back to the start of the book's first chapter: the reading setup's example, between its steps. */
+    fun goToStart() {
+        stopTurn()
+        open(chapters.indexOfFirst { it.linear }.coerceAtLeast(0), target("start"))
+    }
+
     fun goToHit(hit: ReaderHit) {
         stopTurn()
         remember()
@@ -1616,7 +1624,7 @@ class ReaderController(
         }
 
         @JavascriptInterface
-        fun tap(zone: String) = main.post { if (zone == "center") controlsVisible = !controlsVisible }
+        fun tap(zone: String) = main.post { if (zone == "center" && !menuLocked) controlsVisible = !controlsVisible }
 
         @JavascriptInterface
         fun link(json: String) = main.post {

@@ -48,6 +48,7 @@ Get the latest APK from [Releases](https://github.com/Talilard1/KoLib/releases/l
 - Edit titles, authors, series, tags and covers. Find covers online, or generate one from 123
   designs in 43 colour schemes.
 - Edit a book's text: find and replace, chapter tools, clean-ups, and splitting or combining books.
+- A guided setup for the reader and a tour of the text editor, the first time you open them.
 - Convert Word, PDF, MOBI, FB2, text and comic files to EPUB, and scanned PDFs to text with
   on-device OCR.
 - Sync books and reading position between your phone and tablet over Wi-Fi. Pair them with a QR code.

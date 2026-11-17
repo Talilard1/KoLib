@@ -43,7 +43,8 @@ class IntroShots {
     @Test @Config(qualifiers = "w411dp-h914dp-port-xxhdpi") fun phoneFolderFound() = shoot("phone_2_folder_found", 1, scan = found)
     @Test @Config(qualifiers = "w411dp-h914dp-port-xxhdpi") fun phoneKobo() = shoot("phone_3_kobo", 2, connection = Connection.Waiting(UsbKobo.OPENING))
     @Test @Config(qualifiers = "w411dp-h914dp-port-xxhdpi") fun phoneCollections() = shoot("phone_4_collections", 3)
-    @Test @Config(qualifiers = "w411dp-h914dp-port-xxhdpi") fun phoneDone() = shoot("phone_5_done", 4)
+    @Test @Config(qualifiers = "w411dp-h914dp-port-xxhdpi") fun phoneReading() = shoot("phone_5_reading", 4)
+    @Test @Config(qualifiers = "w411dp-h914dp-port-xxhdpi") fun phoneDone() = shoot("phone_6_done", 5)
     @Test @Config(qualifiers = "fr-w411dp-h914dp-port-xxhdpi") fun phoneFrench() = shoot("phone_fr_collections", 3)
     @Test @Config(qualifiers = "ja-w411dp-h914dp-port-xxhdpi") fun phoneJapanese() = shoot("phone_ja_folder", 1, scan = found)
 
@@ -51,5 +52,7 @@ class IntroShots {
     @Test @Config(qualifiers = "w1280dp-h800dp-land-xhdpi") fun tabletFolder() = shoot("tablet_2_folder", 1, scan = FolderScan.Adding("Download/Books", 132))
     @Test @Config(qualifiers = "w1280dp-h800dp-land-xhdpi") fun tabletKobo() = shoot("tablet_3_kobo", 2)
     @Test @Config(qualifiers = "w1280dp-h800dp-land-xhdpi") fun tabletCollections() = shoot("tablet_4_collections", 3)
-    @Test @Config(qualifiers = "de-w1280dp-h800dp-land-xhdpi") fun tabletGerman() = shoot("tablet_de_done", 4)
+    @Test @Config(qualifiers = "w1280dp-h800dp-land-xhdpi") fun tabletReading() = shoot("tablet_5_reading", 4)
+    @Test @Config(qualifiers = "ja-w1280dp-h800dp-land-xhdpi") fun tabletJapaneseReading() = shoot("tablet_ja_reading", 4)
+    @Test @Config(qualifiers = "de-w1280dp-h800dp-land-xhdpi") fun tabletGerman() = shoot("tablet_de_done", 5)
 }

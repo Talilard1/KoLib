@@ -110,6 +110,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
+import androidx.compose.foundation.ScrollState
+import androidx.compose.ui.draw.clip
+import androidx.compose.material.icons.outlined.Lightbulb
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.platform.LocalDensity
+import dev.kobolibrary.app.ui.tour.LocalTourPlaces
+import dev.kobolibrary.app.ui.tour.Tour
+import dev.kobolibrary.app.ui.tour.TourPlaces
+import dev.kobolibrary.app.ui.tour.tourPlace
 import dev.kobolibrary.app.epub.ChapterOps
 import dev.kobolibrary.app.epub.Cleanups
 import kotlinx.coroutines.Dispatchers
@@ -128,6 +140,10 @@ fun TextEditorScreen(
     onRead: (String?) -> Unit,
     /** Shown instead of the page in screenshots, where a WebView can't draw. */
     pagePreview: (@Composable () -> Unit)? = null,
+    /** The editor's tour starts as it opens: the first time it's opened. */
+    tour: Boolean = false,
+    /** The tour was gone through, or skipped. */
+    onTourDone: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val snackbar = remember { SnackbarHostState() }
@@ -165,10 +181,28 @@ fun TextEditorScreen(
     }
     val copiedItems by (state.copied?.items ?: remember { kotlinx.coroutines.flow.MutableStateFlow(emptyList()) }).collectAsState()
 
+    // The tour: over the editor with the page showing and its panels closed, lighting each part where it is.
+    var touring by rememberSaveable { mutableStateOf(tour) }
+    val places = remember { TourPlaces() }
+    val toolbarScroll = rememberScrollState()
+    LaunchedEffect(touring) {
+        if (touring) {
+            if (state.find.open) state.find.close()
+            state.copiedOpen = false
+            narrowShowsEditor = true
+        }
+    }
+
+    CompositionLocalProvider(LocalTourPlaces provides places.takeIf { touring }) {
+    Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
+        // On a phone the chapters are a screen of their own: while the page shows, the chapter's name in the top bar leads there.
+        val chaptersApart = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 600
+        val pageShowing = narrowShowsEditor && !state.find.open && !(state.copiedOpen && state.copied != null)
         EditorTopBar(state, onBack = close, onRead = { scope.launch { state.flush(); onRead(state.currentPath) } },
             onFind = { state.find.open = !state.find.open; if (state.find.open) state.copiedOpen = false },
-            onCleanups = { showCleanups = true }, onRevert = { confirmRevert = true })
+            onCleanups = { showCleanups = true }, onRevert = { confirmRevert = true }, onTour = { touring = true },
+            onChapters = if (chaptersApart && pageShowing) ({ narrowShowsEditor = false }) else null)
         BoxWithConstraints(Modifier.fillMaxSize().imePadding()) {
             val wide = maxWidth >= 1000.dp
             val medium = maxWidth >= 600.dp
@@ -179,12 +213,12 @@ fun TextEditorScreen(
             val copiedPanel: @Composable (Modifier) -> Unit = { m -> CopiedPanel(state, copiedItems, m, onClose = { state.copiedOpen = false }) }
             val editor: @Composable (Modifier) -> Unit = { m ->
                 EditorPane(state, dark, pagePreview, onPicture = { pickPicture.launch("image/*") }, modifier = m,
-                    onChapters = if (!medium) ({ narrowShowsEditor = false }) else null, copiedCount = copiedItems.size)
+                    copiedCount = copiedItems.size, toolbarScroll = toolbarScroll)
             }
             val copiedOpen = state.copiedOpen && state.copied != null && !state.find.open
             when {
                 wide -> Row(Modifier.fillMaxSize()) {
-                    chapters(Modifier.width(290.dp).fillMaxHeight())
+                    chapters(Modifier.width(290.dp).fillMaxHeight().tourPlace(EditorPlace.CHAPTERS))
                     VerticalDivider()
                     editor(Modifier.weight(1f).fillMaxHeight())
                     if (state.find.open) {
@@ -197,7 +231,7 @@ fun TextEditorScreen(
                 }
                 medium -> Row(Modifier.fillMaxSize()) {
                     if (state.find.open) findPanel(Modifier.width(340.dp).fillMaxHeight().background(MaterialTheme.colorScheme.surfaceContainerLow))
-                    else if (!copiedOpen) chapters(Modifier.width(270.dp).fillMaxHeight())
+                    else if (!copiedOpen) chapters(Modifier.width(270.dp).fillMaxHeight().tourPlace(EditorPlace.CHAPTERS))
                     if (!copiedOpen) VerticalDivider()
                     editor(Modifier.weight(1f).fillMaxHeight())
                     if (copiedOpen) {
@@ -225,6 +259,17 @@ fun TextEditorScreen(
             }
             SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).padding(16.dp))
         }
+    }
+    if (touring) {
+        val toolsInMenu = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 600
+        val edge = with(LocalDensity.current) { 10.dp.toPx() }
+        val stops = remember(toolsInMenu, edge) { editorTourStops(places, toolbarScroll, toolsInMenu, edge) }
+        Tour(stops, places, onDone = {
+            touring = false
+            onTourDone()
+        })
+    }
+    }
     }
 
     // ---- dialogs ---------------------------------------------------------------------------------
@@ -338,7 +383,11 @@ fun TextEditorScreen(
 }
 
 @Composable
-private fun EditorTopBar(state: TextEditState, onBack: () -> Unit, onRead: () -> Unit, onFind: () -> Unit, onCleanups: () -> Unit, onRevert: () -> Unit) {
+private fun EditorTopBar(
+    state: TextEditState, onBack: () -> Unit, onRead: () -> Unit, onFind: () -> Unit, onCleanups: () -> Unit, onRevert: () -> Unit, onTour: () -> Unit,
+    /** Opens the list of chapters, where it's a screen of its own (a phone) and the page is showing: the chapter's name is the way to it. */
+    onChapters: (() -> Unit)? = null,
+) {
     Surface(color = MaterialTheme.colorScheme.surfaceContainer, shadowElevation = 2.dp) {
         // The status bar is hidden while the editor is open, but a camera cutout, or the status bar
         // if it does show, would otherwise cover the buttons.
@@ -348,8 +397,23 @@ private fun EditorTopBar(state: TextEditState, onBack: () -> Unit, onRead: () ->
             val roomy = maxWidth >= 600.dp
             Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Close the editor")) }
-                Column(Modifier.weight(1f).padding(horizontal = 4.dp)) {
-                    FittedText(dev.kobolibrary.app.trc("editor title", "Edit text"), style = MaterialTheme.typography.titleMedium, smallest = 0.7f)
+                Column(
+                    Modifier.weight(1f).clip(RoundedCornerShape(10.dp))
+                        .then(if (onChapters != null) Modifier.tourPlace(EditorPlace.CHAPTER_NAME).clickable(onClickLabel = tr("Chapters"), onClick = onChapters) else Modifier)
+                        .padding(horizontal = 4.dp, vertical = 2.dp),
+                ) {
+                    if (onChapters != null) {
+                        // The chapter being edited, and the way to the others.
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                state.chapter?.title?.ifBlank { null } ?: tr("Chapters"), style = MaterialTheme.typography.titleMedium,
+                                maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false),
+                            )
+                            Icon(Icons.Filled.ArrowDropDown, null, Modifier.size(22.dp))
+                        }
+                    } else {
+                        FittedText(dev.kobolibrary.app.trc("editor title", "Edit text"), style = MaterialTheme.typography.titleMedium, smallest = 0.7f)
+                    }
                     Text(
                         state.title + if (state.dirty) tr(" · unsaved changes") else "",
                         style = MaterialTheme.typography.bodySmall,
@@ -358,17 +422,17 @@ private fun EditorTopBar(state: TextEditState, onBack: () -> Unit, onRead: () ->
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
-                IconButton(onClick = { state.undo() }, enabled = state.canUndo) { Icon(Icons.AutoMirrored.Filled.Undo, state.undoLabel?.let { tr("Undo: {0}", it) } ?: tr("Undo")) }
-                IconButton(onClick = { state.redo() }, enabled = state.canRedo) { Icon(Icons.AutoMirrored.Filled.Redo, state.redoLabel?.let { tr("Redo: {0}", it) } ?: tr("Redo")) }
+                IconButton(onClick = { state.undo() }, enabled = state.canUndo, modifier = Modifier.tourPlace(EditorPlace.UNDO)) { Icon(Icons.AutoMirrored.Filled.Undo, state.undoLabel?.let { tr("Undo: {0}", it) } ?: tr("Undo")) }
+                IconButton(onClick = { state.redo() }, enabled = state.canRedo, modifier = Modifier.tourPlace(EditorPlace.REDO)) { Icon(Icons.AutoMirrored.Filled.Redo, state.redoLabel?.let { tr("Redo: {0}", it) } ?: tr("Redo")) }
                 if (roomy) {
-                    IconButton(onClick = onFind) { Icon(Icons.Filled.Search, tr("Find & replace"), tint = if (state.find.open) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface) }
-                    IconButton(onClick = onCleanups) { Icon(Icons.Outlined.AutoFixHigh, tr("Clean-ups")) }
-                    IconButton(onClick = onRead) { Icon(Icons.AutoMirrored.Filled.MenuBook, tr("Preview in reader")) }
+                    IconButton(onClick = onFind, modifier = Modifier.tourPlace(EditorPlace.FIND)) { Icon(Icons.Filled.Search, tr("Find & replace"), tint = if (state.find.open) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface) }
+                    IconButton(onClick = onCleanups, modifier = Modifier.tourPlace(EditorPlace.CLEANUPS)) { Icon(Icons.Outlined.AutoFixHigh, tr("Clean-ups")) }
+                    IconButton(onClick = onRead, modifier = Modifier.tourPlace(EditorPlace.PREVIEW)) { Icon(Icons.AutoMirrored.Filled.MenuBook, tr("Preview in reader")) }
                     Spacer(Modifier.width(4.dp))
                 }
-                GoldButton(onClick = { state.save() }, enabled = state.dirty && state.busy == null) { Text(tr("Save")) }
+                GoldButton(onClick = { state.save() }, enabled = state.dirty && state.busy == null, modifier = Modifier.tourPlace(EditorPlace.SAVE)) { Text(tr("Save")) }
                 var menu by remember { mutableStateOf(false) }
-                Box {
+                Box(Modifier.tourPlace(EditorPlace.MORE)) {
                     IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, tr("More")) }
                     DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                         if (!roomy) {
@@ -385,6 +449,8 @@ private fun EditorTopBar(state: TextEditState, onBack: () -> Unit, onRead: () ->
                             enabled = state.hasOriginal,
                             onClick = { menu = false; onRevert() },
                         )
+                        HorizontalDivider()
+                        DropdownMenuItem(text = { Text(tr("Editor tour")) }, leadingIcon = { Icon(Icons.Outlined.Lightbulb, null) }, onClick = { menu = false; onTour() })
                     }
                 }
             }
@@ -399,13 +465,13 @@ private fun EditorPane(
     pagePreview: (@Composable () -> Unit)?,
     onPicture: () -> Unit,
     modifier: Modifier,
-    onChapters: (() -> Unit)?,
     copiedCount: Int = 0,
+    toolbarScroll: ScrollState = rememberScrollState(),
 ) {
     Column(modifier) {
-        EditorToolbar(state, onPicture, onChapters, copiedCount)
+        EditorToolbar(state, onPicture, copiedCount, toolbarScroll)
         HorizontalDivider()
-        Box(Modifier.fillMaxSize()) {
+        Box(Modifier.fillMaxSize().tourPlace(EditorPlace.PAGE)) {
             if (pagePreview != null) pagePreview() else {
                 AndroidView(
                     factory = { ctx -> state.createView(ctx, dark) },
@@ -417,8 +483,13 @@ private fun EditorPane(
     }
 }
 
+/**
+ * The row of buttons over the page. Where there isn't the width for their names (a phone, or the editor's
+ * side of a tablet held upright), Heading, Picture, Copied and Code are just their pictures, and on a phone
+ * the buttons are a little smaller, so that they're all in view without scrolling the row along.
+ */
 @Composable
-private fun EditorToolbar(state: TextEditState, onPicture: () -> Unit, onChapters: (() -> Unit)?, copiedCount: Int = 0) {
+private fun EditorToolbar(state: TextEditState, onPicture: () -> Unit, copiedCount: Int = 0, scroll: ScrollState = rememberScrollState()) {
     val t = state.toolbar
     val page = !state.showCode
     val on = IconButtonDefaults.iconToggleButtonColors(
@@ -426,107 +497,132 @@ private fun EditorToolbar(state: TextEditState, onPicture: () -> Unit, onChapter
         checkedContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
     )
     Surface(color = MaterialTheme.colorScheme.surfaceContainerLow) {
-        Row(Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            Row(
-                Modifier.weight(1f).horizontalScroll(rememberScrollState()),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(2.dp),
-            ) {
-                if (onChapters != null) {
-                    TextButton(onClick = onChapters) {
-                        Text(state.chapter?.title ?: tr("Chapters"), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.widthIn(max = 160.dp))
-                    }
-                }
-                IconToggleButton(checked = t.bold && page, onCheckedChange = { state.command("bold") }, enabled = page, colors = on) { Icon(Icons.Outlined.FormatBold, tr("Bold")) }
-                IconToggleButton(checked = t.italic && page, onCheckedChange = { state.command("italic") }, enabled = page, colors = on) { Icon(Icons.Outlined.FormatItalic, tr("Italic")) }
-                var headings by remember { mutableStateOf(false) }
-                Box {
-                    TextButton(onClick = { headings = true }, enabled = page) {
-                        Icon(Icons.Outlined.Title, null, Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text(when (t.block) { "h1" -> tr("Heading 1"); "h2" -> tr("Heading 2"); "h3" -> tr("Heading 3"); "h4", "h5", "h6" -> tr("Heading"); else -> tr("Paragraph") })
-                    }
-                    DropdownMenu(expanded = headings, onDismissRequest = { headings = false }) {
-                        listOf("p" to tr("Paragraph"), "h1" to tr("Heading 1 (part)"), "h2" to tr("Heading 2 (chapter)"), "h3" to tr("Heading 3 (section)")).forEach { (tag, label) ->
-                            DropdownMenuItem(text = { Text(label) }, onClick = { headings = false; state.command("block", tag) })
-                        }
-                    }
-                }
-                // How the paragraph (or every paragraph selected) is lined up.
-                var aligning by remember { mutableStateOf(false) }
-                val alignments = listOf(
-                    Triple("left", tr("Align left"), Icons.AutoMirrored.Outlined.FormatAlignLeft), Triple("center", tr("Align centre"), Icons.Outlined.FormatAlignCenter),
-                    Triple("right", tr("Align right"), Icons.AutoMirrored.Outlined.FormatAlignRight), Triple("justify", tr("Justify"), Icons.Outlined.FormatAlignJustify),
-                )
-                Box {
-                    IconButton(onClick = { aligning = true }, enabled = page) {
-                        Icon((alignments.firstOrNull { it.first == t.align } ?: alignments[0]).third, tr("Alignment"))
-                    }
-                    DropdownMenu(expanded = aligning, onDismissRequest = { aligning = false }) {
-                        alignments.forEach { (how, label, icon) ->
-                            DropdownMenuItem(
-                                text = { Text(label) }, leadingIcon = { Icon(icon, null) },
-                                trailingIcon = if (t.align == how) ({ Icon(Icons.Filled.Check, null, Modifier.size(18.dp)) }) else null,
-                                onClick = { aligning = false; state.command("align", how) },
-                            )
-                        }
-                    }
-                }
-                IconButton(onClick = { state.command("scenebreak") }, enabled = page) { Icon(Icons.Outlined.HorizontalRule, tr("Scene break")) }
-                TextButton(onClick = onPicture, enabled = page) {
-                    Icon(Icons.Outlined.Image, null, Modifier.size(18.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text(if (t.image != null) tr("Replace picture") else tr("Picture"))
-                }
-                IconButton(onClick = { state.splitAtCursor() }, enabled = page) { Icon(Icons.Outlined.CallSplit, tr("Split the chapter here")) }
-                // Selecting without dragging, and the clipboard: a long chapter is hard to select by its handles.
-                var selecting by remember { mutableStateOf(false) }
-                val context = LocalContext.current
-                Box {
-                    IconButton(onClick = { selecting = true }, enabled = page) { Icon(Icons.Outlined.SelectAll, tr("Select and copy")) }
-                    DropdownMenu(expanded = selecting, onDismissRequest = { selecting = false }) {
-                        listOf("all" to tr("Select all"), "toStart" to tr("Select to start"), "toEnd" to tr("Select to end"), "paragraph" to tr("Select paragraph")).forEach { (what, label) ->
-                            DropdownMenuItem(text = { Text(label) }, onClick = { selecting = false; state.select(what) })
-                        }
-                        HorizontalDivider()
-                        DropdownMenuItem(text = { Text(tr("Copy")) }, leadingIcon = { Icon(Icons.Outlined.ContentCopy, null) }, enabled = t.selection,
-                            onClick = { selecting = false; state.copySelection(context) })
-                        DropdownMenuItem(text = { Text(tr("Cut")) }, leadingIcon = { Icon(Icons.Outlined.ContentCut, null) }, enabled = t.selection,
-                            onClick = { selecting = false; state.copySelection(context, cut = true) })
-                        DropdownMenuItem(text = { Text(tr("Paste")) }, leadingIcon = { Icon(Icons.Outlined.ContentPaste, null) },
-                            onClick = { selecting = false; state.pasteClipboard(context) })
-                    }
-                }
-            }
-            // Sections copied out of books (this one or others), to add here: they open in a panel on the right.
-            if (state.copied != null) {
-                val open = state.copiedOpen
-                val toggle = { state.copiedOpen = !open; if (!open) state.find.open = false }
-                if (androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 600) {
-                    // On a phone, just the icon, with how many there are.
-                    IconToggleButton(checked = open, onCheckedChange = { toggle() }, colors = on) {
-                        BadgedBox(badge = { if (copiedCount > 0) Badge { Text("$copiedCount") } }) {
-                            Icon(Icons.Outlined.ContentPaste, tr("Copied sections"))
-                        }
-                    }
-                } else {
-                    TextButton(
-                        onClick = toggle,
-                        colors = if (open) ButtonDefaults.textButtonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer) else ButtonDefaults.textButtonColors(),
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            val compact = maxWidth < 600.dp
+            val tight = maxWidth < 440.dp
+            CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides if (tight) 40.dp else 48.dp) {
+                Row(Modifier.fillMaxWidth().padding(horizontal = if (tight) 4.dp else 6.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        Modifier.weight(1f).tourPlace(EditorPlace.TOOLBAR).horizontalScroll(scroll),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(if (tight) 0.dp else 2.dp),
                     ) {
-                        Icon(Icons.Outlined.ContentPaste, null, Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text(if (copiedCount > 0) tr("Copied ({0})", copiedCount) else tr("Copied"), maxLines = 1)
+                        IconToggleButton(checked = t.bold && page, onCheckedChange = { state.command("bold") }, enabled = page, colors = on, modifier = Modifier.tourPlace(EditorPlace.BOLD)) { Icon(Icons.Outlined.FormatBold, tr("Bold")) }
+                        IconToggleButton(checked = t.italic && page, onCheckedChange = { state.command("italic") }, enabled = page, colors = on, modifier = Modifier.tourPlace(EditorPlace.ITALIC)) { Icon(Icons.Outlined.FormatItalic, tr("Italic")) }
+                        var headings by remember { mutableStateOf(false) }
+                        val block = when (t.block) { "h1" -> tr("Heading 1"); "h2" -> tr("Heading 2"); "h3" -> tr("Heading 3"); "h4", "h5", "h6" -> tr("Heading"); else -> tr("Paragraph") }
+                        Box(Modifier.tourPlace(EditorPlace.HEADING)) {
+                            if (compact) {
+                                // Lit while the cursor is in a heading.
+                                IconToggleButton(checked = page && t.block?.startsWith("h") == true, onCheckedChange = { headings = true }, enabled = page, colors = on) {
+                                    Icon(Icons.Outlined.Title, block)
+                                }
+                            } else {
+                                TextButton(onClick = { headings = true }, enabled = page) {
+                                    Icon(Icons.Outlined.Title, null, Modifier.size(18.dp))
+                                    Spacer(Modifier.width(6.dp))
+                                    Text(block)
+                                }
+                            }
+                            DropdownMenu(expanded = headings, onDismissRequest = { headings = false }) {
+                                listOf("p" to tr("Paragraph"), "h1" to tr("Heading 1 (part)"), "h2" to tr("Heading 2 (chapter)"), "h3" to tr("Heading 3 (section)")).forEach { (tag, label) ->
+                                    DropdownMenuItem(
+                                        text = { Text(label) },
+                                        trailingIcon = if ((t.block ?: "p") == tag) ({ Icon(Icons.Filled.Check, null, Modifier.size(18.dp)) }) else null,
+                                        onClick = { headings = false; state.command("block", tag) },
+                                    )
+                                }
+                            }
+                        }
+                        // How the paragraph (or every paragraph selected) is lined up.
+                        var aligning by remember { mutableStateOf(false) }
+                        val alignments = listOf(
+                            Triple("left", tr("Align left"), Icons.AutoMirrored.Outlined.FormatAlignLeft), Triple("center", tr("Align centre"), Icons.Outlined.FormatAlignCenter),
+                            Triple("right", tr("Align right"), Icons.AutoMirrored.Outlined.FormatAlignRight), Triple("justify", tr("Justify"), Icons.Outlined.FormatAlignJustify),
+                        )
+                        Box(Modifier.tourPlace(EditorPlace.ALIGN)) {
+                            IconButton(onClick = { aligning = true }, enabled = page) {
+                                Icon((alignments.firstOrNull { it.first == t.align } ?: alignments[0]).third, tr("Alignment"))
+                            }
+                            DropdownMenu(expanded = aligning, onDismissRequest = { aligning = false }) {
+                                alignments.forEach { (how, label, icon) ->
+                                    DropdownMenuItem(
+                                        text = { Text(label) }, leadingIcon = { Icon(icon, null) },
+                                        trailingIcon = if (t.align == how) ({ Icon(Icons.Filled.Check, null, Modifier.size(18.dp)) }) else null,
+                                        onClick = { aligning = false; state.command("align", how) },
+                                    )
+                                }
+                            }
+                        }
+                        IconButton(onClick = { state.command("scenebreak") }, enabled = page, modifier = Modifier.tourPlace(EditorPlace.SCENE_BREAK)) { Icon(Icons.Outlined.HorizontalRule, tr("Scene break")) }
+                        val picture = if (t.image != null) tr("Replace picture") else tr("Picture")
+                        if (compact) {
+                            IconButton(onClick = onPicture, enabled = page, modifier = Modifier.tourPlace(EditorPlace.PICTURE)) { Icon(Icons.Outlined.Image, picture) }
+                        } else {
+                            TextButton(onClick = onPicture, enabled = page, modifier = Modifier.tourPlace(EditorPlace.PICTURE)) {
+                                Icon(Icons.Outlined.Image, null, Modifier.size(18.dp))
+                                Spacer(Modifier.width(6.dp))
+                                Text(picture)
+                            }
+                        }
+                        IconButton(onClick = { state.splitAtCursor() }, enabled = page, modifier = Modifier.tourPlace(EditorPlace.SPLIT)) { Icon(Icons.Outlined.CallSplit, tr("Split the chapter here")) }
+                        // Selecting without dragging, and the clipboard: a long chapter is hard to select by its handles.
+                        var selecting by remember { mutableStateOf(false) }
+                        val context = LocalContext.current
+                        Box(Modifier.tourPlace(EditorPlace.SELECT)) {
+                            IconButton(onClick = { selecting = true }, enabled = page) { Icon(Icons.Outlined.SelectAll, tr("Select and copy")) }
+                            DropdownMenu(expanded = selecting, onDismissRequest = { selecting = false }) {
+                                listOf("all" to tr("Select all"), "toStart" to tr("Select to start"), "toEnd" to tr("Select to end"), "paragraph" to tr("Select paragraph")).forEach { (what, label) ->
+                                    DropdownMenuItem(text = { Text(label) }, onClick = { selecting = false; state.select(what) })
+                                }
+                                HorizontalDivider()
+                                DropdownMenuItem(text = { Text(tr("Copy")) }, leadingIcon = { Icon(Icons.Outlined.ContentCopy, null) }, enabled = t.selection,
+                                    onClick = { selecting = false; state.copySelection(context) })
+                                DropdownMenuItem(text = { Text(tr("Cut")) }, leadingIcon = { Icon(Icons.Outlined.ContentCut, null) }, enabled = t.selection,
+                                    onClick = { selecting = false; state.copySelection(context, cut = true) })
+                                DropdownMenuItem(text = { Text(tr("Paste")) }, leadingIcon = { Icon(Icons.Outlined.ContentPaste, null) },
+                                    onClick = { selecting = false; state.pasteClipboard(context) })
+                            }
+                        }
+                    }
+                    // Sections copied out of books (this one or others), to add here: they open in a panel on the right.
+                    if (state.copied != null) {
+                        val open = state.copiedOpen
+                        val toggle = { state.copiedOpen = !open; if (!open) state.find.open = false }
+                        if (compact) {
+                            // Just the picture, with how many there are.
+                            IconToggleButton(checked = open, onCheckedChange = { toggle() }, colors = on, modifier = Modifier.tourPlace(EditorPlace.COPIED)) {
+                                BadgedBox(badge = { if (copiedCount > 0) Badge { Text("$copiedCount") } }) {
+                                    Icon(Icons.Outlined.ContentPaste, tr("Copied sections"))
+                                }
+                            }
+                        } else {
+                            TextButton(
+                                onClick = toggle,
+                                modifier = Modifier.tourPlace(EditorPlace.COPIED),
+                                colors = if (open) ButtonDefaults.textButtonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer) else ButtonDefaults.textButtonColors(),
+                            ) {
+                                Icon(Icons.Outlined.ContentPaste, null, Modifier.size(18.dp))
+                                Spacer(Modifier.width(6.dp))
+                                Text(if (copiedCount > 0) tr("Copied ({0})", copiedCount) else tr("Copied"), maxLines = 1)
+                            }
+                        }
+                    }
+                    VerticalDivider(Modifier.height(28.dp).padding(horizontal = if (tight) 3.dp else 6.dp))
+                    if (compact) {
+                        IconToggleButton(checked = state.showCode, onCheckedChange = { state.setCode(it) }, colors = on, modifier = Modifier.tourPlace(EditorPlace.CODE)) {
+                            Icon(Icons.Outlined.Code, tr("Code"))
+                        }
+                    } else {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.tourPlace(EditorPlace.CODE).clickable { state.setCode(!state.showCode) }.padding(start = 4.dp, end = 2.dp)) {
+                            Icon(Icons.Outlined.Code, null, Modifier.size(18.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text(tr("Code"), style = MaterialTheme.typography.labelLarge)
+                            Spacer(Modifier.width(6.dp))
+                            Switch(checked = state.showCode, onCheckedChange = { state.setCode(it) })
+                        }
                     }
                 }
-            }
-            VerticalDivider(Modifier.height(28.dp).padding(horizontal = 6.dp))
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { state.setCode(!state.showCode) }.padding(start = 4.dp, end = 2.dp)) {
-                Icon(Icons.Outlined.Code, null, Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text(tr("Code"), style = MaterialTheme.typography.labelLarge)
-                Spacer(Modifier.width(6.dp))
-                Switch(checked = state.showCode, onCheckedChange = { state.setCode(it) })
             }
         }
     }

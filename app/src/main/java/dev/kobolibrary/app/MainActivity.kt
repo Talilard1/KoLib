@@ -55,6 +55,7 @@ class MainActivity : ComponentActivity() {
             val openingSound by themes.openingSound.collectAsStateWithLifecycle()
             val openingLight by themes.openingLight.collectAsStateWithLifecycle()
             val introSeen by themes.introSeen.collectAsStateWithLifecycle()
+            val editorTourSeen by themes.editorTourSeen.collectAsStateWithLifecycle()
             var showOpening by remember { mutableStateOf(playOpening) }
             val clock = remember { OpeningClock() }
             Box(Modifier.fillMaxSize()) {
@@ -74,6 +75,8 @@ class MainActivity : ComponentActivity() {
                         onOpeningLight = themes::setOpeningLight,
                         introSeen = introSeen,
                         onIntroSeen = themes::setIntroSeen,
+                        editorTourSeen = editorTourSeen,
+                        onEditorTourSeen = { themes.setEditorTourSeen(true) },
                     )
                 }
                 }

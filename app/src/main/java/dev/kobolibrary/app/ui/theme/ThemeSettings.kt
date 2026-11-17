@@ -53,6 +53,15 @@ class ThemeSettings(context: Context) {
         _introSeen.value = seen
     }
 
+    private val _editorTourSeen = MutableStateFlow(prefs.getBoolean(EDITOR_TOUR_SEEN, false))
+    /** The text editor's tour has been gone through (or skipped): it's given the first time the editor is opened. */
+    val editorTourSeen: StateFlow<Boolean> = _editorTourSeen.asStateFlow()
+
+    fun setEditorTourSeen(seen: Boolean) {
+        prefs.edit().putBoolean(EDITOR_TOUR_SEEN, seen).apply()
+        _editorTourSeen.value = seen
+    }
+
     fun set(choice: ThemeChoice) {
         prefs.edit().putString(KEY, choice.name).apply()
         _choice.value = choice
@@ -79,5 +88,6 @@ class ThemeSettings(context: Context) {
         const val OPENING_SOUND = "openingSound"
         const val OPENING_LIGHT = "openingLight"
         const val INTRO_SEEN = "introSeen"
+        const val EDITOR_TOUR_SEEN = "editorTourSeen"
     }
 }

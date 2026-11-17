@@ -199,6 +199,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.AnnotatedString
@@ -244,6 +245,26 @@ import kotlin.math.roundToInt
 internal enum class Panel { NONE, CONTENTS, SEARCH, LOOK, STATS }
 
 /**
+ * The reading setup leading someone through the reader, on its example book: what it shows over the page
+ * (under the controls and the panels, so they open over it), and whether the controls can be brought up yet.
+ */
+internal class ReaderGuide(
+    /** A tap in the middle brings up the controls, and a swipe in from a side its panel. */
+    val menu: Boolean,
+    /** Shown over the page; told what of the reader's own is over it. */
+    val content: @Composable BoxScope.(over: GuideSpace) -> Unit,
+)
+
+/** What of the reader's own is over the page, for a [ReaderGuide] to keep clear of: a panel, and the controls' bars. */
+internal class GuideSpace(
+    val panelOpen: Boolean,
+    /** How far down the top bar comes while the controls are up (none while they aren't). */
+    val barTop: androidx.compose.ui.unit.Dp,
+    /** How far up the bottom bar comes while the controls are up. */
+    val barBottom: androidx.compose.ui.unit.Dp,
+)
+
+/**
  * Reading a book: the page fills the screen; a tap in the middle brings up the controls (contents,
  * bookmarks, search, the look of the page, and where you are in the book).
  */
@@ -264,11 +285,22 @@ internal fun ReaderScreen(
     onAppSettings: (() -> Unit)? = null,
     /** The book's own text, page and layout settings, when it can keep some. */
     bookLook: BookLook? = null,
+    /** The reading setup, when this is its example book. */
+    guide: ReaderGuide? = null,
 ) {
     val context = LocalContext.current
     val view = LocalView.current
     val s = controller.settings
     var panel by remember { mutableStateOf(initialPanel) }
+    // Led by the reading setup, the controls and panels stay away until it gets to them (and go away if it goes back).
+    val menuAllowed = guide?.menu ?: true
+    SideEffect { controller.menuLocked = !menuAllowed }
+    LaunchedEffect(menuAllowed) {
+        if (!menuAllowed) {
+            controller.controlsVisible = false
+            panel = Panel.NONE
+        }
+    }
     val scope = rememberCoroutineScope()
 
     // Full screen while reading; the status bar comes back with the controls. The navigation bar stays
@@ -362,7 +394,7 @@ internal fun ReaderScreen(
                     frame.currentLevel = { controller.settings.level ?: systemBrightness(context) }
                     // A swipe in from the left edge opens the contents, from the right the reading settings;
                     // with that turned off, or something else over the page, Android's back swipe is left as it is.
-                    frame.sideSwipes = s.edgePanels && pageClear()
+                    frame.sideSwipes = s.edgePanels && pageClear() && menuAllowed
                     frame.onSideSwipe = { side -> panel = if (side < 0) Panel.CONTENTS else Panel.LOOK }
                 },
                 modifier = Modifier.fillMaxSize(),
@@ -381,6 +413,15 @@ internal fun ReaderScreen(
             if (s.scrolling && s.runningHeads != RunningHeads.OFF) ScrollHead(controller, s, inkColor)
             Margins(controller, s, inkColor.copy(alpha = 0.5f))
             if (s.progressLine != ProgressLine.OFF) ProgressLineBar(controller, s)
+        }
+
+        // The reading setup's card and hints: over the page, under the controls (and told how far in their bars come).
+        var topBarHeight by remember { mutableStateOf(0) }
+        var bottomBarHeight by remember { mutableStateOf(0) }
+        if (guide != null) {
+            val barTop = with(LocalDensity.current) { (if (controller.controlsVisible) topBarHeight else 0).toDp() }
+            val barBottom = with(LocalDensity.current) { (if (controller.controlsVisible) bottomBarHeight else 0).toDp() }
+            guide.content(this, GuideSpace(panel != Panel.NONE, barTop, barBottom))
         }
 
         // Darker than the screen goes: a shade over the page.
@@ -449,19 +490,21 @@ internal fun ReaderScreen(
 
         // The controls.
         AnimatedVisibility(controller.controlsVisible, enter = fadeIn() + slideInVertically { -it }, exit = fadeOut() + slideOutVertically { -it }, modifier = Modifier.align(Alignment.TopCenter)) {
-            ReaderTopBar(
-                controller = controller,
-                onClose = onClose,
-                onContents = { panel = Panel.CONTENTS },
-                onSearch = { panel = Panel.SEARCH },
-                onLook = { panel = Panel.LOOK },
-                onStats = { panel = Panel.STATS },
-                onEdit = onEdit?.let { edit -> { controller.chapter?.let { edit(it.path) } } },
-                onPdf = onReadAsPdf,
-            )
+            Box(Modifier.onSizeChanged { topBarHeight = it.height }) {
+                ReaderTopBar(
+                    controller = controller,
+                    onClose = onClose,
+                    onContents = { panel = Panel.CONTENTS },
+                    onSearch = { panel = Panel.SEARCH },
+                    onLook = { panel = Panel.LOOK },
+                    onStats = { panel = Panel.STATS },
+                    onEdit = onEdit?.let { edit -> { controller.chapter?.let { edit(it.path) } } },
+                    onPdf = onReadAsPdf,
+                )
+            }
         }
         AnimatedVisibility(controller.controlsVisible, enter = fadeIn() + slideInVertically { it }, exit = fadeOut() + slideOutVertically { it }, modifier = Modifier.align(Alignment.BottomCenter)) {
-            ReaderBottomBar(controller, onSettings)
+            Box(Modifier.onSizeChanged { bottomBarHeight = it.height }) { ReaderBottomBar(controller, onSettings) }
         }
 
         // Panels slide in from the side: on a tablet as a plain side panel, on a phone as a drawer with a header.
@@ -535,7 +578,10 @@ internal fun ReaderScreen(
                 dismissButton = { TextButton(onClick = { controller.externalLink = null }) { Text(tr("Cancel")) } },
             )
         }
-        if (controller.atEnd) {
+        if (controller.atEnd && guide != null) {
+            // The example book's last page: nothing to say about it.
+            LaunchedEffect(Unit) { controller.dismissEnd() }
+        } else if (controller.atEnd) {
             AlertDialog(
                 onDismissRequest = { controller.dismissEnd() },
                 title = { Text(tr("The end")) },

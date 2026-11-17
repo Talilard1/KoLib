@@ -53,6 +53,11 @@
     <string name="intro_collections_text">KoLib can add books to collections on your Kobo, but can\'t create them. Create the collection on the Kobo first.</string>
     <string name="intro_collections_how">On the Kobo, go to My Books, then Collections, and tap New collection.</string>
 
+    <string name="intro_reading_title">Set up your reader</string>
+    <string name="intro_reading_text">Pick your page colour, font and text size on an example book, and see how the reader works. It takes about a minute.</string>
+    <string name="intro_reading_start">Set up reading</string>
+    <string name="intro_reading_later">Not now</string>
+
     <string name="intro_done_title">You\'re all set</string>
     <string name="intro_done_text">Add books any time with the Add books button, and send them to your Kobo when it\'s plugged in.</string>
     <string name="intro_start">Go to my library</string>

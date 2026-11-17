@@ -80,12 +80,20 @@ import kotlinx.coroutines.launch
 import kotlin.math.max
 
 /** The introduction's pages, in order. */
-private enum class Intro { LANGUAGE, FOLDER, KOBO, COLLECTIONS, DONE }
+private enum class Intro { LANGUAGE, FOLDER, KOBO, COLLECTIONS, READING, DONE }
+
+/** Where two of the introduction's pages are, for coming back to it from the reading setup. */
+object IntroPages {
+    /** The page that offers the reading setup. */
+    val reading: Int get() = Intro.READING.ordinal
+    /** The last page, after it. */
+    val done: Int get() = Intro.DONE.ordinal
+}
 
 /**
  * What KoLib shows the first time it starts, after its opening: choosing a language, where your books
- * are, how to connect a Kobo, and what to know about the Kobo's collections. Like the opening, it's
- * dark, whatever the app's own look.
+ * are, how to connect a Kobo, what to know about the Kobo's collections, and setting up the reader.
+ * Like the opening, it's dark, whatever the app's own look.
  */
 @Composable
 fun Onboarding(
@@ -96,7 +104,9 @@ fun Onboarding(
     onChooseFolder: () -> Unit,
     onAddFound: () -> Unit,
     onDone: () -> Unit,
-    /** Where it starts, for pictures of each page. */
+    /** Opens the reading setup, which takes the screen; the introduction is shown again after it, from [startAt]. */
+    onSetUpReading: () -> Unit = {},
+    /** The page it starts at: after the reading setup, and for pictures of each page. */
     startAt: Int = 0,
 ) {
     // Light icons in the status bar, on the introduction's dark, whatever the app's look.
@@ -177,6 +187,9 @@ fun Onboarding(
                                 Spacer(Modifier.height(14.dp))
                                 Tip(stringResource(R.string.intro_collections_how))
                             }
+                            Intro.READING -> IntroPage(wide, artHeight, { ReadingArt(it) }, stringResource(R.string.intro_reading_title)) {
+                                Body(stringResource(R.string.intro_reading_text))
+                            }
                             Intro.DONE -> IntroPage(wide, artHeight, { ShelfArt(it) }, stringResource(R.string.intro_done_title)) {
                                 Body(stringResource(R.string.intro_done_text))
                             }
@@ -202,6 +215,10 @@ fun Onboarding(
                                 }
                                 is FolderScan.Adding -> GoldButton(onClick = next, modifier = button) { Text(stringResource(R.string.intro_continue)) }
                                 else -> GoldButton(onClick = onChooseFolder, modifier = button) { Text(stringResource(R.string.intro_folder_choose)) }
+                            }
+                            Intro.READING -> {
+                                GoldButton(onClick = onSetUpReading, modifier = button) { Text(stringResource(R.string.intro_reading_start)) }
+                                TextButton(onClick = next) { Text(stringResource(R.string.intro_reading_later), color = KoLibGold.light) }
                             }
                             Intro.DONE -> GoldButton(onClick = onDone, modifier = button) { Text(stringResource(R.string.intro_start)) }
                             else -> GoldButton(onClick = next, modifier = button) { Text(stringResource(R.string.intro_continue)) }

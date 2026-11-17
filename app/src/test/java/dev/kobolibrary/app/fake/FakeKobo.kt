@@ -106,7 +106,8 @@ object FakeKobo {
                Publisher TEXT, DateLastRead TEXT, ReadStatus INTEGER, ___UserID TEXT NOT NULL, ___FileSize INTEGER,
                ___PercentRead INTEGER, ___ExpirationStatus INTEGER, Accessibility INTEGER DEFAULT 1, Language TEXT,
                IsDownloaded BIT NOT NULL DEFAULT 1, ISBN TEXT, Series TEXT, SeriesNumber TEXT, Subtitle TEXT, DateAdded TEXT,
-               SeriesNumberFloat REAL, SeriesID TEXT, DateCreated TEXT, WordCount INTEGER DEFAULT -1, PRIMARY KEY (ContentID))"""
+               SeriesNumberFloat REAL, SeriesID TEXT, DateCreated TEXT, WordCount INTEGER DEFAULT -1,
+               TimeSpentReading INTEGER DEFAULT 0, RestOfBookEstimate INTEGER DEFAULT 0, PRIMARY KEY (ContentID))"""
         )
         db.execSQL(
             """CREATE TABLE Shelf(CreationDate TEXT, Id TEXT, InternalName TEXT, LastModified TEXT, Name TEXT, Type TEXT,
@@ -129,6 +130,13 @@ object FakeKobo {
                     b.series, b.number, "2026-%02d-%02dT10:00:00Z".format(1 + i % 10, 1 + i),
                 ),
             )
+        }
+        // How long the Kobo says each book it's opened has been read for, and how long it reckons is left.
+        books.forEachIndexed { i, b ->
+            if (b.status == 0) return@forEachIndexed
+            val spent = 3_600 * (2 + i % 5) + 540 * i
+            val left = if (b.status == 2) 0 else (spent * (100 - b.percent) / b.percent.coerceAtLeast(1)).coerceAtMost(400_000)
+            db.execSQL("UPDATE content SET TimeSpentReading = ?, RestOfBookEstimate = ? WHERE ContentID = ?", arrayOf<Any?>(spent, left, b.contentId))
         }
         // Stars given on the Kobo, and the Kobo's own word counts for a few books.
         db.execSQL("CREATE TABLE ratings(ContentID TEXT NOT NULL, Rating INTEGER, DateModified TEXT NOT NULL, PRIMARY KEY (ContentID))")

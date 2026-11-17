@@ -423,7 +423,7 @@ fun AppRoot(
         }
     }
 
-    BackHandler(enabled = overlay == "log" || overlay == "backups" || overlay == "about") { overlay = null }
+    BackHandler(enabled = overlay == "log" || overlay == "backups" || overlay == "about" || overlay == "stats") { overlay = null }
     BackHandler(enabled = overlay == null && section != Section.LIBRARY) { section = Section.LIBRARY }
 
     val koboExtras = remember(books, state.koboTags) { KoboExtras(books, state.koboTags) }
@@ -454,6 +454,17 @@ fun AppRoot(
                     onIntroSeen(false)
                 },
             )
+            current == "stats" -> {
+                val log by libraryVm.readingLog.books.collectAsStateWithLifecycle()
+                ReadingStatsScreen(
+                    books = books,
+                    readingHere = readingHere,
+                    log = log,
+                    kobo = koboView?.snapshot,
+                    koboLive = koboView?.live == true,
+                    onBack = { overlay = null },
+                )
+            }
             current == "backups" -> BackupsScreen(
                 backups = state.backups,
                 onExport = vm::exportBackup,
@@ -632,6 +643,7 @@ fun AppRoot(
                         onSend = { ids -> sendIds = ids },
                         onNewBook = { showNewBook = true },
                         onAbout = { overlay = "about" },
+                        onStats = { overlay = "stats" },
                         onMerge = { ids -> mergeIds = ids },
                         onSplit = { id -> splitId = id },
                         onExport = { ids -> exportIds = ids },

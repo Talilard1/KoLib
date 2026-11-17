@@ -105,22 +105,7 @@ internal fun cog(cx: Float, cy: Float, r: Float, teeth: Int, turn: Float = 0f): 
 
 /** Someone standing, seen against the light: [tall] high, on ([px], [py]). */
 internal fun standing(path: Path, px: Float, py: Float, tall: Float) {
-    val head = tall * 0.075f
-    path.addCircle(px, py - tall + head, head, Path.Direction.CW)
-    path.moveTo(px - head * 0.7f, py - tall + head * 1.9f)
-    path.lineTo(px - head * 2.2f, py - tall + head * 3f)
-    path.lineTo(px - head * 2.5f, py - tall * 0.42f)
-    path.lineTo(px - head * 1.6f, py - tall * 0.42f)
-    path.lineTo(px - head * 1.5f, py)
-    path.lineTo(px - head * 0.2f, py)
-    path.lineTo(px, py - tall * 0.4f)
-    path.lineTo(px + head * 0.2f, py)
-    path.lineTo(px + head * 1.5f, py)
-    path.lineTo(px + head * 1.6f, py - tall * 0.42f)
-    path.lineTo(px + head * 2.5f, py - tall * 0.42f)
-    path.lineTo(px + head * 2.2f, py - tall + head * 3f)
-    path.lineTo(px + head * 0.7f, py - tall + head * 1.9f)
-    path.close()
+    Figures.man(path, px, py, tall)
 }
 
 /** The title flush left under the series, in plain modern type, from [top]; gives where they end. */

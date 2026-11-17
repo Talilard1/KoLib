@@ -269,6 +269,30 @@ class ReaderEditorScreenshotTest {
     @Config(qualifiers = "w411dp-h914dp-port-xxhdpi")
     fun readerBarReturnPhone() = reader("79_reader_bar_return_phone", ReaderTheme.NIGHT, columns = 1, prepare = { it.showBarReturnForPreview(backThere) })
 
+    /** The reading stats of the book that's open: time left in the chapter, the next and the book, and how long it's been read for. */
+    private fun readerStats(name: String, theme: ReaderTheme, columns: Int) {
+        val (files, structure) = garden()
+        val log = dev.kobolibrary.app.ui.reader.sampleReadingLog(File(context.cacheDir, "stats-${UUID.randomUUID()}.json"), listOf("garden"))
+        val session = dev.kobolibrary.app.reader.ReadingSession(log, "garden", "The Garden")
+        val c = ReaderController(files, structure, "The Garden", "en", null, ReaderSettings(theme = theme), context.assets, session = session)
+        c.showForPreview(1, 3, 12)
+        c.wordsForPreview(IntArray(structure.chapters.size) { 5200 + it * 1900 })
+        c.controlsVisible = true
+        compose.mainClock.autoAdvance = false
+        compose.setContent {
+            AppSurface(ThemeChoice.SYSTEM) { ReaderScreen(c, onSettings = {}, onClose = {}, onEdit = {}, pagePreview = { FakePage(theme, columns) }, initialPanel = Panel.STATS) }
+        }
+        capture(name)
+    }
+
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun readerStatsPanel() = readerStats("86_reader_stats", ReaderTheme.SEPIA, 2)
+
+    @Test
+    @Config(qualifiers = "w411dp-h914dp-port-xxhdpi")
+    fun readerStatsPanelPhone() = readerStats("87_reader_stats_phone", ReaderTheme.NIGHT, 1)
+
     /** Dragging the progress bar: the page number held still just left of the middle, the chapter beside it. */
     private fun readerDragging(name: String, theme: ReaderTheme, columns: Int, to: Float) {
         val (files, structure) = garden()

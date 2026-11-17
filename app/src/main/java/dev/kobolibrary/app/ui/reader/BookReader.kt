@@ -58,6 +58,8 @@ fun BookReader(
     var controller by remember(book.id) { mutableStateOf<ReaderController?>(null) }
     val store = remember(book.id) { ReaderStore(library.bookDir(book.id)) { saved -> readingHere?.update(book.id, saved.position) } }
     var error by remember(book.id) { mutableStateOf<String?>(null) }
+    val session = rememberReadingSession(book)
+    CountReading(session)
     DisposableEffect(book.id) {
         var epub: EpubFile? = null
         val job = scope.launch {
@@ -84,6 +86,7 @@ fun BookReader(
                     bookAuthor = book.authorLine,
                     bookSeriesIndex = book.meta.seriesIndex,
                     koboSpans = koboSpans,
+                    session = session,
                 ).apply {
                     // Plates printed on their side (as light novels have scenes across two pages) found from the words in
                     // them, with the text recognition's data for the book's language or English, if it's on the device.

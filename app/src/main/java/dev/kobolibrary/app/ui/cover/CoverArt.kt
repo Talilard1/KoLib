@@ -279,35 +279,12 @@ internal class Painter(val c: Canvas, val r: RectF, val rnd: Random) {
 
     /** A cloaked figure with a staff, [tall] high, standing on ([px], [py]). */
     fun cloaked(path: Path, px: Float, py: Float, tall: Float) {
-        val head = tall * 0.09f
-        path.addCircle(px, py - tall + head, head, Path.Direction.CW)
-        path.moveTo(px - head * 0.9f, py - tall + head * 1.6f)
-        path.quadTo(px - head * 1.6f, py - tall * 0.5f, px - head * 2.6f, py)
-        path.lineTo(px + head * 2.3f, py)
-        path.quadTo(px + head * 1.4f, py - tall * 0.5f, px + head * 0.9f, py - tall + head * 1.6f)
-        path.close()
-        path.addRect(px + head * 2.4f, py - tall * 1.08f, px + head * 2.4f + tall * 0.018f, py, Path.Direction.CW)
+        Figures.cloaked(path, px, py, tall)
     }
 
     /** A man in a long coat and a hat, [tall] high, standing on ([px], [py]). */
     fun inHat(path: Path, px: Float, py: Float, tall: Float) {
-        val head = tall * 0.065f
-        val neck = py - tall + head * 3.2f
-        path.addCircle(px, py - tall + head * 2.1f, head, Path.Direction.CW)
-        // Hat: brim and crown.
-        path.addOval(px - head * 2.1f, py - tall + head * 1.0f, px + head * 2.1f, py - tall + head * 1.55f, Path.Direction.CW)
-        path.addRoundRect(px - head * 1.15f, py - tall, px + head * 1.15f, py - tall + head * 1.3f, head * 0.4f, head * 0.4f, Path.Direction.CW)
-        // Coat, wider at the hem, collar up.
-        path.moveTo(px - head * 1.5f, neck - head * 0.6f)
-        path.lineTo(px - head * 2.6f, neck + head * 0.8f)
-        path.lineTo(px - head * 2.9f, py - tall * 0.22f)
-        path.lineTo(px + head * 2.9f, py - tall * 0.22f)
-        path.lineTo(px + head * 2.6f, neck + head * 0.8f)
-        path.lineTo(px + head * 1.5f, neck - head * 0.6f)
-        path.close()
-        // Legs.
-        path.addRect(px - head * 1.5f, py - tall * 0.23f, px - head * 0.35f, py, Path.Direction.CW)
-        path.addRect(px + head * 0.35f, py - tall * 0.23f, px + head * 1.5f, py, Path.Direction.CW)
+        Figures.inCoat(path, px, py, tall)
     }
 
     /** A tree without leaves, branching from ([bx], [by]) upward. */

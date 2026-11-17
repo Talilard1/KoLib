@@ -425,6 +425,7 @@ internal fun PdfPagesView(
     // Where it was left.
     val saved = remember { ReaderStore.pdfPlace(dir) }
     var page by remember { mutableIntStateOf(saved?.page?.coerceIn(0, count - 1) ?: 0) }
+    CountReading(rememberReadingSession(book), page)
     var savedPage by remember { mutableIntStateOf(if (saved != null && saved.pages == count) saved.page else -1) }
     var contents by remember { mutableStateOf<List<Triple<String, Int, Int>>?>(null) }
     var showContents by remember { mutableStateOf(false) }

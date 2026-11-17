@@ -230,6 +230,21 @@ class KoboDatabaseReaderTest {
     }
 
     @Test
+    fun readsTheKobosOwnReadingTimes() {
+        populate()
+        conn.createStatement().use { st ->
+            st.execute("UPDATE content SET TimeSpentReading = 467640, RestOfBookEstimate = 781920 WHERE Title = 'Dune'")
+        }
+        val snap = KoboDatabaseReader(JdbcSource(conn)).read()
+        // 129.9 hours read and 217.2 to go, as the Kobo's own stats screen would say.
+        assertEquals(467640, snap.booksById.getValue(dune).secondsRead)
+        assertEquals(781920, snap.booksById.getValue(dune).secondsLeft)
+        // A book that's never been opened has neither.
+        assertEquals(null, snap.booksById.getValue(notes).secondsRead)
+        assertEquals(null, snap.booksById.getValue(notes).secondsLeft)
+    }
+
+    @Test
     fun readsCollections() {
         populate()
         val snap = KoboDatabaseReader(JdbcSource(conn)).read()

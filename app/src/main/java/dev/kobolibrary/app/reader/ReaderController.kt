@@ -67,6 +67,8 @@ class ReaderController(
      * the book is then counted as the Kobo counts it, so the two say the same.
      */
     private val koboSpans: List<dev.kobolibrary.app.kobo.KoboChapterSpan> = emptyList(),
+    /** Counts the time this book is read for, and the pages and words read in it (see [ReadingSession]). */
+    val session: ReadingSession? = null,
 ) {
     /** The book's language, for looking words up in the right Wikipedia. */
     val bookLanguage: String? get() = language
@@ -255,9 +257,44 @@ class ReaderController(
             return ((before + shares.getOrElse(chapterIndex) { 0f } * chapterProgress) / shareTotal).coerceIn(0f, 1f)
         }
 
-    /** Minutes left in the chapter at an ordinary reading speed. */
+    /** Minutes left in the chapter, at the speed the reader has been reading (an ordinary one until that's known). */
     val minutesLeftInChapter: Int
-        get() = (chapterWords.getOrElse(chapterIndex) { 0 } * (1f - chapterProgress) / WORDS_PER_MINUTE).toInt()
+        get() = (chapterWords.getOrElse(chapterIndex) { 0 } * (1f - chapterProgress) / wordsPerMinute).toInt()
+
+    /** The speed the time left is reckoned at, in words a minute. */
+    val wordsPerMinute: Float get() = session?.wordsPerMinute ?: WORDS_PER_MINUTE
+
+    /** Words from here to the end of the chapter; null until the book's words have been counted. */
+    val wordsLeftInChapter: Int?
+        get() = if (!wordsCounted) null else (chapterWords.getOrElse(chapterIndex) { 0 } * (1f - chapterProgress)).toInt()
+
+    /** Words from here to the end of the book. */
+    val wordsLeftInBook: Int?
+        get() = wordsLeftInChapter?.let { here -> here + (chapterIndex + 1 until chapterWords.size).sumOf { chapterWords[it] } }
+
+    /** Words in the chapter after this one, if there is one. */
+    val wordsInNextChapter: Int?
+        get() = if (!wordsCounted) null else chapterWords.getOrNull(chapterIndex + 1)
+
+    /** The name of the chapter after this one. */
+    val nextChapterTitle: String? get() = if (chapterIndex + 1 < chapters.size) titleOf(chapterIndex + 1).takeIf { it.isNotBlank() } else null
+
+    /** Where the reader last was, for the reading that's counted: the chapter, the page, and the words of the book before there. */
+    private var readAt: Triple<Int, Int, Float>? = null
+
+    /** Tells [session] of a page turned, with the words that were on it: a page or so on is reading; further is a jump, and back is going back. */
+    private fun countReading() {
+        val s = session ?: return
+        val words = (0 until chapterIndex.coerceAtMost(chapterWords.size)).sumOf { chapterWords[it] } + chapterWords.getOrElse(chapterIndex) { 0 } * chapterProgress
+        val was = readAt
+        readAt = Triple(chapterIndex, page, words)
+        if (was == null) return
+        val on = words - was.third
+        val turned = was.first != chapterIndex || was.second != page
+        if (!turned && !(scrolledHere && kotlin.math.abs(on) >= 1f)) return
+        val forward = wordsCounted && on > 0f && on <= MOST_WORDS_A_TURN
+        s.moved(pages = if (turned && (forward || !wordsCounted)) 1 else 0, words = if (forward) on.toInt() else 0)
+    }
 
     private var chapterWords = IntArray(chapters.size)
     /** [chapterWords] are counted (a moment before [lengthsKnown]: the openings are found from them first). */
@@ -1672,6 +1709,7 @@ class ReaderController(
         // Scrolling says how far down the chapter it is; pages are counted.
         chapterProgress = if (o.has("progress")) o.optDouble("progress", 0.0).toFloat().coerceIn(0f, 1f)
         else if (pages > 1) page.toFloat() / (pages - 1) else 0f
+        countReading()
         val c = chapter ?: return
         if (o.has("anchor") || o.has("snippet")) {
             position = ReaderPosition(
@@ -1708,6 +1746,12 @@ class ReaderController(
         return startJson
     }
 
+    /** For pictures of the reader in tests: the words in each chapter, as if they'd been counted. */
+    internal fun wordsForPreview(words: IntArray) {
+        chapterWords = words
+        wordsCounted = true
+    }
+
     internal fun showForPreview(chapter: Int, page: Int, pages: Int, columns: Int = pages, twoUp: Boolean = false, blank: Int = 0, display: Boolean = false) {
         chapterIndex = chapter
         this.page = page
@@ -1723,5 +1767,7 @@ class ReaderController(
 
     companion object {
         const val WORDS_PER_MINUTE = 250f
+        /** The most words one turn of the page reads: two full pages side by side, and some. */
+        const val MOST_WORDS_A_TURN = 1800f
     }
 }

@@ -28,20 +28,25 @@ private fun alpha(c: Int, a: Int) = ColorUtils.setAlphaComponent(c, a.coerceIn(0
 private fun blend(a: Int, b: Int, t: Float) = ColorUtils.blendARGB(a, b, t.coerceIn(0f, 1f)) or (0xFF shl 24)
 
 /**
- * A tall peak of the kind in ink paintings: steep, ledged, round at the top, strong at its head and thinning into
- * the mist at its foot. Returns the height of its top.
+ * A tall peak of the kind in ink paintings: steep, ledged, round at the top (or [flat], for something to be built
+ * on), strong at its head and thinning into the mist at its foot. Returns where its top is: the middle of it across,
+ * its height, and half its width.
  */
-internal fun Painter.inkPeak(cx: Float, base: Float, wide: Float, tall: Float, ink: Int, paper: Int, strength: Int): Float {
+internal fun Painter.inkPeak(cx: Float, base: Float, wide: Float, tall: Float, ink: Int, paper: Int, strength: Int, flat: Boolean = false): FloatArray {
     val steps = 7
     val lefts = FloatArray(steps + 1)
     val rights = FloatArray(steps + 1)
     for (k in 0..steps) {
         val t = k / steps.toFloat()
-        val body = if (t < 0.72f) 1f - 0.26f * t else 0.813f * sqrt(max(0f, 1f - ((t - 0.72f) / 0.3f) * ((t - 0.72f) / 0.3f)))
+        val body = when {
+            t < 0.72f -> 1f - 0.26f * t
+            flat -> 0.813f - 0.1f * (t - 0.72f) / 0.28f
+            else -> 0.813f * sqrt(max(0f, 1f - ((t - 0.72f) / 0.3f) * ((t - 0.72f) / 0.3f)))
+        }
         lefts[k] = wide / 2 * body * (0.9f + rnd.nextFloat() * 0.2f)
         rights[k] = wide / 2 * body * (0.9f + rnd.nextFloat() * 0.2f)
     }
-    val lean = (rnd.nextFloat() - 0.5f) * wide * 0.2f
+    val lean = if (flat) 0f else (rnd.nextFloat() - 0.5f) * wide * 0.2f
     val path = Path()
     path.moveTo(cx - lefts[0] * 1.15f, base)
     for (k in 1..steps) {
@@ -51,7 +56,7 @@ internal fun Painter.inkPeak(cx: Float, base: Float, wide: Float, tall: Float, i
         path.lineTo(cx + lean * t - lefts[k - 1] * 0.96f, y0)
         path.lineTo(cx + lean * t - lefts[k], base - tall * t)
     }
-    path.quadTo(cx + lean, base - tall * 1.05f, cx + lean + rights[steps], base - tall)
+    if (flat) path.lineTo(cx + lean + rights[steps], base - tall) else path.quadTo(cx + lean, base - tall * 1.05f, cx + lean + rights[steps], base - tall)
     for (k in steps - 1 downTo 0) {
         val t = k / steps.toFloat()
         path.lineTo(cx + lean * t + rights[k + 1] * 0.98f, base - tall * (t + 0.5f / steps))
@@ -79,11 +84,14 @@ internal fun Painter.inkPeak(cx: Float, base: Float, wide: Float, tall: Float, i
     val scrub = fill(alpha(blend(ink, Color.BLACK, 0.2f), min(255, strength + 30)))
     repeat(5) {
         val t = rnd.nextFloat()
-        val sx = cx + lean + (t - 0.5f) * wide * 0.66f
-        val sy = base - tall * (1.02f - abs(t - 0.5f) * 0.24f)
-        c.drawOval(sx - wide * 0.09f, sy - wide * 0.035f, sx + wide * 0.09f, sy + wide * 0.03f, scrub)
+        // (On a flat top the scrub keeps to its edges, clear of what's built there.)
+        val across = if (flat) (if (t < 0.5f) -1f else 1f) * (0.25f + abs(t - 0.5f) * 0.08f) else (t - 0.5f) * 0.66f
+        val sx = cx + lean + across * wide
+        val sy = base - tall * (if (flat) 0.985f - rnd.nextFloat() * 0.03f else 1.02f - abs(t - 0.5f) * 0.24f)
+        val big = if (flat) 0.6f else 1f
+        c.drawOval(sx - wide * 0.09f * big, sy - wide * 0.035f * big, sx + wide * 0.09f * big, sy + wide * 0.03f * big, scrub)
     }
-    return base - tall
+    return floatArrayOf(cx + lean + (rights[steps] - lefts[steps]) / 2, base - tall, (lefts[steps] + rights[steps]) / 2)
 }
 
 /** A pad of pine needles: flat underneath, heaped unevenly above, with the needles standing up along its top. */
@@ -292,21 +300,41 @@ internal fun Painter.tancho(cx: Float, cy: Float, span: Float, flip: Boolean, wh
         c.drawPath(path, paint)
         if (edge != null) c.drawPath(path, edge)
     }
-    // The far wing, reaching forward.
-    put(Path().apply {
-        moveTo(x(0.1f), y(-0.02f))
-        cubicTo(x(0.2f), wy(-0.2f), x(0.27f), wy(-0.42f), x(0.22f), wy(-0.6f))
-        lineTo(x(0.19f), wy(-0.5f)); lineTo(x(0.135f), wy(-0.53f)); lineTo(x(0.125f), wy(-0.43f)); lineTo(x(0.07f), wy(-0.44f))
-        cubicTo(x(0.04f), wy(-0.28f), x(0f), wy(-0.14f), x(-0.06f), y(-0.02f))
-        close()
-    }, fill(blend(white, black, 0.16f)))
-    c.drawPath(Path().apply {
-        moveTo(x(-0.06f), y(-0.02f))
-        cubicTo(x(0f), wy(-0.14f), x(0.04f), wy(-0.28f), x(0.07f), wy(-0.42f))
-        lineTo(x(0.12f), wy(-0.36f))
-        cubicTo(x(0.08f), wy(-0.22f), x(0.05f), wy(-0.1f), x(0.01f), y(-0.03f))
-        close()
-    }, dark)
+    /** A wing raised from the shoulder: black along its inner trailing edge, and its long white feathers fanned at the tip. */
+    fun wing(colour: Int) {
+        val white = fill(colour)
+        // The black feathers nearest the body.
+        c.drawPath(Path().apply {
+            moveTo(x(-0.02f), wy(-0.34f))
+            cubicTo(x(-0.14f), wy(-0.33f), x(-0.26f), wy(-0.34f), x(-0.325f), wy(-0.3f))
+            cubicTo(x(-0.3f), wy(-0.2f), x(-0.24f), wy(-0.1f), x(-0.15f), y(-0.02f))
+            lineTo(x(-0.06f), y(-0.03f))
+            close()
+        }, dark)
+        // The long feathers, each on its own.
+        val tips = floatArrayOf(-0.325f, -0.335f, -0.335f, -0.41f, -0.32f, -0.49f, -0.29f, -0.56f, -0.25f, -0.62f, -0.2f, -0.665f)
+        for (k in 0 until tips.size / 2) {
+            val feather = Path()
+            flame(feather, x(-0.07f - k * 0.004f), wy(-0.3f - k * 0.012f), x(tips[k * 2]), wy(tips[k * 2 + 1]), span * 0.06f, 0.06f * d)
+            put(feather, white)
+        }
+        // The wing itself, from the shoulder to where the long feathers start.
+        put(Path().apply {
+            moveTo(x(0.08f), y(-0.02f))
+            cubicTo(x(0.1f), wy(-0.16f), x(0.06f), wy(-0.36f), x(-0.12f), wy(-0.52f))
+            cubicTo(x(-0.16f), wy(-0.42f), x(-0.16f), wy(-0.36f), x(-0.2f), wy(-0.3f))
+            cubicTo(x(-0.18f), wy(-0.18f), x(-0.14f), wy(-0.1f), x(-0.09f), y(-0.03f))
+            close()
+        }, white)
+        val line = stroke(alpha(black, 60), span * 0.005f).apply { strokeCap = Paint.Cap.ROUND }
+        for (k in 0 until 4) c.drawLine(x(0.03f - k * 0.03f), y(-0.05f), x(-0.03f - k * 0.045f), wy(-0.3f - k * 0.01f), line)
+    }
+    // The far wing, the same but reaching forward, and in shade.
+    c.save()
+    c.rotate(d * (if (wings > 0f) 34f else -34f), x(0.04f), y(-0.02f))
+    c.translate(d * span * 0.05f, 0f)
+    wing(blend(white, black, 0.2f))
+    c.restore()
     // Legs, tail, body and neck.
     c.drawPath(tapered(floatArrayOf(x(-0.1f), y(0.012f), x(-0.3f), y(0.05f), x(-0.5f), y(0.075f)), span * 0.02f, span * 0.007f), dark)
     c.drawPath(Path().apply { moveTo(x(-0.12f), y(-0.035f)); lineTo(x(-0.26f), y(0.015f)); lineTo(x(-0.12f), y(0.04f)); close() }, dark)
@@ -316,22 +344,7 @@ internal fun Painter.tancho(cx: Float, cy: Float, span: Float, flip: Boolean, wh
     c.drawPath(Path().apply { moveTo(x(0.478f), y(-0.092f)); lineTo(x(0.6f), y(-0.07f)); lineTo(x(0.478f), y(-0.062f)); close() }, fill(blend(black, white, 0.25f)))
     if (crown != null) c.drawCircle(x(0.462f), y(-0.097f), span * 0.012f, fill(crown))
     // The near wing, over all, swept back.
-    put(Path().apply {
-        moveTo(x(0.08f), y(-0.02f))
-        cubicTo(x(0.1f), wy(-0.22f), x(0.02f), wy(-0.46f), x(-0.2f), wy(-0.64f))
-        lineTo(x(-0.19f), wy(-0.54f)); lineTo(x(-0.25f), wy(-0.56f)); lineTo(x(-0.22f), wy(-0.47f)); lineTo(x(-0.28f), wy(-0.47f)); lineTo(x(-0.24f), wy(-0.39f)); lineTo(x(-0.295f), wy(-0.375f))
-        cubicTo(x(-0.26f), wy(-0.25f), x(-0.21f), wy(-0.12f), x(-0.15f), y(-0.02f))
-        close()
-    }, body)
-    c.drawPath(Path().apply {
-        moveTo(x(-0.15f), y(-0.02f))
-        cubicTo(x(-0.21f), wy(-0.12f), x(-0.26f), wy(-0.25f), x(-0.295f), wy(-0.375f))
-        lineTo(x(-0.215f), wy(-0.34f))
-        cubicTo(x(-0.18f), wy(-0.22f), x(-0.13f), wy(-0.1f), x(-0.08f), y(-0.03f))
-        close()
-    }, dark)
-    val feather = stroke(alpha(black, 70), span * 0.005f)
-    for (k in 0 until 4) c.drawLine(x(0.04f - k * 0.03f), y(-0.04f), x(-0.02f - k * 0.045f), wy(-0.3f - k * 0.045f), feather)
+    wing(white)
 }
 
 /** A seal pressed in red: a square with a key pattern cut in it (no writing). */
@@ -432,21 +445,28 @@ internal fun Painter.wuxiaScene() {
     }
     mist(0.61f, 0.14f, paper, 235)
     val templeAt = fx(0.26f)
-    var templeTop = y(0.4f)
     for (k in 0 until across - 1) {
         val px = x((k + 0.5f + (rnd.nextFloat() - 0.5f) * 0.5f) / (across - 1))
         if (abs(px - templeAt) < m * 0.16f) continue
         inkPeak(px, y(0.8f), m * (0.13f + rnd.nextFloat() * 0.08f), h * (0.26f + rnd.nextFloat() * 0.2f), mid, paper, 190)
     }
-    templeTop = inkPeak(templeAt, y(0.8f), m * 0.2f, h * 0.38f, mid, paper, 200)
-    // A waterfall down the temple's peak, and the temple on its head.
-    val fall = templeAt + m * 0.045f * side
-    c.drawLine(fall, templeTop + h * 0.07f, fall + m * 0.006f, y(0.76f), stroke(alpha(Color.WHITE, 170), m * 0.008f).apply { strokeCap = Paint.Cap.ROUND })
+    val summit = inkPeak(templeAt, y(0.8f), m * 0.28f, h * 0.36f, mid, paper, 205, flat = true)
+    val templeX = summit[0]
+    val templeTop = summit[1]
+    // A waterfall down the temple's peak.
+    val fall = templeX + summit[2] * 0.5f * side
+    c.drawLine(fall, templeTop + h * 0.075f, fall + m * 0.006f, y(0.76f), stroke(alpha(Color.WHITE, 170), m * 0.008f).apply { strokeCap = Paint.Cap.ROUND })
     c.drawLine(fall - m * 0.01f, templeTop + h * 0.1f, fall - m * 0.007f, y(0.74f), stroke(alpha(Color.WHITE, 100), m * 0.004f))
     glow(fall, y(0.77f), m * 0.06f, Color.WHITE, 110)
+    // The temple, built on the peak's flat head: a terrace of stone cut to fit it, steps up, and the pagoda on that.
+    val stone = fill(blend(mid, ink, 0.55f))
+    val size = min(m * 0.19f, summit[2] * 1.9f)
+    val terrace = size * 0.4f
+    c.drawRect(templeX - min(summit[2] * 0.96f, terrace * 1.5f), templeTop - size * 0.045f, templeX + min(summit[2] * 0.96f, terrace * 1.5f), templeTop + size * 0.06f, stone)
+    c.drawRect(templeX - terrace, templeTop - size * 0.085f, templeX + terrace, templeTop, stone)
     val temple = Path()
-    pagoda(temple, templeAt - m * 0.02f * side, templeTop + h * 0.012f, m * 0.2f, floors = 4)
-    c.drawPath(temple, fill(blend(mid, ink, 0.55f)))
+    pagoda(temple, templeX, templeTop - size * 0.08f, size, floors = 4)
+    c.drawPath(temple, stone)
     mist(0.79f, 0.13f, paper, 240)
     inkPeak(fx(0.08f), y(1.04f), m * 0.26f, h * 0.34f, near, paper, 235)
     inkPeak(fx(0.36f), y(1.06f), m * 0.16f, h * 0.2f, near, paper, 225)
@@ -516,10 +536,15 @@ internal fun Painter.samuraiScene() {
     }
     mist(0.685f, 0.1f, haze, 210)
     // Hills, a pagoda among them, and mist again.
-    layer(ridge(0.74f, 0.66f, rough = 0.3f), hills, blend(hills, haze, 0.5f), 0.66f, 0.84f)
+    val farHills = ridge(0.74f, 0.66f, rough = 0.3f)
+    val towerX = fx(0.88f)
+    val towerSize = m * 0.2f
+    // (Its foot a little into the hill at the lowest ground under it, so no corner hangs in the air.)
+    val towerBase = groundUnder(farHills, towerX - towerSize * 0.26f, towerX + towerSize * 0.26f) + towerSize * 0.03f
     val tower = Path()
-    pagoda(tower, fx(0.88f), y(0.715f), m * 0.2f, floors = 5)
+    pagoda(tower, towerX, towerBase, towerSize, floors = 5)
     c.drawPath(tower, fill(blend(hills, night, 0.3f)))
+    layer(farHills, hills, blend(hills, haze, 0.5f), 0.66f, 0.84f)
     mist(0.79f, 0.09f, haze, 150)
     // The near ground, its grass, the gate and the traveller.
     val heights = FloatArray(33) { 0.845f + 0.03f * sin(it * 0.45f + rnd.nextFloat() * 0.3f) - 0.04f * (it / 32f) * (1f - it / 32f) * 4f * 0.3f }

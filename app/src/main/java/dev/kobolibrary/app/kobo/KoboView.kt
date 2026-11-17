@@ -148,6 +148,8 @@ class LastSeenStore(private val dir: File) {
         putOpt("bookmark", b.chapterBookmark)
         putOpt("adobe", b.adobeLocation)
         putOpt("chapterProgress", b.chapterProgress)
+        putOpt("secondsRead", b.secondsRead)
+        putOpt("secondsLeft", b.secondsLeft)
         if (b.chapterSpans.isNotEmpty()) put("spans", JSONArray().apply {
             for (s in b.chapterSpans) put(JSONArray().put(s.id).put(s.title ?: JSONObject.NULL).put(s.offset).put(s.size))
         })
@@ -222,6 +224,8 @@ class LastSeenStore(private val dir: File) {
         chapterBookmark = o.optStringOrNull("bookmark"),
         adobeLocation = o.optStringOrNull("adobe"),
         chapterProgress = if (o.has("chapterProgress") && !o.isNull("chapterProgress")) o.getDouble("chapterProgress") else null,
+        secondsRead = o.optIntOrNull("secondsRead"),
+        secondsLeft = o.optIntOrNull("secondsLeft"),
         chapterSpans = o.optJSONArray("spans")?.let { a ->
             List(a.length()) { i -> a.getJSONArray(i) }.map { s ->
                 KoboChapterSpan(s.getString(0), if (s.isNull(1)) null else s.getString(1), s.getDouble(2), s.getDouble(3))

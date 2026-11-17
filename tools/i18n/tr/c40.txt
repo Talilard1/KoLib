@@ -1,0 +1,256 @@
+@fr
+2255|Un livre qui n’est plus dans la bibliothèque
+2256|Statistiques de lecture
+2257|Lu dans KoLib
+2258|Rien n’a encore été lu dans KoLib. Ouvrez un livre : le temps que vous passez à le lire est compté à partir de là.
+2259|Temps de lecture
+2260|Livres terminés
+2261|{0} %
+2262|De vos livres terminés
+2263|{0} min
+2264|Par séance, en moyenne
+2265|Pages par minute
+2266|Mots par minute
+2267|Les deux dernières semaines
+2268|{0} de lecture ces 14 derniers jours.
+2269|En cours de lecture
+2270|{0} de lecture
+2271|environ {0} restant
+2272|Les plus longuement lus
+2273|1 séance
+2274|{0} séances
+2275|Lu sur votre Kobo
+2276|Connectez votre Kobo pour voir les statistiques de lecture qu’elle conserve.
+2277|Telles que la Kobo les avait à sa dernière connexion.
+2278|De ses livres terminés
+2279|La base de données de cette Kobo n’indique pas combien de temps chaque livre a été lu.
+2280|{0} h
+2281|Reste à lire
+2282|Pour le lire
+2283|Ce livre
+2284|Temps passé à le lire
+2285|Le temps restant est calculé d’après votre vitesse de lecture. Tant que vous n’avez pas lu quelques pages de ce livre, il se base sur votre vitesse dans d’autres livres, ou sur une vitesse ordinaire.
+@de
+2255|Ein Buch, das nicht mehr in der Bibliothek ist
+2256|Lesestatistik
+2257|In KoLib gelesen
+2258|In KoLib wurde noch nichts gelesen. Öffne ein Buch, dann wird ab da gezählt, wie lange du es liest.
+2259|Lesezeit
+2260|Beendete Bücher
+2261|{0} %
+2262|Deiner Bücher beendet
+2263|{0} Min.
+2264|Pro Sitzung, im Schnitt
+2265|Seiten pro Minute
+2266|Wörter pro Minute
+2267|Die letzten zwei Wochen
+2268|{0} gelesen in den letzten 14 Tagen.
+2269|Wird gerade gelesen
+2270|{0} gelesen
+2271|noch etwa {0}
+2272|Am längsten gelesen
+2273|1 Sitzung
+2274|{0} Sitzungen
+2275|Auf deinem Kobo gelesen
+2276|Schließe deinen Kobo an, um seine eigene Lesestatistik zu sehen.
+2277|So, wie der Kobo sie bei der letzten Verbindung hatte.
+2278|Seiner Bücher beendet
+2279|Die Datenbank dieses Kobo sagt nicht, wie lange jedes Buch gelesen wurde.
+2280|{0} Std.
+2281|Noch zu lesen
+2282|Lesedauer
+2283|Dieses Buch
+2284|Damit verbrachte Lesezeit
+2285|Die verbleibende Zeit wird aus deinem Lesetempo berechnet. Bis du ein paar Seiten dieses Buchs gelesen hast, gilt dein Tempo aus anderen Büchern oder ein übliches.
+@es
+2255|Un libro que ya no está en la biblioteca
+2256|Estadísticas de lectura
+2257|Leído en KoLib
+2258|Aún no se ha leído nada en KoLib. Abre un libro y, desde entonces, se contará el tiempo que pasas leyéndolo.
+2259|Tiempo de lectura
+2260|Libros terminados
+2261|{0} %
+2262|De tus libros terminados
+2263|{0} min
+2264|Por sesión, de media
+2265|Páginas por minuto
+2266|Palabras por minuto
+2267|Las dos últimas semanas
+2268|{0} de lectura en los últimos 14 días.
+2269|Leyendo ahora
+2270|{0} de lectura
+2271|quedan aprox. {0}
+2272|Los más leídos
+2273|1 sesión
+2274|{0} sesiones
+2275|Leído en tu Kobo
+2276|Conecta tu Kobo para ver las estadísticas de lectura que guarda.
+2277|Tal como las tenía el Kobo la última vez que se conectó.
+2278|De sus libros terminados
+2279|La base de datos de este Kobo no indica cuánto tiempo se ha leído cada libro.
+2280|{0} h
+2281|Queda por leer
+2282|Para leerlo
+2283|Este libro
+2284|Tiempo dedicado a leerlo
+2285|El tiempo restante se calcula según tu velocidad de lectura. Hasta que hayas leído unas páginas de este libro, se usa tu velocidad en otros libros o una normal.
+@it
+2255|Un libro che non è più nella libreria
+2256|Statistiche di lettura
+2257|Letto in KoLib
+2258|In KoLib non è stato ancora letto nulla. Apri un libro: da quel momento viene contato il tempo che passi a leggerlo.
+2259|Tempo di lettura
+2260|Libri finiti
+2261|{0}%
+2262|Dei tuoi libri finiti
+2263|{0} min
+2264|Per sessione, in media
+2265|Pagine al minuto
+2266|Parole al minuto
+2267|Le ultime due settimane
+2268|{0} di lettura negli ultimi 14 giorni.
+2269|In lettura
+2270|{0} di lettura
+2271|circa {0} rimanenti
+2272|I più letti
+2273|1 sessione
+2274|{0} sessioni
+2275|Letto sul tuo Kobo
+2276|Collega il tuo Kobo per vedere le statistiche di lettura che conserva.
+2277|Come le aveva il Kobo l’ultima volta che è stato collegato.
+2278|Dei suoi libri finiti
+2279|Il database di questo Kobo non dice per quanto tempo è stato letto ogni libro.
+2280|{0} h
+2281|Ancora da leggere
+2282|Per leggerlo
+2283|Questo libro
+2284|Tempo passato a leggerlo
+2285|Il tempo rimanente è calcolato in base alla tua velocità di lettura. Finché non avrai letto qualche pagina di questo libro, si basa sulla tua velocità in altri libri o su una normale.
+@nl
+2255|Een boek dat niet meer in de bibliotheek staat
+2256|Leesstatistieken
+2257|Gelezen in KoLib
+2258|Er is nog niets gelezen in KoLib. Open een boek, dan wordt vanaf dat moment geteld hoelang je erin leest.
+2259|Leestijd
+2260|Boeken uitgelezen
+2261|{0}%
+2262|Van je boeken uitgelezen
+2263|{0} min
+2264|Per keer, gemiddeld
+2265|Pagina’s per minuut
+2266|Woorden per minuut
+2267|De laatste twee weken
+2268|{0} gelezen in de laatste 14 dagen.
+2269|Nu aan het lezen
+2270|{0} gelezen
+2271|nog ongeveer {0}
+2272|Het langst gelezen
+2273|1 keer
+2274|{0} keer
+2275|Gelezen op je Kobo
+2276|Sluit je Kobo aan om de leesstatistieken te zien die hij bijhoudt.
+2277|Zoals de Kobo ze had toen hij voor het laatst was aangesloten.
+2278|Van zijn boeken uitgelezen
+2279|De database van deze Kobo zegt niet hoelang elk boek is gelezen.
+2280|{0} u
+2281|Nog te lezen
+2282|Om het te lezen
+2283|Dit boek
+2284|Leestijd van dit boek
+2285|De resterende tijd wordt berekend uit hoe snel je leest. Tot je een paar pagina’s van dit boek hebt gelezen, gaat het uit van je snelheid in andere boeken, of van een gewone snelheid.
+@pt
+2255|Um livro que não está mais na biblioteca
+2256|Estatísticas de leitura
+2257|Lido no KoLib
+2258|Nada foi lido no KoLib ainda. Abra um livro, e o tempo que você passa lendo é contado a partir daí.
+2259|Tempo de leitura
+2260|Livros terminados
+2261|{0}%
+2262|Dos seus livros terminados
+2263|{0} min
+2264|Por sessão, em média
+2265|Páginas por minuto
+2266|Palavras por minuto
+2267|As duas últimas semanas
+2268|{0} de leitura nos últimos 14 dias.
+2269|Lendo agora
+2270|{0} de leitura
+2271|cerca de {0} restantes
+2272|Lidos por mais tempo
+2273|1 sessão
+2274|{0} sessões
+2275|Lido no seu Kobo
+2276|Conecte o seu Kobo para ver as estatísticas de leitura que ele guarda.
+2277|Como o Kobo as tinha na última vez em que foi conectado.
+2278|Dos livros dele terminados
+2279|O banco de dados deste Kobo não diz por quanto tempo cada livro foi lido.
+2280|{0} h
+2281|Falta ler
+2282|Para ler
+2283|Este livro
+2284|Tempo gasto lendo
+2285|O tempo restante é calculado pela sua velocidade de leitura. Até você ler algumas páginas deste livro, vale a sua velocidade em outros livros, ou uma velocidade comum.
+@ru
+2255|Книга, которой больше нет в библиотеке
+2256|Статистика чтения
+2257|Прочитано в KoLib
+2258|В KoLib пока ничего не прочитано. Откройте книгу — с этого момента время чтения будет учитываться.
+2259|Время чтения
+2260|Книг прочитано
+2261|{0} %
+2262|Ваших книг прочитано
+2263|{0} мин
+2264|За один сеанс, в среднем
+2265|Страниц в минуту
+2266|Слов в минуту
+2267|Последние две недели
+2268|{0} чтения за последние 14 дней.
+2269|Читаю сейчас
+2270|{0} чтения
+2271|осталось около {0}
+2272|Читались дольше всего
+2273|1 сеанс
+2274|{0} {0:сеанс|сеанса|сеансов}
+2275|Прочитано на Kobo
+2276|Подключите Kobo, чтобы увидеть его собственную статистику чтения.
+2277|По данным Kobo на момент последнего подключения.
+2278|Его книг прочитано
+2279|В базе данных этого Kobo не указано, сколько времени читалась каждая книга.
+2280|{0} ч
+2281|Осталось читать
+2282|На чтение
+2283|Эта книга
+2284|Потрачено на чтение
+2285|Оставшееся время рассчитывается по вашей скорости чтения. Пока вы не прочли несколько страниц этой книги, берётся ваша скорость в других книгах или обычная.
+@ja
+2255|ライブラリにもうない本
+2256|読書の記録
+2257|KoLibで読んだ分
+2258|KoLibではまだ何も読まれていません。本を開くと、そこから読んだ時間が数えられます。
+2259|読書時間
+2260|読み終えた本
+2261|{0}%
+2262|読み終えた本の割合
+2263|{0}分
+2264|1回あたりの平均
+2265|1分あたりのページ数
+2266|1分あたりの語数
+2267|この2週間
+2268|この14日間の読書時間は{0}です。
+2269|いま読んでいる本
+2270|読書時間 {0}
+2271|残り約{0}
+2272|長く読んだ本
+2273|1回
+2274|{0}回
+2275|Koboで読んだ分
+2276|Koboを接続すると、Koboが記録している読書の記録が見られます。
+2277|前回接続したときのKoboの記録です。
+2278|Koboの本のうち読み終えた割合
+2279|このKoboのデータベースには、本ごとの読書時間が記録されていません。
+2280|{0}時間
+2281|残りの読書時間
+2282|読むのにかかる時間
+2283|この本
+2284|この本の読書時間
+2285|残り時間はあなたの読む速さから計算します。この本を数ページ読むまでは、ほかの本での速さか、標準的な速さを使います。

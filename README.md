@@ -166,6 +166,12 @@ There's no account to make and no ads.
 - Each book can keep a look of its own (font, layout, page headings and so on), or use the one you
   usually read with.
 - Highlights, notes and bookmarks, search, autoscroll, and looking words up in your dictionary app.
+- Reading stats, as a Kobo has: for the book you're in, how long is left of the chapter, of the next
+  one and of the book, worked out from how fast you read; how long you've read it for, how long a
+  sitting lasts and your pages a minute. And for all your reading (Library, then the stats button):
+  the time you've spent, the books you've finished, the last two weeks day by day, and the books
+  you've read for longest. Under that are the Kobo's own figures, read from its database when it's
+  connected: the time it says you've spent on each book and how long it reckons is left.
 - A page some books split into little files (a part's title, an ornament under it, its name) is put
   back together on one page, and an ornament on its own isn't blown up to fill the screen.
 - Maps and pictures printed across two pages are shown whole. Full-page pictures fill the page out to

@@ -64,6 +64,7 @@ import androidx.compose.material.icons.outlined.FileOpen
 import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.LocalOffer
 import androidx.compose.material.icons.outlined.Merge
 import androidx.compose.material.icons.outlined.Palette
@@ -175,6 +176,7 @@ internal fun PhoneLibraryScreen(
     onExport: (List<String>) -> Unit,
     onDuplicate: (List<String>) -> Unit,
     onAbout: () -> Unit,
+    onStats: () -> Unit = {},
     onTheme: (() -> Unit)?,
     onMarkFinished: (List<String>) -> Unit = {},
     onMarkUnread: (List<String>) -> Unit = {},
@@ -268,6 +270,7 @@ internal fun PhoneLibraryScreen(
                             onTheme?.let { theme ->
                                 DropdownMenuItem(text = { Text(tr("Settings")) }, leadingIcon = { Icon(Icons.Outlined.Settings, null) }, onClick = { menu = false; theme() })
                             }
+                            DropdownMenuItem(text = { Text(tr("Reading stats")) }, leadingIcon = { Icon(Icons.Outlined.BarChart, null) }, onClick = { menu = false; onStats() })
                             DropdownMenuItem(text = { Text(tr("About KoLib")) }, leadingIcon = { Icon(Icons.Outlined.Info, null) }, onClick = { menu = false; onAbout() })
                         }
                     }
@@ -294,6 +297,7 @@ internal fun PhoneLibraryScreen(
                         onGrid = { browse.grid = it },
                         more = listOfNotNull(
                             onTheme?.let { MenuEntry(tr("Settings"), Icons.Outlined.Settings, it) },
+                            MenuEntry(tr("Reading stats"), Icons.Outlined.BarChart, onStats),
                             MenuEntry(tr("About KoLib"), Icons.Outlined.Info, onAbout),
                         ),
                     )

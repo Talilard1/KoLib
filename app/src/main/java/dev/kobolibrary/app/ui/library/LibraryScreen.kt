@@ -74,6 +74,7 @@ import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.LocalOffer
 import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material.icons.outlined.Usb
@@ -189,6 +190,8 @@ fun LibraryScreen(
     onDuplicate: (List<String>) -> Unit = {},
     /** The app's version and the licences of what's in it. */
     onAbout: () -> Unit = {},
+    /** Opens the reading stats. */
+    onStats: () -> Unit = {},
     /** Choosing how the app looks (on phones it's in the library's menu; tablets have it beside the sections). */
     onTheme: (() -> Unit)? = null,
     /** Marking books as finished, or as unread, in the app's reader. */
@@ -212,7 +215,7 @@ fun LibraryScreen(
             onAddFiles = onAddFiles, onAddFromKobo = onAddFromKobo, onAddFolder = onAddFolder, onShowJob = onShowJob, onEditDetails = onEditDetails,
             onChangeCover = onChangeCover, onDelete = onDelete, onSend = onSend, onRead = onRead, onEditText = onEditText,
             onNewBook = onNewBook, onMerge = onMerge, onSplit = onSplit, onExport = onExport, onDuplicate = onDuplicate,
-            onAbout = onAbout, onTheme = onTheme, onMarkFinished = onMarkFinished, onMarkUnread = onMarkUnread,
+            onAbout = onAbout, onStats = onStats, onTheme = onTheme, onMarkFinished = onMarkFinished, onMarkUnread = onMarkUnread,
             onContinueFromKobo = onContinueFromKobo,
         )
         return
@@ -234,6 +237,7 @@ fun LibraryScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = onStats) { Icon(Icons.Outlined.BarChart, tr("Reading stats")) }
                     IconButton(onClick = onAbout) { Icon(Icons.Outlined.Info, tr("About and licences")) }
                     Box {
                         GoldButton(onClick = { addMenu = true }) {

@@ -73,6 +73,10 @@ data class KoboBook(
      * much of the book it is. Only for books it has a place in. See [KoboChapterSpan].
      */
     val chapterSpans: List<KoboChapterSpan> = emptyList(),
+    /** How long the Kobo says the book has been read for, in seconds (its TimeSpentReading), where its database keeps that. */
+    val secondsRead: Int? = null,
+    /** How long the Kobo reckons is left of the book, in seconds (its RestOfBookEstimate). */
+    val secondsLeft: Int? = null,
 ) {
     /** Books that are actually on the device and that you would see in its library. */
     val isOnDevice: Boolean

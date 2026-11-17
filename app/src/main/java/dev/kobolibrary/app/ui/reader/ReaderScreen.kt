@@ -7,6 +7,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material.icons.outlined.ZoomIn
+import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.Toc
@@ -239,7 +240,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-internal enum class Panel { NONE, CONTENTS, SEARCH, LOOK }
+internal enum class Panel { NONE, CONTENTS, SEARCH, LOOK, STATS }
 
 /**
  * Reading a book: the page fills the screen; a tap in the middle brings up the controls (contents,
@@ -453,6 +454,7 @@ internal fun ReaderScreen(
                 onContents = { panel = Panel.CONTENTS },
                 onSearch = { panel = Panel.SEARCH },
                 onLook = { panel = Panel.LOOK },
+                onStats = { panel = Panel.STATS },
                 onEdit = onEdit?.let { edit -> { controller.chapter?.let { edit(it.path) } } },
                 onPdf = onReadAsPdf,
             )
@@ -474,6 +476,7 @@ internal fun ReaderScreen(
                 Panel.CONTENTS -> ContentsPanel(controller, wide, onPicked = { panel = Panel.NONE; controller.controlsVisible = false }, onClose = dismiss)
                 Panel.SEARCH -> SearchPanel(controller, wide, onPicked = { panel = Panel.NONE; controller.controlsVisible = false }, onClose = dismiss)
                 Panel.LOOK -> LookPanel(s, onSettings, controller.lookTab, wide, onTab = { controller.lookTab = it }, onClose = dismiss, onAppSettings = onAppSettings, bookLook = bookLook)
+                Panel.STATS -> ReadingStatsPanel(controller, onClose = dismiss) { title, subtitle, close -> DrawerHeader(title, subtitle, close) }
                 Panel.NONE -> Unit
             }
         }
@@ -557,6 +560,7 @@ private fun ReaderTopBar(
     onContents: () -> Unit,
     onSearch: () -> Unit,
     onLook: () -> Unit,
+    onStats: () -> Unit,
     onEdit: (() -> Unit)?,
     onPdf: (() -> Unit)? = null,
 ) {
@@ -580,6 +584,7 @@ private fun ReaderTopBar(
                 Icon(if (marked) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder, if (marked) tr("Remove bookmark") else tr("Bookmark this page"),
                     tint = if (marked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
             }
+            IconButton(onClick = onStats) { Icon(Icons.Outlined.BarChart, tr("Reading stats")) }
             IconButton(onClick = onLook) { Icon(Icons.Outlined.Settings, tr("Reading settings")) }
             if (onPdf != null) IconButton(onClick = onPdf) { Icon(Icons.Outlined.PictureAsPdf, tr("Read as PDF")) }
             if (onEdit != null) IconButton(onClick = onEdit) { Icon(Icons.Outlined.EditNote, tr("Edit this chapter's text")) }

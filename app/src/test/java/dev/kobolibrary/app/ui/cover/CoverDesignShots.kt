@@ -71,6 +71,36 @@ class CoverDesignShots {
         sheet("designs", covers, 4)
     }
 
+    /** The designs from [from] on, two of each (in the colours and for the genres they'd be given), four designs to a sheet. */
+    @Test
+    fun designsUpClose() {
+        assumeTrue(out.isDirectory)
+        val from = System.getenv("COVERS_FROM")?.toIntOrNull() ?: 25
+        val only = System.getenv("COVERS_ONLY")?.split(',')?.map { it.trim() }?.filter { it.isNotEmpty() }
+        val styles = CoverStyle.entries.filter { if (only != null) it.name in only else it.ordinal >= from }
+        styles.chunked(4).forEachIndexed { n, four ->
+            val covers = (0..1).flatMap { row ->
+                four.map { st ->
+                    val suited = st.suits.toList()
+                    val genre = suited[(row * 3) % suited.size]
+                    val rnd = kotlin.random.Random(st.ordinal * 31 + row * 7 + 1)
+                    val colours = CoverDesign.colorsFor(st, rnd, anyColour = false, genre = genre)
+                    generator.render(bookFor(genre), CoverDesign(st, colours, genre, 7 + row * 13), 402, 543)
+                }
+            }
+            sheet("close_%02d_%s".format(n, four.first().name.lowercase()), covers, four.size)
+        }
+    }
+
+    /** Every genre's scene as the wide-screen design crops it, to see that nothing is left hanging in the air. */
+    @Test
+    fun scenesInWideFrame() {
+        assumeTrue(out.isDirectory)
+        CoverGenre.entries.chunked(12).forEachIndexed { n, twelve ->
+            sheet("wide_%02d".format(n), twelve.map { g -> generator.render(bookFor(g), CoverDesign(CoverStyle.WIDESCREEN, theme("Midnight"), g, 11), 268, 362) }, 6)
+        }
+    }
+
     @Test
     fun everyScene() {
         assumeTrue(out.isDirectory)

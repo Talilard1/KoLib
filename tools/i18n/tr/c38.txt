@@ -1,0 +1,976 @@
+@fr
+2121|=
+2122|=
+2123|=
+2124|=
+2125|=
+2126|=
+2127|=
+2128|=
+2129|=
+2130|=
+2131|=
+2132|=
+2133|=
+2134|=
+2135|=
+2136|=
+2137|=
+2138|=
+2139|=
+2140|=
+2141|=
+2142|=
+2143|Toile à motifs
+2144|Papier marbré
+2145|Cuir et dorure
+2146|Médaillon
+2147|Filigrane
+2148|Art nouveau
+2149|Édition d’art
+2150|Affiche de théâtre
+2151|Carte de tarot
+2152|Carte du ciel
+2153|Vitrail
+2154|Blason
+2155|Carte ancienne
+2156|Entrelacs
+2157|Grecque
+2158|Carreaux décorés
+2159|Écailles de dragon
+2160|Emblème
+2161|Grands caractères
+2162|Formes colorées
+2163|Papier découpé
+2164|Motif unique
+2165|Papier déchiré
+2166|Halo
+2167|Écho
+2168|Deux encres
+2169|Symboles
+2170|Op art
+2171|Rayures années 70
+2172|Plan technique
+2173|Labyrinthe
+2174|Courbes de niveau
+2175|Typographie sobre
+2176|Dossier d’enquête
+2177|Lueur de réverbère
+2178|Seuil
+2179|Verre brisé
+2180|Vision double
+2181|Poche d’épouvante
+2182|Gravure sur bois
+2183|Icônes vives
+2184|Couronne de feuillage
+2185|Lettre
+2186|Botanique
+2187|Paysage de papier
+2188|Vagues
+2189|Lavis d’encre
+2190|Tartan
+2191|Timbre-poste
+2192|Écran large
+2193|Trou de serrure
+2194|À la une
+2195|Disque
+2196|Couleurs d’équipe
+2197|Bande dessinée
+2198|Tableau noir
+2199|Carnet
+2200|Circuit imprimé
+2201|Glitch
+2202|Rouages
+2203|Caisse d’expédition
+2204|Phases de la lune
+2205|Rayonnage
+2206|Gravure
+2207|Sommets à l’aquarelle
+2208|Au fond du bois
+2209|Sapins dans la brume
+2210|Dunes
+2211|Éclipse
+2212|Épée et serpent
+2213|Cerf
+2214|Arbre-monde
+2215|Tome ancien
+2216|Sommets au trait
+2217|Cuir estampé
+2218|Dragon
+2219|Grand cadran
+2220|Fleurs éparses
+2221|Plan de ville
+2222|Mondes néon
+2223|Dague et lune
+2224|Aquarelle et or
+2225|Feuilles de chêne dorées
+2226|Anneaux
+2227|Au vent
+2228|Flacon d’apothicaire
+2229|Emblème de pierre
+2230|Reliure ornée
+2231|Paon
+2232|Cobalt
+2233|Terre cuite
+2234|Sauge
+2235|Ciel
+2236|Glacier
+2237|Beurre
+2238|Corail
+2239|Mandarine
+2240|Seulement les modèles de ce genre
+2241|Les {0} modèles
+@de
+2121|=
+2122|=
+2123|=
+2124|=
+2125|=
+2126|=
+2127|=
+2128|=
+2129|=
+2130|=
+2131|=
+2132|=
+2133|=
+2134|=
+2135|=
+2136|=
+2137|=
+2138|=
+2139|=
+2140|=
+2141|=
+2142|=
+2143|Gemustertes Leinen
+2144|Marmorpapier
+2145|Leder und Gold
+2146|Medaillon
+2147|Filigran
+2148|Jugendstil
+2149|Pressendruck
+2150|Theaterzettel
+2151|Tarotkarte
+2152|Sternkarte
+2153|Buntglas
+2154|Wappen
+2155|Alte Karte
+2156|Knotenmuster
+2157|Mäander
+2158|Kacheln
+2159|Drachenschuppen
+2160|Emblem
+2161|Große Schrift
+2162|Farbflächen
+2163|Papierschnitt
+2164|Einzelnes Motiv
+2165|Gerissenes Papier
+2166|Leuchten
+2167|Echo
+2168|Zwei Druckfarben
+2169|Symbole
+2170|Op-Art
+2171|Siebziger-Streifen
+2172|Blaupause
+2173|Labyrinth
+2174|Höhenlinien
+2175|Schlichte Schrift
+2176|Fallakte
+2177|Laternenlicht
+2178|Türöffnung
+2179|Zerbrochenes Glas
+2180|Doppelbild
+2181|Horror-Taschenbuch
+2182|Holzschnitt
+2183|Bunte Symbole
+2184|Kranz
+2185|Brief
+2186|Botanisch
+2187|Papierlandschaft
+2188|Wellen
+2189|Tuschmalerei
+2190|Schottenkaro
+2191|Briefmarke
+2192|Breitbild
+2193|Schlüsselloch
+2194|Titelseite
+2195|Schallplatte
+2196|Teamfarben
+2197|Comic
+2198|Kreidetafel
+2199|Notizbuch
+2200|Leiterplatte
+2201|Glitch
+2202|Uhrwerk
+2203|Transportkiste
+2204|Mondphasen
+2205|Bücherregal
+2206|Kupferstich
+2207|Aquarellgipfel
+2208|In den Wald
+2209|Tannen im Nebel
+2210|Dünen
+2211|Finsternis
+2212|Schwert und Schlange
+2213|Hirsch
+2214|Weltenbaum
+2215|Alter Foliant
+2216|Gipfel in Linien
+2217|Geprägtes Leder
+2218|Drache
+2219|Großes Zifferblatt
+2220|Verstreute Blüten
+2221|Stadtplan
+2222|Neonwelten
+2223|Dolch und Mond
+2224|Aquarell und Gold
+2225|Goldenes Eichenlaub
+2226|Ringe
+2227|Windgepeitscht
+2228|Apothekerflasche
+2229|Steinernes Emblem
+2230|Prachteinband
+2231|Pfau
+2232|Kobalt
+2233|Terrakotta
+2234|Salbei
+2235|Himmel
+2236|Gletscher
+2237|Butter
+2238|Koralle
+2239|Mandarine
+2240|Nur die Designs für dieses Genre
+2241|Alle {0} Designs
+@es
+2121|=
+2122|=
+2123|=
+2124|=
+2125|=
+2126|=
+2127|=
+2128|=
+2129|=
+2130|=
+2131|=
+2132|=
+2133|=
+2134|=
+2135|=
+2136|=
+2137|=
+2138|=
+2139|=
+2140|=
+2141|=
+2142|=
+2143|Tela estampada
+2144|Papel marmolado
+2145|Cuero y oro
+2146|Medallón
+2147|Filigrana
+2148|Art nouveau
+2149|Imprenta artesanal
+2150|Cartel de teatro
+2151|Carta de tarot
+2152|Carta celeste
+2153|Vidriera
+2154|Escudo de armas
+2155|Mapa antiguo
+2156|Entrelazado
+2157|Greca
+2158|Azulejos
+2159|Escamas de dragón
+2160|Emblema
+2161|Letras grandes
+2162|Formas de color
+2163|Papel recortado
+2164|Motivo único
+2165|Papel rasgado
+2166|Resplandor
+2167|Eco
+2168|Dos tintas
+2169|Símbolos
+2170|Op art
+2171|Rayas de los setenta
+2172|Plano técnico
+2173|Laberinto
+2174|Curvas de nivel
+2175|Tipografía sencilla
+2176|Expediente
+2177|Luz de farola
+2178|Umbral
+2179|Cristal roto
+2180|Visión doble
+2181|Bolsillo de terror
+2182|Xilografía
+2183|Iconos alegres
+2184|Corona de hojas
+2185|Carta
+2186|Botánico
+2187|Paisaje de papel
+2188|Olas
+2189|Aguada de tinta
+2190|Tartán
+2191|Sello postal
+2192|Pantalla ancha
+2193|Ojo de cerradura
+2194|Portada de periódico
+2195|Disco
+2196|Colores del equipo
+2197|Cómic
+2198|Pizarra
+2199|Cuaderno
+2200|Placa de circuito
+2201|Glitch
+2202|Engranajes
+2203|Caja de embalaje
+2204|Fases de la luna
+2205|Estantería
+2206|Grabado
+2207|Cumbres en acuarela
+2208|Bosque adentro
+2209|Abetos en la niebla
+2210|Dunas
+2211|Eclipse
+2212|Espada y serpiente
+2213|Ciervo
+2214|Árbol del mundo
+2215|Tomo antiguo
+2216|Cumbres a línea
+2217|Cuero repujado
+2218|Dragón
+2219|Gran cuadrante
+2220|Flores dispersas
+2221|Plano de calles
+2222|Mundos de neón
+2223|Daga y luna
+2224|Acuarela y oro
+2225|Hojas de roble doradas
+2226|Anillos
+2227|Al viento
+2228|Frasco de botica
+2229|Emblema de piedra
+2230|Encuadernación ornamentada
+2231|Pavo real
+2232|Cobalto
+2233|Terracota
+2234|Salvia
+2235|Cielo
+2236|Glaciar
+2237|Mantequilla
+2238|Coral
+2239|Mandarina
+2240|Solo los diseños de este género
+2241|Los {0} diseños
+@it
+2121|=
+2122|=
+2123|=
+2124|=
+2125|=
+2126|=
+2127|=
+2128|=
+2129|=
+2130|=
+2131|=
+2132|=
+2133|=
+2134|=
+2135|=
+2136|=
+2137|=
+2138|=
+2139|=
+2140|=
+2141|=
+2142|=
+2143|Tela a motivi
+2144|Carta marmorizzata
+2145|Pelle e oro
+2146|Medaglione
+2147|Filigrana
+2148|Art nouveau
+2149|Edizione d’arte
+2150|Locandina teatrale
+2151|Carta dei tarocchi
+2152|Carta celeste
+2153|Vetrata
+2154|Stemma
+2155|Mappa antica
+2156|Intrecci
+2157|Greca
+2158|Piastrelle
+2159|Squame di drago
+2160|Emblema
+2161|Caratteri grandi
+2162|Forme colorate
+2163|Carta ritagliata
+2164|Motivo singolo
+2165|Carta strappata
+2166|Bagliore
+2167|Eco
+2168|Due inchiostri
+2169|Simboli
+2170|Op art
+2171|Righe anni Settanta
+2172|Cianografia
+2173|Labirinto
+2174|Curve di livello
+2175|Caratteri semplici
+2176|Fascicolo
+2177|Luce di lampione
+2178|Soglia
+2179|Vetro rotto
+2180|Visione doppia
+2181|Tascabile horror
+2182|Xilografia
+2183|Icone vivaci
+2184|Ghirlanda
+2185|Lettera
+2186|Botanico
+2187|Paesaggio di carta
+2188|Onde
+2189|Inchiostro acquerellato
+2190|Tartan
+2191|Francobollo
+2192|Schermo panoramico
+2193|Buco della serratura
+2194|Prima pagina
+2195|Disco
+2196|Colori della squadra
+2197|Fumetto
+2198|Lavagna
+2199|Quaderno
+2200|Circuito stampato
+2201|Glitch
+2202|Ingranaggi
+2203|Cassa da imballaggio
+2204|Fasi lunari
+2205|Scaffale
+2206|Incisione
+2207|Vette ad acquerello
+2208|Nel bosco
+2209|Abeti nella nebbia
+2210|Dune
+2211|Eclissi
+2212|Spada e serpente
+2213|Cervo
+2214|Albero del mondo
+2215|Tomo antico
+2216|Vette al tratto
+2217|Cuoio lavorato
+2218|Drago
+2219|Grande quadrante
+2220|Fiori sparsi
+2221|Mappa stradale
+2222|Mondi al neon
+2223|Pugnale e luna
+2224|Acquerello e oro
+2225|Foglie di quercia dorate
+2226|Anelli
+2227|Al vento
+2228|Flacone da speziale
+2229|Emblema di pietra
+2230|Legatura ornata
+2231|Pavone
+2232|Cobalto
+2233|Terracotta
+2234|Salvia
+2235|Cielo
+2236|Ghiacciaio
+2237|Burro
+2238|Corallo
+2239|Mandarino
+2240|Solo i modelli per questo genere
+2241|Tutti i {0} modelli
+@nl
+2121|=
+2122|=
+2123|=
+2124|=
+2125|=
+2126|=
+2127|=
+2128|=
+2129|=
+2130|=
+2131|=
+2132|=
+2133|=
+2134|=
+2135|=
+2136|=
+2137|=
+2138|=
+2139|=
+2140|=
+2141|=
+2142|=
+2143|Stof met patroon
+2144|Marmerpapier
+2145|Leer en goud
+2146|Medaillon
+2147|Filigraan
+2148|Art nouveau
+2149|Bibliofiele uitgave
+2150|Theateraffiche
+2151|Tarotkaart
+2152|Sterrenkaart
+2153|Glas-in-lood
+2154|Wapenschild
+2155|Oude kaart
+2156|Knoopwerk
+2157|Meander
+2158|Tegelwerk
+2159|Drakenschubben
+2160|Embleem
+2161|Grote letters
+2162|Kleurvlakken
+2163|Geknipt papier
+2164|Eén motief
+2165|Gescheurd papier
+2166|Gloed
+2167|Echo
+2168|Twee inkten
+2169|Symbolen
+2170|Op-art
+2171|Jaren-zeventigstrepen
+2172|Blauwdruk
+2173|Doolhof
+2174|Hoogtelijnen
+2175|Eenvoudige letters
+2176|Dossier
+2177|Lantaarnlicht
+2178|Deuropening
+2179|Gebroken glas
+2180|Dubbelbeeld
+2181|Horrorpocket
+2182|Houtsnede
+2183|Vrolijke pictogrammen
+2184|Krans
+2185|Brief
+2186|Botanisch
+2187|Papieren landschap
+2188|Golven
+2189|Gewassen inkt
+2190|Schotse ruit
+2191|Postzegel
+2192|Breedbeeld
+2193|Sleutelgat
+2194|Voorpagina
+2195|Plaat
+2196|Clubkleuren
+2197|Strip
+2198|Krijtbord
+2199|Schrift
+2200|Printplaat
+2201|Glitch
+2202|Uurwerk
+2203|Verzendkist
+2204|Maanfasen
+2205|Boekenplank
+2206|Gravure
+2207|Bergtoppen in aquarel
+2208|Het woud in
+2209|Sparren in de mist
+2210|Duinen
+2211|Eclips
+2212|Zwaard en slang
+2213|Hert
+2214|Wereldboom
+2215|Oud boekwerk
+2216|Bergtoppen in lijnen
+2217|Bewerkt leer
+2218|Draak
+2219|Grote wijzerplaat
+2220|Verspreide bloemen
+2221|Stratenkaart
+2222|Neonwerelden
+2223|Dolk en maan
+2224|Aquarel en goud
+2225|Vergulde eikenbladeren
+2226|Ringen
+2227|In de wind
+2228|Apothekersfles
+2229|Stenen embleem
+2230|Rijk versierde band
+2231|Pauw
+2232|Kobalt
+2233|Terracotta
+2234|Salie
+2235|Lucht
+2236|Gletsjer
+2237|Boter
+2238|Koraal
+2239|Mandarijn
+2240|Alleen de ontwerpen voor dit genre
+2241|Alle {0} ontwerpen
+@pt
+2121|=
+2122|=
+2123|=
+2124|=
+2125|=
+2126|=
+2127|=
+2128|=
+2129|=
+2130|=
+2131|=
+2132|=
+2133|=
+2134|=
+2135|=
+2136|=
+2137|=
+2138|=
+2139|=
+2140|=
+2141|=
+2142|=
+2143|Tecido estampado
+2144|Papel marmorizado
+2145|Couro e ouro
+2146|Medalhão
+2147|Filigrana
+2148|Art nouveau
+2149|Edição de arte
+2150|Cartaz de teatro
+2151|Carta de tarô
+2152|Carta celeste
+2153|Vitral
+2154|Brasão
+2155|Mapa antigo
+2156|Entrelaçado
+2157|Grega
+2158|Azulejos
+2159|Escamas de dragão
+2160|Emblema
+2161|Letras grandes
+2162|Formas coloridas
+2163|Papel recortado
+2164|Motivo único
+2165|Papel rasgado
+2166|Brilho
+2167|Eco
+2168|Duas tintas
+2169|Símbolos
+2170|Op art
+2171|Listras dos anos 70
+2172|Planta técnica
+2173|Labirinto
+2174|Curvas de nível
+2175|Tipografia simples
+2176|Dossiê
+2177|Luz de lampião
+2178|Soleira
+2179|Vidro quebrado
+2180|Visão dupla
+2181|Livro de bolso de terror
+2182|Xilogravura
+2183|Ícones alegres
+2184|Guirlanda
+2185|Carta
+2186|Botânico
+2187|Paisagem de papel
+2188|Ondas
+2189|Aguada de tinta
+2190|Tartã
+2191|Selo postal
+2192|Tela larga
+2193|Buraco da fechadura
+2194|Primeira página
+2195|Disco
+2196|Cores do time
+2197|Quadrinhos
+2198|Quadro-negro
+2199|Caderno
+2200|Placa de circuito
+2201|Glitch
+2202|Engrenagens
+2203|Caixote
+2204|Fases da lua
+2205|Estante
+2206|Gravura
+2207|Picos em aquarela
+2208|Floresta adentro
+2209|Abetos na névoa
+2210|Dunas
+2211|Eclipse
+2212|Espada e serpente
+2213|Cervo
+2214|Árvore do mundo
+2215|Tomo antigo
+2216|Picos em linha
+2217|Couro trabalhado
+2218|Dragão
+2219|Grande mostrador
+2220|Flores dispersas
+2221|Mapa de ruas
+2222|Mundos de neon
+2223|Adaga e lua
+2224|Aquarela e ouro
+2225|Folhas de carvalho douradas
+2226|Anéis
+2227|Ao vento
+2228|Frasco de botica
+2229|Emblema de pedra
+2230|Encadernação ornamentada
+2231|Pavão
+2232|Cobalto
+2233|Terracota
+2234|Sálvia
+2235|Céu
+2236|Geleira
+2237|Manteiga
+2238|Coral
+2239|Tangerina
+2240|Só os modelos deste gênero
+2241|Todos os {0} modelos
+@ru
+2121|=
+2122|=
+2123|=
+2124|=
+2125|=
+2126|=
+2127|=
+2128|=
+2129|=
+2130|=
+2131|=
+2132|=
+2133|=
+2134|=
+2135|=
+2136|=
+2137|=
+2138|=
+2139|=
+2140|=
+2141|=
+2142|=
+2143|Ткань с узором
+2144|Мраморная бумага
+2145|Кожа и позолота
+2146|Медальон
+2147|Филигрань
+2148|Модерн
+2149|Библиофильское издание
+2150|Театральная афиша
+2151|Карта Таро
+2152|Звёздная карта
+2153|Витраж
+2154|Герб
+2155|Старинная карта
+2156|Плетёный узор
+2157|Меандр
+2158|Изразцы
+2159|Драконья чешуя
+2160|Эмблема
+2161|Крупный шрифт
+2162|Цветные фигуры
+2163|Вырезанная бумага
+2164|Один мотив
+2165|Рваная бумага
+2166|Сияние
+2167|Эхо
+2168|Две краски
+2169|Символы
+2170|Оп-арт
+2171|Полосы семидесятых
+2172|Чертёж
+2173|Лабиринт
+2174|Линии рельефа
+2175|Простой шрифт
+2176|Папка дела
+2177|Свет фонаря
+2178|Дверной проём
+2179|Разбитое стекло
+2180|Двоение
+2181|Хоррор в мягкой обложке
+2182|Ксилография
+2183|Яркие значки
+2184|Венок
+2185|Письмо
+2186|Ботаника
+2187|Бумажный пейзаж
+2188|Волны
+2189|Размывка тушью
+2190|Тартан
+2191|Почтовая марка
+2192|Широкий экран
+2193|Замочная скважина
+2194|Первая полоса
+2195|Пластинка
+2196|Цвета команды
+2197|Комикс
+2198|Меловая доска
+2199|Тетрадь
+2200|Печатная плата
+2201|Глитч
+2202|Часовой механизм
+2203|Ящик
+2204|Фазы луны
+2205|Книжная полка
+2206|Гравюра
+2207|Акварельные вершины
+2208|В глубь леса
+2209|Ели в тумане
+2210|Дюны
+2211|Затмение
+2212|Меч и змей
+2213|Олень
+2214|Мировое древо
+2215|Старинный фолиант
+2216|Вершины в линиях
+2217|Тиснёная кожа
+2218|Дракон
+2219|Большой циферблат
+2220|Россыпь цветов
+2221|Карта улиц
+2222|Неоновые миры
+2223|Кинжал и луна
+2224|Акварель и золото
+2225|Золочёные дубовые листья
+2226|Кольца
+2227|На ветру
+2228|Аптечный флакон
+2229|Каменная эмблема
+2230|Богатый переплёт
+2231|Павлин
+2232|Кобальт
+2233|Терракота
+2234|Шалфей
+2235|Небо
+2236|Ледник
+2237|Сливочный
+2238|Коралл
+2239|Мандарин
+2240|Только стили для этого жанра
+2241|Все стили ({0})
+@ja
+2121|=
+2122|=
+2123|=
+2124|=
+2125|=
+2126|=
+2127|=
+2128|=
+2129|=
+2130|=
+2131|=
+2132|=
+2133|=
+2134|=
+2135|=
+2136|=
+2137|=
+2138|=
+2139|=
+2140|=
+2141|=
+2142|=
+2143|柄入りの布
+2144|マーブル紙
+2145|革と金箔
+2146|メダリオン
+2147|金線細工
+2148|アール・ヌーヴォー
+2149|美装本
+2150|芝居のビラ
+2151|タロットカード
+2152|星図
+2153|ステンドグラス
+2154|紋章
+2155|古地図
+2156|組紐模様
+2157|雷文
+2158|タイル模様
+2159|竜のうろこ
+2160|エンブレム
+2161|大きな文字
+2162|色の図形
+2163|切り紙
+2164|ひとつのモチーフ
+2165|破れた紙
+2166|光
+2167|エコー
+2168|二色刷り
+2169|記号
+2170|オプ・アート
+2171|70年代のストライプ
+2172|設計図
+2173|迷路
+2174|等高線
+2175|シンプルな文字
+2176|事件ファイル
+2177|街灯の明かり
+2178|戸口
+2179|割れたガラス
+2180|二重写し
+2181|ホラー文庫
+2182|木版画
+2183|明るいアイコン
+2184|リース
+2185|手紙
+2186|植物画
+2187|紙の風景
+2188|波
+2189|水墨
+2190|タータン
+2191|切手
+2192|ワイドスクリーン
+2193|鍵穴
+2194|新聞の一面
+2195|レコード
+2196|チームカラー
+2197|コミック
+2198|黒板
+2199|ノート
+2200|回路基板
+2201|グリッチ
+2202|歯車仕掛け
+2203|木箱
+2204|月の満ち欠け
+2205|本棚
+2206|銅版画
+2207|水彩の峰
+2208|森の奥へ
+2209|霧のモミ林
+2210|砂丘
+2211|日食
+2212|剣と蛇
+2213|牡鹿
+2214|世界樹
+2215|古い大冊
+2216|線画の峰
+2217|型押しの革
+2218|竜
+2219|大きな文字盤
+2220|散らした花
+2221|街路図
+2222|ネオンの世界
+2223|短剣と月
+2224|水彩と金
+2225|金のオークの葉
+2226|輪
+2227|風に吹かれて
+2228|薬瓶
+2229|石の紋章
+2230|装飾的な装丁
+2231|ピーコック
+2232|コバルト
+2233|テラコッタ
+2234|セージ
+2235|空色
+2236|氷河
+2237|バター
+2238|コーラル
+2239|タンジェリン
+2240|このジャンル向けのデザインだけ
+2241|全{0}デザイン

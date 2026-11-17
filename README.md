@@ -94,12 +94,17 @@ There's no account to make and no ads.
 - Edit titles, authors, series, tags, ratings and descriptions. In a book's details, tap its title,
   author or series to copy it, or hold it to search for it in KoLib or on the internet.
 - Find a cover online (on Amazon, Google Books, Open Library or Google Images), use a picture of
-  your own, or make one with the book's title. There are 25 designs, among them a framed picture, a
-  full painting, gold-stamped cloth, a spell book, thorns and roses, neon, a pulp magazine, a poster,
-  a snapshot, a wand, an owl and a raven. Pictures are painted for 47 genres, from epic fantasy, magic schools, dark magic and
+  your own, or make one with the book's title. There are 113 designs. Some are bindings: marbled
+  boards, tooled leather, an old tome with metal corners, gilt oak leaves, a library label. Some are
+  modern, in bold type, cut paper and plain shapes. Some belong to a genre: a case file, a film in
+  wide-screen, a comic, a letter, a chalkboard, a packing case. And some are grand ones for fantasy
+  and science fiction: the book's picture as an engraving, watercolour peaks, a dragon, a great
+  dial, a world tree, a dagger and moon, neon worlds. The framed picture, full painting,
+  gold-stamped cloth, spell book, thorns and roses, pulp magazine, owl and raven are still there.
+  The designs that suit the book's genre are shown first. Pictures are painted for 47 genres, from epic fantasy, magic schools, dark magic and
   storm-swept epics to space opera, starship voyages, war, regency, dark romance, fluff and angst. The
   genre is guessed from the book's tags (fan fiction's fandoms and tags too), and you can swap the
-  picture for one of your own, then move and zoom it. Pick from 32 colour schemes or a colour of
+  picture for one of your own, then move and zoom it. Pick from 42 colour schemes or a colour of
   your own, and choose the colours of the title and author, the series, and the lines and ornaments
   separately. A design with a picture can use the book's own cover, and the series number can be in
   words ("Book Six of"), in figures, left off ("Book of"), or "A book of".
@@ -268,7 +273,9 @@ KoLib keeps a log of what it does (Kobo → Device → Open log). Please share t
 - **[Tesseract](https://github.com/tesseract-ocr/tesseract)** and **[Tesseract4Android](https://github.com/adaptech-cz/Tesseract4Android):**
   recognising the words in scanned pages.
 - The fonts (EB Garamond, Literata, Atkinson Hyperlegible, OpenDyslexic, Lora, Poppins, Cinzel,
-  UnifrakturMaguntia, Great Vibes, Bebas Neue, Orbitron, Poiret One, Fredoka and Liberation) and
+  UnifrakturMaguntia, Great Vibes, Bebas Neue, Orbitron, Poiret One, Fredoka, Playfair Display,
+  IM Fell English, Courier Prime, Space Mono, Caveat, Pacifico, Rye, Alfa Slab One, Stardos Stencil,
+  Bangers, Graduate and Liberation) and
   Android's own libraries. All of them, with their licences, are listed in
   [NOTICE.md](NOTICE.md).
 

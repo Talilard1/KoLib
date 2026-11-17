@@ -44,6 +44,8 @@ class CoverGeneratorTest {
      */
     private val darkened = setOf(
         CoverStyle.NOIR, CoverStyle.STARFIELD, CoverStyle.GOTHIC, CoverStyle.THORNS, CoverStyle.NEON, CoverStyle.WAND, CoverStyle.OWL, CoverStyle.RAVEN,
+        CoverStyle.CELESTIAL, CoverStyle.STAINED_GLASS, CoverStyle.LAMPLIGHT, CoverStyle.DOORWAY, CoverStyle.CHILLER, CoverStyle.CHALKBOARD,
+        CoverStyle.ENGRAVING, CoverStyle.DEPTHS, CoverStyle.ECLIPSE, CoverStyle.COSMOS,
     )
 
     /** The designs on paper of their own, with the ground colour only in a band. */
@@ -87,7 +89,7 @@ class CoverGeneratorTest {
     @Test
     fun theTitleSeriesAndAuthorAreAllOnTheCover() {
         // The designs with the author's name at the head.
-        val authorAtTop = setOf(CoverStyle.FRAMED, CoverStyle.NOIR, CoverStyle.POSTER)
+        val authorAtTop = setOf(CoverStyle.FRAMED, CoverStyle.NOIR, CoverStyle.POSTER, CoverStyle.CARVED)
         // The designs with the words in a block in the middle, the author's name last.
         val authorInMiddle = setOf(CoverStyle.DECO, CoverStyle.BLOSSOM)
         for (style in CoverStyle.entries) {
@@ -311,7 +313,7 @@ class CoverGeneratorTest {
     @Test
     fun randomDesignsCoverEveryStyleAndTheme() {
         val rnd = Random(7)
-        val designs = List(300) { CoverDesign.random(rnd) }
+        val designs = List(3000) { CoverDesign.random(rnd) }
         assertEquals(CoverStyle.entries.toSet(), designs.map { it.style }.toSet())
         assertTrue(designs.any { it.colors.name == "Custom" })
         assertTrue(designs.map { it.colors.name }.toSet().containsAll(CoverColors.themes.map { it.name }))

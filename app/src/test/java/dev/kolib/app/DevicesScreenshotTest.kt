@@ -1,0 +1,229 @@
+package dev.kolib.app
+
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performClick
+import com.github.takahirom.roborazzi.captureRoboImage
+import com.github.takahirom.roborazzi.captureScreenRoboImage
+import dev.kolib.app.link.LinkManager
+import dev.kolib.app.link.LinkSettings
+import dev.kolib.app.link.PairedDevice
+import dev.kolib.app.link.Pairing
+import dev.kolib.app.link.Transfer
+import dev.kolib.app.ui.AppFrame
+import dev.kolib.app.ui.Section
+import dev.kolib.app.ui.link.ChooseDeviceDialog
+import dev.kolib.app.ui.link.DevicesActions
+import dev.kolib.app.ui.link.DevicesContent
+import dev.kolib.app.ui.link.DevicesView
+import dev.kolib.app.ui.link.PairingDialog
+import dev.kolib.app.ui.theme.AppSurface
+import dev.kolib.app.ui.theme.ThemeChoice
+import org.junit.Before
+import org.junit.Rule
+import dev.kolib.app.tr
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
+
+private const val TABLET = "w1280dp-h800dp-land-mdpi"
+private const val TABLET_NIGHT = "w1280dp-h800dp-land-night-mdpi"
+private const val PHONE = "w411dp-h891dp-port-mdpi"
+
+/** The Devices section, and pairing. */
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [35])
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+class DevicesScreenshotTest {
+
+    @get:Rule
+    val compose = createComposeRule()
+
+    @Before
+    fun inLanguage() = TestLanguage.apply()
+
+    private val actions = DevicesActions(
+        pair = {}, reach = { null }, sendBooks = {}, sendFiles = {}, sendClipboard = {}, syncPlaces = {}, forget = {},
+        keepPlacesInStep = {}, stayReachable = {},
+    )
+
+    private val phone = PairedDevice("phone-1", "Galaxy A72", "", 0L)
+    private val other = PairedDevice("tab-2", "Old tablet", "", 0L)
+
+    private fun view(transfers: List<Transfer> = emptyList()) = DevicesView(
+        me = "Galaxy Tab S9",
+        addresses = listOf("192.168.1.23"),
+        port = LinkManager.PORT,
+        paired = listOf(phone, other),
+        nearby = listOf(
+            LinkManager.Nearby("phone-1", "Galaxy A72", "192.168.1.31", LinkManager.PORT, 0L),
+            LinkManager.Nearby("pc-3", "Galaxy S24", "192.168.1.40", LinkManager.PORT, 0L),
+        ),
+        transfers = transfers,
+        settings = LinkSettings(keepPlacesInStep = true, stayReachable = false),
+    )
+
+    private fun shot(name: String, theme: ThemeChoice = ThemeChoice.SYSTEM, screen: Boolean = false, content: @Composable () -> Unit) {
+        compose.mainClock.autoAdvance = false
+        compose.setContent { AppSurface(theme) { content() } }
+        compose.mainClock.advanceTimeBy(1_000)
+        val path = "${TestLanguage.folder("build/outputs/roborazzi")}/$name.png"
+        if (screen) captureScreenRoboImage(path) else compose.onRoot().captureRoboImage(path)
+    }
+
+    @Test
+    @Config(qualifiers = TABLET)
+    fun devicesOnTheTablet() = shot("devicesTablet") {
+        AppFrame(section = Section.DEVICES, onSection = {}, koboConnected = false, onNarrow = {}, onLook = {}, devicesHere = true) {
+            DevicesContent(view(listOf(Transfer(1, "Galaxy A72", "The Histories", outgoing = true, done = 45, total = 100))), actions)
+        }
+    }
+
+    @Test
+    @Config(qualifiers = TABLET_NIGHT)
+    fun devicesOnTheTabletAtNight() = shot("devicesTabletNight", ThemeChoice.DARK) {
+        AppFrame(section = Section.DEVICES, onSection = {}, koboConnected = false, onNarrow = {}, onLook = {}) {
+            DevicesContent(view().copy(paired = emptyList(), nearby = view().nearby.drop(1)), actions)
+        }
+    }
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun devicesOnThePhone() = shot("devicesPhone") {
+        AppFrame(section = Section.DEVICES, onSection = {}, koboConnected = true, onNarrow = {}) {
+            DevicesContent(view().copy(me = "Galaxy A72", paired = listOf(PairedDevice("tab-1", "Galaxy Tab S9", "", 0L)), nearby = emptyList()), actions)
+        }
+    }
+
+    /** "Send to device" from the link's notification: what to send. */
+    @Test
+    @Config(qualifiers = PHONE)
+    fun sendChooseWhat() = shot("devicesSendWhat") {
+        dev.kolib.app.link.ShareSheetContent(
+            title = tr("Send to device"), about = tr("What would you like to send?"), body = dev.kolib.app.link.SheetBody.ChooseWhat,
+            closeLabel = tr("Cancel"), canClose = true,
+        )
+    }
+
+    /** Books chosen to send, with two devices paired: which, before choosing the books in KoLib. */
+    @Test
+    @Config(qualifiers = TABLET)
+    fun sendBooksToWhichDevice() = shot("devicesSendBooksWhich") {
+        dev.kolib.app.link.ShareSheetContent(
+            title = tr("Send to device"), about = tr("Books from your library: choose them in KoLib."),
+            body = dev.kolib.app.link.SheetBody.ChooseDevice(listOf(phone, other), setOf("phone-1")),
+            closeLabel = tr("Cancel"), canClose = true,
+        )
+    }
+
+    /** Shared from another app to a device at the top of its Share: sent straight there. */
+    @Test
+    @Config(qualifiers = PHONE)
+    fun sharedToADeviceDirectly() = shot("devicesSendDirect") {
+        dev.kolib.app.link.ShareSheetContent(
+            title = tr("Send to {0}", "Galaxy Tab S9"), about = tr("{0} files to the other device's Downloads.", 3),
+            body = dev.kolib.app.link.SheetBody.Sending("Galaxy Tab S9", 0.4f),
+            closeLabel = tr("Cancel"), canClose = false,
+        )
+    }
+
+    /** This device's pairing code, for the other to scan. */
+    private val pairingCode = dev.kolib.app.link.LinkQr(listOf("192.168.1.23"), LinkManager.PORT, "tab-1", "WNKUWbITCi4VElLUCLlebQ", "4P38l8UponaZzkqX", "Galaxy Tab S9").encode()
+
+    @Test
+    @Config(qualifiers = TABLET)
+    fun pairingCodeOnTheTablet() = shot("devicesQrTablet", screen = true) {
+        AppFrame(section = Section.DEVICES, onSection = {}, koboConnected = false, onNarrow = {}, onLook = {}, devicesHere = true) {
+            DevicesContent(view().copy(paired = emptyList()), actions)
+            dev.kolib.app.ui.link.ShowQrDialog(pairingCode, onDismiss = {})
+        }
+    }
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun pairingCodeOnThePhone() = shot("devicesQrPhone", ThemeChoice.DARK, screen = true) {
+        AppFrame(section = Section.DEVICES, onSection = {}, koboConnected = false, onNarrow = {}) {
+            DevicesContent(view().copy(me = "Galaxy A72", paired = emptyList(), nearby = emptyList()), actions)
+            dev.kolib.app.ui.link.ShowQrDialog(pairingCode, onDismiss = {})
+        }
+    }
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun devicesWithNoNetwork() = shot("devicesNoNetwork") {
+        AppFrame(section = Section.DEVICES, onSection = {}, koboConnected = false, onNarrow = {}) {
+            DevicesContent(view().copy(addresses = emptyList(), paired = emptyList(), nearby = emptyList()), actions)
+        }
+    }
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun connectingByAddress() {
+        shot("devicesConnectByAddress", screen = false) {
+            AppFrame(section = Section.DEVICES, onSection = {}, koboConnected = false, onNarrow = {}) {
+                DevicesContent(view().copy(paired = emptyList(), nearby = emptyList()), actions)
+            }
+        }
+        compose.onNodeWithText(tr("Not found? Connect by address")).performClick()
+        compose.mainClock.advanceTimeBy(1_000)
+        captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/devicesConnectByAddress.png")
+    }
+
+    @Test
+    @Config(qualifiers = TABLET)
+    fun askedToPair() = shot("pairingAsked", screen = true) {
+        PairingDialog(Pairing("Galaxy A72", "482913", incoming = true)) {}
+    }
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun waitingForTheOtherToPair() = shot("pairingWaiting", screen = true) {
+        PairingDialog(Pairing("Galaxy Tab S9", "482913", incoming = false, confirmed = true)) {}
+    }
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun choosingWhereToSend() = shot("chooseDevice", screen = true) {
+        ChooseDeviceDialog(listOf(phone, other), setOf("phone-1"), "3 books", {}, {})
+    }
+
+    private val wifiBooks = listOf(
+        dev.kolib.app.kobo.WifiBook(0, "a", "The Histories", "Herodotus", "kepub", "The Histories - Herodotus.kepub.epub"),
+        dev.kolib.app.kobo.WifiBook(1, "b", "Dracula", "Bram Stoker", "kepub", "Dracula - Bram Stoker.kepub.epub"),
+        dev.kolib.app.kobo.WifiBook(2, "c", "Meditations", "Marcus Aurelius", "PDF", "Meditations - Marcus Aurelius.pdf"),
+        dev.kolib.app.kobo.WifiBook(3, "d", "Moby-Dick", "Herman Melville", "kepub", "Moby-Dick - Herman Melville.kepub.epub"),
+    )
+    private val wifiStates = mapOf(
+        0 to dev.kolib.app.kobo.WifiState.Sent(1_250_000),
+        1 to dev.kolib.app.kobo.WifiState.Sending(420_000, 1_000_000),
+        2 to dev.kolib.app.kobo.WifiState.Ready(8_400_000),
+        3 to dev.kolib.app.kobo.WifiState.Making,
+    )
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun theKoboOverWifiOnThePhone() = shot("koboWifiPhone") {
+        dev.kolib.app.ui.KoboWifiContent(wifiBooks, wifiStates, listOf("192.168.1.31"), 8080) {}
+    }
+
+    @Test
+    @Config(qualifiers = TABLET)
+    fun theKoboOverWifiOnTheTablet() = shot("koboWifiTablet") {
+        dev.kolib.app.ui.KoboWifiContent(wifiBooks.take(2), wifiStates.mapValues { dev.kolib.app.kobo.WifiState.Sent(1_000_000) }, listOf("192.168.1.23", "10.12.40.1"), 8080) {}
+    }
+
+    @Test
+    @Config(qualifiers = TABLET)
+    fun theKobosOwnPage() {
+        // What the Kobo's browser is given, as a page this device's browser can show.
+        val server = dev.kolib.app.kobo.KoboWifiServer(wifiBooks, kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO), make = { throw java.io.IOException() }, cover = { null })
+        val html = server.page()
+        java.io.File(TestLanguage.folder("build/outputs/roborazzi")).mkdirs()
+        java.io.File("${TestLanguage.folder("build/outputs/roborazzi")}/koboPage.html").writeText(html)
+        assert("The Histories" in html)
+    }
+}

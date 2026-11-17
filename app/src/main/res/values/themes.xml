@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.KoboLibrary" parent="android:Theme.Material.Light.NoActionBar">
+    <style name="Theme.KoLib" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">@color/window_bg</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 
     <!-- "Send to device" from other apps' Share: a card over the app it was shared from. -->
-    <style name="Theme.KoboLibrary.Share" parent="android:Theme.Material.Light.NoActionBar">
+    <style name="Theme.KoLib.Share" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
@@ -16,9 +16,9 @@
     </style>
 
     <!-- While the app starts: the dark the opening animation begins from. -->
-    <style name="Theme.KoboLibrary.Starting">
+    <style name="Theme.KoLib.Starting">
         <item name="android:windowBackground">@color/opening_night</item>
     </style>
     <!-- While the app starts, with the opening animation off (Android 12 and later show the mark). -->
-    <style name="Theme.KoboLibrary.Starting.Mark" />
+    <style name="Theme.KoLib.Starting.Mark" />
 </resources>

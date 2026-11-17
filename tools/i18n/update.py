@@ -9,7 +9,7 @@ no longer in the app; its number is never given to other text.
 import json, os, re, subprocess, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SRC = os.path.join(HERE, '..', '..', 'app', 'src', 'main', 'java', 'dev', 'kobolibrary', 'app')
+SRC = os.path.join(HERE, '..', '..', 'app', 'src', 'main', 'java', 'dev', 'kolib', 'app')
 BUILD = os.path.join(HERE, 'build')
 os.makedirs(BUILD, exist_ok=True)
 current_path = os.path.join(BUILD, 'current.json')

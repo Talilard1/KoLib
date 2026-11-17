@@ -14,7 +14,7 @@ val keystoreProps = Properties().apply {
 }
 
 android {
-    namespace = "dev.kobolibrary.app"
+    namespace = "dev.kolib.app"
     compileSdk = 36
 
     // KoLib can be switched to any of its languages, so an app bundle must keep them all.
@@ -25,7 +25,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "dev.kobolibrary.app"
+        applicationId = "dev.kolib.app"
         minSdk = 29
         targetSdk = 36
         versionCode = 80

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- While the app starts: just the dark, so the opening animation carries straight on from it. -->
-    <style name="Theme.KoboLibrary.Starting">
+    <style name="Theme.KoLib.Starting">
         <item name="android:windowBackground">@color/opening_night</item>
         <item name="android:windowSplashScreenBackground">@color/opening_night</item>
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_blank</item>
     </style>
     <!-- With the opening animation off: KoLib's mark on the same dark. -->
-    <style name="Theme.KoboLibrary.Starting.Mark">
+    <style name="Theme.KoLib.Starting.Mark">
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
     </style>
 </resources>

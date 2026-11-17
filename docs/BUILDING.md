@@ -47,7 +47,7 @@ See [tools/i18n](../tools/i18n/README.md) to add or change text.
 
 | Path | Contents |
 |---|---|
-| `app/src/main/java/dev/kobolibrary/app/kobo/` | Kobo support: database, sending books, collections, backups |
+| `app/src/main/java/dev/kolib/app/kobo/` | Kobo support: database, sending books, collections, backups |
 | `…/library/` | The library: books, covers, book folders |
 | `…/epub/` | Reading, validating and editing EPUBs; kepub conversion |
 | `…/convert/` | Converting PDF, MOBI, Word and other files to EPUB |

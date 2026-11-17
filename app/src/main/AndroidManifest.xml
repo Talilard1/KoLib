@@ -73,6 +73,10 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- Each paired device at the top of other apps' Share (and in KoLib's shortcuts). -->
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
             <!-- "Share" a book to the app, or open one with it, to add it to the library. Plain text and
                  web pages aren't listed: KoLib would be offered for every one, though it takes them from the file picker. -->
             <intent-filter android:label="@string/add_to_library">

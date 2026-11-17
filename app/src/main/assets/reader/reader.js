@@ -86,6 +86,7 @@
     }
     document.body && alignParagraphs(s.align || 'book');
     document.body && blendPictures();
+    document.body && letPaperGo();
     measure();
   }
 
@@ -100,6 +101,51 @@
     root.classList.toggle('kl-recolor', !!s.recolor);
     root.classList.toggle('kl-dim-images', !!s.dimImages);
     highlightStyles();
+  }
+
+  // ---- a book's white paper --------------------------------------------------------------------
+
+  /**
+   * Books made in a word processor often give their paragraphs a white background (the paper they were typed on),
+   * which shows as a white box behind each one on a page that isn't white. Such a white (or nearly white) background
+   * on the book's text is let go, so the page's own colour shows through. A coloured box (a note, a sidebar) keeps
+   * its colour, and so does anything inside one; a white mat round a picture stays. (Dark and tinted pages clear
+   * every background anyway: see kl-recolor.)
+   */
+  function letPaperGo() {
+    if (countingOnly) return;
+    var roots = [document.body, document.getElementById('kl-opening'), pairBox()];
+    // All read first, then marked: a mark changes styles, and reading after each would work them all out again.
+    var paper = [];
+    for (var i = 0; i < roots.length; i++) if (roots[i]) letPaperGoIn(roots[i], paper);
+    for (var j = 0; j < paper.length; j++) paper[j].classList.add('kl-paper');
+  }
+
+  /** 'none' (no background), 'paper' (white or nearly white) or 'colour'. */
+  function backgroundKind(style) {
+    if (style.backgroundImage && style.backgroundImage !== 'none') return 'colour';
+    var m = /rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:\s*[,/]\s*([\d.]+%?))?\s*\)/.exec(style.backgroundColor || '');
+    if (!m) return 'none';
+    var a = m[4] === undefined ? 1 : (/%$/.test(m[4]) ? parseFloat(m[4]) / 100 : parseFloat(m[4]));
+    if (!(a > 0.04)) return 'none';
+    var r = +m[1], g = +m[2], b = +m[3];
+    return Math.min(r, g, b) >= 236 && Math.max(r, g, b) - Math.min(r, g, b) <= 20 ? 'paper' : 'colour';
+  }
+
+  /** Finds in [box] the white boxes ([paper]) to take away, but not in a coloured box, nor a picture's white mat. */
+  function letPaperGoIn(box, paper) {
+    for (var el = box.firstElementChild; el; el = el.nextElementSibling) {
+      var name = (el.localName || '').toLowerCase();
+      if (/^(img|svg|video|picture|canvas|math|iframe|object|script|style|template)$/.test(name)) continue;
+      var kind = backgroundKind(window.getComputedStyle(el));
+      if (kind === 'colour') continue;
+      if (kind === 'paper') {
+        // A picture on its white mat keeps its mat.
+        if (!/\S/.test(el.textContent || '') && el.querySelector('img, svg, image, video, canvas')) continue;
+        paper.push(el);
+      }
+      letPaperGoIn(el, paper);
+    }
   }
 
   // ---- pictures that take the page's colour ------------------------------------------------------

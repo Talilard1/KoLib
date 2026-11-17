@@ -92,22 +92,39 @@ fun DeviceScreen(
     val snapshot = view.snapshot
     val live = view.live && !unplugged
     var tab by browse::deviceTab
-    var collectionKey by rememberSaveable { mutableStateOf(initialCollectionKey) }
+    remember(initialCollectionKey) { initialCollectionKey?.let { browse.collectionKey = it }; 0 }
     var menuOpen by remember { mutableStateOf(false) }
     var confirmForget by remember { mutableStateOf(false) }
     var showEject by remember { mutableStateOf(false) }
     val phone = phoneLayout()
-    /** A book opened from a collection's books goes back there, on a phone. */
-    var fromCollection by rememberSaveable { mutableStateOf(false) }
+    /** Shows the Kobo's books with [tag], or found by [search], in the Books tab (from a book's details). */
+    val showTag = { tag: String ->
+        browse.tags = setOf(tag)
+        browse.selectedBookId = null
+        browse.collectionBookId = null
+        tab = 0
+    }
+    val showSearch = { search: String ->
+        browse.query = search
+        browse.collection = null
+        browse.tags = emptySet()
+        browse.selectedBookId = null
+        browse.collectionBookId = null
+        tab = 0
+    }
 
-    // On a phone, a book opens on a page of its own, in place of the Kobo's bar and tabs.
-    if (phone && tab == 0 && !browse.selecting) {
-        browse.selectedBookId?.let { snapshot.booksById[it] }?.let { book ->
-            val back = {
-                browse.selectedBookId = null
-                if (fromCollection) tab = 1
-                fromCollection = false
-            }
+    // On a phone, a book opens on a page of its own, in place of the Kobo's bar and tabs: from the Books tab, or from a
+    // collection's books in the Collections tab, going back to where it came from.
+    val inCollection = tab == 1
+    val phoneBookId = when {
+        !phone -> null
+        tab == 0 && !browse.selecting -> browse.selectedBookId
+        inCollection && browse.collectionKey != null -> browse.collectionBookId
+        else -> null
+    }
+    if (phoneBookId != null) {
+        snapshot.booksById[phoneBookId]?.let { book ->
+            val back = { if (inCollection) browse.collectionBookId = null else browse.selectedBookId = null }
             BackHandler(onBack = back)
             PhoneKoboBookPage(
                 book = book,
@@ -117,28 +134,22 @@ fun DeviceScreen(
                 live = live,
                 onBack = back,
                 onOpenCollection = { name ->
-                    browse.collection = name
-                    browse.selectedBookId = null
-                    fromCollection = false
+                    if (inCollection) {
+                        browse.collectionKey = name
+                        browse.collectionBookId = null
+                    } else {
+                        browse.collection = name
+                        browse.selectedBookId = null
+                    }
                 },
                 onAddToLibrary = if (live) ({ onAddToLibrary(listOf(book)) }) else null,
                 onDeleteFromKobo = if (live && book.isSideloaded) ({
-                    browse.selectedBookId = null
+                    back()
                     onDeleteFromKobo(listOf(book))
                 }) else null,
                 tags = extras.tags(book),
-                onTag = { tag ->
-                    browse.tags = setOf(tag)
-                    browse.selectedBookId = null
-                    fromCollection = false
-                },
-                onSearch = { search ->
-                    browse.query = search
-                    browse.collection = null
-                    browse.tags = emptySet()
-                    browse.selectedBookId = null
-                    fromCollection = false
-                },
+                onTag = showTag,
+                onSearch = showSearch,
                 stars = extras.stars(book),
                 pages = extras.pages(book),
             )
@@ -276,15 +287,12 @@ fun DeviceScreen(
                 1 -> CollectionsTab(
                     view,
                     live,
-                    selectedKey = collectionKey,
-                    libraryPaths = extras.libraryPaths,
-                    onSelect = { collectionKey = it },
-                    onOpenBook = { id ->
-                        browse.selectedBookId = id
-                        tab = 0
-                        fromCollection = phone
-                    },
+                    browse = browse,
+                    extras = extras,
                     onAddToLibrary = onAddToLibrary,
+                    onDeleteFromKobo = onDeleteFromKobo,
+                    onTag = showTag,
+                    onSearch = showSearch,
                 )
                 else -> DeviceTab(view, live, state, onWriteCheck, onBackupNow, onOpenBackups, onOpenLog)
             }

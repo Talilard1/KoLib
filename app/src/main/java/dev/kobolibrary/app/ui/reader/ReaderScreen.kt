@@ -153,6 +153,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -1698,7 +1699,7 @@ private fun ImageViewer(controller: ReaderController, src: String, onClose: () -
         }
     }
     Box(Modifier.fillMaxSize().background(Color.Black)) {
-        ZoomablePicture(bitmap, src to turned, onZoomed = {})
+        ZoomablePicture(bitmap, src to turned, onZoomed = {}, onTapOutside = onClose)
         ViewerButtons(controller, path, onClose)
     }
 }
@@ -1729,7 +1730,7 @@ private fun PictureBrowser(controller: ReaderController, browse: ReaderControlle
             val bitmap by produceState<Result<ImageBitmap>?>(null, p.path, turned) {
                 value = withContext(Dispatchers.IO) { runCatching { checkNotNull(controller.pictureBytes(p.path)?.let { viewerBitmap(it) }).asImageBitmap() } }
             }
-            ZoomablePicture(bitmap, p.path to turned, onZoomed = { if (page == pager.currentPage) zoomed = it })
+            ZoomablePicture(bitmap, p.path to turned, onZoomed = { if (page == pager.currentPage) zoomed = it }, onTapOutside = onClose)
         }
         val current = pictures[pager.currentPage.coerceIn(0, pictures.lastIndex)]
         ViewerButtons(controller, current.path, onClose)
@@ -1746,9 +1747,12 @@ private fun PictureBrowser(controller: ReaderController, browse: ReaderControlle
 /**
  * A picture fitted to the screen, to pinch or double-tap to zoom into and drag about; [onZoomed] says when it's
  * zoomed in (and so, in a row of pictures, a drag moves it rather than going to the next). [key]: a new picture.
+ * A tap beside the picture (or anywhere, on one that can't be shown) is [onTapOutside], as the close button.
  */
 @Composable
-private fun ZoomablePicture(bitmap: Result<ImageBitmap>?, key: Any, onZoomed: (Boolean) -> Unit) {
+internal fun ZoomablePicture(bitmap: Result<ImageBitmap>?, key: Any, onZoomed: (Boolean) -> Unit, onTapOutside: () -> Unit = {}) {
+    val shown by rememberUpdatedState(bitmap)
+    val tappedOutside by rememberUpdatedState(onTapOutside)
     var scale by remember(key) { mutableFloatStateOf(1f) }
     var offset by remember(key) { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
     val transform = rememberTransformableState { zoom, pan, _ ->
@@ -1760,11 +1764,25 @@ private fun ZoomablePicture(bitmap: Result<ImageBitmap>?, key: Any, onZoomed: (B
         Modifier
             .fillMaxSize()
             .pointerInput(key) {
-                detectTapGestures(onDoubleTap = {
-                    scale = if (scale > 1f) 1f else 2.5f
-                    offset = androidx.compose.ui.geometry.Offset.Zero
-                    onZoomed(scale > 1f)
-                })
+                detectTapGestures(
+                    onDoubleTap = {
+                        scale = if (scale > 1f) 1f else 2.5f
+                        offset = androidx.compose.ui.geometry.Offset.Zero
+                        onZoomed(scale > 1f)
+                    },
+                    onTap = { at ->
+                        val result = shown ?: return@detectTapGestures
+                        val p = result.getOrNull()
+                        if (p == null || p.width <= 0 || p.height <= 0) return@detectTapGestures tappedOutside()
+                        // Where the picture is: fitted to the screen, then zoomed about its middle and moved.
+                        val fit = minOf(size.width / p.width.toFloat(), size.height / p.height.toFloat()) * scale
+                        val halfW = p.width * fit / 2f
+                        val halfH = p.height * fit / 2f
+                        val cx = size.width / 2f + offset.x
+                        val cy = size.height / 2f + offset.y
+                        if (kotlin.math.abs(at.x - cx) > halfW || kotlin.math.abs(at.y - cy) > halfH) tappedOutside()
+                    },
+                )
             },
         contentAlignment = Alignment.Center,
     ) {

@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import dev.kobolibrary.app.kobo.KoboBook
@@ -48,6 +49,11 @@ class LibraryBrowseState {
     var descending by mutableStateOf(false)
     var grid by mutableStateOf(true)
     var selectedId by mutableStateOf<String?>(null)
+    /** Which tab is showing: the books (0) or the collections (1). */
+    var tab by mutableIntStateOf(0)
+    /** The Collections tab: the collection open in it (by its key, see libraryCollections), and the book of it open beside it. */
+    var collectionKey by mutableStateOf<String?>(null)
+    var collectionBookId by mutableStateOf<String?>(null)
     val gridState = LazyGridState()
     val listState = LazyListState()
 

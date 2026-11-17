@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -63,6 +64,7 @@ import dev.kobolibrary.app.epub.BookAssembly
 import dev.kobolibrary.app.library.LibraryBook
 import dev.kobolibrary.app.library.LibraryCovers
 import dev.kobolibrary.app.ui.components.LibraryCover
+import dev.kobolibrary.app.ui.theme.appBackdrop
 
 /** Sensible first answers for the merge dialog, kept apart so they can be tested. */
 internal object MakeBooks {
@@ -337,11 +339,16 @@ private fun SharedPagesDialog(
 fun SplitBookDialog(
     book: LibraryBook,
     loadPages: suspend () -> List<BookAssembly.Page>,
-    onSplit: (cuts: List<Int>, titles: List<String>, series: String?, shared: BookAssembly.Shared?) -> Unit,
+    /** [covers]: every book gets a cover in one design (null: those without one each get a design picked at random). */
+    onSplit: (cuts: List<Int>, titles: List<String>, series: String?, shared: BookAssembly.Shared?, covers: dev.kobolibrary.app.ui.cover.CoverSet?) -> Unit,
     onDismiss: () -> Unit,
     /** For previews: the pages, already loaded. */
     initialPages: List<BookAssembly.Page>? = null,
     initialStep: Int = 0,
+    /** For previews: one design for every book, and which (null: the app picks). */
+    initialSameDesign: Boolean = false,
+    initialDesign: dev.kobolibrary.app.ui.cover.CoverDesign? = null,
+    initialEachColour: Boolean = false,
 ) {
     var pages by remember { mutableStateOf(initialPages) }
     var problem by remember { mutableStateOf<String?>(null) }
@@ -358,6 +365,18 @@ fun SplitBookDialog(
     var chosenFront by remember { mutableStateOf<Set<Int>?>(null) }
     var chosenBack by remember { mutableStateOf<Set<Int>?>(null) }
     var choosing by remember { mutableStateOf(false) }
+    // Covers: one design for every book (picked: which; null: the app picks one when splitting), or each its own.
+    val genre = remember(book.id) { dev.kobolibrary.app.ui.cover.CoverGenre.guess(book.meta.tags, book.meta.series, book.meta.title, book.meta.description) }
+    var sameDesign by remember { mutableStateOf(initialSameDesign) }
+    var picked by remember { mutableStateOf(initialDesign) }
+    var eachColour by remember { mutableStateOf(initialEachColour) }
+    var colourRound by remember { mutableIntStateOf(0) }
+    var suggestionRound by remember { mutableIntStateOf(0) }
+    val suggestions = remember(genre, suggestionRound) {
+        dev.kobolibrary.app.ui.cover.CoverSet.suggestions(genre, 6, kotlin.random.Random(book.id.hashCode() * 31 + suggestionRound))
+    }
+    var browsing by remember { mutableStateOf(false) }
+    val thumbs = rememberCoverThumbs()
     LaunchedEffect(book.id) {
         if (pages != null) return@LaunchedEffect
         try {
@@ -385,7 +404,40 @@ fun SplitBookDialog(
         (chosenBack?.toList() ?: found.back).filter { it > starts.last() }.sorted(),
     )
     val sharing = (share ?: !found.isEmpty) && !shared.isEmpty
+    val seriesName = series.trim().takeIf { numbered && it.isNotEmpty() }
+    // What book k's cover says, as the split will write it.
+    fun coverText(k: Int) = dev.kobolibrary.app.ui.cover.CoverText(
+        titleOf(k).trim().ifEmpty { tr("{0} (part {1})", book.title, k + 1) },
+        book.meta.authors,
+        seriesName ?: book.meta.series,
+        if (seriesName != null) (k + 1).toDouble() else null,
+    )
 
+    if (browsing) {
+        // All the designs, to choose one for every book: the cover maker, without pictures of one's own.
+        androidx.compose.ui.window.Dialog(
+            onDismissRequest = { browsing = false },
+            properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false),
+        ) {
+            Box(Modifier.fillMaxSize().appBackdrop()) {
+                androidx.compose.runtime.CompositionLocalProvider(androidx.compose.material3.LocalContentColor provides MaterialTheme.colorScheme.onBackground) {
+                    dev.kobolibrary.app.ui.cover.CoverGeneratorScreen(
+                        text = coverText(0),
+                        onUse = { _, design ->
+                            picked = design
+                            browsing = false
+                        },
+                        onCancel = { browsing = false },
+                        genre = genre,
+                        initial = remember { picked ?: suggestions.first() },
+                        ownPictures = false,
+                        useLabel = tr("Use this design"),
+                    )
+                }
+            }
+        }
+        return
+    }
     if (choosing && list != null) {
         SharedPagesDialog(
             pages = list,
@@ -520,6 +572,41 @@ fun SplitBookDialog(
                     TextButton(onClick = { choosing = true }, enabled = !(candidates.front.isEmpty() && candidates.back.isEmpty())) {
                         Text(tr("Choose pages…"))
                     }
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .toggleable(value = sameDesign, role = Role.Switch, onValueChange = { sameDesign = it })
+                            .padding(vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(Modifier.weight(1f)) {
+                            Text(tr("Same cover design for every book"), style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                if (sameDesign) tr("Every book gets a new cover in it, the first one too.")
+                                else tr("Off: a book without a cover gets one in a design picked at random."),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        Switch(checked = sameDesign, onCheckedChange = null)
+                    }
+                    if (sameDesign) {
+                        SplitCoverChooser(
+                            thumbs = thumbs,
+                            books = starts.size,
+                            textOf = ::coverText,
+                            suggestions = suggestions,
+                            picked = picked,
+                            onPick = { picked = it },
+                            onOtherSuggestions = { suggestionRound++ },
+                            onBrowse = { browsing = true },
+                            eachColour = eachColour,
+                            onEachColour = { eachColour = it },
+                            colourRound = colourRound,
+                            onOtherColours = { colourRound++ },
+                        )
+                    }
                     Spacer(Modifier.height(4.dp))
                     starts.forEachIndexed { k, start ->
                         val end = starts.getOrNull(k + 1) ?: list.size
@@ -538,7 +625,8 @@ fun SplitBookDialog(
                         Icon(Icons.Outlined.Info, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(Modifier.width(8.dp))
                         Text(
-                            tr("Each book gets its chapters with their pictures, styles, fonts and notes. The first gets the original cover; the others use their own cover page or get a new cover. “{0}” isn't changed.", book.title),
+                            if (sameDesign) tr("Each book gets its chapters with their pictures, styles, fonts and notes. The first book's old cover can be put back with Change cover, then Restore original. “{0}” isn't changed.", book.title)
+                            else tr("Each book gets its chapters with their pictures, styles, fonts and notes. The first gets the original cover; the others use their own cover page or get a new cover. “{0}” isn't changed.", book.title),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -551,7 +639,14 @@ fun SplitBookDialog(
                 problem != null || list == null -> TextButton(onClick = onDismiss) { Text(tr("Close")) }
                 step == 0 -> TextButton(onClick = { step = 1 }, enabled = sortedCuts.isNotEmpty()) { Text(tr("Next")) }
                 else -> TextButton(
-                    onClick = { onSplit(sortedCuts, starts.indices.map { titleOf(it) }, series.trim().takeIf { numbered && it.isNotEmpty() }, shared.takeIf { sharing }) },
+                    onClick = {
+                        val covers = if (!sameDesign) null else dev.kobolibrary.app.ui.cover.CoverSet(
+                            picked ?: dev.kobolibrary.app.ui.cover.CoverDesign.random(anyColour = false, genre = genre),
+                            eachColour,
+                            colourRound,
+                        )
+                        onSplit(sortedCuts, starts.indices.map { titleOf(it) }, seriesName, shared.takeIf { sharing }, covers)
+                    },
                     enabled = starts.indices.all { titleOf(it).isNotBlank() },
                 ) { Text(tr("Split")) }
             }

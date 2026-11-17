@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
@@ -27,7 +28,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.SendToMobile
+import androidx.compose.material.icons.outlined.ContentPaste
 import androidx.compose.material.icons.outlined.Devices
+import androidx.compose.material.icons.outlined.UploadFile
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -43,10 +47,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.IntentCompat
+import androidx.core.content.pm.ShortcutManagerCompat
+import androidx.core.os.BundleCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.kobolibrary.app.KoboLibraryApp
 import dev.kobolibrary.app.log.AppLog
@@ -58,11 +65,22 @@ import kotlinx.coroutines.withContext
 
 /**
  * "Send to device" in other apps' Share: text goes to a paired device's clipboard, files to its Downloads. Offered only
- * once a device is paired. It stays open while sending, so what was shared can still be read.
+ * once a device is paired. It stays open while sending, so what was shared can still be read. Shared to one of the
+ * devices at the top of Share (their shortcuts), it sends straight to that one.
+ *
+ * Opened from the link's notification or a device's shortcut ([ACTION_CHOOSE]), it asks what to send: books (chosen in
+ * the library, in KoLib), files (chosen here) or what's on the clipboard.
  */
 class ShareToDeviceActivity : ComponentActivity() {
 
     companion object {
+        /** What to send is chosen here (from the link's notification, or a device's shortcut). */
+        const val ACTION_CHOOSE = "dev.kobolibrary.app.link.CHOOSE_WHAT_TO_SEND"
+        /** The id of the device to send to, when it's been chosen already. */
+        const val EXTRA_DEVICE = "dev.kobolibrary.app.link.DEVICE"
+        /** For KoLib: choose books in the library to send to the device [EXTRA_DEVICE]. */
+        const val ACTION_SEND_BOOKS = "dev.kobolibrary.app.link.SEND_BOOKS"
+
         /** Offers "Send to device" in other apps' Share, or stops offering it. */
         fun offer(context: Context, on: Boolean) {
             runCatching {
@@ -73,22 +91,53 @@ class ShareToDeviceActivity : ComponentActivity() {
                 )
             }.onFailure { AppLog.w("Link", "Couldn't change whether Share offers KoLib", it) }
         }
+
+        /** Asks what to send, to a device chosen next (or [device]). */
+        fun chooseIntent(context: Context, device: String? = null): Intent =
+            Intent(context, ShareToDeviceActivity::class.java).setAction(ACTION_CHOOSE).putExtra(EXTRA_DEVICE, device)
     }
 
     private val link get() = (application as KoboLibraryApp).link
 
-    /** What was shared: text, or files. */
-    private class Shared(val text: String?, val uris: List<Uri>)
+    /** What's to be sent: text, files, or books (chosen in the library). */
+    private data class Shared(val text: String?, val uris: List<Uri>, val books: Boolean = false) {
+        val nothing get() = text == null && uris.isEmpty() && !books
+    }
+
+    private var shared by mutableStateOf(Shared(null, emptyList()))
+    /** Opened to choose what to send, rather than with something shared. */
+    private var choosing = false
+    /** The device to send to, chosen already: a shortcut's. */
+    private var chosen: String? = null
+
+    private val pickFiles = registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
+        if (uris.isNotEmpty()) shared = Shared(null, uris)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val shared = read(intent)
+        choosing = intent?.action == ACTION_CHOOSE
+        chosen = intent?.getStringExtra(EXTRA_DEVICE) ?: DeviceShortcuts.deviceOf(intent?.getStringExtra(ShortcutManagerCompat.EXTRA_SHORTCUT_ID))
+        shared = savedInstanceState?.let { b ->
+            Shared(
+                b.getString("text"),
+                BundleCompat.getParcelableArrayList(b, "uris", Uri::class.java).orEmpty(),
+                b.getBoolean("books"),
+            )
+        } ?: if (choosing) Shared(null, emptyList()) else read(intent)
         val theme = (application as KoboLibraryApp).themeSettings
         setContent {
             val choice by theme.choice.collectAsStateWithLifecycle()
-            KoboLibraryTheme(choice) { ShareSheet(shared) }
+            KoboLibraryTheme(choice) { ShareSheet() }
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("text", shared.text)
+        outState.putParcelableArrayList("uris", ArrayList(shared.uris))
+        outState.putBoolean("books", shared.books)
     }
 
     override fun onStart() {
@@ -111,8 +160,14 @@ class ShareToDeviceActivity : ComponentActivity() {
         return Shared(text, uris)
     }
 
+    /** The clipboard's text; null when there's none. Read while this is in front, as Android allows. */
+    private fun clipboardText(): String? = runCatching {
+        getSystemService(android.content.ClipboardManager::class.java)?.primaryClip?.takeIf { it.itemCount > 0 }
+            ?.getItemAt(0)?.coerceToText(this)?.toString()?.takeIf { it.isNotEmpty() }
+    }.getOrNull()
+
     @Composable
-    private fun ShareSheet(shared: Shared) {
+    private fun ShareSheet() {
         val paired by link.paired.collectAsStateWithLifecycle()
         val nearby by link.nearby.collectAsStateWithLifecycle()
         val transfers by link.transfers.collectAsStateWithLifecycle()
@@ -120,98 +175,192 @@ class ShareToDeviceActivity : ComponentActivity() {
         var said by remember { mutableStateOf<String?>(null) }
         val scope = rememberCoroutineScope()
         LaunchedEffect(Unit) { link.messages.collect { said = it } }
-        val nothing = shared.text == null && shared.uris.isEmpty()
-        Box(
-            Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.45f))
-                .clickable(remember { MutableInteractionSource() }, null) { if (sending == null || said != null) finish() }
-                .safeDrawingPadding(),
-            contentAlignment = Alignment.Center,
+        val what = shared
+        val nothing = what.nothing
+        // The device chosen already, while it's still paired; with only one paired, when choosing what to send, that one.
+        val target = chosen?.let { id -> paired.firstOrNull { it.id == id } } ?: if (choosing) paired.singleOrNull() else null
+
+        fun send(d: PairedDevice) {
+            DeviceShortcuts.used(this, d)
+            if (what.books) {
+                // Books are chosen in the library, in KoLib, which sends them.
+                startActivity(
+                    Intent(this, dev.kobolibrary.app.MainActivity::class.java)
+                        .setAction(ACTION_SEND_BOOKS)
+                        .putExtra(EXTRA_DEVICE, d.id)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
+                finish()
+                return
+            }
+            sending = d.name
+            scope.launch {
+                val job = try {
+                    if (what.text != null) link.sendText(d, what.text)
+                    else link.sendFiles(d, withContext(Dispatchers.IO) { what.uris.map { LinkFiles.fromUri(this@ShareToDeviceActivity, it) } })
+                } catch (e: Exception) {
+                    said = tr("Couldn't send to {0}: {1}", d.name, e.message ?: e.javaClass.simpleName)
+                    return@launch
+                }
+                job.join()
+            }
+        }
+        // Sent to the device chosen already as soon as there's something to send.
+        LaunchedEffect(what, target) {
+            if (target != null && !nothing && sending == null && said == null) send(target)
+        }
+
+        val busy = sending
+        val t = transfers.firstOrNull()
+        ShareSheetContent(
+            title = target?.let { tr("Send to {0}", it.name) } ?: tr("Send to device"),
+            about = when {
+                choosing && nothing -> tr("What would you like to send?")
+                nothing -> tr("Nothing here can be sent.")
+                what.books -> tr("Books from your library: choose them in KoLib.")
+                what.text != null -> tr("Text to the other device's clipboard: “{0}”", what.text.take(80) + if (what.text.length > 80) "…" else "")
+                what.uris.size == 1 -> tr("1 file to the other device's Downloads.")
+                else -> tr("{0} files to the other device's Downloads.", what.uris.size)
+            },
+            body = when {
+                said != null -> SheetBody.Said(said.orEmpty())
+                busy != null -> SheetBody.Sending(busy, t?.takeIf { it.total > 0 || it.items > 1 }?.fraction)
+                paired.isEmpty() -> SheetBody.NoDevices
+                choosing && nothing -> SheetBody.ChooseWhat
+                !nothing && target == null -> SheetBody.ChooseDevice(paired, nearby.map { it.id }.toSet())
+                else -> SheetBody.Empty
+            },
+            closeLabel = if (said != null || (nothing && !choosing) || paired.isEmpty()) tr("Close") else tr("Cancel"),
+            canClose = sending == null || said != null,
+            onBooks = { shared = Shared(null, emptyList(), books = true) },
+            onFiles = { runCatching { pickFiles.launch(arrayOf("*/*")) }.onFailure { said = tr("This device has no file picker.") } },
+            onClipboard = {
+                val text = clipboardText()
+                if (text == null) said = tr("The clipboard is empty.") else shared = Shared(text, emptyList())
+            },
+            onDevice = ::send,
+            onClose = { finish() },
+        )
+    }
+}
+
+/** What the sheet shows under what's to be sent. */
+internal sealed interface SheetBody {
+    /** What came of it. */
+    data class Said(val text: String) : SheetBody
+    /** Under way, to the device named; how far ([fraction]), when that's known. */
+    data class Sending(val to: String, val fraction: Float?) : SheetBody
+    data object NoDevices : SheetBody
+    /** Books, files or the clipboard. */
+    data object ChooseWhat : SheetBody
+    /** The paired [devices]; those [here] found on this network. */
+    data class ChooseDevice(val devices: List<PairedDevice>, val here: Set<String>) : SheetBody
+    data object Empty : SheetBody
+}
+
+/** "Send to device": a card over whatever's behind it (a tap beside it closes it, when it can be). */
+@Composable
+internal fun ShareSheetContent(
+    title: String,
+    about: String,
+    body: SheetBody,
+    closeLabel: String,
+    canClose: Boolean,
+    onBooks: () -> Unit = {},
+    onFiles: () -> Unit = {},
+    onClipboard: () -> Unit = {},
+    onDevice: (PairedDevice) -> Unit = {},
+    onClose: () -> Unit = {},
+) {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.45f))
+            .clickable(remember { MutableInteractionSource() }, null) { if (canClose) onClose() }
+            .safeDrawingPadding(),
+        contentAlignment = Alignment.Center,
+    ) {
+        Surface(
+            shape = RoundedCornerShape(24.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            modifier = Modifier
+                .padding(24.dp)
+                .widthIn(max = 460.dp)
+                .fillMaxWidth()
+                .clickable(remember { MutableInteractionSource() }, null) {},
         ) {
-            Surface(
-                shape = RoundedCornerShape(24.dp),
-                color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                modifier = Modifier
-                    .padding(24.dp)
-                    .widthIn(max = 460.dp)
-                    .fillMaxWidth()
-                    .clickable(remember { MutableInteractionSource() }, null) {},
-            ) {
-                Column(Modifier.padding(24.dp)) {
-                    Text(tr("Send to device"), style = MaterialTheme.typography.headlineSmall)
-                    Spacer(Modifier.height(6.dp))
-                    Text(
-                        when {
-                            nothing -> tr("Nothing here can be sent.")
-                            shared.text != null -> tr("Text to the other device's clipboard: “{0}”", shared.text.take(80) + if (shared.text.length > 80) "…" else "")
-                            shared.uris.size == 1 -> tr("1 file to the other device's Downloads.")
-                            else -> tr("{0} files to the other device's Downloads.", shared.uris.size)
-                        },
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 3,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Spacer(Modifier.height(16.dp))
-                    val busy = sending
-                    when {
-                        said != null -> Text(said.orEmpty(), style = MaterialTheme.typography.bodyLarge)
-                        busy != null -> {
-                            val t = transfers.firstOrNull()
-                            Text(tr("Sending to {0}…", busy), style = MaterialTheme.typography.bodyLarge)
-                            Spacer(Modifier.height(10.dp))
-                            if (t != null && (t.total > 0 || t.items > 1)) LinearProgressIndicator(progress = { t.fraction }, Modifier.fillMaxWidth())
-                            else LinearProgressIndicator(Modifier.fillMaxWidth())
-                        }
-                        paired.isEmpty() -> Text(
-                            tr("No paired devices. Pair one in KoLib, under Devices."),
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
-                        !nothing -> Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            paired.forEach { d ->
-                                val here = nearby.any { it.id == d.id }
-                                Row(
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            sending = d.name
-                                            scope.launch {
-                                                val job = try {
-                                                    if (shared.text != null) link.sendText(d, shared.text)
-                                                    else link.sendFiles(d, withContext(Dispatchers.IO) { shared.uris.map { LinkFiles.fromUri(this@ShareToDeviceActivity, it) } })
-                                                } catch (e: Exception) {
-                                                    said = tr("Couldn't send to {0}: {1}", d.name, e.message ?: e.javaClass.simpleName)
-                                                    return@launch
-                                                }
-                                                job.join()
-                                            }
-                                        }
-                                        .padding(vertical = 10.dp, horizontal = 4.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Icon(Icons.Outlined.Devices, null, tint = MaterialTheme.colorScheme.primary)
-                                    Spacer(Modifier.width(14.dp))
-                                    Column(Modifier.weight(1f)) {
-                                        Text(d.name, style = MaterialTheme.typography.titleMedium)
-                                        Text(
-                                            if (here) tr("Here") else tr("Not found on this network yet"),
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = if (here) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                                        )
-                                    }
+            Column(Modifier.padding(24.dp)) {
+                Text(title, style = MaterialTheme.typography.headlineSmall)
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    about,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Spacer(Modifier.height(16.dp))
+                when (body) {
+                    is SheetBody.Said -> Text(body.text, style = MaterialTheme.typography.bodyLarge)
+                    is SheetBody.Sending -> {
+                        Text(tr("Sending to {0}…", body.to), style = MaterialTheme.typography.bodyLarge)
+                        Spacer(Modifier.height(10.dp))
+                        if (body.fraction != null) LinearProgressIndicator(progress = { body.fraction }, Modifier.fillMaxWidth())
+                        else LinearProgressIndicator(Modifier.fillMaxWidth())
+                    }
+                    SheetBody.NoDevices -> Text(tr("No paired devices. Pair one in KoLib, under Devices."), style = MaterialTheme.typography.bodyLarge)
+                    SheetBody.ChooseWhat -> Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        SendChoice(Icons.AutoMirrored.Outlined.SendToMobile, tr("Send books"), onBooks)
+                        SendChoice(Icons.Outlined.UploadFile, tr("Send files"), onFiles)
+                        SendChoice(Icons.Outlined.ContentPaste, tr("Send clipboard"), onClipboard)
+                    }
+                    is SheetBody.ChooseDevice -> Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        body.devices.forEach { d ->
+                            val here = d.id in body.here
+                            Row(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .clickable { onDevice(d) }
+                                    .padding(vertical = 10.dp, horizontal = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Icon(Icons.Outlined.Devices, null, tint = MaterialTheme.colorScheme.primary)
+                                Spacer(Modifier.width(14.dp))
+                                Column(Modifier.weight(1f)) {
+                                    Text(d.name, style = MaterialTheme.typography.titleMedium)
+                                    Text(
+                                        if (here) tr("Here") else tr("Not found on this network yet"),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = if (here) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
                                 }
                             }
                         }
                     }
-                    Spacer(Modifier.height(12.dp))
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                        TextButton(onClick = { finish() }, enabled = sending == null || said != null) {
-                            Text(if (said != null || nothing || paired.isEmpty()) tr("Close") else tr("Cancel"))
-                        }
-                    }
+                    SheetBody.Empty -> Unit
+                }
+                Spacer(Modifier.height(12.dp))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    TextButton(onClick = onClose, enabled = canClose) { Text(closeLabel) }
                 }
             }
         }
+    }
+}
+
+/** One thing that can be sent, when choosing what. */
+@Composable
+private fun SendChoice(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, onClick: () -> Unit) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
+            .padding(vertical = 12.dp, horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
+        Spacer(Modifier.width(14.dp))
+        Text(label, style = MaterialTheme.typography.titleMedium)
     }
 }

@@ -216,6 +216,40 @@ ${names.joinToString("\n") { "    <itemref idref=\"$it\"/>" }}
         }
     }
 
+    /**
+     * With one cover design for every book a split makes, the first book's cover (the omnibus's) is replaced too, and
+     * kept: Restore original puts it back. The second's title page keeps its picture all the while.
+     */
+    @Test
+    fun aSplitBooksOwnCoverCanBeReplacedByTheSetsDesignAndPutBack() = runBlocking {
+        val lib = library().apply { load() }
+        val f = omnibusWithAPictureOnItsTitlePage()
+        val omni = (lib.import("omnibus.epub", { f.inputStream() }, BookSource.FILE) as ImportOutcome.Added).book
+        val pages = lib.pagesOf(omni.id)
+        val cut = pages.indexOfFirst { it.path.endsWith("b.xhtml") }
+        val title = pages.indexOfFirst { it.path.endsWith("title.xhtml") }
+        val parts = lib.splitBook(
+            omni.id, listOf(cut), listOf(dev.kobolibrary.app.epub.BookMetadata(title = "Book A"), dev.kobolibrary.app.epub.BookMetadata(title = "Book B")),
+            dev.kobolibrary.app.epub.BookAssembly.Shared(listOf(title), emptyList()),
+        )
+        val first = lib.epubFile(parts[0].id).let { file -> dev.kobolibrary.app.epub.EpubFile.open(file).use { it.readBytes(it.findCover()!!.path)!! } }
+        // As the split does it: a book with a cover has it replaced; one without gets one added.
+        val drawnA = realJpeg(536, 724, Color.GREEN)
+        val drawnB = realJpeg(536, 724, Color.YELLOW)
+        lib.updateCover(parts[0].id, drawnA, "image/jpeg", 536, 724, first = !parts[0].hasCover)
+        lib.updateCover(parts[1].id, drawnB, "image/jpeg", 536, 724, first = !parts[1].hasCover)
+        for ((id, drawn) in listOf(parts[0].id to drawnA, parts[1].id to drawnB)) {
+            dev.kobolibrary.app.epub.EpubFile.open(lib.epubFile(id)).use { epub -> assertArrayEquals(drawn, epub.readBytes(epub.findCover()!!.path)) }
+        }
+        dev.kobolibrary.app.epub.EpubFile.open(lib.epubFile(parts[1].id)).use { epub ->
+            val logo = epub.opf.items.first { it.href.endsWith("logo.jpg") }
+            assertArrayEquals(realJpeg(300, 200, Color.BLUE), epub.readBytes(epub.resolve(logo.href)))
+        }
+        // The first's own cover was kept, and goes back.
+        lib.restoreOriginalCover(parts[0].id)
+        dev.kobolibrary.app.epub.EpubFile.open(lib.epubFile(parts[0].id)).use { epub -> assertArrayEquals(first, epub.readBytes(epub.findCover()!!.path)) }
+    }
+
     @Test
     fun aBookAlreadyThereCanBeReplacedOrAddedAsWell() = runBlocking {
         val lib = library().apply { load() }

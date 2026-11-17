@@ -767,13 +767,14 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
      * A book without a cover of its own gets one drawn, as the cover editor's Generate would. A [split] book's is added
      * as a cover of its own, leaving any picture on its first page (a title page shared from the book it came from) be.
      */
-    private suspend fun withCover(book: LibraryBook, split: Boolean = false): LibraryBook {
-        if (book.hasCover) return book
+    private suspend fun withCover(book: LibraryBook, split: Boolean = false, design: dev.kobolibrary.app.ui.cover.CoverDesign? = null): LibraryBook {
+        // In a [design] given, every book gets a new cover; one it had is kept, to be put back ("Restore original").
+        if (book.hasCover && design == null) return book
         return try {
             val generator = dev.kobolibrary.app.ui.cover.CoverGenerator(getApplication())
             val text = dev.kobolibrary.app.ui.cover.CoverText(book.meta.title, book.meta.authors, book.meta.series, book.meta.seriesIndex)
-            val bmp = withContext(Dispatchers.Default) { generator.render(text, dev.kobolibrary.app.ui.cover.CoverDesign.random()) }
-            library.updateCover(book.id, dev.kobolibrary.app.ui.cover.CoverRendering.toJpeg(bmp), "image/jpeg", bmp.width, bmp.height, first = split)
+            val bmp = withContext(Dispatchers.Default) { generator.render(text, design ?: dev.kobolibrary.app.ui.cover.CoverDesign.random()) }
+            library.updateCover(book.id, dev.kobolibrary.app.ui.cover.CoverRendering.toJpeg(bmp), "image/jpeg", bmp.width, bmp.height, first = split && !book.hasCover)
         } catch (e: Exception) {
             AppLog.w("Library", "Couldn't draw a cover for '${book.title}'", e)
             book
@@ -842,7 +843,12 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
      * given. The book itself stays as it is. [shared]: pages before the first book and after the last (a title page, a
      * copyright notice, a contents page) that go into every one.
      */
-    fun splitBook(id: String, cuts: List<Int>, titles: List<String>, series: String?, shared: dev.kobolibrary.app.epub.BookAssembly.Shared? = null, onDone: (List<String>) -> Unit) = making(tr("Splitting the book")) {
+    fun splitBook(
+        id: String, cuts: List<Int>, titles: List<String>, series: String?, shared: dev.kobolibrary.app.epub.BookAssembly.Shared? = null,
+        /** Every book gets a cover in this design (null: a book without a cover gets one in a design picked at random). */
+        covers: dev.kobolibrary.app.ui.cover.CoverSet? = null,
+        onDone: (List<String>) -> Unit,
+    ) = making(tr("Splitting the book")) {
         val source = library.book(id) ?: return@making
         val metas = titles.mapIndexed { k, t ->
             source.meta.copy(
@@ -855,7 +861,8 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
                 seriesIndex = if (!series.isNullOrBlank()) (k + 1).toDouble() else null,
             )
         }
-        val made = library.splitBook(id, cuts, metas, shared).map { withCover(it, split = true) }
+        val split = library.splitBook(id, cuts, metas, shared)
+        val made = split.mapIndexed { k, b -> withCover(b, split = true, design = covers?.designFor(k, split.size)) }
         _message.value = tr("Split “{0}” into {1} books.", source.title, made.size)
         onDone(made.map { it.id })
     }

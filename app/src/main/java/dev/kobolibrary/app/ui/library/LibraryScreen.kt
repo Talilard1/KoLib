@@ -106,6 +106,8 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Surface
+import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -282,11 +284,22 @@ fun LibraryScreen(
                 EmptyLibrary(koboConnected, onAddFiles, onAddFromKobo, onNewBook)
                 return@Column
             }
+            val collectionCount = remember(books) { libraryCollectionCount(books) }
+            PrimaryTabRow(selectedTabIndex = browse.tab, containerColor = Color.Transparent) {
+                Tab(selected = browse.tab == 0, onClick = { browse.tab = 0 }, text = { Text(tr("Books ({0})", books.size)) })
+                Tab(selected = browse.tab == 1, onClick = { browse.tab = 1; browse.stopSelecting() }, text = { Text(tr("Collections ({0})", collectionCount)) })
+            }
             BoxWithConstraints(Modifier.fillMaxSize()) {
                 val twoPanes = maxWidth >= TwoPaneWidth
-                val detail: @Composable (LibraryBook, (() -> Unit)?) -> Unit = { book, onBack ->
+                // From the Collections tab, a tag or a search shows the books in the Books tab (the book still open there on a wide screen).
+                val toBooks = { book: LibraryBook ->
+                    browse.tab = 0
+                    browse.selectedId = if (twoPanes) book.id else null
+                }
+                val detail: @Composable (LibraryBook, (() -> Unit)?, String?) -> Unit = { book, onBack, inCollection ->
                     LibraryDetailPane(
                         book, covers, onBack,
+                        backLabel = inCollection ?: tr("Library"),
                         koboConnected = koboConnected,
                         onEdit = { onEditDetails(book.id) },
                         onCover = { onChangeCover(book.id) },
@@ -305,34 +318,41 @@ fun LibraryScreen(
                         readingLive = koboLive,
                         onContinueFromKobo = onContinueFromKobo?.let { f -> { k: KoboBook -> f(book.id, k) } },
                         onCollection = { name ->
-                            browse.collection = name
-                            if (!twoPanes) browse.selectedId = null
+                            if (inCollection != null) {
+                                // Another of its collections opens, the book still beside it.
+                                browse.collectionKey = name.trim().lowercase()
+                            } else {
+                                browse.collection = name
+                                if (!twoPanes) browse.selectedId = null
+                            }
                         },
                         onTag = { tag ->
                             browse.tags = setOf(tag)
-                            if (!twoPanes) browse.selectedId = null
+                            if (inCollection != null) toBooks(book) else if (!twoPanes) browse.selectedId = null
                         },
                         onSearch = { search ->
                             browse.query = search
                             browse.collection = null
                             browse.tags = emptySet()
-                            if (!twoPanes) browse.selectedId = null
+                            if (inCollection != null) toBooks(book) else if (!twoPanes) browse.selectedId = null
                         },
                     )
                 }
-                if (twoPanes) {
+                if (browse.tab == 1) {
+                    LibraryCollectionsTab(books, covers, browse, koboConnected, reading, here, onSend) { book, collection, onBack -> detail(book, onBack, collection) }
+                } else if (twoPanes) {
                     Row(Modifier.fillMaxSize()) {
                         LibraryBrowser(books, visible, covers, browse, selected?.id, onSend, onDelete, Modifier.weight(1.45f), reading, here, onMerge, onExport, onDuplicate)
                         VerticalDivider()
                         Box(Modifier.weight(1f).fillMaxHeight()) {
-                            if (selected != null && !browse.selecting) detail(selected, null)
+                            if (selected != null && !browse.selecting) detail(selected, null, null)
                             else if (browse.selecting) SelectionHelp(browse.picked.size)
                             else EmptyState(Icons.Outlined.AutoStories, tr("Tap a book"), tr("Its details appear here. Hold a book to select several, then hold another to select everything between."))
                         }
                     }
                 } else if (selected != null && !browse.selecting) {
                     BackHandler { browse.selectedId = null }
-                    detail(selected) { browse.selectedId = null }
+                    detail(selected, { browse.selectedId = null }, null)
                 } else {
                     LibraryBrowser(books, visible, covers, browse, null, onSend, onDelete, Modifier.fillMaxSize(), reading, here, onMerge, onExport, onDuplicate)
                 }
@@ -947,6 +967,8 @@ fun LibraryDetailPane(
     onContinueFromKobo: ((KoboBook) -> Unit)? = null,
     /** Searches for books (a search for the tab: the book's title, author or series), from holding one of those. */
     onSearch: ((String) -> Unit)? = null,
+    /** What [onBack] goes back to. */
+    backLabel: String = tr("Library"),
 ) {
     val context = LocalContext.current
     var confirmDelete by remember { mutableStateOf(false) }
@@ -961,7 +983,7 @@ fun LibraryDetailPane(
             TextButton(onClick = onBack, contentPadding = PaddingValues(horizontal = 4.dp)) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text(tr("Library"))
+                Text(backLabel, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             Spacer(Modifier.height(8.dp))
         }

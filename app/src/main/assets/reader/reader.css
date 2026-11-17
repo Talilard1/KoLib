@@ -316,6 +316,8 @@ html.kl-recolor #kl-pair *:not(img):not(svg):not(svg *):not(video) {
   border-color: rgba(127, 127, 127, 0.45) !important;
   text-shadow: none !important;
 }
+/* A book's white paper behind its text (reader.js marks it) lets the page's colour show through. */
+html.kl-paged .kl-paper { background-color: transparent !important; }
 html.kl-paged a[href], html.kl-paged a[href] * { color: var(--kl-link) !important; text-decoration-color: rgba(127, 127, 127, 0.5); }
 /* Links in the colour of the text, if asked for, and what's wrapped round just a link (reader.js marks it)
    too, so a colour or underline the book gives that goes as well. They still work. */

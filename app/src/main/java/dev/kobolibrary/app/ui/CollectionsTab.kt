@@ -1,75 +1,67 @@
 package dev.kobolibrary.app.ui
 
 import dev.kobolibrary.app.tr
-import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.LibraryAdd
 import androidx.compose.material.icons.outlined.CollectionsBookmark
-import androidx.compose.material.icons.outlined.Inventory2
-import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.kobolibrary.app.kobo.KoboBook
 import dev.kobolibrary.app.kobo.KoboView
 import dev.kobolibrary.app.ui.components.EmptyState
 import dev.kobolibrary.app.ui.components.Fmt
 import dev.kobolibrary.app.ui.components.ShelfGridBox
+import dev.kobolibrary.app.ui.components.phoneLayout
 import dev.kobolibrary.app.ui.theme.LocalBookcase
 import dev.kobolibrary.app.ui.theme.ShelfColors
-import androidx.compose.foundation.background
-import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.IconButton
-import androidx.compose.ui.text.style.TextOverflow
-import dev.kobolibrary.app.ui.components.phoneLayout
 
 /** Key used for the "not in any collection" entry. */
 const val NO_COLLECTION_KEY = "\u0000none"
 
 private data class CollectionEntry(val key: String, val name: String, val books: List<KoboBook>, val hidden: Boolean)
 
+/**
+ * The Kobo's collections. A collection's books open beside the list; a book tapped there opens beside them (the list
+ * folding away to make room), so it's seen without leaving the collection. On a phone, the book opens on a page of
+ * its own (see DeviceScreen).
+ */
 @Composable
 fun CollectionsTab(
     view: KoboView,
     live: Boolean,
-    selectedKey: String?,
-    libraryPaths: Set<String>,
-    onSelect: (String?) -> Unit,
-    onOpenBook: (String) -> Unit,
+    browse: BrowseState,
+    extras: KoboExtras,
     onAddToLibrary: (List<KoboBook>) -> Unit,
+    onDeleteFromKobo: (List<KoboBook>) -> Unit = {},
+    /** Shows the Kobo's books with this tag (in the Books tab). */
+    onTag: (String) -> Unit = {},
+    /** Searches the Kobo's books for this (in the Books tab). */
+    onSearch: (String) -> Unit = {},
 ) {
     val snapshot = view.snapshot
     val entries = remember(snapshot) {
@@ -77,77 +69,55 @@ fun CollectionsTab(
             CollectionEntry(c.name, c.name, snapshot.booksIn(c), hidden = !c.isVisible)
         } + CollectionEntry(NO_COLLECTION_KEY, tr("Not in any collection"), snapshot.booksWithoutCollection(), hidden = false)
     }
-    val selected = entries.firstOrNull { it.key == selectedKey }
+    val selected = entries.firstOrNull { it.key == browse.collectionKey }
+    val book = browse.collectionBookId?.let { snapshot.booksById[it] }?.takeIf { b -> selected?.books?.any { it.contentId == b.contentId } == true }
+    val rows = remember(entries) { entries.map { CollectionRow(it.key, it.name, it.books.size, if (it.hidden) tr(" · hidden on the Kobo") else null, it.hidden) } }
 
-    BoxWithConstraints(Modifier.fillMaxSize()) {
-        if (maxWidth >= TwoPaneWidth) {
-            Row(Modifier.fillMaxSize()) {
-                CollectionList(entries, snapshot.collections.size, selected?.key, onSelect, Modifier.width(380.dp))
-                VerticalDivider()
-                Box(Modifier.weight(1f).fillMaxHeight()) {
-                    if (selected != null) {
-                        CollectionBooks(view, live, selected, libraryPaths, null, onOpenBook, onAddToLibrary)
-                    } else {
-                        EmptyState(Icons.Outlined.CollectionsBookmark, tr("Tap a collection"), tr("Its books appear here."))
-                    }
-                }
+    CollectionsLayout(
+        hasCollection = selected != null,
+        hasBook = book != null,
+        onCloseCollection = { browse.collectionKey = null; browse.collectionBookId = null },
+        onCloseBook = { browse.collectionBookId = null },
+        list = { modifier ->
+            CollectionList(
+                rows,
+                heading = if (snapshot.collections.isEmpty()) tr("This Kobo has no collections yet.") else tr("{0} on this Kobo", Fmt.plural(snapshot.collections.size, "collection")),
+                selectedKey = selected?.key,
+                onSelect = { key -> browse.collectionKey = key; browse.collectionBookId = null },
+                modifier = modifier,
+            )
+        },
+        books = { onBack ->
+            selected?.let { entry ->
+                CollectionBooks(view, live, entry, extras, book?.contentId, onBack, onOpenBook = { browse.collectionBookId = it }, onAddToLibrary = onAddToLibrary)
             }
-        } else if (selected != null) {
-            BackHandler { onSelect(null) }
-            CollectionBooks(view, live, selected, libraryPaths, onBack = { onSelect(null) }, onOpenBook = onOpenBook, onAddToLibrary = onAddToLibrary)
-        } else {
-            CollectionList(entries, snapshot.collections.size, null, onSelect, Modifier.fillMaxSize())
-        }
-    }
-}
-
-@Composable
-private fun CollectionList(
-    entries: List<CollectionEntry>,
-    collectionCount: Int,
-    selectedKey: String?,
-    onSelect: (String?) -> Unit,
-    modifier: Modifier,
-) {
-    LazyColumn(modifier.fillMaxHeight(), contentPadding = PaddingValues(bottom = 24.dp)) {
-        item {
-            Text(
-                if (collectionCount == 0) tr("This Kobo has no collections yet.") else tr("{0} on this Kobo", Fmt.plural(collectionCount, "collection")),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 8.dp),
-            )
-        }
-        items(entries, key = { it.key }) { e ->
-            if (e.key == NO_COLLECTION_KEY) HorizontalDivider(Modifier.padding(vertical = 4.dp))
-            ListItem(
-                headlineContent = { Text(e.name) },
-                supportingContent = {
-                    Text(
-                        buildString {
-                            append(Fmt.plural(e.books.size, "book"))
-                            if (e.hidden) append(tr(" · hidden on the Kobo"))
-                        }
-                    )
-                },
-                leadingContent = {
-                    Icon(
-                        when {
-                            e.key == NO_COLLECTION_KEY -> Icons.Outlined.Inventory2
-                            e.hidden -> Icons.Outlined.VisibilityOff
-                            else -> Icons.Outlined.CollectionsBookmark
-                        },
-                        null,
-                    )
-                },
-                trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null) },
-                colors = ListItemDefaults.colors(
-                    containerColor = if (e.key == selectedKey) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
-                ),
-                modifier = Modifier.clickable { onSelect(e.key) },
-            )
-        }
-    }
+        },
+        detail = { onBack ->
+            if (book != null && selected != null) {
+                BookDetailPane(
+                    book,
+                    snapshot.collectionsByBook[book.contentId].orEmpty(),
+                    view.covers,
+                    inLibrary = extras.inLibrary(book),
+                    onBack = onBack,
+                    backLabel = selected.name,
+                    // Another of the book's collections: that one opens, the book still beside it.
+                    onOpenCollection = { name -> if (entries.any { it.key == name }) browse.collectionKey = name },
+                    onAddToLibrary = if (live) ({ onAddToLibrary(listOf(book)) }) else null,
+                    onDeleteFromKobo = if (live && book.isSideloaded) ({
+                        browse.collectionBookId = null
+                        onDeleteFromKobo(listOf(book))
+                    }) else null,
+                    tags = extras.tags(book),
+                    onTag = onTag,
+                    onSearch = onSearch,
+                    stars = extras.stars(book),
+                    pages = extras.pages(book),
+                )
+            }
+        },
+        nothingChosen = { EmptyState(Icons.Outlined.CollectionsBookmark, tr("Tap a collection"), tr("Its books appear here.")) },
+    )
 }
 
 @Composable
@@ -155,12 +125,13 @@ private fun CollectionBooks(
     view: KoboView,
     live: Boolean,
     entry: CollectionEntry,
-    libraryPaths: Set<String>,
+    extras: KoboExtras,
+    selectedId: String?,
     onBack: (() -> Unit)?,
     onOpenBook: (String) -> Unit,
     onAddToLibrary: (List<KoboBook>) -> Unit,
 ) {
-    val notInLibrary = entry.books.filter { it.isSideloaded && it.relativePath?.lowercase() !in libraryPaths }
+    val notInLibrary = entry.books.filter { it.isSideloaded && !extras.inLibrary(it) }
     val phone = phoneLayout()
     Column(Modifier.fillMaxSize()) {
         // On a phone: back and the name on one line, and the button under them the width of the screen.
@@ -180,36 +151,18 @@ private fun CollectionBooks(
                     Text(if (notInLibrary.size == entry.books.size) tr("Add all to library") else tr("Add {0} to library", notInLibrary.size))
                 }
             }
-        } else Row(
-            Modifier.padding(start = 12.dp, end = 20.dp, top = 12.dp, bottom = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (onBack != null) {
-                TextButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, null, Modifier.size(18.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text(tr("Collections"))
-                }
-                Spacer(Modifier.width(8.dp))
-            } else {
-                Spacer(Modifier.width(8.dp))
-            }
-            Column(Modifier.weight(1f)) {
-                Text(entry.name, style = MaterialTheme.typography.titleLarge)
-                Text(
-                    Fmt.plural(entry.books.size, "book") + tr(" · tap a book to see its details"),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            if (live && notInLibrary.isNotEmpty()) {
+        } else CollectionHeader(
+            name = entry.name,
+            count = entry.books.size,
+            onBack = onBack,
+            action = if (live && notInLibrary.isNotEmpty()) ({
                 FilledTonalButton(onClick = { onAddToLibrary(notInLibrary) }) {
                     Icon(Icons.Filled.LibraryAdd, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
                     Text(if (notInLibrary.size == entry.books.size) tr("Add all to library") else tr("Add {0} to library", notInLibrary.size))
                 }
-            }
-        }
+            }) else null,
+        )
         if (entry.books.isEmpty()) {
             EmptyState(
                 Icons.Outlined.CollectionsBookmark,
@@ -235,8 +188,8 @@ private fun CollectionBooks(
                     BookGridItem(
                         book,
                         view.covers,
-                        highlighted = false,
-                        inLibrary = book.relativePath?.lowercase() in libraryPaths,
+                        highlighted = book.contentId == selectedId,
+                        inLibrary = extras.inLibrary(book),
                         onClick = { onOpenBook(book.contentId) },
                         shelfIndex = index,
                         shelfCount = entry.books.size,
@@ -245,5 +198,34 @@ private fun CollectionBooks(
                 }
             }
         }
+    }
+}
+
+/** A collection's name and how many books it has, over its books; [action] at the end (adding them to the library, sending them). */
+@Composable
+fun CollectionHeader(name: String, count: Int, onBack: (() -> Unit)?, action: (@Composable () -> Unit)?) {
+    Row(
+        Modifier.padding(start = 12.dp, end = 20.dp, top = 12.dp, bottom = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (onBack != null) {
+            TextButton(onClick = onBack) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, null, Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text(tr("Collections"))
+            }
+            Spacer(Modifier.width(8.dp))
+        } else {
+            Spacer(Modifier.width(8.dp))
+        }
+        Column(Modifier.weight(1f)) {
+            Text(name, style = MaterialTheme.typography.titleLarge, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(
+                Fmt.plural(count, "book") + tr(" · tap a book to see its details"),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        action?.invoke()
     }
 }

@@ -97,9 +97,16 @@ class MainActivity : ComponentActivity() {
         handleIncoming(intent)
     }
 
-    /** EPUBs shared from, or opened in, another app (Files, a browser's downloads, email). */
+    /**
+     * EPUBs shared from, or opened in, another app (Files, a browser's downloads, email); or, from "Send to device"
+     * (the link's notification), a paired device to choose books in the library for.
+     */
     private fun handleIncoming(intent: Intent?) {
         intent ?: return
+        if (intent.action == dev.kobolibrary.app.link.ShareToDeviceActivity.ACTION_SEND_BOOKS) {
+            intent.getStringExtra(dev.kobolibrary.app.link.ShareToDeviceActivity.EXTRA_DEVICE)?.let { vm.booksForDevice.value = it }
+            return
+        }
         val uris: List<Uri> = when (intent.action) {
             Intent.ACTION_SEND -> listOfNotNull(IntentCompat.getParcelableExtra(intent, Intent.EXTRA_STREAM, Uri::class.java))
             Intent.ACTION_SEND_MULTIPLE -> IntentCompat.getParcelableArrayListExtra(intent, Intent.EXTRA_STREAM, Uri::class.java).orEmpty()

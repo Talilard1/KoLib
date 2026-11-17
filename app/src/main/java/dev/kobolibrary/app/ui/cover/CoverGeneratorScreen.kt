@@ -210,6 +210,13 @@ fun CoverGeneratorScreen(
     initial: CoverDesign = remember { designFor(text, genre, anyColour = false) },
     /** The book's cover as it is now, to use as the picture on a design that has one. */
     currentCover: Bitmap? = null,
+    /**
+     * Pictures of the reader's own (photos, files, found online) can go on a design. Off when it's a design that's
+     * being chosen, for books that each get their own cover in it, rather than one cover.
+     */
+    ownPictures: Boolean = true,
+    /** The button that takes the cover (or the design): "Use this cover" unless given. */
+    useLabel: String? = null,
 ) {
     val context = LocalContext.current
     val generator = remember { CoverGenerator(context.applicationContext) }
@@ -337,7 +344,7 @@ fun CoverGeneratorScreen(
                         },
                         enabled = !making,
                         modifier = Modifier.padding(end = 12.dp),
-                    ) { Text(tr("Use this cover")) }
+                    ) { Text(useLabel ?: tr("Use this cover")) }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             )
@@ -463,30 +470,32 @@ fun CoverGeneratorScreen(
                             Spacer(Modifier.width(8.dp))
                             Text(tr("New picture"))
                         }
-                        if (currentCover != null) {
+                        if (currentCover != null && ownPictures) {
                             OutlinedButton(onClick = { take { currentCover } }, enabled = style.picture) {
                                 Icon(Icons.Outlined.Image, null, Modifier.size(18.dp))
                                 Spacer(Modifier.width(8.dp))
                                 Text(tr("The book's cover"))
                             }
                         }
-                        OutlinedButton(
-                            onClick = { runCatching { photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) } },
-                            enabled = style.picture,
-                        ) {
-                            Icon(Icons.Outlined.PhotoLibrary, null, Modifier.size(18.dp))
-                            Spacer(Modifier.width(8.dp))
-                            Text(tr("Photos"))
-                        }
-                        OutlinedButton(onClick = { runCatching { filePicker.launch(arrayOf("image/*")) } }, enabled = style.picture) {
-                            Icon(Icons.Outlined.FolderOpen, null, Modifier.size(18.dp))
-                            Spacer(Modifier.width(8.dp))
-                            Text(tr("Files"))
-                        }
-                        OutlinedButton(onClick = { findingPicture = true }, enabled = style.picture) {
-                            Icon(Icons.Outlined.Search, null, Modifier.size(18.dp))
-                            Spacer(Modifier.width(8.dp))
-                            Text(tr("Find online"))
+                        if (ownPictures) {
+                            OutlinedButton(
+                                onClick = { runCatching { photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) } },
+                                enabled = style.picture,
+                            ) {
+                                Icon(Icons.Outlined.PhotoLibrary, null, Modifier.size(18.dp))
+                                Spacer(Modifier.width(8.dp))
+                                Text(tr("Photos"))
+                            }
+                            OutlinedButton(onClick = { runCatching { filePicker.launch(arrayOf("image/*")) } }, enabled = style.picture) {
+                                Icon(Icons.Outlined.FolderOpen, null, Modifier.size(18.dp))
+                                Spacer(Modifier.width(8.dp))
+                                Text(tr("Files"))
+                            }
+                            OutlinedButton(onClick = { findingPicture = true }, enabled = style.picture) {
+                                Icon(Icons.Outlined.Search, null, Modifier.size(18.dp))
+                                Spacer(Modifier.width(8.dp))
+                                Text(tr("Find online"))
+                            }
                         }
                     }
                     HorizontalDivider()

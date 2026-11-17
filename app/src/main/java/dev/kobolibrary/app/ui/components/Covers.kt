@@ -117,7 +117,16 @@ fun CoverImage(
     }
 }
 
-/** A cover from the Kobo's own picture cache. */
+/**
+ * The library's covers, for the books on the Kobo that are in the library too: [copyOf] finds a book's library copy.
+ * Given to the Kobo's screens, so a book shows the cover it has in the library (sharper than the Kobo's own
+ * thumbnail, and there before the Kobo has made one).
+ */
+class KoboLibraryCovers(val copyOf: (KoboBook) -> LibraryBook?, val covers: LibraryCovers)
+
+val LocalKoboLibraryCovers = compositionLocalOf<KoboLibraryCovers?> { null }
+
+/** A book on the Kobo's cover: the library's, when the book is in the library and has one, or else the Kobo's own. */
 @Composable
 fun BookCover(
     book: KoboBook,
@@ -128,13 +137,15 @@ fun BookCover(
     selected: Boolean? = null,
     inLibrary: Boolean = false,
 ) {
+    val large = size == CoverSize.FULL
+    val fromLibrary = LocalKoboLibraryCovers.current?.let { lc -> lc.copyOf(book)?.takeIf { it.hasCover }?.let { it to lc.covers } }
     CoverImage(
         title = book.title,
         author = book.author,
-        cacheKey = book.imageId + size.name,
-        cached = { loader?.cached(book.imageId, size) },
-        load = { w -> loader?.load(book.imageId, size, w) },
-        large = size == CoverSize.FULL,
+        cacheKey = fromLibrary?.let { (copy, _) -> "library:${copy.id}:${copy.coverVersion}:${size.name}" } ?: (book.imageId + size.name),
+        cached = { fromLibrary?.let { (copy, covers) -> covers.cached(copy, large) } ?: loader?.cached(book.imageId, size) },
+        load = { w -> fromLibrary?.let { (copy, covers) -> covers.load(copy, large, w) } ?: loader?.load(book.imageId, size, w) },
+        large = large,
         modifier = modifier,
     ) {
         if (showProgress) {

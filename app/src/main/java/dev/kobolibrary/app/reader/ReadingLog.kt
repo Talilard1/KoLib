@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.update
 import org.json.JSONObject
 import java.io.File
 import java.time.Instant
-import java.time.LocalDate
 import java.time.ZoneId
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
@@ -98,7 +97,8 @@ class ReadingLog(private val file: File, private val io: Executor = Executors.ne
      */
     fun record(id: String, title: String, seconds: Int, pages: Int, words: Int, session: Boolean, now: Long = System.currentTimeMillis()) {
         if (seconds <= 0 && pages <= 0 && !session) return
-        val day = LocalDate.ofInstant(Instant.ofEpochMilli(now), ZoneId.systemDefault()).toString()
+        // (LocalDate.ofInstant is Android 14's; this works from 10, as KoLib does.)
+        val day = Instant.ofEpochMilli(now).atZone(ZoneId.systemDefault()).toLocalDate().toString()
         _books.update { all ->
             val was = all[id] ?: BookReading(firstAt = now)
             var days = was.days + (day to (was.days[day] ?: 0) + seconds)

@@ -46,7 +46,7 @@
     </queries>
 
     <application
-        android:name=".KoboLibraryApp"
+        android:name=".KoLibApp"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -54,11 +54,11 @@
         android:largeHeap="true"
         android:localeConfig="@xml/locales_config"
         android:supportsRtl="true"
-        android:theme="@style/Theme.KoboLibrary">
+        android:theme="@style/Theme.KoLib">
 
         <activity
             android:name=".MainActivity"
-            android:theme="@style/Theme.KoboLibrary.Starting"
+            android:theme="@style/Theme.KoLib.Starting"
             android:exported="true"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode|density"
             android:launchMode="singleTask"
@@ -150,7 +150,7 @@
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode|density"
             android:excludeFromRecents="true"
             android:taskAffinity=""
-            android:theme="@style/Theme.KoboLibrary.Share">
+            android:theme="@style/Theme.KoLib.Share">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <action android:name="android.intent.action.SEND_MULTIPLE" />

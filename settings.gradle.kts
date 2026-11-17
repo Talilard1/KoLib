@@ -21,5 +21,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "KoboLibrary"
+rootProject.name = "KoLib"
 include(":app")

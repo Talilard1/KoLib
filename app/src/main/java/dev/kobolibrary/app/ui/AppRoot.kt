@@ -47,6 +47,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -139,6 +140,9 @@ fun AppRoot(
     /** The introduction shown the first time KoLib starts has been gone through. */
     introSeen: Boolean = true,
     onIntroSeen: (Boolean) -> Unit = {},
+    /** The text editor's tour has been given: it is the first time the editor is opened. */
+    editorTourSeen: Boolean = true,
+    onEditorTourSeen: () -> Unit = {},
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
     val folderScan by libraryVm.folderScan.collectAsStateWithLifecycle()
@@ -161,6 +165,9 @@ fun AppRoot(
     var showEject by remember { mutableStateOf(false) }
     var showConnectHelp by remember { mutableStateOf(false) }
     var showLook by remember { mutableStateOf(false) }
+    // The reading setup, opened from the introduction (which is come back to after it, at [introAt]) or from the settings.
+    var readingSetup by rememberSaveable { mutableStateOf(false) }
+    var introAt by rememberSaveable { mutableStateOf(0) }
     var showLanguage by remember { mutableStateOf(false) }
     /** Books waiting in the send dialog. */
     var sendIds by remember { mutableStateOf<List<String>?>(null) }
@@ -478,6 +485,7 @@ fun AppRoot(
                 onBack = { overlay = null },
                 onShowIntro = {
                     overlay = null
+                    introAt = 0
                     onIntroSeen(false)
                 },
             )
@@ -602,6 +610,8 @@ fun AppRoot(
                                 overlay = null
                             },
                             onRead = { from -> preview = from ?: "" },
+                            tour = !editorTourSeen,
+                            onTourDone = onEditorTourSeen,
                         )
                         preview?.let { from ->
                             PreviewReader(
@@ -995,6 +1005,11 @@ fun AppRoot(
                 showLook = false
                 libraryVm.booksFolder?.let { libraryVm.scanFolder(it) }
             },
+            // Not over a book that's open: the setup opens its own.
+            onReadingSetup = if (overlay == null) ({
+                showLook = false
+                readingSetup = true
+            }) else null,
         )
         if (showLanguage) dev.kobolibrary.app.ui.library.LanguageDialog(
             onDismiss = { showLanguage = false },
@@ -1043,8 +1058,15 @@ fun AppRoot(
                 ),
         )
 
-        // The first time KoLib starts: the introduction, over everything.
-        if (!introSeen) {
+        if (readingSetup) {
+            // The reading setup has the screen to itself. From the introduction, that's gone back to after it: on to
+            // its last page, or to the page that offered the setup if it was backed out of.
+            dev.kobolibrary.app.ui.setup.ReadingSetup(libraryVm.readerSettings) { finished ->
+                readingSetup = false
+                if (!introSeen) introAt = if (finished) dev.kobolibrary.app.ui.onboarding.IntroPages.done else dev.kobolibrary.app.ui.onboarding.IntroPages.reading
+            }
+        } else if (!introSeen) {
+            // The first time KoLib starts: the introduction, over everything.
             dev.kobolibrary.app.ui.onboarding.Onboarding(
                 connection = connection,
                 onChooseDrive = chooseDrive,
@@ -1055,8 +1077,11 @@ fun AppRoot(
                 onDone = {
                     libraryVm.forgetFolderScan()
                     section = Section.LIBRARY
+                    introAt = 0
                     onIntroSeen(true)
                 },
+                onSetUpReading = { readingSetup = true },
+                startAt = introAt,
             )
         }
     }
@@ -1223,6 +1248,8 @@ fun LookDialog(
     onChangeFolder: (() -> Unit)? = null,
     /** Looks through the folder of books again, for books added to it since. */
     onRescanFolder: (() -> Unit)? = null,
+    /** Opens the reading setup: the reader's main choices, on an example book. */
+    onReadingSetup: (() -> Unit)? = null,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -1262,6 +1289,24 @@ fun LookDialog(
                     Row(Modifier.fillMaxWidth().padding(start = 44.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                         TextButton(onClick = onChangeFolder) { Text(if (booksFolder == null) tr("Choose") else tr("Change")) }
                         if (booksFolder != null && onRescanFolder != null) TextButton(onClick = onRescanFolder) { Text(tr("Look for new books")) }
+                    }
+                    HorizontalDivider(Modifier.padding(vertical = 10.dp))
+                }
+                if (onReadingSetup != null) {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable(onClick = onReadingSetup)
+                            .padding(vertical = 10.dp, horizontal = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(Icons.AutoMirrored.Outlined.MenuBook, null, Modifier.padding(horizontal = 10.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(tr("Reading setup"), style = MaterialTheme.typography.titleSmall)
+                            Text(tr("Page colour, font, text size and how the reader works"), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
                     }
                     HorizontalDivider(Modifier.padding(vertical = 10.dp))
                 }

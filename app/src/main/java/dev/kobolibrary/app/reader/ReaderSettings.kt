@@ -535,6 +535,21 @@ data class ReaderSettings(
             )
         }
 
+        /**
+         * How the reader starts on a phone, where a page is small and held close: a typeface made for small
+         * screens at a size that gives about forty letters a line, steady line spacing, words broken at the
+         * ends of the short lines, the lightest page turn, small page headings close to the text, and wide
+         * sides to tap with a thumb. (On a tablet it starts as [ReaderSettings] itself.)
+         */
+        val PHONE = ReaderSettings(
+            font = ReaderFont.LITERATA, fontScale = 1.1f, lineSpacing = 1.4f, hyphens = ReaderHyphens.ON,
+            pageTurn = PageTurn.SLIDE, headTitlePlace = HeadTitlePlace.CENTRED, headSize = HeadSize.SMALL,
+            headGap = HeadGap.CLOSE, tapWidth = TapWidth.WIDE,
+        )
+
+        /** How the reader starts on this kind of device. */
+        fun startingOn(phone: Boolean): ReaderSettings = if (phone) PHONE else ReaderSettings()
+
         fun css(argb: Long): String = "#%06x".format(argb and 0xFFFFFF)
         val FONT_SCALES = listOf(0.7f, 0.8f, 0.9f, 1f, 1.1f, 1.2f, 1.3f, 1.45f, 1.6f, 1.8f, 2f, 2.3f, 2.6f)
         val LINE_SPACINGS = listOf(0f, 1.2f, 1.4f, 1.6f, 1.8f, 2f)
@@ -551,6 +566,8 @@ data class ReaderSettings(
 /** The reader's settings, the same for every book. */
 class ReaderSettingsStore(context: Context) {
     private val prefs = context.getSharedPreferences("reader", Context.MODE_PRIVATE)
+    /** A phone rather than a tablet: the reader starts differently on one (see [ReaderSettings.PHONE]). */
+    val phone: Boolean = context.resources.configuration.smallestScreenWidthDp < 600
     private val _settings = MutableStateFlow(load())
     val settings: StateFlow<ReaderSettings> = _settings.asStateFlow()
 
@@ -622,6 +639,9 @@ class ReaderSettingsStore(context: Context) {
         prefs.getString(key, null)?.let { v -> enumValues<E>().firstOrNull { it.name == v } } ?: default
 
     private fun load(): ReaderSettings {
+        // Nothing kept yet, the first time the reader's settings are read: they start as suits the device, and are
+        // kept from then on, so they stay as they are if the starting ones ever change.
+        if (prefs.all.isEmpty()) return ReaderSettings.startingOn(phone).also { save(it) }
         val loaded = loadAsSaved()
         // Settings from before there were page headings: they're turned on, as they are to start with,
         // with the chapter's title and the page number now in them rather than in the margins.

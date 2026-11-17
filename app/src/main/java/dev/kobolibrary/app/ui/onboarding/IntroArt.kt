@@ -198,6 +198,41 @@ fun CollectionsArt(modifier: Modifier = Modifier) {
     }
 }
 
+/** A page of a book with its letters growing and shrinking, page colours to one side and a slider to the other: setting up the reader. */
+@Composable
+fun ReadingArt(modifier: Modifier = Modifier) {
+    val t = rememberInfiniteTransition(label = "reading")
+    val grow by t.animateFloat(0f, 1f, infiniteRepeatable(tween(2400), RepeatMode.Reverse), label = "grow")
+    Art(modifier) {
+        // The page.
+        line(roundRect(122f, 26f, 278f, 274f, 12f))
+        // Its letters, and the lines of text under them, which move down as the letters grow.
+        val size = 40f + 18f * grow
+        label(tr("Aa"), 200f, 62f + size * 0.72f, size, color = KoLibGold.spark, bold = true)
+        val first = 86f + size * 0.9f
+        for ((i, wide) in listOf(1f, 1f, 0.86f, 1f, 1f, 0.6f).withIndex()) {
+            val y = first + i * 19f
+            if (y < 256f) line(Path().apply { moveTo(144f, y); lineTo(144f + 112f * wide, y) }, width = 2.4f, glow = false, alpha = 0.85f)
+        }
+        // Page colours down the left: one chosen.
+        for ((i, y) in listOf(92f, 150f, 208f).withIndex()) {
+            val c = Offset(66f, y)
+            if (i == 1) {
+                drawCircle(KoLibGold.gold, radius = 13f, center = c, alpha = 0.9f)
+                line(Path().apply { addOval(Rect(c, 20f)) }, width = 2.2f)
+            } else {
+                line(Path().apply { addOval(Rect(c, 15f)) }, width = 2.2f, glow = false, alpha = if (i == 0) 0.9f else 0.55f)
+            }
+        }
+        // The size's slider up the right, its handle going with the letters.
+        line(Path().apply { moveTo(334f, 86f); lineTo(334f, 214f) }, width = 3f, glow = false, alpha = 0.5f)
+        val knob = Offset(334f, 196f - 92f * grow)
+        line(Path().apply { moveTo(334f, 214f); lineTo(knob.x, knob.y) }, width = 3f)
+        drawCircle(KoLibGold.night, radius = 11f, center = knob)
+        line(Path().apply { addOval(Rect(knob, 11f)) }, width = 2.6f)
+    }
+}
+
 /** KoLib's open book over a shelf of books: ready to go. */
 @Composable
 fun ShelfArt(modifier: Modifier = Modifier) {

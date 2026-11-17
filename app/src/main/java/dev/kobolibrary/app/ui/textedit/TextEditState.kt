@@ -147,8 +147,10 @@ class TextEditState(
         settings.allowContentAccess = false
         settings.domStorageEnabled = false
         settings.textZoom = 100
-        settings.setSupportZoom(false)
-        settings.builtInZoomControls = false
+        // The page is laid out to the width of the screen (see EDITOR_HEAD), so it's all in view across to start
+        // with, and two fingers zoom in on it and back out again; no zoom buttons are drawn over it.
+        settings.setSupportZoom(true)
+        settings.builtInZoomControls = true
         settings.displayZoomControls = false
         settings.useWideViewPort = true
         settings.loadWithOverviewMode = false
@@ -779,8 +781,15 @@ class TextEditState(
             return text.substring(0, body.startTagEnd) + clean + text.substring(body.endTagStart)
         }
 
+        /**
+         * What a chapter is given to be edited: the editor's look and script, and how wide to lay the page out. Without
+         * being told, the WebView lays a page out 980 points wide whatever the screen: far wider than a phone, or than
+         * the editor's side of a tablet held upright, so only part of the page showed. Laid out to the screen's own
+         * width, the whole page is in view across, and can be zoomed in on from there.
+         */
         val EDITOR_HEAD =
-            "<link data-kl=\"\" rel=\"stylesheet\" type=\"text/css\" href=\"${BookServer.APP}editor/editor.css\"/>" +
+            "<meta data-kl=\"\" name=\"viewport\" content=\"width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5\"/>" +
+                "<link data-kl=\"\" rel=\"stylesheet\" type=\"text/css\" href=\"${BookServer.APP}editor/editor.css\"/>" +
                 "<script data-kl=\"\" type=\"text/javascript\" src=\"${BookServer.APP}editor/editor.js\"></script>"
     }
 }

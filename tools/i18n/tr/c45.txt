@@ -1,0 +1,464 @@
+@fr
+2684|Configurer la lecture
+2685|Couleur de la page, police, taille du texte et fonctionnement du lecteur
+2686|La Lampe à la fenêtre
+2687|Le Dernier Ferry
+2688|Chaque soir, quand le dernier ferry était parti et que les lumières du port s’allumaient une à une, Mara montait avec son livre l’escalier étroit qui menait à la chambre au-dessus de la boulangerie. La fenêtre y donnait sur la mer. Elle allumait la lampe, la posait sur le rebord et ouvrait le livre à la page où elle s’était arrêtée la veille.
+2689|C’était un vieux livre, plus vieux que la maison. Sa couverture avait pris la couleur du sable sec et, il y a longtemps, quelqu’un y avait écrit un nom à l’intérieur, à l’encre bleue, d’une écriture soignée. Mara ne savait pas à qui était ce nom. Elle aimait penser qu’il appartenait à une autre lectrice, à une autre fenêtre, sur un autre rivage.
+2690|« Tu vas t’abîmer les yeux », disait sa grand-mère, comme chaque soir, en posant une tasse de thé près d’elle. Mais elle ne lui demandait jamais d’arrêter. Elle restait seulement un instant sur le seuil, à écouter les pages tourner, puis redescendait sans bruit vers les fours.
+2691|Dehors, la marée montait. Une barque de pêche cognait doucement contre le quai. Quelque part, un chien aboya deux fois, puis se tut. Mara n’entendait rien de tout cela. Elle était déjà loin, à traverser un désert sur un cheval fatigué, avec <i>trois jours d’eau et pas de carte</i>, et une tempête qui se levait derrière elle.
+2692|La cavalière du livre cherchait un puits que personne n’avait vu depuis cent ans. Tous ceux qu’elle croisait lui disaient que ce n’était qu’une histoire. Elle continuait quand même. Mara comprenait cela. Elle n’avait jamais quitté l’île, mais elle savait ce que c’était de vouloir une chose que les autres appelaient une histoire.
+2693|Quand le cheval atteignit les collines rouges, le thé était froid et la boulangerie, en bas, plongée dans le noir. Mara tourna la page. La tempête éclata. La cavalière remonta son foulard sur son visage, baissa la tête et mena le cheval contre le vent, en comptant ses pas pour ne pas se perdre.
+2694|« Encore un chapitre », dit Mara à voix haute, pour personne.
+2695|Ce n’était jamais un seul chapitre. La lampe faiblissait, et elle lisait toujours, jusqu’à ce que la tempête soit passée et que la cavalière se tienne au sommet de la dernière colline. En bas, petit et vert dans tout ce sable, s’étendait un cercle de palmiers. En son milieu, quelque chose brillait comme une pièce de monnaie.
+2696|Mara referma le livre à cet endroit. C’était cela, l’étrange avec la lecture, pensa-t-elle. La chambre n’avait pas bougé. La lampe était là où elle l’avait laissée. Pourtant elle était partie des heures, et elle était revenue avec du sable dans ses chaussures.
+2697|Elle marqua sa page d’un ruban et tint le livre fermé entre ses deux mains. Demain, le ferry repartirait, le pain lèverait et la ville vaquerait à ses petites affaires. Et demain soir, la lampe serait à la fenêtre, et le puits attendrait là où elle l’avait laissé.
+2698|Les étoiles s’étaient levées sur l’eau. Mara baissa la flamme de la lampe, mais pas tout à fait. Il lui semblait injuste, d’une certaine façon, de laisser l’histoire dans le noir.
+2699|Montrez-moi
+2700|Continuer
+2701|Choisissez celle qui repose le plus vos yeux.
+2702|Choisissez l’apparence du texte.
+2703|Faites glisser jusqu’à ce que la lecture soit confortable.
+2704|Espacement
+2705|Aérez le texte, ou affichez-en plus par page.
+2706|Essayez : faites défiler la page vers le haut.
+2707|Essayez : faites glisser la page.
+2708|Essayez : touchez le côté droit de la page, ou faites glisser.
+2709|Touchez maintenant le côté gauche pour revenir.
+2710|Faites maintenant glisser dans l’autre sens pour revenir.
+2711|Essayez aussi les autres effets.
+2712|Tourner les pages
+2713|Le menu
+2714|Touchez le milieu de la page pour l’ouvrir ou le fermer.
+2715|Tout ce que vous venez de choisir, et plus encore.
+2716|Faites glisser la barre du bas pour vous déplacer dans le livre.
+2717|Tout est prêt
+2718|Vous pourrez tout modifier plus tard dans Réglages de lecture.
+2719|Glissez depuis le bord gauche pour la table des matières, depuis le bord droit pour les réglages.
+2720|Glissez vers le haut ou le bas sur le bord gauche pour régler la luminosité.
+2721|Maintenez l’appui sur un mot pour le surligner, ajouter une note ou le rechercher.
+2722|Modifier le texte
+2723|Touchez le chapitre et écrivez. Rien ne change dans votre livre tant que vous n’avez pas touché Enregistrer.
+2724|Touchez un chapitre pour l’ouvrir. Faites-le glisser pour le déplacer, ou touchez ⋮ pour le renommer, le diviser, le joindre ou le supprimer.
+2725|Touchez le nom du chapitre pour les voir tous. Vous pourrez y déplacer, renommer, diviser, joindre et supprimer des chapitres.
+2726|Sélectionnez des mots pour les mettre en gras ou en italique. Les titres et l’alignement s’appliquent à tout le paragraphe.
+2727|Ajouter et diviser
+2728|Ajoutez un séparateur de scène ou une image à l’endroit du curseur, ou divisez-y le chapitre en deux.
+2729|Sélectionnez un paragraphe, tout le chapitre, ou tout ce qui précède ou suit le curseur. Copier, couper et coller sont ici aussi.
+2730|Les chapitres copiés depuis la liste des chapitres sont gardés ici, prêts à être ajoutés à ce livre ou à un autre.
+2731|Passez au code HTML du chapitre quand vous devez corriger quelque chose à la main.
+2732|Annuler et rétablir
+2733|Chaque modification peut être annulée, même la suppression d’un chapitre, jusqu’à la fermeture de l’éditeur.
+2734|Rechercher, nettoyer, prévisualiser
+2735|Recherchez et remplacez dans tout le livre, corrigez d’un coup les problèmes courants, et voyez vos modifications dans le lecteur avant d’enregistrer.
+2736|Enregistre vos modifications dans le livre. KoLib vérifie d’abord le livre et garde le texte d’origine, au cas où vous voudriez le retrouver.
+2737|Rechercher et remplacer, Nettoyages et Aperçu dans le lecteur sont ici. Tout comme Rechercher des problèmes, Restaurer le texte d’origine et cette visite.
+2738|Recherchez des problèmes dans le livre, restaurez son texte d’origine ou revoyez cette visite.
+2739|Visite de l’éditeur
+2741|Choisissez dans quel sens vous tenez l’appareil pour lire.
+@de
+2684|Lesen einrichten
+2685|Seitenfarbe, Schrift, Textgröße und wie der Reader funktioniert
+2686|Die Lampe im Fenster
+2687|Die letzte Fähre
+2688|Jeden Abend, wenn die letzte Fähre abgelegt hatte und im Hafen eins nach dem anderen die Lichter angingen, trug Mara ihr Buch die schmale Treppe hinauf in das Zimmer über der Bäckerei. Das Fenster dort ging aufs Meer. Sie zündete die Lampe an, stellte sie aufs Fensterbrett und schlug das Buch an der Stelle auf, an der sie am Abend zuvor aufgehört hatte.
+2689|Es war ein altes Buch, älter als das Haus. Der Einband war zur Farbe von trockenem Sand verblichen, und vor langer Zeit hatte jemand mit sorgfältiger blauer Tinte einen Namen hineingeschrieben. Mara wusste nicht, wessen Name es war. Sie stellte sich gern vor, dass er einer anderen Leserin gehörte, an einem anderen Fenster, an irgendeiner anderen Küste.
+2690|„Du verdirbst dir noch die Augen“, sagte ihre Großmutter, wie jeden Abend, und stellte ihr eine Tasse Tee hin. Aber sie sagte nie, sie solle aufhören. Sie blieb nur einen Augenblick in der Tür stehen, hörte zu, wie die Seiten umgeblättert wurden, und ging dann leise wieder hinunter zu den Öfen.
+2691|Draußen kam die Flut. Ein Fischerboot schlug sacht gegen den Kai. Irgendwo bellte ein Hund zweimal und war wieder still. Mara hörte nichts davon. Sie war längst weit fort und durchquerte auf einem müden Pferd eine Wüste, mit <i>Wasser für drei Tage und ohne Karte</i>, und hinter ihr zog ein Sturm auf.
+2692|Die Reiterin im Buch suchte einen Brunnen, den seit hundert Jahren niemand gesehen hatte. Jeder, dem sie begegnete, sagte ihr, das sei nur eine Geschichte. Sie ritt trotzdem weiter. Mara verstand das. Sie hatte die Insel nie verlassen, aber sie wusste, wie es war, etwas zu wollen, das andere eine Geschichte nannten.
+2693|Als das Pferd die roten Hügel erreichte, war der Tee kalt und die Bäckerei unten dunkel. Mara blätterte um. Der Sturm brach los. Die Reiterin zog sich das Tuch vors Gesicht, senkte den Kopf und führte das Pferd in den Wind, und sie zählte ihre Schritte, um den Weg nicht zu verlieren.
+2694|„Noch ein Kapitel“, sagte Mara laut, zu niemandem.
+2695|Es blieb nie bei einem Kapitel. Die Lampe brannte herunter, und sie las immer noch, bis der Sturm vorüber war und die Reiterin oben auf dem letzten Hügel stand. Unter ihr lag, klein und grün in all dem Sand, ein Ring aus Palmen. In seiner Mitte glänzte etwas wie eine Münze.
+2696|Dort schlug Mara das Buch zu. Das war das Seltsame am Lesen, dachte sie. Das Zimmer hatte sich nicht bewegt. Die Lampe stand, wo sie sie hingestellt hatte. Und doch war sie stundenlang fort gewesen und mit Sand in den Schuhen zurückgekommen.
+2697|Sie legte ein Band zwischen die Seiten und hielt das Buch mit beiden Händen geschlossen. Morgen würde die Fähre wieder fahren, das Brot würde aufgehen, und die Stadt würde ihren kleinen Geschäften nachgehen. Und morgen Abend würde die Lampe im Fenster stehen, und der Brunnen würde warten, wo sie ihn zurückgelassen hatte.
+2698|Über dem Wasser standen jetzt die Sterne. Mara drehte die Lampe herunter, aber nicht ganz. Es kam ihr irgendwie falsch vor, die Geschichte im Dunkeln zu lassen.
+2699|Zeig’s mir
+2700|Weiter
+2701|Wähle die, die für deine Augen am angenehmsten ist.
+2702|Wähle, wie der Text aussieht.
+2703|Ziehe, bis es sich angenehm liest.
+2704|Abstände
+2705|Gib dem Text mehr Luft oder bring mehr auf eine Seite.
+2706|Probier’s aus: Scrolle die Seite nach oben.
+2707|Probier’s aus: Wische über die Seite.
+2708|Probier’s aus: Tippe auf die rechte Seite oder wische.
+2709|Tippe jetzt auf die linke Seite, um zurückzugehen.
+2710|Wische jetzt in die andere Richtung, um zurückzugehen.
+2711|Probier auch die anderen Blättereffekte aus.
+2712|Umblättern
+2713|Das Menü
+2714|Tippe auf die Mitte der Seite, um es zu öffnen oder zu schließen.
+2715|Alles, was du gerade gewählt hast, und mehr.
+2716|Ziehe die Leiste unten, um durchs Buch zu gehen.
+2717|Alles bereit
+2718|Du kannst alles später in den Leseeinstellungen ändern.
+2719|Vom linken Rand wischen für den Inhalt, vom rechten für die Einstellungen.
+2720|Am linken Rand nach oben oder unten wischen, um die Helligkeit zu ändern.
+2721|Halte ein Wort gedrückt, um es zu markieren, eine Notiz hinzuzufügen oder es nachzuschlagen.
+2722|Text bearbeiten
+2723|Tippe ins Kapitel und schreibe. In deinem Buch ändert sich nichts, bis du auf Speichern tippst.
+2724|Tippe auf ein Kapitel, um es zu öffnen. Ziehe es, um es zu verschieben, oder tippe auf ⋮ zum Umbenennen, Teilen, Verbinden oder Löschen.
+2725|Tippe auf den Kapitelnamen, um alle zu sehen. Dort kannst du Kapitel verschieben, umbenennen, teilen, verbinden und löschen.
+2726|Wähle Wörter aus, um sie fett oder kursiv zu machen. Überschriften und Ausrichtung gelten für den ganzen Absatz.
+2727|Einfügen und teilen
+2728|Füge an der Cursorposition einen Szenenwechsel oder ein Bild ein, oder teile das Kapitel dort in zwei.
+2729|Wähle einen Absatz, das ganze Kapitel oder alles vor oder nach dem Cursor aus. Kopieren, Ausschneiden und Einfügen sind auch hier.
+2730|Kapitel, die du in der Kapitelliste kopierst, liegen hier bereit, um sie in dieses oder ein anderes Buch einzufügen.
+2731|Wechsle zum HTML des Kapitels, wenn du etwas von Hand korrigieren musst.
+2732|Rückgängig und Wiederholen
+2733|Jede Änderung lässt sich rückgängig machen, sogar ein gelöschtes Kapitel, bis du den Editor schließt.
+2734|Suchen, aufräumen, Vorschau
+2735|Suche und ersetze im ganzen Buch, behebe häufige Probleme auf einmal und sieh dir deine Änderungen vor dem Speichern im Reader an.
+2736|Speichert deine Änderungen im Buch. KoLib prüft das Buch zuerst und behält den ursprünglichen Text, falls du ihn zurückhaben möchtest.
+2737|Suchen und ersetzen, Aufräumen und Vorschau im Reader sind hier. Ebenso Auf Probleme prüfen, Ursprünglichen Text wiederherstellen und diese Tour.
+2738|Prüfe das Buch auf Probleme, stelle den ursprünglichen Text wieder her oder sieh dir diese Tour noch einmal an.
+2739|Editor-Tour
+2741|Wähle, wie du dein Gerät beim Lesen hältst.
+@es
+2684|Configurar la lectura
+2685|Color de la página, fuente, tamaño del texto y cómo funciona el lector
+2686|La lámpara en la ventana
+2687|El último ferri
+2688|Cada tarde, cuando el último ferri había zarpado y las luces del puerto se encendían una a una, Mara subía con su libro la estrecha escalera hasta la habitación de encima de la panadería. Allí la ventana daba al mar. Encendía la lámpara, la dejaba en el alféizar y abría el libro por la página donde se había quedado la noche anterior.
+2689|Era un libro viejo, más viejo que la casa. La cubierta se había desteñido hasta el color de la arena seca, y hacía mucho alguien había escrito dentro un nombre, con tinta azul y letra cuidada. Mara no sabía de quién era. Le gustaba pensar que pertenecía a otra lectora, en otra ventana, en alguna otra orilla.
+2690|—Te vas a estropear la vista —decía su abuela, como todas las noches, y le dejaba al lado una taza de té. Pero nunca le decía que parase. Solo se quedaba un momento en la puerta, escuchando pasar las páginas, y luego bajaba en silencio a los hornos.
+2691|Fuera subía la marea. Una barca de pesca golpeaba suavemente contra el muelle. En algún lugar un perro ladró dos veces y calló. Mara no oía nada de eso. Para entonces estaba muy lejos, cruzando un desierto a lomos de un caballo cansado, con <i>agua para tres días y sin mapa</i>, y una tormenta levantándose a su espalda.
+2692|La jinete del libro buscaba un pozo que nadie había visto en cien años. Todos los que encontraba le decían que no era más que un cuento. Ella seguía adelante de todos modos. Mara lo entendía. Nunca había salido de la isla, pero sabía lo que era querer algo que los demás llamaban un cuento.
+2693|Cuando el caballo llegó a las colinas rojas, el té estaba frío y la panadería, abajo, se había quedado a oscuras. Mara pasó la página. Estalló la tormenta. La jinete se subió el pañuelo hasta la cara, agachó la cabeza y llevó al caballo contra el viento, contando los pasos para no perderse.
+2694|—Un capítulo más —dijo Mara en voz alta, a nadie.
+2695|Nunca era solo un capítulo más. La lámpara se fue consumiendo, y ella siguió leyendo hasta que pasó la tormenta y la jinete se detuvo en lo alto de la última colina. Abajo, pequeño y verde entre tanta arena, había un círculo de palmeras. En el centro, algo brillaba como una moneda.
+2696|Mara cerró el libro ahí. Eso era lo extraño de leer, pensó. La habitación no se había movido. La lámpara estaba donde la había dejado. Y sin embargo había pasado horas fuera, y había vuelto con arena en los zapatos.
+2697|Marcó la página con una cinta y sostuvo el libro cerrado con las dos manos. Mañana el ferri volvería a salir, el pan subiría y el pueblo seguiría con sus pequeños asuntos. Y mañana por la tarde la lámpara estaría en la ventana, y el pozo estaría esperando donde lo había dejado.
+2698|Las estrellas habían salido ya sobre el agua. Mara bajó la llama de la lámpara, pero no del todo. Le parecía mal, de algún modo, dejar la historia a oscuras.
+2699|Enséñamelo
+2700|Continuar
+2701|Elige el que te resulte más cómodo para la vista.
+2702|Elige el aspecto del texto.
+2703|Arrastra hasta que te resulte cómodo leer.
+2704|Espaciado
+2705|Da más aire al texto, o haz que quepa más en cada página.
+2706|Pruébalo: desplaza la página hacia arriba.
+2707|Pruébalo: desliza la página.
+2708|Pruébalo: toca el lado derecho de la página, o desliza.
+2709|Ahora toca el lado izquierdo para volver.
+2710|Ahora desliza en el otro sentido para volver.
+2711|Prueba también los otros efectos.
+2712|Pasar página
+2713|El menú
+2714|Toca el centro de la página para abrirlo o cerrarlo.
+2715|Todo lo que acabas de elegir, y más.
+2716|Arrastra la barra de abajo para moverte por el libro.
+2717|Todo listo
+2718|Puedes cambiarlo todo más tarde en Ajustes de lectura.
+2719|Desliza desde el borde izquierdo para el índice, o desde el borde derecho para los ajustes.
+2720|Desliza hacia arriba o abajo por el borde izquierdo para cambiar el brillo.
+2721|Mantén pulsada una palabra para subrayarla, añadir una nota o consultarla.
+2722|Editar el texto
+2723|Toca el capítulo y escribe. Nada cambia en tu libro hasta que tocas Guardar.
+2724|Toca un capítulo para abrirlo. Arrástralo para moverlo, o toca ⋮ para cambiarle el nombre, dividirlo, unirlo o eliminarlo.
+2725|Toca el nombre del capítulo para verlos todos. Allí puedes mover, renombrar, dividir, unir y eliminar capítulos.
+2726|Selecciona unas palabras para ponerlas en negrita o cursiva. Los títulos y la alineación cambian todo el párrafo.
+2727|Añadir y dividir
+2728|Añade un cambio de escena o una imagen donde está el cursor, o divide ahí el capítulo en dos.
+2729|Selecciona un párrafo, todo el capítulo, o todo lo anterior o posterior al cursor. Copiar, cortar y pegar también están aquí.
+2730|Los capítulos que copias en la lista de capítulos se guardan aquí, listos para añadirlos a este libro o a otro.
+2731|Cambia al HTML del capítulo cuando necesites corregir algo a mano.
+2732|Deshacer y rehacer
+2733|Todos los cambios se pueden deshacer, incluso un capítulo eliminado, hasta que cierres el editor.
+2734|Buscar, limpiar, vista previa
+2735|Busca y reemplaza en todo el libro, corrige de una vez los problemas habituales y mira tus cambios en el lector antes de guardar.
+2736|Guarda tus cambios en el libro. KoLib comprueba primero el libro y conserva el texto original, por si quieres recuperarlo.
+2737|Buscar y reemplazar, Limpiezas y Vista previa en el lector están aquí. También Buscar problemas, Restaurar el texto original y este recorrido.
+2738|Busca problemas en el libro, restaura su texto original o vuelve a ver este recorrido.
+2739|Recorrido por el editor
+2741|Elige cómo sujetas el dispositivo para leer.
+@it
+2684|Configura la lettura
+2685|Colore della pagina, carattere, dimensione del testo e come funziona il lettore
+2686|La lampada alla finestra
+2687|L’ultimo traghetto
+2688|Ogni sera, quando l’ultimo traghetto era partito e le luci del porto si accendevano una dopo l’altra, Mara saliva con il suo libro la scala stretta fino alla stanza sopra il panificio. Lì la finestra dava sul mare. Accendeva la lampada, la posava sul davanzale e apriva il libro alla pagina dove si era fermata la sera prima.
+2689|Era un libro vecchio, più vecchio della casa. La copertina era sbiadita fino al colore della sabbia asciutta e, tanto tempo prima, qualcuno ci aveva scritto dentro un nome, con inchiostro blu e una grafia accurata. Mara non sapeva di chi fosse. Le piaceva pensare che appartenesse a un’altra lettrice, a un’altra finestra, su qualche altra riva.
+2690|«Ti rovinerai gli occhi», diceva la nonna, come ogni sera, posandole accanto una tazza di tè. Ma non le diceva mai di smettere. Restava solo un momento sulla soglia, ad ascoltare le pagine che giravano, poi tornava giù in silenzio, ai forni.
+2691|Fuori saliva la marea. Una barca da pesca urtava piano contro il molo. Da qualche parte un cane abbaiò due volte e tacque. Mara non sentiva niente di tutto questo. Era già lontana, ad attraversare un deserto su un cavallo stanco, con <i>acqua per tre giorni e nessuna mappa</i>, e una tempesta che si alzava alle sue spalle.
+2692|La cavallerizza del libro cercava un pozzo che nessuno vedeva da cent’anni. Tutti quelli che incontrava le dicevano che era solo una storia. Lei andava avanti lo stesso. Mara lo capiva. Non aveva mai lasciato l’isola, ma sapeva che cosa vuol dire desiderare qualcosa che gli altri chiamano una storia.
+2693|Quando il cavallo raggiunse le colline rosse, il tè era freddo e il panificio, di sotto, era ormai al buio. Mara girò la pagina. La tempesta scoppiò. La cavallerizza si tirò la sciarpa sul viso, abbassò la testa e portò il cavallo dentro il vento, contando i passi per non perdere la strada.
+2694|«Ancora un capitolo», disse Mara ad alta voce, a nessuno.
+2695|Non era mai un capitolo solo. La lampada si abbassava, e lei leggeva ancora, finché la tempesta passò e la cavallerizza si fermò in cima all’ultima collina. Sotto di lei, piccolo e verde in tutta quella sabbia, c’era un cerchio di palme. Al centro, qualcosa brillava come una moneta.
+2696|Mara chiuse il libro lì. Era questa la cosa strana del leggere, pensò. La stanza non si era mossa. La lampada era dove l’aveva lasciata. Eppure era stata via per ore, ed era tornata con la sabbia nelle scarpe.
+2697|Segnò la pagina con un nastro e tenne il libro chiuso con tutte e due le mani. Domani il traghetto sarebbe ripartito, il pane sarebbe lievitato e il paese avrebbe badato alle sue piccole faccende. E domani sera la lampada sarebbe stata alla finestra, e il pozzo avrebbe aspettato dove lei lo aveva lasciato.
+2698|Sull’acqua erano ormai spuntate le stelle. Mara abbassò la fiamma della lampada, ma non del tutto. Le sembrava sbagliato, in qualche modo, lasciare la storia al buio.
+2699|Mostramelo
+2700|Continua
+2701|Scegli quello più riposante per i tuoi occhi.
+2702|Scegli l’aspetto del testo.
+2703|Trascina finché la lettura è comoda.
+2704|Spaziatura
+2705|Dai più respiro al testo, o fanne stare di più in una pagina.
+2706|Prova: scorri la pagina verso l’alto.
+2707|Prova: scorri sulla pagina.
+2708|Prova: tocca il lato destro della pagina, o scorri.
+2709|Ora tocca il lato sinistro per tornare indietro.
+2710|Ora scorri nell’altro verso per tornare indietro.
+2711|Prova anche gli altri effetti.
+2712|Girare pagina
+2713|Il menu
+2714|Tocca il centro della pagina per aprirlo o chiuderlo.
+2715|Tutto quello che hai appena scelto, e altro ancora.
+2716|Trascina la barra in basso per spostarti nel libro.
+2717|È tutto pronto
+2718|Puoi cambiare tutto più tardi in Impostazioni di lettura.
+2719|Scorri dal bordo sinistro per l’indice, dal bordo destro per le impostazioni.
+2720|Scorri in su o in giù lungo il bordo sinistro per cambiare la luminosità.
+2721|Tieni premuta una parola per evidenziarla, aggiungere una nota o cercarla.
+2722|Modifica il testo
+2723|Tocca il capitolo e scrivi. Nel tuo libro non cambia nulla finché non tocchi Salva.
+2724|Tocca un capitolo per aprirlo. Trascinalo per spostarlo, o tocca ⋮ per rinominarlo, dividerlo, unirlo o eliminarlo.
+2725|Tocca il nome del capitolo per vederli tutti. Lì puoi spostare, rinominare, dividere, unire ed eliminare i capitoli.
+2726|Seleziona alcune parole per metterle in grassetto o corsivo. Titoli e allineamento cambiano tutto il paragrafo.
+2727|Aggiungi e dividi
+2728|Aggiungi un cambio di scena o un’immagine dove si trova il cursore, o dividi lì il capitolo in due.
+2729|Seleziona un paragrafo, tutto il capitolo, o tutto ciò che precede o segue il cursore. Qui trovi anche copia, taglia e incolla.
+2730|I capitoli che copi nell’elenco dei capitoli restano qui, pronti da aggiungere a questo libro o a un altro.
+2731|Passa all’HTML del capitolo quando devi correggere qualcosa a mano.
+2732|Annulla e ripeti
+2733|Ogni modifica si può annullare, anche un capitolo eliminato, finché non chiudi l’editor.
+2734|Trova, pulisci, anteprima
+2735|Trova e sostituisci in tutto il libro, correggi in una volta i problemi comuni e guarda le modifiche nel lettore prima di salvare.
+2736|Salva le modifiche nel libro. KoLib controlla prima il libro e conserva il testo originale, nel caso lo rivolessi.
+2737|Trova e sostituisci, Pulizie e Anteprima nel lettore sono qui. Così come Cerca problemi, Ripristina il testo originale e questa guida.
+2738|Cerca problemi nel libro, ripristina il testo originale o rivedi questa guida.
+2739|Guida all’editor
+2741|Scegli come tieni il dispositivo per leggere.
+@nl
+2684|Lezen instellen
+2685|Paginakleur, lettertype, tekstgrootte en hoe de lezer werkt
+2686|De lamp in het raam
+2687|De laatste veerboot
+2688|Elke avond, als de laatste veerboot was vertrokken en de havenlichten een voor een aangingen, nam Mara haar boek mee de smalle trap op naar de kamer boven de bakkerij. Het raam daar keek uit op zee. Ze stak de lamp aan, zette hem op de vensterbank en sloeg het boek open op de bladzijde waar ze de avond ervoor was gebleven.
+2689|Het was een oud boek, ouder dan het huis. De kaft was verbleekt tot de kleur van droog zand, en lang geleden had iemand er met zorgvuldige blauwe inkt een naam in geschreven. Mara wist niet van wie die naam was. Ze dacht graag dat hij van een andere lezer was, aan een ander raam, aan een andere kust.
+2690|‘Je bederft je ogen nog,’ zei haar grootmoeder, zoals elke avond, en ze zette een kop thee naast haar neer. Maar ze zei nooit dat ze moest ophouden. Ze bleef alleen even in de deuropening staan luisteren naar het omslaan van de bladzijden, en ging dan zachtjes weer naar beneden, naar de ovens.
+2691|Buiten kwam het tij op. Een vissersboot stootte zacht tegen de kade. Ergens blafte een hond twee keer en was toen stil. Mara hoorde er niets van. Ze was al ver weg en trok op een vermoeid paard door een woestijn, met <i>water voor drie dagen en geen kaart</i>, terwijl achter haar een storm opstak.
+2692|De ruiter in het boek zocht een put die in honderd jaar door niemand was gezien. Iedereen die ze tegenkwam zei dat het maar een verhaal was. Ze ging toch verder. Mara begreep dat. Ze was nooit van het eiland af geweest, maar ze wist hoe het was om iets te willen wat andere mensen een verhaal noemden.
+2693|Tegen de tijd dat het paard de rode heuvels bereikte, was de thee koud en was het beneden in de bakkerij donker geworden. Mara sloeg de bladzijde om. De storm brak los. De ruiter trok haar sjaal voor haar gezicht, boog haar hoofd en leidde het paard de wind in, terwijl ze haar stappen telde om de weg niet kwijt te raken.
+2694|‘Nog één hoofdstuk,’ zei Mara hardop, tegen niemand.
+2695|Het bleef nooit bij één hoofdstuk. De lamp brandde laag, en nog steeds las ze, tot de storm voorbij was en de ruiter boven op de laatste heuvel stond. Beneden haar lag, klein en groen in al dat zand, een kring van palmbomen. In het midden glansde iets als een munt.
+2696|Daar sloeg Mara het boek dicht. Dat was het vreemde van lezen, dacht ze. De kamer had zich niet verroerd. De lamp stond waar ze hem had neergezet. En toch was ze uren weg geweest, en was ze teruggekomen met zand in haar schoenen.
+2697|Ze legde een lint tussen de bladzijden en hield het boek met beide handen dicht. Morgen zou de veerboot weer varen, zou het brood rijzen en zou het stadje zijn kleine gang gaan. En morgenavond zou de lamp in het raam staan, en zou de put wachten waar ze hem had achtergelaten.
+2698|Boven het water stonden nu de sterren. Mara draaide de lamp lager, maar niet helemaal. Het leek haar op de een of andere manier verkeerd om het verhaal in het donker te laten.
+2699|Laat zien
+2700|Doorgaan
+2701|Kies wat het prettigst is voor je ogen.
+2702|Kies hoe de tekst eruitziet.
+2703|Sleep tot het prettig leest.
+2704|Ruimte
+2705|Geef de tekst meer ruimte, of zet meer op een pagina.
+2706|Probeer het: scrol de pagina omhoog.
+2707|Probeer het: veeg over de pagina.
+2708|Probeer het: tik op de rechterkant van de pagina, of veeg.
+2709|Tik nu op de linkerkant om terug te gaan.
+2710|Veeg nu de andere kant op om terug te gaan.
+2711|Probeer ook de andere effecten.
+2712|Pagina’s omslaan
+2713|Het menu
+2714|Tik op het midden van de pagina om het te openen of te sluiten.
+2715|Alles wat je net hebt gekozen, en meer.
+2716|Sleep de balk onderaan om door het boek te gaan.
+2717|Je bent er klaar voor
+2718|Je kunt alles later wijzigen in Leesinstellingen.
+2719|Veeg vanaf de linkerrand voor de inhoud, of vanaf de rechterrand voor de instellingen.
+2720|Veeg omhoog of omlaag langs de linkerrand om de helderheid te wijzigen.
+2721|Houd een woord vast om het te markeren, een notitie toe te voegen of het op te zoeken.
+2722|De tekst bewerken
+2723|Tik in het hoofdstuk en typ. Er verandert niets in je boek tot je op Opslaan tikt.
+2724|Tik op een hoofdstuk om het te openen. Sleep het om het te verplaatsen, of tik op ⋮ om het te hernoemen, te splitsen, samen te voegen of te verwijderen.
+2725|Tik op de naam van het hoofdstuk om ze allemaal te zien. Daar kun je hoofdstukken verplaatsen, hernoemen, splitsen, samenvoegen en verwijderen.
+2726|Selecteer wat woorden om ze vet of cursief te maken. Koppen en uitlijning gelden voor de hele alinea.
+2727|Toevoegen en splitsen
+2728|Voeg een scènewissel of een afbeelding toe waar de cursor staat, of splits het hoofdstuk daar in tweeën.
+2729|Selecteer een alinea, het hele hoofdstuk, of alles voor of na de cursor. Kopiëren, knippen en plakken staan hier ook.
+2730|Hoofdstukken die je in de hoofdstukkenlijst kopieert, blijven hier staan, klaar om aan dit of een ander boek toe te voegen.
+2731|Schakel over naar de HTML van het hoofdstuk als je iets met de hand moet verbeteren.
+2732|Ongedaan maken en opnieuw
+2733|Elke wijziging kan ongedaan worden gemaakt, zelfs een verwijderd hoofdstuk, tot je de editor sluit.
+2734|Zoeken, opschonen, voorbeeld
+2735|Zoek en vervang in het hele boek, los veelvoorkomende problemen in één keer op en bekijk je wijzigingen in de lezer voordat je opslaat.
+2736|Slaat je wijzigingen op in het boek. KoLib controleert het boek eerst en bewaart de oorspronkelijke tekst, voor als je die terug wilt.
+2737|Zoeken en vervangen, Opschonen en Voorbeeld in lezer staan hier. Net als Controleren op problemen, Oorspronkelijke tekst herstellen en deze rondleiding.
+2738|Controleer het boek op problemen, herstel de oorspronkelijke tekst of bekijk deze rondleiding opnieuw.
+2739|Rondleiding door de editor
+2741|Kies hoe je je apparaat vasthoudt bij het lezen.
+@pt
+2684|Configurar a leitura
+2685|Cor da página, fonte, tamanho do texto e como o leitor funciona
+2686|O lampião na janela
+2687|A última balsa
+2688|Toda noite, depois que a última balsa partia e as luzes do porto se acendiam uma a uma, Mara subia com seu livro a escada estreita até o quarto em cima da padaria. Ali a janela dava para o mar. Ela acendia o lampião, colocava-o no parapeito e abria o livro na página em que tinha parado na noite anterior.
+2689|Era um livro velho, mais velho que a casa. A capa tinha desbotado até ficar da cor de areia seca, e muito tempo atrás alguém havia escrito um nome dentro dele, com tinta azul e letra caprichada. Mara não sabia de quem era o nome. Gostava de pensar que pertencia a outra leitora, em outra janela, em alguma outra praia.
+2690|— Você vai acabar com a vista — dizia a avó, como toda noite, e deixava uma xícara de chá ao lado dela. Mas nunca mandava parar. Só ficava um instante na porta, ouvindo as páginas virarem, e depois descia em silêncio de volta aos fornos.
+2691|Lá fora, a maré subia. Um barco de pesca batia de leve contra o cais. Em algum lugar, um cachorro latiu duas vezes e se calou. Mara não ouvia nada disso. Já estava longe, atravessando um deserto num cavalo cansado, com <i>água para três dias e nenhum mapa</i>, e uma tempestade se levantando atrás dela.
+2692|A cavaleira do livro procurava um poço que ninguém via há cem anos. Todos que ela encontrava diziam que era só uma história. Ela seguia em frente mesmo assim. Mara entendia isso. Nunca tinha saído da ilha, mas sabia o que era querer uma coisa que os outros chamavam de história.
+2693|Quando o cavalo chegou às colinas vermelhas, o chá estava frio e a padaria, lá embaixo, tinha ficado às escuras. Mara virou a página. A tempestade desabou. A cavaleira puxou o lenço sobre o rosto, baixou a cabeça e levou o cavalo contra o vento, contando os passos para não se perder.
+2694|— Só mais um capítulo — disse Mara em voz alta, para ninguém.
+2695|Nunca era só mais um capítulo. O lampião foi ficando fraco, e ela continuou lendo, até a tempestade passar e a cavaleira parar no alto da última colina. Lá embaixo, pequeno e verde no meio de tanta areia, havia um círculo de palmeiras. No centro, alguma coisa brilhava como uma moeda.
+2696|Mara fechou o livro ali. Era isso que havia de estranho em ler, pensou. O quarto não tinha saído do lugar. O lampião estava onde ela o deixara. E, no entanto, ela havia passado horas fora, e tinha voltado com areia nos sapatos.
+2697|Marcou a página com uma fita e segurou o livro fechado com as duas mãos. Amanhã a balsa voltaria a sair, o pão cresceria e a cidade cuidaria de seus pequenos afazeres. E amanhã à noite o lampião estaria na janela, e o poço estaria esperando onde ela o havia deixado.
+2698|As estrelas já tinham saído sobre a água. Mara baixou a chama do lampião, mas não de todo. Parecia errado, de algum jeito, deixar a história no escuro.
+2699|Mostrar
+2700|Continuar
+2701|Escolha a que for mais confortável para os seus olhos.
+2702|Escolha a aparência do texto.
+2703|Arraste até ficar confortável para ler.
+2704|Espaçamento
+2705|Dê mais espaço ao texto ou coloque mais em cada página.
+2706|Experimente: role a página para cima.
+2707|Experimente: deslize a página.
+2708|Experimente: toque no lado direito da página ou deslize.
+2709|Agora toque no lado esquerdo para voltar.
+2710|Agora deslize para o outro lado para voltar.
+2711|Experimente também os outros efeitos.
+2712|Virar páginas
+2713|O menu
+2714|Toque no meio da página para abrir ou fechar.
+2715|Tudo o que você acabou de escolher, e mais.
+2716|Arraste a barra de baixo para se mover pelo livro.
+2717|Tudo pronto
+2718|Você pode mudar tudo depois em Configurações de leitura.
+2719|Deslize da borda esquerda para o sumário, ou da borda direita para as configurações.
+2720|Deslize para cima ou para baixo na borda esquerda para mudar o brilho.
+2721|Segure uma palavra para destacá-la, adicionar uma nota ou consultá-la.
+2722|Editar o texto
+2723|Toque no capítulo e digite. Nada muda no seu livro até você tocar em Salvar.
+2724|Toque em um capítulo para abri-lo. Arraste para mover, ou toque em ⋮ para renomear, dividir, juntar ou excluir.
+2725|Toque no nome do capítulo para ver todos. Lá você pode mover, renomear, dividir, juntar e excluir capítulos.
+2726|Selecione algumas palavras para deixá-las em negrito ou itálico. Títulos e alinhamento mudam o parágrafo inteiro.
+2727|Adicionar e dividir
+2728|Adicione uma quebra de cena ou uma imagem onde está o cursor, ou divida o capítulo em dois ali.
+2729|Selecione um parágrafo, o capítulo inteiro, ou tudo antes ou depois do cursor. Copiar, recortar e colar também ficam aqui.
+2730|Os capítulos que você copia na lista de capítulos ficam aqui, prontos para adicionar a este livro ou a outro.
+2731|Mude para o HTML do capítulo quando precisar corrigir algo à mão.
+2732|Desfazer e refazer
+2733|Toda alteração pode ser desfeita, até um capítulo excluído, enquanto o editor estiver aberto.
+2734|Localizar, limpar, prévia
+2735|Localize e substitua no livro inteiro, corrija de uma vez os problemas comuns e veja suas alterações no leitor antes de salvar.
+2736|Salva suas alterações no livro. O KoLib verifica o livro antes e guarda o texto original, caso você queira voltar a ele.
+2737|Localizar e substituir, Limpezas e Prévia no leitor ficam aqui. Assim como Procurar problemas, Restaurar o texto original e este tour.
+2738|Procure problemas no livro, restaure o texto original ou veja este tour de novo.
+2739|Tour do editor
+2741|Escolha como você segura o aparelho para ler.
+@ru
+2684|Настройка чтения
+2685|Цвет страницы, шрифт, размер текста и как работает читалка
+2686|Лампа в окне
+2687|Последний паром
+2688|Каждый вечер, когда уходил последний паром и в гавани один за другим зажигались огни, Мара поднималась с книгой по узкой лестнице в комнату над пекарней. Окно там выходило на море. Она зажигала лампу, ставила её на подоконник и открывала книгу на той странице, где остановилась накануне.
+2689|Книга была старая, старше самого дома. Обложка выцвела до цвета сухого песка, и когда-то давно кто-то аккуратно вывел в ней синими чернилами имя. Мара не знала, чьё оно. Ей нравилось думать, что это имя другой читательницы, у другого окна, на каком-то другом берегу.
+2690|— Глаза испортишь, — говорила бабушка, как говорила каждый вечер, и ставила рядом чашку чая. Но никогда не велела перестать. Только стояла минуту в дверях, слушая, как шелестят страницы, а потом тихо спускалась обратно к печам.
+2691|За окном поднимался прилив. Рыбацкая лодка тихо постукивала о причал. Где-то дважды пролаяла собака и смолкла. Мара ничего этого не слышала. Она была уже далеко: ехала через пустыню на усталой лошади, <i>с водой на три дня и без карты</i>, а за спиной у неё поднималась буря.
+2692|Всадница из книги искала колодец, которого никто не видел сто лет. Все, кого она встречала, говорили, что это всего лишь сказка. Она всё равно ехала дальше. Мара её понимала. Она ни разу не покидала остров, но знала, каково это — хотеть того, что другие называют сказкой.
+2693|Когда лошадь добралась до красных холмов, чай остыл, а в пекарне внизу стало темно. Мара перевернула страницу. Разразилась буря. Всадница натянула платок на лицо, пригнула голову и повела лошадь навстречу ветру, считая шаги, чтобы не сбиться с пути.
+2694|— Ещё одну главу, — сказала Мара вслух, ни к кому не обращаясь.
+2695|Одной главой никогда не обходилось. Лампа догорала, а она всё читала, пока буря не стихла и всадница не остановилась на вершине последнего холма. Внизу, маленькое и зелёное среди всего этого песка, лежало кольцо пальм. Посреди него что-то блестело, как монета.
+2696|На этом Мара закрыла книгу. Вот что странно в чтении, подумала она. Комната не сдвинулась с места. Лампа стояла там, где она её оставила. И всё же её не было несколько часов, и вернулась она с песком в башмаках.
+2697|Она заложила страницу лентой и сжала закрытую книгу обеими руками. Завтра снова пойдёт паром, поднимется хлеб, и город займётся своими маленькими делами. А завтра вечером лампа будет стоять в окне, и колодец будет ждать там, где она его оставила.
+2698|Над водой уже высыпали звёзды. Мара прикрутила лампу, но не до конца. Почему-то казалось неправильным оставлять историю в темноте.
+2699|Показать
+2700|Продолжить
+2701|Выберите тот, что приятнее для глаз.
+2702|Выберите, как выглядит текст.
+2703|Двигайте, пока не станет удобно читать.
+2704|Интервалы
+2705|Дайте тексту больше воздуха или уместите больше на странице.
+2706|Попробуйте: прокрутите страницу вверх.
+2707|Попробуйте: смахните страницу.
+2708|Попробуйте: нажмите на правую часть страницы или смахните.
+2709|Теперь нажмите на левую часть, чтобы вернуться.
+2710|Теперь смахните в другую сторону, чтобы вернуться.
+2711|Попробуйте и другие эффекты.
+2712|Перелистывание
+2713|Меню
+2714|Нажмите на середину страницы, чтобы открыть или закрыть его.
+2715|Всё, что вы только что выбрали, и не только.
+2716|Перетаскивайте полосу внизу, чтобы перемещаться по книге.
+2717|Всё готово
+2718|Всё это можно изменить позже в разделе «Настройки чтения».
+2719|Смахните от левого края, чтобы открыть содержание, от правого — настройки.
+2720|Проведите вверх или вниз по левому краю, чтобы изменить яркость.
+2721|Удерживайте слово, чтобы выделить его, добавить заметку или найти в словаре.
+2722|Изменить текст
+2723|Нажмите на текст главы и печатайте. В книге ничего не изменится, пока вы не нажмёте «Сохранить».
+2724|Нажмите на главу, чтобы открыть её. Перетащите, чтобы переместить, или нажмите ⋮, чтобы переименовать, разделить, объединить или удалить.
+2725|Нажмите на название главы, чтобы увидеть все главы. Там их можно перемещать, переименовывать, разделять, объединять и удалять.
+2726|Выделите слова, чтобы сделать их жирными или курсивными. Заголовки и выравнивание меняют весь абзац.
+2727|Вставка и разделение
+2728|Добавьте смену сцены или картинку там, где стоит курсор, или разделите главу в этом месте на две.
+2729|Выделите абзац, всю главу или всё до или после курсора. Копирование, вырезание и вставка тоже здесь.
+2730|Главы, скопированные в списке глав, хранятся здесь, чтобы добавить их в эту или другую книгу.
+2731|Переключитесь на HTML главы, когда нужно что-то исправить вручную.
+2732|Отмена и повтор
+2733|Любое изменение можно отменить, даже удаление главы, пока редактор не закрыт.
+2734|Поиск, очистка, просмотр
+2735|Ищите и заменяйте по всей книге, исправляйте частые проблемы разом и смотрите изменения в читалке до сохранения.
+2736|Сохраняет изменения в книге. KoLib сначала проверяет книгу и хранит исходный текст на случай, если вы захотите его вернуть.
+2737|Здесь «Найти и заменить», «Очистка» и «Просмотр в читалке». А ещё «Проверить на ошибки», «Восстановить исходный текст» и этот обзор.
+2738|Проверьте книгу на ошибки, восстановите исходный текст или посмотрите этот обзор ещё раз.
+2739|Обзор редактора
+2741|Выберите, как вы держите устройство при чтении.
+@ja
+2684|読書のセットアップ
+2685|ページの色、フォント、文字サイズ、リーダーの使い方
+2686|窓辺のランプ
+2687|最後の渡し船
+2688|毎晩、最後の渡し船が出て、港の明かりがひとつ、またひとつと灯るころ、マーラは本を抱えて狭い階段をのぼり、パン屋の二階の部屋へ行った。その部屋の窓は海に面していた。ランプに火を入れて窓台に置き、前の晩に読みやめたページを開いた。
+2689|それは古い本で、この家よりも古かった。表紙は乾いた砂の色に褪せ、内側には、ずっと昔にだれかが青いインクでていねいに名前を書きこんでいた。それがだれの名前なのか、マーラは知らなかった。どこか別の岸辺の、別の窓辺にいた、もうひとりの読み手の名前だと思うのが好きだった。
+2690|「目を悪くするよ」と祖母は毎晩と同じように言って、そばにお茶を置いた。けれど、やめなさいとは一度も言わなかった。戸口にしばらく立ってページをめくる音を聞き、それから静かにかまどのある階下へ戻っていった。
+2691|外では潮が満ちてきた。漁船が岸壁にそっと当たっていた。どこかで犬が二度吠えて、静かになった。マーラには何も聞こえていなかった。そのころにはもう遠くにいて、疲れた馬に乗って砂漠を渡っていた。<i>水は三日分、地図はなし</i>。背後には嵐が迫っていた。
+2692|本の中の旅人は、百年ものあいだだれも見たことのない井戸を探していた。出会う人はみな、それはただのお話だと言った。それでも彼女は進みつづけた。マーラにはその気持ちがわかった。島を出たことは一度もなかったけれど、ほかの人がお話と呼ぶものを求めるのがどういうことかは知っていた。
+2693|馬が赤い丘にたどり着くころには、お茶は冷め、階下のパン屋は暗くなっていた。マーラはページをめくった。嵐がやってきた。旅人は布で顔をおおい、頭を低くして、道を見失わないよう歩数を数えながら、馬を引いて風の中へ入っていった。
+2694|「あと一章だけ」とマーラは、だれにともなく声に出して言った。
+2695|一章で終わったためしはなかった。ランプの火が小さくなっても読みつづけ、やがて嵐は過ぎ、旅人は最後の丘の上に立った。眼下には、一面の砂の中に小さく緑色に、ヤシの木の輪があった。その真ん中で、何かが硬貨のように光っていた。
+2696|マーラはそこで本を閉じた。読書の不思議なところはこれだ、と彼女は思った。部屋は少しも動いていない。ランプは置いたところにある。それなのに何時間も留守にしていて、靴に砂を入れて帰ってきたのだ。
+2697|リボンをはさんで、閉じた本を両手で持った。明日になればまた渡し船が出て、パンがふくらみ、町はささやかな営みを続けるだろう。そして明日の晩にはランプが窓辺にあり、井戸は彼女が置いてきた場所で待っているだろう。
+2698|海の上には星が出ていた。マーラはランプの火を小さくしたが、すっかりは消さなかった。物語を暗がりに残していくのは、なんとなく間違っている気がした。
+2699|開いてみる
+2700|続ける
+2701|目にいちばんやさしい色を選んでください。
+2702|文字の見た目を選んでください。
+2703|読みやすい大きさになるまでドラッグしてください。
+2704|間隔
+2705|文字のまわりを広くするか、1 ページに多く表示します。
+2706|試してみましょう：ページを上にスクロールします。
+2707|試してみましょう：ページをスワイプします。
+2708|試してみましょう：ページの右側をタップするか、スワイプします。
+2709|次は左側をタップして戻ります。
+2710|次は反対向きにスワイプして戻ります。
+2711|ほかのページめくりも試してみてください。
+2712|ページのめくり方
+2713|メニュー
+2714|ページの中央をタップすると開閉します。
+2715|いま選んだ項目のほか、さらに細かく設定できます。
+2716|下のバーをドラッグすると、本の中を移動できます。
+2717|準備ができました
+2718|あとから「読書の設定」でいつでも変更できます。
+2719|左端からスワイプで目次、右端からスワイプで設定を開きます。
+2720|左端を上下にスワイプすると、明るさを変えられます。
+2721|単語を長押しすると、ハイライト、メモの追加、調べものができます。
+2722|本文を編集する
+2723|章の中をタップして入力します。「保存」をタップするまで、本は変更されません。
+2724|章をタップすると開きます。ドラッグで移動、⋮ をタップで名前の変更、分割、結合、削除ができます。
+2725|章の名前をタップすると、すべての章が表示されます。そこで章の移動、名前の変更、分割、結合、削除ができます。
+2726|文字を選択して太字や斜体にできます。見出しと行揃えは段落全体に適用されます。
+2727|追加と分割
+2728|カーソルの位置に場面転換や画像を追加したり、そこで章を 2 つに分割したりできます。
+2729|段落、章全体、カーソルより前または後ろのすべてを選択できます。コピー、切り取り、貼り付けもここにあります。
+2730|章の一覧でコピーした章はここに保存され、この本やほかの本に追加できます。
+2731|手作業で直したいときは、章の HTML に切り替えます。
+2732|元に戻す・やり直す
+2733|エディタを閉じるまでは、章の削除を含め、すべての変更を元に戻せます。
+2734|検索、整形、プレビュー
+2735|本全体で検索と置換をしたり、よくある問題をまとめて直したり、保存前にリーダーで変更を確認したりできます。
+2736|変更を本に保存します。KoLib は先に本を確認し、元に戻せるよう元の本文も残します。
+2737|「検索と置換」「整形」「リーダーでプレビュー」はここにあります。「問題を確認」「元の本文に戻す」、このツアーもここです。
+2738|本に問題がないか確認したり、元の本文に戻したり、このツアーをもう一度見たりできます。
+2739|エディタのツアー
+2741|読むときの端末の向きを選んでください。

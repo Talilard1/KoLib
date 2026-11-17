@@ -47,6 +47,11 @@
     <string name="intro_collections_title">Collecties op je Kobo</string>
     <string name="intro_collections_text">KoLib kan boeken aan collecties op de Kobo toevoegen, maar kan ze niet aanmaken. Maak de collectie eerst op de Kobo aan.</string>
     <string name="intro_collections_how">Ga op de Kobo naar Mijn boeken, dan naar Collecties, en tik op Nieuwe collectie.</string>
+    <string name="intro_reading_title">Stel je lezer in</string>
+    <string name="intro_reading_text">Kies je paginakleur, lettertype en tekstgrootte op een voorbeeldboek, en bekijk hoe de lezer werkt. Het duurt ongeveer een minuut.</string>
+    <string name="intro_reading_start">Lezen instellen</string>
+    <string name="intro_reading_later">Niet nu</string>
+
     <string name="intro_done_title">Je bent er klaar voor</string>
     <string name="intro_done_text">Voeg altijd boeken toe met de knop Boeken toevoegen, en stuur ze naar je Kobo als die is aangesloten.</string>
     <string name="intro_start">Naar mijn bibliotheek</string>

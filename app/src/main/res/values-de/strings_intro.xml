@@ -47,6 +47,11 @@
     <string name="intro_collections_title">Sammlungen auf deinem Kobo</string>
     <string name="intro_collections_text">KoLib kann Bücher zu Sammlungen auf dem Kobo hinzufügen, aber keine anlegen. Lege die Sammlung zuerst auf dem Kobo an.</string>
     <string name="intro_collections_how">Gehe auf dem Kobo zu „Meine Bücher“, dann zu „Sammlungen“, und tippe auf „Neue Sammlung“.</string>
+    <string name="intro_reading_title">Richte deinen Reader ein</string>
+    <string name="intro_reading_text">Wähle Seitenfarbe, Schrift und Textgröße an einem Beispielbuch und sieh dir an, wie der Reader funktioniert. Das dauert etwa eine Minute.</string>
+    <string name="intro_reading_start">Lesen einrichten</string>
+    <string name="intro_reading_later">Nicht jetzt</string>
+
     <string name="intro_done_title">Alles bereit</string>
     <string name="intro_done_text">Füge jederzeit Bücher über „Bücher hinzufügen“ hinzu, und sende sie an deinen Kobo, wenn er angeschlossen ist.</string>
     <string name="intro_start">Zu meiner Bibliothek</string>

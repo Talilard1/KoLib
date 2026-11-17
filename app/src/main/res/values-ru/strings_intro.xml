@@ -61,6 +61,15 @@
     <string name="intro_collections_text">KoLib может добавлять книги в коллекции на Kobo, но не может их создавать. Сначала создайте коллекцию на Kobo.</string>
     <string name="intro_collections_how">На Kobo откройте «Мои книги», затем «Коллекции» и нажмите «Новая коллекция».</string>
 
+    <string name="intro_reading_title">Настройте читалку</string>
+
+    <string name="intro_reading_text">Выберите цвет страницы, шрифт и размер текста на примере книги и посмотрите, как работает читалка. Это займёт около минуты.</string>
+
+    <string name="intro_reading_start">Настроить чтение</string>
+
+    <string name="intro_reading_later">Не сейчас</string>
+
+
     <string name="intro_done_title">Всё готово</string>
     <string name="intro_done_text">Добавляйте книги в любое время кнопкой «Добавить книги» и отправляйте их на Kobo, когда он подключён.</string>
     <string name="intro_start">Перейти в библиотеку</string>

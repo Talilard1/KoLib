@@ -18,7 +18,7 @@ import kotlin.random.Random
 
 /*
  * More of the grandest designs: a scene drawn in glowing lines, peaks in watercolour, an old tome with its
- * metal fittings, tooled leather, a dragon, a great dial, flowers on a cloud wash, a map of streets.
+ * metal fittings, tooled leather, a great dial, flowers on a cloud wash, a map of streets.
  * Every one is drawn here in the book's own colours; none copies a particular book.
  */
 
@@ -128,20 +128,65 @@ internal fun CoverGenerator.waterPeaks(s: Sheet, t: Words, art: Art) {
     // Dark at the foot: firs, and what stands among them.
     val deep = if (dark) mix(g, Color.BLACK, 0.8f) else mix(a, s.c.ink, 0.74f)
     val foot = Path()
-    repeat(13) { fir(foot, rnd.nextFloat() * s.w, s.h + 2f * u, (15f + rnd.nextFloat() * 16f) * u, rnd) }
+    repeat(13) { fir(foot, rnd.nextFloat() * s.w, s.h - 10f * u, (13f + rnd.nextFloat() * 15f) * u, rnd) }
     val castleX = s.w - bigX + (rnd.nextFloat() - 0.5f) * 10f * u
     val storied = art.genre in setOf(
         CoverGenre.FANTASY, CoverGenre.MAGIC_SCHOOL, CoverGenre.DARK_MAGIC, CoverGenre.QUEST, CoverGenre.STORM_EPIC, CoverGenre.FAIRY_TALE, CoverGenre.ROMANTASY,
         CoverGenre.KNIGHTS, CoverGenre.HISTORICAL, CoverGenre.VAMPIRES, CoverGenre.MYTHOLOGY, CoverGenre.WITCHES, CoverGenre.HORROR,
     )
-    if (storied) p.castle(foot, castleX, s.h - 17f * u, 20f * u, null, s.h + 2f * u)
+    val lit = Path()
+    if (storied) {
+        // A crag for it to stand on: up one side in ledges, across under the walls, and down the other.
+        val base = s.h - 25f * u
+        val size = 20f * u
+        fun side(from: Float, to: Float, rising: Boolean) {
+            val steps = 5
+            val runs = FloatArray(steps) { 0.6f + rnd.nextFloat() }
+            val rises = FloatArray(steps) { 0.6f + rnd.nextFloat() }
+            val run = (to - from) / runs.sum()
+            val rise = (s.h + 2f * u - base) / rises.sum() * (if (rising) -1f else 1f)
+            var x = from
+            var y = if (rising) s.h + 2f * u else base
+            for (k in 0 until steps) {
+                // A ledge, then the rock face above (or below) it.
+                val flatFirst = rising
+                val dx = runs[k] * run
+                val dy = rises[k] * rise
+                if (flatFirst) foot.lineTo(x + dx * 0.72f, y + dy * 0.14f) else foot.lineTo(x + dx * 0.28f, y + dy * 0.86f)
+                x += dx
+                y += dy
+                foot.lineTo(x, y)
+            }
+        }
+        foot.moveTo(castleX - size * 2.5f, s.h + 2f * u)
+        side(castleX - size * 2.5f, castleX - size * 1.02f, rising = true)
+        foot.lineTo(castleX + size * 1.07f, base)
+        side(castleX + size * 1.07f, castleX + size * 2.6f, rising = false)
+        foot.close()
+        p.castle(foot, castleX, base + 0.3f * u, size, lit)
+        // Firs up its flanks.
+        for (k in 0 until 7) {
+            val out = 1.15f + rnd.nextFloat() * 1.2f
+            val x = castleX + size * out * (if (k % 2 == 0) -1f else 1f)
+            fir(foot, x, base + (out - 0.9f) / 1.6f * 19f * u + 3f * u, (6f + rnd.nextFloat() * 6f) * u, rnd)
+        }
+    }
+    // The ground they all stand on, dark enough to read the author's name on.
+    foot.moveTo(-2f, s.h - 13.5f * u)
+    foot.cubicTo(0.25f * s.w, s.h - 16.5f * u, 0.45f * s.w, s.h - 12.5f * u, 0.62f * s.w, s.h - 14.5f * u)
+    foot.cubicTo(0.78f * s.w, s.h - 16.5f * u, 0.9f * s.w, s.h - 13f * u, s.w + 2f, s.h - 15f * u)
+    foot.lineTo(s.w + 2f, s.h + 2f)
+    foot.lineTo(-2f, s.h + 2f)
+    foot.close()
     c.drawPath(foot, s.fill(deep))
+    // Lights in its windows.
+    c.drawPath(lit, s.fill(if (dark) mix(a, Color.WHITE, 0.35f) else mix(g, Color.WHITE, 0.4f)))
     p.grain(1f)
     titleIn(
         s, t, RectF(9f * u, 9f * u, 91f * u, 0.28f * s.h), romanDecorated, 9.6f, if (dark) a else s.c.ink, if (dark) s.c.ink else a, pitch = 1.14f, place = -1,
         foil = true, gap = 3.2f,
     )
-    authorIn(s, t, RectF(10f * u, s.h - 15f * u, 90f * u, s.h - 5.5f * u), romanLight, 4f, if (dark) s.c.ink else s.c.ground, tracking = 0.22f)
+    authorIn(s, t, RectF(10f * u, s.h - 12.5f * u, 90f * u, s.h - 4.5f * u), romanLight, 4f, showing(if (dark) s.c.ink else s.c.ground, deep, 4.5), tracking = 0.22f)
 }
 
 /** An old tome: worn leather or stained vellum, bound with metal: strips, plates or hinges, a boss in the middle, and rivets. */
@@ -460,202 +505,6 @@ internal fun CoverGenerator.tooled(s: Sheet, t: Words, art: Art) {
     authorIn(s, t, RectF(cx - 23f * u, 0.675f * s.h, cx + 23f * u, 0.76f * s.h), fellCaps, 3.9f, gilt, upper = false, tracking = 0.12f, foil = true)
     val deviceY = cy + ry - 11f * u
     if (deviceY > 0.79f * s.h) CoverMotifs.draw(c, CoverMotifs.forGenre(art.genre)[rnd.nextInt(3)], cx, deviceY, 4.2f * u, leaf)
-}
-
-/** A dragon, long and scaled, winding across a cover of two colours. */
-internal fun CoverGenerator.wyrm(s: Sheet, t: Words, art: Art) {
-    val u = s.u
-    val c = s.canvas
-    val rnd = Random(art.seed)
-    val g = s.c.ground
-    val dark = isDark(g)
-    val clothC = s.c.ink
-    c.drawColor(g)
-    val flip = rnd.nextBoolean()
-    c.save()
-    if (flip) c.scale(-1f, 1f, s.w / 2, 0f)
-    // The second colour sweeps up from the foot, woven like cloth.
-    val sweep = Path().apply {
-        moveTo(s.w + 2f, 0.36f * s.h)
-        cubicTo(0.7f * s.w, 0.5f * s.h, 0.46f * s.w, 0.8f * s.h, -2f, 0.87f * s.h)
-        lineTo(-2f, s.h + 2f)
-        lineTo(s.w + 2f, s.h + 2f)
-        close()
-    }
-    c.drawPath(sweep, s.fill(clothC))
-    c.save()
-    c.clipPath(sweep)
-    val weave = s.fill(faint(g, 26))
-    var wy = 0.3f * s.h
-    var row = 0
-    while (wy < s.h) {
-        var wx = if (row % 2 == 0) 0f else 0.55f * u
-        while (wx < s.w) {
-            c.drawRect(wx, wy, wx + 0.6f * u, wy + 0.5f * u, weave)
-            wx += 1.1f * u
-        }
-        wy += 1f * u
-        row++
-    }
-    c.restore()
-    // The dragon's back, from the tip of its tail to its neck: through these places, smoothly.
-    val via = floatArrayOf(7f, 0.73f, 24f, 0.8f, 47f, 0.78f, 69f, 0.67f, 62f, 0.53f, 38f, 0.51f, 22f, 0.4f, 33f, 0.28f, 56f, 0.26f, 74f, 0.34f)
-    val n = via.size / 2
-    fun vx(i: Int) = via[i.coerceIn(0, n - 1) * 2] * u
-    fun vy(i: Int) = via[i.coerceIn(0, n - 1) * 2 + 1] * s.h
-    val steps = 300
-    val xs = FloatArray(steps + 1)
-    val ys = FloatArray(steps + 1)
-    for (i in 0..steps) {
-        val at = i / steps.toFloat() * (n - 1)
-        val seg = min(n - 2, at.toInt())
-        val f = at - seg
-        fun spline(a: Float, b: Float, c0: Float, d: Float) = 0.5f * (2 * b + (c0 - a) * f + (2 * a - 5 * b + 4 * c0 - d) * f * f + (3 * b - a - 3 * c0 + d) * f * f * f)
-        xs[i] = spline(vx(seg - 1), vx(seg), vx(seg + 1), vx(seg + 2))
-        ys[i] = spline(vy(seg - 1), vy(seg), vy(seg + 1), vy(seg + 2))
-    }
-    fun wide(i: Int): Float {
-        val f = i / steps.toFloat()
-        val belly = (1.2f + 9.6f * max(0f, sin(3.1416f * f.pow(0.8f))).pow(0.9f)) * u
-        return if (f > 0.78f) belly + (6.4f * u - belly) * ((f - 0.78f) / 0.22f) else belly
-    }
-    fun tx(i: Int) = xs[min(steps, i + 1)] - xs[max(0, i - 1)]
-    fun ty(i: Int) = ys[min(steps, i + 1)] - ys[max(0, i - 1)]
-    val body = s.c.accent
-    val edge = if (dark) mix(g, Color.BLACK, 0.7f) else mix(s.c.ink, Color.BLACK, 0.3f)
-    val under = mix(body, Color.WHITE, 0.5f)
-    val crest = showing(hueShift(body, 32f, 0.1f), edge, 3.0)
-    val scaleLine = s.stroke(mix(body, Color.BLACK, 0.4f), 0.22f * u)
-    // Legs first, so the body lies over where they join it.
-    for (at in listOf(0.27f, 0.36f, 0.6f, 0.69f)) {
-        val i = (at * steps).toInt()
-        val len = kotlin.math.hypot(tx(i), ty(i))
-        val nx = -ty(i) / len
-        val ny = tx(i) / len
-        // (Down the cover is the dragon's underside wherever its back runs level.)
-        val down = if (ny > 0) 1f else -1f
-        val x0 = xs[i] + nx * down * wide(i) * 0.3f
-        val y0 = ys[i] + ny * down * wide(i) * 0.3f
-        val x1 = x0 + nx * down * 7.4f * u + tx(i) / len * 3.2f * u
-        val y1 = y0 + ny * down * 7.4f * u + ty(i) / len * 3.2f * u
-        c.drawLine(x0, y0, x1, y1, s.stroke(edge, 3.8f * u).apply { strokeCap = Paint.Cap.ROUND })
-        c.drawLine(x0, y0, x1, y1, s.stroke(body, 2.8f * u).apply { strokeCap = Paint.Cap.ROUND })
-        for (k in -1..1) {
-            val ang = kotlin.math.atan2(y1 - y0, x1 - x0) + k * 0.55f
-            c.drawLine(x1, y1, x1 + cos(ang) * 3.4f * u, y1 + sin(ang) * 3.4f * u, s.stroke(edge, 1.3f * u).apply { strokeCap = Paint.Cap.ROUND })
-            c.drawLine(x1, y1, x1 + cos(ang) * 3.4f * u, y1 + sin(ang) * 3.4f * u, s.stroke(crest, 0.7f * u).apply { strokeCap = Paint.Cap.ROUND })
-        }
-    }
-    // The fins along its back.
-    for (i in 14 until (steps * 0.9f).toInt() step 7) {
-        val len = kotlin.math.hypot(tx(i), ty(i))
-        val nx = -ty(i) / len
-        val ny = tx(i) / len
-        val up = if (ny > 0) -1f else 1f
-        val bx = xs[i] + nx * up * wide(i) * 0.46f
-        val by = ys[i] + ny * up * wide(i) * 0.46f
-        val tall = 1.6f * u + wide(i) * 0.36f
-        val fin = Path().apply {
-            moveTo(bx - tx(i) / len * 1.5f * u, by - ty(i) / len * 1.5f * u)
-            lineTo(bx + nx * up * tall - tx(i) / len * 1.8f * u, by + ny * up * tall - ty(i) / len * 1.8f * u)
-            lineTo(bx + tx(i) / len * 1.5f * u, by + ty(i) / len * 1.5f * u)
-            close()
-        }
-        c.drawPath(fin, s.fill(crest))
-        c.drawPath(fin, s.stroke(edge, 0.3f * u).apply { strokeJoin = Paint.Join.ROUND })
-    }
-    for (i in 0..steps) c.drawCircle(xs[i], ys[i], wide(i) / 2 + 0.5f * u, s.fill(edge))
-    for (i in 0..steps) c.drawCircle(xs[i], ys[i], wide(i) / 2, s.fill(body))
-    for (i in 0..steps) {
-        val len = kotlin.math.hypot(tx(i), ty(i))
-        val nx = -ty(i) / len
-        val ny = tx(i) / len
-        val down = if (ny > 0) 1f else -1f
-        c.drawCircle(xs[i] + nx * down * wide(i) * 0.27f, ys[i] + ny * down * wide(i) * 0.27f, wide(i) * 0.2f, s.fill(under))
-    }
-    // Scales along its upper side, in two rows.
-    for (i in 8 until steps - 6 step 3) {
-        val len = kotlin.math.hypot(tx(i), ty(i))
-        val nx = -ty(i) / len
-        val ny = tx(i) / len
-        val up = if (ny > 0) -1f else 1f
-        val off = if ((i / 3) % 2 == 0) 0.12f else 0.3f
-        val x = xs[i] + nx * up * wide(i) * off
-        val y = ys[i] + ny * up * wide(i) * off
-        val r = wide(i) * 0.15f
-        val ang = Math.toDegrees(kotlin.math.atan2(ty(i).toDouble(), tx(i).toDouble())).toFloat()
-        c.drawArc(RectF(x - r, y - r, x + r, y + r), ang - 80f, 160f, false, scaleLine)
-    }
-    // Its head.
-    val hx = xs[steps]
-    val hy = ys[steps]
-    val turn = Math.toDegrees(kotlin.math.atan2(ty(steps).toDouble(), tx(steps).toDouble())).toFloat()
-    c.save()
-    c.translate(hx, hy)
-    c.rotate(turn)
-    c.scale(1.55f, 1.55f)
-    val horn = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = crest; style = Paint.Style.STROKE; strokeCap = Paint.Cap.ROUND }
-    for ((y0, y1) in listOf(-2.6f to -7.4f, -1.4f to -4.2f)) {
-        val hornPath = Path().apply { moveTo(0f, y0 * u); quadTo(-5f * u, y0 * u - 0.6f * u, -9f * u, y1 * u) }
-        c.drawPath(hornPath, Paint(horn).apply { color = edge; strokeWidth = 1.5f * u })
-        c.drawPath(hornPath, Paint(horn).apply { strokeWidth = 0.9f * u })
-    }
-    for (k in 0 until 4) {
-        val mane = Path().apply { moveTo(-1f * u - k * 1.6f * u, 2f * u); lineTo(-4.4f * u - k * 1.7f * u, 5.4f * u - k * 0.5f * u); lineTo(-2.6f * u - k * 1.6f * u, 1.6f * u); close() }
-        c.drawPath(mane, s.fill(crest))
-    }
-    val skull = Path().apply {
-        moveTo(-4f * u, -3.2f * u)
-        cubicTo(-1f * u, -4.8f * u, 3f * u, -4.6f * u, 5f * u, -3.4f * u)
-        cubicTo(7f * u, -2.6f * u, 10f * u, -2.6f * u, 13.4f * u, -1.9f * u)
-        cubicTo(14.4f * u, -1.6f * u, 14.6f * u, -0.4f * u, 13.6f * u, 0.1f * u)
-        lineTo(4.6f * u, 0.9f * u)
-        lineTo(1f * u, 2.4f * u)
-        cubicTo(-1f * u, 3.2f * u, -3f * u, 3.2f * u, -4f * u, 2.8f * u)
-        close()
-    }
-    val jaw = Path().apply {
-        moveTo(0.6f * u, 2.2f * u)
-        lineTo(5f * u, 1.6f * u)
-        lineTo(12f * u, 3.4f * u)
-        cubicTo(8f * u, 5f * u, 3f * u, 4.8f * u, -1.4f * u, 3.2f * u)
-        close()
-    }
-    val around = s.fill(edge).apply { style = Paint.Style.FILL_AND_STROKE; strokeWidth = 1f * u; strokeJoin = Paint.Join.ROUND }
-    c.drawPath(jaw, around)
-    c.drawPath(skull, around)
-    // The mouth dark inside, with teeth above and below.
-    c.drawPath(Path().apply { moveTo(4.6f * u, 0.9f * u); lineTo(13.6f * u, 0.1f * u); lineTo(12f * u, 3.4f * u); lineTo(5f * u, 1.6f * u); close() }, s.fill(edge))
-    c.drawPath(jaw, s.fill(mix(body, edge, 0.16f)))
-    c.drawPath(skull, s.fill(body))
-    val teeth = Path()
-    for (x in listOf(7f, 8.8f, 10.6f, 12.4f)) {
-        val lip = 0.1f + (13.6f - x) * 0.089f
-        teeth.moveTo((x - 0.6f) * u, lip * u); teeth.lineTo(x * u, (lip + 1.3f) * u); teeth.lineTo((x + 0.6f) * u, lip * u); teeth.close()
-    }
-    for (x in listOf(7.8f, 9.6f, 11.2f)) {
-        val gum = 1.6f + (x - 5f) * 0.257f
-        teeth.moveTo((x - 0.5f) * u, gum * u); teeth.lineTo(x * u, (gum - 1.1f) * u); teeth.lineTo((x + 0.5f) * u, gum * u); teeth.close()
-    }
-    c.drawPath(teeth, s.fill(Color.WHITE))
-    // A narrow eye under a heavy brow.
-    c.drawPath(Path().apply { moveTo(2.2f * u, -1.9f * u); quadTo(3.9f * u, -3.4f * u, 5.8f * u, -2f * u); quadTo(3.9f * u, -1.2f * u, 2.2f * u, -1.9f * u) }, s.fill(Color.WHITE))
-    c.drawLine(4f * u, -2.7f * u, 4f * u, -1.5f * u, s.stroke(edge, 0.5f * u))
-    c.drawPath(Path().apply { moveTo(1.4f * u, -2.5f * u); quadTo(4f * u, -4.3f * u, 6.6f * u, -2.4f * u) }, s.stroke(edge, 0.7f * u).apply { strokeCap = Paint.Cap.ROUND })
-    c.drawCircle(12.6f * u, -1.1f * u, 0.3f * u, s.fill(edge))
-    val whisker = s.stroke(crest, 0.34f * u).apply { strokeCap = Paint.Cap.ROUND }
-    c.drawPath(Path().apply { moveTo(11.6f * u, -1.4f * u); cubicTo(17f * u, -4f * u, 20f * u, -1f * u, 18f * u, 2f * u) }, whisker)
-    c.drawPath(Path().apply { moveTo(12.4f * u, -1.9f * u); cubicTo(14f * u, -6f * u, 18f * u, -7f * u, 20f * u, -5f * u) }, whisker)
-    c.restore()
-    c.restore()
-    Painter(c, whole(s), rnd).grain(0.8f)
-    val start = if (flip) Layout.Alignment.ALIGN_OPPOSITE else Layout.Alignment.ALIGN_NORMAL
-    val head = if (flip) RectF(30f * u, 8f * u, 92f * u, 0.2f * s.h) else RectF(8f * u, 8f * u, 70f * u, 0.2f * s.h)
-    titleIn(
-        s, t, head, roman, 8.4f, clothC, body, upper = true, tracking = 0.06f, pitch = 1.14f, place = -1, align = start, smallest = 2.5f,
-        seriesFace = sans, seriesSize = 2.6f, seriesTracking = 0.18f, gap = 2.6f,
-    )
-    authorIn(s, t, RectF(10f * u, s.h - 14f * u, 90f * u, s.h - 5.5f * u), serifBold, 5f, showing(body, clothC, 3.0), upper = false, tracking = 0f, align = if (flip) Layout.Alignment.ALIGN_NORMAL else Layout.Alignment.ALIGN_OPPOSITE)
 }
 
 /** A great dial, half off the cover: its numerals and rings in one pale foil, a hand, and small emblems in a column beside the title. */

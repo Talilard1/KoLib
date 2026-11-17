@@ -334,6 +334,36 @@ internal object Stamps {
         for (k in 0 until 3) p.c.drawLine(p.x(0.1f + k * 0.08f), p.y(0.76f + k * 0.05f), p.x(0.5f + k * 0.12f), p.y(0.76f + k * 0.05f), thin(line, 0.4f))
     }
 
+    /** A shrine gate before a great sun, a mountain behind and grass at its feet. */
+    fun gateAndSun(p: Painter, line: Paint, solid: Paint) {
+        val cx = p.x(0.5f)
+        val base = p.y(0.84f)
+        val size = p.w * 0.6f
+        p.c.drawCircle(cx, p.y(0.4f), p.w * 0.27f, thin(line, 0.7f))
+        // The mountain, low behind.
+        p.c.drawPath(Path().apply {
+            moveTo(p.x(0.08f), p.y(0.66f)); quadTo(p.x(0.34f), p.y(0.6f), p.x(0.45f), p.y(0.47f)); lineTo(p.x(0.55f), p.y(0.47f)); quadTo(p.x(0.66f), p.y(0.6f), p.x(0.92f), p.y(0.66f))
+        }, thin(line, 0.6f))
+        // The gate: posts, tie-beam, and the two beams of its head.
+        for (side in listOf(-1f, 1f)) {
+            p.c.drawPath(Path().apply {
+                moveTo(cx + side * size * 0.33f, base); lineTo(cx + side * size * 0.29f, base - size * 0.78f); lineTo(cx + side * size * 0.22f, base - size * 0.78f); lineTo(cx + side * size * 0.25f, base); close()
+            }, solid)
+        }
+        p.c.drawRect(cx - size * 0.42f, base - size * 0.6f, cx + size * 0.42f, base - size * 0.54f, solid)
+        p.c.drawRect(cx - size * 0.45f, base - size * 0.8f, cx + size * 0.45f, base - size * 0.75f, solid)
+        p.c.drawPath(Path().apply {
+            moveTo(cx - size * 0.56f, base - size * 0.93f); quadTo(cx, base - size * 0.85f, cx + size * 0.56f, base - size * 0.93f)
+            lineTo(cx + size * 0.51f, base - size * 0.82f); quadTo(cx, base - size * 0.8f, cx - size * 0.51f, base - size * 0.82f); close()
+        }, solid)
+        p.c.drawRect(cx - size * 0.03f, base - size * 0.75f, cx + size * 0.03f, base - size * 0.6f, solid)
+        for (k in 0 until 9) {
+            val gx = p.x(0.12f + k * 0.095f)
+            p.c.drawLine(gx, base + p.u * 2f, gx + p.u * 1.2f, base - p.u * (2f + (k % 3) * 1.4f), thin(line, 0.5f))
+        }
+        p.c.drawLine(p.x(0.08f), base + p.u * 2f, p.x(0.92f), base + p.u * 2f, thin(line, 0.6f))
+    }
+
     /** A fighter craft at speed, bolts of light ahead of it, a planet behind. */
     fun fighterAndPlanet(p: Painter, line: Paint, solid: Paint) {
         val pr = p.w * 0.2f

@@ -123,6 +123,7 @@ private fun pictureQuery(genre: CoverGenre): String = when (genre) {
     CoverGenre.ROMANTASY -> tr("romantic fantasy art")
     CoverGenre.URBAN_FANTASY -> tr("urban fantasy city at night")
     CoverGenre.WUXIA -> tr("chinese ink landscape painting")
+    CoverGenre.SAMURAI -> tr("japanese woodblock print landscape")
     CoverGenre.SCIENCE_FICTION -> tr("science fiction space painting")
     CoverGenre.SPACE_OPERA -> tr("space battle concept art")
     CoverGenre.STARSHIP -> tr("starship concept art")

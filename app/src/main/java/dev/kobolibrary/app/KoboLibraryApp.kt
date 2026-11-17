@@ -77,6 +77,12 @@ class KoboLibraryApp : Application() {
                 // KoLib is offered in other apps' Share only once there's a device to send to.
                 m.paired.map { it.isNotEmpty() }.distinctUntilChanged().collect { any -> dev.kobolibrary.app.link.ShareToDeviceActivity.offer(this@KoboLibraryApp, any) }
             }
+            appScope.launch {
+                // Each paired device at the top of other apps' Share, and in KoLib's shortcuts; none once it's forgotten.
+                m.paired.map { list -> list.map { it.id to it.name } }.distinctUntilChanged().collect {
+                    dev.kobolibrary.app.link.DeviceShortcuts.update(this@KoboLibraryApp, m.paired.value)
+                }
+            }
         }
     }
 

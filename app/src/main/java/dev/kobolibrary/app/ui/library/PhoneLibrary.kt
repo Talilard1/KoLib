@@ -86,6 +86,8 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SuggestionChip
+import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -182,13 +184,25 @@ internal fun PhoneLibraryScreen(
     onMarkUnread: (List<String>) -> Unit = {},
     onContinueFromKobo: ((String, KoboBook) -> Unit)? = null,
 ) {
-    if (selected != null && !browse.selecting) {
-        BackHandler { browse.selectedId = null }
+    // A book from a collection (in the Collections tab) opens on a page of its own too, going back to the collection.
+    val fromCollection = if (browse.tab == 1 && browse.collectionKey != null) browse.collectionBookId?.let { id -> books.firstOrNull { it.id == id } } else null
+    val open = if (browse.tab == 1) fromCollection else selected?.takeIf { !browse.selecting }
+    if (open != null) {
+        val inCollection = browse.tab == 1
+        val back = { if (inCollection) browse.collectionBookId = null else browse.selectedId = null }
+        // A tag or a search from a collection's book shows the books in the Books tab.
+        val toBooks = {
+            browse.collectionBookId = null
+            browse.selectedId = null
+            browse.tab = 0
+        }
+        BackHandler(onBack = back)
+        val selected = open
         PhoneBookPage(
             book = selected,
             covers = covers,
             koboConnected = koboConnected,
-            onBack = { browse.selectedId = null },
+            onBack = back,
             onRead = { onRead(selected.id) },
             onSend = { onSend(listOf(selected.id)) },
             onEdit = { onEditDetails(selected.id) },
@@ -198,22 +212,27 @@ internal fun PhoneLibraryScreen(
             onExport = { onExport(listOf(selected.id)) },
             onDuplicate = { onDuplicate(listOf(selected.id)) },
             onDelete = {
-                browse.selectedId = null
+                back()
                 onDelete(listOf(selected.id))
             },
             onCollection = { name ->
-                browse.collection = name
-                browse.selectedId = null
+                if (inCollection) {
+                    browse.collectionKey = name.trim().lowercase()
+                    browse.collectionBookId = null
+                } else {
+                    browse.collection = name
+                    browse.selectedId = null
+                }
             },
             onTag = { tag ->
                 browse.tags = setOf(tag)
-                browse.selectedId = null
+                if (inCollection) toBooks() else browse.selectedId = null
             },
             onSearch = { search ->
                 browse.query = search
                 browse.collection = null
                 browse.tags = emptySet()
-                browse.selectedId = null
+                if (inCollection) toBooks() else browse.selectedId = null
             },
             readHere = readingHere[selected.id]?.takeIf { !it.finished }?.progress,
             reading = reading(selected),
@@ -286,7 +305,8 @@ internal fun PhoneLibraryScreen(
                     Spacer(Modifier.width(10.dp))
                     PhoneSearchField(
                         query = browse.query,
-                        onQuery = { browse.query = it },
+                        // A search is for books: from the Collections tab it shows them in the Books tab.
+                        onQuery = { browse.query = it; if (it.isNotEmpty()) browse.tab = 0 },
                         placeholder = if (books.isEmpty()) tr("Search the library") else tr("Search {0}", Fmt.plural(books.size, "book")),
                         onHelp = { showHelp = true },
                         modifier = Modifier.weight(1f),
@@ -307,6 +327,16 @@ internal fun PhoneLibraryScreen(
             dev.kobolibrary.app.ui.ocr.OcrStrip(onShow = { id -> browse.selectedId = id })
             if (books.isEmpty()) {
                 EmptyLibrary(koboConnected, onAddFiles, onAddFromKobo, onNewBook)
+                return@Column
+            }
+            if (!browse.selecting) {
+                PrimaryTabRow(selectedTabIndex = browse.tab, containerColor = Color.Transparent) {
+                    Tab(selected = browse.tab == 0, onClick = { browse.tab = 0 }, text = { Text(tr("Books")) })
+                    Tab(selected = browse.tab == 1, onClick = { browse.tab = 1 }, text = { Text(tr("Collections")) })
+                }
+            }
+            if (browse.tab == 1 && !browse.selecting) {
+                LibraryCollectionsTab(books, covers, browse, koboConnected, reading, here, onSend) { _, _, _ -> }
                 return@Column
             }
             PhoneLibraryFilters(books, browse)

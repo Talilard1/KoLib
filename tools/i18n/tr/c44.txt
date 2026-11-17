@@ -1,0 +1,232 @@
+@fr
+2656|Afficher les collections
+2657| · {0} sur la Kobo
+2658|Aucune collection pour l’instant. Pour ajouter un livre à une collection, touchez Modifier les détails.
+2659|{0} dans votre bibliothèque
+2660|Tout envoyer sur la Kobo
+2661|Envoyer {0} sur la Kobo
+2662|Chaque livre de votre bibliothèque est dans au moins une collection.
+2663|Aucun livre dans cette collection.
+2664|Utiliser ce modèle
+2665|Même modèle de couverture pour chaque livre
+2666|Chaque livre reçoit une nouvelle couverture dans ce modèle, le premier aussi.
+2667|Désactivé : un livre sans couverture en reçoit une dans un modèle choisi au hasard.
+2668|Chaque livre reçoit ses chapitres avec leurs images, styles, polices et notes. L’ancienne couverture du premier livre peut être remise avec Changer la couverture, puis Restaurer l’original. « {0} » n’est pas modifié.
+2669|Choisir pour moi
+2670|Autres suggestions
+2671|Tous les modèles…
+2672|Un modèle adapté au livre est choisi au moment de la division.
+2673|{0}, chaque livre dans sa propre couleur.
+2674|{0}, en {1}.
+2675|{0}, dans les couleurs de son image.
+2676|Une couleur différente pour chaque livre
+2677|Autres couleurs
+2678|Leur apparence
+2679|Envoyer à {0}
+2680|Synchroniser
+2681|Synchronisation des positions de lecture…
+2682|Que voulez-vous envoyer ?
+2683|Des livres de votre bibliothèque : choisissez-les dans KoLib.
+@de
+2656|Sammlungen anzeigen
+2657| · {0} auf dem Kobo
+2658|Noch keine Sammlungen. Um ein Buch einer Sammlung hinzuzufügen, tippe auf „Details bearbeiten“.
+2659|{0} in deiner Bibliothek
+2660|Alle an den Kobo senden
+2661|{0} an den Kobo senden
+2662|Jedes Buch in deiner Bibliothek ist in mindestens einer Sammlung.
+2663|In dieser Sammlung sind keine Bücher.
+2664|Dieses Design verwenden
+2665|Dasselbe Cover-Design für jedes Buch
+2666|Jedes Buch bekommt ein neues Cover in diesem Design, auch das erste.
+2667|Aus: Ein Buch ohne Cover bekommt eins in einem zufällig gewählten Design.
+2668|Jedes Buch bekommt seine Kapitel mit ihren Bildern, Stilen, Schriften und Anmerkungen. Das alte Cover des ersten Buchs lässt sich mit „Cover ändern“ und dann „Original wiederherstellen“ zurückholen. „{0}“ wird nicht verändert.
+2669|Für mich wählen
+2670|Andere Vorschläge
+2671|Alle Designs…
+2672|Beim Aufteilen wird ein Design gewählt, das zum Buch passt.
+2673|{0}, jedes Buch in einer eigenen Farbe.
+2674|{0}, in {1}.
+2675|{0}, in den Farben seines Bildes.
+2676|Eine andere Farbe für jedes Buch
+2677|Andere Farben
+2678|So sehen sie aus
+2679|An {0} senden
+2680|Abgleichen
+2681|Lesepositionen werden abgeglichen…
+2682|Was möchtest du senden?
+2683|Bücher aus deiner Bibliothek: Wähle sie in KoLib aus.
+@es
+2656|Mostrar colecciones
+2657| · {0} en el Kobo
+2658|Aún no hay colecciones. Para añadir un libro a una, toca Editar detalles.
+2659|{0} en tu biblioteca
+2660|Enviar todos al Kobo
+2661|Enviar {0} al Kobo
+2662|Todos los libros de tu biblioteca están en al menos una colección.
+2663|No hay libros en esta colección.
+2664|Usar este diseño
+2665|El mismo diseño de portada para todos los libros
+2666|Cada libro recibe una portada nueva con este diseño, también el primero.
+2667|Desactivado: un libro sin portada recibe una con un diseño elegido al azar.
+2668|Cada libro recibe sus capítulos con sus imágenes, estilos, fuentes y notas. La portada anterior del primer libro se puede recuperar con Cambiar portada y luego Restaurar original. «{0}» no se modifica.
+2669|Elige por mí
+2670|Otras sugerencias
+2671|Todos los diseños…
+2672|Al dividirlo se elige un diseño que encaje con el libro.
+2673|{0}, cada libro en su propio color.
+2674|{0}, en {1}.
+2675|{0}, con los colores de su imagen.
+2676|Un color distinto para cada libro
+2677|Otros colores
+2678|Así quedarán
+2679|Enviar a {0}
+2680|Sincronizar
+2681|Sincronizando posiciones de lectura…
+2682|¿Qué quieres enviar?
+2683|Libros de tu biblioteca: elígelos en KoLib.
+@it
+2656|Mostra raccolte
+2657| · {0} sul Kobo
+2658|Ancora nessuna raccolta. Per aggiungere un libro a una raccolta, tocca Modifica dettagli.
+2659|{0} nella tua libreria
+2660|Invia tutti al Kobo
+2661|Invia {0} al Kobo
+2662|Ogni libro della tua libreria è in almeno una raccolta.
+2663|Nessun libro in questa raccolta.
+2664|Usa questo modello
+2665|Stesso modello di copertina per ogni libro
+2666|Ogni libro riceve una nuova copertina con questo modello, anche il primo.
+2667|Disattivato: un libro senza copertina ne riceve una con un modello scelto a caso.
+2668|Ogni libro riceve i suoi capitoli con immagini, stili, caratteri e note. La vecchia copertina del primo libro si può ripristinare con Cambia copertina, poi Ripristina originale. «{0}» non viene modificato.
+2669|Scegli tu
+2670|Altri suggerimenti
+2671|Tutti i modelli…
+2672|Al momento della divisione viene scelto un modello adatto al libro.
+2673|{0}, ogni libro con il suo colore.
+2674|{0}, in {1}.
+2675|{0}, con i colori della sua immagine.
+2676|Un colore diverso per ogni libro
+2677|Altri colori
+2678|Come saranno
+2679|Invia a {0}
+2680|Sincronizza
+2681|Sincronizzazione delle posizioni di lettura…
+2682|Cosa vuoi inviare?
+2683|Libri della tua libreria: scegli quali in KoLib.
+@nl
+2656|Collecties tonen
+2657| · {0} op de Kobo
+2658|Nog geen collecties. Tik op Gegevens bewerken om een boek aan een collectie toe te voegen.
+2659|{0} in je bibliotheek
+2660|Alles naar Kobo sturen
+2661|{0} naar Kobo sturen
+2662|Elk boek in je bibliotheek zit in minstens één collectie.
+2663|Er zitten geen boeken in deze collectie.
+2664|Dit ontwerp gebruiken
+2665|Hetzelfde omslagontwerp voor elk boek
+2666|Elk boek krijgt een nieuwe omslag in dit ontwerp, ook het eerste.
+2667|Uit: een boek zonder omslag krijgt er een in een willekeurig gekozen ontwerp.
+2668|Elk boek krijgt zijn hoofdstukken met hun afbeeldingen, stijlen, lettertypen en notities. De oude omslag van het eerste boek kun je terugzetten met Omslag wijzigen en dan Origineel herstellen. ‘{0}’ wordt niet gewijzigd.
+2669|Kies voor mij
+2670|Andere suggesties
+2671|Alle ontwerpen…
+2672|Bij het opsplitsen wordt een ontwerp gekozen dat bij het boek past.
+2673|{0}, elk boek in een eigen kleur.
+2674|{0}, in {1}.
+2675|{0}, in de kleuren van de afbeelding.
+2676|Een andere kleur voor elk boek
+2677|Andere kleuren
+2678|Zo zien ze eruit
+2679|Naar {0} sturen
+2680|Synchroniseren
+2681|Leesposities synchroniseren…
+2682|Wat wil je versturen?
+2683|Boeken uit je bibliotheek: kies ze in KoLib.
+@pt
+2656|Mostrar coleções
+2657| · {0} no Kobo
+2658|Ainda não há coleções. Para adicionar um livro a uma, toque em Editar detalhes.
+2659|{0} na sua biblioteca
+2660|Enviar todos ao Kobo
+2661|Enviar {0} ao Kobo
+2662|Todos os livros da sua biblioteca estão em pelo menos uma coleção.
+2663|Não há livros nesta coleção.
+2664|Usar este modelo
+2665|O mesmo modelo de capa para todos os livros
+2666|Cada livro recebe uma capa nova neste modelo, inclusive o primeiro.
+2667|Desligado: um livro sem capa recebe uma num modelo escolhido ao acaso.
+2668|Cada livro recebe seus capítulos com imagens, estilos, fontes e notas. A capa antiga do primeiro livro pode ser recuperada com Mudar capa e depois Restaurar original. “{0}” não é alterado.
+2669|Escolha por mim
+2670|Outras sugestões
+2671|Todos os modelos…
+2672|Ao dividir, é escolhido um modelo que combine com o livro.
+2673|{0}, cada livro com sua própria cor.
+2674|{0}, em {1}.
+2675|{0}, nas cores da sua imagem.
+2676|Uma cor diferente para cada livro
+2677|Outras cores
+2678|Como vão ficar
+2679|Enviar para {0}
+2680|Sincronizar
+2681|Sincronizando posições de leitura…
+2682|O que você quer enviar?
+2683|Livros da sua biblioteca: escolha-os no KoLib.
+@ru
+2656|Показать коллекции
+2657| · на Kobo: {0}
+2658|Коллекций пока нет. Чтобы добавить книгу в коллекцию, нажмите «Изменить сведения».
+2659|В вашей библиотеке {0}
+2660|Отправить все на Kobo
+2661|Отправить на Kobo: {0}
+2662|Каждая книга в вашей библиотеке входит хотя бы в одну коллекцию.
+2663|В этой коллекции нет книг.
+2664|Использовать этот стиль
+2665|Один стиль обложки для всех книг
+2666|Каждая книга, включая первую, получит новую обложку в этом стиле.
+2667|Выключено: книга без обложки получит обложку в случайном стиле.
+2668|Каждая книга получит свои главы с изображениями, стилями, шрифтами и примечаниями. Прежнюю обложку первой книги можно вернуть: «Изменить обложку» → «Восстановить исходный». «{0}» не изменится.
+2669|Выбрать за меня
+2670|Другие варианты
+2671|Все стили…
+2672|При разделении будет выбран стиль, подходящий книге.
+2673|{0}, у каждой книги свой цвет.
+2674|{0}, цвет «{1}».
+2675|{0}, в цветах картинки.
+2676|Свой цвет для каждой книги
+2677|Другие цвета
+2678|Как они будут выглядеть
+2679|Отправить на {0}
+2680|Синхронизировать
+2681|Синхронизация мест чтения…
+2682|Что вы хотите отправить?
+2683|Книги из вашей библиотеки: выберите их в KoLib.
+@ja
+2656|コレクションを表示
+2657| · Kobo に {0} 冊
+2658|コレクションはまだありません。本をコレクションに入れるには、「情報を編集」をタップします。
+2659|ライブラリに{0}があります
+2660|すべて Kobo に送る
+2661|{0} 冊を Kobo に送る
+2662|ライブラリのすべての本が、いずれかのコレクションに入っています。
+2663|このコレクションに本はありません。
+2664|このデザインを使う
+2665|すべての本を同じ表紙デザインにする
+2666|最初の本も含め、すべての本にこのデザインの新しい表紙が付きます。
+2667|オフの場合：表紙のない本には、ランダムに選んだデザインの表紙が付きます。
+2668|それぞれの本に、章と、その画像、スタイル、フォント、注が入ります。最初の本の元の表紙は、「表紙を変更」→「元に戻す」で戻せます。「{0}」は変更されません。
+2669|おまかせで選ぶ
+2670|ほかの候補
+2671|すべてのデザイン…
+2672|分割するときに、本に合うデザインが選ばれます。
+2673|{0}（本ごとに違う色）
+2674|{0}（{1}）
+2675|{0}（絵の色を使用）
+2676|本ごとに違う色にする
+2677|ほかの色
+2678|仕上がりイメージ
+2679|{0} に送信
+2680|同期
+2681|読書位置を同期しています…
+2682|何を送信しますか？
+2683|ライブラリの本：KoLib で選んでください。

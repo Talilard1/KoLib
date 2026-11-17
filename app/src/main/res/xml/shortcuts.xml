@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Each paired device is offered at the top of other apps' Share, as KDE Connect's are: a sharing shortcut per
+     device (see DeviceShortcuts), sent to "Send to device" with the shortcut's id. -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <share-target android:targetClass="dev.kobolibrary.app.link.ShareToDeviceActivity">
+        <data android:mimeType="*/*" />
+        <category android:name="dev.kobolibrary.app.category.SEND_TO_DEVICE" />
+    </share-target>
+</shortcuts>

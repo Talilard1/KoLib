@@ -118,7 +118,7 @@ internal fun StatTile(value: String, label: String, modifier: Modifier = Modifie
 @Composable
 internal fun StatHeading(text: String, modifier: Modifier = Modifier) {
     Text(
-        text.uppercase(Locale.getDefault()),
+        text.uppercase(androidx.compose.ui.platform.LocalConfiguration.current.locales[0] ?: Locale.getDefault()),
         style = MaterialTheme.typography.labelMedium,
         color = MaterialTheme.colorScheme.primary,
         modifier = modifier.padding(top = 4.dp),

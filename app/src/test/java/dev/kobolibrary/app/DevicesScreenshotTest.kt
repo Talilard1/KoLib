@@ -23,6 +23,7 @@ import dev.kobolibrary.app.ui.theme.AppSurface
 import dev.kobolibrary.app.ui.theme.ThemeChoice
 import org.junit.Before
 import org.junit.Rule
+import dev.kobolibrary.app.tr
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -96,6 +97,38 @@ class DevicesScreenshotTest {
         AppFrame(section = Section.DEVICES, onSection = {}, koboConnected = true, onNarrow = {}) {
             DevicesContent(view().copy(me = "Galaxy A72", paired = listOf(PairedDevice("tab-1", "Galaxy Tab S9", "", 0L)), nearby = emptyList()), actions)
         }
+    }
+
+    /** "Send to device" from the link's notification: what to send. */
+    @Test
+    @Config(qualifiers = PHONE)
+    fun sendChooseWhat() = shot("devicesSendWhat") {
+        dev.kobolibrary.app.link.ShareSheetContent(
+            title = tr("Send to device"), about = tr("What would you like to send?"), body = dev.kobolibrary.app.link.SheetBody.ChooseWhat,
+            closeLabel = tr("Cancel"), canClose = true,
+        )
+    }
+
+    /** Books chosen to send, with two devices paired: which, before choosing the books in KoLib. */
+    @Test
+    @Config(qualifiers = TABLET)
+    fun sendBooksToWhichDevice() = shot("devicesSendBooksWhich") {
+        dev.kobolibrary.app.link.ShareSheetContent(
+            title = tr("Send to device"), about = tr("Books from your library: choose them in KoLib."),
+            body = dev.kobolibrary.app.link.SheetBody.ChooseDevice(listOf(phone, other), setOf("phone-1")),
+            closeLabel = tr("Cancel"), canClose = true,
+        )
+    }
+
+    /** Shared from another app to a device at the top of its Share: sent straight there. */
+    @Test
+    @Config(qualifiers = PHONE)
+    fun sharedToADeviceDirectly() = shot("devicesSendDirect") {
+        dev.kobolibrary.app.link.ShareSheetContent(
+            title = tr("Send to {0}", "Galaxy Tab S9"), about = tr("{0} files to the other device's Downloads.", 3),
+            body = dev.kobolibrary.app.link.SheetBody.Sending("Galaxy Tab S9", 0.4f),
+            closeLabel = tr("Cancel"), canClose = false,
+        )
     }
 
     /** This device's pairing code, for the other to scan. */

@@ -159,6 +159,20 @@ class ScreenshotTest {
     @Config(qualifiers = PORTRAIT)
     fun collectionsPortrait() = deviceScreen("06_collections_portrait", tab = 1)
 
+    /** A book tapped in a collection opens beside it, the collections folded away to a strip. */
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun collectionBookOpen() = deviceScreen("05b_collection_book_landscape", tab = 1, collection = "Sherlock Holmes", configure = {
+        collectionBookId = FakeKobo.books.first { it.title == "The Sign of the Four" }.contentId
+    })
+
+    /** The same, standing up: the book on its own, with a way back to the collection. */
+    @Test
+    @Config(qualifiers = PORTRAIT)
+    fun collectionBookOpenPortrait() = deviceScreen("06b_collection_book_portrait", tab = 1, collection = "Sherlock Holmes", configure = {
+        collectionBookId = FakeKobo.books.first { it.title == "The Sign of the Four" }.contentId
+    })
+
     @Test
     @Config(qualifiers = LANDSCAPE)
     fun notInACollection() = deviceScreen("07_no_collection_landscape", tab = 1, collection = NO_COLLECTION_KEY)

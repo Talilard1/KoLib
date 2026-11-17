@@ -254,6 +254,7 @@ fun AppRoot(
     var filesFor by remember { mutableStateOf<dev.kobolibrary.app.link.PairedDevice?>(null) }
     val sendBooksTo: (dev.kobolibrary.app.link.PairedDevice, List<String>) -> Unit = { device, ids ->
         link.sendBooks(device, ids)
+        dev.kobolibrary.app.link.DeviceShortcuts.used(appContext, device)
         libraryBrowse.stopSelecting()
         localMessage = if (ids.size == 1) tr("Sending “{0}” to {1}…", books.firstOrNull { it.id == ids[0] }?.title.orEmpty(), device.name)
         else tr("Sending {0} books to {1}…", ids.size, device.name)
@@ -278,8 +279,26 @@ fun AppRoot(
             val files = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
                 uris.mapNotNull { runCatching { dev.kobolibrary.app.link.LinkFiles.fromUri(appContext, it) }.getOrNull() }
             }
-            if (files.isEmpty()) localMessage = tr("The file couldn't be read.") else link.sendFiles(device, files)
+            if (files.isEmpty()) localMessage = tr("The file couldn't be read.") else {
+                link.sendFiles(device, files)
+                dev.kobolibrary.app.link.DeviceShortcuts.used(appContext, device)
+            }
         }
+    }
+    // Asked from the link's notification: books to choose for a paired device.
+    val booksForDevice by vm.booksForDevice.collectAsStateWithLifecycle()
+    LaunchedEffect(booksForDevice) {
+        val id = booksForDevice ?: return@LaunchedEffect
+        vm.booksForDevice.value = null
+        val d = link.paired.value.firstOrNull { it.id == id } ?: return@LaunchedEffect
+        booksFor = d.id
+        // Out of anything open over the library, but not a book or an editor, which may have changes to keep.
+        if (listOf("edit:", "cover:", "text:", "read:").none { overlay?.startsWith(it) == true }) overlay = null
+        section = Section.LIBRARY
+        libraryBrowse.tab = 0
+        libraryBrowse.selectedId = null
+        libraryBrowse.selecting = true
+        localMessage = tr("Select books to send to {0}.", d.name)
     }
     val devicesActions = remember {
         dev.kobolibrary.app.ui.link.DevicesActions(
@@ -307,7 +326,10 @@ fun AppRoot(
             sendClipboard = { d ->
                 val clip = appContext.getSystemService(android.content.ClipboardManager::class.java)
                 val text = runCatching { clip?.primaryClip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(appContext)?.toString() }.getOrNull()
-                if (text.isNullOrEmpty()) localMessage = tr("The clipboard is empty.") else link.sendText(d, text)
+                if (text.isNullOrEmpty()) localMessage = tr("The clipboard is empty.") else {
+                    link.sendText(d, text)
+                    dev.kobolibrary.app.link.DeviceShortcuts.used(appContext, d)
+                }
             },
             syncPlaces = { d -> link.syncPlaces(d) },
             forget = { d -> link.forget(d.id) },
@@ -430,6 +452,8 @@ fun AppRoot(
     BackHandler(enabled = overlay == null && section != Section.LIBRARY) { section = Section.LIBRARY }
 
     val koboExtras = remember(books, state.koboTags) { KoboExtras(books, state.koboTags) }
+    // The Kobo's screens show a book's library cover when it's in the library.
+    val koboLibraryCovers = remember(koboExtras) { dev.kobolibrary.app.ui.components.KoboLibraryCovers(koboExtras::coverCopy, libraryVm.covers) }
     val connection = state.connection
     val koboView = remember(state.connection, state.lastSeen, state.removedIds) { state.koboView }
     val liveSession = (connection as? Connection.Connected)?.takeIf { !it.unplugged }?.session
@@ -641,6 +665,7 @@ fun AppRoot(
                         readingHere = readingHere,
                         onDelete = { ids ->
                             if (libraryBrowse.selectedId in ids) libraryBrowse.selectedId = null
+                            if (libraryBrowse.collectionBookId in ids) libraryBrowse.collectionBookId = null
                             libraryVm.delete(ids)
                         },
                         onSend = { ids -> sendIds = ids },
@@ -668,7 +693,7 @@ fun AppRoot(
                             }
                         },
                     ) }
-                    Section.KOBO -> when {
+                    Section.KOBO -> CompositionLocalProvider(dev.kobolibrary.app.ui.components.LocalKoboLibraryCovers provides koboLibraryCovers) { when {
                         connection is Connection.Connected && koboView != null -> DeviceScreen(
                             view = koboView,
                             unplugged = connection.unplugged,
@@ -720,7 +745,7 @@ fun AppRoot(
                             onOpenLog = { overlay = "log" },
                             onSettings = { showLook = true },
                         )
-                    }
+                    } }
                 }
                 }
             }
@@ -848,9 +873,9 @@ fun AppRoot(
                 SplitBookDialog(
                     book = book,
                     loadPages = { libraryVm.pagesOf(id) },
-                    onSplit = { cuts, titles, series, shared ->
+                    onSplit = { cuts, titles, series, shared, covers ->
                         splitId = null
-                        libraryVm.splitBook(id, cuts, titles, series, shared) { made -> made.firstOrNull()?.let { libraryBrowse.selectedId = it } }
+                        libraryVm.splitBook(id, cuts, titles, series, shared, covers) { made -> made.firstOrNull()?.let { libraryBrowse.selectedId = it } }
                     },
                     onDismiss = { splitId = null },
                 )

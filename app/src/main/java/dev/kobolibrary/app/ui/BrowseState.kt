@@ -61,6 +61,10 @@ class BrowseState {
 
     /** Which of the Kobo's tabs is showing: books, collections or device. */
     var deviceTab by mutableIntStateOf(0)
+
+    /** The Collections tab: the collection open in it, and the book of it open beside it. */
+    var collectionKey by mutableStateOf<String?>(null)
+    var collectionBookId by mutableStateOf<String?>(null)
     val gridState = LazyGridState()
     val listState = LazyListState()
 
@@ -124,6 +128,24 @@ class KoboExtras(libraryBooks: List<LibraryBook> = emptyList(), private val file
 
     fun libraryCopy(b: KoboBook): LibraryBook? = b.relativePath?.lowercase()?.let { byPath[it] }
     fun inLibrary(b: KoboBook): Boolean = libraryCopy(b) != null
+
+    private val byTitle: Map<String, List<LibraryBook>> = libraryBooks.groupBy { sameText(it.meta.title) }
+
+    /**
+     * The library copy whose cover a book on the Kobo shows: the copy it was sent from or added to the library as;
+     * or else, for a book put on the Kobo some other way, the one book in the library with the same title, first
+     * author and number in its series.
+     */
+    fun coverCopy(b: KoboBook): LibraryBook? = libraryCopy(b) ?: run {
+        val author = b.author?.split(BookSorting.authorSplit)?.firstOrNull { it.isNotBlank() }?.let(::sameText)
+        val number = b.seriesNumber?.trim()?.replace(',', '.')?.toDoubleOrNull()
+        byTitle[sameText(b.title)].orEmpty().filter { c ->
+            c.meta.authors.firstOrNull()?.let(::sameText) == author &&
+                (number == null || c.meta.seriesIndex == null || c.meta.seriesIndex == number)
+        }.singleOrNull()
+    }
+
+    private fun sameText(s: String) = s.trim().replace(Regex("\\s+"), " ").lowercase()
 
     private fun fromFile(b: KoboBook): KoboTagStore.Entry? = b.relativePath?.lowercase()?.let { fileTags[it] }
 

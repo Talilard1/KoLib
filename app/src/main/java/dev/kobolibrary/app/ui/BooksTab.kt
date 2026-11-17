@@ -688,6 +688,8 @@ fun BookDetailPane(
     onOpenCollection: (String) -> Unit,
     onAddToLibrary: (() -> Unit)?,
     onDeleteFromKobo: (() -> Unit)? = null,
+    /** What [onBack] goes back to. */
+    backLabel: String = tr("All books"),
     tags: List<String> = emptyList(),
     onTag: (String) -> Unit = {},
     /** Stars from the Kobo, or the book's own rating; 0 when it has none. */
@@ -728,7 +730,7 @@ fun BookDetailPane(
             TextButton(onClick = onBack, contentPadding = PaddingValues(horizontal = 4.dp)) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text(tr("All books"))
+                Text(backLabel, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             Spacer(Modifier.height(8.dp))
         }

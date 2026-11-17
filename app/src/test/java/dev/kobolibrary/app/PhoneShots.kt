@@ -354,7 +354,7 @@ class PhoneShots {
         val pages = runBlocking { lib.pagesOf(book.id) }
         shot("p23_split", ThemeChoice.BOOKCASE) {
             LibraryPage(lib, covers, LibraryBrowseState().apply { selectedId = book.id })
-            SplitBookDialog(book, loadPages = { pages }, onSplit = { _, _, _, _ -> }, onDismiss = {}, initialPages = pages)
+            SplitBookDialog(book, loadPages = { pages }, onSplit = { _, _, _, _, _ -> }, onDismiss = {}, initialPages = pages)
         }
     }
 

@@ -6,6 +6,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
@@ -13,6 +17,7 @@ import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.performTouchInput
 import org.junit.Assert.assertEquals
 import androidx.compose.ui.test.click
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
@@ -207,6 +212,45 @@ class LibraryScreenshotTest {
     fun libraryEmpty() = libraryScreen("21_library_empty", empty = true)
 
     @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun libraryCollections() = libraryScreen("21b_library_collections") {
+        tab = 1
+        collectionKey = "sherlock holmes"
+    }
+
+    /** A book tapped in a collection opens beside it, the collections folded away to a strip. */
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun libraryCollectionBook() = libraryScreen("21c_library_collection_book") {
+        tab = 1
+        collectionKey = "sherlock holmes"
+        collectionBookId = it.titled("The Sign of the Four").id
+    }
+
+    @Test
+    @Config(qualifiers = PORTRAIT)
+    fun libraryCollectionsPortrait() = libraryScreen("21d_library_collections_portrait") { tab = 1 }
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun libraryCollectionsPhone() = libraryScreen("22b_library_collections_phone") { tab = 1 }
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun libraryCollectionPhone() = libraryScreen("22c_library_collection_phone") {
+        tab = 1
+        collectionKey = "sherlock holmes"
+    }
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun libraryCollectionBookPhone() = libraryScreen("22d_library_collection_book_phone") {
+        tab = 1
+        collectionKey = "sherlock holmes"
+        collectionBookId = it.titled("The Sign of the Four").id
+    }
+
+    @Test
     @Config(qualifiers = PHONE)
     fun libraryOnAPhone() = libraryScreen("22_library_phone")
 
@@ -380,7 +424,7 @@ class LibraryScreenshotTest {
     fun splitWhere() {
         val (lib, _) = library()
         shot("62_split_where") {
-            SplitBookDialog(lib.titled("The Histories"), loadPages = { historiesPages() }, onSplit = { _, _, _, _ -> }, onDismiss = {}, initialPages = historiesPages())
+            SplitBookDialog(lib.titled("The Histories"), loadPages = { historiesPages() }, onSplit = { _, _, _, _, _ -> }, onDismiss = {}, initialPages = historiesPages())
         }
     }
 
@@ -389,8 +433,98 @@ class LibraryScreenshotTest {
     fun splitNames() {
         val (lib, _) = library()
         shot("63_split_names") {
-            SplitBookDialog(lib.titled("The Histories"), loadPages = { historiesPages() }, onSplit = { _, _, _, _ -> }, onDismiss = {}, initialPages = historiesPages(), initialStep = 1)
+            SplitBookDialog(lib.titled("The Histories"), loadPages = { historiesPages() }, onSplit = { _, _, _, _, _ -> }, onDismiss = {}, initialPages = historiesPages(), initialStep = 1)
         }
+    }
+
+    /** Splitting with one cover design for every book: designs suggested for it, and each book's cover in its own colour. */
+    private fun splitCovers(name: String?, eachColour: Boolean) {
+        val (lib, _) = library()
+        val pages = historiesPages()
+        val design = CoverDesign(CoverStyle.FRAMED, CoverColors.themes[0], dev.kobolibrary.app.ui.cover.CoverGenre.HISTORICAL, 7)
+        compose.setContent {
+            AppSurface(ThemeChoice.SYSTEM) {
+                SplitBookDialog(
+                    lib.titled("The Histories"), loadPages = { pages }, onSplit = { _, _, _, _, _ -> }, onDismiss = {},
+                    initialPages = pages, initialStep = 1, initialSameDesign = true, initialDesign = design, initialEachColour = eachColour,
+                )
+            }
+        }
+        compose.waitForIdle()
+        compose.onNodeWithText(dev.kobolibrary.app.tr("How they'll look")).performScrollTo()
+        // On to the first book's title, just below the covers, so they're all in sight.
+        compose.onNodeWithText(dev.kobolibrary.app.tr("Book {0}", 1), useUnmergedTree = true).performScrollTo()
+        // The small covers are drawn away from the screen: seven suggested (one chosen) and one for each of the nine books.
+        compose.waitUntil(60_000) { compose.onAllNodes(androidx.compose.ui.test.hasTestTag("cover-thumb"), useUnmergedTree = true).fetchSemanticsNodes().size >= 12 }
+        // Covers already shown stay while they're drawn in other colours: time for those.
+        Thread.sleep(3_000)
+        compose.waitForIdle()
+        if (name != null) captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/$name.png")
+    }
+
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun splitSameDesign() = splitCovers("63b_split_same_design", eachColour = false)
+
+    @Test
+    @Config(qualifiers = PORTRAIT)
+    fun splitEachColour() {
+        splitCovers("63c_split_each_colour", eachColour = true)
+        // "Other colours" deals every book's colour out afresh.
+        compose.onNodeWithContentDescription(dev.kobolibrary.app.tr("Other colours")).performClick()
+        compose.waitUntil(60_000) { compose.onAllNodes(androidx.compose.ui.test.hasTestTag("cover-thumb"), useUnmergedTree = true).fetchSemanticsNodes().size >= 12 }
+        Thread.sleep(3_000)
+        compose.waitForIdle()
+        captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/63e_split_other_colours.png")
+    }
+
+    /**
+     * The split's cover choices at a phone's width (as in the dialog there, 411dp less its margins). On its own: the test
+     * runner never settles a dialog holding a text box at under 600dp, whatever's in it (Material's own dialog too).
+     */
+    @Test
+    @Config(qualifiers = PHONE)
+    fun splitCoversPhone() {
+        val design = CoverDesign(CoverStyle.FRAMED, CoverColors.themes[0], dev.kobolibrary.app.ui.cover.CoverGenre.HISTORICAL, 7)
+        val books = listOf("Book I: Clio", "Book II: Euterpe", "Book III: Thalia", "Book IV: Melpomene", "Book V: Terpsichore")
+        compose.setContent {
+            AppSurface(ThemeChoice.SYSTEM) {
+                androidx.compose.material3.Surface(
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerHigh,
+                    modifier = Modifier.padding(24.dp),
+                ) {
+                    androidx.compose.foundation.layout.Box(Modifier.width(315.dp).padding(vertical = 16.dp)) {
+                        dev.kobolibrary.app.ui.library.SplitCoverChooser(
+                            thumbs = dev.kobolibrary.app.ui.library.rememberCoverThumbs(),
+                            books = books.size,
+                            textOf = { k -> dev.kobolibrary.app.ui.cover.CoverText(books[k], listOf("Herodotus"), "The Histories", k + 1.0) },
+                            suggestions = dev.kobolibrary.app.ui.cover.CoverSet.suggestions(design.genre, 6, kotlin.random.Random(3)),
+                            picked = design, onPick = {}, onOtherSuggestions = {}, onBrowse = {},
+                            eachColour = true, onEachColour = {}, colourRound = 0, onOtherColours = {},
+                        )
+                    }
+                }
+            }
+        }
+        compose.waitUntil(60_000) { compose.onAllNodes(androidx.compose.ui.test.hasTestTag("cover-thumb"), useUnmergedTree = true).fetchSemanticsNodes().size >= 8 }
+        Thread.sleep(3_000)
+        compose.waitForIdle()
+        compose.onRoot().captureRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/63f_split_covers_phone.png")
+    }
+
+    /** All the designs, to choose one for every book: the cover maker, over the dialog, without pictures of one's own. */
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun splitAllDesigns() {
+        splitCovers(null, eachColour = false)
+        compose.onNodeWithText(dev.kobolibrary.app.tr("All designs…")).performScrollTo().performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText(dev.kobolibrary.app.tr("Use this design")).assertExists()
+        compose.onNodeWithText(dev.kobolibrary.app.tr("Photos")).assertDoesNotExist()
+        Thread.sleep(4_000)
+        compose.waitForIdle()
+        captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/63d_split_all_designs.png")
     }
 
     /**

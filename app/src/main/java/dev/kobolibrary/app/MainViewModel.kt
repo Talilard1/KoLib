@@ -95,6 +95,9 @@ data class UiState(
 
 class MainViewModel(app: Application) : AndroidViewModel(app) {
 
+    /** A paired device to choose books in the library for, asked from outside (the link's notification); null: none. */
+    val booksForDevice = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+
     private val repo = KoboRepository(app)
     private val library = (app as KoboLibraryApp).library
     private val sender = KoboSender(app)

@@ -483,7 +483,7 @@ class AdvertShots {
         compose.setContent {
             AppSurface(ThemeChoice.BOOKCASE) {
                 LibraryPage(lib, covers, browse)
-                SplitBookDialog(book, loadPages = { pages }, onSplit = { _, _, _, _ -> }, onDismiss = {}, initialPages = pages)
+                SplitBookDialog(book, loadPages = { pages }, onSplit = { _, _, _, _, _ -> }, onDismiss = {}, initialPages = pages)
             }
         }
         compose.waitForIdle()

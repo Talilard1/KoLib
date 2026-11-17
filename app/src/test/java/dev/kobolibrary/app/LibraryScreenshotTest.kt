@@ -218,7 +218,7 @@ class LibraryScreenshotTest {
         collectionKey = "sherlock holmes"
     }
 
-    /** A book tapped in a collection opens beside it, the collections folded away to a strip. */
+    /** A book tapped in a collection opens on the right; the collections and the collection's books stay where they are. */
     @Test
     @Config(qualifiers = LANDSCAPE)
     fun libraryCollectionBook() = libraryScreen("21c_library_collection_book") {
@@ -227,9 +227,19 @@ class LibraryScreenshotTest {
         collectionBookId = it.titled("The Sign of the Four").id
     }
 
+    /** Standing up: the collections stay down the left, the first open beside them until another is tapped. */
     @Test
     @Config(qualifiers = PORTRAIT)
     fun libraryCollectionsPortrait() = libraryScreen("21d_library_collections_portrait") { tab = 1 }
+
+    /** And a book takes its collection's place there, with a way back to it. */
+    @Test
+    @Config(qualifiers = PORTRAIT)
+    fun libraryCollectionBookPortrait() = libraryScreen("21e_library_collection_book_portrait") {
+        tab = 1
+        collectionKey = "sherlock holmes"
+        collectionBookId = it.titled("The Sign of the Four").id
+    }
 
     @Test
     @Config(qualifiers = PHONE)

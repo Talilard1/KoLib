@@ -40,8 +40,10 @@ class MainActivity : ComponentActivity() {
         setTheme(R.style.Theme_KoboLibrary)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        // After a restart Android hands back the same intent; its books were already added.
-        if (savedInstanceState == null) handleIncoming(intent)
+        // After a restart Android hands back the same intent; its books were already added. So it does when the app
+        // is opened again from the recent apps, after it was closed with Back.
+        val fromRecents = ((intent?.flags ?: 0) and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0
+        if (savedInstanceState == null && !fromRecents) handleIncoming(intent)
         val themes = (application as KoboLibraryApp).themeSettings
         // The opening plays when the app is started from its icon: not after a restart, nor when it's sent a book.
         val playOpening = savedInstanceState == null && themes.opening.value &&

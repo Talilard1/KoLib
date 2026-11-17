@@ -5,36 +5,37 @@ import dev.kobolibrary.app.tr
 /** One-tap tidying of a book's text. Each finds what it would change first, so its count can be shown. */
 object Cleanups {
 
-    enum class Kind(val label: String, val explanation: String, private val one: String, private val many: String) {
+    /** [many]: so many of them, said for the count given (a language can have a form of the word for each kind of count). */
+    enum class Kind(val label: String, val explanation: String, private val one: String, private val many: (String) -> String) {
         BLANK_LINES(
             tr("Remove extra blank lines"),
             tr("Collapses repeated blank lines and removes them from the start and end of chapters. Scene breaks aren't affected."),
-            tr("1 blank line"), tr("{0} blank lines"),
+            tr("1 blank line"), { tr("{0} blank lines", it) },
         ),
         CURLY_QUOTES(
             tr("Straight quotes to curly"),
             tr("\"Hello,\" he said, 'it's mine.' becomes “Hello,” he said, ‘it’s mine.’"),
-            tr("1 quote"), tr("{0} quotes"),
+            tr("1 quote"), { tr("{0} quotes", it) },
         ),
         JOIN_LINES(
             tr("Join lines broken mid-sentence"),
             tr("Rejoins paragraphs split mid-sentence, common in books converted from PDFs or scans."),
-            tr("1 broken line"), tr("{0} broken lines"),
+            tr("1 broken line"), { tr("{0} broken lines", it) },
         ),
         DASHES(
             tr("Double hyphens to dashes"),
             tr("Changes -- and --- into a proper dash (—)."),
-            tr("1 dash"), tr("{0} dashes"),
+            tr("1 dash"), { tr("{0} dashes", it) },
         ),
         STRIP_FONTS(
             tr("Remove embedded fonts"),
             tr("Deletes the font files inside the book, so the Kobo uses the font you pick on it."),
-            tr("1 font"), tr("{0} fonts"),
+            tr("1 font"), { tr("{0} fonts", it) },
         ),
         ;
 
         /** "3 dashes", in the language KoLib is shown in. */
-        fun describe(count: Int): String = if (count == 1) one else many.replace("{0}", "%,d".format(count))
+        fun describe(count: Int): String = if (count == 1) one else many("%,d".format(count))
     }
 
     data class Result(val kind: Kind, val changes: Map<String, ByteArray?>, val count: Int)

@@ -45,6 +45,8 @@ import dev.kobolibrary.app.ui.components.ShelfGridBox
 import dev.kobolibrary.app.ui.components.phoneLayout
 import dev.kobolibrary.app.ui.theme.LocalBookcase
 import dev.kobolibrary.app.ui.theme.ShelfColors
+import dev.kobolibrary.app.ui.CollectionPanes
+import androidx.compose.material.icons.outlined.AutoStories
 
 /** A collection in the library: [key] is its name in lower case (a book's collections are matched whatever their case). */
 internal class LibraryCollection(val key: String, val name: String, val books: List<LibraryBook>)
@@ -71,9 +73,9 @@ internal fun libraryCollectionCount(books: List<LibraryBook>): Int =
     books.flatMap { b -> b.collections.map { it.trim().lowercase() } }.filter { it.isNotEmpty() }.distinct().size
 
 /**
- * The library's collections, laid out as the Kobo's are: a collection's books open beside the list, and a book tapped
- * there opens beside them, the list folding away to make room. [detail] is the book's details, with [onBack] for a
- * narrow screen. On a phone a book opens on a page of its own (see PhoneLibraryScreen).
+ * The library's collections, laid out as the Kobo's are (see CollectionsLayout): the list stays down the left, a
+ * collection's books beside it, and a book tapped there opens beside them. [detail] is the book's details, with
+ * [onBack] where it takes its collection's place. On a phone a book opens on a page of its own (see PhoneLibraryScreen).
  */
 @Composable
 internal fun LibraryCollectionsTab(
@@ -103,15 +105,22 @@ internal fun LibraryCollectionsTab(
     CollectionsLayout(
         hasCollection = chosen != null,
         hasBook = book != null,
+        onOpenFirst = { collections.firstOrNull()?.let { browse.collectionKey = it.key } },
         onCloseCollection = { browse.collectionKey = null; browse.collectionBookId = null },
         onCloseBook = { browse.collectionBookId = null },
-        list = { modifier ->
+        list = { modifier, panes ->
             CollectionList(
                 rows,
                 heading = if (count == 0) tr("No collections yet. To add a book to one, tap Edit details.") else tr("{0} in your library", Fmt.plural(count, "collection")),
                 selectedKey = chosen?.key,
-                onSelect = { key -> browse.collectionKey = key; browse.collectionBookId = null },
+                onSelect = { key ->
+                    // With the books and a book both in view, a tap on the open collection changes nothing.
+                    if (key != browse.collectionKey || panes != CollectionPanes.THREE) browse.collectionBookId = null
+                    browse.collectionKey = key
+                },
                 modifier = modifier,
+                state = browse.collectionScroll.list,
+                opens = panes == CollectionPanes.ONE,
             )
         },
         books = { onBack ->
@@ -119,6 +128,7 @@ internal fun LibraryCollectionsTab(
         },
         detail = { onBack -> if (book != null && chosen != null) detail(book, chosen.name, onBack) },
         nothingChosen = { EmptyState(Icons.Outlined.CollectionsBookmark, tr("Tap a collection"), tr("Its books appear here.")) },
+        noBookChosen = { EmptyState(Icons.Outlined.AutoStories, tr("Tap a book"), tr("Its details appear here.")) },
     )
 }
 
@@ -181,6 +191,7 @@ private fun CollectionShelf(
             val bookcase = LocalBookcase.current
             LazyVerticalGrid(
                 columns = if (phone) GridCells.Fixed(3) else GridCells.Adaptive(132.dp),
+                state = browse.collectionScroll.grid(collection.key),
                 contentPadding = if (bookcase) PaddingValues(top = 8.dp, bottom = if (phone) 104.dp else 24.dp)
                 else PaddingValues(start = if (phone) 8.dp else 12.dp, end = if (phone) 8.dp else 12.dp, top = 8.dp, bottom = if (phone) 104.dp else 24.dp),
                 horizontalArrangement = Arrangement.spacedBy(if (bookcase || phone) 0.dp else 4.dp),

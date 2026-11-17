@@ -168,7 +168,7 @@ class DevicesScreenshotTest {
                 DevicesContent(view().copy(paired = emptyList(), nearby = emptyList()), actions)
             }
         }
-        compose.onNodeWithText("Not found? Connect by address").performClick()
+        compose.onNodeWithText(tr("Not found? Connect by address")).performClick()
         compose.mainClock.advanceTimeBy(1_000)
         captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/devicesConnectByAddress.png")
     }

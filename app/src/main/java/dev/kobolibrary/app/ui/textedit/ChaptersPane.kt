@@ -165,7 +165,8 @@ fun ChaptersPane(
     // The order shown, which follows the book; a drag still going when the book changes keeps its place.
     val lastOrder = remember { arrayOfNulls<MutableState<List<String>>>(1) }
     val orderState = remember(version) {
-        val book = chapters.map { it.path }
+        // Each page once, even in a book whose reading order lists one twice (a faulty book): the list goes by them.
+        val book = chapters.map { it.path }.distinct()
         val inFlight = lastOrder[0]?.value?.takeIf { dragging != null && it.toSet() == book.toSet() }
         mutableStateOf(inFlight ?: book).also { lastOrder[0] = it }
     }

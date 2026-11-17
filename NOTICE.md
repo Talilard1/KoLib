@@ -10,6 +10,7 @@ read in the app (Library, then the ⓘ button).
 | Lora | Lettering on covers the app makes | SIL OFL 1.1 | `lora-OFL.txt` |
 | Poppins | Lettering on covers the app makes | SIL OFL 1.1 | `poppins-OFL.txt` |
 | Cinzel, Cinzel Decorative, UnifrakturMaguntia, Great Vibes, Bebas Neue, Orbitron, Poiret One, Fredoka | Lettering on covers the app makes | SIL OFL 1.1 | `cinzel-OFL.txt`, `cinzel-decorative-OFL.txt`, `unifraktur-maguntia-OFL.txt`, `great-vibes-OFL.txt`, `bebas-neue-OFL.txt`, `orbitron-OFL.txt`, `poiret-one-OFL.txt`, `fredoka-OFL.txt` |
+| Playfair Display, IM Fell English, Courier Prime, Space Mono, Caveat, Pacifico, Rye, Alfa Slab One, Stardos Stencil, Bangers, Graduate | Lettering on covers the app makes | SIL OFL 1.1 | `playfair-display-OFL.txt`, `im-fell-english-OFL.txt`, `courier-prime-OFL.txt`, `space-mono-OFL.txt`, `caveat-OFL.txt`, `pacifico-OFL.txt`, `rye-OFL.txt`, `alfa-slab-one-OFL.txt`, `stardos-stencil-OFL.txt`, `bangers-OFL.txt`, `graduate-OFL.txt` |
 | Liberation Serif and Sans | Covers the app makes, for alphabets the fonts above lack | SIL OFL 1.1 | `liberation-fonts.txt` |
 | EB Garamond, Literata, Atkinson Hyperlegible, OpenDyslexic | Typefaces in the reader; EB Garamond also for the app's headings and book titles | SIL OFL 1.1 | `*-OFL.txt` |
 | AndroidX, Jetpack Compose, Material icons, Kotlin, kotlinx.coroutines | The app's framework | Apache 2.0 | `apache-2.0.txt` |

@@ -34,8 +34,9 @@ import kotlin.random.Random
  *
  * The designs, the colour themes, the pictures (see CoverArt) and the way the words are fitted are all
  * this app's own. The lettering is Lora, Poppins, Cinzel, Cinzel Decorative, UnifrakturMaguntia, Great
- * Vibes, Bebas Neue, Orbitron, Poiret One and Fredoka (SIL Open Font Licence), with Liberation Serif
- * and Sans standing in for the scripts those don't have.
+ * Vibes, Bebas Neue, Orbitron, Poiret One, Fredoka, Playfair Display, EB Garamond, IM Fell English, Courier
+ * Prime, Space Mono, Caveat, Pacifico, Rye, Alfa Slab One, Stardos Stencil, Bangers and Graduate (SIL Open
+ * Font Licence), with Liberation Serif and Sans standing in for the scripts those don't have.
  */
 
 /**
@@ -201,16 +202,831 @@ enum class CoverStyle(val label: String, val suits: Set<CoverGenre> = emptySet()
             CoverGenre.WITCHES, CoverGenre.ANGST, CoverGenre.KNIGHTS, CoverGenre.MYTHOLOGY, CoverGenre.THRILLER,
         ),
     ),
+
+    /** Cloth stamped all over with a small figure for the genre in one foil, the title in a plain panel. */
+    PATTERNED(
+        tr("Patterned cloth"),
+        setOf(
+            CoverGenre.LITERARY, CoverGenre.HISTORICAL, CoverGenre.REGENCY, CoverGenre.ROMANCE, CoverGenre.FAIRY_TALE, CoverGenre.COSY_MYSTERY,
+            CoverGenre.CHILDREN, CoverGenre.CHRISTMAS, CoverGenre.FANTASY, CoverGenre.MYSTERY, CoverGenre.ADVENTURE, CoverGenre.WITCHES,
+            CoverGenre.ANCIENT, CoverGenre.MYTHOLOGY,
+        ),
+    ),
+
+    /** Marbled paper with a leather spine and corners, and a label. */
+    MARBLED(
+        tr("Marbled boards"),
+        setOf(
+            CoverGenre.HISTORICAL, CoverGenre.LITERARY, CoverGenre.REGENCY, CoverGenre.DETECTIVE, CoverGenre.MYSTERY, CoverGenre.NON_FICTION,
+            CoverGenre.STEAMPUNK, CoverGenre.ANCIENT,
+        ),
+    ),
+
+    /** Full leather, tooled and gilt, with a lettering piece let in and a device in a ring. */
+    LIBRARY(
+        tr("Leather and gilt"),
+        setOf(
+            CoverGenre.FANTASY, CoverGenre.HISTORICAL, CoverGenre.LITERARY, CoverGenre.KNIGHTS, CoverGenre.MYTHOLOGY, CoverGenre.QUEST,
+            CoverGenre.ANCIENT, CoverGenre.DETECTIVE, CoverGenre.STEAMPUNK, CoverGenre.MAGIC_SCHOOL, CoverGenre.ADVENTURE,
+        ),
+    ),
+
+    /** A great foil medallion round a drawing for the genre, with scrolls in the corners. */
+    MEDALLION(
+        tr("Medallion"),
+        setOf(
+            CoverGenre.FANTASY, CoverGenre.FAIRY_TALE, CoverGenre.ROMANTASY, CoverGenre.MYTHOLOGY, CoverGenre.HISTORICAL, CoverGenre.ADVENTURE,
+            CoverGenre.WUXIA, CoverGenre.ANCIENT, CoverGenre.KNIGHTS, CoverGenre.CHRISTMAS, CoverGenre.QUEST,
+        ),
+    ),
+
+    /** A frame of gold scrollwork, the same in every corner. */
+    FILIGREE(
+        tr("Filigree"),
+        setOf(
+            CoverGenre.ROMANTASY, CoverGenre.ROMANCE, CoverGenre.REGENCY, CoverGenre.FAIRY_TALE, CoverGenre.DARK_ROMANCE, CoverGenre.FANTASY,
+            CoverGenre.HISTORICAL, CoverGenre.VAMPIRES, CoverGenre.WITCHES,
+        ),
+    ),
+
+    /** Whiplash stems rising to buds and flowers under an arched panel, as the 1890s stamped their cloth. */
+    NOUVEAU(
+        tr("Art Nouveau"),
+        setOf(
+            CoverGenre.ROMANCE, CoverGenre.REGENCY, CoverGenre.FAIRY_TALE, CoverGenre.LITERARY, CoverGenre.HISTORICAL, CoverGenre.WITCHES,
+            CoverGenre.ROMANTASY, CoverGenre.COSY_MYSTERY,
+        ),
+    ),
+
+    /** A private-press title page: a border of printers' flowers, old-face type and a small cut. */
+    FINE_PRESS(
+        tr("Fine press"),
+        setOf(
+            CoverGenre.LITERARY, CoverGenre.HISTORICAL, CoverGenre.NON_FICTION, CoverGenre.MYTHOLOGY, CoverGenre.ANCIENT, CoverGenre.REGENCY,
+            CoverGenre.KNIGHTS, CoverGenre.FAIRY_TALE,
+        ),
+    ),
+
+    /** A playbill: every line of the title in another wood type, as wide as the sheet. */
+    PLAYBILL(
+        tr("Playbill"),
+        setOf(
+            CoverGenre.WESTERN, CoverGenre.HISTORICAL, CoverGenre.STEAMPUNK, CoverGenre.ADVENTURE, CoverGenre.MUSIC, CoverGenre.DETECTIVE,
+            CoverGenre.HALLOWEEN, CoverGenre.CHILDREN,
+        ),
+    ),
+
+    /** A card from a fortune-teller's pack: a number at its head, an emblem among stars, the title on a tablet. */
+    TAROT(
+        tr("Tarot card"),
+        setOf(
+            CoverGenre.WITCHES, CoverGenre.DARK_MAGIC, CoverGenre.ROMANTASY, CoverGenre.URBAN_FANTASY, CoverGenre.FANTASY, CoverGenre.HORROR,
+            CoverGenre.COSMIC_HORROR, CoverGenre.HALLOWEEN, CoverGenre.VAMPIRES, CoverGenre.MAGIC_SCHOOL, CoverGenre.MYTHOLOGY,
+        ),
+    ),
+
+    /** A chart of the heavens: rings, constellations, a sun and a moon. */
+    CELESTIAL(
+        tr("Star chart"),
+        setOf(
+            CoverGenre.WITCHES, CoverGenre.FANTASY, CoverGenre.ROMANTASY, CoverGenre.SCIENCE_FICTION, CoverGenre.MAGIC_SCHOOL,
+            CoverGenre.MYTHOLOGY, CoverGenre.STARSHIP, CoverGenre.SPACE_OPERA, CoverGenre.COSMIC_HORROR, CoverGenre.FAIRY_TALE,
+            CoverGenre.NON_FICTION,
+        ),
+    ),
+
+    /** A window of coloured glass in its leads: a rose above lights of diamond panes. */
+    STAINED_GLASS(
+        tr("Stained glass"),
+        setOf(
+            CoverGenre.KNIGHTS, CoverGenre.HISTORICAL, CoverGenre.FANTASY, CoverGenre.FAIRY_TALE, CoverGenre.CHRISTMAS, CoverGenre.VAMPIRES,
+            CoverGenre.DARK_MAGIC, CoverGenre.MYTHOLOGY, CoverGenre.HORROR,
+        ),
+    ),
+
+    /** A shield with a charge for the genre, swords crossed behind it, a crown above and the title on a scroll. */
+    HERALDRY(
+        tr("Coat of arms"),
+        setOf(
+            CoverGenre.KNIGHTS, CoverGenre.FANTASY, CoverGenre.HISTORICAL, CoverGenre.QUEST, CoverGenre.STORM_EPIC, CoverGenre.WAR,
+            CoverGenre.SCHOOL, CoverGenre.MAGIC_SCHOOL, CoverGenre.SPORTS,
+        ),
+    ),
+
+    /** A map drawn by hand: an island, a dotted way to a cross, a compass, and the title in a cartouche. */
+    MAP(
+        tr("Old map"),
+        setOf(
+            CoverGenre.QUEST, CoverGenre.ADVENTURE, CoverGenre.FANTASY, CoverGenre.HISTORICAL, CoverGenre.STORM_EPIC, CoverGenre.WAR,
+            CoverGenre.WESTERN, CoverGenre.ANCIENT, CoverGenre.KNIGHTS,
+        ),
+    ),
+
+    /** A border of plaited knotwork, with a knot of three at the head. */
+    KNOTWORK(
+        tr("Knotwork"),
+        setOf(
+            CoverGenre.FANTASY, CoverGenre.MYTHOLOGY, CoverGenre.QUEST, CoverGenre.KNIGHTS, CoverGenre.HISTORICAL, CoverGenre.STORM_EPIC,
+            CoverGenre.FAIRY_TALE, CoverGenre.WITCHES,
+        ),
+    ),
+
+    /** Bands of the Greek key at head and foot, and a painted roundel between, as on a vase. */
+    MEANDER(
+        tr("Greek key"),
+        setOf(
+            CoverGenre.ANCIENT, CoverGenre.MYTHOLOGY, CoverGenre.HISTORICAL, CoverGenre.NON_FICTION, CoverGenre.LITERARY, CoverGenre.WAR,
+        ),
+    ),
+
+    /** Eight-pointed stars in tile, with the title on a plain tile among them. */
+    TILEWORK(
+        tr("Tilework"),
+        setOf(
+            CoverGenre.HISTORICAL, CoverGenre.LITERARY, CoverGenre.ADVENTURE, CoverGenre.ROMANCE, CoverGenre.NON_FICTION,
+            CoverGenre.FAIRY_TALE, CoverGenre.ANCIENT, CoverGenre.SLICE_OF_LIFE,
+        ),
+    ),
+
+    /** A dragon's hide of lapped scales, with plates for the words. */
+    SCALES(
+        tr("Dragon scales"),
+        setOf(
+            CoverGenre.FANTASY, CoverGenre.ROMANTASY, CoverGenre.QUEST, CoverGenre.STORM_EPIC, CoverGenre.DARK_MAGIC, CoverGenre.WUXIA,
+            CoverGenre.MYTHOLOGY, CoverGenre.KNIGHTS,
+        ),
+    ),
+
+    /** One emblem for the book in foil, with a wreath, stars or rays about it. */
+    SIGIL(
+        tr("Emblem"),
+        setOf(
+            CoverGenre.ROMANTASY, CoverGenre.FANTASY, CoverGenre.DARK_ROMANCE, CoverGenre.DARK_MAGIC, CoverGenre.THRILLER, CoverGenre.VAMPIRES,
+            CoverGenre.URBAN_FANTASY, CoverGenre.MYSTERY, CoverGenre.SPY, CoverGenre.HORROR, CoverGenre.STORM_EPIC, CoverGenre.WAR,
+            CoverGenre.DYSTOPIA,
+        ),
+    ),
+
+    /** Nothing but the title, every line as wide as the cover. */
+    TYPE_BLOCK(
+        tr("Big type"),
+        setOf(
+            CoverGenre.THRILLER, CoverGenre.NON_FICTION, CoverGenre.LITERARY, CoverGenre.DYSTOPIA, CoverGenre.SPY, CoverGenre.SPORTS,
+            CoverGenre.ANGST, CoverGenre.WAR,
+        ),
+    ),
+
+    /** Squares each holding one plain shape in a few flat colours, over plain type. */
+    SHAPES(
+        tr("Colour shapes"),
+        setOf(
+            CoverGenre.LITERARY, CoverGenre.NON_FICTION, CoverGenre.SLICE_OF_LIFE, CoverGenre.MODERN_ROMANCE, CoverGenre.MUSIC,
+            CoverGenre.SCIENCE_FICTION, CoverGenre.CHILDREN,
+        ),
+    ),
+
+    /** Rounds and fronds cut from coloured paper, laid about the title. */
+    CUT_PAPER(
+        tr("Cut paper"),
+        setOf(
+            CoverGenre.LITERARY, CoverGenre.MODERN_ROMANCE, CoverGenre.SLICE_OF_LIFE, CoverGenre.FLUFF, CoverGenre.ROMANCE,
+            CoverGenre.NON_FICTION, CoverGenre.COSY_MYSTERY, CoverGenre.CHILDREN,
+        ),
+    ),
+
+    /** One emblem for the book, large and flat, on a plain ground. */
+    MOTIF(
+        tr("Single motif"),
+        setOf(
+            CoverGenre.LITERARY, CoverGenre.MYSTERY, CoverGenre.THRILLER, CoverGenre.ROMANCE, CoverGenre.NON_FICTION, CoverGenre.COSY_MYSTERY,
+            CoverGenre.HORROR, CoverGenre.MODERN_ROMANCE, CoverGenre.ANGST, CoverGenre.SLICE_OF_LIFE, CoverGenre.DETECTIVE, CoverGenre.SCHOOL,
+        ),
+    ),
+
+    /** A painted ground with a torn strip across it, the title written on that by hand. */
+    TORN(
+        tr("Torn paper"),
+        setOf(
+            CoverGenre.LITERARY, CoverGenre.ANGST, CoverGenre.MODERN_ROMANCE, CoverGenre.THRILLER, CoverGenre.SLICE_OF_LIFE, CoverGenre.MUSIC,
+            CoverGenre.SCHOOL,
+        ),
+    ),
+
+    /** A soft round of colours melting into one another. */
+    AURA(
+        tr("Glow"),
+        setOf(
+            CoverGenre.LITERARY, CoverGenre.SCIENCE_FICTION, CoverGenre.ANGST, CoverGenre.MODERN_ROMANCE, CoverGenre.NON_FICTION,
+            CoverGenre.MUSIC, CoverGenre.COSMIC_HORROR, CoverGenre.SLICE_OF_LIFE,
+        ),
+    ),
+
+    /** The title again and again down the cover, fainter each time. */
+    ECHO(
+        tr("Echo"),
+        setOf(
+            CoverGenre.THRILLER, CoverGenre.LITERARY, CoverGenre.ANGST, CoverGenre.MUSIC, CoverGenre.DYSTOPIA, CoverGenre.NON_FICTION,
+            CoverGenre.SPY, CoverGenre.HORROR,
+        ),
+    ),
+
+    /** The picture printed in two inks, over a block of colour with the words. */
+    DUOTONE(
+        tr("Two inks"),
+        setOf(
+            CoverGenre.THRILLER, CoverGenre.LITERARY, CoverGenre.MYSTERY, CoverGenre.SCIENCE_FICTION, CoverGenre.WAR, CoverGenre.HISTORICAL,
+            CoverGenre.ADVENTURE, CoverGenre.DYSTOPIA, CoverGenre.SPY, CoverGenre.HORROR, CoverGenre.WESTERN, CoverGenre.NON_FICTION,
+        ),
+        picture = true,
+    ),
+
+    /** A board of squares, each with one small picture for the genre. */
+    PICTOGRAMS(
+        tr("Symbols"),
+        setOf(
+            CoverGenre.NON_FICTION, CoverGenre.COSY_MYSTERY, CoverGenre.CHILDREN, CoverGenre.SCHOOL, CoverGenre.SLICE_OF_LIFE,
+            CoverGenre.MYSTERY, CoverGenre.LITERARY, CoverGenre.FLUFF, CoverGenre.DETECTIVE,
+        ),
+    ),
+
+    /** Stripes that swell, ripple or ring as if the page were not flat. */
+    OP_ART(
+        tr("Op art"),
+        setOf(
+            CoverGenre.SCIENCE_FICTION, CoverGenre.THRILLER, CoverGenre.LITERARY, CoverGenre.DYSTOPIA, CoverGenre.MUSIC, CoverGenre.CYBERPUNK,
+            CoverGenre.NON_FICTION, CoverGenre.COSMIC_HORROR,
+        ),
+    ),
+
+    /** Stripes in a run of warm colours that come in from the side, round a bend and away. */
+    SEVENTIES(
+        tr("Seventies stripes"),
+        setOf(
+            CoverGenre.SCIENCE_FICTION, CoverGenre.SPORTS, CoverGenre.MUSIC, CoverGenre.SPACE_OPERA, CoverGenre.ADVENTURE,
+            CoverGenre.SLICE_OF_LIFE, CoverGenre.SUPERHERO, CoverGenre.STARSHIP,
+        ),
+    ),
+
+    /** A draughtsman's sheet: squared paper, an emblem with its measures, and the words in the title block. */
+    SCHEMATIC(
+        tr("Blueprint"),
+        setOf(
+            CoverGenre.SCIENCE_FICTION, CoverGenre.STARSHIP, CoverGenre.STEAMPUNK, CoverGenre.NON_FICTION, CoverGenre.SPY,
+            CoverGenre.CYBERPUNK, CoverGenre.SPACE_OPERA, CoverGenre.WAR,
+        ),
+    ),
+
+    /** A maze, with the one way through it marked. */
+    MAZE(
+        tr("Maze"),
+        setOf(
+            CoverGenre.MYSTERY, CoverGenre.THRILLER, CoverGenre.SCIENCE_FICTION, CoverGenre.DYSTOPIA, CoverGenre.MYTHOLOGY,
+            CoverGenre.DETECTIVE, CoverGenre.SPY, CoverGenre.CYBERPUNK,
+        ),
+    ),
+
+    /** The lines of a map of high ground, and the words on a plate over them. */
+    CONTOURS(
+        tr("Contours"),
+        setOf(
+            CoverGenre.ADVENTURE, CoverGenre.NON_FICTION, CoverGenre.QUEST, CoverGenre.WAR, CoverGenre.SCIENCE_FICTION, CoverGenre.LITERARY,
+            CoverGenre.THRILLER, CoverGenre.WESTERN,
+        ),
+    ),
+
+    /** Type and nothing else: rules at head and foot, an old-style face, and a small device. */
+    TYPOGRAPHIC(
+        tr("Plain type"),
+        setOf(
+            CoverGenre.LITERARY, CoverGenre.NON_FICTION, CoverGenre.HISTORICAL, CoverGenre.REGENCY, CoverGenre.ANCIENT, CoverGenre.MYTHOLOGY,
+        ),
+    ),
+
+    /** A detective's folder: a photograph under a paper clip, a rubber stamp, and the title typed on its label. */
+    CASE_FILE(
+        tr("Case file"),
+        setOf(
+            CoverGenre.DETECTIVE, CoverGenre.MYSTERY, CoverGenre.SPY, CoverGenre.THRILLER, CoverGenre.COSY_MYSTERY, CoverGenre.WAR,
+        ),
+        picture = true,
+    ),
+
+    /** A street at night: one lamp, its light falling through the mist, and someone waiting under it. */
+    LAMPLIGHT(
+        tr("Lamplight"),
+        setOf(
+            CoverGenre.DETECTIVE, CoverGenre.MYSTERY, CoverGenre.THRILLER, CoverGenre.URBAN_FANTASY, CoverGenre.SPY, CoverGenre.HORROR,
+            CoverGenre.ANGST, CoverGenre.VAMPIRES, CoverGenre.STEAMPUNK,
+        ),
+    ),
+
+    /** A dark room, a door open on the light, and someone standing in it. */
+    DOORWAY(
+        tr("Doorway"),
+        setOf(
+            CoverGenre.THRILLER, CoverGenre.HORROR, CoverGenre.MYSTERY, CoverGenre.ANGST, CoverGenre.COSMIC_HORROR, CoverGenre.DARK_ROMANCE,
+            CoverGenre.SPY,
+        ),
+    ),
+
+    /** Glass broken from one blow, a few of the pieces in colour. */
+    SHATTERED(
+        tr("Broken glass"),
+        setOf(
+            CoverGenre.THRILLER, CoverGenre.ANGST, CoverGenre.MYSTERY, CoverGenre.DYSTOPIA, CoverGenre.SPY, CoverGenre.SUPERHERO,
+            CoverGenre.DARK_ROMANCE,
+        ),
+    ),
+
+    /** Everything printed twice, a little apart, as if seen double. */
+    DOUBLE_VISION(
+        tr("Double vision"),
+        setOf(
+            CoverGenre.THRILLER, CoverGenre.ANGST, CoverGenre.CYBERPUNK, CoverGenre.MYSTERY, CoverGenre.MUSIC, CoverGenre.DYSTOPIA,
+            CoverGenre.HORROR,
+        ),
+    ),
+
+    /** Black, with a picture in an oval and the title glowing over it. */
+    CHILLER(
+        tr("Horror paperback"),
+        setOf(
+            CoverGenre.HORROR, CoverGenre.VAMPIRES, CoverGenre.COSMIC_HORROR, CoverGenre.HALLOWEEN, CoverGenre.DARK_MAGIC, CoverGenre.THRILLER,
+            CoverGenre.URBAN_FANTASY,
+        ),
+        picture = true,
+    ),
+
+    /** A print cut in wood: the sun and its rays, hills, pines and birds, in black and one colour. */
+    WOODCUT(
+        tr("Woodcut"),
+        setOf(
+            CoverGenre.FAIRY_TALE, CoverGenre.HISTORICAL, CoverGenre.LITERARY, CoverGenre.HORROR, CoverGenre.WESTERN, CoverGenre.MYTHOLOGY,
+            CoverGenre.QUEST, CoverGenre.HALLOWEEN, CoverGenre.WITCHES, CoverGenre.ADVENTURE,
+        ),
+    ),
+
+    /** A bright cover scattered with small pictures from the story, the title in a brush hand. */
+    ROMCOM(
+        tr("Bright icons"),
+        setOf(
+            CoverGenre.MODERN_ROMANCE, CoverGenre.FLUFF, CoverGenre.ROMANCE, CoverGenre.COSY_MYSTERY, CoverGenre.SLICE_OF_LIFE,
+            CoverGenre.SCHOOL, CoverGenre.CHILDREN, CoverGenre.CHRISTMAS, CoverGenre.HALLOWEEN, CoverGenre.SPORTS,
+        ),
+    ),
+
+    /** A wreath of leaves and flowers, the title within it. */
+    WREATH(
+        tr("Wreath"),
+        setOf(
+            CoverGenre.REGENCY, CoverGenre.ROMANCE, CoverGenre.COSY_MYSTERY, CoverGenre.CHRISTMAS, CoverGenre.HISTORICAL,
+            CoverGenre.FAIRY_TALE, CoverGenre.FLUFF, CoverGenre.LITERARY, CoverGenre.WITCHES,
+        ),
+    ),
+
+    /** A letter come by post: a striped edge, a stamp and its postmark, the title written for the address. */
+    ENVELOPE(
+        tr("Letter"),
+        setOf(
+            CoverGenre.REGENCY, CoverGenre.ROMANCE, CoverGenre.HISTORICAL, CoverGenre.WAR, CoverGenre.MODERN_ROMANCE, CoverGenre.LITERARY,
+            CoverGenre.SPY, CoverGenre.CHRISTMAS,
+        ),
+    ),
+
+    /** A study of a plant, as in an old flora. */
+    BOTANICAL(
+        tr("Botanical"),
+        setOf(
+            CoverGenre.LITERARY, CoverGenre.NON_FICTION, CoverGenre.REGENCY, CoverGenre.COSY_MYSTERY, CoverGenre.ROMANCE, CoverGenre.WITCHES,
+            CoverGenre.SLICE_OF_LIFE, CoverGenre.HISTORICAL,
+        ),
+    ),
+
+    /** Hills cut from sheets of paper laid one over the next, under a paper sun. */
+    PAPER_LAYERS(
+        tr("Paper landscape"),
+        setOf(
+            CoverGenre.ADVENTURE, CoverGenre.QUEST, CoverGenre.LITERARY, CoverGenre.FANTASY, CoverGenre.CHILDREN, CoverGenre.SLICE_OF_LIFE,
+            CoverGenre.WESTERN, CoverGenre.FAIRY_TALE,
+        ),
+    ),
+
+    /** The sea in the old pattern of arcs within arcs, and the sun going down into it. */
+    WAVES(
+        tr("Waves"),
+        setOf(
+            CoverGenre.WUXIA, CoverGenre.ADVENTURE, CoverGenre.LITERARY, CoverGenre.HISTORICAL, CoverGenre.MYTHOLOGY, CoverGenre.SLICE_OF_LIFE,
+            CoverGenre.ANCIENT,
+        ),
+    ),
+
+    /** Mountains in washes of ink fading into mist, with a tree, a red sun and a seal. */
+    INK_WASH(
+        tr("Ink wash"),
+        setOf(
+            CoverGenre.WUXIA, CoverGenre.LITERARY, CoverGenre.HISTORICAL, CoverGenre.FANTASY, CoverGenre.QUEST, CoverGenre.ANGST,
+            CoverGenre.MYTHOLOGY,
+        ),
+    ),
+
+    /** Woven plaid, with the title on a label sewn to it. */
+    TARTAN(
+        tr("Tartan"),
+        setOf(
+            CoverGenre.HISTORICAL, CoverGenre.COSY_MYSTERY, CoverGenre.CHRISTMAS, CoverGenre.SCHOOL, CoverGenre.ROMANCE, CoverGenre.DETECTIVE,
+            CoverGenre.REGENCY,
+        ),
+    ),
+
+    /** A postage stamp with the picture on it and a postmark across the corner. */
+    STAMP(
+        tr("Postage stamp"),
+        setOf(
+            CoverGenre.ADVENTURE, CoverGenre.HISTORICAL, CoverGenre.LITERARY, CoverGenre.WAR, CoverGenre.REGENCY, CoverGenre.COSY_MYSTERY,
+            CoverGenre.NON_FICTION, CoverGenre.SPY,
+        ),
+        picture = true,
+    ),
+
+    /** The picture wide across the cover like a still from a film, the title spaced out under it. */
+    WIDESCREEN(
+        tr("Wide screen"),
+        setOf(
+            CoverGenre.THRILLER, CoverGenre.SCIENCE_FICTION, CoverGenre.SPACE_OPERA, CoverGenre.WESTERN, CoverGenre.WAR, CoverGenre.ADVENTURE,
+            CoverGenre.SPY, CoverGenre.DYSTOPIA, CoverGenre.SUPERHERO, CoverGenre.HORROR, CoverGenre.STARSHIP,
+        ),
+        picture = true,
+    ),
+
+    /** The picture seen through a keyhole. */
+    KEYHOLE(
+        tr("Keyhole"),
+        setOf(
+            CoverGenre.MYSTERY, CoverGenre.COSY_MYSTERY, CoverGenre.DETECTIVE, CoverGenre.FAIRY_TALE, CoverGenre.THRILLER,
+            CoverGenre.DARK_ROMANCE, CoverGenre.MAGIC_SCHOOL, CoverGenre.HORROR, CoverGenre.SPY,
+        ),
+        picture = true,
+    ),
+
+    /** A newspaper's front page: the series for its name, the title for the headline, a picture and columns of print. */
+    NEWSPRINT(
+        tr("Front page"),
+        setOf(
+            CoverGenre.DETECTIVE, CoverGenre.MYSTERY, CoverGenre.HISTORICAL, CoverGenre.NON_FICTION, CoverGenre.WAR, CoverGenre.SUPERHERO,
+            CoverGenre.SPY, CoverGenre.THRILLER, CoverGenre.SPORTS,
+        ),
+        picture = true,
+    ),
+
+    /** A record: the black disc with its grooves and a label. */
+    RECORD(
+        tr("Record"),
+        setOf(
+            CoverGenre.MUSIC, CoverGenre.MODERN_ROMANCE, CoverGenre.SLICE_OF_LIFE, CoverGenre.ANGST, CoverGenre.SCHOOL,
+        ),
+    ),
+
+    /** The book's number as on a jersey, stripes either side, and block lettering. */
+    VARSITY(
+        tr("Team colours"),
+        setOf(
+            CoverGenre.SPORTS, CoverGenre.SCHOOL, CoverGenre.MODERN_ROMANCE,
+        ),
+    ),
+
+    /** A comic: rays and print dots, the title bursting out of a star, the book's number in the corner box. */
+    COMIC(
+        tr("Comic"),
+        setOf(
+            CoverGenre.SUPERHERO, CoverGenre.CHILDREN, CoverGenre.ADVENTURE, CoverGenre.SCIENCE_FICTION, CoverGenre.SCHOOL,
+            CoverGenre.SPACE_OPERA,
+        ),
+    ),
+
+    /** A blackboard in its wooden frame, the title chalked on it among drawings. */
+    CHALKBOARD(
+        tr("Chalkboard"),
+        setOf(
+            CoverGenre.SCHOOL, CoverGenre.NON_FICTION, CoverGenre.CHILDREN, CoverGenre.COSY_MYSTERY, CoverGenre.MAGIC_SCHOOL,
+            CoverGenre.SLICE_OF_LIFE,
+        ),
+    ),
+
+    /** A school notebook: a wire binding, a label with the title written on it, and a strip of tape. */
+    NOTEBOOK(
+        tr("Notebook"),
+        setOf(
+            CoverGenre.SCHOOL, CoverGenre.SLICE_OF_LIFE, CoverGenre.ANGST, CoverGenre.MODERN_ROMANCE, CoverGenre.FLUFF, CoverGenre.CHILDREN,
+            CoverGenre.MUSIC,
+        ),
+    ),
+
+    /** A chip and its tracks running out to their pads. */
+    CIRCUIT(
+        tr("Circuit board"),
+        setOf(
+            CoverGenre.CYBERPUNK, CoverGenre.SCIENCE_FICTION, CoverGenre.DYSTOPIA, CoverGenre.NON_FICTION, CoverGenre.STARSHIP,
+            CoverGenre.SUPERHERO,
+        ),
+    ),
+
+    /** A screen gone wrong: the title split into its colours and slipped sideways in strips. */
+    GLITCH(
+        tr("Glitch"),
+        setOf(
+            CoverGenre.CYBERPUNK, CoverGenre.DYSTOPIA, CoverGenre.THRILLER, CoverGenre.SCIENCE_FICTION, CoverGenre.HORROR, CoverGenre.MUSIC,
+        ),
+    ),
+
+    /** A dial with its hands, and cog-wheels turning behind it. */
+    CLOCKWORK(
+        tr("Clockwork"),
+        setOf(
+            CoverGenre.STEAMPUNK, CoverGenre.MYSTERY, CoverGenre.DETECTIVE, CoverGenre.HISTORICAL, CoverGenre.SCIENCE_FICTION,
+            CoverGenre.FAIRY_TALE,
+        ),
+    ),
+
+    /** The side of a packing case: boards, warning stripes, and the words sprayed through a stencil. */
+    STENCIL(
+        tr("Packing case"),
+        setOf(
+            CoverGenre.WAR, CoverGenre.DYSTOPIA, CoverGenre.ADVENTURE, CoverGenre.SPY, CoverGenre.THRILLER, CoverGenre.WESTERN,
+            CoverGenre.SCIENCE_FICTION,
+        ),
+    ),
+
+    /** The moon through its month, in an arch. */
+    MOON_PHASES(
+        tr("Moon phases"),
+        setOf(
+            CoverGenre.WITCHES, CoverGenre.ROMANTASY, CoverGenre.FANTASY, CoverGenre.URBAN_FANTASY, CoverGenre.HORROR, CoverGenre.VAMPIRES,
+            CoverGenre.DARK_MAGIC, CoverGenre.HALLOWEEN, CoverGenre.LITERARY, CoverGenre.MAGIC_SCHOOL,
+        ),
+    ),
+
+    /** Shelves of books, spine after spine, with the title between them. */
+    BOOKSHELF(
+        tr("Bookshelf"),
+        setOf(
+            CoverGenre.COSY_MYSTERY, CoverGenre.LITERARY, CoverGenre.NON_FICTION, CoverGenre.SCHOOL, CoverGenre.MAGIC_SCHOOL,
+            CoverGenre.SLICE_OF_LIFE, CoverGenre.CHILDREN, CoverGenre.MYSTERY,
+        ),
+    ),
+
+    /** The picture drawn in fine lines that change colour down the cover: glowing on a dark ground, or dark on a pale one. */
+    ENGRAVING(
+        tr("Engraving"),
+        setOf(
+            CoverGenre.FANTASY, CoverGenre.STORM_EPIC, CoverGenre.HISTORICAL, CoverGenre.WAR, CoverGenre.KNIGHTS, CoverGenre.QUEST,
+            CoverGenre.MYTHOLOGY, CoverGenre.ANCIENT, CoverGenre.ADVENTURE, CoverGenre.HORROR, CoverGenre.DARK_MAGIC, CoverGenre.WESTERN,
+            CoverGenre.SCIENCE_FICTION, CoverGenre.DYSTOPIA, CoverGenre.VAMPIRES, CoverGenre.MYSTERY, CoverGenre.LITERARY,
+        ),
+        picture = true,
+    ),
+
+    /** Mountains in washes of watercolour under clouds and stars, with firs and a castle dark at the foot. */
+    WATER_PEAKS(
+        tr("Watercolour peaks"),
+        setOf(
+            CoverGenre.FANTASY, CoverGenre.QUEST, CoverGenre.FAIRY_TALE, CoverGenre.ROMANTASY, CoverGenre.MAGIC_SCHOOL, CoverGenre.ADVENTURE,
+            CoverGenre.STORM_EPIC, CoverGenre.KNIGHTS, CoverGenre.MYTHOLOGY, CoverGenre.WUXIA, CoverGenre.LITERARY, CoverGenre.CHILDREN,
+        ),
+    ),
+
+    /** A wood seen from within a wood: frame within frame of trees, and something far off in the light. */
+    DEPTHS(
+        tr("Into the wood"),
+        setOf(
+            CoverGenre.FANTASY, CoverGenre.FAIRY_TALE, CoverGenre.DARK_MAGIC, CoverGenre.WITCHES, CoverGenre.HORROR, CoverGenre.QUEST,
+            CoverGenre.ROMANTASY, CoverGenre.MYSTERY, CoverGenre.VAMPIRES, CoverGenre.HALLOWEEN, CoverGenre.URBAN_FANTASY, CoverGenre.THRILLER,
+            CoverGenre.COSMIC_HORROR,
+        ),
+    ),
+
+    /** Firs in the mist, rank behind rank, with a pale sun through it. */
+    MIST(
+        tr("Misty firs"),
+        setOf(
+            CoverGenre.THRILLER, CoverGenre.HORROR, CoverGenre.MYSTERY, CoverGenre.FANTASY, CoverGenre.LITERARY, CoverGenre.VAMPIRES,
+            CoverGenre.URBAN_FANTASY, CoverGenre.ANGST, CoverGenre.QUEST, CoverGenre.DARK_ROMANCE, CoverGenre.ADVENTURE, CoverGenre.WITCHES,
+        ),
+    ),
+
+    /** Dunes, each with its lit side and its shadow, under two suns. */
+    DUNES(
+        tr("Dunes"),
+        setOf(
+            CoverGenre.SCIENCE_FICTION, CoverGenre.SPACE_OPERA, CoverGenre.ADVENTURE, CoverGenre.FANTASY, CoverGenre.WESTERN,
+            CoverGenre.ANCIENT, CoverGenre.DYSTOPIA, CoverGenre.QUEST, CoverGenre.STARSHIP, CoverGenre.MYTHOLOGY,
+        ),
+    ),
+
+    /** A world in front of its sun: a rim of light with one bright bead on it, and the title across the dark. */
+    ECLIPSE(
+        tr("Eclipse"),
+        setOf(
+            CoverGenre.SCIENCE_FICTION, CoverGenre.SPACE_OPERA, CoverGenre.STARSHIP, CoverGenre.COSMIC_HORROR, CoverGenre.DYSTOPIA,
+            CoverGenre.THRILLER, CoverGenre.CYBERPUNK, CoverGenre.NON_FICTION,
+        ),
+    ),
+
+    /** A sword, point down, with a serpent wound about it, ferns either side and stars, all in foil. */
+    BLADE(
+        tr("Sword and serpent"),
+        setOf(
+            CoverGenre.FANTASY, CoverGenre.ROMANTASY, CoverGenre.DARK_MAGIC, CoverGenre.KNIGHTS, CoverGenre.QUEST, CoverGenre.STORM_EPIC,
+            CoverGenre.MYTHOLOGY, CoverGenre.DARK_ROMANCE, CoverGenre.FAIRY_TALE, CoverGenre.WUXIA, CoverGenre.VAMPIRES, CoverGenre.WAR,
+        ),
+    ),
+
+    /** A stag's head cut in facets, a ring behind its antlers and the moon between them. */
+    STAG(
+        tr("Stag"),
+        setOf(
+            CoverGenre.FANTASY, CoverGenre.ROMANTASY, CoverGenre.FAIRY_TALE, CoverGenre.QUEST, CoverGenre.WITCHES, CoverGenre.MYTHOLOGY,
+            CoverGenre.HISTORICAL, CoverGenre.CHRISTMAS, CoverGenre.LITERARY, CoverGenre.KNIGHTS,
+        ),
+    ),
+
+    /** The tree that holds the world, boughs above and roots below, in a ring, with sun, moon and stars at the corners. */
+    WORLD_TREE(
+        tr("World tree"),
+        setOf(
+            CoverGenre.FANTASY, CoverGenre.MYTHOLOGY, CoverGenre.WITCHES, CoverGenre.MAGIC_SCHOOL, CoverGenre.ROMANTASY, CoverGenre.FAIRY_TALE,
+            CoverGenre.QUEST, CoverGenre.DARK_MAGIC, CoverGenre.HISTORICAL, CoverGenre.URBAN_FANTASY, CoverGenre.LITERARY,
+        ),
+    ),
+
+    /** Worn leather or stained vellum, with metal at its corners, a boss in the middle, and rivets. */
+    TOME(
+        tr("Old tome"),
+        setOf(
+            CoverGenre.FANTASY, CoverGenre.STORM_EPIC, CoverGenre.KNIGHTS, CoverGenre.HISTORICAL, CoverGenre.DARK_MAGIC, CoverGenre.QUEST,
+            CoverGenre.WAR, CoverGenre.MYTHOLOGY, CoverGenre.MAGIC_SCHOOL, CoverGenre.ANCIENT, CoverGenre.STEAMPUNK, CoverGenre.ADVENTURE,
+            CoverGenre.HORROR,
+        ),
+    ),
+
+    /** Peaks drawn in fine line with their facets, flat clouds, and the words on a band with a scalloped edge. */
+    LINE_PEAKS(
+        tr("Peaks in line"),
+        setOf(
+            CoverGenre.FANTASY, CoverGenre.QUEST, CoverGenre.ADVENTURE, CoverGenre.LITERARY, CoverGenre.MYTHOLOGY, CoverGenre.FAIRY_TALE,
+            CoverGenre.NON_FICTION, CoverGenre.STORM_EPIC, CoverGenre.SLICE_OF_LIFE,
+        ),
+    ),
+
+    /** Old leather tooled without gold: knots in the corners, an oval frame, a star in foil and the title small in the middle. */
+    TOOLED(
+        tr("Tooled leather"),
+        setOf(
+            CoverGenre.FANTASY, CoverGenre.QUEST, CoverGenre.FAIRY_TALE, CoverGenre.MYTHOLOGY, CoverGenre.HISTORICAL, CoverGenre.KNIGHTS,
+            CoverGenre.MAGIC_SCHOOL, CoverGenre.ADVENTURE, CoverGenre.WITCHES, CoverGenre.ANCIENT,
+        ),
+    ),
+
+    /** A dragon, long and scaled, winding across a cover of two colours. */
+    WYRM(
+        tr("Dragon"),
+        setOf(
+            CoverGenre.FANTASY, CoverGenre.STORM_EPIC, CoverGenre.WUXIA, CoverGenre.QUEST, CoverGenre.MYTHOLOGY, CoverGenre.KNIGHTS,
+            CoverGenre.ROMANTASY, CoverGenre.MAGIC_SCHOOL, CoverGenre.FAIRY_TALE, CoverGenre.CHILDREN,
+        ),
+    ),
+
+    /** A great dial, half off the cover, with its numerals in foil, and small emblems in a column beside the title. */
+    DIAL(
+        tr("Great dial"),
+        setOf(
+            CoverGenre.FANTASY, CoverGenre.MAGIC_SCHOOL, CoverGenre.STEAMPUNK, CoverGenre.MYSTERY, CoverGenre.URBAN_FANTASY,
+            CoverGenre.SCIENCE_FICTION, CoverGenre.HISTORICAL, CoverGenre.DETECTIVE, CoverGenre.LITERARY, CoverGenre.WITCHES,
+            CoverGenre.FAIRY_TALE,
+        ),
+    ),
+
+    /** Bold flowers scattered round the edge of a cover washed like cloud. */
+    BLOOMS(
+        tr("Scattered blooms"),
+        setOf(
+            CoverGenre.FANTASY, CoverGenre.ROMANCE, CoverGenre.ROMANTASY, CoverGenre.HISTORICAL, CoverGenre.WAR, CoverGenre.LITERARY,
+            CoverGenre.WUXIA, CoverGenre.FAIRY_TALE, CoverGenre.MODERN_ROMANCE, CoverGenre.REGENCY, CoverGenre.FLUFF,
+        ),
+    ),
+
+    /** A map of a city's streets, hardly lighter than the cover, and the title tall and widely spaced over it. */
+    STREETS(
+        tr("Street map"),
+        setOf(
+            CoverGenre.URBAN_FANTASY, CoverGenre.THRILLER, CoverGenre.MYSTERY, CoverGenre.DETECTIVE, CoverGenre.SPY, CoverGenre.CYBERPUNK,
+            CoverGenre.DYSTOPIA, CoverGenre.FANTASY, CoverGenre.LITERARY, CoverGenre.NON_FICTION, CoverGenre.HISTORICAL,
+        ),
+    ),
+
+    /** Worlds in neon on black: balls shaded in specks, a screen of dots, rays in dashes, and the title in a ruled box. */
+    COSMOS(
+        tr("Neon worlds"),
+        setOf(
+            CoverGenre.SCIENCE_FICTION, CoverGenre.SPACE_OPERA, CoverGenre.STARSHIP, CoverGenre.CYBERPUNK, CoverGenre.COSMIC_HORROR,
+            CoverGenre.DYSTOPIA, CoverGenre.SUPERHERO, CoverGenre.MUSIC,
+        ),
+    ),
+
+    /** A dagger, point down, under a horned moon in a dim wood; the title across its blade. */
+    DAGGER(
+        tr("Dagger and moon"),
+        setOf(
+            CoverGenre.ROMANTASY, CoverGenre.DARK_ROMANCE, CoverGenre.FANTASY, CoverGenre.DARK_MAGIC, CoverGenre.VAMPIRES, CoverGenre.THRILLER,
+            CoverGenre.HORROR, CoverGenre.URBAN_FANTASY, CoverGenre.WITCHES, CoverGenre.SPY, CoverGenre.MYSTERY,
+        ),
+    ),
+
+    /** A wash of watercolour, a great sign for the book a shade darker in it, a band of waves, and the lettering in gold. */
+    WATERCOLOUR(
+        tr("Watercolour and gold"),
+        setOf(
+            CoverGenre.MYTHOLOGY, CoverGenre.FANTASY, CoverGenre.ADVENTURE, CoverGenre.CHILDREN, CoverGenre.MAGIC_SCHOOL, CoverGenre.QUEST,
+            CoverGenre.ANCIENT, CoverGenre.LITERARY, CoverGenre.FAIRY_TALE, CoverGenre.SCHOOL, CoverGenre.HISTORICAL,
+        ),
+    ),
+
+    /** Oak leaves and acorns in gilt line, in two corners, and the title beside them. */
+    OAK_LEAVES(
+        tr("Gilt oak leaves"),
+        setOf(
+            CoverGenre.FANTASY, CoverGenre.FAIRY_TALE, CoverGenre.ROMANTASY, CoverGenre.WITCHES, CoverGenre.HISTORICAL, CoverGenre.LITERARY,
+            CoverGenre.DARK_MAGIC, CoverGenre.QUEST, CoverGenre.REGENCY, CoverGenre.COSY_MYSTERY, CoverGenre.KNIGHTS,
+        ),
+    ),
+
+    /** Rings within rings in a few bold colours, over the title in big letters. */
+    ROUNDEL(
+        tr("Rings"),
+        setOf(
+            CoverGenre.FANTASY, CoverGenre.SCIENCE_FICTION, CoverGenre.MYTHOLOGY, CoverGenre.DARK_MAGIC, CoverGenre.THRILLER, CoverGenre.QUEST,
+            CoverGenre.STORM_EPIC, CoverGenre.NON_FICTION, CoverGenre.COSMIC_HORROR,
+        ),
+    ),
+
+    /** A moor in the wind, drawn all in streaming lines: a tree bent by it, grass, and the title in a lozenge. */
+    WINDSWEPT(
+        tr("Windswept"),
+        setOf(
+            CoverGenre.LITERARY, CoverGenre.ROMANCE, CoverGenre.HISTORICAL, CoverGenre.REGENCY, CoverGenre.ANGST, CoverGenre.FANTASY,
+            CoverGenre.DARK_ROMANCE, CoverGenre.FAIRY_TALE, CoverGenre.HORROR, CoverGenre.WITCHES,
+        ),
+    ),
+
+    /** An apothecary's bottle with the title on its label and a flowering sprig in its neck, between bands of chain. */
+    APOTHECARY(
+        tr("Apothecary bottle"),
+        setOf(
+            CoverGenre.HISTORICAL, CoverGenre.ROMANCE, CoverGenre.WITCHES, CoverGenre.COSY_MYSTERY, CoverGenre.REGENCY, CoverGenre.LITERARY,
+            CoverGenre.MAGIC_SCHOOL, CoverGenre.FAIRY_TALE, CoverGenre.NON_FICTION, CoverGenre.SLICE_OF_LIFE,
+        ),
+    ),
+
+    /** One emblem, as if cut in stone, on a plain cover; the author's name above it and the title below in colour. */
+    CARVED(
+        tr("Stone emblem"),
+        setOf(
+            CoverGenre.FANTASY, CoverGenre.DARK_MAGIC, CoverGenre.QUEST, CoverGenre.MYTHOLOGY, CoverGenre.HORROR, CoverGenre.STORM_EPIC,
+            CoverGenre.KNIGHTS, CoverGenre.THRILLER, CoverGenre.WAR, CoverGenre.LITERARY, CoverGenre.ANCIENT,
+        ),
+    ),
+
+    /** A binding covered in ornament in one bold colour: bands, a sprinkle of stars, an emblem, the title in a ruled box and the book's number in another. */
+    ORNATE(
+        tr("Ornate binding"),
+        setOf(
+            CoverGenre.MAGIC_SCHOOL, CoverGenre.FANTASY, CoverGenre.FAIRY_TALE, CoverGenre.CHILDREN, CoverGenre.SCHOOL, CoverGenre.HISTORICAL,
+            CoverGenre.CHRISTMAS, CoverGenre.KNIGHTS, CoverGenre.WITCHES, CoverGenre.LITERARY,
+        ),
+    ),
     ;
 
     companion object {
         /** The designs whose picture or drawing is different each time it's drawn (see [CoverDesign.seed]). */
         val drawn: Set<CoverStyle> = setOf(
             FRAMED, GILDED, PAINTING, GOTHIC, STARFIELD, BLOSSOM, STORYBOOK, GRIMOIRE, THORNS, NEON, PULP, POSTER, SNAPSHOT, WAND, OWL, RAVEN,
+            PATTERNED, MARBLED, LIBRARY, MEDALLION, FILIGREE, NOUVEAU, FINE_PRESS, PLAYBILL, TAROT, CELESTIAL, STAINED_GLASS, HERALDRY, MAP,
+            KNOTWORK, MEANDER, TILEWORK, SCALES, SIGIL, SHAPES, CUT_PAPER, MOTIF, TORN, AURA, DUOTONE, PICTOGRAMS, OP_ART, SEVENTIES,
+            SCHEMATIC, MAZE, CONTOURS, CASE_FILE, LAMPLIGHT, DOORWAY, SHATTERED, DOUBLE_VISION, CHILLER, WOODCUT, ROMCOM, WREATH, ENVELOPE,
+            BOTANICAL, PAPER_LAYERS, WAVES, INK_WASH, TARTAN, STAMP, WIDESCREEN, KEYHOLE, NEWSPRINT, RECORD, COMIC, CHALKBOARD, NOTEBOOK,
+            CIRCUIT, GLITCH, CLOCKWORK, STENCIL, MOON_PHASES, BOOKSHELF,
+            ENGRAVING, WATER_PEAKS, DEPTHS, MIST, DUNES, ECLIPSE, BLADE, STAG, WORLD_TREE, TOME, LINE_PEAKS, TOOLED, WYRM, DIAL, BLOOMS,
+            STREETS, COSMOS, DAGGER, WATERCOLOUR, OAK_LEAVES, ROUNDEL, WINDSWEPT, APOTHECARY, CARVED, ORNATE,
         )
 
         /** The designs with lines and ornaments (frames, rules, lozenges) whose colour can be chosen apart. */
-        val decorated: Set<CoverStyle> = setOf(LABEL, CLASSIC, FRAMED, NOIR, GOTHIC, DECO, BLOSSOM, GRIMOIRE, THORNS, PULP, POSTER, RAVEN)
+        val decorated: Set<CoverStyle> = setOf(
+            LABEL, CLASSIC, FRAMED, NOIR, GOTHIC, DECO, BLOSSOM, GRIMOIRE, THORNS, PULP, POSTER, RAVEN,
+            PATTERNED, MARBLED, LIBRARY, MEDALLION, FILIGREE, NOUVEAU, FINE_PRESS, PLAYBILL, TAROT, CELESTIAL, HERALDRY, MAP, KNOTWORK,
+            MEANDER, SIGIL, TYPE_BLOCK, TYPOGRAPHIC, SCHEMATIC, MAZE, CONTOURS, CASE_FILE, SHATTERED, DOUBLE_VISION, CHILLER, WOODCUT,
+            WREATH, ENVELOPE, BOTANICAL, WAVES, TARTAN, STAMP, WIDESCREEN, KEYHOLE, NEWSPRINT, CHALKBOARD, NOTEBOOK, CLOCKWORK, MOON_PHASES,
+            ENGRAVING, ECLIPSE, BLADE, STAG, WORLD_TREE, TOME, LINE_PEAKS, TOOLED, DIAL, STREETS, DAGGER, WATERCOLOUR, OAK_LEAVES, WINDSWEPT,
+            APOTHECARY, ORNATE,
+        )
 
         /** The designs that suit [genre] best, then the rest. */
         fun forGenre(genre: CoverGenre): List<CoverStyle> = entries.filter { genre in it.suits } + entries.filter { genre !in it.suits }
@@ -246,6 +1062,18 @@ data class CoverColors(val name: String, val ground: Int, val accent: Int, val i
         val SAFFRON = CoverColors(tr("Saffron"), rgb(0xEDB84A), rgb(0x2A2622), rgb(0x2A2622), rgb(0xF6DFA6))
         val INK = CoverColors(tr("Ink"), rgb(0xF5F4EF), rgb(0x1C1C1C), rgb(0x1C1C1C), rgb(0xF5F4EF))
 
+        // Brighter grounds, as on newer paperbacks.
+        val PEACOCK = CoverColors(tr("Peacock"), rgb(0x0F4C5C), rgb(0xF28F6B), rgb(0xF1F6F4), rgb(0x0B2F38))
+        val COBALT = CoverColors(tr("Cobalt"), rgb(0x1E3F8F), rgb(0xF2D66E), rgb(0xF4F7FD), rgb(0x14275A))
+        val ROSE = CoverColors(tr("Rose"), rgb(0x8A2D49), rgb(0xF6CDBC), rgb(0xFBEEF0), rgb(0x5A1A2E))
+        val TERRACOTTA = CoverColors(tr("Terracotta"), rgb(0x9C4326), rgb(0xF5DDAA), rgb(0xFDF1E4), rgb(0x4A1E10))
+        val SAGE = CoverColors(tr("Sage"), rgb(0xD5DEC8), rgb(0x2F5540), rgb(0x1E2B20), rgb(0xF2F5EA))
+        val SKY = CoverColors(tr("Sky"), rgb(0xCFE3F1), rgb(0x2A5C8A), rgb(0x1E2B3A), rgb(0xF1F7FC))
+        val GLACIER = CoverColors(tr("Glacier"), rgb(0xE8F1F2), rgb(0x0B6E78), rgb(0x12262B), rgb(0xF2FBFB))
+        val BUTTER = CoverColors(tr("Butter"), rgb(0xF6E7A8), rgb(0x5B2A6E), rgb(0x2A1633), rgb(0xFBF3D6))
+        val CORAL = CoverColors(tr("Coral"), rgb(0xF4B9A4), rgb(0x1F3A5F), rgb(0x2A1A1F), rgb(0xFBE9E2))
+        val TANGERINE = CoverColors(tr("Tangerine"), rgb(0xF28C28), rgb(0x1D2B45), rgb(0x1A2238), rgb(0xFDEBD6))
+
         // Muted cloth boards with pale gold lettering, as reissued fantasy series are often bound.
         private val paleGold = rgb(0xE6D9A0)
         private val greyCream = rgb(0xDCD8C6)
@@ -266,7 +1094,8 @@ data class CoverColors(val name: String, val ground: Int, val accent: Int, val i
         val themes = listOf(
             MIDNIGHT, CLARET, FOREST, SLATE, CHARCOAL, UMBER, PLUM, TEAL, EMERALD, CRIMSON, SAPPHIRE, OBSIDIAN,
             SOOT, EBONY, DUSK, NAVY, INDIGO, AUBERGINE, OXBLOOD, ROSEWOOD, BARK, MOSS, OLIVE, SPRUCE, SYNTH,
-            PARCHMENT, LINEN, BLUSH, LAVENDER, MINT, SAFFRON, INK,
+            PEACOCK, COBALT, ROSE, TERRACOTTA,
+            PARCHMENT, LINEN, BLUSH, LAVENDER, MINT, SAGE, SKY, GLACIER, BUTTER, CORAL, TANGERINE, SAFFRON, INK,
         )
 
         /** The boards a series' books are given in turn (see [CoverDesign.boardFor]). */
@@ -331,8 +1160,19 @@ data class CoverDesign(
         /** Whether [style] wants a dark board (true), a pale one (false) or either (null). */
         private fun wantsDark(style: CoverStyle): Boolean? = when (style) {
             CoverStyle.FRAMED, CoverStyle.GILDED, CoverStyle.NOIR, CoverStyle.GOTHIC, CoverStyle.STARFIELD, CoverStyle.DECO,
-            CoverStyle.GRIMOIRE, CoverStyle.THORNS, CoverStyle.NEON, CoverStyle.WAND, CoverStyle.OWL, CoverStyle.RAVEN -> true
-            CoverStyle.BLOSSOM, CoverStyle.ESSAY, CoverStyle.SNAPSHOT -> false
+            CoverStyle.GRIMOIRE, CoverStyle.THORNS, CoverStyle.NEON, CoverStyle.WAND, CoverStyle.OWL, CoverStyle.RAVEN,
+            CoverStyle.LIBRARY, CoverStyle.MEDALLION, CoverStyle.FILIGREE, CoverStyle.TAROT, CoverStyle.CELESTIAL, CoverStyle.STAINED_GLASS,
+            CoverStyle.KNOTWORK, CoverStyle.SCALES, CoverStyle.SIGIL, CoverStyle.LAMPLIGHT, CoverStyle.DOORWAY, CoverStyle.CHILLER,
+            CoverStyle.CHALKBOARD, CoverStyle.CIRCUIT, CoverStyle.GLITCH, CoverStyle.CLOCKWORK, CoverStyle.MOON_PHASES, CoverStyle.KEYHOLE,
+            CoverStyle.WIDESCREEN,
+            CoverStyle.DEPTHS, CoverStyle.ECLIPSE, CoverStyle.BLADE, CoverStyle.STAG, CoverStyle.WORLD_TREE, CoverStyle.TOOLED,
+            CoverStyle.DIAL, CoverStyle.STREETS, CoverStyle.COSMOS, CoverStyle.DAGGER, CoverStyle.OAK_LEAVES, CoverStyle.ROUNDEL,
+            CoverStyle.ENGRAVING, CoverStyle.WINDSWEPT, CoverStyle.WYRM -> true
+            CoverStyle.BLOSSOM, CoverStyle.ESSAY, CoverStyle.SNAPSHOT,
+            CoverStyle.FINE_PRESS, CoverStyle.MAP, CoverStyle.MEANDER, CoverStyle.TYPOGRAPHIC, CoverStyle.WOODCUT, CoverStyle.ENVELOPE,
+            CoverStyle.BOTANICAL, CoverStyle.INK_WASH, CoverStyle.NEWSPRINT, CoverStyle.PLAYBILL, CoverStyle.CUT_PAPER, CoverStyle.ROMCOM,
+            CoverStyle.WREATH, CoverStyle.NOUVEAU, CoverStyle.WAVES,
+            CoverStyle.BLOOMS, CoverStyle.CARVED -> false
             else -> null
         }
 
@@ -349,43 +1189,43 @@ data class CoverDesign(
                 CoverGenre.FAIRY_TALE -> listOf(PLUM, BLUSH, LAVENDER, TEAL)
                 CoverGenre.ROMANTASY -> listOf(PLUM, TEAL, OBSIDIAN, CLARET)
                 CoverGenre.URBAN_FANTASY -> listOf(PLUM, MIDNIGHT, SYNTH)
-                CoverGenre.WUXIA -> listOf(CRIMSON, PARCHMENT, INK, TEAL)
-                CoverGenre.SCIENCE_FICTION -> listOf(MIDNIGHT, SLATE, SYNTH, TEAL)
+                CoverGenre.WUXIA -> listOf(CRIMSON, PARCHMENT, INK, TEAL, PEACOCK)
+                CoverGenre.SCIENCE_FICTION -> listOf(MIDNIGHT, SLATE, SYNTH, TEAL, COBALT, GLACIER)
                 CoverGenre.SPACE_OPERA -> listOf(MIDNIGHT, OBSIDIAN, CHARCOAL, SAPPHIRE)
-                CoverGenre.STARSHIP -> listOf(SAPPHIRE, MIDNIGHT, SLATE, TEAL)
+                CoverGenre.STARSHIP -> listOf(SAPPHIRE, MIDNIGHT, SLATE, TEAL, COBALT)
                 CoverGenre.CYBERPUNK -> listOf(SYNTH, PLUM, MIDNIGHT)
                 CoverGenre.DYSTOPIA -> listOf(UMBER, CHARCOAL, SAFFRON, SLATE)
                 CoverGenre.STEAMPUNK -> listOf(UMBER, SAFFRON, PARCHMENT, CRIMSON)
-                CoverGenre.SUPERHERO -> listOf(CRIMSON, MIDNIGHT, SAPPHIRE, SAFFRON)
+                CoverGenre.SUPERHERO -> listOf(CRIMSON, MIDNIGHT, SAPPHIRE, SAFFRON, COBALT)
                 CoverGenre.MYSTERY -> listOf(SLATE, CHARCOAL, MIDNIGHT, SPRUCE)
                 CoverGenre.DETECTIVE -> listOf(UMBER, CHARCOAL, PARCHMENT, CLARET)
-                CoverGenre.COSY_MYSTERY -> listOf(MINT, BLUSH, PARCHMENT, LINEN, TEAL)
+                CoverGenre.COSY_MYSTERY -> listOf(MINT, BLUSH, PARCHMENT, LINEN, TEAL, BUTTER, SAGE)
                 CoverGenre.THRILLER -> listOf(CHARCOAL, OBSIDIAN, SLATE, SAFFRON)
                 CoverGenre.SPY -> listOf(CHARCOAL, OBSIDIAN, SLATE, MIDNIGHT)
-                CoverGenre.HISTORICAL -> listOf(PARCHMENT, UMBER, CLARET, FOREST, ROSEWOOD)
+                CoverGenre.HISTORICAL -> listOf(PARCHMENT, UMBER, CLARET, FOREST, ROSEWOOD, TERRACOTTA)
                 CoverGenre.WAR -> listOf(UMBER, CHARCOAL, CRIMSON, SLATE, OLIVE)
                 CoverGenre.KNIGHTS -> listOf(CRIMSON, SAPPHIRE, UMBER, FOREST)
-                CoverGenre.REGENCY -> listOf(BLUSH, LAVENDER, LINEN, SAPPHIRE, MINT)
-                CoverGenre.ANCIENT -> listOf(SAFFRON, UMBER, CRIMSON, PARCHMENT)
-                CoverGenre.ADVENTURE -> listOf(TEAL, UMBER, FOREST, SAFFRON)
-                CoverGenre.WESTERN -> listOf(UMBER, SAFFRON, PARCHMENT, CLARET)
-                CoverGenre.ROMANCE -> listOf(BLUSH, CLARET, LAVENDER, PLUM)
-                CoverGenre.MODERN_ROMANCE -> listOf(BLUSH, LAVENDER, MINT, LINEN)
+                CoverGenre.REGENCY -> listOf(BLUSH, LAVENDER, LINEN, SAPPHIRE, MINT, SAGE, ROSE)
+                CoverGenre.ANCIENT -> listOf(SAFFRON, UMBER, CRIMSON, PARCHMENT, TERRACOTTA)
+                CoverGenre.ADVENTURE -> listOf(TEAL, UMBER, FOREST, SAFFRON, PEACOCK, TERRACOTTA)
+                CoverGenre.WESTERN -> listOf(UMBER, SAFFRON, PARCHMENT, CLARET, TERRACOTTA)
+                CoverGenre.ROMANCE -> listOf(BLUSH, CLARET, LAVENDER, PLUM, ROSE)
+                CoverGenre.MODERN_ROMANCE -> listOf(BLUSH, LAVENDER, MINT, LINEN, CORAL, SKY, BUTTER)
                 CoverGenre.DARK_ROMANCE -> listOf(OBSIDIAN, CLARET, CRIMSON, PLUM)
-                CoverGenre.FLUFF -> listOf(LAVENDER, BLUSH, MINT, LINEN)
+                CoverGenre.FLUFF -> listOf(LAVENDER, BLUSH, MINT, LINEN, BUTTER, CORAL)
                 CoverGenre.ANGST -> listOf(SLATE, MIDNIGHT, LINEN, CHARCOAL)
                 CoverGenre.HORROR -> listOf(CHARCOAL, OBSIDIAN, FOREST, CLARET)
                 CoverGenre.VAMPIRES -> listOf(OBSIDIAN, CLARET, CRIMSON, PLUM)
                 CoverGenre.COSMIC_HORROR -> listOf(EMERALD, TEAL, OBSIDIAN, SLATE)
-                CoverGenre.HALLOWEEN -> listOf(SAFFRON, CHARCOAL, PLUM, OBSIDIAN)
-                CoverGenre.LITERARY -> listOf(PARCHMENT, LINEN, INK, FOREST)
-                CoverGenre.SLICE_OF_LIFE -> listOf(MINT, LINEN, BLUSH, SAFFRON)
-                CoverGenre.SCHOOL -> listOf(SAPPHIRE, CRIMSON, FOREST, LINEN)
-                CoverGenre.SPORTS -> listOf(SAPPHIRE, CRIMSON, SAFFRON, FOREST)
-                CoverGenre.MUSIC -> listOf(SYNTH, PLUM, OBSIDIAN, MIDNIGHT)
-                CoverGenre.CHRISTMAS -> listOf(CRIMSON, FOREST, MIDNIGHT, LINEN)
-                CoverGenre.NON_FICTION -> listOf(LINEN, INK, PARCHMENT, SLATE)
-                CoverGenre.CHILDREN -> listOf(SAFFRON, MINT, BLUSH, LAVENDER)
+                CoverGenre.HALLOWEEN -> listOf(SAFFRON, CHARCOAL, PLUM, OBSIDIAN, TANGERINE)
+                CoverGenre.LITERARY -> listOf(PARCHMENT, LINEN, INK, FOREST, SAGE)
+                CoverGenre.SLICE_OF_LIFE -> listOf(MINT, LINEN, BLUSH, SAFFRON, SAGE, SKY)
+                CoverGenre.SCHOOL -> listOf(SAPPHIRE, CRIMSON, FOREST, LINEN, COBALT, BUTTER)
+                CoverGenre.SPORTS -> listOf(SAPPHIRE, CRIMSON, SAFFRON, FOREST, COBALT, TANGERINE)
+                CoverGenre.MUSIC -> listOf(SYNTH, PLUM, OBSIDIAN, MIDNIGHT, COBALT)
+                CoverGenre.CHRISTMAS -> listOf(CRIMSON, FOREST, MIDNIGHT, LINEN, ROSE)
+                CoverGenre.NON_FICTION -> listOf(LINEN, INK, PARCHMENT, SLATE, GLACIER, COBALT)
+                CoverGenre.CHILDREN -> listOf(SAFFRON, MINT, BLUSH, LAVENDER, SKY, TANGERINE)
             }
         }
 
@@ -451,24 +1291,46 @@ data class CoverText(val title: String, val authors: List<String>, val series: S
 class CoverGenerator(context: Context) {
 
     private val res: Resources = context.resources
-    private val serif = face(R.font.lora_variable, 400, false, R.font.liberation_serif_regular)
-    private val serifBold = face(R.font.lora_variable, 700, false, R.font.liberation_serif_bold)
-    private val serifItalic = face(R.font.lora_italic_variable, 400, true, R.font.liberation_serif_regular)
-    private val sans = face(R.font.poppins_medium, 500, false, R.font.liberation_sans_regular)
-    private val sansBold = face(R.font.poppins_bold, 700, false, R.font.liberation_sans_bold)
-    private val roman = face(R.font.cinzel_variable, 600, false, R.font.liberation_serif_bold)
-    private val romanLight = face(R.font.cinzel_variable, 500, false, R.font.liberation_serif_regular)
-    private val romanDecorated = face(R.font.cinzel_decorative_bold, 700, false, R.font.liberation_serif_bold)
-    private val blackLetter = face(R.font.unifraktur_maguntia, 400, false, R.font.liberation_serif_bold)
-    private val script = face(R.font.great_vibes, 400, false, R.font.liberation_serif_regular)
-    private val condensed = face(R.font.bebas_neue, 400, false, R.font.liberation_sans_bold)
-    private val space = face(R.font.orbitron_variable, 700, false, R.font.liberation_sans_bold)
-    private val spaceLight = face(R.font.orbitron_variable, 500, false, R.font.liberation_sans_regular)
-    private val deco = face(R.font.poiret_one, 400, false, R.font.liberation_sans_regular)
-    private val rounded = face(R.font.fredoka_variable, 600, false, R.font.liberation_sans_bold)
+    internal val serif = face(R.font.lora_variable, 400, false, R.font.liberation_serif_regular)
+    internal val serifBold = face(R.font.lora_variable, 700, false, R.font.liberation_serif_bold)
+    internal val serifItalic = face(R.font.lora_italic_variable, 400, true, R.font.liberation_serif_regular)
+    internal val sans = face(R.font.poppins_medium, 500, false, R.font.liberation_sans_regular)
+    internal val sansBold = face(R.font.poppins_bold, 700, false, R.font.liberation_sans_bold)
+    internal val roman = face(R.font.cinzel_variable, 600, false, R.font.liberation_serif_bold)
+    internal val romanLight = face(R.font.cinzel_variable, 500, false, R.font.liberation_serif_regular)
+    internal val romanDecorated = face(R.font.cinzel_decorative_bold, 700, false, R.font.liberation_serif_bold)
+    internal val blackLetter = face(R.font.unifraktur_maguntia, 400, false, R.font.liberation_serif_bold)
+    internal val script = face(R.font.great_vibes, 400, false, R.font.liberation_serif_regular)
+    internal val condensed = face(R.font.bebas_neue, 400, false, R.font.liberation_sans_bold)
+    internal val space = face(R.font.orbitron_variable, 700, false, R.font.liberation_sans_bold)
+    internal val spaceLight = face(R.font.orbitron_variable, 500, false, R.font.liberation_sans_regular)
+    internal val deco = face(R.font.poiret_one, 400, false, R.font.liberation_sans_regular)
+    internal val rounded = face(R.font.fredoka_variable, 600, false, R.font.liberation_sans_bold)
+
+    internal val didone = face(R.font.playfair_display_variable, 500, false, R.font.liberation_serif_regular)
+    internal val didoneBlack = face(R.font.playfair_display_variable, 900, false, R.font.liberation_serif_bold)
+    internal val didoneItalic = face(R.font.playfair_display_italic_variable, 500, true, R.font.liberation_serif_regular)
+    internal val didoneItalicBlack = face(R.font.playfair_display_italic_variable, 800, true, R.font.liberation_serif_bold)
+    internal val garamond = face(R.font.eb_garamond_ui_medium, 500, false, R.font.liberation_serif_regular)
+    internal val garamondItalic = face(R.font.eb_garamond_ui_medium_italic, 500, true, R.font.liberation_serif_regular)
+    internal val fell = face(R.font.im_fell_english_regular, 400, false, R.font.liberation_serif_regular)
+    internal val fellItalic = face(R.font.im_fell_english_italic, 400, true, R.font.liberation_serif_regular)
+    internal val fellCaps = face(R.font.im_fell_english_sc, 400, false, R.font.liberation_serif_regular)
+    internal val typewriter = face(R.font.courier_prime_regular, 400, false, R.font.liberation_sans_regular)
+    internal val typewriterBold = face(R.font.courier_prime_bold, 700, false, R.font.liberation_sans_bold)
+    internal val mono = face(R.font.space_mono_regular, 400, false, R.font.liberation_sans_regular)
+    internal val monoBold = face(R.font.space_mono_bold, 700, false, R.font.liberation_sans_bold)
+    internal val hand = face(R.font.caveat_variable, 600, false, R.font.liberation_sans_regular)
+    internal val handBold = face(R.font.caveat_variable, 700, false, R.font.liberation_sans_bold)
+    internal val brush = face(R.font.pacifico, 400, false, R.font.liberation_sans_bold)
+    internal val woodType = face(R.font.rye, 400, false, R.font.liberation_serif_bold)
+    internal val slab = face(R.font.alfa_slab_one, 400, false, R.font.liberation_serif_bold)
+    internal val stencil = face(R.font.stardos_stencil_bold, 700, false, R.font.liberation_serif_bold)
+    internal val comic = face(R.font.bangers, 400, false, R.font.liberation_sans_bold)
+    internal val college = face(R.font.graduate, 400, false, R.font.liberation_serif_bold)
 
     /** One of the cover typefaces at a weight, falling back to [spare] for letters it doesn't have. */
-    private fun face(font: Int, weight: Int, italic: Boolean, spare: Int): Typeface {
+    internal fun face(font: Int, weight: Int, italic: Boolean, spare: Int): Typeface {
         val slant = if (italic) FontStyle.FONT_SLANT_ITALIC else FontStyle.FONT_SLANT_UPRIGHT
         return try {
             val main = Font.Builder(res, font).setWeight(weight).setSlant(slant).setFontVariationSettings("'wght' $weight").build()
@@ -526,23 +1388,111 @@ class CoverGenerator(context: Context) {
             CoverStyle.WAND -> wand(sheet, words, art)
             CoverStyle.OWL -> owl(sheet, words, art)
             CoverStyle.RAVEN -> raven(sheet, words, art)
+            CoverStyle.PATTERNED -> patterned(sheet, words, art)
+            CoverStyle.MARBLED -> marbled(sheet, words, art)
+            CoverStyle.LIBRARY -> library(sheet, words, art)
+            CoverStyle.MEDALLION -> medallion(sheet, words, art)
+            CoverStyle.FILIGREE -> filigree(sheet, words, art)
+            CoverStyle.NOUVEAU -> nouveau(sheet, words, art)
+            CoverStyle.FINE_PRESS -> finePress(sheet, words, art)
+            CoverStyle.PLAYBILL -> playbill(sheet, words, art)
+            CoverStyle.TAROT -> tarot(sheet, words, art)
+            CoverStyle.CELESTIAL -> celestial(sheet, words, art)
+            CoverStyle.STAINED_GLASS -> stainedGlass(sheet, words, art)
+            CoverStyle.HERALDRY -> heraldry(sheet, words, art)
+            CoverStyle.MAP -> oldMap(sheet, words, art)
+            CoverStyle.KNOTWORK -> knotwork(sheet, words, art)
+            CoverStyle.MEANDER -> meander(sheet, words, art)
+            CoverStyle.TILEWORK -> tilework(sheet, words, art)
+            CoverStyle.SCALES -> scales(sheet, words, art)
+            CoverStyle.SIGIL -> sigil(sheet, words, art)
+            CoverStyle.TYPE_BLOCK -> typeBlock(sheet, words, art)
+            CoverStyle.SHAPES -> shapes(sheet, words, art)
+            CoverStyle.CUT_PAPER -> cutPaper(sheet, words, art)
+            CoverStyle.MOTIF -> motif(sheet, words, art)
+            CoverStyle.TORN -> torn(sheet, words, art)
+            CoverStyle.AURA -> aura(sheet, words, art)
+            CoverStyle.ECHO -> echo(sheet, words, art)
+            CoverStyle.DUOTONE -> duotone(sheet, words, art)
+            CoverStyle.PICTOGRAMS -> pictograms(sheet, words, art)
+            CoverStyle.OP_ART -> opArt(sheet, words, art)
+            CoverStyle.SEVENTIES -> seventies(sheet, words, art)
+            CoverStyle.SCHEMATIC -> schematic(sheet, words, art)
+            CoverStyle.MAZE -> maze(sheet, words, art)
+            CoverStyle.CONTOURS -> contours(sheet, words, art)
+            CoverStyle.TYPOGRAPHIC -> typographic(sheet, words, art)
+            CoverStyle.CASE_FILE -> caseFile(sheet, words, art)
+            CoverStyle.LAMPLIGHT -> lamplight(sheet, words, art)
+            CoverStyle.DOORWAY -> doorway(sheet, words, art)
+            CoverStyle.SHATTERED -> shattered(sheet, words, art)
+            CoverStyle.DOUBLE_VISION -> doubleVision(sheet, words, art)
+            CoverStyle.CHILLER -> chiller(sheet, words, art)
+            CoverStyle.WOODCUT -> woodcut(sheet, words, art)
+            CoverStyle.ROMCOM -> romcom(sheet, words, art)
+            CoverStyle.WREATH -> wreath(sheet, words, art)
+            CoverStyle.ENVELOPE -> envelope(sheet, words, art)
+            CoverStyle.BOTANICAL -> botanical(sheet, words, art)
+            CoverStyle.PAPER_LAYERS -> paperLayers(sheet, words, art)
+            CoverStyle.WAVES -> waves(sheet, words, art)
+            CoverStyle.INK_WASH -> inkWash(sheet, words, art)
+            CoverStyle.TARTAN -> tartan(sheet, words, art)
+            CoverStyle.STAMP -> stamp(sheet, words, art)
+            CoverStyle.WIDESCREEN -> widescreen(sheet, words, art)
+            CoverStyle.KEYHOLE -> keyhole(sheet, words, art)
+            CoverStyle.NEWSPRINT -> newsprint(sheet, words, art)
+            CoverStyle.RECORD -> record(sheet, words, art)
+            CoverStyle.VARSITY -> varsity(sheet, words, art)
+            CoverStyle.COMIC -> comicBook(sheet, words, art)
+            CoverStyle.CHALKBOARD -> chalkboard(sheet, words, art)
+            CoverStyle.NOTEBOOK -> notebook(sheet, words, art)
+            CoverStyle.CIRCUIT -> circuit(sheet, words, art)
+            CoverStyle.GLITCH -> glitch(sheet, words, art)
+            CoverStyle.CLOCKWORK -> clockwork(sheet, words, art)
+            CoverStyle.STENCIL -> stencilCrate(sheet, words, art)
+            CoverStyle.MOON_PHASES -> moonPhases(sheet, words, art)
+            CoverStyle.BOOKSHELF -> bookshelf(sheet, words, art)
+            CoverStyle.ENGRAVING -> engraving(sheet, words, art)
+            CoverStyle.WATER_PEAKS -> waterPeaks(sheet, words, art)
+            CoverStyle.DEPTHS -> depths(sheet, words, art)
+            CoverStyle.MIST -> mist(sheet, words, art)
+            CoverStyle.DUNES -> dunes(sheet, words, art)
+            CoverStyle.ECLIPSE -> eclipse(sheet, words, art)
+            CoverStyle.BLADE -> blade(sheet, words, art)
+            CoverStyle.STAG -> stag(sheet, words, art)
+            CoverStyle.WORLD_TREE -> worldTree(sheet, words, art)
+            CoverStyle.TOME -> tome(sheet, words, art)
+            CoverStyle.LINE_PEAKS -> linePeaks(sheet, words, art)
+            CoverStyle.TOOLED -> tooled(sheet, words, art)
+            CoverStyle.WYRM -> wyrm(sheet, words, art)
+            CoverStyle.DIAL -> dial(sheet, words, art)
+            CoverStyle.BLOOMS -> blooms(sheet, words, art)
+            CoverStyle.STREETS -> streets(sheet, words, art)
+            CoverStyle.COSMOS -> cosmos(sheet, words, art)
+            CoverStyle.DAGGER -> dagger(sheet, words, art)
+            CoverStyle.WATERCOLOUR -> watercolour(sheet, words, art)
+            CoverStyle.OAK_LEAVES -> oakLeaves(sheet, words, art)
+            CoverStyle.ROUNDEL -> roundel(sheet, words, art)
+            CoverStyle.WINDSWEPT -> windswept(sheet, words, art)
+            CoverStyle.APOTHECARY -> apothecary(sheet, words, art)
+            CoverStyle.CARVED -> carved(sheet, words, art)
+            CoverStyle.ORNATE -> ornate(sheet, words, art)
         }
         return bmp
     }
 
     // ---- the words -----------------------------------------------------------------------------
 
-    private class Words(
+    internal class Words(
         val title: String, val series: String?, val author: String?, val seed: Int, val seriesName: String? = null, val seriesIndex: Double? = null,
         /** How the framed design writes the book's number in its series. */
         val number: SeriesNumber = SeriesNumber.WORDS,
     )
 
     /** The picture a design shows: the reader's own ([picture], placed by [crop]) or one painted for [genre] from [seed]. */
-    private class Art(val genre: CoverGenre, val seed: Int, val picture: Bitmap?, val crop: CoverCrop)
+    internal class Art(val genre: CoverGenre, val seed: Int, val picture: Bitmap?, val crop: CoverCrop)
 
     /** Paints [art] into [r]: the reader's picture where it's placed, or the genre's scene. */
-    private fun paint(canvas: Canvas, r: RectF, art: Art) {
+    internal fun paint(canvas: Canvas, r: RectF, art: Art) {
         val pic = art.picture
         if (pic == null) {
             CoverArt.scene(canvas, r, art.genre, art.seed)
@@ -562,7 +1512,7 @@ class CoverGenerator(context: Context) {
     }
 
     /** "Sherlock Holmes · Book 5", or just the series when it has no number. */
-    private fun seriesLine(t: CoverText, how: SeriesNumber): String? {
+    internal fun seriesLine(t: CoverText, how: SeriesNumber): String? {
         val name = t.series?.trim().orEmpty()
         if (name.isEmpty()) return null
         val number = t.seriesIndex?.let { SeriesNumber.written(it, how) } ?: return name
@@ -570,7 +1520,7 @@ class CoverGenerator(context: Context) {
     }
 
     /** Everyone who wrote it on one line: "A", "A & B", "A, B & C", and past three, "A, B & others". */
-    private fun authorLine(t: CoverText): String? {
+    internal fun authorLine(t: CoverText): String? {
         val names = t.authors.map { it.trim() }.filter { it.isNotEmpty() && !it.equals(tr("Unknown"), ignoreCase = true) }
         return when (names.size) {
             0 -> null
@@ -585,7 +1535,7 @@ class CoverGenerator(context: Context) {
      * [s] in capitals, for lines set in spaced caps. Greek capitals go without their accents and
      * breathings, as Greek is set in capitals (a diaeresis stays, and an iota subscript becomes Ι).
      */
-    private fun caps(s: String): String {
+    internal fun caps(s: String): String {
         val decomposed = Normalizer.normalize(s, Normalizer.Form.NFD)
         val out = StringBuilder(decomposed.length)
         var greek = false
@@ -599,7 +1549,7 @@ class CoverGenerator(context: Context) {
     }
 
     /** Wrapped text at the size it was fitted to. It is placed by the top of its capital letters. */
-    private class Fitted(val layout: StaticLayout, private val capTop: Float) {
+    internal class Fitted(val layout: StaticLayout, private val capTop: Float) {
         /** From the top of the first line's capitals down to the last line's baseline. */
         val height: Float get() = layout.getLineBaseline(layout.lineCount - 1) - capTop
 
@@ -646,7 +1596,7 @@ class CoverGenerator(context: Context) {
      * [tracking] the extra space between letters, both in ems.
      */
     @SuppressLint("WrongConstant") // Layout's break strategy is the same value as LineBreaker's
-    private fun fit(
+    internal fun fit(
         text: String?, face: Typeface, largest: Float, smallest: Float, width: Float, height: Float,
         align: Layout.Alignment = Layout.Alignment.ALIGN_CENTER, pitch: Float = 1.18f, tracking: Float = 0f,
     ): Fitted? {
@@ -711,7 +1661,7 @@ class CoverGenerator(context: Context) {
     // ---- drawing -------------------------------------------------------------------------------
 
     /** The page being drawn. [u] is a hundredth of its width, the unit every measurement is in. */
-    private class Sheet(
+    internal class Sheet(
         val canvas: Canvas, val w: Float, val h: Float, val c: CoverColors,
         private val lettering: Int? = null, private val seriesLettering: Int? = null, private val decoration: Int? = null,
     ) {
@@ -753,8 +1703,8 @@ class CoverGenerator(context: Context) {
         }
     }
 
-    private fun mix(from: Int, to: Int, amount: Float) = ColorUtils.blendARGB(from, to, amount)
-    private fun faint(colour: Int, alpha: Int) = ColorUtils.setAlphaComponent(colour, alpha)
+    internal fun mix(from: Int, to: Int, amount: Float) = ColorUtils.blendARGB(from, to, amount)
+    internal fun faint(colour: Int, alpha: Int) = ColorUtils.setAlphaComponent(colour, alpha)
 
     /** A cloth-bound board with a hinge down the left and a paper label for the title. */
     private fun label(s: Sheet, t: Words) {
@@ -995,15 +1945,26 @@ class CoverGenerator(context: Context) {
             CoverStyle.PULP -> RectF(5f * u, 33f * u, w - 5f * u, h - 17f * u)
             // (Drawn turned a little; the frame here is as it is before it's turned.)
             CoverStyle.SNAPSHOT -> RectF(18f * u, 14f * u, 82f * u, 80f * u)
+            CoverStyle.ENGRAVING -> RectF(0f, 0f, w, h)
+            CoverStyle.DUOTONE -> RectF(0f, 0f, w, kotlin.math.round(0.6f * h))
+            // (The next is drawn turned a little; the frame here is as it is before it's turned.)
+            CoverStyle.CASE_FILE -> RectF(52f * u, 13f * u, 89f * u, 13f * u + kotlin.math.min(44f * u, 0.33f * h))
+            // (An oval.)
+            CoverStyle.CHILLER -> RectF(19f * u, 0.34f * h, 81f * u, h - 21f * u)
+            CoverStyle.STAMP -> RectF(21f * u, 17f * u, 79f * u, 17f * u + kotlin.math.min(64f * u, 0.48f * h))
+            CoverStyle.WIDESCREEN -> RectF(0f, 0.17f * h, w, 0.17f * h + kotlin.math.min(56f * u, 0.42f * h))
+            // (A keyhole: a round above a skirt.)
+            CoverStyle.KEYHOLE -> RectF(29f * u, 0.3f * h, 71f * u, kotlin.math.min(0.3f * h + 62f * u, h - 27f * u))
+            CoverStyle.NEWSPRINT -> RectF(7f * u, 0.42f * h, 60f * u, 0.69f * h)
             else -> null
         }
     }
 
 
-    private fun whole(s: Sheet) = RectF(0f, 0f, s.w, s.h)
+    internal fun whole(s: Sheet) = RectF(0f, 0f, s.w, s.h)
 
     /** A plain board in the ground colour, lit a little from above, with a fine grain. */
-    private fun board(s: Sheet, seed: Int, vignette: Int = 90) {
+    internal fun board(s: Sheet, seed: Int, vignette: Int = 90) {
         s.canvas.drawColor(s.c.ground)
         val p = Painter(s.canvas, whole(s), Random(seed))
         p.glow(s.w / 2, s.h * 0.3f, s.w * 0.9f, Color.WHITE, 22)
@@ -1012,7 +1973,7 @@ class CoverGenerator(context: Context) {
     }
 
     /** Book cloth: the ground colour woven fine (short threads every way, catching the light or not), darker at the edges. */
-    private fun cloth(s: Sheet, seed: Int) {
+    internal fun cloth(s: Sheet, seed: Int) {
         s.canvas.drawColor(s.c.ground)
         val rnd = Random(seed)
         val thread = Paint(Paint.ANTI_ALIAS_FLAG).apply { strokeWidth = kotlin.math.max(1f, s.u * 0.16f); strokeCap = Paint.Cap.ROUND }
@@ -1031,14 +1992,14 @@ class CoverGenerator(context: Context) {
     }
 
     /** Gold leaf from [base]: light and dark bands across the cover, as foil catches the light. */
-    private fun foil(s: Sheet, base: Int): Shader {
+    internal fun foil(s: Sheet, base: Int): Shader {
         val light = mix(base, Color.WHITE, 0.55f)
         val dark = mix(base, Color.BLACK, 0.4f)
         return LinearGradient(0f, 0f, s.w * 0.55f, s.h * 0.4f, intArrayOf(dark, base, light, base, dark, base, light, base), null, Shader.TileMode.MIRROR)
     }
 
     /** A small ornament: a lozenge between two tapering rules ending in dots. */
-    private fun ornament(s: Sheet, cx: Float, cy: Float, colour: Int) {
+    internal fun ornament(s: Sheet, cx: Float, cy: Float, colour: Int) {
         val u = s.u
         s.diamond(cx, cy, 1.3f * u, colour)
         s.diamond(cx, cy, 0.55f * u, s.c.ground)
@@ -1276,7 +2237,7 @@ class CoverGenerator(context: Context) {
     }
 
     /** A rectangle with its corners stepped in, as framed in the 1920s. */
-    private fun steppedFrame(s: Sheet, inset: Float, step: Float, paint: Paint) {
+    internal fun steppedFrame(s: Sheet, inset: Float, step: Float, paint: Paint) {
         val l = inset
         val t = inset
         val r = s.w - inset
@@ -1439,7 +2400,7 @@ class CoverGenerator(context: Context) {
     // ---- spell books, thorns, neon, pulp, posters and snapshots ----------------------------------
 
     /** Old leather: the ground colour mottled darker and lighter, worn at the edges. */
-    private fun leather(s: Sheet, seed: Int) {
+    internal fun leather(s: Sheet, seed: Int) {
         s.canvas.drawColor(s.c.ground)
         val p = Painter(s.canvas, whole(s), Random(seed))
         repeat(22) {
@@ -1450,7 +2411,7 @@ class CoverGenerator(context: Context) {
     }
 
     /** A circle of runes round a seven-pointed star, glowing faintly, as on a book of spells. */
-    private fun runeCircle(s: Sheet, cx: Float, cy: Float, r: Float, colour: Int, seed: Int) {
+    internal fun runeCircle(s: Sheet, cx: Float, cy: Float, r: Float, colour: Int, seed: Int) {
         val c = s.canvas
         val p = Painter(c, whole(s), Random(seed))
         p.glow(cx, cy, r * 1.5f, colour, 50)
@@ -1658,7 +2619,7 @@ class CoverGenerator(context: Context) {
     }
 
     /** Dots over a picture, as it would be printed on cheap paper. */
-    private fun halftone(c: Canvas, r: RectF, u: Float) {
+    internal fun halftone(c: Canvas, r: RectF, u: Float) {
         val dot = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = faint(Color.BLACK, 34) }
         val step = 1.3f * u
         var row = 0
@@ -1821,12 +2782,12 @@ class CoverGenerator(context: Context) {
     // ---- the night designs: a wand, an owl and a raven ------------------------------------------
 
     /** A theme's light colour and its dark, and a glow that shows on the dark: for the designs set at night whatever the theme. */
-    private class Night(val light: Int, val dark: Int, val glow: Int, private val accent: Int) {
+    internal class Night(val light: Int, val dark: Int, val glow: Int, private val accent: Int) {
         /** The theme's own accent where it shows on [ground], otherwise the glow (as for a black accent). */
         fun accentOn(ground: Int) = if (ColorUtils.calculateContrast(accent, ColorUtils.setAlphaComponent(ground, 255)) >= 2.5) accent else glow
     }
 
-    private fun night(s: Sheet): Night {
+    internal fun night(s: Sheet): Night {
         val inkIsLighter = ColorUtils.calculateLuminance(s.c.ink) >= ColorUtils.calculateLuminance(s.c.ground)
         val light = if (inkIsLighter) s.c.ink else s.c.ground
         val dark = if (inkIsLighter) s.c.ground else s.c.ink
@@ -1839,7 +2800,7 @@ class CoverGenerator(context: Context) {
     }
 
     /** The night sky the designs are set on, darkest at the top. */
-    private fun nightSky(s: Sheet, n: Night) {
+    internal fun nightSky(s: Sheet, n: Night) {
         s.canvas.drawRect(whole(s), Paint().apply {
             shader = LinearGradient(0f, 0f, 0f, s.h, mix(n.dark, Color.BLACK, 0.62f), mix(n.dark, Color.BLACK, 0.22f), Shader.TileMode.CLAMP)
         })

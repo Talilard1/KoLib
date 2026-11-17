@@ -236,6 +236,9 @@ fun CoverGeneratorScreen(
     var moving by remember { mutableStateOf(false) }
     var preview by remember { mutableStateOf<ImageBitmap?>(null) }
     var thumbs by remember { mutableStateOf<Map<CoverStyle, ImageBitmap>>(emptyMap()) }
+    // The designs that don't go with the genre are kept folded away until they're asked for (or one of them is the one in use).
+    var allDesigns by remember { mutableStateOf(false) }
+    val othersShown = allDesigns || kind !in style.suits
     var making by remember { mutableStateOf(false) }
     var opening by remember { mutableStateOf(false) }
     var problem by remember { mutableStateOf<String?>(null) }
@@ -291,12 +294,21 @@ fun CoverGeneratorScreen(
         val h = (w / coverAspect).roundToInt()
         preview = withContext(drawing) { generator.render(text, design, w, h, shownPicture?.small, crop).asImageBitmap() }
     }
-    LaunchedEffect(colors, kind, seed, own, coverAspect, lettering, seriesLettering, seriesNumber, decoration) {
-        thumbs = withContext(Dispatchers.Default) {
-            CoverStyle.entries.associateWith {
-                generator.render(text, CoverDesign(it, colors, kind, seed, lettering, seriesLettering, seriesNumber, decoration), 134, (134 / coverAspect).roundToInt(), own?.small?.takeIf { _ -> it.picture }, crop).asImageBitmap()
+    LaunchedEffect(colors, kind, seed, own, coverAspect, lettering, seriesLettering, seriesNumber, decoration, othersShown) {
+        // A few at a time, those for this genre first, so the first are there to pick from while the rest are drawn.
+        val tall = (134 / coverAspect).roundToInt()
+        val wanted = CoverStyle.forGenre(kind).filter { othersShown || kind in it.suits }
+        var fresh = emptyMap<CoverStyle, ImageBitmap>()
+        for (some in wanted.chunked(6)) {
+            fresh = fresh + withContext(Dispatchers.Default) {
+                some.associateWith {
+                    generator.render(text, CoverDesign(it, colors, kind, seed, lettering, seriesLettering, seriesNumber, decoration), 134, tall, own?.small?.takeIf { _ -> it.picture }, crop).asImageBitmap()
+                }
             }
+            // (The ones not drawn afresh yet keep their old picture till they are.)
+            thumbs = thumbs + fresh
         }
+        thumbs = fresh
     }
 
     Scaffold(
@@ -522,9 +534,17 @@ fun CoverGeneratorScreen(
                         suited.forEach { styleTile(it) }
                     }
                     if (others.isNotEmpty()) {
-                        Text(tr("Other designs"), style = MaterialTheme.typography.titleSmall)
-                        FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                            others.forEach { styleTile(it) }
+                        if (othersShown) {
+                            Text(tr("Other designs"), style = MaterialTheme.typography.titleSmall)
+                            FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                others.forEach { styleTile(it) }
+                            }
+                        }
+                        // (No folding them away while one of them is the design in use.)
+                        if (!othersShown || kind in style.suits) {
+                            OutlinedButton(onClick = { allDesigns = !othersShown }) {
+                                Text(if (othersShown) tr("Only the designs for this genre") else tr("All {0} designs", CoverStyle.entries.size))
+                            }
                         }
                     }
                     HorizontalDivider()

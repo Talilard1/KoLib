@@ -624,7 +624,7 @@ class AdvertShots140 {
     }
     @Test @Config(qualifiers = TAB) fun fiveGen1() = generatorNow("ad_newgen_1", CoverStyle.FRAMED, dev.kobolibrary.app.ui.cover.CoverGenre.HORROR, theme("Claret"))
     @Test @Config(qualifiers = TAB) fun fiveGen2() = generatorNow("ad_newgen_2", CoverStyle.GILDED, dev.kobolibrary.app.ui.cover.CoverGenre.DETECTIVE, theme("Emerald"))
-    @Test @Config(qualifiers = TAB) fun fiveGen3() = generatorNow("ad_newgen_3", CoverStyle.PULP, dev.kobolibrary.app.ui.cover.CoverGenre.MYSTERY, theme("Teal"))
+    @Test @Config(qualifiers = TAB) fun fiveGen3() = generatorNow("ad_newgen_3", CoverStyle.LAMPLIGHT, dev.kobolibrary.app.ui.cover.CoverGenre.DETECTIVE, theme("Midnight"))
     @Test @Config(qualifiers = TAB) fun fiveGen4() = generatorNow("ad_newgen_4", CoverStyle.SNAPSHOT, dev.kobolibrary.app.ui.cover.CoverGenre.HORROR, theme("Plum"))
     @Test @Config(qualifiers = TAB) fun fiveGen5() = generatorNow("ad_newgen_5", CoverStyle.OWL, dev.kobolibrary.app.ui.cover.CoverGenre.DETECTIVE, theme("Midnight"))
 

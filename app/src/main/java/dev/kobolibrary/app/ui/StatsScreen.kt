@@ -70,7 +70,7 @@ internal class ReadingTotals(books: List<LibraryBook>, here: Map<String, ReadHer
     val mostRead: List<Pair<String, BookReading>> = log.entries
         .filter { it.value.seconds >= 60 }
         .sortedByDescending { it.value.seconds }
-        .map { (id, r) -> (books.firstOrNull { it.id == id }?.title ?: r.title.ifBlank { tr("A book no longer in the library") }) to r }
+        .map { (id, r) -> (books.firstOrNull { it.id == id }?.title ?: r.title.ifBlank { tr("Removed book") }) to r }
 
     /** How long is left of [book] at [progress], at the speed it (or everything) has been read. */
     fun secondsLeft(book: LibraryBook, progress: Float, read: BookReading?): Double? =
@@ -113,7 +113,7 @@ fun ReadingStatsScreen(
                     val t = totals.total
                     if (t.seconds < 60) {
                         Text(
-                            tr("Nothing's been read in KoLib yet. Open a book, and the time you read it for is counted from then on."),
+                            tr("Nothing read yet. Reading time is tracked from when you open a book in KoLib."),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -121,17 +121,17 @@ fun ReadingStatsScreen(
                     Row(Modifier.height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         StatTile(timeSpan(t.seconds.toDouble()), tr("Spent reading"), Modifier.weight(1f).fillMaxHeight())
                         StatTile(totals.finished.toString(), tr("Books finished"), Modifier.weight(1f).fillMaxHeight())
-                        StatTile(tr("{0}%", totals.finishedShare), tr("Of your books finished"), Modifier.weight(1f).fillMaxHeight())
+                        StatTile(tr("{0}%", totals.finishedShare), tr("Of your library finished"), Modifier.weight(1f).fillMaxHeight())
                     }
                     Row(Modifier.height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        StatTile(t.minutesPerSession?.let { tr("{0} min", it.toString()) } ?: "–", tr("A sitting, on average"), Modifier.weight(1f).fillMaxHeight())
-                        StatTile(t.pagesPerMinute?.let { String.format(Locale.getDefault(), "%.1f", it) } ?: "–", tr("Pages a minute"), Modifier.weight(1f).fillMaxHeight())
-                        StatTile(t.wordsPerMinute?.roundToInt()?.toString() ?: "–", tr("Words a minute"), Modifier.weight(1f).fillMaxHeight())
+                        StatTile(t.minutesPerSession?.let { tr("{0} min", it.toString()) } ?: "–", tr("Average session"), Modifier.weight(1f).fillMaxHeight())
+                        StatTile(t.pagesPerMinute?.let { String.format(Locale.getDefault(), "%.1f", it) } ?: "–", tr("Pages per minute"), Modifier.weight(1f).fillMaxHeight())
+                        StatTile(t.wordsPerMinute?.roundToInt()?.toString() ?: "–", tr("Words per minute"), Modifier.weight(1f).fillMaxHeight())
                     }
                     if (t.days.isNotEmpty()) {
-                        StatHeading(tr("The last two weeks"))
+                        StatHeading(tr("Last 14 days"))
                         DaysChart(t.days, today = today)
-                        Text(tr("{0} of reading in the last 14 days.", timeSpan(totals.lastTwoWeeks.toDouble())), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(tr("{0} read in the last 14 days.", timeSpan(totals.lastTwoWeeks.toDouble())), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     if (totals.reading.isNotEmpty()) {
                         StatHeading(tr("Reading now"))
@@ -148,13 +148,13 @@ fun ReadingStatsScreen(
                         }
                     }
                     if (totals.mostRead.isNotEmpty()) {
-                        StatHeading(tr("Read for longest"))
+                        StatHeading(tr("Most read"))
                         for ((title, read) in totals.mostRead.take(5)) {
                             BookStat(StatRow(
                                 title, null,
                                 listOfNotNull(
                                     timeSpan(read.seconds.toDouble()),
-                                    read.sessions.takeIf { it > 0 }?.let { if (it == 1) tr("1 sitting") else tr("{0} sittings", it) },
+                                    read.sessions.takeIf { it > 0 }?.let { if (it == 1) tr("1 session") else tr("{0} sessions", it) },
                                 ).joinToString(" · "),
                             ))
                         }
@@ -165,19 +165,19 @@ fun ReadingStatsScreen(
                 Column(Modifier.widthIn(max = 640.dp).fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     StatHeading(tr("Read on your Kobo"))
                     if (kobo == null) {
-                        Text(tr("Connect your Kobo to see the reading stats it keeps."), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(tr("Connect your Kobo to see its reading stats."), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     } else {
                         val onIt = kobo.books
                         val done = onIt.count { it.readStatus == ReadStatus.FINISHED }
                         val seconds = onIt.sumOf { (it.secondsRead ?: 0).toLong() }
-                        if (!koboLive) Text(tr("As the Kobo had them when it was last connected."), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        if (!koboLive) Text(tr("From when the Kobo was last connected."), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Row(Modifier.height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             StatTile(if (seconds > 0) timeSpan(seconds.toDouble()) else "–", tr("Spent reading"), Modifier.weight(1f).fillMaxHeight())
                             StatTile(done.toString(), tr("Books finished"), Modifier.weight(1f).fillMaxHeight())
                             StatTile(tr("{0}%", if (onIt.isEmpty()) 0 else (done * 100f / onIt.size).roundToInt()), tr("Of its books finished"), Modifier.weight(1f).fillMaxHeight())
                         }
                         if (seconds == 0L) {
-                            Text(tr("This Kobo's database doesn't say how long each book has been read for."), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(tr("This Kobo's database has no reading times."), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         val reading = onIt.filter { it.readStatus == ReadStatus.READING }.sortedByDescending { it.lastReadMillis ?: 0L }
                         if (reading.isNotEmpty()) {
@@ -195,7 +195,7 @@ fun ReadingStatsScreen(
                         }
                         val longest = onIt.filter { (it.secondsRead ?: 0) >= 60 }.sortedByDescending { it.secondsRead ?: 0 }
                         if (longest.isNotEmpty()) {
-                            StatHeading(tr("Read for longest"))
+                            StatHeading(tr("Most read"))
                             for (b in longest.take(5)) BookStat(StatRow(b.title, null, timeSpan((b.secondsRead ?: 0).toDouble())))
                         }
                     }

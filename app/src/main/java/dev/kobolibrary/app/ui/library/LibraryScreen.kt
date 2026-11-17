@@ -327,7 +327,7 @@ fun LibraryScreen(
                         Box(Modifier.weight(1f).fillMaxHeight()) {
                             if (selected != null && !browse.selecting) detail(selected, null)
                             else if (browse.selecting) SelectionHelp(browse.picked.size)
-                            else EmptyState(Icons.Outlined.AutoStories, tr("Tap a book"), tr("Its details will show here. To work with several books at once, tap Select, or press and hold a book. Then press and hold another to choose every book between them."))
+                            else EmptyState(Icons.Outlined.AutoStories, tr("Tap a book"), tr("Its details appear here. Hold a book to select several, then hold another to select everything between."))
                         }
                     }
                 } else if (selected != null && !browse.selecting) {
@@ -349,7 +349,7 @@ private fun SelectionHelp(count: Int) {
     EmptyState(
         Icons.Outlined.Checklist,
         if (count == 0) tr("Select books") else if (count == 1) tr("1 book selected") else tr("{0} books selected", count),
-        tr("Tap books to select or deselect them. Then use the buttons above the list to send, save, duplicate, combine or remove them."),
+        tr("Tap books to select them, then use the buttons above the list."),
     )
 }
 
@@ -379,7 +379,7 @@ internal fun EmptyLibrary(koboConnected: Boolean, onAddFiles: () -> Unit, onAddF
             Text(tr("Your library is empty"), style = MaterialTheme.typography.headlineSmall)
             Spacer(Modifier.height(8.dp))
             Text(
-                tr("Add books from your Kobo, or files from this device: EPUBs, PDFs, MOBIs, Word files and more. Then you can edit their details and covers here. Books from the Kobo come with their collections."),
+                tr("Add books from this device or your Kobo: EPUB, PDF, MOBI, Word and more."),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -631,7 +631,7 @@ internal fun RemoveBooksDialog(ids: List<String>, onRemove: () -> Unit, onDismis
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (ids.size == 1) tr("Remove this book from the library?") else tr("Remove {0} books from the library?", ids.size)) },
-        text = { Text(if (ids.size == 1) tr("This deletes the book and your edits to it from the library. If it's on the Kobo, the copy there won't be deleted.") else tr("This deletes the books and your edits to them from the library. Copies on the Kobo won't be deleted.")) },
+        text = { Text(if (ids.size == 1) tr("The book and your edits are deleted from the library. A copy on the Kobo isn't affected.") else tr("The books and your edits are deleted from the library. Copies on the Kobo aren't affected.")) },
         confirmButton = { TextButton(onClick = onRemove) { Text(tr("Remove"), color = MaterialTheme.colorScheme.error) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Cancel")) } },
     )
@@ -830,9 +830,9 @@ internal fun SearchHelpDialog(onPick: (String) -> Unit, onDismiss: () -> Unit, f
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 Text(
                     if (forKobo) {
-                        tr("Type words to search titles, authors, series, tags, collections and publishers.\n\nTo search only one of these, type its name and a colon first, like author:tolkien. You can use: title, author, tag, series, collection, publisher, language, isbn, pages, rating, year, read, library or format.\n\nTap an example to try it. Tags come from the book in your library, or from the book file on the Kobo.")
+                        tr("Searches titles, authors, series, tags, collections and publishers.\n\nTo search one field, put its name and a colon first, like author:tolkien. Fields: title, author, tag, series, collection, publisher, language, isbn, pages, rating, year, read, library, format.\n\nTap an example to try it. Tags come from the book in your library, or from its file on the Kobo.")
                     } else {
-                        tr("Type words to search titles, authors, series, tags, collections and publishers.\n\nTo search only one of these, type its name and a colon first, like author:tolkien. You can use: title, author, tag, series, collection, publisher, language, isbn, pages, rating, year, kobo or read.\n\nTap an example to try it.")
+                        tr("Searches titles, authors, series, tags, collections and publishers.\n\nTo search one field, put its name and a colon first, like author:tolkien. Fields: title, author, tag, series, collection, publisher, language, isbn, pages, rating, year, kobo, read.\n\nTap an example to try it.")
                     },
                     style = MaterialTheme.typography.bodyMedium,
                 )
@@ -1154,8 +1154,8 @@ fun LibraryDetailPane(
             title = { Text(tr("Remove “{0}”?", meta.title)) },
             text = {
                 Text(
-                    tr("This deletes the book and your edits to it from the library.") +
-                        if (book.koboPath != null) tr(" The copy on the Kobo won't be deleted.") else ""
+                    tr("The book and your edits are deleted from the library.") +
+                        if (book.koboPath != null) tr(" The copy on the Kobo isn't affected.") else ""
                 )
             },
             confirmButton = { TextButton(onClick = { confirmDelete = false; onDelete() }) { Text(tr("Remove"), color = MaterialTheme.colorScheme.error) } },
@@ -1180,7 +1180,7 @@ internal fun ReadingLine(
         ReadStatus.UNREAD -> tr("Not started on the Kobo")
         ReadStatus.READING -> tr("{0}% read on the Kobo", k.percentRead)
         ReadStatus.FINISHED -> tr("Finished on the Kobo")
-    } + (k.lastReadMillis?.let { tr(" · last read {0}", Fmt.dateTime(it)) } ?: "") + if (live) "" else tr(" (as of the last time the Kobo was connected)")
+    } + (k.lastReadMillis?.let { tr(" · last read {0}", Fmt.dateTime(it)) } ?: "") + if (live) "" else tr(" (when the Kobo was last connected)")
     Column(Modifier.padding(top = 12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
@@ -1214,7 +1214,7 @@ internal fun ReadingLine(
             if (ask) AlertDialog(
                 onDismissRequest = { ask = false },
                 title = { Text(tr("Go back to the Kobo's place?")) },
-                text = { Text(tr("KoLib's reader is further on ({0}%) than the Kobo ({1}%).", ((here ?: 0f) * 100).roundToInt(), k.percentRead)) },
+                text = { Text(tr("You're further on here ({0}%) than on the Kobo ({1}%).", ((here ?: 0f) * 100).roundToInt(), k.percentRead)) },
                 confirmButton = { TextButton(onClick = { ask = false; onContinue() }) { Text(tr("Go back")) } },
                 dismissButton = { TextButton(onClick = { ask = false }) { Text(tr("Cancel")) } },
             )

@@ -485,7 +485,7 @@ class PhoneShots {
         compose.mainClock.autoAdvance = true
         compose.setContent {
             AppSurface(ThemeChoice.BOOKCASE) {
-                CoverGeneratorScreen(text, onUse = { _, _ -> }, onCancel = {}, initial = CoverDesign(CoverStyle.CLASSIC, CoverColors.themes.first { it.name == tr("Midnight") }))
+                CoverGeneratorScreen(text, onUse = { _, _ -> }, onCancel = {}, initial = CoverDesign(CoverStyle.KEYHOLE, CoverColors.themes.first { it.name == tr("Teal") }, dev.kobolibrary.app.ui.cover.CoverGenre.DETECTIVE))
             }
         }
         repeat(12) { compose.waitForIdle(); Thread.sleep(250) }

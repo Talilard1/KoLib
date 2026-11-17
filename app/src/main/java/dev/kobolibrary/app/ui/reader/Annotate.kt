@@ -296,7 +296,7 @@ fun LookUpSheet(controller: ReaderController, settings: ReaderSettings, onSettin
             )
             if (apps.isEmpty()) {
                 Text(
-                    tr("No dictionary or translation apps found. Install one that can look up selected text, such as ColorDict or Google Translate, and it will appear here."),
+                    tr("No dictionary apps found. Install one, such as ColorDict or Google Translate."),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
@@ -361,7 +361,7 @@ fun HighlightsList(controller: ReaderController, onPicked: () -> Unit) {
     Column(Modifier.fillMaxSize()) {
         if (all.isEmpty()) {
             Text(
-                tr("No highlights yet. To add one, press and hold a word, drag to select the text, then tap Highlight or Note."),
+                tr("No highlights yet. Hold a word, drag to select, then tap Highlight or Note."),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(24.dp),

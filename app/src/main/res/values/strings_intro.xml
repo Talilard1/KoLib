@@ -10,7 +10,7 @@
     <string name="intro_device_language">Your device\'s language</string>
 
     <string name="intro_folder_title">Where are your books?</string>
-    <string name="intro_folder_text">Choose the folder you keep your books in, and KoLib adds them all to your library, including the ones in folders inside it.</string>
+    <string name="intro_folder_text">Choose your books folder. KoLib adds every book in it to your library, subfolders included.</string>
     <string name="intro_folder_kinds">EPUB, PDF, MOBI, Word and most other ebook files.</string>
     <string name="intro_folder_choose">Choose a folder</string>
     <string name="intro_folder_another">Choose another folder</string>
@@ -21,18 +21,18 @@
         <item quantity="other">Found %1$d books in %2$s so far…</item>
     </plurals>
     <plurals name="intro_folder_found">
-        <item quantity="one">There\'s %1$d book in %2$s.</item>
-        <item quantity="other">There are %1$d books in %2$s.</item>
+        <item quantity="one">%1$d book found in %2$s.</item>
+        <item quantity="other">%1$d books found in %2$s.</item>
     </plurals>
-    <string name="intro_folder_none">There are no books in %1$s. Choose the folder they\'re in.</string>
-    <string name="intro_folder_failed">KoLib couldn\'t look in %1$s. Try choosing it again.</string>
+    <string name="intro_folder_none">No books found in %1$s. Try another folder.</string>
+    <string name="intro_folder_failed">Couldn\'t open %1$s. Try choosing it again.</string>
     <plurals name="intro_folder_add">
         <item quantity="one">Add %d book</item>
         <item quantity="other">Add %d books</item>
     </plurals>
     <plurals name="intro_folder_adding">
-        <item quantity="one">Adding %d book to your library. You can carry on while it\'s added.</item>
-        <item quantity="other">Adding %d books to your library. You can carry on while they\'re added.</item>
+        <item quantity="one">Adding %d book to your library.</item>
+        <item quantity="other">Adding %d books to your library.</item>
     </plurals>
 
     <string name="intro_kobo_title">Connect your Kobo</string>
@@ -45,12 +45,12 @@
     <string name="intro_kobo_allow_help">Android opens its folder picker on the Kobo\'s drive. Tap “Use this folder”, then “Allow”.</string>
     <string name="intro_kobo_working">Opening the Kobo…</string>
     <string name="intro_kobo_connected">Connected to your %1$s.</string>
-    <string name="intro_kobo_failed">KoLib couldn\'t open the Kobo. Unplug it, plug it in again, and try again.</string>
+    <string name="intro_kobo_failed">Couldn\'t open the Kobo. Unplug it, plug it back in and try again.</string>
     <string name="intro_kobo_retry">Try again</string>
-    <string name="intro_kobo_later">No Kobo with you? Skip this. You can connect it any time from the Kobo tab.</string>
+    <string name="intro_kobo_later">No Kobo to hand? Skip this and connect it later from the Kobo tab.</string>
 
     <string name="intro_collections_title">Collections on your Kobo</string>
-    <string name="intro_collections_text">KoLib can put your books into collections on the Kobo, but it can\'t make new collections there. Make the collection on the Kobo first, and then KoLib can add books to it.</string>
+    <string name="intro_collections_text">KoLib can add books to collections on your Kobo, but can\'t create them. Create the collection on the Kobo first.</string>
     <string name="intro_collections_how">On the Kobo, go to My Books, then Collections, and tap New collection.</string>
 
     <string name="intro_done_title">You\'re all set</string>

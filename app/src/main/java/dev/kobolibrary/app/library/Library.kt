@@ -142,12 +142,12 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
                         pages?.close()
                     }
                 } catch (e: ConversionException) {
-                    return@withContext ImportOutcome.Failed(name, e.message ?: tr("It couldn't be made into a book."))
+                    return@withContext ImportOutcome.Failed(name, e.message ?: tr("Couldn't convert it to a book."))
                 } catch (e: OutOfMemoryError) {
                     return@withContext ImportOutcome.Failed(name, tr("It's too big to convert on this device."))
                 } catch (e: Exception) {
                     AppLog.e("Library", "Converting '$name' failed", e)
-                    return@withContext ImportOutcome.Failed(name, tr("It couldn't be made into a book ({0}).", e.message ?: e.javaClass.simpleName))
+                    return@withContext ImportOutcome.Failed(name, tr("Couldn't convert it to a book ({0}).", e.message ?: e.javaClass.simpleName))
                 }
                 origin = raw to (result.kind ?: format.name)
                 AppLog.i("Library", "Made '$name' (${format.label}) into an EPUB in ${System.currentTimeMillis() - made0} ms.")
@@ -451,7 +451,7 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
      */
     suspend fun takeFromDevice(incoming: LibraryBook, files: File): Pair<LibraryBook, Boolean> = withContext(Dispatchers.IO) {
         val epub = File(files, "book.epub")
-        if (!epub.isFile || epub.length() == 0L) throw IOException(tr("The book's file didn't come."))
+        if (!epub.isFile || epub.length() == 0L) throw IOException(tr("The book's file didn't arrive."))
         try {
             EpubFile.open(epub).close()
         } catch (e: EpubException) {
@@ -570,7 +570,7 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
 
     /** Puts the book's first cover back, exactly as it was. */
     suspend fun restoreOriginalCover(id: String): LibraryBook {
-        val (bytes, type) = withContext(Dispatchers.IO) { readSavedOriginal(id) } ?: throw IOException(tr("This book's original cover wasn't saved, so it can't be restored."))
+        val (bytes, type) = withContext(Dispatchers.IO) { readSavedOriginal(id) } ?: throw IOException(tr("This book has no original cover to restore."))
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
         // "Restore it unchanged": it stays unchanged on the Kobo too.
@@ -759,7 +759,7 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
             val store = ocrStore(id)
             val applied = store.applied
             val standIn = scanStandIn(id)
-            if (applied == null || !standIn.exists()) throw IOException(tr("This book's text wasn't recognised from its pages."))
+            if (applied == null || !standIn.exists()) throw IOException(tr("This book wasn't converted from a scan."))
             val file = epubFile(id)
             val tmp = File(file.path + ".reverting")
             try {

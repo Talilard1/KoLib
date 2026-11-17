@@ -105,7 +105,7 @@ object OcrLanguages {
                     }
                     val sum = md.digest().joinToString("") { "%02x".format(it) }
                     if (part.length() != l.bytes || sum != l.sha256) {
-                        throw IOException(tr("The download of {0} wasn't what was expected, so it wasn't used.", l.name))
+                        throw IOException(tr("The download of {0} was damaged, so it wasn't used.", l.name))
                     }
                 } finally {
                     c.disconnect()

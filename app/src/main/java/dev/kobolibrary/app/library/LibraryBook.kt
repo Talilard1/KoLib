@@ -67,11 +67,11 @@ data class LibraryBook(
     /** What kind of file the book was added as, for its details: "PDF file, made into an EPUB". */
     val addedAs: String? get() = when (sourceFormat) {
         null -> null
-        BookFormats.PDF_SCAN -> tr("PDF of scanned pages or pictures")
-        BookFormats.PDF_ONLY -> tr("PDF, too big to make into an EPUB")
-        BookFormats.PDF_OCR -> tr("PDF of scanned pages, made into text")
-        "CBZ", "CBR", "CB7" -> tr("{0} comic, kept as it is", sourceFormat)
-        else -> dev.kobolibrary.app.convert.SourceFormat.entries.firstOrNull { it.name == sourceFormat }?.let { tr("{0} file, made into an EPUB", it.label) }
+        BookFormats.PDF_SCAN -> tr("Scanned PDF")
+        BookFormats.PDF_ONLY -> tr("PDF, too large to convert")
+        BookFormats.PDF_OCR -> tr("Scanned PDF, converted to text")
+        "CBZ", "CBR", "CB7" -> tr("{0} comic", sourceFormat)
+        else -> dev.kobolibrary.app.convert.SourceFormat.entries.firstOrNull { it.name == sourceFormat }?.let { tr("{0} file, converted to EPUB", it.label) }
     }
     val title: String get() = meta.title
     val authorLine: String? get() = meta.authors.takeIf { it.isNotEmpty() }?.joinToString(", ")

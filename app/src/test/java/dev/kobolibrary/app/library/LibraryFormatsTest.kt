@@ -54,7 +54,7 @@ class LibraryFormatsTest {
         assertTrue(added.toString(), added is ImportOutcome.Added)
         val book = (added as ImportOutcome.Added).book
         assertEquals("TXT", book.sourceFormat)
-        assertEquals("Text file, made into an EPUB", book.addedAs)
+        assertEquals("Text file, converted to EPUB", book.addedAs)
         assertFalse(book.isPdf)
         assertEquals("source.txt", lib.sourceFile(book.id)?.name)
         assertEquals(story, lib.sourceFile(book.id)!!.readText())

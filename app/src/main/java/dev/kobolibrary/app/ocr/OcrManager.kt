@@ -137,7 +137,7 @@ class OcrManager(private val app: KoboLibraryApp) {
         val library = app.library
         val book = library.book(r.id) ?: return
         try {
-            val pdf = library.sourceFile(r.id) ?: throw IOException(tr("The PDF this book was added as is missing, so its pages can't be read."))
+            val pdf = library.sourceFile(r.id) ?: throw IOException(tr("The original PDF is missing, so its pages can't be read."))
             val filesDir = app.filesDir
             val missing = OcrLanguages.missing(filesDir, r.languages)
             if (missing.isNotEmpty()) {

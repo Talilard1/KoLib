@@ -1,0 +1,336 @@
+@nl
+2286|Er worden boeken toegevoegd of verstuurd. Probeer het daarna opnieuw.
+2287|‘{0}’ toegevoegd als apart boek.
+2288|1 boek toegevoegd als apart boek.
+2289|{0} boeken toegevoegd als aparte boeken.
+2290|{0} mislukt. De details staan in het logboek.
+2291|Boeken uit de Kobo Store kunnen niet worden toegevoegd, alleen boeken die je er zelf op hebt gezet.
+2292|Te weinig ruimte op de Kobo: ongeveer {0} MB nodig, {1} MB vrij.
+2293|Wordt al verstuurd.
+2294|Toegevoegd aan de verzendwachtrij.
+2295|{0} boeken toegevoegd aan de verzendwachtrij.
+2296|Er worden nog boeken toegevoegd. Probeer het daarna opnieuw.
+2297|Er loopt nog een andere taak. Probeer het daarna opnieuw.
+2298|De positie van de Kobo is niet gevonden in dit boek.
+2299|‘{0}’ is weer de scan.
+2300|Teruggaan naar de scan lukte niet: {0}
+2301|Daar kan niet worden opgeslagen.
+2302|Omzetten naar kepub volgens de methode van kepubify.
+2303|Gemaakte omslagen.
+2304|Gemaakte omslagen, voor andere alfabetten.
+2305|Leeslettertype, en de koppen en titels van de app.
+2306|Leeslettertype.
+2307|Interface en pictogrammen (AndroidX, Jetpack Compose, Material-pictogrammen).
+2308|Programmeertaal, met kotlinx.coroutines.
+2309|CBR- en CB7-strips.
+2310|Tekstherkenning (OCR) voor gescande pagina’s.
+2311|Taalgegevens voor Tesseract, gedownload bij het eerste gebruik.
+2312|Tesseract voor Android.
+2313|Beeldverwerking voor Tesseract.
+2314|JPEG-ondersteuning voor Tesseract. Deze software is deels gebaseerd op het werk van de Independent JPEG Group.
+2315|PNG-ondersteuning voor Tesseract.
+2316|Deze app.
+2317|Je boeken blijven op je apparaten en je Kobo. KoLib gaat alleen online om omslagen te zoeken en gegevens voor tekstherkenning te downloaden.
+2318|De stripreader is gemaakt naar die van Mihon. Met dank aan het Mihon-project.
+2319|Introductie opnieuw bekijken
+2320|‘{0}’ omgezet naar tekst.
+2321|‘{0}’ kon niet naar tekst worden omgezet: {1}.
+2322|Selecteer boeken om naar {0} te sturen.
+2323|Selecteer boeken en tik dan op Naar Kobo sturen → Via wifi.
+2324|Dit apparaat heeft geen mapkiezer. KoLib heeft die nodig om de Kobo te openen.
+2325|Gebruikt het mediavolume.
+2326|Lichtere animatie voor tragere apparaten. Staat standaard aan op telefoons.
+2327|Er wordt automatisch een back-up gemaakt wanneer je je Kobo aansluit.
+2328|Gezipte kopieën van de database van de Kobo: bibliotheek, collecties en leesvoortgang. Bij het aansluiten wordt er een gemaakt als er iets is veranderd. Alleen de nieuwste {0} worden opgeslagen. Tik op de downloadknop om er een naar Downloads/{1} te kopiëren.
+2329|Verwijdert de back-up van {0} van dit apparaat. Op de Kobo verandert niets.
+2330|De gegevens verschijnen hier.
+2331|De bestanden, leesvoortgang en markeringen worden van de Kobo verwijderd. Kopieën in je bibliotheek blijven staan. Boeken uit de Kobo Store kunnen hier niet worden verwijderd.
+2332|\n\nGeen van deze kan worden verwijderd: het zijn boeken uit de Kobo Store.
+2333|Het bestand, je leesvoortgang en je markeringen worden van de Kobo verwijderd.
+2334|De kopie in je bibliotheek blijft staan.
+2335|Het staat niet in je bibliotheek. Voeg het eerst toe om een kopie te houden.
+2336|Voeg het boek toe aan je bibliotheek om de gegevens of de omslag te bewerken.
+2337|De boeken verschijnen hier.
+2338|Tik in de mapkiezer van Android op ‘Deze map gebruiken’ en daarna op ‘Toestaan’.
+2339|KoLib vindt hem en laadt hem opnieuw.
+2340|KoLib verliest de toegang tot de schijf van de Kobo. Op de Kobo en in je back-ups verandert niets. De volgende keer wordt opnieuw om toegang gevraagd.
+2341|Niet verbonden. Je Kobo zoals hij was op {0}.
+2342|Kobo bijwerken… Werp hem nog niet uit.
+2343|Losgekoppeld. Gegevens van {0}. Sluit hem aan en tik op de Kobo op Verbinden om te vernieuwen.
+2344|Telkens als de database van de Kobo is veranderd, wordt een gezipte kopie op dit apparaat opgeslagen. Alleen de nieuwste {0} worden opgeslagen.
+2345|Schrijft een klein verborgen testbestand naar de Kobo, leest het terug en verwijdert het.
+2346|Er worden nog boeken verstuurd. Wacht tot het versturen klaar is.
+2347|Kobo bijwerken. Wacht een paar seconden.
+2348|Ontkoppel voor het loskoppelen, anders moet Android misschien opnieuw opstarten om de Kobo weer te verbinden.
+2349|De downloadpagina kon niet worden gestart.
+2350|Dit apparaat zit op meerdere netwerken. Gebruik het adres op het netwerk van de Kobo.
+2351|Via wifi worden alleen boeken verstuurd. Voor collecties, het bijwerken van boeken op de Kobo en het synchroniseren van de leesvoortgang is de kabel nodig.
+2352|Houd dit scherm open tot de downloads klaar zijn. Stopt er een, sluit dan de browser van de Kobo, open hem opnieuw en probeer het nog eens.
+2353|Wachten
+2354|Voorbereiden…
+2355|Hier wordt bijgehouden wat KoLib doet.
+2356|Verwijderd boek
+2357|Nog niets gelezen. De leestijd wordt geteld zodra je een boek opent in KoLib.
+2358|Van je bibliotheek uitgelezen
+2359|Gemiddelde sessie
+2360|Pagina’s per minuut
+2361|Woorden per minuut
+2362|Laatste 14 dagen
+2363|{0} gelezen in de laatste 14 dagen.
+2364|Meest gelezen
+2365|1 sessie
+2366|{0} sessies
+2367|Sluit je Kobo aan om zijn leesstatistieken te zien.
+2368|Van de laatste keer dat de Kobo was aangesloten.
+2369|De database van deze Kobo bevat geen leestijden.
+2370|Geplakte tekst wordt zonder opmaak toegevoegd.
+2371|Wordt op de Kobo bijgewerkt wanneer je het boek stuurt.
+2372|Wordt toegepast wanneer je het boek stuurt. KoLib kan geen collecties maken op de Kobo, dus maak ontbrekende daar eerst aan.
+2373|Geen boeken gevonden in deze map.
+2374|1 boek gevonden. Het wordt overgeslagen als het al in je bibliotheek staat.
+2375|{0} boeken gevonden. Boeken die al in je bibliotheek staan, worden overgeslagen.
+2376|Deze map kon niet worden geopend. Kies hem opnieuw, of kies een andere.
+2377|Bij het wisselen van taal start KoLib opnieuw. Wacht tot het versturen of toevoegen van boeken klaar is.
+2378|Laat de Kobo aangesloten tot het versturen klaar is.
+2379|Je kunt dit verbergen en KoLib blijven gebruiken. De voortgang staat bovenaan in de bibliotheek.
+2380|Werp nu de Kobo uit. Hij voegt de nieuwe boeken toe zodra hij is losgekoppeld.
+2381|Start de Kobo na het uitwerpen opnieuw op om de nieuwe omslag van ‘{0}’ te zien.
+2382|Start de Kobo na het uitwerpen opnieuw op om de nieuwe omslagen van {0} boeken te zien.
+2383|De gegevens verschijnen hier. Houd een boek ingedrukt om er meerdere te selecteren, en daarna nog een om alles ertussen te selecteren.
+2384|Tik op boeken om ze te selecteren en gebruik dan de knoppen boven de lijst.
+2385|Voeg boeken toe vanaf dit apparaat of je Kobo: EPUB, PDF, MOBI, Word en meer.
+2386|Het boek en je bewerkingen worden uit de bibliotheek verwijderd. Een kopie op de Kobo blijft staan.
+2387|De boeken en je bewerkingen worden uit de bibliotheek verwijderd. Kopieën op de Kobo blijven staan.
+2388|Zoekt in titels, auteurs, reeksen, labels, collecties en uitgevers.\n\nOm in één veld te zoeken, zet je de naam en een dubbele punt ervoor, zoals author:tolkien. Velden: title, author, tag, series, collection, publisher, language, isbn, pages, rating, year, read, library, format.\n\nTik op een voorbeeld om het te proberen. Labels komen uit het boek in je bibliotheek, of uit het bestand op de Kobo.
+2389|Zoekt in titels, auteurs, reeksen, labels, collecties en uitgevers.\n\nOm in één veld te zoeken, zet je de naam en een dubbele punt ervoor, zoals author:tolkien. Velden: title, author, tag, series, collection, publisher, language, isbn, pages, rating, year, kobo, read.\n\nTik op een voorbeeld om het te proberen.
+2390|Het boek en je bewerkingen worden uit de bibliotheek verwijderd.
+2391| De kopie op de Kobo blijft staan.
+2392| (toen de Kobo voor het laatst was aangesloten)
+2393|Je bent hier verder ({0}%) dan op de Kobo ({1}%).
+2394|Opent in de teksteditor met één leeg hoofdstuk en een eenvoudige omslag. Beide kun je later wijzigen.
+2395|Eén boek met al hun hoofdstukken in deze volgorde en een inhoudsopgave per boek. Het komt in al hun collecties. De originelen worden niet gewijzigd.
+2396|Elk boek de begin- en eindpagina’s geven
+2397|Pagina’s zoals een titelpagina of copyrightvermelding. Er zijn er geen gevonden: kies ze zelf.
+2398|Elk boek krijgt zijn hoofdstukken met hun afbeeldingen, stijlen, lettertypen en notities. Het eerste krijgt de oorspronkelijke omslag; de andere gebruiken hun eigen omslagpagina of krijgen een nieuwe omslag. ‘{0}’ wordt niet gewijzigd.
+2399|Kepub: het eigen formaat van Kobo
+2400|{0}: het oorspronkelijke bestand
+2401|Oorspronkelijke bestanden: de pdf, MOBI of het andere bestand waarmee elk boek is toegevoegd
+2402|Oorspronkelijke bestanden: pdf’s, MOBI’s enzovoort in hun eigen formaat, de rest als EPUB
+2403|De pagina’s zien eruit zoals gedrukt. De tekstgrootte kan niet worden gewijzigd, dus een groot scherm is het beste.
+2404|Verstuurd als {0}: de tekst past op het scherm en de grootte is aan te passen.
+2405|Pdf’s worden verstuurd als {0}: de tekst past op het scherm en de grootte is aan te passen.
+2406|Kan alleen als pdf worden verstuurd: de pagina’s zijn scans, zonder tekst om om te zetten.
+2407|Kan alleen als pdf worden verstuurd: het is te groot om op dit apparaat om te zetten.
+2408|1 boek kan alleen als pdf worden verstuurd: het is gescand of te groot om om te zetten.
+2409|{0} boeken kunnen alleen als pdf worden verstuurd: ze zijn gescand of te groot om om te zetten.
+2410|Eerst omzetten naar tekst…
+2411|Eerst omzetten naar tekst…
+2412|Staat al op de Kobo. Het wordt bijgewerkt en je blijft waar je was, tenzij de hoofdstukken zijn veranderd.
+2413|1 boek staat al op de Kobo. Het wordt bijgewerkt en je blijft waar je was, tenzij de hoofdstukken zijn veranderd.
+2414|{0} boeken staan al op de Kobo. Ze worden bijgewerkt en je blijft waar je was, tenzij de hoofdstukken zijn veranderd.
+2415|Staat op de Kobo als {0}. Bij een ander formaat begint je leesvoortgang erin opnieuw.
+2416|1 boek krijgt een ander formaat, waardoor de leesvoortgang opnieuw begint.
+2417|{0} boeken krijgen een ander formaat, waardoor hun leesvoortgang opnieuw begint.
+2418|Of stuur via wifi met de webbrowser van de Kobo. Voor collecties is de kabel nodig.
+2419|Geen woordenboek-apps gevonden. Installeer er een, zoals ColorDict of Google Translate.
+2420|Nog geen markeringen. Houd een woord ingedrukt, sleep om te selecteren en tik dan op Markeren of Notitie.
+2421|Ingesteld als omslag.
+2422|Die pagina kon niet als omslag worden ingesteld.
+2423|Opgeslagen in Afbeeldingen/KoLib.
+2424|Standaard leesmodus
+2425|Per pagina
+2426|Beginpositie van de zoom
+2427|Brede pagina’s splitsen
+2428|Volgorde van de helften omdraaien
+2429|Brede pagina’s draaien zodat ze passen
+2430|In staande stand vult een brede pagina de hoogte en schuif je erlangs.
+2431|Langs brede pagina’s schuiven voor het omslaan
+2432|Ruimte aan de zijkanten
+2433|Tikzones omdraaien
+2434|Tikzones tonen bij het openen
+2435|Volumeknoppen omdraaien
+2436|Acties tonen bij lang indrukken
+2437|Paginanummer tonen
+2438|Scherm aan laten
+2439|Nog geen bladwijzers. Tik op het midden van een pagina en dan op het bladwijzerpictogram.
+2440|Dit boek heeft eigen instellingen.
+2441|Wijzigingen hier gelden alleen voor dit boek.
+2442|Als standaard instellen
+2443|Standaard gebruiken
+2444|Woordafbreking
+2445|Schuif helemaal naar links voor extra gedimd. Omhoog of omlaag vegen langs de linkerrand van de pagina werkt ook.
+2446|Uit: boeken openen met de helderheid die je hier het laatst hebt ingesteld.
+2447|Uit: links zien eruit als gewone tekst, maar werken nog wel.
+2448|Het paginanummer, met de boektitel op linkerpagina’s en de hoofdstuktitel op rechterpagina’s.
+2449| Niet zichtbaar bij scrollen.
+2450|Gedrukte boeken gebruiken de grootte Standaard en Eén regel.
+2451|Welke titel wordt getoond in een boek dat uit meerdere boeken bestaat.
+2452|Tik op een positie om te kiezen wat die toont.
+2453| De paginakoppen gebruiken de bovenkant.
+2454| De paginakoppen gebruiken de onderkant.
+2455|Voortgangsbalk
+2456|Gedimd helpt inbranden op OLED-schermen te voorkomen.
+2457|Bovenaan het hoofdstuk tonen
+2458|Voor boeken die het nummer of de afbeelding van een hoofdstuk op een aparte pagina zetten.
+2459|Bij twee pagina’s naast elkaar. Waar nodig wordt een lege pagina toegevoegd.
+2460|Hoofdstukkoppen zoals in druk
+2461|Het nummer (‘Proloog’, ‘Hoofdstuk 1’) in gespatieerde hoofdletters met de titel cursief eronder. Uit: de stijl van het boek wordt gebruikt.
+2462|De eerste letter van elk hoofdstuk beslaat drie regels.
+2463|Grootte van de tikzones
+2464|Vegen vanaf de rand opent panelen
+2465|Veeg vanaf de linkerrand voor de inhoud, of vanaf de rechterrand voor de instellingen. Uit: beide randen gaan terug.
+2466|Beide randen gaan terug. Inhoud en instellingen staan in het menu.
+2467|Teruggebaar van KoLib
+2468|Veeg vanaf een rand en laat los als de pijl gevuld is.
+2469|Het teruggebaar van Android wordt gebruikt.
+2470|Woordenboek
+2471|Je krijgt elke keer de vraag welke app je wilt gebruiken.
+2472|De gekozen woordenboek-app is niet meer geïnstalleerd.
+2473|Het menu openen pauzeert het altijd.
+2474|Resterende tijd
+2475|Leestijd
+2476|De resterende tijd is gebaseerd op je leessnelheid.
+2477|Nog niets gekopieerd. Tik in de hoofdstukkenlijst op ⋮ naast een onderdeel en dan op Kopiëren. Gekopieerde onderdelen kun je aan elk boek toevoegen.
+2478|Toegevoegd na ‘{0}’, met afbeeldingen en stijlen.
+2479|Toegevoegd met afbeeldingen en stijlen.
+2480|‘{0}’ is een inhoudsopgave uit ‘{1}’. Die kan in plaats daarvan de hoofdstukken van dit boek tonen, in dezelfde stijl, of ongewijzigd worden toegevoegd.
+2481|Ongewijzigd toevoegen
+2482|Boeken waaraan het is toegevoegd, veranderen niet.
+2483|Alles herstellen
+2484|Deze overslaan
+2485|Regel {0}: {1}. Los dit op om je wijziging op te slaan.
+2486|‘{0}’ gekopieerd. Het staat in het paneel Gekopieerd, voor dit boek of elk ander.
+2487|Opgeslagen. Geen nieuwe problemen gevonden.
+2488| (1 probleem was er al voor je bewerking.)
+2489| ({0} problemen waren er al voor je bewerking.)
+2490|Oorspronkelijke tekst hersteld. Gegevens en omslag zijn niet gewijzigd.
+2491|Al je tekstbewerkingen gaan verloren. Gegevens en omslag veranderen niet.
+2492|Los ze op (de knop Code kan helpen) of maak de wijziging ongedaan. Er is niets opgeslagen.
+2493|Alle hoofdstukken, bestanden, de leesvolgorde en de inhoud zijn geldig.
+2494|Toegevoegd na ‘{0}’. De naam is de kop en de vermelding in de inhoud.
+2495|De naam is de kop en de vermelding in de inhoud.
+2496|Tik op de alinea waar het nieuwe hoofdstuk begint.
+2497|Vult het scherm. Randen die niet passen, worden afgesneden.
+2498|Hele afbeelding, met een vervaagde kopie in de gaten.
+2499|Hele afbeelding, met wit in de gaten.
+2500|Niet bijsnijden of schalen.
+2501|Gemaakt: {0}
+2502|Het boek krijgt de omslag terug waarmee het kwam.
+2503|De omslag waarmee het boek kwam. Pas hem aan het scherm van de Kobo aan, of herstel hem ongewijzigd.
+2504|Verplaatsen en zoomen staan uit bij Oorspronkelijke grootte.
+2505|Ongeveer hoe het er op de Kobo uitziet.
+2506|Opgeslagen op de oorspronkelijke grootte, {0} × {1} pixels.
+2507|Opgeslagen op de oorspronkelijke grootte.
+2508|Opgeslagen op {0} × {1} pixels, de schermgrootte van je Kobo.
+2509|Opgeslagen op {0} × {1} pixels, de schermgrootte van de Kobo Clara.
+2510|Dit ontwerp heeft geen afbeelding. Kies er een met afbeelding om die van jou te gebruiken.
+2511|Alleen ontwerpen voor dit genre
+2512|Dit ontwerp gebruikt de kleuren van zijn afbeelding.
+2513|Gemaakt op {0} × {1} pixels, de schermgrootte van je Kobo.
+2514|Gemaakt op 1072 × 1448 pixels, de schermgrootte van de Kobo Clara.
+2515|Standaard van het ontwerp
+2516|Tik op een afbeelding om die te vergroten en houd hem dan ingedrukt om hem te gebruiken.
+2517|Die afbeelding kon niet worden geladen. Tik erop om hem te vergroten en probeer het opnieuw.
+2518|Stuur boeken, bestanden en tekst tussen je telefoon en tablet, en synchroniseer je leespositie.
+2519|Nog geen. Open KoLib op je andere apparaat, op dezelfde wifi of hotspot, en koppel ze hieronder.
+2520|Dit netwerk doorzoeken…
+2521|Netwerk scannen…
+2522|Opnieuw scannen
+2523|Stuur boeken zonder kabel, via de webbrowser van de Kobo. Tik in je bibliotheek op Naar Kobo sturen → Via wifi.
+2524|Voor collecties, het bijwerken van boeken op de Kobo en het synchroniseren van de leesvoortgang is de kabel nodig.
+2525|Leespositie synchroniseren
+2526|Elk boek opent waar je het voor het laatst hebt gelezen, op welk apparaat dan ook.
+2527|Ontvangen als KoLib gesloten is
+2528|Gekoppelde apparaten kunnen sturen terwijl KoLib gesloten is. Zolang dit aanstaat, zie je een melding.
+2529|Overdrachten zijn versleuteld en blijven op je eigen netwerk. Alleen gekoppelde apparaten kunnen sturen.
+2530|Posities nu synchroniseren
+2531|Voer het adres in dat op het andere apparaat onder Apparaten staat.
+2532|Bevestig ook op {0}, als daar deze code staat.
+2533|Links de scan, rechts de herkende tekst. Onzekere woorden zijn oranje. Sleep de lijn of tik om hem te verplaatsen; knijp om te zoomen.
+2534|Terug naar de scan
+2535|De oorspronkelijke pdf ontbreekt.
+2536|Deze pagina is nog niet omgezet.
+2537|In de wachtrij…
+2538|Boek samenstellen…
+2539|Tekst uit de scan
+2540|Omzetten naar tekst
+2541|Gaat door als KoLib gesloten is. Je kunt de pagina’s bekijken die al klaar zijn.
+2542|De tekst is herkend uit de gescande pagina’s ({0}) en kan dus fouten bevatten.
+2543|De tekst is herkend uit de gescande pagina’s en kan dus fouten bevatten.
+2544| De oorspronkelijke pdf blijft beschikbaar.
+2545|Deze pdf is te groot om hier naar EPUB om te zetten, dus hij wordt als pdf gelezen en verstuurd. Is het een scan, dan kan tekstherkenning er een boek met aanpasbare tekst van maken.
+2546|Deze pdf is een scan, dus hij wordt als pdf gelezen en verstuurd. Tekstherkenning kan er een boek met aanpasbare tekst van maken.
+2547|Elke taal heeft een eenmalige download van een paar megabyte nodig.
+2548|{0} van {1} pagina’s klaar.
+2549|Hervatten
+2550|Omzetten naar tekst…
+2551|‘{0}’ omzetten naar tekst
+2552|‘{0}’ omzetten naar tekst
+2553|{0} boeken omzetten naar tekst
+2554|Tekstherkenning (OCR) gebeurt op dit apparaat en maakt een boek met aanpasbare tekst. Het duurt een paar seconden per pagina en gaat door als KoLib gesloten is.
+2555|Er is een eenmalige download nodig: {0} aan taalgegevens van het Tesseract-project.
+2556|De taalgegevens staan al op dit apparaat.
+2557|Reken op wat fouten, vooral bij oude of kleine druk, tabellen, voetnoten en andere alfabetten. Je kunt de tekst pagina voor pagina met de scan vergelijken en teruggaan naar de scan.
+2558|Selecteer elke taal in het boek. Elke taal maakt het iets trager.
+2559|Terug naar de scan?
+2560|‘{0}’ wordt weer als pdf gelezen en verstuurd. Opnieuw omzetten in dezelfde talen gaat snel.
+2561|Standaard van de leesmodus
+2562|Passend bij de pagina
+2563|Het kon niet naar een boek worden omgezet.
+2564|Het kon niet naar een boek worden omgezet ({0}).
+2565|Het bestand van het boek is niet aangekomen.
+2566|Dit boek heeft geen oorspronkelijke omslag om te herstellen.
+2567|Dit boek is niet uit een scan omgezet.
+2568|Gescande pdf
+2569|Pdf, te groot om om te zetten
+2570|Gescande pdf, omgezet naar tekst
+2571|{0}-strip
+2572|{0}, omgezet naar EPUB
+2573|Volgt het apparaat.
+2574|Vast in staande stand.
+2575|Vast in liggende stand.
+2576|Afbeeldingen worden niet gewijzigd.
+2577|Zwart-witte versieringen en grafieken krijgen de paginakleur en worden licht op donkere pagina’s.
+2578|Elke afbeelding krijgt de paginakleur. Foto’s zien er op donkere pagina’s omgekeerd uit.
+2579|Standaard
+2580|Eén regel
+2581|Hele omslag, met een vervaagde kopie in de gaten.
+2582|Oorspronkelijke grootte. De Kobo toont lege ruimte eromheen.
+2583|Dat boek is niet meer beschikbaar.
+2584|‘{0}’ kon niet worden voorbereid: {1}
+2585|Het koppelen duurde te lang. Probeer het opnieuw.
+2586|Tekst van {0} naar het klembord gekopieerd.
+2587|‘{0}’ ontvangen van {1}. Opgeslagen in {2}.
+2588|{0} bestanden ontvangen van {1}. Opgeslagen in {2}.
+2589|Leesposities gesynchroniseerd met {0}.
+2590|{0} heeft geen ruimte meer.
+2591|Sturen naar {0} lukte niet: {1}
+2592|Het andere apparaat is niet meer met dit apparaat gekoppeld. Koppel ze opnieuw.
+2593|Het andere apparaat heeft geweigerd.
+2594|1 stond er al
+2595|{0} stonden er al
+2596|1 mislukt
+2597|{0} mislukt
+2598|Overdrachten tussen je apparaten
+2599|Klaar om van je apparaten te ontvangen
+2600|Gekoppelde apparaten kunnen sturen terwijl KoLib gesloten is.
+2601|Een bericht van het andere apparaat was beschadigd.
+2602|Een bericht kwam niet door de beveiligingscontrole.
+2603|De verbinding met het andere apparaat kon niet worden opgezet.
+2604|Het andere apparaat kon niet worden geverifieerd.
+2605|Het andere apparaat heeft de verbinding verbroken.
+2606|Hier is niets om te sturen.
+2607|Tekst voor het klembord van het andere apparaat: ‘{0}’
+2608|1 bestand voor Downloads op het andere apparaat.
+2609|{0} bestanden voor Downloads op het andere apparaat.
+2610|Geen gekoppelde apparaten. Koppel er een in KoLib, onder Apparaten.
+2612|De download van {0} was beschadigd en is niet gebruikt.
+2613|De oorspronkelijke pdf ontbreekt, dus de pagina’s kunnen niet worden gelezen.
+2614|Tekstherkenning
+2615|Voortgang van de tekstherkenning
+2616|‘{0}’ ziet er al uit als een omslagpagina. Open het menu ervan en kies ‘Als omslagpagina gebruiken’ om hem te gebruiken.
+2617|Voegt herhaalde lege regels samen en verwijdert ze aan het begin en einde van hoofdstukken. Scènewissels blijven staan.
+2618|Voegt alinea’s samen die midden in een zin zijn afgebroken, wat vaak voorkomt in boeken uit pdf’s of scans.
+2619|Deze pdf bevat geen tekst (misschien is het een scan) en kan dus niet naar een boek worden omgezet.
+2620|Deze strip kon niet naar CBZ voor de Kobo worden omgezet.
+2621|De tekstherkenning kon niet starten. De taalgegevens zijn misschien beschadigd. Probeer het opnieuw om ze opnieuw te downloaden.

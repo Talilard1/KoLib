@@ -22,7 +22,7 @@ class TesseractEngine(dataRoot: File, languages: List<String>) : OcrEngine {
     init {
         if (!api.init(dataRoot.path, languages.joinToString("+"), TessBaseAPI.OEM_LSTM_ONLY)) {
             api.recycle()
-            throw IOException(tr("The text recognition couldn't start. Its language data may be damaged: try again to download it afresh."))
+            throw IOException(tr("Text recognition couldn't start. The language data may be damaged. Try again to re-download it."))
         }
         // The page's own layout: columns, headings and all, rather than one block of text.
         api.setPageSegMode(TessBaseAPI.PageSegMode.PSM_AUTO)

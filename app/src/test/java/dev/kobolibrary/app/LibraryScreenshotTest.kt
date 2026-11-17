@@ -700,7 +700,7 @@ class LibraryScreenshotTest {
         }
         compose.onNodeWithText(tr("Original cover")).performClick()
         compose.waitForIdle()
-        compose.onNodeWithText(tr("Restore it unchanged")).assertExists()
+        compose.onNodeWithText(tr("Restore original")).assertExists()
         compose.mainClock.autoAdvance = false
         compose.mainClock.advanceTimeBy(500)
         compose.onRoot().captureRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/47_cover_editor_original.png")

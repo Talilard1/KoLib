@@ -344,7 +344,7 @@ class AdvertShots {
         }
         fun settle() = repeat(4) { compose.waitForIdle(); Thread.sleep(250) }
         settle(); capture("cover_fill")
-        for ((label, name) in listOf("Blur the gaps" to "cover_blur", "White gaps" to "cover_white", "Leave unchanged" to "cover_asis")) {
+        for ((label, name) in listOf("Blur the gaps" to "cover_blur", "White gaps" to "cover_white", "Original size" to "cover_asis")) {
             compose.onNodeWithText(label).performClick()
             settle(); capture(name)
         }

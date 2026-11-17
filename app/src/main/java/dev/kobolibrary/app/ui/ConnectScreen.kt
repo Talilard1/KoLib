@@ -180,7 +180,7 @@ private fun StatusArea(
             }
             Spacer(Modifier.height(10.dp))
             Text(
-                tr("Android will open its folder picker on the Kobo's drive. Tap “Use this folder”, then “Allow”."),
+                tr("In Android's folder picker, tap “Use this folder”, then “Allow”."),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -234,7 +234,7 @@ fun ConnectHelpDialog(connection: Connection, onChooseDrive: (VolumeCandidate?) 
             Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 Step(1, tr("Plug the Kobo into this device with a USB-C data cable."))
                 Step(2, tr("On the Kobo's screen, tap Connect."))
-                Step(3, tr("The app finds it automatically and loads it again."))
+                Step(3, tr("KoLib finds it and loads it again."))
                 if (connection is Connection.Waiting) usbKoboText(connection.usb)?.let {
                     Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
                 }

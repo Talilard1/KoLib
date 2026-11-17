@@ -303,7 +303,7 @@ fun DescriptionEditor(initialHtml: String, bookTitle: String, onDone: (String?) 
                     }
                 }
                 Text(
-                    tr("Pasted text loses its formatting, so it matches the rest of the description."),
+                    tr("Pasted text is added without its formatting."),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 8.dp, start = 4.dp),

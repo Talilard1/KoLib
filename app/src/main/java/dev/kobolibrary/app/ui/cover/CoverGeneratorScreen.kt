@@ -411,7 +411,7 @@ fun CoverGeneratorScreen(
                         }
                     } else if (own != null) {
                         Text(
-                            tr("This design has no room for your picture. Pick one with a picture (framed picture, painting, pulp magazine or snapshot) to use it."),
+                            tr("This design has no picture. Pick one that does to use yours."),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(top = 8.dp),
@@ -550,7 +550,7 @@ fun CoverGeneratorScreen(
                         // (No folding them away while one of them is the design in use.)
                         if (!othersShown || kind in style.suits) {
                             OutlinedButton(onClick = { allDesigns = !othersShown }) {
-                                Text(if (othersShown) tr("Only the designs for this genre") else tr("All {0} designs", CoverStyle.entries.size))
+                                Text(if (othersShown) tr("This genre's designs only") else tr("All {0} designs", CoverStyle.entries.size))
                             }
                         }
                     }
@@ -558,7 +558,7 @@ fun CoverGeneratorScreen(
                     Text(tr("Colour"), style = MaterialTheme.typography.titleSmall)
                     if (!style.themed) {
                         Text(
-                            tr("This design takes its colours from its picture."),
+                            tr("This design uses its picture's colours."),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -623,8 +623,8 @@ fun CoverGeneratorScreen(
                     if (!text.series.isNullOrBlank()) TextColourChooser(tr("Series"), seriesLettering) { seriesLettering = it }
                     if (style in CoverStyle.decorated) TextColourChooser(tr("Lines and ornaments"), decoration) { decoration = it }
                     Text(
-                        if (CoverScreen.fromKobo) tr("The cover shows the book's title, series and authors. It's made at {0} × {1} pixels, the size of your Kobo's screen.", CoverCrop.OUT_WIDTH, CoverCrop.OUT_HEIGHT)
-                        else tr("The cover shows the book's title, series and authors. It's made at 1072 × 1448 pixels, the size of the Kobo Clara's screen."),
+                        if (CoverScreen.fromKobo) tr("Made at {0} × {1} pixels, your Kobo's screen size.", CoverCrop.OUT_WIDTH, CoverCrop.OUT_HEIGHT)
+                        else tr("Made at 1072 × 1448 pixels, the Kobo Clara's screen size."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -677,7 +677,7 @@ private fun TextColourChooser(label: String, chosen: Int?, onChoose: (Int?) -> U
     fun ownColour() = androidx.core.graphics.ColorUtils.HSLToColor(floatArrayOf(hue, 0.65f, light))
     Text(label, style = MaterialTheme.typography.labelLarge)
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        WordSwatch(0, tr("As the design has it"), selected = chosen == null && !own, auto = true) { own = false; onChoose(null) }
+        WordSwatch(0, tr("Design default"), selected = chosen == null && !own, auto = true) { own = false; onChoose(null) }
         for ((name, colour) in letteringColours) WordSwatch(colour, name, selected = chosen == colour && !own) { own = false; onChoose(colour) }
         WordSwatch(ownColour(), tr("Your colour"), selected = own, rainbow = true) { own = true; onChoose(ownColour()) }
     }

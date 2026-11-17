@@ -83,7 +83,7 @@ object PdfConverter {
         // text to reflow. It's read (and sent) as the PDF; the EPUB just stands in for it.
         val pictures = pictureOnly.count { it }
         if (pageLines.sumOf { lines -> lines.sumOf { it.text.length } } < 200 || (pictures > 40 && pictures * 2 > pages.size)) {
-            if (renderer == null) throw ConversionException(tr("This PDF has no text in it (it may be scanned pages), so it can't be made into a book."))
+            if (renderer == null) throw ConversionException(tr("This PDF has no text (it may be a scan), so it can't be converted to a book."))
             placeholder(out, target, renderer, "This book's pages are pictures, so it reads as the PDF it came as.")
             return false
         }
@@ -253,7 +253,7 @@ object PdfConverter {
             val name = title ?: Regex("""<h[234]>(.*?)</h[234]>""").find(html)?.groupValues?.get(1)?.let { HtmlSoup.decode(it) }
             out.page(name, html)
         }
-        if (out.isEmpty) throw ConversionException(tr("This PDF has no text in it (it may be scanned pages), so it can't be made into a book."))
+        if (out.isEmpty) throw ConversionException(tr("This PDF has no text (it may be a scan), so it can't be converted to a book."))
         // A cover: the first page as a picture, if it wasn't one already.
         if (!out.hasCover) renderer?.render(0, 1600)?.let { out.image("cover.jpg", it, asCover = true) }
         if (out.hasCover && !pictureOnly[0]) out.coverPage()

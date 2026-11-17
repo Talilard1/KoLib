@@ -61,8 +61,8 @@ fun JobDialog(
                     p.current?.let { Text(it, maxLines = 2, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodyMedium) }
                     Spacer(Modifier.height(10.dp))
                     Text(
-                        if (sending) tr("Keep the Kobo plugged in until sending finishes. You can hide this window in the meantime.")
-                        else tr("You can hide this window and keep using the app. Progress is shown at the top of the library."),
+                        if (sending) tr("Keep the Kobo plugged in until sending finishes.")
+                        else tr("You can hide this and keep using KoLib. Progress shows at the top of the library."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -83,16 +83,16 @@ fun JobDialog(
                     if (sending && p.succeeded > 0) {
                         Spacer(Modifier.height(10.dp))
                         Text(
-                            tr("Now eject the Kobo. Once it's unplugged, it adds the new books to its library. This takes a moment."),
+                            tr("Now eject the Kobo. It adds the new books once it's unplugged."),
                             style = MaterialTheme.typography.bodyMedium,
                         )
                         if (p.coversAfterRestart.isNotEmpty()) {
                             Spacer(Modifier.height(6.dp))
                             Text(
                                 if (p.coversAfterRestart.size == 1) {
-                                    tr("To see the new cover of “{0}”, restart the Kobo after ejecting it. It keeps showing a book's old cover until it restarts.", p.coversAfterRestart[0])
+                                    tr("To see the new cover of “{0}”, restart the Kobo after ejecting it.", p.coversAfterRestart[0])
                                 } else {
-                                    tr("To see the new covers of {0} books, restart the Kobo after ejecting it. It keeps showing a book's old cover until it restarts.", p.coversAfterRestart.size)
+                                    tr("To see the new covers of {0} books, restart the Kobo after ejecting it.", p.coversAfterRestart.size)
                                 },
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,

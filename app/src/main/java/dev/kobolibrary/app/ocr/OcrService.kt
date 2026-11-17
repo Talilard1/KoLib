@@ -99,8 +99,8 @@ class OcrService : Service() {
         val nm = getSystemService(NotificationManager::class.java)
         if (nm.getNotificationChannel(CHANNEL) == null) {
             nm.createNotificationChannel(
-                NotificationChannel(CHANNEL, tr("Making scanned books into text"), NotificationManager.IMPORTANCE_LOW).apply {
-                    description = tr("How far the text recognition has got")
+                NotificationChannel(CHANNEL, tr("Text recognition"), NotificationManager.IMPORTANCE_LOW).apply {
+                    description = tr("Text recognition progress")
                     setShowBadge(false)
                 }
             )
@@ -123,7 +123,7 @@ class OcrService : Service() {
         )
         val b = NotificationCompat.Builder(this, CHANNEL)
             .setSmallIcon(R.drawable.ic_notify_text)
-            .setContentTitle(title?.let { tr("Making “{0}” into text", it) } ?: tr("Making scanned books into text"))
+            .setContentTitle(title?.let { tr("Converting “{0}” to text", it) } ?: tr("Text recognition"))
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setSilent(true)
@@ -139,7 +139,7 @@ class OcrService : Service() {
                 b.setContentText(tr("Page {0} of {1}", status.done, status.total) + left + more)
                     .setProgress(status.total, status.done, false)
             }
-            is OcrStatus.Making -> b.setContentText(tr("Putting the book together…") + more).setProgress(0, 0, true)
+            is OcrStatus.Making -> b.setContentText(tr("Building the book…") + more).setProgress(0, 0, true)
             else -> b.setContentText(tr("Getting ready…") + more).setProgress(0, 0, true)
         }
         return b.build()

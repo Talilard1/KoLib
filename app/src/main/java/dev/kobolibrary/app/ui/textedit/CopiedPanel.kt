@@ -57,9 +57,9 @@ fun CopiedPanel(state: TextEditState, items: List<CopiedSections.Item>, modifier
             IconButton(onClick = onClose) { Icon(Icons.Filled.Close, tr("Close copied sections")) }
         }
         Text(
-            if (items.isEmpty()) tr("Nothing copied yet. To copy a chapter, a title page or any other section, tap ⋮ beside it in the list of chapters, then Copy. It stays here for any book until you delete it.")
-            else if (here != null) tr("Each is added after “{0}”, the chapter open now, with its pictures and styles.", here)
-            else tr("Each is added with its pictures and styles."),
+            if (items.isEmpty()) tr("Nothing copied yet. In the chapter list, tap ⋮ beside a section, then Copy. Copied sections can be added to any book.")
+            else if (here != null) tr("Added after “{0}”, with its pictures and styles.", here)
+            else tr("Added with its pictures and styles."),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
@@ -87,7 +87,7 @@ fun CopiedPanel(state: TextEditState, items: List<CopiedSections.Item>, modifier
             title = { Text(tr("List this book's chapters?")) },
             text = {
                 Text(
-                    tr("“{0}” is a contents page from “{1}”. KoLib can keep its look and layout and make it list this book's chapters instead, with links to them. Or it can go in as it is, with links only to chapters this book has.", item.title, item.fromBook),
+                    tr("“{0}” is a contents page from “{1}”. It can list this book's chapters instead, in the same style, or be added unchanged.", item.title, item.fromBook),
                     style = MaterialTheme.typography.bodyMedium,
                 )
             },
@@ -96,7 +96,7 @@ fun CopiedPanel(state: TextEditState, items: List<CopiedSections.Item>, modifier
             },
             dismissButton = {
                 Row {
-                    TextButton(onClick = { pasting = null; state.pasteSection(item.id, relist = false) }) { Text(tr("Add as it is")) }
+                    TextButton(onClick = { pasting = null; state.pasteSection(item.id, relist = false) }) { Text(tr("Add unchanged")) }
                     TextButton(onClick = { pasting = null }) { Text(tr("Cancel")) }
                 }
             },
@@ -107,7 +107,7 @@ fun CopiedPanel(state: TextEditState, items: List<CopiedSections.Item>, modifier
             onDismissRequest = { deleting = null },
             icon = { Icon(Icons.Outlined.Delete, null) },
             title = { Text(tr("Delete “{0}” from copied sections?", item.title)) },
-            text = { Text(tr("It's only deleted from here. Books it was added to keep their copy."), style = MaterialTheme.typography.bodyMedium) },
+            text = { Text(tr("Books it was added to aren't affected."), style = MaterialTheme.typography.bodyMedium) },
             confirmButton = {
                 TextButton(onClick = { deleting = null; state.deleteCopied(item.id) }) { Text(tr("Delete"), color = MaterialTheme.colorScheme.error) }
             },

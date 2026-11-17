@@ -19,7 +19,7 @@ class SidewaysPictures(dataRoot: File, languages: List<String>) : Closeable {
     init {
         if (!api.init(dataRoot.path, languages.joinToString("+"), TessBaseAPI.OEM_LSTM_ONLY)) {
             api.recycle()
-            throw IOException(tr("The text recognition couldn't start. Its language data may be damaged: try again to download it afresh."))
+            throw IOException(tr("Text recognition couldn't start. The language data may be damaged. Try again to re-download it."))
         }
         // Words anywhere, in no order: captions and speech scattered over a picture.
         api.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SPARSE_TEXT)

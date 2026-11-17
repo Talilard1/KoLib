@@ -54,9 +54,9 @@ enum class ReaderSpread(val label: String, val columns: Int) {
 
 /** Which way the screen faces while reading. */
 enum class ReaderRotation(val label: String, val help: String) {
-    AUTO(tr("Automatic"), tr("Turns with the device.")),
-    PORTRAIT(tr("Portrait"), tr("Always upright, however you hold the device.")),
-    LANDSCAPE(tr("Landscape"), tr("Always sideways, however you hold the device.")),
+    AUTO(tr("Automatic"), tr("Follows the device.")),
+    PORTRAIT(tr("Portrait"), tr("Locked upright.")),
+    LANDSCAPE(tr("Landscape"), tr("Locked sideways.")),
 }
 
 /** What taps on the page do. The middle always brings up the controls. */
@@ -76,9 +76,9 @@ enum class TapWidth(val label: String, val fraction: Float) {
 
 /** What's done with pictures so they sit on the page's colour rather than in a white box. */
 enum class PictureBlend(val label: String, val js: String, val help: String) {
-    OFF(tr("Off"), "off", tr("Pictures look the same as in the book.")),
-    ORNAMENTS(tr("Decorations"), "ornaments", tr("Black-and-white decorations and charts take the page colour. On dark pages they turn light. Framed pictures keep their white background.")),
-    ALL(tr("All pictures"), "all", tr("Every picture takes the page colour. On dark pages, photos look like negatives.")),
+    OFF(tr("Off"), "off", tr("Pictures aren't changed.")),
+    ORNAMENTS(tr("Decorations"), "ornaments", tr("Black-and-white decorations and charts match the page colour, turning light on dark pages.")),
+    ALL(tr("All pictures"), "all", tr("Every picture matches the page colour. Photos look inverted on dark pages.")),
 }
 
 /** The thin line along the foot of the page that grows as you read, as a Kobo has. */
@@ -172,14 +172,14 @@ enum class HeadTitlePlace(val label: String) {
 /** How big the page headings' type is: as before, smaller than the text; as a printed book has it; or bigger. */
 enum class HeadSize(val label: String, val ofText: Float) {
     SMALL(tr("Smaller"), 0f),
-    PRINT(tr("As in print"), 0.92f),
+    PRINT(tr("Standard"), 0.92f),
     LARGE(tr("Larger"), 1.15f),
 }
 
 /** The space between the page headings and the text: as before, a line's worth as in print, or more. */
 enum class HeadGap(val label: String, val lines: Float) {
     CLOSE(trc("space under headings", "Less"), 0f),
-    LINE(tr("A line"), 1f),
+    LINE(tr("One line"), 1f),
     MORE(trc("space under headings", "More"), 1.6f),
 }
 

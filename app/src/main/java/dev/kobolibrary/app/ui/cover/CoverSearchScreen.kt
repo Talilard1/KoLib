@@ -330,7 +330,7 @@ private fun GoogleImages(query: String, modifier: Modifier, onPicture: (Shown) -
     var problem by remember { mutableStateOf<String?>(null) }
     Column(modifier) {
         Text(
-            problem ?: if (loading) tr("Getting the picture…") else tr("Tap a picture to see it bigger, then press and hold it to use it."),
+            problem ?: if (loading) tr("Getting the picture…") else tr("Tap a picture to enlarge it, then hold it to use it."),
             style = MaterialTheme.typography.bodySmall,
             color = if (problem != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
@@ -355,7 +355,7 @@ private fun GoogleImages(query: String, modifier: Modifier, onPicture: (Shown) -
                                     }
                                 }
                                 loading = false
-                                if (shown == null) problem = tr("That picture couldn't be fetched. Tap it to open it bigger, then try again.")
+                                if (shown == null) problem = tr("Couldn't load that picture. Tap it to enlarge it, then try again.")
                                 else onPicture(shown)
                             }
                         }

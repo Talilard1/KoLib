@@ -165,7 +165,7 @@ class LinkManagerTest {
         assertArrayEquals(notes, phone.host.files["notes.txt"])
         // A name can't reach out of the folder files go into.
         assertArrayEquals(big, phone.host.files["map.png"])
-        waitFor("the message") { phone.messages.any { "2 files came from Tablet" in it } }
+        waitFor("the message") { phone.messages.any { "Received 2 files from Tablet" in it } }
         waitFor("the message") { tablet.messages.any { "Sent 2 files to Phone" in it } }
         assertTrue(tablet.link.transfers.value.isEmpty())
     }
@@ -235,7 +235,7 @@ class LinkManagerTest {
         scope.launch { stranger.messages.collect { said += it } }
         runBlocking { stranger.sendText(phone.record(tablet), "Let me in").join() }
         waitFor("the answer") { said.isNotEmpty() }
-        assertEquals("The other device doesn't know this one any more. Pair them again.", said[0])
+        assertEquals("The other device no longer has this one paired. Pair them again.", said[0])
         stranger.stop()
         assertTrue(tablet.host.texts.isEmpty())
 
@@ -266,7 +266,7 @@ class LinkManagerTest {
         // Again: it's there, so only its reading is put together, and no files go.
         runBlocking { tablet.link.sendBooks(tablet.record(phone), listOf(id)).join() }
         assertEquals(2, phone.host.merged.size)
-        waitFor("the message") { tablet.messages.any { "To Phone: 1 was there already." in it } }
+        waitFor("the message") { tablet.messages.any { "To Phone: 1 already there." in it } }
 
         // Places: the phone read further, later; the tablet finished another book.
         val other = UUID.randomUUID().toString()

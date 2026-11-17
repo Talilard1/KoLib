@@ -274,8 +274,8 @@ internal fun DeleteFromKoboDialog(doomed: List<KoboBook>, onDelete: () -> Unit, 
         title = { Text(if (doomed.size == 1) tr("Delete “{0}” from the Kobo?", doomed[0].title) else tr("Delete {0} books from the Kobo?", doomed.size)) },
         text = {
             Text(
-                tr("This deletes their files from the Kobo, with their reading progress and highlights. Copies in your library on this device won't be deleted. Books from the Kobo Store can't be deleted here.") +
-                    if (doomed.isEmpty()) tr("\n\nNone of the selected books can be deleted, because they're from the Kobo Store.") else ""
+                tr("Their files, reading progress and highlights are deleted from the Kobo. Copies in your library aren't affected. Kobo Store books can't be deleted here.") +
+                    if (doomed.isEmpty()) tr("\n\nNone of these can be deleted: they're Kobo Store books.") else ""
             )
         },
         confirmButton = { TextButton(onClick = onDelete, enabled = doomed.isNotEmpty()) { Text(tr("Delete"), color = MaterialTheme.colorScheme.error) } },
@@ -456,7 +456,7 @@ internal fun PhoneKoboBookPage(
             Spacer(Modifier.height(16.dp))
             HorizontalDivider()
             Text(
-                tr("These details come from the Kobo. To change the details or cover, add the book to your library and edit it there."),
+                tr("To edit the details or cover, add the book to your library."),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 12.dp, bottom = 32.dp),
@@ -470,8 +470,8 @@ internal fun PhoneKoboBookPage(
             title = { Text(tr("Delete “{0}” from the Kobo?", book.title)) },
             text = {
                 Text(
-                    tr("This deletes the book's file from the Kobo, with your reading progress and highlights. ") +
-                        if (inLibrary) tr("The copy in your library won't be deleted.") else tr("It isn't in your library, so add it to your library first if you want to keep it.")
+                    tr("The file, your reading progress and highlights are deleted from the Kobo.") +
+                        if (inLibrary) tr("The copy in your library isn't affected.") else tr("It isn't in your library. Add it first to keep a copy.")
                 )
             },
             confirmButton = {

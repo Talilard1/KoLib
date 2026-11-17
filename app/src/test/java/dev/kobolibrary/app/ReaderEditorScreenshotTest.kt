@@ -453,7 +453,7 @@ class ReaderEditorScreenshotTest {
         compose.onRoot().performTouchInput { swipe(androidx.compose.ui.geometry.Offset(380f, 450f), androidx.compose.ui.geometry.Offset(60f, 450f), 250) }
         compose.waitForIdle()
         assertEquals("on to the bookmarks", 1, c.contentsTab)
-        compose.onNodeWithText(tr("No bookmarks yet. To bookmark a page, tap the middle of the page, then tap the bookmark icon at the top."), substring = true).assertExists()
+        compose.onNodeWithText(tr("No bookmarks yet. Tap the middle of a page, then the bookmark icon."), substring = true).assertExists()
         // A tap on a tab still works.
         compose.onNodeWithText(tr("Contents")).performClick()
         compose.waitForIdle()

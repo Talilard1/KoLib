@@ -7,7 +7,7 @@
     <string name="intro_language_text">Wähle deine Sprache. Du kannst sie später ändern.</string>
     <string name="intro_device_language">Sprache deines Geräts</string>
     <string name="intro_folder_title">Wo sind deine Bücher?</string>
-    <string name="intro_folder_text">Wähle den Ordner, in dem du deine Bücher aufbewahrst. KoLib fügt sie alle deiner Bibliothek hinzu, auch die in Unterordnern.</string>
+    <string name="intro_folder_text">Wähle deinen Bücherordner. KoLib fügt alle Bücher darin deiner Bibliothek hinzu, auch die in Unterordnern.</string>
     <string name="intro_folder_kinds">EPUB, PDF, MOBI, Word und die meisten anderen E-Book-Dateien.</string>
     <string name="intro_folder_choose">Ordner wählen</string>
     <string name="intro_folder_another">Anderen Ordner wählen</string>
@@ -18,18 +18,18 @@
         <item quantity="other">Bisher %1$d Bücher in %2$s gefunden…</item>
     </plurals>
     <plurals name="intro_folder_found">
-        <item quantity="one">In %2$s ist %1$d Buch.</item>
-        <item quantity="other">In %2$s sind %1$d Bücher.</item>
+        <item quantity="one">%1$d Buch in %2$s gefunden.</item>
+        <item quantity="other">%1$d Bücher in %2$s gefunden.</item>
     </plurals>
-    <string name="intro_folder_none">In %1$s sind keine Bücher. Wähle den Ordner, in dem sie liegen.</string>
-    <string name="intro_folder_failed">KoLib konnte %1$s nicht öffnen. Wähle den Ordner noch einmal.</string>
+    <string name="intro_folder_none">Keine Bücher in %1$s gefunden. Versuch einen anderen Ordner.</string>
+    <string name="intro_folder_failed">%1$s konnte nicht geöffnet werden. Wähle den Ordner noch einmal.</string>
     <plurals name="intro_folder_add">
         <item quantity="one">%d Buch hinzufügen</item>
         <item quantity="other">%d Bücher hinzufügen</item>
     </plurals>
     <plurals name="intro_folder_adding">
-        <item quantity="one">%d Buch wird deiner Bibliothek hinzugefügt. Du kannst währenddessen weitermachen.</item>
-        <item quantity="other">%d Bücher werden deiner Bibliothek hinzugefügt. Du kannst währenddessen weitermachen.</item>
+        <item quantity="one">%d Buch wird deiner Bibliothek hinzugefügt.</item>
+        <item quantity="other">%d Bücher werden deiner Bibliothek hinzugefügt.</item>
     </plurals>
     <string name="intro_kobo_title">Kobo verbinden</string>
     <string name="intro_kobo_step1">Schließe den Kobo mit einem USB-C-Datenkabel an dieses Gerät an.</string>
@@ -41,11 +41,11 @@
     <string name="intro_kobo_allow_help">Android öffnet die Ordnerauswahl auf dem Laufwerk des Kobo. Tippe auf „Diesen Ordner verwenden“ und dann auf „Zulassen“.</string>
     <string name="intro_kobo_working">Kobo wird geöffnet…</string>
     <string name="intro_kobo_connected">Mit deinem %1$s verbunden.</string>
-    <string name="intro_kobo_failed">KoLib konnte den Kobo nicht öffnen. Zieh das Kabel ab, steck es wieder ein und versuche es noch einmal.</string>
+    <string name="intro_kobo_failed">Der Kobo konnte nicht geöffnet werden. Zieh das Kabel ab, steck es wieder ein und versuch es noch einmal.</string>
     <string name="intro_kobo_retry">Erneut versuchen</string>
-    <string name="intro_kobo_later">Kein Kobo zur Hand? Überspring diesen Schritt. Du kannst ihn jederzeit im Kobo-Tab verbinden.</string>
+    <string name="intro_kobo_later">Kein Kobo zur Hand? Überspring das und verbinde ihn später im Kobo-Tab.</string>
     <string name="intro_collections_title">Sammlungen auf deinem Kobo</string>
-    <string name="intro_collections_text">KoLib kann deine Bücher in Sammlungen auf dem Kobo einordnen, aber dort keine neuen Sammlungen anlegen. Lege die Sammlung zuerst auf dem Kobo an, danach kann KoLib Bücher hinzufügen.</string>
+    <string name="intro_collections_text">KoLib kann Bücher zu Sammlungen auf dem Kobo hinzufügen, aber keine anlegen. Lege die Sammlung zuerst auf dem Kobo an.</string>
     <string name="intro_collections_how">Gehe auf dem Kobo zu „Meine Bücher“, dann zu „Sammlungen“, und tippe auf „Neue Sammlung“.</string>
     <string name="intro_done_title">Alles bereit</string>
     <string name="intro_done_text">Füge jederzeit Bücher über „Bücher hinzufügen“ hinzu, und sende sie an deinen Kobo, wenn er angeschlossen ist.</string>

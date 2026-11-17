@@ -64,7 +64,7 @@ fun BackupsScreen(
             EmptyState(
                 Icons.Outlined.Restore,
                 tr("No backups yet"),
-                tr("A backup of the Kobo's database is made automatically the first time you connect."),
+                tr("A backup is made automatically when you connect your Kobo."),
                 Modifier.padding(padding),
             )
             return@Scaffold
@@ -72,7 +72,7 @@ fun BackupsScreen(
         LazyColumn(Modifier.padding(padding).fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp)) {
             item {
                 Text(
-                    tr("Each backup is a zipped copy of the Kobo's database file (KoboReader.sqlite). It contains the Kobo's library, collections and reading progress. A new backup is made whenever you connect and something has changed. The newest {0} are kept. To copy a backup to Downloads/{1}, tap its download button.", BackupManager.MAX_BACKUPS, BackupManager.EXPORT_FOLDER),
+                    tr("Zipped copies of the Kobo's database: its library, collections and reading progress. One is made when you connect and something has changed. Only the newest {0} are stored. Tap the download button to copy one to Downloads/{1}.", BackupManager.MAX_BACKUPS, BackupManager.EXPORT_FOLDER),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
@@ -86,8 +86,6 @@ fun BackupsScreen(
                             listOfNotNull(
                                 b.deviceLabel,
                                 Fmt.bytes(context, b.sizeBytes),
-                                if (b.isCompressed) "zipped" else null,
-                                if (b.hasWal) tr("includes write-ahead log") else null,
                             ).joinToString(" · ")
                         )
                     },
@@ -107,7 +105,7 @@ fun BackupsScreen(
         AlertDialog(
             onDismissRequest = { toDelete = null },
             title = { Text(tr("Delete this backup?")) },
-            text = { Text(tr("The backup from {0} will be deleted from this device. Nothing on the Kobo changes.", Fmt.dateTime(b.createdMillis))) },
+            text = { Text(tr("Deletes the backup from {0} from this device. The Kobo isn't affected.", Fmt.dateTime(b.createdMillis))) },
             confirmButton = { TextButton(onClick = { toDelete = null; onDelete(b) }) { Text(tr("Delete")) } },
             dismissButton = { TextButton(onClick = { toDelete = null }) { Text(tr("Cancel")) } },
         )

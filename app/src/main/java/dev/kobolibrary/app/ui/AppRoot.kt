@@ -228,14 +228,14 @@ fun AppRoot(
             when (n) {
                 is dev.kobolibrary.app.ocr.OcrNews.Done -> {
                     val r = snackbar.showSnackbar(
-                        tr("“{0}” is now text. Compare it with its pages to check it.", n.title),
+                        tr("“{0}” converted to text.", n.title),
                         actionLabel = tr("Compare"),
                         withDismissAction = true,
                         duration = androidx.compose.material3.SnackbarDuration.Long,
                     )
                     if (r == androidx.compose.material3.SnackbarResult.ActionPerformed) overlay = "compare:${n.bookId}"
                 }
-                is dev.kobolibrary.app.ocr.OcrNews.Failed -> snackbar.showSnackbar(tr("Couldn't make “{0}” into text: {1}.", n.title, n.reason), withDismissAction = true)
+                is dev.kobolibrary.app.ocr.OcrNews.Failed -> snackbar.showSnackbar(tr("Couldn't convert “{0}” to text: {1}.", n.title, n.reason), withDismissAction = true)
             }
         }
     }
@@ -290,7 +290,7 @@ fun AppRoot(
                 section = Section.LIBRARY
                 libraryBrowse.selectedId = null
                 libraryBrowse.selecting = true
-                localMessage = tr("Choose the books, then send them to {0}.", d.name)
+                localMessage = tr("Select books to send to {0}.", d.name)
             },
             sendFiles = { d ->
                 filesFor = d
@@ -321,7 +321,7 @@ fun AppRoot(
                 section = Section.LIBRARY
                 libraryBrowse.selectedId = null
                 libraryBrowse.selecting = true
-                localMessage = tr("Choose the books, then tap Send to Kobo, then Over Wi-Fi.")
+                localMessage = tr("Select books, then tap Send to Kobo → Over Wi-Fi.")
             },
         )
     }
@@ -335,7 +335,7 @@ fun AppRoot(
             treePicker.launch(vm.openTreeIntent(candidate))
         } catch (e: ActivityNotFoundException) {
             AppLog.e("Kobo", "No folder picker available", e)
-            localMessage = tr("This device has no folder picker. The app needs one to open the Kobo's storage.")
+            localMessage = tr("No folder picker on this device. KoLib needs one to open the Kobo.")
         }
     }
     val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
@@ -873,7 +873,7 @@ fun AppRoot(
                         }
                     } catch (e: ActivityNotFoundException) {
                         exporting = null
-                        localMessage = tr("This device has no way to choose where to save files.")
+                        localMessage = tr("This device has no file picker.")
                     }
                 },
                 onDismiss = { exportIds = null },
@@ -1260,12 +1260,12 @@ fun LookDialog(
                     HorizontalDivider(Modifier.padding(vertical = 10.dp))
                     SwitchLine(tr("Opening animation"), tr("Plays when KoLib starts. Tap it to skip."), opening, onOpening)
                     SwitchLine(
-                        tr("Opening sound"), tr("Plays with the animation, at your media volume."),
+                        tr("Opening sound"), tr("Uses your media volume."),
                         opening && openingSound, { onOpeningSound?.invoke(it) }, enabled = opening,
                     )
                     if (onOpeningLight != null) {
                         SwitchLine(
-                            tr("Performance mode"), tr("A lighter animation that runs smoothly on phones. On by default on phones."),
+                            tr("Performance mode"), tr("A lighter animation for slower devices. On by default on phones."),
                             opening && openingLight, onOpeningLight, enabled = opening,
                         )
                     }

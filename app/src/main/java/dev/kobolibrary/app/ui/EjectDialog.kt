@@ -56,20 +56,20 @@ fun EjectDialog(
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (busy) {
                     Text(
-                        tr("Books are still being sent. Wait until sending finishes, or the book being copied will be incomplete."),
+                        tr("Books are still being sent. Wait until sending finishes."),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 } else if (savingDatabase) {
                     Text(
-                        tr("The app is updating collections and book details on the Kobo. Wait a few seconds until it's done."),
+                        tr("Updating the Kobo. Wait a few seconds."),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 }
                 Text(how, style = MaterialTheme.typography.bodyMedium)
                 Text(
-                    tr("Unmount it before unplugging: otherwise Android may need restarting before the Kobo will connect again."),
+                    tr("Unmount before unplugging, or Android may need a restart to connect the Kobo again."),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

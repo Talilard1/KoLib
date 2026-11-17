@@ -128,7 +128,7 @@ fun NewBookDialog(onMake: (title: String, author: String) -> Unit, onDismiss: ()
         text = {
             Column {
                 Text(
-                    tr("The book opens in the text editor with one empty chapter. You can add more chapters from the chapter list. A simple cover is made for it, and you can change it later."),
+                    tr("Opens in the text editor with one empty chapter and a simple cover. You can change both later."),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -235,7 +235,7 @@ fun MergeDialog(
                     Icon(Icons.Outlined.Info, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        tr("The new book contains all their chapters, in this order. Its contents list each book with its chapters under it. It's added to all of their collections. The original books aren't changed."),
+                        tr("One book with all their chapters in this order, and a contents list by book. It's added to all their collections. The originals aren't changed."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -502,9 +502,9 @@ fun SplitBookDialog(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column(Modifier.weight(1f)) {
-                            Text(tr("Give every book the opening and closing pages"), style = MaterialTheme.typography.bodyLarge)
+                            Text(tr("Add front and back pages to every book"), style = MaterialTheme.typography.bodyLarge)
                             Text(
-                                if (shared.isEmpty) tr("Pages like a title page or a copyright notice, from the start of the first book or the end of the last. None were found: choose them.")
+                                if (shared.isEmpty) tr("Pages such as a title page or copyright notice. None were found: choose them.")
                                 else listOfNotNull(
                                     shared.front.takeIf { it.isNotEmpty() }?.let { f -> tr("Before the first book: {0}.", f.joinToString(", ") { list[it].title }) },
                                     shared.back.takeIf { it.isNotEmpty() }?.let { b -> tr("After the last: {0}.", b.joinToString(", ") { list[it].title }) },
@@ -538,7 +538,7 @@ fun SplitBookDialog(
                         Icon(Icons.Outlined.Info, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(Modifier.width(8.dp))
                         Text(
-                            tr("Each new book gets its chapters, with the pictures, styles and fonts they use, and any notes pages they link to. The first book gets the original cover. The others use their own cover page, if they open with one, or get a new cover with their title. “{0}” itself isn't changed.", book.title),
+                            tr("Each book gets its chapters with their pictures, styles, fonts and notes. The first gets the original cover; the others use their own cover page or get a new cover. “{0}” isn't changed.", book.title),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -595,16 +595,16 @@ fun ExportDialog(
                 )
                 CoverChoice(
                     selected = format == dev.kobolibrary.app.kobo.SendFormat.KEPUB,
-                    text = tr("Kepub: Kobo's own format, the same as when sending to the Kobo"),
+                    text = tr("Kepub: Kobo's own format"),
                     onClick = { format = dev.kobolibrary.app.kobo.SendFormat.KEPUB },
                 )
                 if (addedAsOther > 0) {
                     CoverChoice(
                         selected = format == null,
                         text = when {
-                            count == 1 && addedAsLabel != null -> tr("{0}: the file it was added as", addedAsLabel)
-                            addedAsOther == count -> tr("As they were added: the PDF, MOBI or other file each one came as")
-                            else -> tr("As they were added: books that came as PDFs, MOBIs and so on are saved as those, the rest as EPUBs")
+                            count == 1 && addedAsLabel != null -> tr("{0}: the original file", addedAsLabel)
+                            addedAsOther == count -> tr("Original files: the PDF, MOBI or other file each was added as")
+                            else -> tr("Original files: PDFs, MOBIs and so on in their own format, the rest as EPUBs")
                         },
                         onClick = { format = null },
                     )

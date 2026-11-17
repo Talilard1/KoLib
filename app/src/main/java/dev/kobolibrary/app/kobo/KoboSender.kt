@@ -335,7 +335,7 @@ class KoboSender(private val context: Context) {
                 } catch (e: IOException) {
                     target.delete()
                     AppLog.e("Send", "Couldn't make a CBZ of '$title'", e)
-                    throw IOException(tr("This comic couldn't be made into a CBZ for the Kobo."))
+                    throw IOException(tr("This comic couldn't be converted to CBZ for the Kobo."))
                 }
             } else {
                 asIs.copyTo(target, overwrite = true)
@@ -377,7 +377,7 @@ class KoboSender(private val context: Context) {
             } catch (e: IOException) {
                 made.delete()
                 AppLog.e("Send", "Couldn't make a CBZ of '$title'", e)
-                return SendOutcome.Failed(title, tr("This comic couldn't be made into a CBZ for the Kobo."))
+                return SendOutcome.Failed(title, tr("This comic couldn't be converted to CBZ for the Kobo."))
             }
             pdf = made
         }

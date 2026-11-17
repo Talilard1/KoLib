@@ -238,7 +238,7 @@ class TextEditState(
     private fun errorJs(e: XmlCheck.Problem): JSONObject = JSONObject()
         .put("line", e.line)
         .put("message", e.message)
-        .put("text", tr("Line {0}: {1}. Your change won't be saved to the chapter until this is fixed.", e.line, e.message))
+        .put("text", tr("Line {0}: {1}. Fix this to save your change.", e.line, e.message))
 
     private fun codeChanged(path: String, typed: String) {
         val old = edit.text(path) ?: return
@@ -441,7 +441,7 @@ class TextEditState(
             try {
                 val page = withContext(Dispatchers.Default) { ChapterOps.copyPage(edit, structure, path) }
                 withContext(Dispatchers.IO) { store.add(page, title) }
-                message = tr("Copied “{0}”. Find it in Copied, beside Code, in this book or any other.", page.title)
+                message = tr("Copied “{0}”. It's in the Copied panel, for this book or any other.", page.title)
             } catch (e: ChapterOps.OpError) {
                 message = e.message
             } catch (e: Exception) {
@@ -603,10 +603,10 @@ class TextEditState(
                         bump()
                         hasOriginal = true
                         library.afterTextEdit(bookId)
-                        message = tr("Saved. The book was checked and has no new problems.") + when (result.problemsBefore) {
+                        message = tr("Saved. No new problems found.") + when (result.problemsBefore) {
                             0 -> ""
-                            1 -> tr(" (It already had 1 problem before you edited it. That wasn't changed.)")
-                            else -> tr(" (It already had {0} problems before you edited it. Those weren't changed.)", result.problemsBefore)
+                            1 -> tr(" (1 problem was already there before your edit.)")
+                            else -> tr(" ({0} problems were already there before your edit.)", result.problemsBefore)
                         }
                         onSaved?.invoke()
                     }
@@ -649,7 +649,7 @@ class TextEditState(
                 if (currentPath?.let { edit.has(it) } != true) currentPath = structure.chapters.firstOrNull()?.path
                 load()
                 find.bookChanged()
-                message = tr("The original text has been restored. The details and cover weren't changed.")
+                message = tr("Original text restored. The details and cover weren't changed.")
                 onDone()
             } catch (e: Exception) {
                 AppLog.e("Editor", "Reverting failed", e)

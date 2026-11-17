@@ -8,7 +8,7 @@ object Cleanups {
     enum class Kind(val label: String, val explanation: String, private val one: String, private val many: String) {
         BLANK_LINES(
             tr("Remove extra blank lines"),
-            tr("Turns several blank lines in a row into one, and removes blank lines at the start and end of chapters. Single blank lines (scene breaks) are kept."),
+            tr("Collapses repeated blank lines and removes them from the start and end of chapters. Scene breaks aren't affected."),
             tr("1 blank line"), tr("{0} blank lines"),
         ),
         CURLY_QUOTES(
@@ -18,7 +18,7 @@ object Cleanups {
         ),
         JOIN_LINES(
             tr("Join lines broken mid-sentence"),
-            tr("Joins paragraphs that were split in the middle of a sentence. This is common in books made from PDFs or scans."),
+            tr("Rejoins paragraphs split mid-sentence, common in books converted from PDFs or scans."),
             tr("1 broken line"), tr("{0} broken lines"),
         ),
         DASHES(

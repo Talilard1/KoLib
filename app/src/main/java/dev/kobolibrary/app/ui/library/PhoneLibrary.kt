@@ -702,8 +702,8 @@ internal fun PhoneBookPage(
             title = { Text(tr("Remove “{0}”?", meta.title)) },
             text = {
                 Text(
-                    tr("This deletes the book and your edits to it from the library.") +
-                        if (book.koboPath != null) tr(" The copy on the Kobo won't be deleted.") else ""
+                    tr("The book and your edits are deleted from the library.") +
+                        if (book.koboPath != null) tr(" The copy on the Kobo isn't affected.") else ""
                 )
             },
             confirmButton = { TextButton(onClick = { confirmDelete = false; onDelete() }) { Text(tr("Remove"), color = MaterialTheme.colorScheme.error) } },

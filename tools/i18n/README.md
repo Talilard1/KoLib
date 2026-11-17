@@ -18,6 +18,14 @@ Each `@language` starts a section, then `number|text`. The number is the English
 `en_list.json`. `\n` is a line break. Spaces at the start or end are matched to the English
 automatically, and French gets its no-break spaces before `: ; ? !` and inside `« »` automatically.
 
+## Writing style
+
+- Labels are short: "Keep screen on", "Tap zone size", "Convert to text".
+- A description is one short line, and only where the label isn't enough.
+- Messages say what happened and what to do next, nothing more.
+- Use the words people know from other apps (default, original, sync, scan) and the same word every
+  time. Translations follow the same rules, not the English word for word.
+
 ## Adding or changing text
 
 1. Write the text in English in the code, inside `tr(...)`. Whole sentences only: never build a

@@ -182,13 +182,13 @@ class KoboWifiServer(
                     }
                     segments[0] == "book" -> {
                         val b = segments.getOrNull(1)?.toIntOrNull()?.let { i -> books.getOrNull(i) }
-                            ?: return respond(out, 404, "text/html; charset=utf-8", message(tr("That book isn't offered any more.")).toByteArray(), headOnly)
+                            ?: return respond(out, 404, "text/html; charset=utf-8", message(tr("That book is no longer available.")).toByteArray(), headOnly)
                         val f = try {
                             fileFor(b)
                         } catch (e: CancellationException) {
                             throw e
                         } catch (e: Exception) {
-                            return respond(out, 500, "text/html; charset=utf-8", message(tr("“{0}” couldn't be made ready: {1}", b.title, e.message ?: "")).toByteArray(), headOnly)
+                            return respond(out, 500, "text/html; charset=utf-8", message(tr("Couldn't prepare “{0}”: {1}", b.title, e.message ?: "")).toByteArray(), headOnly)
                         }
                         sendFile(out, b, f, headOnly)
                     }
@@ -244,7 +244,7 @@ class KoboWifiServer(
             }
             val line = listOfNotNull(b.kind, size).joinToString(" · ")
             val done = if (state is WifiState.Sent) "<span class=\"done\">${esc(tr("Downloaded"))}</span>" else ""
-            val failed = (state as? WifiState.Failed)?.let { "<span class=\"meta\">${esc(tr("It couldn't be made ready: {0}", it.reason))}</span>" } ?: ""
+            val failed = (state as? WifiState.Failed)?.let { "<span class=\"meta\">${esc(tr("Failed: {0}", it.reason))}</span>" } ?: ""
             """<a class="book" href="${bookHref(b)}">""" + (if (b.hasCover) """<img src="/cover/${b.index}.jpg" width="80" height="120" alt="">""" else "") +
                 """<span class="title">${esc(b.title)}</span>""" +
                 (b.author?.let { """<span class="author">${esc(it)}</span>""" } ?: "") +

@@ -53,12 +53,12 @@ fun FolderScanDialog(scan: FolderScan, onAdd: () -> Unit, onChooseAnother: () ->
                 }
                 is FolderScan.Found -> Text(
                     when (scan.books.size) {
-                        0 -> tr("There are no books in this folder, or in the folders inside it.")
-                        1 -> tr("There's 1 book in this folder. If it's in your library already, it's left as it is.")
-                        else -> tr("There are {0} books in this folder and the folders inside it. Books already in your library are left as they are.", scan.books.size)
+                        0 -> tr("No books found in this folder.")
+                        1 -> tr("1 book found. It's skipped if it's already in your library.")
+                        else -> tr("{0} books found. Ones already in your library are skipped.", scan.books.size)
                     },
                 )
-                is FolderScan.Failed -> Text(tr("KoLib couldn't look in this folder. Choose it again, or another one."))
+                is FolderScan.Failed -> Text(tr("Couldn't open this folder. Choose it again, or another one."))
                 is FolderScan.Adding -> Unit
             }
         },
@@ -92,7 +92,7 @@ fun LanguageDialog(onDismiss: () -> Unit, busy: Boolean = false) {
             Column(Modifier.verticalScroll(rememberScrollState()).selectableGroup()) {
                 if (busy) {
                     Text(
-                        tr("KoLib restarts to change its language, so wait until it has finished sending or adding books."),
+                        tr("Changing the language restarts KoLib. Wait until it has finished sending or adding books."),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.padding(bottom = 8.dp),

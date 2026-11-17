@@ -38,7 +38,7 @@ enum class ComicZoomStart(val label: () -> String) {
 
 /** Which parts of the screen turn the page when tapped (the rest shows the menu). */
 enum class ComicTaps(val label: () -> String) {
-    DEFAULT({ tr("Usual for the reading mode") }),
+    DEFAULT({ tr("Default for the reading mode") }),
     L_SHAPED({ tr("L shaped") }),
     KINDLE({ tr("Kindle-ish") }),
     EDGE({ tr("Edges") }),
@@ -57,7 +57,7 @@ enum class ComicBackground(val label: () -> String) {
     BLACK({ tr("Black") }),
     GRAY({ tr("Grey") }),
     WHITE({ tr("White") }),
-    AUTO({ tr("To match the page") }),
+    AUTO({ tr("Match the page") }),
 }
 
 /** The comic reader's settings: as Mihon's reader has them. */

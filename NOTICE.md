@@ -1,27 +1,27 @@
 # KoLib: third-party notices
 
 KoLib's own code is free software under the GNU General Public License, version 3 (see `LICENSE`).
-These are the parts that come from elsewhere, and the terms they're used under. Each licence is in `app/src/main/assets/licences/`, and can be
-read in the app (Library, then the ⓘ button).
+Third-party components and their licences are listed below. Each licence text is in
+`app/src/main/assets/licences/` and can be read in the app (Library → ⓘ).
 
-| What | Used for | Licence | File |
+| Component | Used for | Licence | File |
 |---|---|---|---|
-| kepubify, © 2017–2022 Patrick Gaskin | Sending books as kepubs: `epub/KepubConverter.kt` follows kepubify's method | MIT | `kepubify-MIT.txt` |
-| Lora | Lettering on covers the app makes | SIL OFL 1.1 | `lora-OFL.txt` |
-| Poppins | Lettering on covers the app makes | SIL OFL 1.1 | `poppins-OFL.txt` |
-| Cinzel, Cinzel Decorative, UnifrakturMaguntia, Great Vibes, Bebas Neue, Orbitron, Poiret One, Fredoka | Lettering on covers the app makes | SIL OFL 1.1 | `cinzel-OFL.txt`, `cinzel-decorative-OFL.txt`, `unifraktur-maguntia-OFL.txt`, `great-vibes-OFL.txt`, `bebas-neue-OFL.txt`, `orbitron-OFL.txt`, `poiret-one-OFL.txt`, `fredoka-OFL.txt` |
-| Playfair Display, IM Fell English, Courier Prime, Space Mono, Caveat, Pacifico, Rye, Alfa Slab One, Stardos Stencil, Bangers, Graduate | Lettering on covers the app makes | SIL OFL 1.1 | `playfair-display-OFL.txt`, `im-fell-english-OFL.txt`, `courier-prime-OFL.txt`, `space-mono-OFL.txt`, `caveat-OFL.txt`, `pacifico-OFL.txt`, `rye-OFL.txt`, `alfa-slab-one-OFL.txt`, `stardos-stencil-OFL.txt`, `bangers-OFL.txt`, `graduate-OFL.txt` |
-| Liberation Serif and Sans | Covers the app makes, for alphabets the fonts above lack | SIL OFL 1.1 | `liberation-fonts.txt` |
-| EB Garamond, Literata, Atkinson Hyperlegible, OpenDyslexic | Typefaces in the reader; EB Garamond also for the app's headings and book titles | SIL OFL 1.1 | `*-OFL.txt` |
-| AndroidX, Jetpack Compose, Material icons, Kotlin, kotlinx.coroutines | The app's framework | Apache 2.0 | `apache-2.0.txt` |
-| libarchive, © 2003–2018 Tim Kientzle and the libarchive contributors | Reading CBR (RAR) and CB7 (7z) comics | BSD 2-clause | `libarchive-BSD.txt` |
-| libarchive for Android (`me.zhanghai.android.libarchive`), © 2023 Hai Zhang | Using libarchive from the app | Apache 2.0 | `apache-2.0.txt` |
-| Tesseract 5, © Google LLC and the Tesseract contributors | Recognising the words in scanned pages (making a scanned PDF into text) | Apache 2.0 | `apache-2.0.txt` |
-| Tesseract language data (`tessdata_fast` 4.1.0), © Google LLC | What Tesseract knows of each language. Not in the app: downloaded from GitHub the first time a language is needed | Apache 2.0 | `apache-2.0.txt` |
-| Tesseract4Android (`cz.adaptech.tesseract4android`), © Robert Pösel, Robert Theis and contributors | Using Tesseract from the app; it brings the libraries below | Apache 2.0 | `apache-2.0.txt` |
-| Leptonica, © 2001 Leptonica | Pictures of scanned pages, for Tesseract | BSD 2-clause | `leptonica-BSD.txt` |
-| libjpeg, © 1991–2024 Thomas G. Lane, Guido Vollbeding. This software is based in part on the work of the Independent JPEG Group | JPEG pictures, for Tesseract | IJG | `libjpeg-IJG.txt` |
-| libpng, © 1995–2025 The PNG Reference Library Authors | PNG pictures, for Tesseract | PNG Reference Library License 2 | `libpng-LICENSE.txt` |
+| kepubify, © 2017–2022 Patrick Gaskin | Kepub conversion: `epub/KepubConverter.kt` follows kepubify's method | MIT | `kepubify-MIT.txt` |
+| Lora | Generated covers | SIL OFL 1.1 | `lora-OFL.txt` |
+| Poppins | Generated covers | SIL OFL 1.1 | `poppins-OFL.txt` |
+| Cinzel, Cinzel Decorative, UnifrakturMaguntia, Great Vibes, Bebas Neue, Orbitron, Poiret One, Fredoka | Generated covers | SIL OFL 1.1 | `cinzel-OFL.txt`, `cinzel-decorative-OFL.txt`, `unifraktur-maguntia-OFL.txt`, `great-vibes-OFL.txt`, `bebas-neue-OFL.txt`, `orbitron-OFL.txt`, `poiret-one-OFL.txt`, `fredoka-OFL.txt` |
+| Playfair Display, IM Fell English, Courier Prime, Space Mono, Caveat, Pacifico, Rye, Alfa Slab One, Stardos Stencil, Bangers, Graduate | Generated covers | SIL OFL 1.1 | `playfair-display-OFL.txt`, `im-fell-english-OFL.txt`, `courier-prime-OFL.txt`, `space-mono-OFL.txt`, `caveat-OFL.txt`, `pacifico-OFL.txt`, `rye-OFL.txt`, `alfa-slab-one-OFL.txt`, `stardos-stencil-OFL.txt`, `bangers-OFL.txt`, `graduate-OFL.txt` |
+| Liberation Serif and Sans | Generated covers, for other alphabets | SIL OFL 1.1 | `liberation-fonts.txt` |
+| EB Garamond, Literata, Atkinson Hyperlegible, OpenDyslexic | Reader fonts; EB Garamond also for headings and book titles | SIL OFL 1.1 | `*-OFL.txt` |
+| AndroidX, Jetpack Compose, Material icons, Kotlin, kotlinx.coroutines | App framework | Apache 2.0 | `apache-2.0.txt` |
+| libarchive, © 2003–2018 Tim Kientzle and the libarchive contributors | CBR (RAR) and CB7 (7z) comics | BSD 2-clause | `libarchive-BSD.txt` |
+| libarchive for Android (`me.zhanghai.android.libarchive`), © 2023 Hai Zhang | libarchive bindings | Apache 2.0 | `apache-2.0.txt` |
+| Tesseract 5, © Google LLC and the Tesseract contributors | Text recognition (OCR) for scanned PDFs | Apache 2.0 | `apache-2.0.txt` |
+| Tesseract language data (`tessdata_fast` 4.1.0), © Google LLC | OCR language data. Not bundled: downloaded from GitHub on first use | Apache 2.0 | `apache-2.0.txt` |
+| Tesseract4Android (`cz.adaptech.tesseract4android`), © Robert Pösel, Robert Theis and contributors | Tesseract bindings; brings in the libraries below | Apache 2.0 | `apache-2.0.txt` |
+| Leptonica, © 2001 Leptonica | Image handling for Tesseract | BSD 2-clause | `leptonica-BSD.txt` |
+| libjpeg, © 1991–2024 Thomas G. Lane, Guido Vollbeding. This software is based in part on the work of the Independent JPEG Group | JPEG support for Tesseract | IJG | `libjpeg-IJG.txt` |
+| libpng, © 1995–2025 The PNG Reference Library Authors | PNG support for Tesseract | PNG Reference Library License 2 | `libpng-LICENSE.txt` |
 
 Test-only libraries (JUnit, Robolectric, Roborazzi, sqlite-jdbc) are not part of the app.
 

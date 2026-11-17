@@ -1,0 +1,16 @@
+@fr
+2622|Fichier {0}, converti en EPUB
+@de
+2622|{0}-Datei, in EPUB umgewandelt
+@es
+2622|Archivo {0}, convertido a EPUB
+@it
+2622|File {0}, convertito in EPUB
+@nl
+2622|{0}-bestand, omgezet naar EPUB
+@pt
+2622|Arquivo {0}, convertido em EPUB
+@ru
+2622|Файл {0}, преобразован в EPUB
+@ja
+2622|{0} ファイル（EPUB に変換済み）

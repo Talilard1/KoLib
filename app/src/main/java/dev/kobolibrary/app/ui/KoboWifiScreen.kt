@@ -145,7 +145,7 @@ fun KoboWifiContent(books: List<WifiBook>, states: Map<Int, WifiState>, addresse
                             Icon(Icons.Outlined.WifiOff, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.error)
                             Spacer(Modifier.width(8.dp))
                             Text(
-                                if (port == 0 && addresses.isNotEmpty()) tr("The page for the Kobo couldn't be started.")
+                                if (port == 0 && addresses.isNotEmpty()) tr("Couldn't start the download page.")
                                 else tr("This device isn't on a network. Join a Wi-Fi network, or turn on its hotspot."),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.error,
@@ -166,7 +166,7 @@ fun KoboWifiContent(books: List<WifiBook>, states: Map<Int, WifiState>, addresse
                         if (addresses.size > 1) {
                             Spacer(Modifier.height(4.dp))
                             Text(
-                                tr("This device is on more than one network: use the address of the one the Kobo is on."),
+                                tr("This device is on several networks. Use the address on the Kobo's network."),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -183,10 +183,10 @@ fun KoboWifiContent(books: List<WifiBook>, states: Map<Int, WifiState>, addresse
 
                 Note(
                     Icons.Outlined.WarningAmber,
-                    tr("Over Wi-Fi the Kobo adds the books itself, so KoLib can't put them in collections, update books that are already on it, or bring back how far you've read. Plug the Kobo in for those."),
+                    tr("Wi-Fi only sends books. Collections, updating books already on the Kobo and syncing reading progress need the cable."),
                     warning = true,
                 )
-                Note(Icons.Outlined.Info, tr("Keep KoLib open on this screen until the books are on the Kobo. If a download stops part way, close the Kobo's browser and open it again before the next one."))
+                Note(Icons.Outlined.Info, tr("Keep this screen open until the downloads finish. If one stops, close the Kobo's browser, reopen it and try again."))
                 Row(Modifier.fillMaxWidth().padding(bottom = 16.dp), horizontalArrangement = Arrangement.End) {
                     GoldButton(onClick = onClose) { Text(tr("Done")) }
                 }
@@ -229,12 +229,12 @@ private fun BookLine(b: WifiBook, state: WifiState, context: android.content.Con
         }
         Spacer(Modifier.height(4.dp))
         val (line, error) = when (state) {
-            WifiState.Waiting -> tr("Waiting to be made ready") to false
-            WifiState.Making -> tr("Getting it ready…") to false
+            WifiState.Waiting -> tr("Waiting") to false
+            WifiState.Making -> tr("Preparing…") to false
             is WifiState.Ready -> tr("Ready to download · {0}", Fmt.bytes(context, state.bytes)) to false
             is WifiState.Sending -> tr("Downloading · {0}%", if (state.total > 0) (state.done * 100 / state.total).toInt() else 0) to false
             is WifiState.Sent -> tr("On the Kobo") to false
-            is WifiState.Failed -> tr("It couldn't be made ready: {0}", state.reason) to true
+            is WifiState.Failed -> tr("Failed: {0}", state.reason) to true
         }
         Text(
             line,

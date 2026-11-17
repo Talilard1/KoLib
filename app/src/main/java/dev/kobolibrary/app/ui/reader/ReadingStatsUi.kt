@@ -166,14 +166,14 @@ internal fun ReadingStatsPanel(controller: ReaderController, onClose: () -> Unit
             }
             Row(Modifier.height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 StatTile(tr("{0}%", (controller.chapterProgress * 100).roundToInt()), tr("Read"), Modifier.weight(1f).fillMaxHeight())
-                StatTile(inChapter?.let { timeSpan(it / speed * 60.0) } ?: "…", tr("Left to read"), Modifier.weight(1f).fillMaxHeight())
+                StatTile(inChapter?.let { timeSpan(it / speed * 60.0) } ?: "…", tr("Time left"), Modifier.weight(1f).fillMaxHeight())
             }
             if (next != null && next > 0) {
                 StatHeading(tr("Next chapter"))
                 controller.nextChapterTitle?.let {
                     Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
-                StatTile(timeSpan(next / speed * 60.0), tr("To read it"), Modifier.fillMaxWidth())
+                StatTile(timeSpan(next / speed * 60.0), tr("Reading time"), Modifier.fillMaxWidth())
             }
             StatHeading(tr("This book"))
             LinearProgressIndicator(
@@ -183,25 +183,25 @@ internal fun ReadingStatsPanel(controller: ReaderController, onClose: () -> Unit
             )
             Row(Modifier.height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 StatTile(tr("{0}%", (controller.bookProgress * 100).roundToInt()), tr("Read"), Modifier.weight(1f).fillMaxHeight())
-                StatTile(inBook?.let { timeSpan(it / speed * 60.0) } ?: "…", tr("Left to read"), Modifier.weight(1f).fillMaxHeight())
+                StatTile(inBook?.let { timeSpan(it / speed * 60.0) } ?: "…", tr("Time left"), Modifier.weight(1f).fillMaxHeight())
             }
             Row(Modifier.height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                StatTile(timeSpan((read?.seconds ?: 0L).toDouble()), tr("Spent reading it"), Modifier.weight(1f).fillMaxHeight())
-                StatTile(read?.minutesPerSession?.let { tr("{0} min", it.toString()) } ?: "–", tr("A sitting, on average"), Modifier.weight(1f).fillMaxHeight())
+                StatTile(timeSpan((read?.seconds ?: 0L).toDouble()), tr("Spent reading"), Modifier.weight(1f).fillMaxHeight())
+                StatTile(read?.minutesPerSession?.let { tr("{0} min", it.toString()) } ?: "–", tr("Average session"), Modifier.weight(1f).fillMaxHeight())
             }
             Row(Modifier.height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                StatTile(read?.pagesPerMinute?.let { String.format(Locale.getDefault(), "%.1f", it) } ?: "–", tr("Pages a minute"), Modifier.weight(1f).fillMaxHeight())
-                StatTile(speed.roundToInt().toString(), tr("Words a minute"), Modifier.weight(1f).fillMaxHeight())
+                StatTile(read?.pagesPerMinute?.let { String.format(Locale.getDefault(), "%.1f", it) } ?: "–", tr("Pages per minute"), Modifier.weight(1f).fillMaxHeight())
+                StatTile(speed.roundToInt().toString(), tr("Words per minute"), Modifier.weight(1f).fillMaxHeight())
             }
             if (read?.wordsPerMinute == null) {
                 Text(
-                    tr("The time left is worked out from how fast you read. Until you've read a few pages of this book, it goes by your speed in other books, or an ordinary one."),
+                    tr("Time left is based on your reading speed."),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
             if (read != null && read.days.isNotEmpty()) {
-                StatHeading(tr("The last two weeks"))
+                StatHeading(tr("Last 14 days"))
                 DaysChart(read.days)
             }
             Spacer(Modifier.height(12.dp))

@@ -1,0 +1,336 @@
+@pt
+2286|Adicionando ou enviando livros. Tente de novo quando terminar.
+2287|“{0}” adicionado como livro separado.
+2288|1 livro adicionado como livro separado.
+2289|{0} livros adicionados como livros separados.
+2290|{0} com falha. Os detalhes estão no registro.
+2291|Livros da Loja Kobo não podem ser adicionados, só os que você mesmo copiou.
+2292|Espaço insuficiente no Kobo: cerca de {0} MB necessários, {1} MB livres.
+2293|Já está sendo enviado.
+2294|Adicionado à fila de envio.
+2295|{0} livros adicionados à fila de envio.
+2296|Ainda adicionando livros. Tente de novo quando terminar.
+2297|Outra tarefa está em andamento. Tente de novo quando terminar.
+2298|Não foi possível encontrar a posição do Kobo neste livro.
+2299|“{0}” voltou à digitalização.
+2300|Não foi possível voltar à digitalização: {0}
+2301|Não é possível salvar ali.
+2302|Conversão para kepub pelo método do kepubify.
+2303|Capas geradas.
+2304|Capas geradas, para outros alfabetos.
+2305|Fonte de leitura, e títulos do app e dos livros.
+2306|Fonte de leitura.
+2307|Interface e ícones (AndroidX, Jetpack Compose, ícones Material).
+2308|Linguagem de programação, com kotlinx.coroutines.
+2309|Quadrinhos CBR e CB7.
+2310|Reconhecimento de texto (OCR) para páginas digitalizadas.
+2311|Dados de idioma para o Tesseract, baixados no primeiro uso.
+2312|Tesseract para Android.
+2313|Tratamento de imagens para o Tesseract.
+2314|Suporte a JPEG para o Tesseract. Este software é baseado em parte no trabalho do Independent JPEG Group.
+2315|Suporte a PNG para o Tesseract.
+2316|Este app.
+2317|Seus livros ficam nos seus dispositivos e no seu Kobo. O KoLib só acessa a internet para buscar capas e baixar os dados de reconhecimento de texto.
+2318|O leitor de quadrinhos segue o modelo do Mihon. Obrigado ao projeto Mihon.
+2319|Rever a introdução
+2320|“{0}” convertido em texto.
+2321|Não foi possível converter “{0}” em texto: {1}.
+2322|Selecione os livros para enviar a {0}.
+2323|Selecione os livros e toque em Enviar ao Kobo → Por Wi-Fi.
+2324|Este dispositivo não tem seletor de pastas. O KoLib precisa de um para abrir o Kobo.
+2325|Usa o volume de mídia.
+2326|Animação mais leve para dispositivos mais lentos. Ativada por padrão em celulares.
+2327|Um backup é feito automaticamente quando você conecta o Kobo.
+2328|Cópias compactadas do banco de dados do Kobo: biblioteca, coleções e progresso de leitura. Uma é feita ao conectar se algo mudou. Só as {0} mais recentes ficam armazenadas. Toque no botão de download para copiar uma para Downloads/{1}.
+2329|Exclui deste dispositivo o backup de {0}. O Kobo não é afetado.
+2330|Os detalhes aparecem aqui.
+2331|Os arquivos, o progresso de leitura e os destaques são excluídos do Kobo. As cópias na sua biblioteca não são afetadas. Livros da Loja Kobo não podem ser excluídos aqui.
+2332|\n\nNenhum deles pode ser excluído: são livros da Loja Kobo.
+2333|O arquivo, seu progresso de leitura e seus destaques são excluídos do Kobo.
+2334|A cópia na sua biblioteca não é afetada.
+2335|Ele não está na sua biblioteca. Adicione antes para manter uma cópia.
+2336|Para editar os detalhes ou a capa, adicione o livro à sua biblioteca.
+2337|Os livros aparecem aqui.
+2338|No seletor de pastas do Android, toque em “Usar esta pasta” e depois em “Permitir”.
+2339|O KoLib o encontra e carrega de novo.
+2340|O KoLib perde o acesso à unidade do Kobo. Nada muda no Kobo nem nos seus backups. O acesso será pedido de novo da próxima vez.
+2341|Não conectado. Seu Kobo como estava em {0}.
+2342|Atualizando o Kobo… Não ejete ainda.
+2343|Desconectado. Dados das {0}. Para atualizar, conecte e toque em Conectar no Kobo.
+2344|Uma cópia compactada do banco de dados do Kobo é salva neste dispositivo sempre que ele muda. Só as {0} mais recentes ficam armazenadas.
+2345|Grava um pequeno arquivo de teste oculto no Kobo, lê de volta e o exclui.
+2346|Ainda há livros sendo enviados. Aguarde o envio terminar.
+2347|Atualizando o Kobo. Aguarde alguns segundos.
+2348|Desmonte antes de desconectar, ou talvez seja preciso reiniciar o Android para conectar o Kobo de novo.
+2349|Não foi possível iniciar a página de download.
+2350|Este dispositivo está em várias redes. Use o endereço da rede do Kobo.
+2351|Por Wi-Fi só os livros são enviados. Coleções, atualização de livros que já estão no Kobo e sincronização do progresso de leitura precisam do cabo.
+2352|Mantenha esta tela aberta até os downloads terminarem. Se um parar, feche o navegador do Kobo, abra de novo e tente outra vez.
+2353|Aguardando
+2354|Preparando…
+2355|A atividade do KoLib é registrada aqui.
+2356|Livro removido
+2357|Nada lido ainda. O tempo de leitura é contado a partir de quando você abre um livro no KoLib.
+2358|Da sua biblioteca concluída
+2359|Sessão média
+2360|Páginas por minuto
+2361|Palavras por minuto
+2362|Últimos 14 dias
+2363|{0} de leitura nos últimos 14 dias.
+2364|Mais lidos
+2365|1 sessão
+2366|{0} sessões
+2367|Conecte seu Kobo para ver as estatísticas de leitura dele.
+2368|Dados da última conexão do Kobo.
+2369|O banco de dados deste Kobo não tem tempos de leitura.
+2370|O texto colado é adicionado sem formatação.
+2371|Atualizadas no Kobo quando você envia o livro.
+2372|Aplicadas quando você envia o livro. O KoLib não pode criar coleções no Kobo, então crie lá antes as que faltam.
+2373|Nenhum livro encontrado nesta pasta.
+2374|1 livro encontrado. Ele é ignorado se já estiver na sua biblioteca.
+2375|{0} livros encontrados. Os que já estão na sua biblioteca são ignorados.
+2376|Não foi possível abrir esta pasta. Escolha de novo, ou escolha outra.
+2377|Mudar o idioma reinicia o KoLib. Aguarde terminar de enviar ou adicionar livros.
+2378|Mantenha o Kobo conectado até o envio terminar.
+2379|Você pode ocultar isto e continuar usando o KoLib. O progresso aparece no topo da biblioteca.
+2380|Agora ejete o Kobo. Ele adiciona os novos livros depois de desconectado.
+2381|Para ver a nova capa de “{0}”, reinicie o Kobo depois de ejetá-lo.
+2382|Para ver as novas capas de {0} livros, reinicie o Kobo depois de ejetá-lo.
+2383|Os detalhes aparecem aqui. Segure um livro para selecionar vários, depois segure outro para selecionar todos os que estão entre eles.
+2384|Toque nos livros para selecioná-los e use os botões acima da lista.
+2385|Adicione livros deste dispositivo ou do seu Kobo: EPUB, PDF, MOBI, Word e mais.
+2386|O livro e suas edições são excluídos da biblioteca. Uma cópia no Kobo não é afetada.
+2387|Os livros e suas edições são excluídos da biblioteca. As cópias no Kobo não são afetadas.
+2388|Pesquisa títulos, autores, séries, tags, coleções e editoras.\n\nPara pesquisar um só campo, coloque antes o nome dele e dois-pontos, como author:tolkien. Campos: title, author, tag, series, collection, publisher, language, isbn, pages, rating, year, read, library, format.\n\nToque em um exemplo para testar. As tags vêm do livro na sua biblioteca, ou do arquivo dele no Kobo.
+2389|Pesquisa títulos, autores, séries, tags, coleções e editoras.\n\nPara pesquisar um só campo, coloque antes o nome dele e dois-pontos, como author:tolkien. Campos: title, author, tag, series, collection, publisher, language, isbn, pages, rating, year, kobo, read.\n\nToque em um exemplo para testar.
+2390|O livro e suas edições são excluídos da biblioteca.
+2391| A cópia no Kobo não é afetada.
+2392| (na última conexão do Kobo)
+2393|Você está mais adiantado aqui ({0}%) do que no Kobo ({1}%).
+2394|Abre no editor de texto com um capítulo vazio e uma capa simples. Você pode mudar os dois depois.
+2395|Um só livro com todos os capítulos deles nesta ordem e um sumário por livro. Ele entra em todas as coleções deles. Os originais não são alterados.
+2396|Adicionar as páginas iniciais e finais a cada livro
+2397|Páginas como uma folha de rosto ou um aviso de direitos autorais. Nenhuma foi encontrada: escolha quais.
+2398|Cada livro recebe seus capítulos com imagens, estilos, fontes e notas. O primeiro recebe a capa original; os outros usam a própria página de capa ou ganham uma capa nova. “{0}” não é alterado.
+2399|Kepub: o formato próprio do Kobo
+2400|{0}: o arquivo original
+2401|Arquivos originais: o PDF, MOBI ou outro arquivo com que cada um foi adicionado
+2402|Arquivos originais: PDFs, MOBIs e afins no próprio formato, o resto como EPUB
+2403|As páginas aparecem como impressas. O tamanho do texto não pode ser alterado, então uma tela grande é melhor.
+2404|Enviado como {0}: o texto se ajusta à tela e pode ser redimensionado.
+2405|Os PDFs são enviados como {0}: o texto se ajusta à tela e pode ser redimensionado.
+2406|Só pode ser enviado como PDF: as páginas são digitalizações, sem texto para converter.
+2407|Só pode ser enviado como PDF: é grande demais para converter neste dispositivo.
+2408|1 livro só pode ser enviado como PDF: é digitalizado ou grande demais para converter.
+2409|{0} livros só podem ser enviados como PDF: são digitalizados ou grandes demais para converter.
+2410|Converter em texto antes…
+2411|Converter em texto antes…
+2412|Já está no Kobo. Será atualizado sem perder onde você parou, a menos que os capítulos tenham mudado.
+2413|1 livro já está no Kobo. Será atualizado sem perder onde você parou, a menos que os capítulos tenham mudado.
+2414|{0} livros já estão no Kobo. Serão atualizados sem perder onde você parou, a menos que os capítulos tenham mudado.
+2415|Está no Kobo como {0}. Mudar de formato zera seu progresso de leitura nele.
+2416|1 livro vai mudar de formato, o que zera o progresso de leitura dele.
+2417|{0} livros vão mudar de formato, o que zera o progresso de leitura deles.
+2418|Ou envie por Wi-Fi pelo navegador da web do Kobo. Coleções precisam do cabo.
+2419|Nenhum app de dicionário encontrado. Instale um, como o ColorDict ou o Google Tradutor.
+2420|Nenhum destaque ainda. Segure uma palavra, arraste para selecionar e toque em Destacar ou Nota.
+2421|Definida como capa.
+2422|Não foi possível definir essa página como capa.
+2423|Salva em Imagens/KoLib.
+2424|Modo de leitura padrão
+2425|Paginado
+2426|Posição inicial do zoom
+2427|Dividir páginas largas
+2428|Inverter a ordem das metades
+2429|Girar páginas largas para caber
+2430|Em retrato, uma página larga ocupa a altura e você desliza por ela.
+2431|Percorrer páginas largas antes de virar
+2432|Margem lateral
+2433|Inverter as zonas de toque
+2434|Mostrar as zonas de toque ao abrir
+2435|Inverter as teclas de volume
+2436|Mostrar ações ao tocar e segurar
+2437|Mostrar o número da página
+2438|Manter a tela ligada
+2439|Nenhum marcador ainda. Toque no meio de uma página e depois no ícone de marcador.
+2440|Este livro tem configurações próprias.
+2441|As alterações feitas aqui valem só para este livro.
+2442|Definir como padrão
+2443|Usar o padrão
+2444|Hifenização
+2445|Deslize até o fim à esquerda para escurecer mais. Deslizar para cima ou para baixo na borda esquerda da página também funciona.
+2446|Desativado, os livros abrem com o último brilho definido aqui.
+2447|Desativado, os links parecem texto normal, mas continuam funcionando.
+2448|O número da página, com o título do livro nas páginas da esquerda e o do capítulo nas da direita.
+2449| Não aparecem na rolagem.
+2450|Livros impressos usam o tamanho Padrão e Uma linha.
+2451|Qual título mostrar em um livro formado por vários.
+2452|Toque em uma posição para escolher o que ela mostra.
+2453| Os cabeçalhos de página ocupam o topo.
+2454| Os cabeçalhos de página ocupam a parte de baixo.
+2455|Barra de progresso
+2456|Esmaecida ajuda a evitar marcas em telas OLED.
+2457|Mostrar no topo do capítulo
+2458|Para livros que colocam o número ou a imagem do capítulo em uma página separada.
+2459|Com duas páginas lado a lado. Uma página em branco é adicionada onde for preciso.
+2460|Títulos de capítulo em estilo impresso
+2461|O número (“Prólogo”, “Capítulo 1”) em maiúsculas espaçadas, com o título em itálico abaixo. Desativado, o estilo do livro é usado.
+2462|A primeira letra de cada capítulo ocupa três linhas.
+2463|Tamanho das zonas de toque
+2464|Deslizar das bordas abre os painéis
+2465|Deslize da borda esquerda para o sumário, ou da direita para as configurações. Desativado, as duas bordas voltam.
+2466|As duas bordas voltam. O sumário e as configurações estão no menu.
+2467|Gesto de voltar do KoLib
+2468|Deslize de qualquer borda e solte quando a seta estiver preenchida.
+2469|O gesto de voltar do Android é usado.
+2470|Dicionário
+2471|Você escolhe qual app usar a cada vez.
+2472|O app de dicionário escolhido não está mais instalado.
+2473|Abrir o menu sempre pausa.
+2474|Tempo restante
+2475|Tempo de leitura
+2476|O tempo restante se baseia na sua velocidade de leitura.
+2477|Nada copiado ainda. Na lista de capítulos, toque em ⋮ ao lado de uma seção e depois em Copiar. Seções copiadas podem ser adicionadas a qualquer livro.
+2478|Adicionada depois de “{0}”, com imagens e estilos.
+2479|Adicionada com imagens e estilos.
+2480|“{0}” é um sumário de “{1}”. Ele pode listar os capítulos deste livro no lugar, no mesmo estilo, ou ser adicionado sem alterações.
+2481|Adicionar sem alterações
+2482|Os livros a que ela foi adicionada não são afetados.
+2483|Restaurar todas
+2484|Pular esta
+2485|Linha {0}: {1}. Corrija isso para salvar sua alteração.
+2486|“{0}” copiado. Está no painel Copiadas, para este livro ou qualquer outro.
+2487|Salvo. Nenhum problema novo encontrado.
+2488| (1 problema já existia antes da sua edição.)
+2489| ({0} problemas já existiam antes da sua edição.)
+2490|Texto original restaurado. Os detalhes e a capa não mudaram.
+2491|Todas as suas edições no texto serão perdidas. Os detalhes e a capa não vão mudar.
+2492|Corrija (o botão Código pode ajudar) ou desfaça a alteração. Nada foi salvo.
+2493|Todos os capítulos, arquivos, a ordem de leitura e o sumário são válidos.
+2494|Adicionado depois de “{0}”. O nome é o título e a entrada no sumário.
+2495|O nome é o título e a entrada no sumário.
+2496|Toque no parágrafo onde o novo capítulo começa.
+2497|Preenche a tela. As bordas que não cabem são cortadas.
+2498|Imagem inteira, com uma cópia desfocada nos espaços.
+2499|Imagem inteira, com branco nos espaços.
+2500|Sem cortar nem redimensionar.
+2501|Gerada: {0}
+2502|O livro volta a ter a capa com que veio.
+2503|A capa com que o livro veio. Ajuste à tela do Kobo, ou restaure sem alterações.
+2504|Mover e ampliar ficam desativados em Tamanho original.
+2505|Mais ou menos como fica no Kobo.
+2506|Salva no tamanho original, {0} × {1} pixels.
+2507|Salva no tamanho original.
+2508|Salva em {0} × {1} pixels, o tamanho da tela do seu Kobo.
+2509|Salva em {0} × {1} pixels, o tamanho da tela do Kobo Clara.
+2510|Este modelo não tem imagem. Escolha um que tenha para usar a sua.
+2511|Só os modelos deste gênero
+2512|Este modelo usa as cores da imagem dele.
+2513|Criada em {0} × {1} pixels, o tamanho da tela do seu Kobo.
+2514|Criada em 1072 × 1448 pixels, o tamanho da tela do Kobo Clara.
+2515|Padrão do modelo
+2516|Toque em uma imagem para ampliar, depois segure para usar.
+2517|Não foi possível carregar essa imagem. Toque nela para ampliar e tente de novo.
+2518|Envie livros, arquivos e texto entre seu celular e seu tablet, e sincronize sua posição de leitura.
+2519|Nenhum ainda. Abra o KoLib no outro dispositivo, no mesmo Wi-Fi ou ponto de acesso, e pareie abaixo.
+2520|Procurando nesta rede…
+2521|Verificando a rede…
+2522|Verificar de novo
+2523|Envie livros sem cabo, pelo navegador da web do Kobo. Na biblioteca, toque em Enviar ao Kobo → Por Wi-Fi.
+2524|Coleções, atualização de livros que já estão no Kobo e sincronização do progresso de leitura precisam do cabo.
+2525|Sincronizar a posição de leitura
+2526|Cada livro abre onde você leu por último, em qualquer um dos dispositivos.
+2527|Receber com o KoLib fechado
+2528|Dispositivos pareados podem enviar com o KoLib fechado. Uma notificação aparece enquanto isso estiver ativado.
+2529|As transferências são criptografadas e ficam na sua própria rede. Só dispositivos pareados podem enviar.
+2530|Sincronizar posições agora
+2531|Digite o endereço mostrado em Dispositivos no outro dispositivo.
+2532|Confirme também em {0}, se ele mostrar este código.
+2533|Digitalização à esquerda, texto reconhecido à direita. Palavras incertas ficam em laranja. Arraste a linha ou toque para movê-la; use a pinça para ampliar.
+2534|Voltar à digitalização
+2535|O PDF original está faltando.
+2536|Esta página ainda não foi convertida.
+2537|Na fila…
+2538|Montando o livro…
+2539|Texto da digitalização
+2540|Converter em texto
+2541|Continua com o KoLib fechado. Você pode conferir as páginas já prontas.
+2542|O texto foi reconhecido a partir das páginas digitalizadas ({0}), então pode ter erros.
+2543|O texto foi reconhecido a partir das páginas digitalizadas, então pode ter erros.
+2544| O PDF original continua disponível.
+2545|Este PDF é grande demais para converter em EPUB aqui, então é lido e enviado como PDF. Se for uma digitalização, o reconhecimento de texto pode transformá-lo em um livro com texto ajustável.
+2546|Este PDF é uma digitalização, então é lido e enviado como PDF. O reconhecimento de texto pode transformá-lo em um livro com texto ajustável.
+2547|Cada idioma precisa de um download único de alguns megabytes.
+2548|{0} de {1} páginas prontas.
+2549|Retomar
+2550|Converter em texto…
+2551|Convertendo “{0}” em texto
+2552|Converter “{0}” em texto
+2553|Converter {0} livros em texto
+2554|O reconhecimento de texto (OCR) é feito neste dispositivo e cria um livro com texto ajustável. Leva alguns segundos por página e continua com o KoLib fechado.
+2555|É preciso um download único: {0} de dados de idioma do projeto Tesseract.
+2556|Os dados de idioma já estão neste dispositivo.
+2557|Espere alguns erros, principalmente com letra antiga ou pequena, tabelas, notas de rodapé e outros alfabetos. Você pode comparar o texto com a digitalização página por página, e voltar à digitalização.
+2558|Selecione todos os idiomas do livro. Cada um deixa o processo um pouco mais lento.
+2559|Voltar à digitalização?
+2560|“{0}” volta a ser lido e enviado como PDF. Converter de novo nos mesmos idiomas será rápido.
+2561|Padrão do modo de leitura
+2562|Igual à página
+2563|Não foi possível converter em livro.
+2564|Não foi possível converter em livro ({0}).
+2565|O arquivo do livro não chegou.
+2566|Este livro não tem capa original para restaurar.
+2567|Este livro não foi convertido de uma digitalização.
+2568|PDF digitalizado
+2569|PDF, grande demais para converter
+2570|PDF digitalizado, convertido em texto
+2571|Quadrinho {0}
+2572|{0}, convertido em EPUB
+2573|Segue o dispositivo.
+2574|Travada em retrato.
+2575|Travada em paisagem.
+2576|As imagens não são alteradas.
+2577|Enfeites e gráficos em preto e branco ganham a cor da página e ficam claros em páginas escuras.
+2578|Toda imagem ganha a cor da página. Fotos parecem invertidas em páginas escuras.
+2579|Padrão
+2580|Uma linha
+2581|Capa inteira, com uma cópia desfocada nos espaços.
+2582|Tamanho original. O Kobo mostra espaço vazio em volta.
+2583|Esse livro não está mais disponível.
+2584|Não foi possível preparar “{0}”: {1}
+2585|O pareamento expirou. Tente de novo.
+2586|Texto de {0} copiado para a área de transferência.
+2587|“{0}” recebido de {1}. Salvo em {2}.
+2588|{0} arquivos recebidos de {1}. Salvos em {2}.
+2589|Posições de leitura sincronizadas com {0}.
+2590|{0} está sem espaço.
+2591|Não foi possível enviar para {0}: {1}
+2592|O outro dispositivo não está mais pareado com este. Pareie de novo.
+2593|O outro dispositivo recusou.
+2594|1 já estava lá
+2595|{0} já estavam lá
+2596|1 com falha
+2597|{0} com falha
+2598|Transferências entre seus dispositivos
+2599|Pronto para receber dos seus dispositivos
+2600|Dispositivos pareados podem enviar com o KoLib fechado.
+2601|Uma mensagem do outro dispositivo estava danificada.
+2602|Uma mensagem não passou na verificação de segurança.
+2603|Não foi possível estabelecer a conexão com o outro dispositivo.
+2604|Não foi possível verificar o outro dispositivo.
+2605|O outro dispositivo se desconectou.
+2606|Não há nada aqui para enviar.
+2607|Texto para a área de transferência do outro dispositivo: “{0}”
+2608|1 arquivo para os Downloads do outro dispositivo.
+2609|{0} arquivos para os Downloads do outro dispositivo.
+2610|Nenhum dispositivo pareado. Pareie um no KoLib, em Dispositivos.
+2612|O download de {0} estava danificado e não foi usado.
+2613|O PDF original está faltando, então as páginas não podem ser lidas.
+2614|Reconhecimento de texto
+2615|Progresso do reconhecimento de texto
+2616|“{0}” já parece uma página de capa. Para usá-la, abra o menu dela e escolha “Usar como página de capa”.
+2617|Reduz linhas em branco repetidas e as remove do início e do fim dos capítulos. As quebras de cena não são afetadas.
+2618|Une parágrafos cortados no meio da frase, comuns em livros convertidos de PDFs ou digitalizações.
+2619|Este PDF não tem texto (pode ser uma digitalização), então não pode ser convertido em livro.
+2620|Não foi possível converter este quadrinho em CBZ para o Kobo.
+2621|O reconhecimento de texto não conseguiu iniciar. Os dados de idioma podem estar danificados. Tente de novo para baixá-los outra vez.

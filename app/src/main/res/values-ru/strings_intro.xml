@@ -10,7 +10,7 @@
     <string name="intro_device_language">Язык устройства</string>
 
     <string name="intro_folder_title">Где ваши книги?</string>
-    <string name="intro_folder_text">Выберите папку, в которой хранятся ваши книги, и KoLib добавит их все в вашу библиотеку, включая книги во вложенных папках.</string>
+    <string name="intro_folder_text">Выберите папку с книгами. KoLib добавит в библиотеку все книги из неё, включая вложенные папки.</string>
     <string name="intro_folder_kinds">EPUB, PDF, MOBI, Word и большинство других форматов электронных книг.</string>
     <string name="intro_folder_choose">Выбрать папку</string>
     <string name="intro_folder_another">Выбрать другую папку</string>
@@ -23,13 +23,13 @@
         <item quantity="other">В %2$s пока найдено %1$d книги…</item>
     </plurals>
     <plurals name="intro_folder_found">
-        <item quantity="one">В %2$s %1$d книга.</item>
-        <item quantity="few">В %2$s %1$d книги.</item>
-        <item quantity="many">В %2$s %1$d книг.</item>
-        <item quantity="other">В %2$s %1$d книги.</item>
+        <item quantity="one">В %2$s найдена %1$d книга.</item>
+        <item quantity="few">В %2$s найдено %1$d книги.</item>
+        <item quantity="many">В %2$s найдено %1$d книг.</item>
+        <item quantity="other">В %2$s найдено %1$d книги.</item>
     </plurals>
-    <string name="intro_folder_none">В %1$s нет книг. Выберите папку, в которой они лежат.</string>
-    <string name="intro_folder_failed">KoLib не смог заглянуть в %1$s. Попробуйте выбрать её снова.</string>
+    <string name="intro_folder_none">В %1$s книг не найдено. Попробуйте другую папку.</string>
+    <string name="intro_folder_failed">Не удалось открыть %1$s. Попробуйте выбрать её снова.</string>
     <plurals name="intro_folder_add">
         <item quantity="one">Добавить %d книгу</item>
         <item quantity="few">Добавить %d книги</item>
@@ -37,10 +37,10 @@
         <item quantity="other">Добавить %d книги</item>
     </plurals>
     <plurals name="intro_folder_adding">
-        <item quantity="one">%d книга добавляется в вашу библиотеку. Пока она добавляется, можно продолжать.</item>
-        <item quantity="few">%d книги добавляются в вашу библиотеку. Пока они добавляются, можно продолжать.</item>
-        <item quantity="many">%d книг добавляется в вашу библиотеку. Пока они добавляются, можно продолжать.</item>
-        <item quantity="other">%d книги добавляется в вашу библиотеку. Пока они добавляются, можно продолжать.</item>
+        <item quantity="one">%d книга добавляется в библиотеку.</item>
+        <item quantity="few">%d книги добавляются в библиотеку.</item>
+        <item quantity="many">%d книг добавляется в библиотеку.</item>
+        <item quantity="other">%d книги добавляется в библиотеку.</item>
     </plurals>
 
     <string name="intro_kobo_title">Подключите Kobo</string>
@@ -53,12 +53,12 @@
     <string name="intro_kobo_allow_help">Android откроет выбор папки на диске Kobo. Нажмите «Использовать эту папку», а затем «Разрешить».</string>
     <string name="intro_kobo_working">Открытие Kobo…</string>
     <string name="intro_kobo_connected">Подключено: %1$s.</string>
-    <string name="intro_kobo_failed">KoLib не смог открыть Kobo. Отключите его, подключите снова и попробуйте ещё раз.</string>
+    <string name="intro_kobo_failed">Не удалось открыть Kobo. Отключите его, подключите снова и попробуйте ещё раз.</string>
     <string name="intro_kobo_retry">Повторить</string>
-    <string name="intro_kobo_later">Kobo нет под рукой? Пропустите этот шаг. Подключить его можно в любое время на вкладке Kobo.</string>
+    <string name="intro_kobo_later">Kobo нет под рукой? Пропустите этот шаг и подключите его позже на вкладке Kobo.</string>
 
     <string name="intro_collections_title">Коллекции на Kobo</string>
-    <string name="intro_collections_text">KoLib может раскладывать книги по коллекциям на Kobo, но не может создавать там новые коллекции. Сначала создайте коллекцию на Kobo, и тогда KoLib сможет добавлять в неё книги.</string>
+    <string name="intro_collections_text">KoLib может добавлять книги в коллекции на Kobo, но не может их создавать. Сначала создайте коллекцию на Kobo.</string>
     <string name="intro_collections_how">На Kobo откройте «Мои книги», затем «Коллекции» и нажмите «Новая коллекция».</string>
 
     <string name="intro_done_title">Всё готово</string>

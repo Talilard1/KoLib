@@ -88,7 +88,7 @@ fun CollectionsTab(
                     if (selected != null) {
                         CollectionBooks(view, live, selected, libraryPaths, null, onOpenBook, onAddToLibrary)
                     } else {
-                        EmptyState(Icons.Outlined.CollectionsBookmark, tr("Tap a collection"), tr("Its books will show here."))
+                        EmptyState(Icons.Outlined.CollectionsBookmark, tr("Tap a collection"), tr("Its books appear here."))
                     }
                 }
             }

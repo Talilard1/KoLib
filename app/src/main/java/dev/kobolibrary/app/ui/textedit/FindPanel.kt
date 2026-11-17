@@ -180,7 +180,7 @@ fun FindPanel(find: FindState, modifier: Modifier = Modifier, onClose: () -> Uni
                     Text(tr("Undo"))
                 }
             } else if (find.removedCount > 0) {
-                TextButton(onClick = { find.restoreAllRemoved() }) { Text(tr("Bring all back")) }
+                TextButton(onClick = { find.restoreAllRemoved() }) { Text(tr("Restore all")) }
             }
         }
         if (find.nameMode && find.flaggedCount > 0) {
@@ -229,7 +229,7 @@ private fun FindEntryRow(e: FindEntry, current: Boolean, onClick: () -> Unit, on
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Outlined.RemoveCircleOutline, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(Modifier.width(8.dp))
-                        Text(tr("Leave this one"), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(tr("Skip this one"), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }

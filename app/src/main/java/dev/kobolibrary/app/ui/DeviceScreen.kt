@@ -299,7 +299,7 @@ fun DeviceScreen(
             title = { Text(tr("Forget this Kobo?")) },
             text = {
                 Text(
-                    tr("The app will lose its permission to use the Kobo's drive. Nothing on the Kobo changes, and backups on this device aren't deleted. Next time, you'll be asked to allow access again.")
+                    tr("KoLib loses access to the Kobo's drive. Nothing on the Kobo or in your backups changes. You'll be asked for access again next time.")
                 )
             },
             confirmButton = { TextButton(onClick = { confirmForget = false; onForget() }) { Text(tr("Forget")) } },
@@ -315,7 +315,7 @@ private fun OfflineBanner(readAt: Long, onHowToConnect: () -> Unit) {
             Icon(Icons.Outlined.UsbOff, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.width(12.dp))
             Text(
-                tr("Not connected. Showing your Kobo as it was on {0}.", Fmt.dateTime(readAt)),
+                tr("Not connected. Showing your Kobo as of {0}.", Fmt.dateTime(readAt)),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f),
             )
@@ -331,7 +331,7 @@ private fun SyncingBanner() {
             CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.onTertiaryContainer)
             Spacer(Modifier.width(12.dp))
             Text(
-                tr("Updating collections and book details on the Kobo… Wait until this finishes before ejecting."),
+                tr("Updating the Kobo… Don't eject it yet."),
                 color = MaterialTheme.colorScheme.onTertiaryContainer,
                 style = MaterialTheme.typography.bodyMedium,
             )
@@ -381,7 +381,7 @@ private fun UnpluggedBanner(readAt: Long) {
             Icon(Icons.Outlined.UsbOff, null, tint = MaterialTheme.colorScheme.onSecondaryContainer)
             Spacer(Modifier.width(12.dp))
             Text(
-                tr("The Kobo is unplugged. Showing what was loaded at {0}. To refresh, plug it in and tap Connect on the Kobo.", Fmt.time(readAt)),
+                tr("Unplugged. Showing data from {0}. To refresh, plug it in and tap Connect on the Kobo.", Fmt.time(readAt)),
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                 style = MaterialTheme.typography.bodyMedium,
             )

@@ -1076,7 +1076,7 @@ private fun BookmarksList(controller: ReaderController, onPicked: () -> Unit) {
     Column(Modifier.fillMaxSize()) {
         if (controller.bookmarks.isEmpty()) {
             Text(
-                tr("No bookmarks yet. To bookmark a page, tap the middle of the page, then tap the bookmark icon at the top."),
+                tr("No bookmarks yet. Tap the middle of a page, then the bookmark icon."),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(24.dp),
@@ -1305,15 +1305,15 @@ private fun BookLookNote(look: BookLook) {
     ) {
         Column(Modifier.padding(start = 14.dp, end = 8.dp, top = 10.dp, bottom = if (look.own) 2.dp else 10.dp)) {
             Text(
-                if (look.own) tr("This book has its own text, page and layout settings. Other books use the usual ones.")
-                else tr("Text, page and layout settings you change here are kept for this book."),
+                if (look.own) tr("This book has its own settings.")
+                else tr("Changes here apply to this book only."),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(end = 6.dp),
             )
             if (look.own) FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                TextButton(onClick = look.makeUsual) { Text(tr("Make these the usual")) }
-                TextButton(onClick = look.useUsual) { Text(tr("Use the usual")) }
+                TextButton(onClick = look.makeUsual) { Text(tr("Set as default")) }
+                TextButton(onClick = look.useUsual) { Text(tr("Use default")) }
             }
         }
     }
@@ -1389,7 +1389,7 @@ private fun TextSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) 
     Heading(tr("Alignment"))
     Choices(ReaderAlign.entries, s.align, { it.label }) { onChange(s.copy(align = it)) }
 
-    Heading(tr("Hyphens at line ends"))
+    Heading(tr("Hyphenation"))
     Choices(ReaderHyphens.entries, s.hyphens, { it.label }) { onChange(s.copy(hyphens = it)) }
 
     Spacer(Modifier.height(14.dp))
@@ -1436,12 +1436,12 @@ private fun PageSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) 
         )
         Icon(Icons.Outlined.BrightnessHigh, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
     }
-    Help(tr("Slide all the way left to go darker than the screen's lowest setting. You can also swipe up or down the left edge of the page."))
+    Help(tr("Slide fully left for extra dim. Swiping up or down the left edge of the page also works."))
     SwitchRow(tr("Use the system brightness"), s.level == null) { system ->
         onChange(if (system) s.copy(brightness = -1f, dim = 0f) else s.copy(brightness = screenNow, dim = 0f))
     }
     SwitchRow(tr("Open books at the system brightness"), s.brightnessFromScreen) { onChange(s.copy(brightnessFromScreen = it)) }
-    Help(tr("A change made while reading lasts until you close the book. Off, books open at the brightness you last set here."))
+    Help(tr("Off, books open at the brightness you last set here."))
 
     Heading(tr("Match pictures to the page colour"))
     Choices(PictureBlend.entries, s.pictures, { it.label }) { onChange(s.copy(pictures = it)) }
@@ -1449,14 +1449,14 @@ private fun PageSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) 
 
     Heading(tr("Links"))
     SwitchRow(tr("Colour links"), s.colourLinks) { onChange(s.copy(colourLinks = it)) }
-    Help(tr("Off, links look like the rest of the text. They still work when tapped."))
+    Help(tr("Off, links look like normal text but still work."))
 
     Heading(tr("Page headings"))
     Choices(RunningHeads.entries, s.runningHeads, { it.label }) { onChange(s.withHeads(it)) }
     Help(
         if (s.runningHeads == RunningHeads.OFF) tr("Choose where the page number and titles go, below.")
-        else tr("The page number in the corner, the book title on left pages and the chapter title on right pages, like a printed book.") +
-            if (s.scrolling) tr(" Only shown when turning pages.") else ""
+        else tr("The page number, with the book title on left pages and the chapter title on right pages.") +
+            if (s.scrolling) tr(" Not shown when scrolling.") else ""
     )
     if (s.runningHeads != RunningHeads.OFF) {
         Heading(tr("Title position"))
@@ -1465,19 +1465,19 @@ private fun PageSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) 
         Choices(HeadSize.entries, s.headSize, { it.label }) { onChange(s.copy(headSize = it)) }
         Heading(tr("Space under the headings"))
         Choices(HeadGap.entries, s.headGap, { it.label }) { onChange(s.copy(headGap = it)) }
-        Help(tr("As in print, the headings are about the size of the text, with a line's space between them and the text."))
+        Help(tr("Printed books use Standard size and One line."))
     }
 
     Heading(tr("Omnibus title"))
     Choices(CollectionTitle.entries, s.collectionTitle, { it.label }) { onChange(s.copy(collectionTitle = it)) }
-    Help(tr("In a book that holds several books, show the title of the one you're reading, or of the whole omnibus."))
+    Help(tr("Which title to show in a book made of several."))
 
     Heading(tr("Info around the page"))
     Help(
-        tr("Choose what to show around the text. Tap a position to change it.") + when {
+        tr("Tap a position to choose what it shows.") + when {
             s.runningHeads == RunningHeads.OFF -> ""
-            s.runningHeads.top -> tr(" The top is taken by the page headings.")
-            else -> tr(" The bottom is taken by the page headings.")
+            s.runningHeads.top -> tr(" The page headings use the top.")
+            else -> tr(" The page headings use the bottom.")
         }
     )
     Spacer(Modifier.height(8.dp))
@@ -1490,13 +1490,13 @@ private fun PageSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) 
         }
     }
 
-    Heading(tr("Progress bar at the bottom"))
+    Heading(tr("Progress bar"))
     Choices(ProgressLine.entries, s.progressLine, { it.label }) { onChange(s.copy(progressLine = it)) }
     Help(tr("Shows how much of the book or chapter you've read."))
 
     Heading(tr("Bar colour"))
     Choices(BarShade.entries, s.barShade, { it.label }) { onChange(s.copy(barShade = it)) }
-    Help(tr("Dimmed helps prevent burn-in on OLED screens. Autoscroll's timer bar uses the same colour."))
+    Help(tr("Dimmed helps prevent burn-in on OLED screens."))
 }
 
 /** Pages or scrolling, and how pages turn. */
@@ -1518,16 +1518,16 @@ private fun LayoutSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit
     }
 
     Heading(tr("Chapter title pages"))
-    SwitchRow(tr("Show them with their chapter"), s.joinOpenings) { onChange(s.copy(joinOpenings = it)) }
-    Help(tr("Some books put a chapter's number or picture on a page of its own. This shows it at the top of the chapter instead."))
+    SwitchRow(tr("Show at the top of the chapter"), s.joinOpenings) { onChange(s.copy(joinOpenings = it)) }
+    Help(tr("For books that put a chapter's number or picture on a page of its own."))
 
     Heading(tr("Chapter openings"))
     SwitchRow(tr("Start chapters on a right-hand page"), s.rectoOpenings) { onChange(s.copy(rectoOpenings = it)) }
-    Help(tr("With two pages side by side, each chapter starts on the right, with the page beside it blank, as in a printed book."))
-    SwitchRow(tr("Chapter number and title as in print"), s.printHeads) { onChange(s.copy(printHeads = it)) }
-    Help(tr("The number (\u201cPrologue\u201d, \u201cChapter 1\u201d) in large spaced capitals, and the title under it in italics, whatever the book sets. Off, a book that sets its own look for them keeps it."))
+    Help(tr("With two pages side by side. A blank page is added where needed."))
+    SwitchRow(tr("Print-style chapter headings"), s.printHeads) { onChange(s.copy(printHeads = it)) }
+    Help(tr("The number (“Prologue”, “Chapter 1”) in spaced capitals with the title in italics below. Off, the book's own style is used."))
     SwitchRow(tr("Large first letter"), s.dropCaps) { onChange(s.copy(dropCaps = it)) }
-    Help(tr("The first letter of each chapter drops three lines down, as in print. A book with large first letters of its own keeps them."))
+    Help(tr("The first letter of each chapter spans three lines."))
 }
 
 /** Taps, buttons, the screen, and looking words up. */
@@ -1537,23 +1537,23 @@ private fun ControlSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Uni
     RadioChoices(TapZones.entries, s.taps, { it.label }) { onChange(s.copy(taps = it)) }
     Help(listOf(s.taps.help, tr("Tap the middle of the page to open the menu.")).filter { it.isNotEmpty() }.joinToString(" "))
     if (s.taps != TapZones.OFF) {
-        Heading(tr("Size of the tap areas at the edges"))
+        Heading(tr("Tap zone size"))
         Choices(TapWidth.entries, s.tapWidth, { it.label }) { onChange(s.copy(tapWidth = it)) }
     }
 
     Spacer(Modifier.height(10.dp))
-    SwitchRow(tr("Volume buttons turn pages"), s.volumeKeys) { onChange(s.copy(volumeKeys = it)) }
-    SwitchRow(tr("Keep the screen on while reading"), s.keepScreenOn) { onChange(s.copy(keepScreenOn = it)) }
-    SwitchRow(tr("Swipe in from the sides to open panels"), s.edgePanels) { onChange(s.copy(edgePanels = it)) }
+    SwitchRow(tr("Volume keys turn pages"), s.volumeKeys) { onChange(s.copy(volumeKeys = it)) }
+    SwitchRow(tr("Keep screen on"), s.keepScreenOn) { onChange(s.copy(keepScreenOn = it)) }
+    SwitchRow(tr("Edge swipes open panels"), s.edgePanels) { onChange(s.copy(edgePanels = it)) }
     Help(
-        if (s.edgePanels) tr("Swipe in from the left for the contents, or from the right for reading settings. Turn this off to use the sides for going back.")
-        else tr("The sides are for going back. The contents and reading settings are in the menu: tap the middle of the page.")
+        if (s.edgePanels) tr("Swipe from the left edge for contents, or the right for settings. Off, both edges go back.")
+        else tr("Both edges go back. Contents and settings are in the menu.")
     )
     if (!s.edgePanels) {
-        SwitchRow(tr("KoLib's own back swipe"), s.edgeBack) { onChange(s.copy(edgeBack = it)) }
+        SwitchRow(tr("KoLib's back gesture"), s.edgeBack) { onChange(s.copy(edgeBack = it)) }
         Help(
-            if (s.edgeBack) tr("Swipe in from either side to go back, with an arrow in the app's colours. Let go once the arrow fills in.")
-            else tr("Android's own back swipe is used.")
+            if (s.edgeBack) tr("Swipe from either edge and let go when the arrow fills in.")
+            else tr("Android's back gesture is used.")
         )
     }
 
@@ -1561,16 +1561,16 @@ private fun ControlSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Uni
     Choices(ReaderRotation.entries, s.rotation, { it.label }) { onChange(s.copy(rotation = it)) }
     Help(s.rotation.help)
 
-    Heading(tr("Looking up words"))
+    Heading(tr("Dictionary"))
     val key = s.dictionary
     if (key == null) {
-        Help(tr("When you look up a word, you'll be asked which app to use."))
+        Help(tr("You'll be asked which app to use each time."))
     } else {
         val context = LocalContext.current
         val app = remember(key) { dev.kobolibrary.app.reader.LookUp.app(context, key) }
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                if (app != null) tr("Words are looked up in {0}.", app.label) else tr("The app you chose for looking up words isn't installed now."),
+                if (app != null) tr("Words are looked up in {0}.", app.label) else tr("The dictionary app you chose is no longer installed."),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f),
             )
@@ -1611,7 +1611,7 @@ private fun AutoscrollSettings(s: ReaderSettings, onChange: (ReaderSettings) -> 
 
     Heading(tr("When you touch the page"))
     RadioChoices(AutoResume.entries, s.autoResume, { it.label }) { onChange(s.copy(autoResume = it)) }
-    Help(tr("Opening the menu always pauses it until you close the menu."))
+    Help(tr("Opening the menu always pauses it."))
 }
 
 @Composable

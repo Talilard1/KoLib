@@ -155,12 +155,12 @@ fun CompareScreen(
                         )
                     }
                     Text(
-                        tr("Left of the line, the scanned page; right of it, the words as they were recognised. Words it wasn't sure of are in orange. Drag the line, or tap where it should go; pinch to zoom in."),
+                        tr("Scan on the left, recognised text on the right. Uncertain words are orange. Drag the line or tap to move it; pinch to zoom."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.End) {
-                        if (onGoBack != null) OutlinedButton(onClick = onGoBack) { Text(tr("Go back to the scan"), color = MaterialTheme.colorScheme.error) }
+                        if (onGoBack != null) OutlinedButton(onClick = onGoBack) { Text(tr("Revert to scan"), color = MaterialTheme.colorScheme.error) }
                         Spacer(Modifier.width(8.dp))
                         TextButton(onClick = onClose) { Text(tr("Done")) }
                     }
@@ -170,7 +170,7 @@ fun CompareScreen(
     ) { padding ->
         Box(Modifier.padding(padding).fillMaxSize().background(MaterialTheme.colorScheme.surfaceDim)) {
             when {
-                pages == null -> Text(tr("The PDF this book was added as is missing."), Modifier.align(Alignment.Center).padding(24.dp))
+                pages == null -> Text(tr("The original PDF is missing."), Modifier.align(Alignment.Center).padding(24.dp))
                 shown < 0 -> Unit
                 else -> ComparePage(pages, shown, store.let { s -> { i: Int -> s.page(i) } }, split) { split = it }
             }
@@ -247,7 +247,7 @@ private fun ComparePage(pages: ScanPages, index: Int, read: (Int) -> OcrPage?, s
                         paint.color = Color(0xFF8A8580).toArgb()
                         paint.textScaleX = 1f
                         paint.textSize = 16.dp.toPx()
-                        val note = if (page == null) tr("This page hasn't been read yet.") else tr("No words were found on this page.")
+                        val note = if (page == null) tr("This page hasn't been converted yet.") else tr("No words were found on this page.")
                         c.drawText(note, left + pageSize.width * 0.55f, top + pageSize.height / 2, paint)
                         return@drawIntoCanvas
                     }

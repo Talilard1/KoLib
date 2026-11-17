@@ -279,7 +279,7 @@ fun TextEditorScreen(
             onDismissRequest = { confirmRevert = false },
             icon = { Icon(Icons.Outlined.Restore, null) },
             title = { Text(tr("Restore the original text?")) },
-            text = { Text(tr("The book's text and chapters will go back to how they were before you first edited them. All your text edits will be lost. The details and cover won't change.")) },
+            text = { Text(tr("All your text edits will be lost. The details and cover won't change.")) },
             confirmButton = { TextButton(onClick = { confirmRevert = false; state.revert {} }) { Text(tr("Restore original"), color = MaterialTheme.colorScheme.error) } },
             dismissButton = { TextButton(onClick = { confirmRevert = false }) { Text(tr("Cancel")) } },
         )
@@ -296,7 +296,7 @@ fun TextEditorScreen(
                     problems.take(12).forEach { Text("• $it", style = MaterialTheme.typography.bodySmall) }
                     if (problems.size > 12) Text(tr("…and {0} more.", problems.size - 12), style = MaterialTheme.typography.bodySmall)
                     Spacer(Modifier.height(8.dp))
-                    Text(tr("Fix them (the Code button can help), or undo the change that caused them. The saved book wasn't changed."), style = MaterialTheme.typography.bodyMedium)
+                    Text(tr("Fix them (the Code button can help) or undo the change. Nothing was saved."), style = MaterialTheme.typography.bodyMedium)
                 }
             },
             confirmButton = { TextButton(onClick = { state.refused = null }) { Text("OK") } },
@@ -319,7 +319,7 @@ fun TextEditorScreen(
             },
             text = {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
-                    if (problems.isEmpty()) Text(tr("Every chapter is valid XHTML, every file the book lists exists, and the reading order and contents are correct."))
+                    if (problems.isEmpty()) Text(tr("All chapters, files, the reading order and the contents are valid."))
                     else problems.take(20).forEach { Text("• $it", style = MaterialTheme.typography.bodySmall) }
                 }
             },
@@ -546,8 +546,8 @@ private fun AddChapterDialog(a: ChapterAction.Add, state: TextEditState, onDone:
         text = {
             Column {
                 Text(
-                    if (after != null) tr("Adds an empty chapter after “{0}”. Its name is used as its heading and in the contents.", after.title)
-                    else tr("Adds an empty chapter. Its name is used as its heading and in the contents."),
+                    if (after != null) tr("Added after “{0}”. Its name is its heading and its entry in the contents.", after.title)
+                    else tr("Its name is its heading and its entry in the contents."),
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Spacer(Modifier.height(12.dp))
@@ -577,7 +577,7 @@ private fun SplitDialog(a: ChapterAction.Split, state: TextEditState, onDone: ()
         title = { Text(tr("Split “{0}”", a.chapter.title)) },
         text = {
             Column {
-                Text(tr("Tap the paragraph where the new chapter should start. (When editing the page, the split button splits at the cursor.)"), style = MaterialTheme.typography.bodyMedium)
+                Text(tr("Tap the paragraph where the new chapter starts."), style = MaterialTheme.typography.bodyMedium)
                 Spacer(Modifier.height(8.dp))
                 val list = points
                 if (list == null) CircularProgressIndicator(Modifier.padding(16.dp))

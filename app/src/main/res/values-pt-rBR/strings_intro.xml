@@ -7,7 +7,7 @@
     <string name="intro_language_text">Escolha seu idioma. Você pode mudar depois.</string>
     <string name="intro_device_language">Idioma do seu dispositivo</string>
     <string name="intro_folder_title">Onde estão seus livros?</string>
-    <string name="intro_folder_text">Escolha a pasta onde você guarda seus livros, e o KoLib adiciona todos à sua biblioteca, inclusive os que estão em subpastas.</string>
+    <string name="intro_folder_text">Escolha sua pasta de livros. O KoLib adiciona todos os livros dela à sua biblioteca, incluindo as subpastas.</string>
     <string name="intro_folder_kinds">EPUB, PDF, MOBI, Word e a maioria dos outros arquivos de e-book.</string>
     <string name="intro_folder_choose">Escolher uma pasta</string>
     <string name="intro_folder_another">Escolher outra pasta</string>
@@ -19,21 +19,21 @@
         <item quantity="other">%1$d livros encontrados em %2$s até agora…</item>
     </plurals>
     <plurals name="intro_folder_found">
-        <item quantity="one">Há %1$d livro em %2$s.</item>
-        <item quantity="many">Há %1$d livros em %2$s.</item>
-        <item quantity="other">Há %1$d livros em %2$s.</item>
+        <item quantity="one">%1$d livro encontrado em %2$s.</item>
+        <item quantity="many">%1$d livros encontrados em %2$s.</item>
+        <item quantity="other">%1$d livros encontrados em %2$s.</item>
     </plurals>
-    <string name="intro_folder_none">Não há livros em %1$s. Escolha a pasta onde eles estão.</string>
-    <string name="intro_folder_failed">O KoLib não conseguiu abrir %1$s. Tente escolher a pasta de novo.</string>
+    <string name="intro_folder_none">Nenhum livro encontrado em %1$s. Tente outra pasta.</string>
+    <string name="intro_folder_failed">Não foi possível abrir %1$s. Tente escolher a pasta de novo.</string>
     <plurals name="intro_folder_add">
         <item quantity="one">Adicionar %d livro</item>
         <item quantity="many">Adicionar %d livros</item>
         <item quantity="other">Adicionar %d livros</item>
     </plurals>
     <plurals name="intro_folder_adding">
-        <item quantity="one">Adicionando %d livro à sua biblioteca. Você pode continuar enquanto isso.</item>
-        <item quantity="many">Adicionando %d livros à sua biblioteca. Você pode continuar enquanto isso.</item>
-        <item quantity="other">Adicionando %d livros à sua biblioteca. Você pode continuar enquanto isso.</item>
+        <item quantity="one">Adicionando %d livro à sua biblioteca.</item>
+        <item quantity="many">Adicionando %d livros à sua biblioteca.</item>
+        <item quantity="other">Adicionando %d livros à sua biblioteca.</item>
     </plurals>
     <string name="intro_kobo_title">Conecte seu Kobo</string>
     <string name="intro_kobo_step1">Conecte o Kobo a este dispositivo com um cabo de dados USB-C.</string>
@@ -45,11 +45,11 @@
     <string name="intro_kobo_allow_help">O Android abre o seletor de pastas na unidade do Kobo. Toque em “Usar esta pasta” e depois em “Permitir”.</string>
     <string name="intro_kobo_working">Abrindo o Kobo…</string>
     <string name="intro_kobo_connected">Conectado ao seu %1$s.</string>
-    <string name="intro_kobo_failed">O KoLib não conseguiu abrir o Kobo. Desconecte, conecte de novo e tente outra vez.</string>
+    <string name="intro_kobo_failed">Não foi possível abrir o Kobo. Desconecte, conecte de novo e tente outra vez.</string>
     <string name="intro_kobo_retry">Tentar de novo</string>
-    <string name="intro_kobo_later">Está sem o Kobo agora? Pule esta etapa. Você pode conectá-lo a qualquer momento na aba Kobo.</string>
+    <string name="intro_kobo_later">Está sem o Kobo agora? Pule esta etapa e conecte depois na aba Kobo.</string>
     <string name="intro_collections_title">Coleções no seu Kobo</string>
-    <string name="intro_collections_text">O KoLib pode colocar seus livros em coleções no Kobo, mas não pode criar coleções novas nele. Crie a coleção no Kobo primeiro, e depois o KoLib poderá adicionar livros a ela.</string>
+    <string name="intro_collections_text">O KoLib pode adicionar livros às coleções do Kobo, mas não pode criá-las. Crie a coleção no Kobo primeiro.</string>
     <string name="intro_collections_how">No Kobo, vá em Meus livros, depois em Coleções, e toque em Nova coleção.</string>
     <string name="intro_done_title">Tudo pronto</string>
     <string name="intro_done_text">Adicione livros quando quiser com o botão Adicionar livros, e envie-os para o seu Kobo quando ele estiver conectado.</string>

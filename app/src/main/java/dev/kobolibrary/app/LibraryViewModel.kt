@@ -232,7 +232,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         val scan = _folderScan.value as? dev.kobolibrary.app.library.FolderScan.Found ?: return
         if (scan.books.isEmpty()) return
         if (runningJob?.isActive == true) {
-            _message.value = tr("Wait until the books being added or sent are finished, then add the folder.")
+            _message.value = tr("Busy adding or sending books. Try again when it's done.")
             return
         }
         _folderScan.value = dev.kobolibrary.app.library.FolderScan.Adding(scan.folder, scan.books.size)
@@ -330,11 +330,11 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
             val only = last.takeIf { replaced + added == 1 && failed.isEmpty() }
             _message.value = when {
                 only != null && replaced == 1 -> tr("Replaced “{0}” with the new file.", only.title)
-                only != null -> tr("Added “{0}” again as a separate book.", only.title)
+                only != null -> tr("Added “{0}” as a separate book.", only.title)
                 else -> listOfNotNull(
                     replaced.takeIf { it > 0 }?.let { if (it == 1) tr("Replaced 1 book with the new file.") else tr("Replaced {0} books with the new files.", it) },
-                    added.takeIf { it > 0 }?.let { if (it == 1) tr("Added 1 book again as a separate book.") else tr("Added {0} books again as separate books.", it) },
-                    failed.size.takeIf { it > 0 }?.let { tr("{0} couldn't be done. The log has the details.", it) },
+                    added.takeIf { it > 0 }?.let { if (it == 1) tr("Added 1 book as a separate book.") else tr("Added {0} books as separate books.", it) },
+                    failed.size.takeIf { it > 0 }?.let { tr("{0} failed. The log has the details.", it) },
                 ).joinToString(" ")
             }
         }
@@ -357,7 +357,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
     fun importFromKobo(session: KoboSession, books: List<KoboBook>) {
         val wanted = books.filter { it.isSideloaded && it.relativePath != null }
         if (wanted.isEmpty()) {
-            _message.value = tr("Only books you put on the Kobo yourself can be added. Kobo Store purchases can't.")
+            _message.value = tr("Kobo Store books can't be added, only ones you sideloaded.")
             return
         }
         val needed = wanted.sumOf { it.fileSize ?: 0L }
@@ -387,7 +387,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         val needed = chosen.sumOf { it.fileSize } + chosen.size * 64L * 1024
         val free = session.info.freeBytes
         if (free != null && needed > free - 20L * 1024 * 1024) {
-            _message.value = tr("Not enough space on the Kobo. These books need about {0} MB, and the Kobo has {1} MB free.", needed / (1024 * 1024), free / (1024 * 1024))
+            _message.value = tr("Not enough space on the Kobo: about {0} MB needed, {1} MB free.", needed / (1024 * 1024), free / (1024 * 1024))
             return
         }
         val requests = chosen.map { SendRequest(it.id, session, format, covers, pdfs) }
@@ -401,9 +401,9 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
                     AppLog.i("Library", "${fresh.size} more book(s) added to the send that's running.")
                 }
                 _message.value = when {
-                    fresh.isEmpty() -> tr("Those are already being sent.")
-                    fresh.size == 1 -> tr("Added to the books being sent.")
-                    else -> tr("{0} books added to the ones being sent.", fresh.size)
+                    fresh.isEmpty() -> tr("Already being sent.")
+                    fresh.size == 1 -> tr("Added to the send queue.")
+                    else -> tr("{0} books added to the send queue.", fresh.size)
                 }
                 return
             }
@@ -417,7 +417,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
                     sendToKobo(session, ids, format, covers, pdfs)
                 }
             } else {
-                _message.value = tr("Wait until the books being added to the library are finished, then send.")
+                _message.value = tr("Still adding books. Try again when it's done.")
             }
             return
         }
@@ -585,7 +585,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         work: suspend CoroutineScope.(report: suspend (String, suspend ((Float) -> Unit) -> Step) -> Unit) -> Unit,
     ) {
         if (runningJob?.isActive == true) {
-            _message.value = tr("Another task is still running. Wait for it to finish first.")
+            _message.value = tr("Another task is running. Try again when it's done.")
             return
         }
         _job.value = JobProgress(kind, title, total)
@@ -694,7 +694,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
                     .getOrNull()
             }
             if (found == null) {
-                _message.value = tr("The Kobo's place couldn't be found in this book.")
+                _message.value = tr("Couldn't find the Kobo's position in this book.")
                 return@launch
             }
             withContext(Dispatchers.IO) { ReaderStore.movePosition(library.bookDir(id), found.position) }
@@ -721,10 +721,10 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             try {
                 val book = library.goBackToScan(id)
-                _message.value = tr("“{0}” is its scanned pages again.", book.title)
+                _message.value = tr("“{0}” reverted to the scan.", book.title)
             } catch (e: Exception) {
                 AppLog.e("Library", "Going back to the scan failed", e)
-                _message.value = tr("Couldn't go back to the scan: {0}", e.message ?: e.javaClass.simpleName)
+                _message.value = tr("Couldn't revert to the scan: {0}", e.message ?: e.javaClass.simpleName)
             }
         }
     }
@@ -911,7 +911,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         val book = library.book(id) ?: return@making
         withContext(Dispatchers.IO) {
             val resolver = getApplication<Application>().contentResolver
-            (resolver.openOutputStream(uri, "wt") ?: throw java.io.IOException(tr("Can't save to the chosen location."))).use { writeCopy(id, format, it) }
+            (resolver.openOutputStream(uri, "wt") ?: throw java.io.IOException(tr("Can't save there."))).use { writeCopy(id, format, it) }
         }
         AppLog.i("Library", "Saved a copy of '${book.title}' as ${format?.label ?: "the file it was added as"}.")
         _message.value = when (format) {

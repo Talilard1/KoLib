@@ -75,7 +75,7 @@ fun LogScreen(onBack: () -> Unit, onMessage: (String) -> Unit) {
         },
     ) { padding ->
         if (entries.isEmpty()) {
-            EmptyState(Icons.AutoMirrored.Outlined.Article, tr("The log is empty"), tr("The app's activity will be recorded here."), Modifier.padding(padding))
+            EmptyState(Icons.AutoMirrored.Outlined.Article, tr("The log is empty"), tr("KoLib's activity is recorded here."), Modifier.padding(padding))
         } else {
             SelectionContainer(Modifier.padding(padding)) {
                 LazyColumn(state = listState, contentPadding = PaddingValues(16.dp), modifier = Modifier.fillMaxSize()) {

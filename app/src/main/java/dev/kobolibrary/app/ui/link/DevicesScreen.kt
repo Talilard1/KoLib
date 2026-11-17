@@ -175,7 +175,7 @@ fun DevicesContent(view: DevicesView, actions: DevicesActions) {
                 Text(tr("Your devices"), style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
                 Spacer(Modifier.height(6.dp))
                 Text(
-                    tr("Send books, files and text between KoLib on your phone and tablet, and keep your place in books the same on both."),
+                    tr("Send books, files and text between your phone and tablet, and sync your reading position."),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
@@ -221,7 +221,7 @@ fun DevicesContent(view: DevicesView, actions: DevicesActions) {
             SectionCard(tr("Paired"), icon = Icons.Outlined.Shield) {
                 if (view.paired.isEmpty()) {
                     Text(
-                        tr("None yet. Open KoLib on your other device, on the same Wi-Fi network as this one (or one's hotspot), then pair them below."),
+                        tr("None yet. Open KoLib on your other device, on the same Wi-Fi or hotspot, then pair below."),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -243,7 +243,7 @@ fun DevicesContent(view: DevicesView, actions: DevicesActions) {
                         }
                         Text(
                             if (view.addresses.isEmpty()) tr("Join a network to find your other devices.")
-                            else tr("Looking for KoLib on other devices on this network…"),
+                            else tr("Searching this network…"),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -264,7 +264,7 @@ fun DevicesContent(view: DevicesView, actions: DevicesActions) {
                         onClick = actions.lookAgain,
                         enabled = !view.looking && view.addresses.isNotEmpty(),
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 4.dp),
-                    ) { Text(if (view.looking) tr("Looking at every address…") else tr("Look again")) }
+                    ) { Text(if (view.looking) tr("Scanning the network…") else tr("Scan again")) }
                     TextButton(onClick = { connecting = true }, contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 4.dp)) {
                         Text(tr("Not found? Connect by address"))
                     }
@@ -274,12 +274,12 @@ fun DevicesContent(view: DevicesView, actions: DevicesActions) {
             // The Kobo, with no cable: through its own web browser.
             SectionCard(tr("Your Kobo, over Wi-Fi"), icon = Icons.Outlined.Wifi) {
                 Text(
-                    tr("Send books to your Kobo without the cable, through its web browser: choose them in your library, tap Send to Kobo, then Over Wi-Fi."),
+                    tr("Send books without the cable, through the Kobo's web browser. In your library, tap Send to Kobo → Over Wi-Fi."),
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Spacer(Modifier.height(6.dp))
                 Text(
-                    tr("The Kobo adds them itself, so they can't go into collections that way, books already on it aren't updated, and how far you've read doesn't come back. Plug it in for those."),
+                    tr("Collections, updating books already on the Kobo and syncing reading progress need the cable."),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -289,20 +289,20 @@ fun DevicesContent(view: DevicesView, actions: DevicesActions) {
 
             SectionCard(tr("Settings")) {
                 SwitchLine(
-                    tr("Keep places in books in step"),
-                    tr("When a paired device is found, each book goes to the later of the places it was left at on the two."),
+                    tr("Sync reading position"),
+                    tr("Each book opens where you last read it on either device."),
                     view.settings.keepPlacesInStep, actions.keepPlacesInStep,
                 )
                 Spacer(Modifier.height(10.dp))
                 SwitchLine(
-                    tr("Stay reachable when KoLib is closed"),
-                    tr("Paired devices can send to this one while KoLib isn't open. A notification shows while it is."),
+                    tr("Receive when KoLib is closed"),
+                    tr("Paired devices can send while KoLib is closed. A notification shows while this is on."),
                     view.settings.stayReachable, actions.stayReachable,
                 )
             }
 
             Text(
-                tr("What's sent between your devices is encrypted, and only paired devices can send. It goes over your own network, not the internet."),
+                tr("Transfers are encrypted and stay on your own network. Only paired devices can send."),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -354,7 +354,7 @@ private fun PairedRow(d: PairedDevice, here: Boolean, actions: DevicesActions) {
             LinkButton(Icons.AutoMirrored.Outlined.SendToMobile, tr("Send books")) { actions.sendBooks(d) }
             LinkButton(Icons.Outlined.UploadFile, tr("Send files")) { actions.sendFiles(d) }
             LinkButton(Icons.Outlined.ContentPaste, tr("Send clipboard")) { actions.sendClipboard(d) }
-            LinkButton(Icons.Outlined.Sync, tr("Bring places into step")) { actions.syncPlaces(d) }
+            LinkButton(Icons.Outlined.Sync, tr("Sync positions now")) { actions.syncPlaces(d) }
         }
     }
 }
@@ -429,7 +429,7 @@ private fun ConnectByAddressDialog(reach: suspend (String) -> LinkManager.Nearby
         text = {
             Column {
                 Text(
-                    tr("On the other device, the Devices section shows where it is on the network. Type that in here."),
+                    tr("Enter the address shown in Devices on the other device."),
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Spacer(Modifier.height(12.dp))
@@ -484,7 +484,7 @@ fun PairingDialog(p: Pairing, onAnswer: (Boolean) -> Unit) {
                     }
                     else -> {
                         Text(
-                            if (p.confirmed) tr("Say yes on {0} too, if it shows this code.", p.name)
+                            if (p.confirmed) tr("Confirm on {0} too, if it shows this code.", p.name)
                             else tr("Check that {0} shows the same code. If it doesn't, don't pair.", p.name),
                             style = MaterialTheme.typography.bodyLarge,
                         )

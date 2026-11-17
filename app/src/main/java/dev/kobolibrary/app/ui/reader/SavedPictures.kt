@@ -51,7 +51,7 @@ internal object SavedPictures {
                 context.contentResolver.openOutputStream(uri)?.use { it.write(bytes) } ?: error("not written")
             }.onFailure { AppLog.w("Reader", "Couldn't save a picture from the book", it) }.isSuccess
         }
-        Toast.makeText(context, if (ok) tr("Saved in Pictures, in the KoLib folder.") else tr("The picture couldn't be saved."), Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, if (ok) tr("Saved to Pictures/KoLib.") else tr("The picture couldn't be saved."), Toast.LENGTH_SHORT).show()
     }
 
     /** Offers the picture at [path] to another app. */

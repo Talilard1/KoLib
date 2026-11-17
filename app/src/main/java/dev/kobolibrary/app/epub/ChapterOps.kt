@@ -297,7 +297,7 @@ object ChapterOps {
         val first = structure.chapters.firstOrNull() ?: return
         val html = files.text(first.path) ?: return
         if (EpubFile.firstImageReference(html) != null && EpubText.plainText(html).trim().length < 40) {
-            throw OpError(tr("“{0}” at the front of the book looks like a cover page already. To use it, choose “Use as the cover page” in its menu.", first.title))
+            throw OpError(tr("“{0}” already looks like a cover page. To use it, open its menu and choose “Use as the cover page”.", first.title))
         }
     }
 

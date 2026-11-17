@@ -99,7 +99,7 @@ class LinkService : Service() {
         if (nm.getNotificationChannel(CHANNEL) == null) {
             nm.createNotificationChannel(
                 NotificationChannel(CHANNEL, tr("Your other devices"), NotificationManager.IMPORTANCE_LOW).apply {
-                    description = tr("Sending to and from your other devices")
+                    description = tr("Transfers between your devices")
                     setShowBadge(false)
                 }
             )
@@ -130,8 +130,8 @@ class LinkService : Service() {
                 this, 1, Intent(this, LinkService::class.java).setAction(ACTION_STOP),
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
             )
-            b.setContentTitle(tr("Your other devices can reach KoLib"))
-                .setContentText(tr("Paired devices can send to it while it's closed."))
+            b.setContentTitle(tr("Ready to receive from your devices"))
+                .setContentText(tr("Paired devices can send while KoLib is closed."))
                 .addAction(0, tr("Stop"), stop)
         }
         return b.build()

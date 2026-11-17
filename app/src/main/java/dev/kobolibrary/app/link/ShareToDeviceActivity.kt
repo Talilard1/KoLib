@@ -143,10 +143,10 @@ class ShareToDeviceActivity : ComponentActivity() {
                     Spacer(Modifier.height(6.dp))
                     Text(
                         when {
-                            nothing -> tr("There's nothing here KoLib can send.")
-                            shared.text != null -> tr("Text, for the other device's clipboard: “{0}”", shared.text.take(80) + if (shared.text.length > 80) "…" else "")
-                            shared.uris.size == 1 -> tr("1 file, for the other device's Downloads.")
-                            else -> tr("{0} files, for the other device's Downloads.", shared.uris.size)
+                            nothing -> tr("Nothing here can be sent.")
+                            shared.text != null -> tr("Text to the other device's clipboard: “{0}”", shared.text.take(80) + if (shared.text.length > 80) "…" else "")
+                            shared.uris.size == 1 -> tr("1 file to the other device's Downloads.")
+                            else -> tr("{0} files to the other device's Downloads.", shared.uris.size)
                         },
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -165,7 +165,7 @@ class ShareToDeviceActivity : ComponentActivity() {
                             else LinearProgressIndicator(Modifier.fillMaxWidth())
                         }
                         paired.isEmpty() -> Text(
-                            tr("No device is paired. Pair one in KoLib's Devices section first."),
+                            tr("No paired devices. Pair one in KoLib, under Devices."),
                             style = MaterialTheme.typography.bodyLarge,
                         )
                         !nothing -> Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -181,7 +181,7 @@ class ShareToDeviceActivity : ComponentActivity() {
                                                     if (shared.text != null) link.sendText(d, shared.text)
                                                     else link.sendFiles(d, withContext(Dispatchers.IO) { shared.uris.map { LinkFiles.fromUri(this@ShareToDeviceActivity, it) } })
                                                 } catch (e: Exception) {
-                                                    said = tr("That didn't reach {0}: {1}", d.name, e.message ?: e.javaClass.simpleName)
+                                                    said = tr("Couldn't send to {0}: {1}", d.name, e.message ?: e.javaClass.simpleName)
                                                     return@launch
                                                 }
                                                 job.join()

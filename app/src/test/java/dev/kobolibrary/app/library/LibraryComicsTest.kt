@@ -39,7 +39,7 @@ class LibraryComicsTest {
         val book = (added as ImportOutcome.Added).book
         assertTrue(book.isComic)
         assertEquals("CBZ", book.sourceFormat)
-        assertEquals("CBZ comic, kept as it is", book.addedAs)
+        assertEquals("CBZ comic", book.addedAs)
         assertEquals("The Lantern Thief", book.title)
         assertEquals(listOf("Ada Fenwick", "Tom Reyes"), book.meta.authors)
         assertTrue(book.hasCover)

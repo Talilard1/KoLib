@@ -56,47 +56,47 @@ object Notices {
     private const val APACHE = "Apache License 2.0"
 
     val all = listOf(
-        Notice("kepubify", tr("Books sent as kepubs are converted by kepubify's method."), tr("MIT License"), tr("© 2017–2022 Patrick Gaskin"), "kepubify-MIT.txt"),
-        Notice(tr("Lora"), tr("Lettering on the covers the app makes."), OFL, tr("© 2011 The Lora Project Authors"), "lora-OFL.txt"),
-        Notice(tr("Poppins"), tr("Lettering on the covers the app makes."), OFL, tr("© 2020 The Poppins Project Authors"), "poppins-OFL.txt"),
-        Notice(tr("Cinzel"), tr("Lettering on the covers the app makes."), OFL, tr("© 2020 The Cinzel Project Authors"), "cinzel-OFL.txt"),
-        Notice(tr("Cinzel Decorative"), tr("Lettering on the covers the app makes."), OFL, tr("© 2012 Natanael Gama"), "cinzel-decorative-OFL.txt"),
-        Notice(tr("UnifrakturMaguntia"), tr("Lettering on the covers the app makes."), OFL, tr("© 2010 j. 'mach' wust, © 2009 Peter Wiegel"), "unifraktur-maguntia-OFL.txt"),
-        Notice(tr("Great Vibes"), tr("Lettering on the covers the app makes."), OFL, tr("© 2015 The Great Vibes Pro Project Authors"), "great-vibes-OFL.txt"),
-        Notice(tr("Bebas Neue"), tr("Lettering on the covers the app makes."), OFL, tr("© 2010 Dharma Type"), "bebas-neue-OFL.txt"),
-        Notice(tr("Orbitron"), tr("Lettering on the covers the app makes."), OFL, tr("© 2018 The Orbitron Project Authors"), "orbitron-OFL.txt"),
-        Notice(tr("Poiret One"), tr("Lettering on the covers the app makes."), OFL, tr("© 2011 The Poiret One Project Authors"), "poiret-one-OFL.txt"),
-        Notice(tr("Fredoka"), tr("Lettering on the covers the app makes."), OFL, tr("© 2016 The Fredoka Project Authors"), "fredoka-OFL.txt"),
-        Notice(tr("Playfair Display"), tr("Lettering on the covers the app makes."), OFL, tr("© 2017 The Playfair Display Project Authors"), "playfair-display-OFL.txt"),
-        Notice(tr("IM Fell English"), tr("Lettering on the covers the app makes."), OFL, tr("© 2010 Igino Marini"), "im-fell-english-OFL.txt"),
-        Notice(tr("Courier Prime"), tr("Lettering on the covers the app makes."), OFL, tr("© 2015 The Courier Prime Project Authors"), "courier-prime-OFL.txt"),
-        Notice(tr("Space Mono"), tr("Lettering on the covers the app makes."), OFL, tr("© 2016 The Space Mono Project Authors"), "space-mono-OFL.txt"),
-        Notice(tr("Caveat"), tr("Lettering on the covers the app makes."), OFL, tr("© 2014 The Caveat Project Authors"), "caveat-OFL.txt"),
-        Notice(tr("Pacifico"), tr("Lettering on the covers the app makes."), OFL, tr("© 2018 The Pacifico Project Authors"), "pacifico-OFL.txt"),
-        Notice(tr("Rye"), tr("Lettering on the covers the app makes."), OFL, tr("© 2011 Sorkin Type Co"), "rye-OFL.txt"),
-        Notice(tr("Alfa Slab One"), tr("Lettering on the covers the app makes."), OFL, tr("© 2016 The Alfa Slab One Project Authors"), "alfa-slab-one-OFL.txt"),
-        Notice(tr("Stardos Stencil"), tr("Lettering on the covers the app makes."), OFL, tr("© 2011 Vernon Adams"), "stardos-stencil-OFL.txt"),
-        Notice(tr("Bangers"), tr("Lettering on the covers the app makes."), OFL, tr("© 2010 The Bangers Project Authors"), "bangers-OFL.txt"),
-        Notice(tr("Graduate"), tr("Lettering on the covers the app makes."), OFL, tr("© 2012 The Graduate Project Authors"), "graduate-OFL.txt"),
-        Notice(tr("Liberation Serif and Sans"), tr("Covers the app makes, for alphabets the typefaces above don't have."), OFL, tr("© 2010 Google Corporation, © 2012 Red Hat, Inc."), "liberation-fonts.txt"),
-        Notice(tr("EB Garamond"), tr("A typeface for reading, and for the app's headings and book titles."), OFL, tr("© 2017 The EB Garamond Project Authors"), "eb-garamond-OFL.txt"),
-        Notice(tr("Literata"), tr("A typeface for reading."), OFL, tr("© 2017 The Literata Project Authors"), "literata-OFL.txt"),
-        Notice(tr("Atkinson Hyperlegible"), tr("A typeface for reading."), OFL, tr("© 2020 Braille Institute of America, Inc."), "atkinson-hyperlegible-OFL.txt"),
-        Notice(tr("OpenDyslexic"), tr("A typeface for reading."), OFL, tr("© 2012–2019 Abbie Gonzalez"), "opendyslexic-OFL.txt"),
-        Notice(tr("Android Jetpack"), tr("The app's screens, controls and icons (AndroidX, Jetpack Compose, Material icons)."), APACHE, tr("© The Android Open Source Project"), "apache-2.0.txt"),
-        Notice(tr("Kotlin"), tr("The language the app is written in, with kotlinx.coroutines."), APACHE, tr("© JetBrains s.r.o. and Kotlin contributors"), "apache-2.0.txt"),
-        Notice("libarchive", tr("Reading CBR and CB7 comics."), tr("BSD 2-Clause License"), tr("© 2003–2018 Tim Kientzle and the libarchive contributors"), "libarchive-BSD.txt"),
-        Notice(tr("libarchive for Android"), tr("Reading CBR and CB7 comics."), APACHE, tr("© 2023 Hai Zhang"), "apache-2.0.txt"),
-        Notice("Tesseract", tr("Recognising the words in scanned pages, to make them into text."), APACHE, tr("© Google LLC and the Tesseract contributors"), "apache-2.0.txt"),
-        Notice(tr("Tesseract language data"), tr("What Tesseract knows of each language, downloaded the first time it's needed."), APACHE, tr("© Google LLC"), "apache-2.0.txt"),
-        Notice("Tesseract4Android", tr("Using Tesseract from the app."), APACHE, tr("© Robert Pösel, Robert Theis and contributors"), "apache-2.0.txt"),
-        Notice("Leptonica", tr("Handling the pictures of scanned pages for Tesseract."), tr("BSD 2-Clause License"), tr("© 2001 Leptonica"), "leptonica-BSD.txt"),
-        Notice("libjpeg", tr("JPEG pictures, for Tesseract. This software is based in part on the work of the Independent JPEG Group."), tr("IJG License"), tr("© 1991–2024 Thomas G. Lane, Guido Vollbeding"), "libjpeg-IJG.txt"),
-        Notice("libpng", tr("PNG pictures, for Tesseract."), tr("PNG Reference Library License 2"), tr("© 1995–2025 The PNG Reference Library Authors"), "libpng-LICENSE.txt"),
+        Notice("kepubify", tr("Kepub conversion follows kepubify's method."), tr("MIT License"), tr("© 2017–2022 Patrick Gaskin"), "kepubify-MIT.txt"),
+        Notice(tr("Lora"), tr("Generated covers."), OFL, tr("© 2011 The Lora Project Authors"), "lora-OFL.txt"),
+        Notice(tr("Poppins"), tr("Generated covers."), OFL, tr("© 2020 The Poppins Project Authors"), "poppins-OFL.txt"),
+        Notice(tr("Cinzel"), tr("Generated covers."), OFL, tr("© 2020 The Cinzel Project Authors"), "cinzel-OFL.txt"),
+        Notice(tr("Cinzel Decorative"), tr("Generated covers."), OFL, tr("© 2012 Natanael Gama"), "cinzel-decorative-OFL.txt"),
+        Notice(tr("UnifrakturMaguntia"), tr("Generated covers."), OFL, tr("© 2010 j. 'mach' wust, © 2009 Peter Wiegel"), "unifraktur-maguntia-OFL.txt"),
+        Notice(tr("Great Vibes"), tr("Generated covers."), OFL, tr("© 2015 The Great Vibes Pro Project Authors"), "great-vibes-OFL.txt"),
+        Notice(tr("Bebas Neue"), tr("Generated covers."), OFL, tr("© 2010 Dharma Type"), "bebas-neue-OFL.txt"),
+        Notice(tr("Orbitron"), tr("Generated covers."), OFL, tr("© 2018 The Orbitron Project Authors"), "orbitron-OFL.txt"),
+        Notice(tr("Poiret One"), tr("Generated covers."), OFL, tr("© 2011 The Poiret One Project Authors"), "poiret-one-OFL.txt"),
+        Notice(tr("Fredoka"), tr("Generated covers."), OFL, tr("© 2016 The Fredoka Project Authors"), "fredoka-OFL.txt"),
+        Notice(tr("Playfair Display"), tr("Generated covers."), OFL, tr("© 2017 The Playfair Display Project Authors"), "playfair-display-OFL.txt"),
+        Notice(tr("IM Fell English"), tr("Generated covers."), OFL, tr("© 2010 Igino Marini"), "im-fell-english-OFL.txt"),
+        Notice(tr("Courier Prime"), tr("Generated covers."), OFL, tr("© 2015 The Courier Prime Project Authors"), "courier-prime-OFL.txt"),
+        Notice(tr("Space Mono"), tr("Generated covers."), OFL, tr("© 2016 The Space Mono Project Authors"), "space-mono-OFL.txt"),
+        Notice(tr("Caveat"), tr("Generated covers."), OFL, tr("© 2014 The Caveat Project Authors"), "caveat-OFL.txt"),
+        Notice(tr("Pacifico"), tr("Generated covers."), OFL, tr("© 2018 The Pacifico Project Authors"), "pacifico-OFL.txt"),
+        Notice(tr("Rye"), tr("Generated covers."), OFL, tr("© 2011 Sorkin Type Co"), "rye-OFL.txt"),
+        Notice(tr("Alfa Slab One"), tr("Generated covers."), OFL, tr("© 2016 The Alfa Slab One Project Authors"), "alfa-slab-one-OFL.txt"),
+        Notice(tr("Stardos Stencil"), tr("Generated covers."), OFL, tr("© 2011 Vernon Adams"), "stardos-stencil-OFL.txt"),
+        Notice(tr("Bangers"), tr("Generated covers."), OFL, tr("© 2010 The Bangers Project Authors"), "bangers-OFL.txt"),
+        Notice(tr("Graduate"), tr("Generated covers."), OFL, tr("© 2012 The Graduate Project Authors"), "graduate-OFL.txt"),
+        Notice(tr("Liberation Serif and Sans"), tr("Generated covers, for other alphabets."), OFL, tr("© 2010 Google Corporation, © 2012 Red Hat, Inc."), "liberation-fonts.txt"),
+        Notice(tr("EB Garamond"), tr("Reading font, and the app's headings and titles."), OFL, tr("© 2017 The EB Garamond Project Authors"), "eb-garamond-OFL.txt"),
+        Notice(tr("Literata"), tr("Reading font."), OFL, tr("© 2017 The Literata Project Authors"), "literata-OFL.txt"),
+        Notice(tr("Atkinson Hyperlegible"), tr("Reading font."), OFL, tr("© 2020 Braille Institute of America, Inc."), "atkinson-hyperlegible-OFL.txt"),
+        Notice(tr("OpenDyslexic"), tr("Reading font."), OFL, tr("© 2012–2019 Abbie Gonzalez"), "opendyslexic-OFL.txt"),
+        Notice(tr("Android Jetpack"), tr("Interface and icons (AndroidX, Jetpack Compose, Material icons)."), APACHE, tr("© The Android Open Source Project"), "apache-2.0.txt"),
+        Notice(tr("Kotlin"), tr("Programming language, with kotlinx.coroutines."), APACHE, tr("© JetBrains s.r.o. and Kotlin contributors"), "apache-2.0.txt"),
+        Notice("libarchive", tr("CBR and CB7 comics."), tr("BSD 2-Clause License"), tr("© 2003–2018 Tim Kientzle and the libarchive contributors"), "libarchive-BSD.txt"),
+        Notice(tr("libarchive for Android"), tr("CBR and CB7 comics."), APACHE, tr("© 2023 Hai Zhang"), "apache-2.0.txt"),
+        Notice("Tesseract", tr("Text recognition (OCR) for scanned pages."), APACHE, tr("© Google LLC and the Tesseract contributors"), "apache-2.0.txt"),
+        Notice(tr("Tesseract language data"), tr("Language data for Tesseract, downloaded on first use."), APACHE, tr("© Google LLC"), "apache-2.0.txt"),
+        Notice("Tesseract4Android", tr("Tesseract for Android."), APACHE, tr("© Robert Pösel, Robert Theis and contributors"), "apache-2.0.txt"),
+        Notice("Leptonica", tr("Image handling for Tesseract."), tr("BSD 2-Clause License"), tr("© 2001 Leptonica"), "leptonica-BSD.txt"),
+        Notice("libjpeg", tr("JPEG support for Tesseract. This software is based in part on the work of the Independent JPEG Group."), tr("IJG License"), tr("© 1991–2024 Thomas G. Lane, Guido Vollbeding"), "libjpeg-IJG.txt"),
+        Notice("libpng", tr("PNG support for Tesseract."), tr("PNG Reference Library License 2"), tr("© 1995–2025 The PNG Reference Library Authors"), "libpng-LICENSE.txt"),
     )
 
     /** KoLib itself: free software, to share and change under the GPL. */
-    val own = Notice("KoLib", tr("This app. You can share it and change it under these terms."), tr("GNU General Public License 3.0"), tr("© 2026 the KoLib authors"), "gpl-3.0.txt")
+    val own = Notice("KoLib", tr("This app."), tr("GNU General Public License 3.0"), tr("© 2026 the KoLib authors"), "gpl-3.0.txt")
 }
 
 /** The app's name and version, and the licences of everything in it that comes from elsewhere. */
@@ -144,7 +144,7 @@ fun AboutScreen(onBack: () -> Unit, onShowIntro: (() -> Unit)? = null) {
                         Text(tr("Version {0}", BuildConfig.VERSION_NAME), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Text(
-                        tr("Your books, and everything you do with them, stay on this device and your Kobo. KoLib only goes online when you search for a cover, and then only sends the words you search for, and the first time you make a scanned book into text in a language, to download that language's data. The pages themselves are read on this device."),
+                        tr("Your books stay on your devices and your Kobo. KoLib only goes online to search for covers and to download text recognition data."),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Text(
@@ -153,12 +153,12 @@ fun AboutScreen(onBack: () -> Unit, onShowIntro: (() -> Unit)? = null) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Text(
-                        tr("The comic reader is modelled on Mihon's: its reading modes, page fitting, tap zones and zooming work the same way. Thanks to the Mihon project."),
+                        tr("The comic reader is modelled on Mihon's. Thanks to the Mihon project."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     if (onShowIntro != null) {
-                        androidx.compose.material3.OutlinedButton(onClick = onShowIntro) { Text(tr("Show the introduction again")) }
+                        androidx.compose.material3.OutlinedButton(onClick = onShowIntro) { Text(tr("Replay introduction")) }
                     }
                 }
                 HorizontalDivider(Modifier.widthIn(max = 640.dp).fillMaxWidth())

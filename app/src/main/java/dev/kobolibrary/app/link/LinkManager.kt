@@ -451,7 +451,7 @@ class LinkManager(
                     }
                     Agreed.NOT_ME -> _pairing.value = null
                     Agreed.NOT_THEM -> _pairing.value = Pairing(s.peerName, s.code, incoming = false, failed = tr("{0} didn't pair.", s.peerName))
-                    Agreed.TOO_LONG -> _pairing.value = Pairing(s.peerName, s.code, incoming = false, failed = tr("Nobody said yes in time. Try again."))
+                    Agreed.TOO_LONG -> _pairing.value = Pairing(s.peerName, s.code, incoming = false, failed = tr("Pairing timed out. Try again."))
                 }
             } catch (e: Exception) {
                 AppLog.w("Link", "Pairing with ${target.name} didn't work", e)
@@ -552,7 +552,7 @@ class LinkManager(
                 }
                 Agreed.NOT_ME -> _pairing.value = null
                 Agreed.NOT_THEM -> _pairing.value = Pairing(s.peerName, s.code, incoming = true, failed = tr("{0} didn't pair.", s.peerName))
-                Agreed.TOO_LONG -> _pairing.value = Pairing(s.peerName, s.code, incoming = true, failed = tr("Nobody said yes in time. Try again."))
+                Agreed.TOO_LONG -> _pairing.value = Pairing(s.peerName, s.code, incoming = true, failed = tr("Pairing timed out. Try again."))
             }
         } finally {
             if (answer === mine) answer = null
@@ -591,7 +591,7 @@ class LinkManager(
                             "text" -> {
                                 host.receiveText(request.getString("text"), s.peerName)
                                 s.channel.sendJson(JSONObject().put("ok", true))
-                                _messages.tryEmit(tr("Text from {0} is on the clipboard.", s.peerName))
+                                _messages.tryEmit(tr("Text from {0} copied to the clipboard.", s.peerName))
                             }
                             "files" -> serveFiles(s, request)
                             "books" -> serveBooks(s, request)
@@ -625,8 +625,8 @@ class LinkManager(
         }
         s.channel.sendJson(JSONObject().put("ok", true))
         _messages.tryEmit(
-            if (list.length() == 1) tr("“{0}” came from {1}. It's in {2}.", safeName(list.getJSONObject(0).getString("name")), s.peerName, where)
-            else tr("{0} files came from {1}. They're in {2}.", list.length(), s.peerName, where),
+            if (list.length() == 1) tr("Received “{0}” from {1}. Saved in {2}.", safeName(list.getJSONObject(0).getString("name")), s.peerName, where)
+            else tr("Received {0} files from {1}. Saved in {2}.", list.length(), s.peerName, where),
         )
     }
 
@@ -696,7 +696,7 @@ class LinkManager(
         val (forMe, forThem) = BookPlace.sync(host.places(), theirs)
         if (forMe.isNotEmpty()) host.applyPlaces(forMe)
         s.channel.sendJson(JSONObject().put("ok", true).put("places", JSONArray().apply { forThem.forEach { put(it.toJson()) } }))
-        if (forMe.isNotEmpty()) _messages.tryEmit(tr("Places in books are in step with {0}.", s.peerName))
+        if (forMe.isNotEmpty()) _messages.tryEmit(tr("Reading positions synced with {0}.", s.peerName))
     }
 
     // ---- sending ------------------------------------------------------------------------------------------
@@ -770,7 +770,7 @@ class LinkManager(
             } finally {
                 end(key)
             }
-            _messages.tryEmit(booksMessage(device.name, counts, incoming = false) + if (noSpace) " " + tr("{0} hasn't enough space left.", device.name) else "")
+            _messages.tryEmit(booksMessage(device.name, counts, incoming = false) + if (noSpace) " " + tr("{0} is out of space.", device.name) else "")
         }
     }
 
@@ -783,7 +783,7 @@ class LinkManager(
             val reply = check(s.channel.receiveJson())
             val back = reply.getJSONArray("places").let { a -> (0 until a.length()).mapNotNull { BookPlace.from(a.getJSONObject(it)) } }
             if (back.isNotEmpty()) host.applyPlaces(back)
-            if (!quiet || back.isNotEmpty()) _messages.tryEmit(tr("Places in books are in step with {0}.", device.name))
+            if (!quiet || back.isNotEmpty()) _messages.tryEmit(tr("Reading positions synced with {0}.", device.name))
         }
     }
 
@@ -792,15 +792,15 @@ class LinkManager(
             work()
         } catch (e: Exception) {
             AppLog.w("Link", "Sending to ${device.name} didn't work", e)
-            _messages.tryEmit((e as? LinkException)?.message ?: tr("That didn't reach {0}: {1}", device.name, e.message ?: e.javaClass.simpleName))
+            _messages.tryEmit((e as? LinkException)?.message ?: tr("Couldn't send to {0}: {1}", device.name, e.message ?: e.javaClass.simpleName))
         }
     }
 
     private fun check(reply: JSONObject): JSONObject {
         if (!reply.optBoolean("ok")) throw LinkException(
             when (reply.optString("error")) {
-                "not paired" -> tr("The other device doesn't know this one any more. Pair them again.")
-                else -> tr("The other device said no.")
+                "not paired" -> tr("The other device no longer has this one paired. Pair them again.")
+                else -> tr("The other device declined.")
             }
         )
         return reply
@@ -811,8 +811,8 @@ class LinkManager(
         val parts = listOfNotNull(
             n(BookReceived.ADDED).takeIf { it > 0 }?.let { if (it == 1) tr("1 book added") else tr("{0} books added", it) },
             n(BookReceived.UPDATED).takeIf { it > 0 }?.let { if (it == 1) tr("1 book updated") else tr("{0} books updated", it) },
-            n(BookReceived.ALREADY_THERE).takeIf { it > 0 }?.let { if (it == 1) tr("1 was there already") else tr("{0} were there already", it) },
-            n(BookReceived.FAILED).takeIf { it > 0 }?.let { if (it == 1) tr("1 couldn't be taken in") else tr("{0} couldn't be taken in", it) },
+            n(BookReceived.ALREADY_THERE).takeIf { it > 0 }?.let { if (it == 1) tr("1 already there") else tr("{0} already there", it) },
+            n(BookReceived.FAILED).takeIf { it > 0 }?.let { if (it == 1) tr("1 failed") else tr("{0} failed", it) },
         ).joinToString(", ")
         return if (incoming) tr("From {0}: {1}.", device, parts) else tr("To {0}: {1}.", device, parts)
     }

@@ -162,7 +162,7 @@ private fun DatabaseCard(view: KoboView, live: Boolean, state: UiState, onBackup
         )
         Spacer(Modifier.height(12.dp))
         Text(
-            tr("Whenever you connect and the Kobo's database has changed, a zipped copy is saved on this device. The newest {0} are kept.", dev.kobolibrary.app.backup.BackupManager.MAX_BACKUPS),
+            tr("A zipped copy of the Kobo's database is saved on this device whenever it has changed. Only the newest {0} are stored.", dev.kobolibrary.app.backup.BackupManager.MAX_BACKUPS),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -183,7 +183,7 @@ private fun DatabaseCard(view: KoboView, live: Boolean, state: UiState, onBackup
 private fun WriteCard(live: Boolean, state: UiState, onWriteCheck: () -> Unit) {
     SectionCard(tr("Write access check"), icon = Icons.Outlined.EditNote) {
         Text(
-            tr("Sending books needs write access to the Kobo. This check writes a small hidden test file to the Kobo, reads it back and deletes it. Nothing else changes."),
+            tr("Writes a small hidden test file to the Kobo, reads it back and deletes it."),
             style = MaterialTheme.typography.bodyMedium,
         )
         Spacer(Modifier.height(12.dp))

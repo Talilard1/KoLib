@@ -56,7 +56,7 @@ class SecureChannel internal constructor(
 
     private fun receiveFrame(): ByteArray {
         val size = input.readInt()
-        if (size < 17 || size > MAX_FRAME + 17) throw LinkException(tr("A message from the other device was broken."))
+        if (size < 17 || size > MAX_FRAME + 17) throw LinkException(tr("A message from the other device was damaged."))
         val sealed = ByteArray(size)
         input.readFully(sealed)
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
@@ -64,7 +64,7 @@ class SecureChannel internal constructor(
         return try {
             cipher.doFinal(sealed)
         } catch (e: java.security.GeneralSecurityException) {
-            throw LinkException(tr("A message didn't come from the other device, or was changed on the way."))
+            throw LinkException(tr("A message failed its security check."))
         }
     }
 
@@ -100,7 +100,7 @@ class SecureChannel internal constructor(
     fun receiveJson(): JSONObject = try {
         JSONObject(String(receive(), Charsets.UTF_8))
     } catch (e: org.json.JSONException) {
-        throw LinkException(tr("A message from the other device was broken."))
+        throw LinkException(tr("A message from the other device was damaged."))
     }
 
     /** Sends [size] bytes from [from], in pieces, telling [progress] how many so far. */
@@ -126,7 +126,7 @@ class SecureChannel internal constructor(
         var done = 0L
         while (done < size) {
             val piece = receive()
-            if (done + piece.size > size) throw LinkException(tr("A message from the other device was broken."))
+            if (done + piece.size > size) throw LinkException(tr("A message from the other device was damaged."))
             to.write(piece)
             done += piece.size
             progress(done)
@@ -241,7 +241,7 @@ object LinkHandshake {
     } catch (e: LinkException) {
         throw e
     } catch (e: Exception) {
-        throw LinkException(tr("The other device's greeting couldn't be read."))
+        throw LinkException(tr("The connection to the other device couldn't be set up."))
     }
 
     private fun keys(mine: KeyPair, peer: Hello, clientHello: ByteArray, serverHello: ByteArray): Keys {
@@ -256,7 +256,7 @@ object LinkHandshake {
     private fun checkSigned(peer: Hello, proof: JSONObject, side: String, transcript: ByteArray) {
         val sig = runCatching { unb64.decode(proof.getString("sig")) }.getOrNull()
         if (sig == null || !LinkCrypto.verify(LinkCrypto.publicKey(peer.key), sigData(side, transcript), sig)) {
-            throw LinkException(tr("The other device couldn't prove who it is."))
+            throw LinkException(tr("The other device couldn't be verified."))
         }
     }
 
@@ -270,9 +270,9 @@ object LinkHandshake {
         val size = try {
             input.readInt()
         } catch (e: EOFException) {
-            throw LinkException(tr("The other device hung up."))
+            throw LinkException(tr("The other device disconnected."))
         }
-        if (size <= 0 || size > MAX_HELLO) throw LinkException(tr("The other device's greeting couldn't be read."))
+        if (size <= 0 || size > MAX_HELLO) throw LinkException(tr("The connection to the other device couldn't be set up."))
         return ByteArray(size).also { input.readFully(it) }
     }
 }

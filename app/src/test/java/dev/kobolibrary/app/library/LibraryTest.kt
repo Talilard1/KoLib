@@ -378,7 +378,7 @@ ${names.joinToString("\n") { "    <itemref idref=\"$it\"/>" }}
         assertTrue("the question goes straight away", vm.duplicates.value.isEmpty())
         assertNull("and so does the finished job it came from", vm.job.value)
         idleUntil("done") { vm.making.value == null && vm.library.books.value.size == 2 }
-        assertEquals("Replaced 1 book with the new file. Added 1 book again as a separate book.", vm.message.value)
+        assertEquals("Replaced 1 book with the new file. Added 1 book as a separate book.", vm.message.value)
         assertTrue(held.none { it.file.exists() })
         assertTrue(vm.library.book(first.id)!!.modifiedAt >= first.modifiedAt)
 
@@ -540,7 +540,7 @@ ${names.joinToString("\n") { "    <itemref idref=\"$it\"/>" }}
             assertEquals("image/png", cover.mediaType)
             assertArrayEquals(png, epub.readBytes(cover.path))
         }
-        // "Restore it unchanged" keeps the first cover unchanged on the Kobo too.
+        // "Restore original" keeps the first cover unchanged on the Kobo too.
         lib.updateCover(book.id, realJpeg(1072, 1448, Color.GREEN), "image/jpeg", 1072, 1448)
         assertTrue(lib.restoreOriginalCover(book.id).coverAsIs)
         assertArrayEquals(own, lib.originalCover(book.id))

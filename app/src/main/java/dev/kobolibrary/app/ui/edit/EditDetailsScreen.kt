@@ -379,8 +379,8 @@ private fun CollectionsCard(draft: DetailsDraft, suggestions: EditSuggestions, o
             chipBadge = { i -> if (draft.collections[i].lowercase() !in suggestions.onKobo && suggestions.onKobo.isNotEmpty()) tr("not on the Kobo") else null },
         )
         Caption(
-            if (onKobo) tr("The book's collections on your Kobo. Changes are made on the Kobo when you send the book.")
-            else tr("When you send the book to your Kobo, it's added to these collections. KoLib can't make new collections on the Kobo, so make any that are missing there first."),
+            if (onKobo) tr("Updated on the Kobo when you send the book.")
+            else tr("Applied when you send the book. KoLib can't create collections on the Kobo, so create missing ones there first."),
             Modifier.padding(top = 6.dp),
         )
     }

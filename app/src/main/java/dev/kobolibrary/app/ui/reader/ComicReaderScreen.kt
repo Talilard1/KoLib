@@ -289,7 +289,7 @@ fun ComicBookReader(
                             android.graphics.BitmapFactory.decodeByteArray(jpeg, 0, jpeg.size, o)
                             library.updateCover(book.id, jpeg, "image/jpeg", o.outWidth, o.outHeight)
                         }.isSuccess
-                        Toast.makeText(context, if (ok) tr("That page is the cover now.") else tr("That page couldn't be made the cover."), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, if (ok) tr("Set as the cover.") else tr("Couldn't set that page as the cover."), Toast.LENGTH_SHORT).show()
                     }
                 },
                 readingHere = readingHere,
@@ -545,7 +545,7 @@ private suspend fun savePage(context: android.content.Context, pages: ComicPages
             context.contentResolver.openOutputStream(uri)?.use { it.write(pages.file(i)) } ?: error("not written")
         }.isSuccess
     }
-    Toast.makeText(context, if (ok) tr("Saved in Pictures, in the KoLib folder.") else tr("The page couldn't be saved."), Toast.LENGTH_SHORT).show()
+    Toast.makeText(context, if (ok) tr("Saved to Pictures/KoLib.") else tr("The page couldn't be saved."), Toast.LENGTH_SHORT).show()
 }
 
 /** Where taps go, coloured, for a moment: back a page, on a page, and the menu. */
@@ -1385,36 +1385,36 @@ private fun ComicSettingsSheet(
         Text(tr("Comic settings"), style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(bottom = 8.dp))
         if (onAppSettings != null) AppSettingsLink(onAppSettings, Modifier.padding(bottom = 8.dp))
         Choices(tr("Reading mode for this comic"), ComicMode.entries, mode, { it.label() }) { onMode(it) }
-        Choices(tr("Reading mode for other comics"), ComicMode.entries, s.mode, { it.label() }) { m -> onSettings { it.copy(mode = m) } }
+        Choices(tr("Default reading mode"), ComicMode.entries, s.mode, { it.label() }) { m -> onSettings { it.copy(mode = m) } }
 
-        Section(tr("Pages one at a time"))
+        Section(tr("Paged"))
         Choices(tr("Fit"), ComicScale.entries, s.scale, { it.label() }) { v -> onSettings { it.copy(scale = v) } }
-        Choices(tr("Where a page bigger than the screen starts"), ComicZoomStart.entries, s.zoomStart, { it.label() }) { v -> onSettings { it.copy(zoomStart = v) } }
+        Choices(tr("Zoom start position"), ComicZoomStart.entries, s.zoomStart, { it.label() }) { v -> onSettings { it.copy(zoomStart = v) } }
         Toggle(tr("Crop borders"), s.cropPaged) { v -> onSettings { it.copy(cropPaged = v) } }
-        Toggle(tr("Split wide pages in two"), s.splitWide) { v -> onSettings { it.copy(splitWide = v) } }
-        if (s.splitWide) Toggle(tr("Other half first"), s.invertSplit) { v -> onSettings { it.copy(invertSplit = v) } }
-        Toggle(tr("Turn wide pages on their side to fit"), s.rotateWide) { v -> onSettings { it.copy(rotateWide = v) } }
-        Toggle(tr("Zoom into wide pages"), s.zoomWide, tr("On a screen held upright, a wide page fills its height and is moved along.")) { v -> onSettings { it.copy(zoomWide = v) } }
-        Toggle(tr("Move along wide pages before turning"), s.panWide) { v -> onSettings { it.copy(panWide = v) } }
+        Toggle(tr("Split wide pages"), s.splitWide) { v -> onSettings { it.copy(splitWide = v) } }
+        if (s.splitWide) Toggle(tr("Invert split order"), s.invertSplit) { v -> onSettings { it.copy(invertSplit = v) } }
+        Toggle(tr("Rotate wide pages to fit"), s.rotateWide) { v -> onSettings { it.copy(rotateWide = v) } }
+        Toggle(tr("Zoom into wide pages"), s.zoomWide, tr("In portrait, a wide page fills the height and you pan across it.")) { v -> onSettings { it.copy(zoomWide = v) } }
+        Toggle(tr("Pan wide pages before turning"), s.panWide) { v -> onSettings { it.copy(panWide = v) } }
 
         Section(tr("Long strip"))
-        Choices(tr("Space at the sides"), ComicSettings.SIDE_PADDINGS, s.sidePadding, { if (it == 0) tr("None") else "$it%" }) { v -> onSettings { it.copy(sidePadding = v) } }
+        Choices(tr("Side padding"), ComicSettings.SIDE_PADDINGS, s.sidePadding, { if (it == 0) tr("None") else "$it%" }) { v -> onSettings { it.copy(sidePadding = v) } }
         Toggle(tr("Crop borders"), s.cropStrip) { v -> onSettings { it.copy(cropStrip = v) } }
         Toggle(tr("Double-tap to zoom"), s.doubleTapZoom) { v -> onSettings { it.copy(doubleTapZoom = v) } }
 
         Section(tr("Taps and keys"))
         Choices(tr("Tap zones"), ComicTaps.entries, s.taps, { it.label() }) { v -> onSettings { it.copy(taps = v) } }
-        Choices(tr("Swap tap zones"), ComicInvert.entries, s.invertTaps, { it.label() }) { v -> onSettings { it.copy(invertTaps = v) } }
-        Toggle(tr("Show the tap zones when a comic opens"), s.showTapZones) { v -> onSettings { it.copy(showTapZones = v) } }
+        Choices(tr("Invert tap zones"), ComicInvert.entries, s.invertTaps, { it.label() }) { v -> onSettings { it.copy(invertTaps = v) } }
+        Toggle(tr("Show tap zones on opening"), s.showTapZones) { v -> onSettings { it.copy(showTapZones = v) } }
         Toggle(tr("Volume keys turn pages"), s.volumeKeys) { v -> onSettings { it.copy(volumeKeys = v) } }
-        if (s.volumeKeys) Toggle(tr("Volume keys the other way round"), s.invertVolume) { v -> onSettings { it.copy(invertVolume = v) } }
-        Toggle(tr("Hold a page for what you can do with it"), s.longTap) { v -> onSettings { it.copy(longTap = v) } }
+        if (s.volumeKeys) Toggle(tr("Invert volume keys"), s.invertVolume) { v -> onSettings { it.copy(invertVolume = v) } }
+        Toggle(tr("Show actions on long tap"), s.longTap) { v -> onSettings { it.copy(longTap = v) } }
 
         Section(tr("Screen"))
         Choices(tr("Background"), ComicBackground.entries, s.background, { it.label() }) { v -> onSettings { it.copy(background = v) } }
         Toggle(tr("Animate page turns"), s.animate) { v -> onSettings { it.copy(animate = v) } }
-        Toggle(tr("Show the page number"), s.pageNumber) { v -> onSettings { it.copy(pageNumber = v) } }
-        Toggle(tr("Keep the screen on"), s.keepScreenOn) { v -> onSettings { it.copy(keepScreenOn = v) } }
+        Toggle(tr("Show page number"), s.pageNumber) { v -> onSettings { it.copy(pageNumber = v) } }
+        Toggle(tr("Keep screen on"), s.keepScreenOn) { v -> onSettings { it.copy(keepScreenOn = v) } }
     }
 }
 

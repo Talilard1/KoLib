@@ -16,15 +16,15 @@ import kotlin.math.roundToInt
 enum class CoverFitting(val label: String, val explanation: String) {
     BLUR(
         tr("Blur the gaps"),
-        tr("Shows the whole cover, with a blurred copy of it filling the empty space."),
+        tr("Whole cover, with a blurred copy filling the gaps."),
     ),
     FILL(
         tr("Crop to fill"),
-        tr("Enlarges the cover to fill the screen and cuts off the edges that don't fit."),
+        tr("Fills the screen. Edges that don't fit are cropped."),
     ),
     AS_IS(
-        tr("Leave unchanged"),
-        tr("Sends the cover unchanged. The Kobo shows blank space around it."),
+        tr("Original size"),
+        tr("Original size. The Kobo shows blank space around it."),
     ),
 }
 

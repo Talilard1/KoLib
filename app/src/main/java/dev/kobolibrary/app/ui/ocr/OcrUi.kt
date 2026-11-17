@@ -73,11 +73,11 @@ val LocalOcrActions = staticCompositionLocalOf<OcrActions?> { null }
 
 /** Where [status] is, in words: "Page 120 of 900 · about 40 minutes left". */
 fun describe(status: OcrStatus): String = when (status) {
-    OcrStatus.Waiting -> tr("Waiting for the books before it…")
+    OcrStatus.Waiting -> tr("Waiting in the queue…")
     is OcrStatus.Downloading -> tr("Downloading the language data: {0} of {1} MB", "%.1f".format(status.done / 1e6), "%.1f".format(status.total / 1e6))
     OcrStatus.Preparing -> tr("Getting ready…")
     is OcrStatus.Reading -> tr("Page {0} of {1}", status.done, status.total) + (status.millisLeft()?.let { Fmt.timeLeft(it) } ?: "")
-    OcrStatus.Making -> tr("Putting the book together…")
+    OcrStatus.Making -> tr("Building the book…")
 }
 
 private fun OcrStatus.fraction(): Float? = when (this) {
@@ -106,7 +106,7 @@ fun OcrSection(book: LibraryBook, shownStatus: OcrStatus? = null) {
         value = withContext(Dispatchers.IO) { app.library.ocrStore(book.id).applied?.languages }
     }
     Spacer(Modifier.height(16.dp))
-    SectionCard(if (book.isRecognised) tr("Text from the scanned pages") else tr("Make it into text"), icon = Icons.Outlined.DocumentScanner) {
+    SectionCard(if (book.isRecognised) tr("Text from the scan") else tr("Convert to text"), icon = Icons.Outlined.DocumentScanner) {
         when {
             status != null -> {
                 Text(describe(status), style = MaterialTheme.typography.bodyMedium)
@@ -116,7 +116,7 @@ fun OcrSection(book: LibraryBook, shownStatus: OcrStatus? = null) {
                 else LinearProgressIndicator(Modifier.fillMaxWidth())
                 Spacer(Modifier.height(10.dp))
                 Text(
-                    tr("It goes on with the app closed. You can check the pages read so far."),
+                    tr("Continues with KoLib closed. You can check the pages done so far."),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -136,9 +136,9 @@ fun OcrSection(book: LibraryBook, shownStatus: OcrStatus? = null) {
             }
             book.isRecognised -> {
                 Text(
-                    (applied?.let { tr("The words were recognised in the pictures of its pages ({0}), so they can have mistakes.", languageNames(it)) }
-                        ?: tr("The words were recognised in the pictures of its pages, so they can have mistakes.")) +
-                        tr(" Its PDF is kept: it can still be read as the scan."),
+                    (applied?.let { tr("The text was recognised from the scanned pages ({0}), so it may have mistakes.", languageNames(it)) }
+                        ?: tr("The text was recognised from the scanned pages, so it may have mistakes.")) +
+                        tr(" The original PDF is still available."),
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Spacer(Modifier.height(12.dp))
@@ -151,20 +151,20 @@ fun OcrSection(book: LibraryBook, shownStatus: OcrStatus? = null) {
                     OutlinedButton(onClick = { actions.goBack(book) }, colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)) {
                         Icon(Icons.Outlined.Undo, null, Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text(tr("Go back to the scan"))
+                        Text(tr("Revert to scan"))
                     }
                 }
             }
             else -> {
                 Text(
-                    if (book.sourceFormat == BookFormats.PDF_ONLY) tr("This PDF is too big to make into an EPUB here, so it can only be read and sent as the PDF. If its pages are scans, KoLib can recognise the words in them and make it into a book whose text fits the screen.")
-                    else tr("The pages of this PDF are pictures, so it can only be read and sent as the PDF. KoLib can recognise the words in them and make it into a book whose text fits the screen."),
+                    if (book.sourceFormat == BookFormats.PDF_ONLY) tr("This PDF is too large to convert to an EPUB here, so it's read and sent as a PDF. If it's a scan, text recognition can make it a book with resizable text.")
+                    else tr("This PDF is a scan, so it's read and sent as a PDF. Text recognition can make it a book with resizable text."),
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 if (stopped == null) {
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        tr("The first time for each language, it needs to download that language's recognition data (a few megabytes)."),
+                        tr("Each language needs a one-time download of a few megabytes."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -172,20 +172,20 @@ fun OcrSection(book: LibraryBook, shownStatus: OcrStatus? = null) {
                 val s = stopped
                 if (s != null) {
                     Spacer(Modifier.height(8.dp))
-                    Text(tr("{0} of its {1} pages have been read so far.", s.first, s.second), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
+                    Text(tr("{0} of {1} pages done.", s.first, s.second), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
                 }
                 Spacer(Modifier.height(12.dp))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (s != null) {
                         val languages = remember(book.id, s) { app.library.ocrStore(book.id).settings?.languages.orEmpty() }
-                        if (languages.isNotEmpty()) GoldButton(onClick = { actions.carryOn(book, languages) }) { Text(tr("Carry on")) }
+                        if (languages.isNotEmpty()) GoldButton(onClick = { actions.carryOn(book, languages) }) { Text(tr("Resume")) }
                         OutlinedButton(onClick = { actions.compare(book) }) {
                             Icon(Icons.Outlined.Compare, null, Modifier.size(18.dp))
                             Spacer(Modifier.width(8.dp))
                             Text(tr("Compare with the pages"))
                         }
                     }
-                    if (s == null) GoldButton(onClick = { actions.offer(listOf(book)) }) { Text(tr("Make into text…")) }
+                    if (s == null) GoldButton(onClick = { actions.offer(listOf(book)) }) { Text(tr("Convert to text…")) }
                     else OutlinedButton(onClick = { actions.offer(listOf(book)) }) { Text(tr("Other languages…")) }
                 }
             }
@@ -203,7 +203,7 @@ fun OcrStrip(onShow: (String) -> Unit) {
     Surface(color = MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.fillMaxWidth().clickable { onShow(id) }) {
         Column(Modifier.padding(horizontal = 20.dp, vertical = 10.dp)) {
             Text(
-                tr("Making “{0}” into text", title) + " · " + describe(status),
+                tr("Converting “{0}” to text", title) + " · " + describe(status),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                 maxLines = 1,
@@ -228,11 +228,11 @@ fun OcrDialog(books: List<LibraryBook>, onStart: (List<String>) -> Unit, onDismi
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Outlined.DocumentScanner, null) },
-        title = { Text(if (books.size == 1) tr("Make “{0}” into text", books[0].title) else tr("Make {0} books into text", books.size)) },
+        title = { Text(if (books.size == 1) tr("Convert “{0}” to text", books[0].title) else tr("Convert {0} books to text", books.size)) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 Text(
-                    tr("KoLib recognises the words in the pictures of the pages, here on this device, and makes them into a book whose text fits the screen. It takes a few seconds a page, so a long book takes a while; it goes on with the app closed."),
+                    tr("Text recognition (OCR) runs on this device and makes a book with resizable text. It takes a few seconds per page and continues with KoLib closed."),
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Spacer(Modifier.height(12.dp))
@@ -241,8 +241,8 @@ fun OcrDialog(books: List<LibraryBook>, onStart: (List<String>) -> Unit, onDismi
                     Icon(Icons.Outlined.Download, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.primary)
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        if (toDownload > 0) tr("It needs to download the recognition data for each language first: {0} for the languages picked, from the Tesseract project. Each one is downloaded once, and kept.", Fmt.bytes(context, toDownload) ?: "")
-                        else tr("The recognition data for the languages picked is on this device already, so nothing needs downloading."),
+                        if (toDownload > 0) tr("A one-time download is needed: {0} of language data from the Tesseract project.", Fmt.bytes(context, toDownload) ?: "")
+                        else tr("The language data is already on this device."),
                         style = MaterialTheme.typography.bodyMedium,
                         color = if (toDownload > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -252,14 +252,14 @@ fun OcrDialog(books: List<LibraryBook>, onStart: (List<String>) -> Unit, onDismi
                     Icon(Icons.Outlined.WarningAmber, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.error)
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        tr("The text can have mistakes, especially with old or small print, tables, footnotes and other alphabets. The scan is kept: you can compare the text with it page by page, and go back to it."),
+                        tr("Expect some mistakes, especially with old or small print, tables, footnotes and other alphabets. You can compare the text with the scan page by page, and revert to the scan."),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 }
                 Spacer(Modifier.height(16.dp))
                 Text(tr("Languages in the book"), style = MaterialTheme.typography.titleSmall)
                 Spacer(Modifier.height(4.dp))
-                Text(tr("Pick every language it's written in. Each one makes it a little slower."), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(tr("Select every language in the book. Each one slows it down a little."), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(8.dp))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     for (l in OcrLanguages.all) {
@@ -273,7 +273,7 @@ fun OcrDialog(books: List<LibraryBook>, onStart: (List<String>) -> Unit, onDismi
             }
         },
         confirmButton = {
-            TextButton(onClick = { onStart(ordered) }, enabled = ordered.isNotEmpty()) { Text(tr("Make into text")) }
+            TextButton(onClick = { onStart(ordered) }, enabled = ordered.isNotEmpty()) { Text(tr("Convert to text")) }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Cancel")) } },
     )
@@ -284,13 +284,13 @@ fun OcrDialog(books: List<LibraryBook>, onStart: (List<String>) -> Unit, onDismi
 fun GoBackToScanDialog(book: LibraryBook, onGoBack: () -> Unit, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(tr("Go back to the scan?")) },
+        title = { Text(tr("Revert to the scan?")) },
         text = {
             Text(
-                tr("“{0}” is read and sent as its PDF again, as before. What was recognised is kept, so making it into text again in the same languages is quick.", book.title)
+                tr("“{0}” goes back to being read and sent as a PDF. Converting it again in the same languages will be quick.", book.title)
             )
         },
-        confirmButton = { TextButton(onClick = onGoBack) { Text(tr("Go back to the scan"), color = MaterialTheme.colorScheme.error) } },
+        confirmButton = { TextButton(onClick = onGoBack) { Text(tr("Revert to scan"), color = MaterialTheme.colorScheme.error) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Cancel")) } },
     )
 }

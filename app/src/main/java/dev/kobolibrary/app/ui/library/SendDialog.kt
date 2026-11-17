@@ -137,9 +137,9 @@ fun SendDialog(
                         Switch(checked = pdfs, onCheckedChange = null)
                     }
                     Text(
-                        if (pdfs) tr("The pages look exactly as they were printed. Text can't be made bigger, so they're best on a large screen.")
-                        else if (books.size == 1) tr("It goes as {0}, so the text fits the Kobo's screen and you can change its size.", if (format == SendFormat.KEPUB) "kepub" else "EPUB")
-                        else tr("PDFs go as {0}, so the text fits the Kobo's screen and you can change its size.", if (format == SendFormat.KEPUB) "kepub" else "EPUB"),
+                        if (pdfs) tr("Pages look as printed. Text size can't be changed, so a large screen is best.")
+                        else if (books.size == 1) tr("Sent as {0}, so the text fits the screen and can be resized.", if (format == SendFormat.KEPUB) "kepub" else "EPUB")
+                        else tr("PDFs are sent as {0}, so the text fits the screen and can be resized.", if (format == SendFormat.KEPUB) "kepub" else "EPUB"),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -149,17 +149,17 @@ fun SendDialog(
                     Text(
                         when {
                             books.size == 1 && books[0].sourceFormat == dev.kobolibrary.app.convert.BookFormats.PDF_SCAN ->
-                                tr("This book can only go as a PDF: its pages are pictures, with no text to convert.")
-                            books.size == 1 -> tr("This book can only go as a PDF: it's too big to convert on this device.")
-                            scans == 1 -> tr("1 book can only go as a PDF: its pages are pictures, or it's too big to convert on this device.")
-                            else -> tr("{0} books can only go as PDFs: their pages are pictures, or they're too big to convert on this device.", scans)
+                                tr("Can only be sent as a PDF: its pages are scans, with no text to convert.")
+                            books.size == 1 -> tr("Can only be sent as a PDF: it's too large to convert on this device.")
+                            scans == 1 -> tr("1 book can only be sent as a PDF: it's scanned, or too large to convert.")
+                            else -> tr("{0} books can only be sent as PDFs: they're scanned, or too large to convert.", scans)
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     if (onMakeText != null) {
                         TextButton(onClick = { onMakeText(books.filter { it.isScan }) }, contentPadding = PaddingValues(horizontal = 0.dp)) {
-                            Text(if (scans == 1) tr("Make it into text first…") else tr("Make them into text first…"))
+                            Text(if (scans == 1) tr("Convert it to text first…") else tr("Convert them to text first…"))
                         }
                     }
                 }
@@ -199,9 +199,9 @@ fun SendDialog(
                     Note(
                         Icons.Outlined.Info,
                         when {
-                            books.size == 1 -> tr("This book is already on the Kobo. It will be updated, and you won't lose your place. If its chapters changed, the Kobo will treat it as a new book.")
-                            replacing == 1 -> tr("1 book is already on the Kobo. It will be updated, and you won't lose your place. If its chapters changed, the Kobo will treat it as a new book.")
-                            else -> tr("{0} books are already on the Kobo. They will be updated, and you won't lose your place. If their chapters changed, the Kobo will treat them as new books.", replacing)
+                            books.size == 1 -> tr("Already on the Kobo. It'll be updated and you won't lose your place, unless its chapters changed.")
+                            replacing == 1 -> tr("1 book is already on the Kobo. It'll be updated and you won't lose your place, unless its chapters changed.")
+                            else -> tr("{0} books are already on the Kobo. They'll be updated and you won't lose your place, unless their chapters changed.", replacing)
                         },
                     )
                 }
@@ -209,9 +209,9 @@ fun SendDialog(
                     Note(
                         Icons.Outlined.WarningAmber,
                         when {
-                            books.size == 1 -> tr("This book is on the Kobo as {0}, so it will change format. The Kobo will treat it as a new book, so your reading progress in it will start over.", onKobo.firstOrNull()?.let { dev.kobolibrary.app.kobo.KoboPaths.kindOf(it.second) } ?: "EPUB")
-                            switching == 1 -> tr("1 book will change format. The Kobo will treat it as a new book, so your reading progress in it will start over.")
-                            else -> tr("{0} books will change format. The Kobo will treat them as new books, so your reading progress in them will start over.", switching)
+                            books.size == 1 -> tr("On the Kobo as {0}. Changing format resets your reading progress in it.", onKobo.firstOrNull()?.let { dev.kobolibrary.app.kobo.KoboPaths.kindOf(it.second) } ?: "EPUB")
+                            switching == 1 -> tr("1 book will change format, which resets its reading progress.")
+                            else -> tr("{0} books will change format, which resets their reading progress.", switching)
                         },
                         warning = true,
                     )
@@ -223,7 +223,7 @@ fun SendDialog(
                 if (!connected) Note(Icons.Outlined.WarningAmber, tr("The Kobo isn't connected. Plug it in and tap Connect on its screen."), warning = true)
                 if (!connected && onWifi != null) Note(
                     Icons.Outlined.Info,
-                    tr("Or send them over Wi-Fi, through the Kobo's web browser. The Kobo adds them itself, so they can't go into collections that way."),
+                    tr("Or send over Wi-Fi through the Kobo's web browser. Collections need the cable."),
                 )
             }
         },

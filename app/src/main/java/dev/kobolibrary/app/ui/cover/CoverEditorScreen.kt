@@ -240,7 +240,7 @@ fun CoverEditorScreen(
             genre = remember(book.id, book.meta) { CoverGenre.guess(book.meta.tags, book.meta.series, book.meta.title, book.meta.description) },
             currentCover = original?.picture?.full,
             onUse = { bitmap, design ->
-                shown = ShownPicture(CoverRendering.prepare(bitmap, tr("Made here, in the {0} design", design.style.label)))
+                shown = ShownPicture(CoverRendering.prepare(bitmap, tr("Generated: {0}", design.style.label)))
                 crop = CoverCrop()
                 problem = null
                 generating = false
@@ -354,7 +354,7 @@ fun CoverEditorScreen(
         AlertDialog(
             onDismissRequest = { confirmRestore = false },
             title = { Text(tr("Restore the original cover?")) },
-            text = { Text(tr("The book will get back the cover it came with. You can change it again later.")) },
+            text = { Text(tr("The book gets back the cover it came with.")) },
             confirmButton = {
                 TextButton(onClick = {
                     confirmRestore = false
@@ -508,14 +508,14 @@ private fun CoverControls(
         }
         if (showingFirst && onRestoreFirst != null) {
             Text(
-                tr("This is the cover the book came with. You can fit it to the Kobo's screen like any other picture, or restore it unchanged."),
+                tr("The cover the book came with. Fit it to the Kobo's screen, or restore it unchanged."),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             TextButton(onClick = onRestoreFirst, contentPadding = PaddingValues(horizontal = 0.dp, vertical = 4.dp)) {
                 Icon(Icons.Outlined.Restore, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text(tr("Restore it unchanged"))
+                Text(tr("Restore original"))
             }
         }
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -593,7 +593,7 @@ private fun CoverControls(
             enabled = shown != null && crop.fit != CoverFit.AS_IS,
         )
         Text(
-            if (crop.fit == CoverFit.AS_IS) tr("Moving and zooming are off while the picture is left unchanged.")
+            if (crop.fit == CoverFit.AS_IS) tr("Move and zoom are off at Original size.")
             else tr("Drag the picture to move it, pinch to zoom, or double-tap to zoom in and out."),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -603,18 +603,18 @@ private fun CoverControls(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text(tr("Black and white preview"), style = MaterialTheme.typography.titleSmall)
-                Text(tr("About how it will look on the Kobo's screen."), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(tr("Roughly how it looks on the Kobo."), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Switch(checked = greyscale, onCheckedChange = onGreyscale)
         }
         Spacer(Modifier.height(4.dp))
         Text(
             if (crop.fit == CoverFit.AS_IS) {
-                shown?.let { tr("The picture is saved in the book file at its own size ({0} × {1} pixels) and sent to the Kobo unchanged.", it.width, it.height) }
-                    ?: tr("The picture is saved in the book file at its own size and sent to the Kobo unchanged.")
+                shown?.let { tr("Saved at its original size, {0} × {1} pixels.", it.width, it.height) }
+                    ?: tr("Saved at its original size.")
             } else {
-                if (CoverScreen.fromKobo) tr("The cover is saved inside the book file at {0} × {1} pixels, the size of your Kobo's screen.", CoverCrop.OUT_WIDTH, CoverCrop.OUT_HEIGHT)
-                else tr("The cover is saved inside the book file at {0} × {1} pixels, the size of the Kobo Clara's screen.", CoverCrop.OUT_WIDTH, CoverCrop.OUT_HEIGHT)
+                if (CoverScreen.fromKobo) tr("Saved at {0} × {1} pixels, your Kobo's screen size.", CoverCrop.OUT_WIDTH, CoverCrop.OUT_HEIGHT)
+                else tr("Saved at {0} × {1} pixels, the Kobo Clara's screen size.", CoverCrop.OUT_WIDTH, CoverCrop.OUT_HEIGHT)
             },
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,

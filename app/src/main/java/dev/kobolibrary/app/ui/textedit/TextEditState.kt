@@ -2,10 +2,13 @@ package dev.kobolibrary.app.ui.textedit
 
 import dev.kobolibrary.app.tr
 import android.annotation.SuppressLint
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.res.AssetManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.View
@@ -48,7 +51,13 @@ import java.io.ByteArrayOutputStream
 import kotlin.coroutines.resume
 
 /** What the formatting toolbar shows for where the cursor is. */
-data class ToolbarState(val bold: Boolean = false, val italic: Boolean = false, val block: String? = null, val image: String? = null)
+data class ToolbarState(
+    val bold: Boolean = false, val italic: Boolean = false, val block: String? = null, val image: String? = null,
+    /** How the paragraph the cursor is in is lined up: left, center, right or justify. */
+    val align: String? = null,
+    /** Some text is selected. */
+    val selection: Boolean = false,
+)
 
 /**
  * A book's text being edited: the chapters, the page or code open in the editor, find & replace,
@@ -269,7 +278,8 @@ class TextEditState(
         fun state(json: String) = main.post {
             val o = runCatching { JSONObject(json) }.getOrNull() ?: return@post
             toolbar = ToolbarState(o.optBoolean("bold"), o.optBoolean("italic"), o.optString("block").takeIf { it.isNotEmpty() && it != "null" },
-                o.optString("image").takeIf { it.isNotEmpty() && it != "null" })
+                o.optString("image").takeIf { it.isNotEmpty() && it != "null" },
+                o.optString("align").takeIf { it.isNotEmpty() && it != "null" }, o.optBoolean("selection"))
             scrollY = o.optInt("scrollY", scrollY)
         }
 
@@ -405,6 +415,9 @@ class TextEditState(
     fun split(path: String, offset: Int, title: String?) = change { ChapterOps.split(edit, structure, path, offset, title) }
     fun addChapter(after: String?, title: String) = change { ChapterOps.addChapter(edit, structure, after, title) }
 
+    /** A copy of the chapter at [path], put straight after it and opened. */
+    fun duplicate(path: String) = change { ChapterOps.duplicate(edit, structure, path) }
+
     val startPath: String? get() = version.let { runCatching { ChapterOps.startPath(structure) }.getOrNull() }
 
     /** The book's cover page, if it names one. */
@@ -508,6 +521,43 @@ class TextEditState(
     fun command(name: String, arg: String? = null) {
         if (showCode) return
         js("KLED.cmd(${JSONObject.quote(name)}, ${arg?.let { JSONObject.quote(it) } ?: "null"})")
+    }
+
+    /** Selects in the page without dragging: "all", "toStart", "toEnd" (from the cursor) or "paragraph". */
+    fun select(what: String) {
+        if (showCode) return
+        js("KLED.select(${JSONObject.quote(what)})") { webView?.requestFocus() }
+    }
+
+    /** Copies what's selected in the page (as text, and with its italics and bold for pasting back in); with [cut], takes it out too. */
+    fun copySelection(context: Context, cut: Boolean = false) {
+        if (showCode) return
+        js("KLED.copy($cut)") { raw ->
+            val o = raw?.let { runCatching { JSONObject(JSONArray("[$it]").optString(0)) }.getOrNull() }
+            val text = o?.optString("text").orEmpty()
+            if (text.isEmpty()) {
+                message = tr("Select some text first.")
+                return@js
+            }
+            val clipboard = context.getSystemService(ClipboardManager::class.java)
+            runCatching { clipboard?.setPrimaryClip(ClipData.newHtmlText("KoLib", text, o?.optString("html").orEmpty())) }
+                .onFailure { message = tr("That couldn't be copied: {0}", it.message ?: it.javaClass.simpleName) }
+            // Android 13 and later say so themselves.
+            if (Build.VERSION.SDK_INT < 33) message = if (cut) tr("Cut.") else tr("Copied.")
+        }
+    }
+
+    /** Puts what's on the clipboard in where the cursor is, as clean paragraphs. */
+    fun pasteClipboard(context: Context) {
+        if (showCode) return
+        val item = runCatching { context.getSystemService(ClipboardManager::class.java)?.primaryClip?.takeIf { it.itemCount > 0 }?.getItemAt(0) }.getOrNull()
+        val text = item?.coerceToText(context)?.toString().orEmpty()
+        val html = item?.htmlText.orEmpty()
+        if (text.isBlank() && html.isBlank()) {
+            message = tr("Nothing to paste.")
+            return
+        }
+        js("KLED.paste(${JSONObject.quote(text)}, ${JSONObject.quote(html)})") { webView?.requestFocus() }
     }
 
     /** Adds a picture to the book and puts it in the page where the cursor is. */

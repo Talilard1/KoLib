@@ -465,6 +465,86 @@ class LinkManager(
         }
     }
 
+    // ---- pairing with a QR code ---------------------------------------------------------------------------
+
+    /** The word in the QR code this device is showing now, if it's showing one. */
+    @Volatile
+    private var qrToken: String? = null
+
+    /**
+     * What this device's pairing QR code says while it's shown, for a device at one of [addresses] ([closeQr] when
+     * it's put away). Null when it's on no network, or isn't taking connections.
+     */
+    fun qrOffer(addresses: List<String>): String? {
+        val port = _port.value
+        if (port <= 0 || addresses.isEmpty()) {
+            qrToken = null
+            return null
+        }
+        val token = qrToken ?: LinkQr.newToken().also { qrToken = it }
+        return LinkQr(addresses.take(4), port, identity.id, LinkQr.keyPrint(identity.publicKey), token, identity.name).encode()
+    }
+
+    /** The QR code is no longer shown: a device that read it can't pair with it any more. */
+    fun closeQr() {
+        qrToken = null
+    }
+
+    /**
+     * Pairs with the device whose QR code said [text]: it's found where the code says, checked to be the device the
+     * code came from, and told the code's word, which is its yes. False if [text] isn't one of KoLib's pairing codes.
+     */
+    fun pairFromQr(text: String): Boolean {
+        val offer = LinkQr.parse(text) ?: return false
+        if (_pairing.value != null) return true
+        if (offer.id == identity.id) {
+            _messages.tryEmit(tr("That's this device's own code. Scan it with your other device."))
+            return true
+        }
+        _pairing.value = Pairing(offer.name, null, incoming = false)
+        val mine = CompletableDeferred(true)
+        scope.launch(Dispatchers.IO) {
+            var session: LinkSession? = null
+            try {
+                var at: String? = null
+                for (address in offer.addresses) {
+                    session = runCatching { open(address, offer.port, pairing = true, connectTimeout = 2_500) }.getOrNull()
+                    if (session != null) {
+                        at = address
+                        break
+                    }
+                }
+                val s = session ?: throw LinkException(tr("{0} couldn't be reached. Put both devices on the same Wi-Fi.", offer.name))
+                // Put off while connecting.
+                if (_pairing.value == null) return@launch
+                if (s.peerId != offer.id || !LinkCrypto.same(LinkQr.keyPrint(s.peerKey).toByteArray(), offer.key.toByteArray())) {
+                    throw LinkException(tr("That isn't the device the code came from."))
+                }
+                s.waitAtMost((PAIRING_WAIT + 15_000).toInt())
+                s.channel.sendJson(request("pair").put("token", offer.token))
+                when (agree(s, mine) {}) {
+                    Agreed.BOTH -> {
+                        store.add(PairedDevice(s.peerId, s.peerName, Base64.getEncoder().encodeToString(s.peerKey), System.currentTimeMillis(), at, offer.port, System.currentTimeMillis()))
+                        if (at != null) found(s.peerId, s.peerName, at, offer.port, System.currentTimeMillis() + CONNECTED_GRACE)
+                        _pairing.value = null
+                        _messages.tryEmit(tr("Paired with {0}.", s.peerName))
+                    }
+                    Agreed.NOT_ME -> _pairing.value = null
+                    Agreed.NOT_THEM -> _pairing.value = Pairing(s.peerName, null, incoming = false, failed = tr("That code is no longer showing. Show it again on {0}.", s.peerName))
+                    Agreed.TOO_LONG -> _pairing.value = Pairing(s.peerName, null, incoming = false, failed = tr("Pairing timed out. Try again."))
+                }
+            } catch (e: Exception) {
+                AppLog.w("Link", "Pairing with ${offer.name} by its QR code didn't work", e)
+                if (_pairing.value != null) {
+                    _pairing.value = Pairing(offer.name, null, incoming = false, failed = (e as? LinkException)?.message ?: tr("{0} couldn't be reached.", offer.name))
+                }
+            } finally {
+                session?.close()
+            }
+        }
+        return true
+    }
+
     /** This side's yes or no to pairing; or putting away what's shown once it's over. */
     fun answer(yes: Boolean) {
         val pending = answer
@@ -533,18 +613,30 @@ class LinkManager(
         }
     }
 
-    private suspend fun servePairing(s: LinkSession, from: String?, theirPort: Int?) {
+    private suspend fun servePairing(s: LinkSession, from: String?, theirPort: Int?, word: String = "") {
         if (_pairing.value != null) {
             // Already pairing with someone.
             runCatching { s.channel.sendJson(JSONObject().put("confirm", false)) }
             return
         }
+        // A device that says it read this one's QR code: yes if its word is the one showing now, and no otherwise.
+        val byQr = word.isNotEmpty()
+        if (byQr) {
+            val showing = qrToken
+            if (showing == null || !LinkCrypto.same(showing.toByteArray(), word.toByteArray())) {
+                runCatching { s.channel.sendJson(JSONObject().put("confirm", false)) }
+                return
+            }
+            // Good the once.
+            qrToken = null
+        }
         s.waitAtMost((PAIRING_WAIT + 15_000).toInt())
         val mine = CompletableDeferred<Boolean>()
+        if (byQr) mine.complete(true)
         answer = mine
-        _pairing.value = Pairing(s.peerName, s.code, incoming = true)
+        _pairing.value = Pairing(s.peerName, if (byQr) null else s.code, incoming = true)
         try {
-            when (agree(s, mine) { _pairing.value = Pairing(s.peerName, s.code, incoming = true, confirmed = true) }) {
+            when (agree(s, mine) { if (!byQr) _pairing.value = Pairing(s.peerName, s.code, incoming = true, confirmed = true) }) {
                 Agreed.BOTH -> {
                     store.add(PairedDevice(s.peerId, s.peerName, Base64.getEncoder().encodeToString(s.peerKey), System.currentTimeMillis(), from, theirPort, System.currentTimeMillis()))
                     _pairing.value = null
@@ -583,7 +675,7 @@ class LinkManager(
                 }
                 when {
                     op == "hello" -> Unit
-                    op == "pair" -> servePairing(s, from, theirPort)
+                    op == "pair" -> servePairing(s, from, theirPort, request.optString("token"))
                     known == null -> s.channel.sendJson(JSONObject().put("ok", false).put("error", "not paired"))
                     else -> {
                         if (from != null) store.seen(known.id, s.peerName, from, theirPort ?: known.port ?: PORT)

@@ -12,6 +12,7 @@ import org.json.JSONObject
 import org.junit.After
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -168,6 +169,52 @@ class LinkManagerTest {
         waitFor("the message") { phone.messages.any { "Received 2 files from Tablet" in it } }
         waitFor("the message") { tablet.messages.any { "Sent 2 files to Phone" in it } }
         assertTrue(tablet.link.transfers.value.isEmpty())
+    }
+
+    @Test
+    fun aQrCodePairsTwoDevicesWithNothingToConfirm() {
+        val tablet = device("Tablet")
+        val phone = device("Phone")
+        val code = tablet.link.qrOffer(listOf("127.0.0.1"))
+        assertNotNull(code)
+        // The same code for as long as it's shown.
+        assertEquals(code, tablet.link.qrOffer(listOf("127.0.0.1")))
+        assertTrue(phone.link.pairFromQr(code!!))
+        waitFor("pairing") { phone.link.paired.value.any { it.id == tablet.link.identity.id } && tablet.link.paired.value.any { it.id == phone.link.identity.id } }
+        waitFor("dialogs closing") { phone.link.pairing.value == null && tablet.link.pairing.value == null }
+        waitFor("the message") { phone.messages.any { "Paired with Tablet" in it } && tablet.messages.any { "Paired with Phone" in it } }
+        runBlocking { phone.link.sendText(phone.record(tablet), "Sent after a scan").join() }
+        assertEquals(listOf("Sent after a scan"), tablet.host.texts)
+
+        // The code was good the once: another device that reads it later isn't paired.
+        val other = device("Other")
+        assertTrue(other.link.pairFromQr(code))
+        waitFor("the refusal") { other.link.pairing.value?.failed != null }
+        assertTrue(tablet.link.paired.value.none { it.id == other.link.identity.id })
+        assertTrue(other.link.paired.value.isEmpty())
+        other.link.answer(false)
+        assertNull(other.link.pairing.value)
+
+        // Not one of KoLib's codes.
+        assertFalse(phone.link.pairFromQr("https://example.com/"))
+        // With nowhere to be reached, there's no code to show.
+        assertNull(tablet.link.qrOffer(emptyList()))
+    }
+
+    @Test
+    fun aQrCodeOnlyPairsWithTheDeviceItCameFrom() {
+        val tablet = device("Tablet")
+        val phone = device("Phone")
+        val impostor = device("Impostor")
+        val real = LinkQr.parse(tablet.link.qrOffer(listOf("127.0.0.1"))!!)!!
+        // The tablet's code, but pointing at another device: its key isn't the tablet's.
+        val forged = real.copy(port = impostor.link.listeningPort.value).encode()
+        assertTrue(phone.link.pairFromQr(forged))
+        waitFor("the refusal") { phone.link.pairing.value?.failed != null }
+        assertTrue(phone.link.pairing.value!!.failed!!.contains("isn't the device"))
+        assertTrue(phone.link.paired.value.isEmpty())
+        assertTrue(impostor.link.paired.value.isEmpty())
+        assertNull(impostor.link.pairing.value)
     }
 
     @Test

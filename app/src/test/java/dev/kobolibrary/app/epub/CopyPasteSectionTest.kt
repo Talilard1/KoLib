@@ -51,6 +51,34 @@ class CopyPasteSectionTest {
     }
 
     @Test
+    fun aChapterIsDuplicatedStraightAfterItself() {
+        garden().use { g ->
+            val before = g.structure.chapters.map { it.path }
+            val items = g.structure.opf.items.size
+            val original = g.text("OEBPS/text/ch1.xhtml")!!
+            val r = ChapterOps.duplicate(g, g.structure, "OEBPS/text/ch1.xhtml")
+            assertTrue(g.apply(r.label, r.changes))
+            assertEquals("Duplicated “Chapter 1: Rose”", r.label)
+            assertEquals("OEBPS/text/ch1-2.xhtml", r.focus)
+            // Straight after the chapter it's a copy of, in the reading order and the contents.
+            val at = before.indexOf("OEBPS/text/ch1.xhtml")
+            assertEquals(before.take(at + 1) + "OEBPS/text/ch1-2.xhtml" + before.drop(at + 1), g.structure.chapters.map { it.path })
+            val titles = Contents.flatten(g.structure.toc).map { it.first.title }
+            assertEquals("Chapter 1: Rose (copy)", titles[titles.indexOf("Chapter 1: Rose") + 1])
+            // Only the page is new (its style sheet and font are the book's own), and its words are the same.
+            assertEquals(items + 1, g.structure.opf.items.size)
+            assertEquals(original, g.text("OEBPS/text/ch1-2.xhtml")!!.replace("ch1-2.xhtml", "ch1.xhtml"))
+            assertEquals(original, g.text("OEBPS/text/ch1.xhtml"))
+            val problems = BookCheck.run(g).map { it.toString() }
+            assertTrue(problems.toString(), problems.none { "ch1-2" in it })
+            // One step to undo.
+            g.undo()
+            assertEquals(before, g.structure.chapters.map { it.path })
+            assertEquals(items, g.structure.opf.items.size)
+        }
+    }
+
+    @Test
     fun aFileTheBookHasAlreadyIsUsedAsItIs() {
         garden().use { g ->
             val page = ChapterOps.copyPage(g, g.structure, "OEBPS/text/ch2.xhtml")

@@ -22,6 +22,8 @@ Third-party components and their licences are listed below. Each licence text is
 | Leptonica, © 2001 Leptonica | Image handling for Tesseract | BSD 2-clause | `leptonica-BSD.txt` |
 | libjpeg, © 1991–2024 Thomas G. Lane, Guido Vollbeding. This software is based in part on the work of the Independent JPEG Group | JPEG support for Tesseract | IJG | `libjpeg-IJG.txt` |
 | libpng, © 1995–2025 The PNG Reference Library Authors | PNG support for Tesseract | PNG Reference Library License 2 | `libpng-LICENSE.txt` |
+| ZXing (`com.google.zxing:core`), © ZXing authors | QR codes for pairing devices | Apache 2.0 | `apache-2.0.txt` |
+| CameraX (`androidx.camera`), © The Android Open Source Project | The camera, for scanning a pairing QR code | Apache 2.0 | `apache-2.0.txt` |
 
 Test-only libraries (JUnit, Robolectric, Roborazzi, sqlite-jdbc) are not part of the app.
 

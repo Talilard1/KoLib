@@ -970,6 +970,17 @@ object ChapterOps {
         return Result(tr("Added “{0}”", node.title), changes, newPath)
     }
 
+    /**
+     * A copy of the chapter at [path], straight after it: the same words, pictures and styles, as a page of its own,
+     * called the same in the contents with "(copy)" after.
+     */
+    fun duplicate(files: BookFiles, structure: BookStructure, path: String): Result {
+        val page = copyPage(files, structure, path)
+        val named = CopiedPage(tr("{0} (copy)", page.title.ifBlank { path.substringAfterLast('/').substringBeforeLast('.') }), page.path, page.text, page.files, page.levels, page.isContents)
+        val r = paste(files, structure, path, named)
+        return r.copy(label = tr("Duplicated “{0}”", page.title.ifBlank { path.substringAfterLast('/') }))
+    }
+
     // ---- pictures ----------------------------------------------------------------------------
 
     /** Where a new picture goes: the folder most of the book's pictures are in, with a free name. */

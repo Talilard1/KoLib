@@ -1,0 +1,272 @@
+@fr
+2623|Codes QR pour associer les appareils.
+2624|© Auteurs de ZXing
+2625|L’appareil photo, pour scanner un code QR d’association.
+2626|Sélectionnez d’abord du texte.
+2627|Coupé.
+2628|Copié.
+2629|Rien à coller.
+2630|Centrer
+2631|Justifier
+2632|Sélectionner et copier
+2633|Sélectionner jusqu’au début
+2634|Sélectionner jusqu’à la fin
+2635|Sélectionner le paragraphe
+2636|Couper
+2637|Coller
+2638|Afficher le code QR
+2639|Scanner un code QR
+2640|Associer avec un code QR
+2641|Rejoignez d’abord un réseau Wi-Fi.
+2642|Sur votre autre appareil, ouvrez Appareils et touchez Scanner un code QR.
+2643|Impossible d’ouvrir l’appareil photo.
+2644|KoLib a besoin de l’appareil photo pour scanner le code.
+2645|Ce n’est pas un code d’association KoLib.
+2646|Pointez l’appareil photo vers le code affiché sur votre autre appareil.
+2647|Autoriser l’appareil photo
+2648|C’est le code de cet appareil. Scannez-le avec votre autre appareil.
+2649|{0} est injoignable. Mettez les deux appareils sur le même Wi-Fi.
+2650|Ce n’est pas l’appareil d’où vient le code.
+2651|Ce code n’est plus affiché. Affichez-le à nouveau sur {0}.
+2652|« {0} » dupliqué
+2653|Aligner à gauche
+2654|Centrer
+2655|Aligner à droite
+@de
+2623|QR-Codes zum Koppeln von Geräten.
+2624|© ZXing-Autoren
+2625|Die Kamera, zum Scannen eines QR-Codes zum Koppeln.
+2626|Wähle zuerst Text aus.
+2627|Ausgeschnitten.
+2628|Kopiert.
+2629|Nichts zum Einfügen.
+2630|Zentriert
+2631|Blocksatz
+2632|Auswählen und kopieren
+2633|Bis zum Anfang auswählen
+2634|Bis zum Ende auswählen
+2635|Absatz auswählen
+2636|Ausschneiden
+2637|Einfügen
+2638|QR-Code anzeigen
+2639|QR-Code scannen
+2640|Mit QR-Code koppeln
+2641|Verbinde dich zuerst mit einem WLAN.
+2642|Öffne auf deinem anderen Gerät „Geräte“ und tippe auf „QR-Code scannen“.
+2643|Die Kamera konnte nicht geöffnet werden.
+2644|KoLib braucht die Kamera, um den Code zu scannen.
+2645|Das ist kein Kopplungscode von KoLib.
+2646|Richte die Kamera auf den Code auf deinem anderen Gerät.
+2647|Kamera erlauben
+2648|Das ist der Code dieses Geräts. Scanne ihn mit deinem anderen Gerät.
+2649|{0} ist nicht erreichbar. Verbinde beide Geräte mit demselben WLAN.
+2650|Das ist nicht das Gerät, von dem der Code stammt.
+2651|Dieser Code wird nicht mehr angezeigt. Zeige ihn auf {0} erneut an.
+2652|„{0}“ dupliziert
+2653|Linksbündig
+2654|Zentriert
+2655|Rechtsbündig
+@es
+2623|Códigos QR para vincular dispositivos.
+2624|© Autores de ZXing
+2625|La cámara, para escanear un código QR de vinculación.
+2626|Selecciona primero algo de texto.
+2627|Cortado.
+2628|Copiado.
+2629|No hay nada que pegar.
+2630|Centrar
+2631|Justificar
+2632|Seleccionar y copiar
+2633|Seleccionar hasta el principio
+2634|Seleccionar hasta el final
+2635|Seleccionar párrafo
+2636|Cortar
+2637|Pegar
+2638|Mostrar código QR
+2639|Escanear código QR
+2640|Vincular con un código QR
+2641|Conéctate primero a una red wifi.
+2642|En tu otro dispositivo, abre Dispositivos y toca Escanear código QR.
+2643|No se pudo abrir la cámara.
+2644|KoLib necesita la cámara para escanear el código.
+2645|Ese no es un código de vinculación de KoLib.
+2646|Apunta la cámara al código de tu otro dispositivo.
+2647|Permitir cámara
+2648|Ese es el código de este dispositivo. Escanéalo con tu otro dispositivo.
+2649|No se puede conectar con {0}. Pon ambos dispositivos en la misma wifi.
+2650|Ese no es el dispositivo del que viene el código.
+2651|Ese código ya no se muestra. Vuelve a mostrarlo en {0}.
+2652|«{0}» duplicado
+2653|Alinear a la izquierda
+2654|Centrar
+2655|Alinear a la derecha
+@it
+2623|Codici QR per associare i dispositivi.
+2624|© Autori di ZXing
+2625|La fotocamera, per scansionare un codice QR di associazione.
+2626|Seleziona prima del testo.
+2627|Tagliato.
+2628|Copiato.
+2629|Niente da incollare.
+2630|Centra
+2631|Giustifica
+2632|Seleziona e copia
+2633|Seleziona fino all’inizio
+2634|Seleziona fino alla fine
+2635|Seleziona paragrafo
+2636|Taglia
+2637|Incolla
+2638|Mostra codice QR
+2639|Scansiona codice QR
+2640|Associa con un codice QR
+2641|Collegati prima a una rete Wi-Fi.
+2642|Sull’altro dispositivo, apri Dispositivi e tocca Scansiona codice QR.
+2643|Impossibile aprire la fotocamera.
+2644|KoLib ha bisogno della fotocamera per scansionare il codice.
+2645|Non è un codice di associazione KoLib.
+2646|Punta la fotocamera sul codice dell’altro dispositivo.
+2647|Consenti fotocamera
+2648|È il codice di questo dispositivo. Scansionalo con l’altro dispositivo.
+2649|Impossibile raggiungere {0}. Collega entrambi i dispositivi alla stessa Wi-Fi.
+2650|Non è il dispositivo da cui proviene il codice.
+2651|Quel codice non è più visibile. Mostralo di nuovo su {0}.
+2652|«{0}» duplicato
+2653|Allinea a sinistra
+2654|Centra
+2655|Allinea a destra
+@nl
+2623|QR-codes om apparaten te koppelen.
+2624|© ZXing-auteurs
+2625|De camera, om een QR-code voor koppelen te scannen.
+2626|Selecteer eerst tekst.
+2627|Geknipt.
+2628|Gekopieerd.
+2629|Niets om te plakken.
+2630|Centreren
+2631|Uitvullen
+2632|Selecteren en kopiëren
+2633|Selecteren tot begin
+2634|Selecteren tot einde
+2635|Alinea selecteren
+2636|Knippen
+2637|Plakken
+2638|QR-code tonen
+2639|QR-code scannen
+2640|Koppelen met een QR-code
+2641|Maak eerst verbinding met een wifinetwerk.
+2642|Open op je andere apparaat Apparaten en tik op QR-code scannen.
+2643|De camera kon niet worden geopend.
+2644|KoLib heeft de camera nodig om de code te scannen.
+2645|Dat is geen koppelcode van KoLib.
+2646|Richt de camera op de code op je andere apparaat.
+2647|Camera toestaan
+2648|Dat is de code van dit apparaat. Scan hem met je andere apparaat.
+2649|{0} is niet bereikbaar. Zet beide apparaten op hetzelfde wifinetwerk.
+2650|Dat is niet het apparaat waar de code vandaan komt.
+2651|Die code wordt niet meer getoond. Toon hem opnieuw op {0}.
+2652|‘{0}’ gedupliceerd
+2653|Links uitlijnen
+2654|Centreren
+2655|Rechts uitlijnen
+@pt
+2623|Códigos QR para parear dispositivos.
+2624|© Autores do ZXing
+2625|A câmera, para escanear um código QR de pareamento.
+2626|Selecione algum texto primeiro.
+2627|Recortado.
+2628|Copiado.
+2629|Nada para colar.
+2630|Centralizar
+2631|Justificar
+2632|Selecionar e copiar
+2633|Selecionar até o início
+2634|Selecionar até o fim
+2635|Selecionar parágrafo
+2636|Recortar
+2637|Colar
+2638|Mostrar código QR
+2639|Escanear código QR
+2640|Parear com um código QR
+2641|Conecte-se primeiro a uma rede Wi-Fi.
+2642|No outro dispositivo, abra Dispositivos e toque em Escanear código QR.
+2643|Não foi possível abrir a câmera.
+2644|O KoLib precisa da câmera para escanear o código.
+2645|Esse não é um código de pareamento do KoLib.
+2646|Aponte a câmera para o código no outro dispositivo.
+2647|Permitir câmera
+2648|Esse é o código deste dispositivo. Escaneie-o com o outro dispositivo.
+2649|Não foi possível alcançar {0}. Coloque os dois dispositivos no mesmo Wi-Fi.
+2650|Esse não é o dispositivo de onde veio o código.
+2651|Esse código não está mais sendo mostrado. Mostre-o de novo em {0}.
+2652|“{0}” duplicado
+2653|Alinhar à esquerda
+2654|Centralizar
+2655|Alinhar à direita
+@ru
+2623|QR-коды для сопряжения устройств.
+2624|© Авторы ZXing
+2625|Камера — для сканирования QR-кода сопряжения.
+2626|Сначала выделите текст.
+2627|Вырезано.
+2628|Скопировано.
+2629|Нечего вставлять.
+2630|По центру
+2631|По ширине
+2632|Выделить и скопировать
+2633|Выделить до начала
+2634|Выделить до конца
+2635|Выделить абзац
+2636|Вырезать
+2637|Вставить
+2638|Показать QR-код
+2639|Сканировать QR-код
+2640|Сопряжение по QR-коду
+2641|Сначала подключитесь к Wi-Fi.
+2642|На другом устройстве откройте «Устройства» и нажмите «Сканировать QR-код».
+2643|Не удалось открыть камеру.
+2644|KoLib нужна камера, чтобы сканировать код.
+2645|Это не код сопряжения KoLib.
+2646|Наведите камеру на код на другом устройстве.
+2647|Разрешить камеру
+2648|Это код этого устройства. Отсканируйте его другим устройством.
+2649|Не удалось связаться с {0}. Подключите оба устройства к одной сети Wi-Fi.
+2650|Это не то устройство, с которого получен код.
+2651|Этот код больше не показывается. Покажите его снова на {0}.
+2652|Создана копия: «{0}»
+2653|По левому краю
+2654|По центру
+2655|По правому краю
+@ja
+2623|デバイスのペアリング用 QR コード。
+2624|© ZXing の作者
+2625|ペアリング用 QR コードを読み取るためのカメラ。
+2626|先にテキストを選択してください。
+2627|切り取りました。
+2628|コピーしました。
+2629|貼り付けるものがありません。
+2630|中央揃え
+2631|両端揃え
+2632|選択とコピー
+2633|先頭まで選択
+2634|末尾まで選択
+2635|段落を選択
+2636|切り取り
+2637|貼り付け
+2638|QR コードを表示
+2639|QR コードをスキャン
+2640|QR コードでペアリング
+2641|先に Wi-Fi ネットワークに接続してください。
+2642|もう一方のデバイスで「デバイス」を開き、「QR コードをスキャン」をタップしてください。
+2643|カメラを開けませんでした。
+2644|コードをスキャンするには、KoLib にカメラの許可が必要です。
+2645|KoLib のペアリングコードではありません。
+2646|もう一方のデバイスのコードにカメラを向けてください。
+2647|カメラを許可
+2648|これはこのデバイス自身のコードです。もう一方のデバイスでスキャンしてください。
+2649|{0} に接続できませんでした。両方のデバイスを同じ Wi-Fi に接続してください。
+2650|コードの発行元のデバイスではありません。
+2651|そのコードはもう表示されていません。{0} でもう一度表示してください。
+2652|「{0}」を複製しました
+2653|左揃え
+2654|中央揃え
+2655|右揃え

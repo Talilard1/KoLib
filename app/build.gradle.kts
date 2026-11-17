@@ -28,8 +28,8 @@ android {
         applicationId = "dev.kobolibrary.app"
         minSdk = 29
         targetSdk = 36
-        versionCode = 75
-        versionName = "1.23"
+        versionCode = 76
+        versionName = "1.24"
     }
 
     // An APK for each kind of processor, a little smaller, and a universal one that runs on any of them.
@@ -125,6 +125,11 @@ dependencies {
     implementation("me.zhanghai.android.libarchive:library:1.1.6")
     // Text recognition in scanned pages: Tesseract, with Leptonica (Apache 2.0, BSD).
     implementation("cz.adaptech.tesseract4android:tesseract4android:4.9.0")
+    // Pairing two devices with a QR code: ZXing draws and reads the code, CameraX shows the camera (both Apache 2.0).
+    implementation("com.google.zxing:core:3.5.4")
+    implementation("androidx.camera:camera-camera2:1.6.2")
+    implementation("androidx.camera:camera-lifecycle:1.6.2")
+    implementation("androidx.camera:camera-view:1.6.2")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.xerial:sqlite-jdbc:3.53.4.0")

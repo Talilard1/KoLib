@@ -33,6 +33,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
+import dev.kobolibrary.app.ui.components.TabPages
+import dev.kobolibrary.app.ui.components.rememberTabPager
+import dev.kobolibrary.app.ui.components.rememberTabTap
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
@@ -64,6 +67,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.ui.text.style.TextOverflow
 import dev.kobolibrary.app.ui.components.phoneLayout
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun DeviceScreen(
@@ -267,34 +271,45 @@ fun DeviceScreen(
                     unplugged -> UnpluggedBanner(view.readAtMillis)
                     state.syncing -> SyncingBanner()
                 }
+            }
+            // Swipe left or right for the next tab, or tap one. Books being chosen are let go of on another tab.
+            val pager = rememberTabPager(tab, 3) { t ->
+                if (t != 0) browse.stopSelecting()
+                tab = t
+            }
+            LaunchedEffect(browse.selecting) { if (browse.selecting) tab = 0 }
+            val goTo = rememberTabTap(pager)
+            if (!choosing) {
                 // A phone has the counts in the bar above, so the tabs fit on one line.
-                PrimaryTabRow(selectedTabIndex = tab, containerColor = Color.Transparent) {
-                    Tab(selected = tab == 0, onClick = { tab = 0 }, text = { Text(if (phone) tr("Books") else tr("Books ({0})", snapshot.books.size)) })
-                    Tab(selected = tab == 1, onClick = { tab = 1 }, text = { Text(if (phone) tr("Collections") else tr("Collections ({0})", snapshot.collections.size)) })
-                    Tab(selected = tab == 2, onClick = { tab = 2 }, text = { Text(tr("Device")) })
+                PrimaryTabRow(selectedTabIndex = pager.currentPage, containerColor = Color.Transparent) {
+                    Tab(selected = pager.currentPage == 0, onClick = { goTo(0) }, text = { Text(if (phone) tr("Books") else tr("Books ({0})", snapshot.books.size)) })
+                    Tab(selected = pager.currentPage == 1, onClick = { goTo(1) }, text = { Text(if (phone) tr("Collections") else tr("Collections ({0})", snapshot.collections.size)) })
+                    Tab(selected = pager.currentPage == 2, onClick = { goTo(2) }, text = { Text(tr("Device")) })
                 }
             }
-            when (tab) {
-                0 -> BooksTab(
-                    view,
-                    live,
-                    browse,
-                    extras = extras,
-                    onAddToLibrary = onAddToLibrary,
-                    onDeleteFromKobo = onDeleteFromKobo,
-                    readingTags = state.readingTags,
-                )
-                1 -> CollectionsTab(
-                    view,
-                    live,
-                    browse = browse,
-                    extras = extras,
-                    onAddToLibrary = onAddToLibrary,
-                    onDeleteFromKobo = onDeleteFromKobo,
-                    onTag = showTag,
-                    onSearch = showSearch,
-                )
-                else -> DeviceTab(view, live, state, onWriteCheck, onBackupNow, onOpenBackups, onOpenLog)
+            TabPages(pager, Modifier.fillMaxSize(), swipe = !browse.selecting) { page ->
+                when (page) {
+                    0 -> BooksTab(
+                        view,
+                        live,
+                        browse,
+                        extras = extras,
+                        onAddToLibrary = onAddToLibrary,
+                        onDeleteFromKobo = onDeleteFromKobo,
+                        readingTags = state.readingTags,
+                    )
+                    1 -> CollectionsTab(
+                        view,
+                        live,
+                        browse = browse,
+                        extras = extras,
+                        onAddToLibrary = onAddToLibrary,
+                        onDeleteFromKobo = onDeleteFromKobo,
+                        onTag = showTag,
+                        onSearch = showSearch,
+                    )
+                    else -> DeviceTab(view, live, state, onWriteCheck, onBackupNow, onOpenBackups, onOpenLog)
+                }
             }
         }
     }

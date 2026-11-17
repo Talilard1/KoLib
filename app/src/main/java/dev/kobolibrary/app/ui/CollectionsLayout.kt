@@ -1,6 +1,6 @@
 package dev.kobolibrary.app.ui
 
-import androidx.activity.compose.BackHandler
+import dev.kobolibrary.app.ui.components.TabBackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.layout.Box
@@ -119,7 +119,7 @@ fun CollectionsLayout(
             }
             maxWidth >= ListStaysWidth -> {
                 if (!hasCollection) LaunchedEffect(Unit) { onOpenFirst() }
-                BackHandler(enabled = hasCollection && hasBook, onBack = onCloseBook)
+                TabBackHandler(enabled = hasCollection && hasBook, onBack = onCloseBook)
                 Row(Modifier.fillMaxSize()) {
                     list(Modifier.width(ListWidth).fillMaxHeight(), CollectionPanes.LIST_AND_ONE)
                     VerticalDivider()
@@ -133,11 +133,11 @@ fun CollectionsLayout(
                 }
             }
             hasCollection && hasBook -> {
-                BackHandler(onBack = onCloseBook)
+                TabBackHandler(onBack = onCloseBook)
                 detail(onCloseBook)
             }
             hasCollection -> {
-                BackHandler(onBack = onCloseCollection)
+                TabBackHandler(onBack = onCloseCollection)
                 books(onCloseCollection)
             }
             else -> list(Modifier.fillMaxSize(), CollectionPanes.ONE)

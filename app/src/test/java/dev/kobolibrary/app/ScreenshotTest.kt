@@ -8,6 +8,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
+import org.junit.Assert.assertEquals
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.test.swipeLeft
 import androidx.test.core.app.ApplicationProvider
 import com.github.takahirom.roborazzi.captureRoboImage
 import dev.kobolibrary.app.fake.FakeDocumentsProvider
@@ -77,11 +81,15 @@ class ScreenshotTest {
      * The clock is paused so endless animations (progress spinners) can't keep the UI from settling;
      * it is then moved on a second so everything has laid out.
      */
-    private fun shot(name: String, theme: ThemeChoice = ThemeChoice.SYSTEM, content: @Composable () -> Unit) {
+    private fun shot(name: String, theme: ThemeChoice = ThemeChoice.SYSTEM, act: (() -> Unit)? = null, content: @Composable () -> Unit) {
         compose.mainClock.autoAdvance = false
         // The same root as the app's own (theme and surface), so colours come out as they do on the tablet.
         compose.setContent { AppSurface(theme) { content() } }
         compose.mainClock.advanceTimeBy(1_000)
+        if (act != null) {
+            act()
+            compose.mainClock.advanceTimeBy(1_000)
+        }
         compose.onRoot().captureRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/$name.png")
     }
 
@@ -103,6 +111,7 @@ class ScreenshotTest {
         theme: ThemeChoice = ThemeChoice.SYSTEM,
         syncing: Boolean = false,
         usbKobo: UsbKobo = UsbKobo.NONE,
+        act: (() -> Unit)? = null,
     ) {
         val (repo, s) = session()
         val browse = BrowseState().apply { deviceTab = tab }.apply(configure)
@@ -114,7 +123,7 @@ class ScreenshotTest {
             syncing = syncing,
             usbKobo = usbKobo,
         )
-        shot(name, theme) {
+        shot(name, theme, act) {
             DeviceScreen(
                 view = KoboView.of(s),
                 unplugged = unplugged,
@@ -158,6 +167,23 @@ class ScreenshotTest {
     @Test
     @Config(qualifiers = PORTRAIT)
     fun collectionsPortrait() = deviceScreen("06_collections_portrait", tab = 1)
+
+    /** The Kobo's tabs can be swiped between: Books, then Collections, then Device, and back. */
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun swipedBetweenTabs() {
+        var browse: BrowseState? = null
+        deviceScreen("05c_swiped_to_device", configure = { browse = this }, act = {
+            repeat(2) {
+                compose.onRoot().performTouchInput { swipeLeft(startX = width * 0.85f, endX = width * 0.2f) }
+                compose.mainClock.advanceTimeBy(1_500)
+            }
+        })
+        assertEquals(2, browse!!.deviceTab)
+        compose.onRoot().performTouchInput { swipeRight(startX = width * 0.2f, endX = width * 0.85f) }
+        compose.mainClock.advanceTimeBy(1_500)
+        assertEquals(1, browse!!.deviceTab)
+    }
 
     /** A book tapped in a collection opens on the right; the collections and the collection's books stay where they are. */
     @Test

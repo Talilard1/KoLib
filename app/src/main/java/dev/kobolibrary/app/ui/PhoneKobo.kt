@@ -8,7 +8,6 @@ import dev.kobolibrary.app.ui.components.titleSearch
 import dev.kobolibrary.app.ui.components.authorSearch
 import dev.kobolibrary.app.ui.components.seriesSearch
 import androidx.compose.ui.graphics.Color
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -95,6 +94,7 @@ import dev.kobolibrary.app.ui.components.ShelfGridBox
 import dev.kobolibrary.app.ui.library.SearchHelpDialog
 import dev.kobolibrary.app.ui.theme.LocalBookcase
 import dev.kobolibrary.app.ui.theme.ShelfColors
+import dev.kobolibrary.app.ui.components.TabBackHandler
 
 /**
  * The Kobo's books on a phone: a search box, the filters in one line that scrolls sideways, and three
@@ -116,7 +116,7 @@ internal fun PhoneKoboBrowser(
     var showHelp by remember { mutableStateOf(false) }
     var confirmDelete by remember { mutableStateOf<List<KoboBook>?>(null) }
     if (browse.selecting) {
-        BackHandler { browse.stopSelecting() }
+        TabBackHandler { browse.stopSelecting() }
         HideBottomBar()
     }
     val chosen = { books.filter { browse.picked.containsKey(it.contentId) } }

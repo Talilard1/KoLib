@@ -3,7 +3,6 @@
 package dev.kobolibrary.app.ui
 
 import dev.kobolibrary.app.tr
-import androidx.activity.compose.BackHandler
 import dev.kobolibrary.app.ui.components.seriesSearch
 import dev.kobolibrary.app.ui.components.DetailText
 import dev.kobolibrary.app.ui.components.titleSearch
@@ -122,6 +121,7 @@ import androidx.compose.material3.ButtonDefaults
 import dev.kobolibrary.app.ui.components.ShelfGridBox
 import dev.kobolibrary.app.ui.components.gridCover
 import dev.kobolibrary.app.ui.components.phoneLayout
+import dev.kobolibrary.app.ui.components.TabBackHandler
 
 /** Width at which a list and its details sit side by side. */
 val TwoPaneWidth = 900.dp
@@ -197,7 +197,7 @@ fun BooksTab(
                 }
             }
         } else if (selected != null && !browse.selecting) {
-            BackHandler { browse.selectedBookId = null }
+            TabBackHandler { browse.selectedBookId = null }
             detail(selected) { browse.selectedBookId = null }
         } else {
             BookBrowser(view, live, browse, visible, null, extras, onAddToLibrary, onDeleteFromKobo, Modifier.fillMaxSize(), readingTags)
@@ -219,7 +219,7 @@ private fun BookBrowser(
     readingTags: Pair<Int, Int>?,
 ) {
     val inLibrary: (KoboBook) -> Boolean = { extras.inLibrary(it) }
-    if (browse.selecting) BackHandler { browse.stopSelecting() }
+    if (browse.selecting) TabBackHandler { browse.stopSelecting() }
     var confirmDelete by remember { mutableStateOf<List<KoboBook>?>(null) }
     Column(modifier.fillMaxHeight()) {
         if (browse.selecting) {

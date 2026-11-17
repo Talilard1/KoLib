@@ -143,6 +143,10 @@ import dev.kobolibrary.app.ui.languageName
 import dev.kobolibrary.app.ui.theme.LocalBookcase
 import dev.kobolibrary.app.ui.theme.ShelfColors
 import kotlin.math.roundToInt
+import dev.kobolibrary.app.ui.components.TabPages
+import dev.kobolibrary.app.ui.components.rememberTabPager
+import dev.kobolibrary.app.ui.components.rememberTabTap
+import androidx.compose.runtime.LaunchedEffect
 
 /**
  * The library on a phone: a search box at the top, the filters in one line that scrolls sideways,
@@ -329,59 +333,19 @@ internal fun PhoneLibraryScreen(
                 EmptyLibrary(koboConnected, onAddFiles, onAddFromKobo, onNewBook)
                 return@Column
             }
+            // Swipe left or right for the other tab, or tap it. Choosing books (from anywhere) shows the Books tab.
+            val pager = rememberTabPager(browse.tab, 2) { browse.tab = it }
+            LaunchedEffect(browse.selecting) { if (browse.selecting) browse.tab = 0 }
+            val goTo = rememberTabTap(pager)
             if (!browse.selecting) {
-                PrimaryTabRow(selectedTabIndex = browse.tab, containerColor = Color.Transparent) {
-                    Tab(selected = browse.tab == 0, onClick = { browse.tab = 0 }, text = { Text(tr("Books")) })
-                    Tab(selected = browse.tab == 1, onClick = { browse.tab = 1 }, text = { Text(tr("Collections")) })
+                PrimaryTabRow(selectedTabIndex = pager.currentPage, containerColor = Color.Transparent) {
+                    Tab(selected = pager.currentPage == 0, onClick = { goTo(0) }, text = { Text(tr("Books")) })
+                    Tab(selected = pager.currentPage == 1, onClick = { goTo(1) }, text = { Text(tr("Collections")) })
                 }
             }
-            if (browse.tab == 1 && !browse.selecting) {
-                LibraryCollectionsTab(books, covers, browse, koboConnected, reading, here, onSend) { _, _, _ -> }
-                return@Column
-            }
-            PhoneLibraryFilters(books, browse)
-            if (browse.narrowed) PhoneNarrowedLine(visible.size, books.size) { browse.clearFilters() }
-            if (visible.isEmpty()) {
-                EmptyState(Icons.Outlined.SearchOff, tr("No matching books"), tr("Try a different search, or clear the filters."))
-                return@Column
-            }
-            // Room under the last row, so the Add books button (or the bar for chosen books) doesn't cover it.
-            val underLast = 104.dp
-            if (browse.grid) ShelfGridBox(minCell = 100.dp, coverPadding = 6.dp, columns = 3) {
-                val bookcase = LocalBookcase.current
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
-                    state = browse.gridState,
-                    contentPadding = if (bookcase) PaddingValues(top = 4.dp, bottom = underLast)
-                    else PaddingValues(start = 8.dp, end = 8.dp, top = 4.dp, bottom = underLast),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .then(if (bookcase) Modifier.background(ShelfColors.back) else Modifier),
-                ) {
-                    itemsIndexed(visible, key = { _, b -> b.id }) { index, book ->
-                        LibraryGridItem(
-                            book, covers, index, visible.size,
-                            picked = if (browse.selecting) browse.picked.containsKey(book.id) else null,
-                            highlighted = false,
-                            sort = browse.sort, reading = reading(book), here = here(book),
-                            onTap = { onTap(book) }, onHold = { onHold(book) },
-                            padding = 6.dp,
-                        )
-                    }
-                }
-            } else {
-                LazyColumn(state = browse.listState, contentPadding = PaddingValues(bottom = underLast), modifier = Modifier.fillMaxSize()) {
-                    items(visible, key = { it.id }) { book ->
-                        LibraryListItem(
-                            book, covers,
-                            picked = if (browse.selecting) browse.picked.containsKey(book.id) else null,
-                            highlighted = false,
-                            sort = browse.sort, reading = reading(book), here = here(book),
-                            onTap = { onTap(book) }, onHold = { onHold(book) }, onToggle = { browse.togglePicked(book.id) },
-                        )
-                    }
-                }
+            TabPages(pager, Modifier.fillMaxSize(), swipe = !browse.selecting) { page ->
+                if (page == 1) LibraryCollectionsTab(books, covers, browse, koboConnected, reading, here, onSend) { _, _, _ -> }
+                else Column(Modifier.fillMaxSize()) { PhoneBooksPage(books, visible, covers, browse, reading, here, onTap, onHold) }
             }
         }
 
@@ -785,6 +749,64 @@ internal fun ReadStateButtons(
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (canFinish) button(Icons.Outlined.TaskAlt, tr("Mark as finished"), onMarkFinished!!, Modifier.weight(1f))
                 if (canUnread) button(Icons.Outlined.RestartAlt, tr("Mark as unread"), onMarkUnread!!, Modifier.weight(1f))
+            }
+        }
+    }
+}
+
+/** The phone's Books tab: the filters, then the books as a grid or a list. */
+@Composable
+private fun PhoneBooksPage(
+    books: List<LibraryBook>,
+    visible: List<LibraryBook>,
+    covers: LibraryCovers,
+    browse: LibraryBrowseState,
+    reading: (LibraryBook) -> KoboBook?,
+    here: (LibraryBook) -> ReadHere?,
+    onTap: (LibraryBook) -> Unit,
+    onHold: (LibraryBook) -> Unit,
+) {
+    PhoneLibraryFilters(books, browse)
+    if (browse.narrowed) PhoneNarrowedLine(visible.size, books.size) { browse.clearFilters() }
+    if (visible.isEmpty()) {
+        EmptyState(Icons.Outlined.SearchOff, tr("No matching books"), tr("Try a different search, or clear the filters."))
+        return
+    }
+    // Room under the last row, so the Add books button (or the bar for chosen books) doesn't cover it.
+    val underLast = 104.dp
+    if (browse.grid) ShelfGridBox(minCell = 100.dp, coverPadding = 6.dp, columns = 3) {
+        val bookcase = LocalBookcase.current
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3),
+            state = browse.gridState,
+            contentPadding = if (bookcase) PaddingValues(top = 4.dp, bottom = underLast)
+            else PaddingValues(start = 8.dp, end = 8.dp, top = 4.dp, bottom = underLast),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .then(if (bookcase) Modifier.background(ShelfColors.back) else Modifier),
+        ) {
+            itemsIndexed(visible, key = { _, b -> b.id }) { index, book ->
+                LibraryGridItem(
+                    book, covers, index, visible.size,
+                    picked = if (browse.selecting) browse.picked.containsKey(book.id) else null,
+                    highlighted = false,
+                    sort = browse.sort, reading = reading(book), here = here(book),
+                    onTap = { onTap(book) }, onHold = { onHold(book) },
+                    padding = 6.dp,
+                )
+            }
+        }
+    } else {
+        LazyColumn(state = browse.listState, contentPadding = PaddingValues(bottom = underLast), modifier = Modifier.fillMaxSize()) {
+            items(visible, key = { it.id }) { book ->
+                LibraryListItem(
+                    book, covers,
+                    picked = if (browse.selecting) browse.picked.containsKey(book.id) else null,
+                    highlighted = false,
+                    sort = browse.sort, reading = reading(book), here = here(book),
+                    onTap = { onTap(book) }, onHold = { onHold(book) }, onToggle = { browse.togglePicked(book.id) },
+                )
             }
         }
     }

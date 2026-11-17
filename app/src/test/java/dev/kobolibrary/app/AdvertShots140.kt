@@ -494,7 +494,9 @@ class AdvertShots140 {
     }
 
     @Test @Config(qualifiers = TAB) fun koboBooks() = koboScreen("ad_kobo_books") { s -> selectedBookId = s.snapshot.books.first { it.title == "The Odyssey" }.contentId }
-    @Test @Config(qualifiers = TAB) fun koboCollections() = koboScreen("ad_kobo_collections", tab = 1, collection = "Classics")
+    @Test @Config(qualifiers = TAB) fun koboCollections() = koboScreen("ad_kobo_collections", tab = 1, collection = "Classics") { s ->
+        collectionBookId = s.snapshot.books.first { it.title == "Pride and Prejudice" }.contentId
+    }
 
     private fun sendJob(name: String, p: JobProgress) {
         val (lib, covers) = library()

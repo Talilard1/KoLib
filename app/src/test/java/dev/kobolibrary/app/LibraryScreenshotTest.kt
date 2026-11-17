@@ -21,6 +21,8 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.performScrollTo
 import dev.kobolibrary.app.ui.AppRoot
 import androidx.test.core.app.ApplicationProvider
@@ -225,6 +227,34 @@ class LibraryScreenshotTest {
         tab = 1
         collectionKey = "sherlock holmes"
         collectionBookId = it.titled("The Sign of the Four").id
+    }
+
+    /** The tabs can be swiped between, as tabs elsewhere in the app can: from the books to the collections. */
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun librarySwipedToCollections() {
+        var browse: LibraryBrowseState? = null
+        libraryScreen("21f_library_swiped_to_collections", act = {
+            compose.onRoot().performTouchInput { swipeLeft(startX = width * 0.85f, endX = width * 0.25f) }
+            compose.mainClock.advanceTimeBy(2_000)
+        }) { browse = this }
+        assertEquals(1, browse!!.tab)
+    }
+
+    /** On a phone too, and choosing books brings the Books tab back. */
+    @Test
+    @Config(qualifiers = PHONE)
+    fun librarySwipedToCollectionsPhone() {
+        var browse: LibraryBrowseState? = null
+        libraryScreen("22e_library_swiped_to_collections_phone", act = {
+            compose.onRoot().performTouchInput { swipe(androidx.compose.ui.geometry.Offset(width * 0.9f, height * 0.6f), androidx.compose.ui.geometry.Offset(width * 0.1f, height * 0.6f), 300) }
+            compose.mainClock.advanceTimeBy(2_000)
+        }) { browse = this }
+        assertEquals(1, browse!!.tab)
+        compose.mainClock.autoAdvance = true
+        compose.runOnIdle { browse!!.selecting = true }
+        compose.waitForIdle()
+        assertEquals(0, browse!!.tab)
     }
 
     /** Standing up: the collections stay down the left, the first open beside them until another is tapped. */

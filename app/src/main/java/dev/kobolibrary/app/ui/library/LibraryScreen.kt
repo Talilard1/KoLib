@@ -4,7 +4,6 @@ package dev.kobolibrary.app.ui.library
 
 import dev.kobolibrary.app.ui.components.FittedText
 import dev.kobolibrary.app.tr
-import androidx.activity.compose.BackHandler
 import dev.kobolibrary.app.ui.components.seriesSearch
 import dev.kobolibrary.app.ui.components.DetailText
 import dev.kobolibrary.app.ui.components.titleSearch
@@ -157,6 +156,11 @@ import dev.kobolibrary.app.ui.theme.ShelfColors
 import dev.kobolibrary.app.ui.components.ShelfGridBox
 import dev.kobolibrary.app.ui.components.gridCover
 import dev.kobolibrary.app.ui.components.phoneLayout
+import dev.kobolibrary.app.ui.components.TabBackHandler
+import dev.kobolibrary.app.ui.components.TabPages
+import dev.kobolibrary.app.ui.components.rememberTabPager
+import dev.kobolibrary.app.ui.components.rememberTabTap
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun LibraryScreen(
@@ -285,9 +289,17 @@ fun LibraryScreen(
                 return@Column
             }
             val collectionCount = remember(books) { libraryCollectionCount(books) }
-            PrimaryTabRow(selectedTabIndex = browse.tab, containerColor = Color.Transparent) {
-                Tab(selected = browse.tab == 0, onClick = { browse.tab = 0 }, text = { Text(tr("Books ({0})", books.size)) })
-                Tab(selected = browse.tab == 1, onClick = { browse.tab = 1; browse.stopSelecting() }, text = { Text(tr("Collections ({0})", collectionCount)) })
+            // Swipe left or right for the other tab, or tap it. Books being chosen are let go of on the Collections tab,
+            // and choosing books (from anywhere) shows the Books tab.
+            val pager = rememberTabPager(browse.tab, 2) { t ->
+                if (t == 1) browse.stopSelecting()
+                browse.tab = t
+            }
+            LaunchedEffect(browse.selecting) { if (browse.selecting) browse.tab = 0 }
+            val goTo = rememberTabTap(pager)
+            PrimaryTabRow(selectedTabIndex = pager.currentPage, containerColor = Color.Transparent) {
+                Tab(selected = pager.currentPage == 0, onClick = { goTo(0) }, text = { Text(tr("Books ({0})", books.size)) })
+                Tab(selected = pager.currentPage == 1, onClick = { goTo(1) }, text = { Text(tr("Collections ({0})", collectionCount)) })
             }
             BoxWithConstraints(Modifier.fillMaxSize()) {
                 val twoPanes = maxWidth >= TwoPaneWidth
@@ -338,23 +350,25 @@ fun LibraryScreen(
                         },
                     )
                 }
-                if (browse.tab == 1) {
-                    LibraryCollectionsTab(books, covers, browse, koboConnected, reading, here, onSend) { book, collection, onBack -> detail(book, onBack, collection) }
-                } else if (twoPanes) {
-                    Row(Modifier.fillMaxSize()) {
-                        LibraryBrowser(books, visible, covers, browse, selected?.id, onSend, onDelete, Modifier.weight(1.45f), reading, here, onMerge, onExport, onDuplicate)
-                        VerticalDivider()
-                        Box(Modifier.weight(1f).fillMaxHeight()) {
-                            if (selected != null && !browse.selecting) detail(selected, null, null)
-                            else if (browse.selecting) SelectionHelp(browse.picked.size)
-                            else EmptyState(Icons.Outlined.AutoStories, tr("Tap a book"), tr("Its details appear here. Hold a book to select several, then hold another to select everything between."))
+                TabPages(pager, Modifier.fillMaxSize(), swipe = !browse.selecting) { page ->
+                    if (page == 1) {
+                        LibraryCollectionsTab(books, covers, browse, koboConnected, reading, here, onSend) { book, collection, onBack -> detail(book, onBack, collection) }
+                    } else if (twoPanes) {
+                        Row(Modifier.fillMaxSize()) {
+                            LibraryBrowser(books, visible, covers, browse, selected?.id, onSend, onDelete, Modifier.weight(1.45f), reading, here, onMerge, onExport, onDuplicate)
+                            VerticalDivider()
+                            Box(Modifier.weight(1f).fillMaxHeight()) {
+                                if (selected != null && !browse.selecting) detail(selected, null, null)
+                                else if (browse.selecting) SelectionHelp(browse.picked.size)
+                                else EmptyState(Icons.Outlined.AutoStories, tr("Tap a book"), tr("Its details appear here. Hold a book to select several, then hold another to select everything between."))
+                            }
                         }
+                    } else if (selected != null && !browse.selecting) {
+                        TabBackHandler { browse.selectedId = null }
+                        detail(selected, { browse.selectedId = null }, null)
+                    } else {
+                        LibraryBrowser(books, visible, covers, browse, null, onSend, onDelete, Modifier.fillMaxSize(), reading, here, onMerge, onExport, onDuplicate)
                     }
-                } else if (selected != null && !browse.selecting) {
-                    BackHandler { browse.selectedId = null }
-                    detail(selected, { browse.selectedId = null }, null)
-                } else {
-                    LibraryBrowser(books, visible, covers, browse, null, onSend, onDelete, Modifier.fillMaxSize(), reading, here, onMerge, onExport, onDuplicate)
                 }
             }
         }
@@ -457,7 +471,7 @@ private fun LibraryBrowser(
     onExport: (List<String>) -> Unit = {},
     onDuplicate: (List<String>) -> Unit = {},
 ) {
-    if (browse.selecting) BackHandler { browse.stopSelecting() }
+    if (browse.selecting) TabBackHandler { browse.stopSelecting() }
     var confirmRemove by remember { mutableStateOf<List<String>?>(null) }
     val onTap: (LibraryBook) -> Unit = { b -> if (browse.selecting) browse.togglePicked(b.id) else browse.selectedId = b.id }
     // Holding a book chooses it, and every book from the one chosen last to it.

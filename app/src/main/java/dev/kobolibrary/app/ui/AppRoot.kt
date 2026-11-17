@@ -285,6 +285,9 @@ fun AppRoot(
         dev.kobolibrary.app.ui.link.DevicesActions(
             pair = link::pair,
             reach = link::reach,
+            qrOffer = link::qrOffer,
+            closeQr = link::closeQr,
+            pairFromQr = link::pairFromQr,
             sendBooks = { d ->
                 booksFor = d.id
                 section = Section.LIBRARY

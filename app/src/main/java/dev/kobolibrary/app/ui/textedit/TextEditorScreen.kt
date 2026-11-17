@@ -55,7 +55,15 @@ import androidx.compose.material.icons.outlined.AutoFixHigh
 import androidx.compose.material.icons.outlined.CallSplit
 import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.FactCheck
+import androidx.compose.material.icons.automirrored.outlined.FormatAlignLeft
+import androidx.compose.material.icons.automirrored.outlined.FormatAlignRight
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.ContentCut
+import androidx.compose.material.icons.outlined.FormatAlignCenter
+import androidx.compose.material.icons.outlined.FormatAlignJustify
 import androidx.compose.material.icons.outlined.FormatBold
+import androidx.compose.material.icons.outlined.SelectAll
 import androidx.compose.material.icons.outlined.FormatItalic
 import androidx.compose.material.icons.outlined.HorizontalRule
 import androidx.compose.material.icons.outlined.Image
@@ -165,7 +173,7 @@ fun TextEditorScreen(
             val wide = maxWidth >= 1000.dp
             val medium = maxWidth >= 600.dp
             val chapters: @Composable (Modifier) -> Unit = { m ->
-                ChaptersPane(state, onOpen = { state.open(it); narrowShowsEditor = true }, onAction = { action = it }, modifier = m)
+                ChaptersPane(state, onOpen = { state.open(it); narrowShowsEditor = true }, onAction = { if (it is ChapterAction.Duplicate) state.duplicate(it.chapter.path) else action = it }, modifier = m)
             }
             val findPanel: @Composable (Modifier) -> Unit = { m -> FindPanel(state.find, m, onClose = { state.find.close() }) }
             val copiedPanel: @Composable (Modifier) -> Unit = { m -> CopiedPanel(state, copiedItems, m, onClose = { state.copiedOpen = false }) }
@@ -225,6 +233,7 @@ fun TextEditorScreen(
         is ChapterAction.Rename -> RenameDialog(a, state, onDone = { action = null })
         is ChapterAction.Split -> SplitDialog(a, state, onDone = { action = null })
         is ChapterAction.Add -> AddChapterDialog(a, state, onDone = { action = null })
+        is ChapterAction.Duplicate -> action = null
         is ChapterAction.Merge -> AlertDialog(
             onDismissRequest = { action = null },
             title = { Text(tr("Join “{0}” with the previous chapter?", a.chapter.title)) },
@@ -443,6 +452,26 @@ private fun EditorToolbar(state: TextEditState, onPicture: () -> Unit, onChapter
                         }
                     }
                 }
+                // How the paragraph (or every paragraph selected) is lined up.
+                var aligning by remember { mutableStateOf(false) }
+                val alignments = listOf(
+                    Triple("left", tr("Align left"), Icons.AutoMirrored.Outlined.FormatAlignLeft), Triple("center", tr("Align centre"), Icons.Outlined.FormatAlignCenter),
+                    Triple("right", tr("Align right"), Icons.AutoMirrored.Outlined.FormatAlignRight), Triple("justify", tr("Justify"), Icons.Outlined.FormatAlignJustify),
+                )
+                Box {
+                    IconButton(onClick = { aligning = true }, enabled = page) {
+                        Icon((alignments.firstOrNull { it.first == t.align } ?: alignments[0]).third, tr("Alignment"))
+                    }
+                    DropdownMenu(expanded = aligning, onDismissRequest = { aligning = false }) {
+                        alignments.forEach { (how, label, icon) ->
+                            DropdownMenuItem(
+                                text = { Text(label) }, leadingIcon = { Icon(icon, null) },
+                                trailingIcon = if (t.align == how) ({ Icon(Icons.Filled.Check, null, Modifier.size(18.dp)) }) else null,
+                                onClick = { aligning = false; state.command("align", how) },
+                            )
+                        }
+                    }
+                }
                 IconButton(onClick = { state.command("scenebreak") }, enabled = page) { Icon(Icons.Outlined.HorizontalRule, tr("Scene break")) }
                 TextButton(onClick = onPicture, enabled = page) {
                     Icon(Icons.Outlined.Image, null, Modifier.size(18.dp))
@@ -450,6 +479,24 @@ private fun EditorToolbar(state: TextEditState, onPicture: () -> Unit, onChapter
                     Text(if (t.image != null) tr("Replace picture") else tr("Picture"))
                 }
                 IconButton(onClick = { state.splitAtCursor() }, enabled = page) { Icon(Icons.Outlined.CallSplit, tr("Split the chapter here")) }
+                // Selecting without dragging, and the clipboard: a long chapter is hard to select by its handles.
+                var selecting by remember { mutableStateOf(false) }
+                val context = LocalContext.current
+                Box {
+                    IconButton(onClick = { selecting = true }, enabled = page) { Icon(Icons.Outlined.SelectAll, tr("Select and copy")) }
+                    DropdownMenu(expanded = selecting, onDismissRequest = { selecting = false }) {
+                        listOf("all" to tr("Select all"), "toStart" to tr("Select to start"), "toEnd" to tr("Select to end"), "paragraph" to tr("Select paragraph")).forEach { (what, label) ->
+                            DropdownMenuItem(text = { Text(label) }, onClick = { selecting = false; state.select(what) })
+                        }
+                        HorizontalDivider()
+                        DropdownMenuItem(text = { Text(tr("Copy")) }, leadingIcon = { Icon(Icons.Outlined.ContentCopy, null) }, enabled = t.selection,
+                            onClick = { selecting = false; state.copySelection(context) })
+                        DropdownMenuItem(text = { Text(tr("Cut")) }, leadingIcon = { Icon(Icons.Outlined.ContentCut, null) }, enabled = t.selection,
+                            onClick = { selecting = false; state.copySelection(context, cut = true) })
+                        DropdownMenuItem(text = { Text(tr("Paste")) }, leadingIcon = { Icon(Icons.Outlined.ContentPaste, null) },
+                            onClick = { selecting = false; state.pasteClipboard(context) })
+                    }
+                }
             }
             // Sections copied out of books (this one or others), to add here: they open in a panel on the right.
             if (state.copied != null) {

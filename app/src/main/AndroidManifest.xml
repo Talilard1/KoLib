@@ -4,6 +4,10 @@
     <!-- For finding covers online, when asked to, downloading the language data for text recognition, and talking
          to KoLib on the user's other devices on the same network. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Scanning another device's pairing QR code. Asked for only when Scan QR code is tapped; KoLib works without it. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.any" android:required="false" />
     <!-- So the Wi-Fi hands KoLib the "here I am" other devices with KoLib send to everyone on the network. -->
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
 

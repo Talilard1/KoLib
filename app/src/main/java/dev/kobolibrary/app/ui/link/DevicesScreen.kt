@@ -27,6 +27,8 @@ import androidx.compose.material.icons.outlined.Devices
 import androidx.compose.material.icons.outlined.LinkOff
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.PhoneAndroid
+import androidx.compose.material.icons.outlined.QrCode2
+import androidx.compose.material.icons.outlined.QrCodeScanner
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.TabletAndroid
@@ -112,6 +114,12 @@ class DevicesActions(
     val koboOverWifi: () -> Unit = {},
     /** Looks for KoLib at every address on the network (a hotspot may pass on no device's announcements). */
     val lookAgain: () -> Unit = {},
+    /** What this device's pairing QR code says, for a device at one of the addresses given; null when it can't be reached. */
+    val qrOffer: (List<String>) -> String? = { null },
+    /** The QR code has been put away. */
+    val closeQr: () -> Unit = {},
+    /** Pairs with the device whose QR code said this; false if it isn't a KoLib pairing code. */
+    val pairFromQr: (String) -> Boolean = { false },
 )
 
 /** The Devices section: this device, the ones paired with it, the ones nearby to pair with, and how the link behaves. */
@@ -150,6 +158,8 @@ fun DevicesScreen(link: LinkManager, actions: DevicesActions) {
 @Composable
 fun DevicesContent(view: DevicesView, actions: DevicesActions) {
     var connecting by remember { mutableStateOf(false) }
+    var showingQr by remember { mutableStateOf(false) }
+    var scanningQr by remember { mutableStateOf(false) }
     val tablet = LocalConfiguration.current.smallestScreenWidthDp >= 600
     Box(
         Modifier
@@ -269,6 +279,11 @@ fun DevicesContent(view: DevicesView, actions: DevicesActions) {
                         Text(tr("Not found? Connect by address"))
                     }
                 }
+                // Or with a QR code: one device shows it, the other scans it, and they're paired.
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    LinkButton(Icons.Outlined.QrCode2, tr("Show QR code")) { showingQr = true }
+                    LinkButton(Icons.Outlined.QrCodeScanner, tr("Scan QR code")) { scanningQr = true }
+                }
             }
 
             // The Kobo, with no cable: through its own web browser.
@@ -311,6 +326,21 @@ fun DevicesContent(view: DevicesView, actions: DevicesActions) {
         }
     }
     if (connecting) ConnectByAddressDialog(actions.reach, onDismiss = { connecting = false })
+    if (showingQr) {
+        val offer = remember(view.addresses, view.port) { actions.qrOffer(view.addresses) }
+        val pairedBefore = remember { view.paired.size }
+        // Scanned, and paired: the code has done its job.
+        LaunchedEffect(view.paired.size) {
+            if (view.paired.size > pairedBefore) {
+                showingQr = false
+                actions.closeQr()
+            }
+        }
+        ShowQrDialog(offer, onDismiss = { showingQr = false; actions.closeQr() })
+    }
+    if (scanningQr) {
+        ScanQrDialog(onRead = { text -> actions.pairFromQr(text).also { if (it) scanningQr = false } }, onDismiss = { scanningQr = false })
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)

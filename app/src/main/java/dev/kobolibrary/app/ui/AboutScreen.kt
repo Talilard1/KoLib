@@ -93,6 +93,8 @@ object Notices {
         Notice("Leptonica", tr("Image handling for Tesseract."), tr("BSD 2-Clause License"), tr("© 2001 Leptonica"), "leptonica-BSD.txt"),
         Notice("libjpeg", tr("JPEG support for Tesseract. This software is based in part on the work of the Independent JPEG Group."), tr("IJG License"), tr("© 1991–2024 Thomas G. Lane, Guido Vollbeding"), "libjpeg-IJG.txt"),
         Notice("libpng", tr("PNG support for Tesseract."), tr("PNG Reference Library License 2"), tr("© 1995–2025 The PNG Reference Library Authors"), "libpng-LICENSE.txt"),
+        Notice("ZXing", tr("QR codes for pairing devices."), APACHE, tr("© ZXing authors"), "apache-2.0.txt"),
+        Notice("CameraX", tr("The camera, for scanning a pairing QR code."), APACHE, tr("© The Android Open Source Project"), "apache-2.0.txt"),
     )
 
     /** KoLib itself: free software, to share and change under the GPL. */

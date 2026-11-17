@@ -65,6 +65,7 @@ import androidx.compose.material.icons.outlined.Toc
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material.icons.outlined.FileCopy
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -108,6 +109,8 @@ sealed interface ChapterAction {
     data class DeleteMany(val chapters: List<Chapter>) : ChapterAction
     /** A new, empty chapter after [after] (the last one if null). */
     data class Add(val after: String?) : ChapterAction
+    /** A copy of the chapter, straight after it. */
+    data class Duplicate(val chapter: Chapter) : ChapterAction
 }
 
 /** Moving chosen chapters together, keeping them in the order they were in. */
@@ -616,6 +619,8 @@ private fun ChapterRow(
                         DropdownMenuItem(text = { Text(tr("Copy")) }, leadingIcon = { Icon(Icons.Outlined.ContentCopy, null) },
                             onClick = { menu = false; copy() })
                     }
+                    DropdownMenuItem(text = { Text(tr("Duplicate")) }, leadingIcon = { Icon(Icons.Outlined.FileCopy, null) },
+                        onClick = { menu = false; onAction(ChapterAction.Duplicate(chapter)) })
                     DropdownMenuItem(text = { Text(tr("Select")) }, leadingIcon = { Icon(Icons.Outlined.CheckBox, null) },
                         onClick = { menu = false; onHold() })
                     DropdownMenuItem(text = { Text(tr("Add chapter after…")) }, leadingIcon = { Icon(Icons.Filled.Add, null) },

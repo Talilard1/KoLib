@@ -98,6 +98,27 @@ class DevicesScreenshotTest {
         }
     }
 
+    /** This device's pairing code, for the other to scan. */
+    private val pairingCode = dev.kobolibrary.app.link.LinkQr(listOf("192.168.1.23"), LinkManager.PORT, "tab-1", "WNKUWbITCi4VElLUCLlebQ", "4P38l8UponaZzkqX", "Galaxy Tab S9").encode()
+
+    @Test
+    @Config(qualifiers = TABLET)
+    fun pairingCodeOnTheTablet() = shot("devicesQrTablet", screen = true) {
+        AppFrame(section = Section.DEVICES, onSection = {}, koboConnected = false, onNarrow = {}, onLook = {}, devicesHere = true) {
+            DevicesContent(view().copy(paired = emptyList()), actions)
+            dev.kobolibrary.app.ui.link.ShowQrDialog(pairingCode, onDismiss = {})
+        }
+    }
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun pairingCodeOnThePhone() = shot("devicesQrPhone", ThemeChoice.DARK, screen = true) {
+        AppFrame(section = Section.DEVICES, onSection = {}, koboConnected = false, onNarrow = {}) {
+            DevicesContent(view().copy(me = "Galaxy A72", paired = emptyList(), nearby = emptyList()), actions)
+            dev.kobolibrary.app.ui.link.ShowQrDialog(pairingCode, onDismiss = {})
+        }
+    }
+
     @Test
     @Config(qualifiers = PHONE)
     fun devicesWithNoNetwork() = shot("devicesNoNetwork") {

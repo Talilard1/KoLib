@@ -50,7 +50,7 @@ Get the latest APK from [Releases](https://github.com/Talilard1/KoLib/releases/l
 - Edit a book's text: find and replace, chapter tools, clean-ups, and splitting or combining books.
 - Convert Word, PDF, MOBI, FB2, text and comic files to EPUB, and scanned PDFs to text with
   on-device OCR.
-- Sync books and reading position between your phone and tablet over Wi-Fi.
+- Sync books and reading position between your phone and tablet over Wi-Fi. Pair them with a QR code.
 - Light, dark, OLED and bookcase themes.
 - English, Français, Deutsch, Español, Italiano, Nederlands, Português (Brasil), Русский and 日本語.
 - No account, no ads, no tracking.
@@ -109,7 +109,7 @@ Tested with a Kobo Clara 2E. Other Kobo e-readers store books the same way and s
 ## Privacy
 
 Your books stay on your devices and your Kobo. KoLib only goes online to search for covers and to
-download OCR language data.
+download OCR language data. The camera is used only to scan a pairing QR code.
 
 ## Reporting a problem
 
@@ -124,6 +124,8 @@ attach the log (Kobo → Device → Open log).
   CBR and CB7 comics.
 - [Tesseract](https://github.com/tesseract-ocr/tesseract) and [Tesseract4Android](https://github.com/adaptech-cz/Tesseract4Android):
   OCR.
+- [ZXing](https://github.com/zxing/zxing) and [CameraX](https://developer.android.com/media/camera/camerax): QR codes
+  for pairing devices.
 
 Fonts and all licences are listed in [NOTICE.md](NOTICE.md).
 

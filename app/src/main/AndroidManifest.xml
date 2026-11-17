@@ -147,6 +147,7 @@
             android:label="@string/send_to_device"
             android:exported="true"
             android:enabled="false"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode|density"
             android:excludeFromRecents="true"
             android:taskAffinity=""
             android:theme="@style/Theme.KoboLibrary.Share">

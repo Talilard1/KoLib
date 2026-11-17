@@ -125,7 +125,13 @@ class KoboWifiTest {
         assertEquals(0, server!!.port.value)
         // Nothing listens there any more: the port can be taken again. (Connecting to see would be no proof: a
         // connection to a port just let go of can join up with itself.)
-        val free = runCatching { java.net.ServerSocket().apply { reuseAddress = true; bind(java.net.InetSocketAddress(port)) }.close() }.isSuccess
+        // The thread that was waiting for the Kobo lets go of it a moment after stop() returns, so it's tried for a while.
+        var free = false
+        val until = System.currentTimeMillis() + 3_000
+        while (!free && System.currentTimeMillis() < until) {
+            free = runCatching { java.net.ServerSocket().apply { reuseAddress = true; bind(java.net.InetSocketAddress(port)) }.close() }.isSuccess
+            if (!free) Thread.sleep(20)
+        }
         assertTrue("The page is still there after it was stopped", free)
     }
 

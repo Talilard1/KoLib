@@ -54,6 +54,22 @@ class L10nTest {
         assertEquals("101 книга отправлена.", tr("{0} books sent.", 101))
     }
 
+    /** How many things a clean-up changed ("5 blank lines") is said with the count's own form too, never left as written in the table. */
+    @Test
+    fun cleanUpCountsTakeTheRightFormOfTheWord() {
+        L10n.use("ru", mapOf("{0} blank lines" to "{0} {0:пустая строка|пустые строки|пустых строк}", "{0} fonts" to "{0} {0:шрифт|шрифта|шрифтов}"))
+        val blank = dev.kobolibrary.app.epub.Cleanups.Kind.BLANK_LINES
+        assertEquals("3 пустые строки", blank.describe(3))
+        assertEquals("5 пустых строк", blank.describe(5))
+        assertEquals("21 пустая строка", blank.describe(21))
+        assertEquals("12 шрифтов", dev.kobolibrary.app.epub.Cleanups.Kind.STRIP_FONTS.describe(12))
+        for (kind in dev.kobolibrary.app.epub.Cleanups.Kind.entries) for (n in listOf(2, 5, 21, 1234)) {
+            assertEquals(-1, kind.describe(n).indexOf('{'))
+        }
+        L10n.use("en", emptyMap())
+        assertEquals("5 blank lines", blank.describe(5))
+    }
+
     @Test
     fun otherLanguagesHaveTwoForms() {
         L10n.use("fr", mapOf("{0} pages" to "{0} {0:page|pages}"))

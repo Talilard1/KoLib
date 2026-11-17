@@ -169,7 +169,7 @@ internal fun SplitCoverChooser(
                 suggestions.any { it.style == picked.style } -> suggestions.map { if (it.style == picked.style) picked else it }
                 else -> listOf(picked) + suggestions
             }
-            items(shown, key = { it.hashCode() }) { d ->
+            items(shown, key = { it.style.name }) { d ->
                 DesignTile(d.style.label, selected = d == picked, onClick = { onPick(d) }) { m -> CoverThumb(thumbs, first, d, m) }
             }
         }

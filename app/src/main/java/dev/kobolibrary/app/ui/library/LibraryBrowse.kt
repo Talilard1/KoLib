@@ -54,6 +54,7 @@ class LibraryBrowseState {
     /** The Collections tab: the collection open in it (by its key, see libraryCollections), and the book of it open beside it. */
     var collectionKey by mutableStateOf<String?>(null)
     var collectionBookId by mutableStateOf<String?>(null)
+    val collectionScroll = dev.kobolibrary.app.ui.CollectionScroll()
     val gridState = LazyGridState()
     val listState = LazyListState()
 

@@ -109,6 +109,8 @@ class ShareToDeviceActivity : ComponentActivity() {
     private var choosing = false
     /** The device to send to, chosen already: a shortcut's. */
     private var chosen: String? = null
+    /** Sending has begun. Kept if Android makes the screen again, so nothing is then sent a second time unasked. */
+    private var begun = false
 
     private val pickFiles = registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
         if (uris.isNotEmpty()) shared = Shared(null, uris)
@@ -126,6 +128,7 @@ class ShareToDeviceActivity : ComponentActivity() {
                 b.getBoolean("books"),
             )
         } ?: if (choosing) Shared(null, emptyList()) else read(intent)
+        begun = savedInstanceState?.getBoolean("begun") == true
         val theme = (application as KoboLibraryApp).themeSettings
         setContent {
             val choice by theme.choice.collectAsStateWithLifecycle()
@@ -138,6 +141,7 @@ class ShareToDeviceActivity : ComponentActivity() {
         outState.putString("text", shared.text)
         outState.putParcelableArrayList("uris", ArrayList(shared.uris))
         outState.putBoolean("books", shared.books)
+        outState.putBoolean("begun", begun)
     }
 
     override fun onStart() {
@@ -174,13 +178,15 @@ class ShareToDeviceActivity : ComponentActivity() {
         var sending by remember { mutableStateOf<String?>(null) }
         var said by remember { mutableStateOf<String?>(null) }
         val scope = rememberCoroutineScope()
-        LaunchedEffect(Unit) { link.messages.collect { said = it } }
+        // What came of the sending; what the link says about anything else (places kept in step meanwhile) isn't for here.
+        LaunchedEffect(Unit) { link.messages.collect { if (sending != null) said = it } }
         val what = shared
         val nothing = what.nothing
         // The device chosen already, while it's still paired; with only one paired, when choosing what to send, that one.
         val target = chosen?.let { id -> paired.firstOrNull { it.id == id } } ?: if (choosing) paired.singleOrNull() else null
 
         fun send(d: PairedDevice) {
+            begun = true
             DeviceShortcuts.used(this, d)
             if (what.books) {
                 // Books are chosen in the library, in KoLib, which sends them.
@@ -207,7 +213,7 @@ class ShareToDeviceActivity : ComponentActivity() {
         }
         // Sent to the device chosen already as soon as there's something to send.
         LaunchedEffect(what, target) {
-            if (target != null && !nothing && sending == null && said == null) send(target)
+            if (target != null && !nothing && sending == null && said == null && !begun) send(target)
         }
 
         val busy = sending
@@ -227,7 +233,8 @@ class ShareToDeviceActivity : ComponentActivity() {
                 busy != null -> SheetBody.Sending(busy, t?.takeIf { it.total > 0 || it.items > 1 }?.fraction)
                 paired.isEmpty() -> SheetBody.NoDevices
                 choosing && nothing -> SheetBody.ChooseWhat
-                !nothing && target == null -> SheetBody.ChooseDevice(paired, nearby.map { it.id }.toSet())
+                // (Also after the screen was made again part-way: a tap sends again, nothing does by itself.)
+                !nothing && (target == null || begun) -> SheetBody.ChooseDevice(paired, nearby.map { it.id }.toSet())
                 else -> SheetBody.Empty
             },
             closeLabel = if (said != null || (nothing && !choosing) || paired.isEmpty()) tr("Close") else tr("Cancel"),

@@ -413,31 +413,6 @@ fun SplitBookDialog(
         if (seriesName != null) (k + 1).toDouble() else null,
     )
 
-    if (browsing) {
-        // All the designs, to choose one for every book: the cover maker, without pictures of one's own.
-        androidx.compose.ui.window.Dialog(
-            onDismissRequest = { browsing = false },
-            properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false),
-        ) {
-            Box(Modifier.fillMaxSize().appBackdrop()) {
-                androidx.compose.runtime.CompositionLocalProvider(androidx.compose.material3.LocalContentColor provides MaterialTheme.colorScheme.onBackground) {
-                    dev.kobolibrary.app.ui.cover.CoverGeneratorScreen(
-                        text = coverText(0),
-                        onUse = { _, design ->
-                            picked = design
-                            browsing = false
-                        },
-                        onCancel = { browsing = false },
-                        genre = genre,
-                        initial = remember { picked ?: suggestions.first() },
-                        ownPictures = false,
-                        useLabel = tr("Use this design"),
-                    )
-                }
-            }
-        }
-        return
-    }
     if (choosing && list != null) {
         SharedPagesDialog(
             pages = list,
@@ -659,6 +634,31 @@ fun SplitBookDialog(
             }
         },
     )
+    if (browsing) {
+        // All the designs, to choose one for every book: the cover maker, without pictures of one's own. It opens
+        // over the dialog (so after it here), which is as it was left when this closes.
+        androidx.compose.ui.window.Dialog(
+            onDismissRequest = { browsing = false },
+            properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false),
+        ) {
+            Box(Modifier.fillMaxSize().appBackdrop()) {
+                androidx.compose.runtime.CompositionLocalProvider(androidx.compose.material3.LocalContentColor provides MaterialTheme.colorScheme.onBackground) {
+                    dev.kobolibrary.app.ui.cover.CoverGeneratorScreen(
+                        text = coverText(0),
+                        onUse = { _, design ->
+                            picked = design
+                            browsing = false
+                        },
+                        onCancel = { browsing = false },
+                        genre = genre,
+                        initial = remember { picked ?: suggestions.first() },
+                        ownPictures = false,
+                        useLabel = tr("Use this design"),
+                    )
+                }
+            }
+        }
+    }
 }
 
 /**

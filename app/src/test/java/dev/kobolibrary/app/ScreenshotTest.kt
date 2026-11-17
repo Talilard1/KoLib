@@ -159,14 +159,14 @@ class ScreenshotTest {
     @Config(qualifiers = PORTRAIT)
     fun collectionsPortrait() = deviceScreen("06_collections_portrait", tab = 1)
 
-    /** A book tapped in a collection opens beside it, the collections folded away to a strip. */
+    /** A book tapped in a collection opens on the right; the collections and the collection's books stay where they are. */
     @Test
     @Config(qualifiers = LANDSCAPE)
     fun collectionBookOpen() = deviceScreen("05b_collection_book_landscape", tab = 1, collection = "Sherlock Holmes", configure = {
         collectionBookId = FakeKobo.books.first { it.title == "The Sign of the Four" }.contentId
     })
 
-    /** The same, standing up: the book on its own, with a way back to the collection. */
+    /** The same, standing up: the collections stay down the left, and the book takes its collection's place, with a way back to it. */
     @Test
     @Config(qualifiers = PORTRAIT)
     fun collectionBookOpenPortrait() = deviceScreen("06b_collection_book_portrait", tab = 1, collection = "Sherlock Holmes", configure = {

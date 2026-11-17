@@ -39,6 +39,10 @@ import dev.kobolibrary.app.ui.components.ShelfGridBox
 import dev.kobolibrary.app.ui.components.phoneLayout
 import dev.kobolibrary.app.ui.theme.LocalBookcase
 import dev.kobolibrary.app.ui.theme.ShelfColors
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.material.icons.outlined.AutoStories
 
 /** Key used for the "not in any collection" entry. */
 const val NO_COLLECTION_KEY = "\u0000none"
@@ -76,20 +80,30 @@ fun CollectionsTab(
     CollectionsLayout(
         hasCollection = selected != null,
         hasBook = book != null,
+        onOpenFirst = { entries.firstOrNull()?.let { browse.collectionKey = it.key } },
         onCloseCollection = { browse.collectionKey = null; browse.collectionBookId = null },
         onCloseBook = { browse.collectionBookId = null },
-        list = { modifier ->
+        list = { modifier, panes ->
             CollectionList(
                 rows,
                 heading = if (snapshot.collections.isEmpty()) tr("This Kobo has no collections yet.") else tr("{0} on this Kobo", Fmt.plural(snapshot.collections.size, "collection")),
                 selectedKey = selected?.key,
-                onSelect = { key -> browse.collectionKey = key; browse.collectionBookId = null },
+                onSelect = { key ->
+                    // With the books and a book both in view, a tap on the open collection changes nothing.
+                    if (key != browse.collectionKey || panes != CollectionPanes.THREE) browse.collectionBookId = null
+                    browse.collectionKey = key
+                },
                 modifier = modifier,
+                state = browse.collectionScroll.list,
+                opens = panes == CollectionPanes.ONE,
             )
         },
         books = { onBack ->
             selected?.let { entry ->
-                CollectionBooks(view, live, entry, extras, book?.contentId, onBack, onOpenBook = { browse.collectionBookId = it }, onAddToLibrary = onAddToLibrary)
+                CollectionBooks(
+                    view, live, entry, extras, book?.contentId, onBack, browse.collectionScroll.grid(entry.key),
+                    onOpenBook = { browse.collectionBookId = it }, onAddToLibrary = onAddToLibrary,
+                )
             }
         },
         detail = { onBack ->
@@ -117,6 +131,7 @@ fun CollectionsTab(
             }
         },
         nothingChosen = { EmptyState(Icons.Outlined.CollectionsBookmark, tr("Tap a collection"), tr("Its books appear here.")) },
+        noBookChosen = { EmptyState(Icons.Outlined.AutoStories, tr("Tap a book"), tr("Its details appear here.")) },
     )
 }
 
@@ -128,6 +143,7 @@ private fun CollectionBooks(
     extras: KoboExtras,
     selectedId: String?,
     onBack: (() -> Unit)?,
+    gridState: LazyGridState,
     onOpenBook: (String) -> Unit,
     onAddToLibrary: (List<KoboBook>) -> Unit,
 ) {
@@ -176,6 +192,7 @@ private fun CollectionBooks(
             val bookcase = LocalBookcase.current
             LazyVerticalGrid(
                 columns = if (phone) GridCells.Fixed(3) else GridCells.Adaptive(132.dp),
+                state = gridState,
                 contentPadding = if (bookcase) PaddingValues(top = 8.dp, bottom = 24.dp)
                 else PaddingValues(start = if (phone) 8.dp else 12.dp, end = if (phone) 8.dp else 12.dp, top = 8.dp, bottom = 24.dp),
                 horizontalArrangement = Arrangement.spacedBy(if (bookcase || phone) 0.dp else 4.dp),
@@ -201,31 +218,37 @@ private fun CollectionBooks(
     }
 }
 
-/** A collection's name and how many books it has, over its books; [action] at the end (adding them to the library, sending them). */
+/**
+ * A collection's name and how many books it has, over its books; [action] at the end (adding them to the library,
+ * sending them), or under the name where there isn't the room beside it (between the collections and a book's details).
+ */
 @Composable
 fun CollectionHeader(name: String, count: Int, onBack: (() -> Unit)?, action: (@Composable () -> Unit)?) {
-    Row(
-        Modifier.padding(start = 12.dp, end = 20.dp, top = 12.dp, bottom = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        if (onBack != null) {
-            TextButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, null, Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
-                Text(tr("Collections"))
+    BoxWithConstraints {
+        val under = action != null && maxWidth < 600.dp
+        Column(Modifier.padding(start = 12.dp, end = 20.dp, top = 12.dp, bottom = 4.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (onBack != null) {
+                    TextButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text(tr("Collections"))
+                    }
+                    Spacer(Modifier.width(8.dp))
+                } else {
+                    Spacer(Modifier.width(8.dp))
+                }
+                Column(Modifier.weight(1f)) {
+                    Text(name, style = MaterialTheme.typography.titleLarge, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Text(
+                        Fmt.plural(count, "book") + tr(" · tap a book to see its details"),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                if (!under) action?.invoke()
             }
-            Spacer(Modifier.width(8.dp))
-        } else {
-            Spacer(Modifier.width(8.dp))
+            if (under) Box(Modifier.padding(start = 8.dp, top = 8.dp)) { action() }
         }
-        Column(Modifier.weight(1f)) {
-            Text(name, style = MaterialTheme.typography.titleLarge, maxLines = 2, overflow = TextOverflow.Ellipsis)
-            Text(
-                Fmt.plural(count, "book") + tr(" · tap a book to see its details"),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-        action?.invoke()
     }
 }

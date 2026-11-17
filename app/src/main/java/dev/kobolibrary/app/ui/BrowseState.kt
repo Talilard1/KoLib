@@ -65,6 +65,7 @@ class BrowseState {
     /** The Collections tab: the collection open in it, and the book of it open beside it. */
     var collectionKey by mutableStateOf<String?>(null)
     var collectionBookId by mutableStateOf<String?>(null)
+    val collectionScroll = CollectionScroll()
     val gridState = LazyGridState()
     val listState = LazyListState()
 
@@ -117,6 +118,9 @@ class BrowseState {
     }
 }
 
+/** Runs of spaces, to compare titles and names whatever their spacing. */
+private val spaces = Regex("\\s+")
+
 /**
  * What's known about the Kobo's books beyond its database: the library's copies (matched by path) and
  * the tags read from the books' files, which the Kobo's database doesn't keep.
@@ -136,16 +140,23 @@ class KoboExtras(libraryBooks: List<LibraryBook> = emptyList(), private val file
      * or else, for a book put on the Kobo some other way, the one book in the library with the same title, first
      * author and number in its series.
      */
-    fun coverCopy(b: KoboBook): LibraryBook? = libraryCopy(b) ?: run {
+    fun coverCopy(b: KoboBook): LibraryBook? = libraryCopy(b) ?: synchronized(coverCopies) {
+        // Asked for every cover each time it's drawn: worked out once for each book.
+        if (b.contentId in coverCopies) coverCopies[b.contentId] else sameBook(b).also { coverCopies[b.contentId] = it }
+    }
+
+    private val coverCopies = HashMap<String, LibraryBook?>()
+
+    private fun sameBook(b: KoboBook): LibraryBook? {
         val author = b.author?.split(BookSorting.authorSplit)?.firstOrNull { it.isNotBlank() }?.let(::sameText)
         val number = b.seriesNumber?.trim()?.replace(',', '.')?.toDoubleOrNull()
-        byTitle[sameText(b.title)].orEmpty().filter { c ->
+        return byTitle[sameText(b.title)].orEmpty().filter { c ->
             c.meta.authors.firstOrNull()?.let(::sameText) == author &&
                 (number == null || c.meta.seriesIndex == null || c.meta.seriesIndex == number)
         }.singleOrNull()
     }
 
-    private fun sameText(s: String) = s.trim().replace(Regex("\\s+"), " ").lowercase()
+    private fun sameText(s: String) = s.trim().replace(spaces, " ").lowercase()
 
     private fun fromFile(b: KoboBook): KoboTagStore.Entry? = b.relativePath?.lowercase()?.let { fileTags[it] }
 

@@ -426,48 +426,72 @@ internal fun CoverGenerator.stag(s: Sheet, t: Words, art: Art) {
     c.drawCircle(cx, py(-0.75f), unit * 1.58f, Paint(leaf).apply { style = Paint.Style.STROKE; strokeWidth = 0.12f * u })
     starDust(s, rnd, RectF(px(-1.45f), py(-2.2f), px(1.45f), py(-0.4f)), 16, 7, gold, leaf)
     CoverMotifs.draw(c, Motif.MOON, cx, py(-1.5f), unit * 0.24f, leaf, -90f)
-    // Antlers: a beam and its tines, each side.
-    val horn = Paint(leaf).apply { style = Paint.Style.STROKE; strokeCap = Paint.Cap.ROUND; strokeJoin = Paint.Join.ROUND }
+    // Antlers: a beam and its tines, each side, curving as they grow.
     for (side in listOf(-1f, 1f)) {
-        fun line(points: FloatArray, from: Float, to: Float) {
-            val n = points.size / 2
-            for (i in 0 until n - 1) {
-                horn.strokeWidth = (from + (to - from) * i / (n - 1f)) * unit
-                c.drawLine(px(side * points[i * 2]), py(points[i * 2 + 1]), px(side * points[i * 2 + 2]), py(points[i * 2 + 3]), horn)
-            }
+        fun grown(from: Float, to: Float, vararg p: Float) {
+            val pts = FloatArray(p.size) { if (it % 2 == 0) px(side * p[it]) else py(-p[it]) }
+            c.drawPath(tapered(pts, from * unit, to * unit), leaf)
         }
-        line(floatArrayOf(0.2f, -0.52f, 0.34f, -0.86f, 0.58f, -1.2f, 0.7f, -1.56f, 0.6f, -1.94f, 0.42f, -2.14f), 0.1f, 0.035f)
-        line(floatArrayOf(0.28f, -0.74f, 0.2f, -0.98f, 0.24f, -1.18f), 0.06f, 0.03f)
-        line(floatArrayOf(0.48f, -1.06f, 0.78f, -1.2f, 0.96f, -1.42f), 0.065f, 0.03f)
-        line(floatArrayOf(0.66f, -1.4f, 0.94f, -1.6f, 1.06f, -1.86f), 0.06f, 0.03f)
-        line(floatArrayOf(0.68f, -1.72f, 0.86f, -1.96f, 0.9f, -2.16f), 0.05f, 0.028f)
+        grown(0.11f, 0.03f, 0.18f, 0.5f, 0.34f, 0.86f, 0.58f, 1.2f, 0.7f, 1.56f, 0.6f, 1.94f, 0.42f, 2.14f)
+        grown(0.065f, 0.018f, 0.28f, 0.74f, 0.2f, 0.98f, 0.24f, 1.2f)
+        grown(0.07f, 0.018f, 0.48f, 1.06f, 0.78f, 1.2f, 0.97f, 1.44f)
+        grown(0.065f, 0.018f, 0.66f, 1.4f, 0.94f, 1.6f, 1.07f, 1.88f)
+        grown(0.055f, 0.016f, 0.68f, 1.72f, 0.86f, 1.96f, 0.9f, 2.18f)
     }
-    // The head, facet by facet: each a shade of the one colour, lighter on the side the light is.
-    val tones = intArrayOf(mix(gold, Color.WHITE, 0.4f), mix(gold, Color.WHITE, 0.12f), gold, mix(gold, s.c.ground, 0.3f), mix(gold, s.c.ground, 0.55f), mix(s.c.ground, Color.BLACK, 0.45f))
-    fun facet(side: Float, tone: Int, vararg p: Float) {
+    // The stag itself, facing us: each part a shade of the one colour, lit from one side.
+    val pale = mix(gold, Color.WHITE, 0.4f)
+    val lit = mix(gold, Color.WHITE, 0.12f)
+    val shade = mix(gold, s.c.ground, 0.34f)
+    val deep = mix(gold, s.c.ground, 0.6f)
+    val darkest = mix(s.c.ground, Color.BLACK, 0.5f)
+    fun part(paint: Paint, build: Sil.() -> Unit) {
         val path = Path()
-        for (i in 0 until p.size / 2) if (i == 0) path.moveTo(px(side * p[0]), py(p[1])) else path.lineTo(px(side * p[i * 2]), py(p[i * 2 + 1]))
-        path.close()
-        val shade = tones[(tone + (if (side > 0) 1 else 0)).coerceIn(0, tones.size - 1)]
-        c.drawPath(path, s.fill(shade))
-        c.drawPath(path, s.stroke(shade, 0.12f * u).apply { strokeJoin = Paint.Join.ROUND })
+        Sil(path, cx, cy, unit).build()
+        c.drawPath(path, paint)
     }
+    val edge = s.stroke(faint(darkest, 150), 0.16f * u).apply { strokeJoin = Paint.Join.ROUND }
+    // The neck, its fur ragged at the foot, with a paler ruff down the middle.
+    val neck: Sil.() -> Unit = {
+        round(
+            -0.36f, 0.1f, -0.44f, -0.46f, -0.7f, -1f, -0.7f, -1f, -0.52f, -0.93f, -0.52f, -0.93f, -0.38f, -1.13f, -0.38f, -1.13f, -0.2f, -1f, -0.2f, -1f,
+            0f, -1.2f, 0f, -1.2f, 0.2f, -1f, 0.2f, -1f, 0.38f, -1.13f, 0.38f, -1.13f, 0.52f, -0.93f, 0.52f, -0.93f, 0.7f, -1f, 0.7f, -1f, 0.44f, -0.46f, 0.36f, 0.1f,
+        )
+    }
+    part(Paint(Paint.ANTI_ALIAS_FLAG).apply { shader = LinearGradient(px(-0.7f), 0f, px(0.7f), 0f, intArrayOf(gold, shade, deep), null, Shader.TileMode.CLAMP) }, neck)
+    part(s.fill(faint(lit, 150))) { round(-0.2f, -0.46f, 0f, -0.4f, 0.2f, -0.46f, 0.23f, -0.88f, 0f, -1.16f, 0f, -1.16f, -0.23f, -0.88f) }
+    part(edge, neck)
+    // Its ears, and the darker hollow of each.
     for (side in listOf(-1f, 1f)) {
-        facet(side, 3, 0.4f, 0f, 0.62f, 0.95f, 0.3f, 1.05f, 0.22f, 0.45f)
-        facet(side, 2, 0.22f, 0.45f, 0.3f, 1.05f, 0f, 1.12f, 0f, 0.84f, 0.16f, 0.72f)
-        facet(side, 2, 0.36f, -0.42f, 0.84f, -0.64f, 0.5f, -0.2f)
-        facet(side, 4, 0.42f, -0.4f, 0.72f, -0.56f, 0.5f, -0.27f)
-        facet(side, 1, 0f, -0.55f, 0.34f, -0.5f, 0.14f, -0.2f, 0f, -0.1f)
-        facet(side, 2, 0.34f, -0.5f, 0.36f, -0.22f, 0.14f, -0.2f)
-        facet(side, 2, 0.36f, -0.22f, 0.4f, 0f, 0.1f, 0.12f, 0.14f, -0.2f)
-        facet(side, 0, 0f, -0.1f, 0.14f, -0.2f, 0.1f, 0.12f, 0f, 0.1f)
-        facet(side, 3, 0.4f, 0f, 0.22f, 0.45f, 0.08f, 0.5f, 0.1f, 0.12f)
-        facet(side, 1, 0f, 0.1f, 0.1f, 0.12f, 0.08f, 0.5f, 0f, 0.55f)
-        facet(side, 2, 0.22f, 0.45f, 0.16f, 0.72f, 0.06f, 0.66f, 0.08f, 0.5f)
-        facet(side, 4, 0f, 0.55f, 0.08f, 0.5f, 0.06f, 0.66f, 0.16f, 0.72f, 0f, 0.84f)
-        // The eye.
-        c.drawPath(Path().apply { moveTo(px(side * 0.17f), py(-0.2f)); lineTo(px(side * 0.27f), py(-0.26f)); lineTo(px(side * 0.33f), py(-0.19f)); lineTo(px(side * 0.24f), py(-0.14f)); close() }, s.fill(tones[5]))
+        val ear: Sil.() -> Unit = { round(side * 0.3f, 0.47f, side * 0.5f, 0.63f, side * 0.86f, 0.7f, side * 0.86f, 0.7f, side * 0.68f, 0.42f, side * 0.42f, 0.3f) }
+        part(s.fill(if (side < 0) gold else shade), ear)
+        part(s.fill(deep)) { round(side * 0.4f, 0.46f, side * 0.56f, 0.57f, side * 0.76f, 0.63f, side * 0.76f, 0.63f, side * 0.62f, 0.46f, side * 0.45f, 0.38f) }
+        part(edge, ear)
     }
+    // The head: broad between the ears, long, and narrowing to the muzzle.
+    val head: Sil.() -> Unit = {
+        round(
+            0f, 0.6f, 0.2f, 0.57f, 0.35f, 0.42f, 0.37f, 0.2f, 0.31f, -0.04f, 0.225f, -0.32f, 0.2f, -0.5f, 0.13f, -0.66f, 0f, -0.71f,
+            -0.13f, -0.66f, -0.2f, -0.5f, -0.225f, -0.32f, -0.31f, -0.04f, -0.37f, 0.2f, -0.35f, 0.42f, -0.2f, 0.57f,
+        )
+    }
+    part(Paint(Paint.ANTI_ALIAS_FLAG).apply { shader = LinearGradient(px(-0.36f), 0f, px(0.36f), 0f, intArrayOf(lit, gold, shade), null, Shader.TileMode.CLAMP) }, head)
+    // The paler blaze down its face, and the hollows of its cheeks.
+    part(s.fill(faint(pale, 120))) { round(-0.1f, 0.52f, 0.1f, 0.52f, 0.085f, 0.05f, 0.11f, -0.38f, 0f, -0.45f, -0.11f, -0.38f, -0.085f, 0.05f) }
+    for (side in listOf(-1f, 1f)) {
+        part(s.fill(faint(deep, 120))) { round(side * 0.215f, 0.08f, side * 0.345f, 0.12f, side * 0.285f, -0.08f, side * 0.21f, -0.34f, side * 0.16f, -0.16f) }
+        // The eye, its lid and the mark that runs down from it.
+        part(s.fill(darkest)) { round(side * 0.155f, 0.19f, side * 0.155f, 0.19f, side * 0.25f, 0.29f, side * 0.345f, 0.215f, side * 0.345f, 0.215f, side * 0.255f, 0.13f) }
+        c.drawCircle(px(side * 0.25f - 0.025f), py(-0.235f), unit * 0.024f, s.fill(Color.WHITE))
+        c.drawPath(Path().apply { moveTo(px(side * 0.14f), py(-0.24f)); quadTo(px(side * 0.25f), py(-0.36f), px(side * 0.365f), py(-0.26f)) }, s.stroke(faint(pale, 190), 0.2f * u).apply { strokeCap = Paint.Cap.ROUND })
+        c.drawPath(Path().apply { moveTo(px(side * 0.155f), py(-0.18f)); quadTo(px(side * 0.12f), py(-0.09f), px(side * 0.13f), py(0.02f)) }, s.stroke(faint(darkest, 130), 0.18f * u).apply { strokeCap = Paint.Cap.ROUND })
+        // A nostril.
+        c.drawPath(Path().apply { moveTo(px(side * 0.03f), py(0.57f)); quadTo(px(side * 0.075f), py(0.52f), px(side * 0.09f), py(0.58f)) }, s.stroke(faint(shade, 200), 0.2f * u).apply { strokeCap = Paint.Cap.ROUND })
+    }
+    part(edge, head)
+    // Its nose, and the line of its mouth.
+    part(s.fill(darkest)) { round(-0.12f, -0.48f, 0f, -0.445f, 0.12f, -0.48f, 0.105f, -0.6f, 0f, -0.67f, -0.105f, -0.6f) }
+    // (The nostrils are drawn over the nose, so they show.)
+    for (side in listOf(-1f, 1f)) c.drawPath(Path().apply { moveTo(px(side * 0.03f), py(0.57f)); quadTo(px(side * 0.075f), py(0.52f), px(side * 0.09f), py(0.58f)) }, s.stroke(faint(shade, 220), 0.2f * u).apply { strokeCap = Paint.Cap.ROUND })
     // Ferns crossed under it.
     val ferns = Path()
     for (side in listOf(-1f, 1f)) frond(ferns, px(-side * 0.25f), py(1.26f), px(side * 1.3f), py(0.66f), side * 0.18f, 8, unit * 0.3f, 0.26f * u)

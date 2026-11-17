@@ -130,42 +130,7 @@ internal fun Painter.wisp(sx: Float, sy: Float, tall: Float, colour: Int, streng
 
 /** A figure in robes and a pointed hat, [tall] high on ([px], [py]), wand raised; gives where the wand's tip is. */
 internal fun Painter.wizard(path: Path, px: Float, py: Float, tall: Float, facing: Float = 1f): Pair<Float, Float> {
-    val head = tall * 0.075f
-    val hy = py - tall + head * 3.2f
-    path.addCircle(px, hy, head, Path.Direction.CW)
-    // The hat: a brim and a cone leaning back.
-    path.addOval(px - head * 2.1f, hy - head * 1.2f, px + head * 2.1f, hy - head * 0.55f, Path.Direction.CW)
-    path.moveTo(px - head * 1.1f, hy - head * 0.9f)
-    path.quadTo(px - facing * head * 0.4f, hy - head * 2.5f, px - facing * head * 1.6f, py - tall)
-    path.lineTo(px + head * 1.1f, hy - head * 0.9f)
-    path.close()
-    // Robes, wide at the hem.
-    path.moveTo(px - head * 1.3f, hy + head * 0.9f)
-    path.quadTo(px - head * 2.2f, py - tall * 0.45f, px - head * 3.2f, py)
-    path.lineTo(px + head * 3.0f, py)
-    path.quadTo(px + head * 2.0f, py - tall * 0.45f, px + head * 1.3f, hy + head * 0.9f)
-    path.close()
-    // The arm up and out, and the wand.
-    val sx = px + facing * head * 1.2f
-    val sy = hy + head * 2.2f
-    val hx = px + facing * head * 4.2f
-    val hy2 = hy - head * 0.4f
-    val arm = Path().apply {
-        moveTo(sx - facing * head * 0.4f, sy - head * 0.5f)
-        lineTo(hx, hy2 - head * 0.45f)
-        lineTo(hx + facing * head * 0.2f, hy2 + head * 0.45f)
-        lineTo(sx, sy + head * 0.9f)
-        close()
-    }
-    path.addPath(arm)
-    val tipX = hx + facing * head * 2.6f
-    val tipY = hy2 - head * 2.2f
-    path.moveTo(hx, hy2 - head * 0.15f)
-    path.lineTo(tipX, tipY - head * 0.1f)
-    path.lineTo(tipX + facing * head * 0.1f, tipY + head * 0.18f)
-    path.lineTo(hx + facing * head * 0.1f, hy2 + head * 0.25f)
-    path.close()
-    return tipX to tipY
+    return Figures.wizard(path, px, py, tall, facing)
 }
 
 /**
@@ -304,119 +269,22 @@ internal fun Painter.crookedCottage(path: Path, windows: Path, cx: Float, base: 
 
 /** Someone on a broomstick, cloak flying, [size] long, flying right (or left if [flip]). */
 internal fun Painter.onBroom(path: Path, cx: Float, cy: Float, size: Float, flip: Boolean = false) {
-    val d = if (flip) -1f else 1f
-    fun px(f: Float) = cx + d * f * size
-    fun py(f: Float) = cy + f * size
-    // The broom and its bristles.
-    path.moveTo(px(-0.5f), py(0.04f))
-    path.lineTo(px(0.5f), py(-0.04f))
-    path.lineTo(px(0.5f), py(-0.015f))
-    path.lineTo(px(-0.5f), py(0.065f))
-    path.close()
-    path.moveTo(px(-0.48f), py(0.03f))
-    path.lineTo(px(-0.78f), py(-0.06f))
-    path.lineTo(px(-0.82f), py(0.12f))
-    path.lineTo(px(-0.48f), py(0.08f))
-    path.close()
-    // The rider: body, cloak streaming back, hat.
-    path.moveTo(px(-0.05f), py(0.02f))
-    path.lineTo(px(0.12f), py(-0.24f))
-    path.lineTo(px(0.2f), py(-0.2f))
-    path.lineTo(px(0.16f), py(0.02f))
-    path.close()
-    path.moveTo(px(0.12f), py(-0.22f))
-    path.quadTo(px(-0.1f), py(-0.2f), px(-0.32f), py(-0.08f))
-    path.lineTo(px(-0.18f), py(-0.04f))
-    path.lineTo(px(-0.36f), py(0.0f))
-    path.quadTo(px(-0.1f), py(0.0f), px(0.04f), py(-0.04f))
-    path.close()
-    path.addCircle(px(0.18f), py(-0.29f), size * 0.055f, Path.Direction.CW)
-    path.moveTo(px(0.09f), py(-0.31f))
-    path.lineTo(px(0.06f), py(-0.5f))
-    path.lineTo(px(0.27f), py(-0.31f))
-    path.close()
-    path.addOval(px(0.05f) - size * 0.02f * d, py(-0.34f), px(0.32f) + size * 0.02f * d, py(-0.3f), Path.Direction.CW)
+    Figures.onBroom(path, cx, cy, size, if (flip) -1f else 1f)
 }
 
 /** A cat sitting, seen from the side, [tall] high on ([px], [py]). */
 internal fun Painter.cat(path: Path, px: Float, py: Float, tall: Float, flip: Boolean = false) {
-    val d = if (flip) -1f else 1f
-    fun ax(f: Float) = px + d * f * tall
-    fun ay(f: Float) = py - f * tall
-    path.moveTo(ax(-0.25f), ay(0f))
-    path.quadTo(ax(-0.34f), ay(0.42f), ax(-0.06f), ay(0.62f))
-    path.lineTo(ax(-0.04f), ay(0.8f))
-    path.lineTo(ax(-0.02f), ay(0.98f))
-    path.lineTo(ax(0.06f), ay(0.86f))
-    path.lineTo(ax(0.16f), ay(0.86f))
-    path.lineTo(ax(0.24f), ay(1.0f))
-    path.lineTo(ax(0.26f), ay(0.78f))
-    path.quadTo(ax(0.3f), ay(0.62f), ax(0.16f), ay(0.56f))
-    path.quadTo(ax(0.22f), ay(0.3f), ax(0.18f), ay(0f))
-    path.close()
-    // The tail curled round.
-    path.moveTo(ax(-0.24f), ay(0.02f))
-    path.quadTo(ax(-0.5f), ay(0.0f), ax(-0.52f), ay(0.2f))
-    path.lineTo(ax(-0.46f), ay(0.22f))
-    path.quadTo(ax(-0.44f), ay(0.07f), ax(-0.2f), ay(0.07f))
-    path.close()
+    Figures.cat(path, px, py, tall, if (flip) -1f else 1f)
 }
 
 /** A wolf on a rock, its head up, howling. */
 internal fun Painter.howlingWolf(path: Path, px: Float, py: Float, tall: Float, flip: Boolean = false) {
-    val d = if (flip) -1f else 1f
-    fun ax(f: Float) = px + d * f * tall
-    fun ay(f: Float) = py - f * tall
-    path.moveTo(ax(-0.55f), ay(0f))
-    path.lineTo(ax(-0.5f), ay(0.3f))
-    path.quadTo(ax(-0.6f), ay(0.36f), ax(-0.78f), ay(0.3f))
-    path.lineTo(ax(-0.62f), ay(0.42f))
-    path.quadTo(ax(-0.3f), ay(0.55f), ax(0.0f), ay(0.6f))
-    path.lineTo(ax(0.12f), ay(0.82f))
-    path.lineTo(ax(0.18f), ay(1.0f))
-    path.lineTo(ax(0.24f), ay(0.88f))
-    path.lineTo(ax(0.42f), ay(0.98f))
-    path.lineTo(ax(0.32f), ay(0.82f))
-    path.lineTo(ax(0.26f), ay(0.72f))
-    path.lineTo(ax(0.2f), ay(0.52f))
-    path.lineTo(ax(0.16f), ay(0f))
-    path.lineTo(ax(0.06f), ay(0f))
-    path.lineTo(ax(0.04f), ay(0.3f))
-    path.lineTo(ax(-0.36f), ay(0.3f))
-    path.lineTo(ax(-0.4f), ay(0f))
-    path.close()
+    Figures.wolf(path, px, py, tall, if (flip) -1f else 1f)
 }
 
 /** Two figures close together, one a little taller, [tall] high, standing on ([px], [py]). */
 internal fun Painter.couple(path: Path, px: Float, py: Float, tall: Float, gowned: Boolean = true) {
-    fun person(cx: Float, h: Float, dress: Boolean, lean: Float) {
-        val head = h * 0.075f
-        val hy = py - h + head * 1.2f
-        path.addCircle(cx + lean * head, hy, head, Path.Direction.CW)
-        val neck = hy + head * 1.2f
-        if (dress) {
-            path.moveTo(cx - head * 1.1f, neck)
-            path.lineTo(cx + head * 1.1f, neck)
-            path.lineTo(cx + head * 0.9f, py - h * 0.5f)
-            path.quadTo(cx + head * 3.4f, py - h * 0.1f, cx + head * 3.8f, py)
-            path.lineTo(cx - head * 3.6f, py)
-            path.quadTo(cx - head * 3.2f, py - h * 0.1f, cx - head * 0.9f, py - h * 0.5f)
-            path.close()
-        } else {
-            path.moveTo(cx - head * 1.5f, neck)
-            path.lineTo(cx + head * 1.5f, neck)
-            path.lineTo(cx + head * 1.3f, py - h * 0.45f)
-            path.lineTo(cx + head * 1.1f, py)
-            path.lineTo(cx + head * 0.2f, py)
-            path.lineTo(cx, py - h * 0.36f)
-            path.lineTo(cx - head * 0.2f, py)
-            path.lineTo(cx - head * 1.1f, py)
-            path.lineTo(cx - head * 1.3f, py - h * 0.45f)
-            path.close()
-        }
-    }
-    person(px - tall * 0.075f, tall * 0.92f, gowned, 0.5f)
-    person(px + tall * 0.075f, tall, false, -0.5f)
+    Figures.couple(path, px, py, tall, gowned)
 }
 
 /** A pagoda of [floors] storeys with upturned eaves. */
@@ -442,22 +310,7 @@ internal fun Painter.pagoda(path: Path, cx: Float, base: Float, size: Float, flo
 
 /** A crane in flight, wings up. */
 internal fun Painter.crane(path: Path, cx: Float, cy: Float, size: Float, flip: Boolean = false) {
-    val d = if (flip) -1f else 1f
-    fun px(f: Float) = cx + d * f * size
-    fun py(f: Float) = cy + f * size
-    path.moveTo(px(-0.5f), py(0.04f))
-    path.quadTo(px(0f), py(-0.02f), px(0.5f), py(-0.06f))
-    path.lineTo(px(0.52f), py(-0.03f))
-    path.quadTo(px(0f), py(0.06f), px(-0.5f), py(0.07f))
-    path.close()
-    path.moveTo(px(-0.05f), py(0.02f))
-    path.quadTo(px(-0.2f), py(-0.3f), px(-0.42f), py(-0.42f))
-    path.quadTo(px(-0.2f), py(-0.18f), px(0.12f), py(0.0f))
-    path.close()
-    path.moveTo(px(0.0f), py(0.04f))
-    path.quadTo(px(0.12f), py(0.3f), px(-0.1f), py(0.42f))
-    path.quadTo(px(0.2f), py(0.22f), px(0.12f), py(0.02f))
-    path.close()
+    Figures.crane(path, cx, cy, size, if (flip) -1f else 1f)
 }
 
 /** Tall rounded peaks, as in an ink painting of mountains, rising from [base]. */
@@ -906,9 +759,9 @@ internal object Scenes {
         val fx = p.x(if (fromLeft) 0.72f else 0.28f)
         val fy = p.groundAt(plateau, fx) + p.u * 0.4f
         val fig = Path()
-        p.cloaked(fig, fx, fy, p.h * 0.17f)
-        p.c.drawPath(fig, p.fill(rgb(0x0B0A09)))
         val d = if (fromLeft) -1f else 1f
+        Figures.cloaked(fig, fx, fy, p.h * 0.17f, facing = d, staff = false)
+        p.c.drawPath(fig, p.fill(rgb(0x0B0A09)))
         p.c.save()
         p.c.rotate(-d * 28f, fx, fy - p.h * 0.1f)
         p.c.drawRect(fx - p.u * 0.7f, fy - p.h * 0.32f, fx + p.u * 0.7f, fy - p.h * 0.07f, p.fill(rgb(0x0B0A09)))
@@ -1271,7 +1124,7 @@ internal object Scenes {
             p.c.drawRect(rx, p.y(0.885f), rx + p.u * 0.8f, p.y(0.95f + p.rnd.nextFloat() * 0.05f), p.fill(alpha(neon[p.rnd.nextInt(neon.size)], 80)))
         }
         val fig = Path()
-        p.cloaked(fig, p.x(0.5f), p.y(0.95f), p.h * 0.24f)
+        Figures.inCoat(fig, p.x(0.5f), p.y(0.95f), p.h * 0.24f, hat = false)
         p.c.drawPath(fig, p.fill(rgb(0x020105)))
         p.rain(220, rgb(0xC9B6FF), slant = 0.1f, strength = 55)
     }
@@ -1377,26 +1230,8 @@ internal object Scenes {
         val fy = p.y(0.8f)
         val tall = p.h * 0.3f
         p.glow(fx, fy - tall * 0.6f, p.w * 0.2f, rgb(0xFFF2C0), 60)
-        val head = tall * 0.075f
-        val hero = Path().apply {
-            addCircle(fx, fy - tall + head, head, Path.Direction.CW)
-            moveTo(fx - head * 1.8f, fy - tall + head * 2.6f)
-            lineTo(fx + head * 1.8f, fy - tall + head * 2.6f)
-            lineTo(fx + head * 1.4f, fy - tall * 0.45f)
-            lineTo(fx + head * 1.6f, fy)
-            lineTo(fx + head * 0.3f, fy)
-            lineTo(fx, fy - tall * 0.4f)
-            lineTo(fx - head * 0.3f, fy)
-            lineTo(fx - head * 1.6f, fy)
-            lineTo(fx - head * 1.4f, fy - tall * 0.45f)
-            close()
-            // The cape, blowing out.
-            moveTo(fx - head * 1.7f, fy - tall + head * 2.4f)
-            cubicTo(fx - head * 6f, fy - tall * 0.6f, fx - head * 4f, fy - tall * 0.3f, fx - head * 7.5f, fy - tall * 0.02f)
-            lineTo(fx - head * 3f, fy - tall * 0.12f)
-            lineTo(fx - head * 1.2f, fy - tall * 0.4f)
-            close()
-        }
+        val hero = Path()
+        Figures.hero(hero, fx, fy, tall, capeTo = -1f)
         p.c.drawPath(hero, p.fill(dark))
     }
 }

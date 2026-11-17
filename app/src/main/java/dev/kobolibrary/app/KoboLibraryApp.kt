@@ -41,6 +41,9 @@ class KoboLibraryApp : Application() {
     /** How far each library book has been read in the app's reader. */
     val readingHere: ReadingHereIndex by lazy { ReadingHereIndex() }
 
+    /** The time spent reading each book in the app's readers, for the reading stats. */
+    val readingLog: dev.kobolibrary.app.reader.ReadingLog by lazy { dev.kobolibrary.app.reader.ReadingLog(java.io.File(filesDir, "reading-log.json")).also { it.load() } }
+
     /** Makes scanned books into text, in the background. */
     val ocr: dev.kobolibrary.app.ocr.OcrManager by lazy { dev.kobolibrary.app.ocr.OcrManager(this) }
 

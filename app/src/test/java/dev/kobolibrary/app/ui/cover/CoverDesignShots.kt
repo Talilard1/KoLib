@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Path
 import androidx.test.core.app.ApplicationProvider
 import org.junit.Assume.assumeTrue
 import org.junit.Test
@@ -118,13 +119,76 @@ class CoverDesignShots {
         assumeTrue(out.isDirectory)
         val only = System.getenv("COVERS_SCENES")?.split(',')?.map { it.trim() }?.filter { it.isNotEmpty() } ?: return
         for (g in CoverGenre.entries.filter { it.name in only }) {
-            val covers = listOf(
-                generator.render(bookFor(g), CoverDesign(CoverStyle.PAINTING, theme("Midnight"), g, 11), 536, 724),
-                generator.render(bookFor(g), CoverDesign(CoverStyle.PAINTING, theme("Crimson"), g, 12), 536, 724),
-                generator.render(bookFor(g), CoverDesign(CoverStyle.FRAMED, theme("Teal"), g, 5), 536, 724),
-                generator.render(bookFor(g), CoverDesign(CoverStyle.WIDESCREEN, theme("Midnight"), g, 7), 536, 724),
-            )
-            sheet("scene_" + g.name.lowercase(), covers, 4)
+            val covers = (11..15).map { generator.render(bookFor(g), CoverDesign(CoverStyle.PAINTING, theme("Midnight"), g, it * 37), 402, 543) } +
+                listOf(CoverStyle.FRAMED to 5, CoverStyle.FRAMED to 6, CoverStyle.SCROLL to 9, CoverStyle.WIDESCREEN to 7, CoverStyle.STAMP to 3).map { (st, seed) ->
+                    generator.render(bookFor(g), CoverDesign(st, theme("Teal"), g, seed), 402, 543)
+                }
+            sheet("scene_" + g.name.lowercase(), covers, 5)
+        }
+    }
+
+    /** Every figure the scenes and designs use, large and plain, to see how each is drawn. */
+    @Test
+    fun figures() {
+        assumeTrue(out.isDirectory)
+        if (System.getenv("COVERS_FIGURES") == null) return
+        val cell = 300
+        val cols = 8
+        val draw = listOf<(Path, Float, Float, Float) -> Unit>(
+            { p, x, y, t -> Figures.cloaked(p, x, y, t) },
+            { p, x, y, t -> Figures.cloaked(p, x, y, t, facing = -1f, staff = false) },
+            { p, x, y, t -> Figures.inCoat(p, x, y, t) },
+            { p, x, y, t -> Figures.inCoat(p, x, y, t, hat = false) },
+            { p, x, y, t -> Figures.man(p, x, y, t) },
+            { p, x, y, t -> Figures.hero(p, x + t * 0.1f, y, t) },
+            { p, x, y, t -> Figures.singer(p, x, y, t * 0.9f) },
+            { p, x, y, t -> Figures.seated(p, x - t * 0.1f, y, t) },
+            { p, x, y, t -> Figures.wizard(p, x - t * 0.1f, y, t) },
+            { p, x, y, t -> Figures.couple(p, x, y, t) },
+            { p, x, y, t -> Figures.couple(p, x, y, t, gowned = false) },
+            { p, x, y, t -> Figures.periodCouple(p, x, y, t * 0.95f) },
+            { p, x, y, t -> Figures.soldier(p, x, y, t * 0.9f) },
+            { p, x, y, t -> Figures.detective(p, x, y, t) },
+            { p, x, y, t -> Figures.onBroom(p, x, y - t * 0.4f, t * 0.7f) },
+            { p, x, y, t -> Figures.cat(p, x + t * 0.1f, y, t * 0.7f) },
+            { p, x, y, t -> Figures.wolf(p, x + t * 0.2f, y, t * 0.8f) },
+            { p, x, y, t -> Figures.crane(p, x, y - t * 0.45f, t * 0.95f) },
+            { p, x, y, t -> Painter(Canvas(), android.graphics.RectF(0f, 0f, 100f, 100f), kotlin.random.Random(1)).underUmbrella(p, x, y, t * 0.8f, two = true) },
+            { p, x, y, t -> Painter(Canvas(), android.graphics.RectF(0f, 0f, 100f, 100f), kotlin.random.Random(1)).underUmbrella(p, x, y, t * 0.8f, two = false) },
+        )
+        val rows = (draw.size + 4 + cols - 1) / cols
+        val bmp = Bitmap.createBitmap(cols * cell, rows * cell, Bitmap.Config.ARGB_8888)
+        val c = Canvas(bmp)
+        c.drawColor(Color.rgb(0xE9, 0xE0, 0xCC))
+        val ink = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.rgb(0x18, 0x1C, 0x22) }
+        draw.forEachIndexed { i, d ->
+            val path = Path()
+            d(path, (i % cols + 0.5f) * cell, (i / cols + 0.94f) * cell, cell * 0.78f)
+            c.drawPath(path, ink)
+        }
+        // The owl with its lines, and the cranes in their colours.
+        var i = draw.size
+        val painter = Painter(c, android.graphics.RectF(0f, 0f, bmp.width.toFloat(), bmp.height.toFloat()), kotlin.random.Random(3))
+        val outline = Path()
+        val lines = Path()
+        Figures.owl(outline, (i % cols + 0.5f) * cell, (i / cols + 0.8f) * cell, cell * 0.66f, lines)
+        c.drawPath(outline, ink)
+        c.drawPath(lines, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.rgb(0x7A, 0x86, 0x96); style = Paint.Style.STROKE; strokeWidth = 2f; strokeCap = Paint.Cap.ROUND })
+        i++
+        for (wings in listOf(1f, -0.7f, 0.8f)) {
+            painter.tancho((i % cols + 0.5f) * cell, (i / cols + 0.55f) * cell, cell * 0.82f, false, Color.WHITE, Color.rgb(0x18, 0x1C, 0x22), Color.rgb(0xC2, 0x36, 0x2B), wings = wings, line = Color.rgb(0x18, 0x1C, 0x22))
+            i++
+        }
+        File(out, "figures.png").outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
+    }
+
+    /** Every genre's scene as a painting, large enough to see who and what is in it, eight to a sheet. */
+    @Test
+    fun scenesAll() {
+        assumeTrue(out.isDirectory)
+        if (System.getenv("COVERS_ALL_SCENES") == null) return
+        CoverGenre.entries.chunked(8).forEachIndexed { n, eight ->
+            sheet("all_%02d".format(n), eight.map { g -> generator.render(bookFor(g), CoverDesign(CoverStyle.PAINTING, theme("Midnight"), g, 23), 402, 543) }, 4)
         }
     }
 

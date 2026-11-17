@@ -213,6 +213,44 @@ class ScreenshotTest {
         }
     }
 
+    private fun statsBooks(): Pair<List<dev.kobolibrary.app.library.LibraryBook>, Map<String, dev.kobolibrary.app.reader.ReadHere>> {
+        val titles = listOf("The Histories" to 189_000, "War and Peace" to 587_000, "The Republic" to 118_000, "Meditations" to 60_000, "The Odyssey" to 130_000)
+        val books = titles.map { (t, words) ->
+            dev.kobolibrary.app.library.LibraryBook(
+                id = t, meta = dev.kobolibrary.app.epub.BookMetadata(title = t), collections = emptyList(), fileSize = 1, hasCover = false, coverVersion = 0,
+                addedAt = 0, modifiedAt = 0, source = dev.kobolibrary.app.library.BookSource.FILE, originalName = null, koboPath = null, words = words,
+            )
+        }
+        val at = java.time.LocalDate.of(2026, 11, 17).atTime(20, 0).atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val here = mapOf(
+            "The Histories" to dev.kobolibrary.app.reader.ReadHere(0.38f, at),
+            "War and Peace" to dev.kobolibrary.app.reader.ReadHere(0.12f, at - 86_400_000),
+            "Meditations" to dev.kobolibrary.app.reader.ReadHere(1f, at - 5 * 86_400_000L, finished = true),
+        )
+        return books to here
+    }
+
+    @Test
+    @Config(qualifiers = PORTRAIT)
+    fun readingStats() {
+        val (_, s) = session()
+        val (books, here) = statsBooks()
+        val today = java.time.LocalDate.of(2026, 11, 17)
+        val log = dev.kobolibrary.app.ui.reader.sampleReadingLog(File(context.cacheDir, "stats-log.json"), listOf("The Histories", "War and Peace", "Meditations"), today)
+        shot("84_reading_stats") {
+            dev.kobolibrary.app.ui.ReadingStatsScreen(books, here, log.books.value, kobo = s.snapshot, koboLive = false, onBack = {}, today = today)
+        }
+    }
+
+    @Test
+    @Config(qualifiers = "w411dp-h914dp-port-xxhdpi")
+    fun readingStatsPhoneWithNothingRead() {
+        val (books, _) = statsBooks()
+        shot("85_reading_stats_phone_empty") {
+            dev.kobolibrary.app.ui.ReadingStatsScreen(books, emptyMap(), emptyMap(), kobo = null, koboLive = false, onBack = {})
+        }
+    }
+
     @Test
     @Config(qualifiers = LANDSCAPE)
     fun connectWaiting() = shot("11_connect_waiting") {

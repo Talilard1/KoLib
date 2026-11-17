@@ -333,6 +333,7 @@ internal fun ComicView(
     val count = pages.count
     val saved = remember { ReaderStore.pdfPlace(dir) }
     var page by remember { mutableIntStateOf(saved?.page?.coerceIn(0, count - 1) ?: 0) }
+    CountReading(rememberReadingSession(book), page)
     var showSettings by remember { mutableStateOf(settingsOpen) }
     var actionsFor by remember { mutableStateOf<Int?>(null) }
     // Taps, keys and the bar's buttons: on or back, for the page or strip showing to act on; and pages to go to.

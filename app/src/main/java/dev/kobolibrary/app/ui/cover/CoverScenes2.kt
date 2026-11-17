@@ -45,65 +45,12 @@ internal fun Painter.streetLamp(lx: Float, top: Float, bottom: Float, light: Int
 
 /** A man in a caped greatcoat and a deerstalker, pipe in his mouth, [tall] high on ([px], [py]). */
 internal fun Painter.deerstalker(path: Path, px: Float, py: Float, tall: Float, facing: Float = 1f) {
-    val head = tall * 0.065f
-    val hy = py - tall + head * 2.2f
-    path.addCircle(px, hy, head, Path.Direction.CW)
-    // The cap with its peaks fore and aft.
-    path.moveTo(px - head * 1.1f, hy - head * 0.3f)
-    path.quadTo(px, hy - head * 1.9f, px + head * 1.1f, hy - head * 0.3f)
-    path.lineTo(px + facing * head * 1.9f, hy - head * 0.1f)
-    path.lineTo(px - facing * head * 1.9f, hy - head * 0.1f)
-    path.close()
-    // The pipe.
-    path.moveTo(px + facing * head * 0.8f, hy + head * 0.4f)
-    path.lineTo(px + facing * head * 1.9f, hy + head * 0.7f)
-    path.lineTo(px + facing * head * 1.9f, hy + head * 0.2f)
-    path.lineTo(px + facing * head * 2.4f, hy + head * 0.2f)
-    path.lineTo(px + facing * head * 2.3f, hy + head * 1.0f)
-    path.lineTo(px + facing * head * 0.8f, hy + head * 0.7f)
-    path.close()
-    // The shoulder cape over a long coat.
-    path.moveTo(px - head * 1.2f, hy + head * 1.1f)
-    path.lineTo(px - head * 3.4f, hy + head * 4.6f)
-    path.lineTo(px + head * 3.4f, hy + head * 4.6f)
-    path.lineTo(px + head * 1.2f, hy + head * 1.1f)
-    path.close()
-    path.moveTo(px - head * 2.2f, hy + head * 4.4f)
-    path.lineTo(px - head * 2.8f, py - tall * 0.2f)
-    path.lineTo(px + head * 2.8f, py - tall * 0.2f)
-    path.lineTo(px + head * 2.2f, hy + head * 4.4f)
-    path.close()
-    path.addRect(px - head * 1.5f, py - tall * 0.21f, px - head * 0.3f, py, Path.Direction.CW)
-    path.addRect(px + head * 0.3f, py - tall * 0.21f, px + head * 1.5f, py, Path.Direction.CW)
+    Figures.detective(path, px, py, tall, facing)
 }
 
 /** A soldier in a steel helmet, rifle at the slope, walking towards [facing]. */
 internal fun Painter.soldier(path: Path, px: Float, py: Float, tall: Float, facing: Float = 1f) {
-    val head = tall * 0.07f
-    val hy = py - tall + head * 2f
-    path.addCircle(px, hy, head, Path.Direction.CW)
-    path.addArc(RectF(px - head * 1.5f, hy - head * 1.5f, px + head * 1.5f, hy + head * 0.9f), 180f, 180f)
-    path.addRect(px - head * 2.0f, hy - head * 0.4f, px + head * 2.0f, hy - head * 0.15f, Path.Direction.CW)
-    path.moveTo(px - head * 1.4f, hy + head * 1.0f)
-    path.lineTo(px + head * 1.6f, hy + head * 1.0f)
-    path.lineTo(px + head * 1.8f, py - tall * 0.45f)
-    path.lineTo(px - head * 1.6f, py - tall * 0.45f)
-    path.close()
-    // Legs mid-stride.
-    path.moveTo(px - head * 1.2f, py - tall * 0.46f)
-    path.lineTo(px - facing * head * 2.6f, py)
-    path.lineTo(px - facing * head * 1.4f, py)
-    path.lineTo(px + head * 0.2f, py - tall * 0.28f)
-    path.lineTo(px + facing * head * 1.6f, py)
-    path.lineTo(px + facing * head * 2.8f, py)
-    path.lineTo(px + head * 1.4f, py - tall * 0.46f)
-    path.close()
-    // The rifle over the shoulder, bayonet up.
-    path.moveTo(px - facing * head * 0.6f, hy + head * 1.6f)
-    path.lineTo(px - facing * head * 3.6f, hy - head * 3.6f)
-    path.lineTo(px - facing * head * 3.2f, hy - head * 3.8f)
-    path.lineTo(px - facing * head * 0.1f, hy + head * 1.3f)
-    path.close()
+    Figures.soldier(path, px, py, tall, facing)
 }
 
 /** A bomber seen from below, [size] across its wings, flying towards the top. */
@@ -191,35 +138,7 @@ internal fun Painter.manor(path: Path, windows: Path, cx: Float, base: Float, si
 
 /** A lady in a high-waisted gown and a gentleman in a tailcoat and tall hat, arm in arm. */
 internal fun Painter.periodCouple(path: Path, px: Float, py: Float, tall: Float) {
-    val head = tall * 0.07f
-    // Her: hair up, a long column of a gown.
-    val lx = px - head * 1.8f
-    val lhy = py - tall * 0.9f + head * 1.2f
-    path.addCircle(lx, lhy, head, Path.Direction.CW)
-    path.addCircle(lx - head * 0.4f, lhy - head * 0.9f, head * 0.55f, Path.Direction.CW)
-    path.moveTo(lx - head * 1.2f, lhy + head * 1.1f)
-    path.lineTo(lx + head * 1.2f, lhy + head * 1.1f)
-    path.lineTo(lx + head * 1.4f, lhy + head * 2.4f)
-    path.lineTo(lx + head * 2.4f, py)
-    path.lineTo(lx - head * 2.4f, py)
-    path.lineTo(lx - head * 1.4f, lhy + head * 2.4f)
-    path.close()
-    // Him: the hat, the coat with its tails, the legs.
-    val gx = px + head * 1.8f
-    val ghy = py - tall + head * 2.2f
-    path.addCircle(gx, ghy, head, Path.Direction.CW)
-    path.addRect(gx - head * 0.85f, ghy - head * 2.6f, gx + head * 0.85f, ghy - head * 0.6f, Path.Direction.CW)
-    path.addRect(gx - head * 1.4f, ghy - head * 0.85f, gx + head * 1.4f, ghy - head * 0.55f, Path.Direction.CW)
-    path.moveTo(gx - head * 1.4f, ghy + head * 1.1f)
-    path.lineTo(gx + head * 1.4f, ghy + head * 1.1f)
-    path.lineTo(gx + head * 1.5f, py - tall * 0.42f)
-    path.lineTo(gx + head * 0.2f, py - tall * 0.3f)
-    path.lineTo(gx - head * 1.6f, py - tall * 0.3f)
-    path.close()
-    path.addRect(gx - head * 1.1f, py - tall * 0.42f, gx - head * 0.2f, py, Path.Direction.CW)
-    path.addRect(gx + head * 0.2f, py - tall * 0.42f, gx + head * 1.1f, py, Path.Direction.CW)
-    // Arm in arm.
-    path.addRect(lx + head * 0.6f, lhy + head * 2.4f, gx - head * 0.6f, lhy + head * 3.1f, Path.Direction.CW)
+    Figures.periodCouple(path, px, py, tall)
 }
 
 /** A palm tree leaning a little, [tall] high. */
@@ -378,17 +297,13 @@ internal fun Painter.thornStem(x0: Float, y0: Float, x1: Float, y1: Float, bend:
 
 /** Someone under an umbrella, [tall] high, with company if [two]. */
 internal fun Painter.underUmbrella(path: Path, px: Float, py: Float, tall: Float, two: Boolean) {
-    if (two) couple(path, px, py, tall) else cloaked(path, px, py, tall)
-    val top = py - tall * 1.12f
-    val half = tall * (if (two) 0.36f else 0.26f)
-    path.moveTo(px - half, top + tall * 0.12f)
-    path.quadTo(px - half * 0.95f, top - tall * 0.04f, px, top - tall * 0.06f)
-    path.quadTo(px + half * 0.95f, top - tall * 0.04f, px + half, top + tall * 0.12f)
-    path.quadTo(px + half * 0.66f, top + tall * 0.07f, px + half * 0.33f, top + tall * 0.11f)
-    path.quadTo(px, top + tall * 0.06f, px - half * 0.33f, top + tall * 0.11f)
-    path.quadTo(px - half * 0.66f, top + tall * 0.07f, px - half, top + tall * 0.12f)
-    path.close()
-    path.addRect(px - tall * 0.006f, top - tall * 0.08f, px + tall * 0.006f, top + tall * 0.42f, Path.Direction.CW)
+    // Whoever is under it holds it by the handle, which comes down in front of them.
+    if (two) Figures.couple(path, px + tall * 0.02f, py, tall, gowned = false) else Figures.inCoat(path, px - tall * 0.03f, py, tall, hat = false)
+    val s = Sil(path, px, py, tall)
+    s.limb(0.012f, 0.012f, 0.03f, 0.7f, 0.03f, 1.16f)
+    s.round(-0.36f, 1f, -0.3f, 1.12f, -0.12f, 1.2f, 0.03f, 1.22f, 0.18f, 1.2f, 0.36f, 1.12f, 0.42f, 1f, 0.3f, 1.035f, 0.16f, 1f, 0.03f, 1.04f, -0.1f, 1f, -0.24f, 1.035f)
+    s.limb(0.01f, 0.006f, 0.03f, 1.22f, 0.03f, 1.26f)
+    if (!two) s.limb(0.054f, 0.04f, 0.13f, 0.79f, 0.11f, 0.66f, 0.035f, 0.72f)
 }
 
 /** Soft round lights out of focus. */
@@ -407,46 +322,7 @@ internal fun Painter.bokeh(n: Int, area: RectF, colours: IntArray) {
  * y, the right one's x and y, and their radius.
  */
 internal fun Painter.perchedOwl(path: Path, px: Float, py: Float, tall: Float, details: Path? = null): FloatArray {
-    fun ax(f: Float) = px + f * tall
-    fun ay(f: Float) = py - f * tall
-    path.moveTo(ax(-0.1f), ay(0.03f))
-    path.cubicTo(ax(-0.3f), ay(0.1f), ax(-0.35f), ay(0.42f), ax(-0.29f), ay(0.62f))
-    path.quadTo(ax(-0.31f), ay(0.76f), ax(-0.27f), ay(0.86f))
-    path.lineTo(ax(-0.3f), ay(1.0f))
-    path.quadTo(ax(-0.2f), ay(0.93f), ax(-0.12f), ay(0.9f))
-    path.quadTo(ax(0f), ay(0.86f), ax(0.12f), ay(0.9f))
-    path.quadTo(ax(0.2f), ay(0.93f), ax(0.3f), ay(1.0f))
-    path.lineTo(ax(0.27f), ay(0.86f))
-    path.quadTo(ax(0.31f), ay(0.76f), ax(0.29f), ay(0.62f))
-    path.cubicTo(ax(0.35f), ay(0.42f), ax(0.3f), ay(0.1f), ax(0.1f), ay(0.03f))
-    // The tail, hanging down behind the branch.
-    path.lineTo(ax(0.07f), ay(-0.13f))
-    path.lineTo(ax(-0.07f), ay(-0.13f))
-    path.close()
-    // Its feet round the branch.
-    for (side in listOf(-1f, 1f)) path.addOval(ax(side * 0.08f) - tall * 0.045f, ay(0.06f), ax(side * 0.08f) + tall * 0.045f, ay(-0.025f), Path.Direction.CW)
-    details?.apply {
-        // The rim of its face round each eye, and its beak.
-        val rim = tall * 0.125f
-        addArc(ax(-0.11f) - rim, ay(0.72f) - rim, ax(-0.11f) + rim, ay(0.72f) + rim, 300f, -240f)
-        addArc(ax(0.11f) - rim, ay(0.72f) - rim, ax(0.11f) + rim, ay(0.72f) + rim, 240f, 240f)
-        moveTo(ax(-0.028f), ay(0.68f)); lineTo(ax(0f), ay(0.58f)); lineTo(ax(0.028f), ay(0.68f))
-        // The edges of its folded wings.
-        for (side in listOf(-1f, 1f)) {
-            moveTo(ax(side * 0.27f), ay(0.57f))
-            cubicTo(ax(side * 0.19f), ay(0.42f), ax(side * 0.22f), ay(0.2f), ax(side * 0.12f), ay(0.07f))
-        }
-        // Little marks down its breast.
-        for (row in 0 until 4) {
-            val fy = 0.5f - row * 0.1f
-            val xs = if (row % 2 == 0) floatArrayOf(-0.1f, 0f, 0.1f) else floatArrayOf(-0.05f, 0.05f)
-            for (fx in xs) {
-                moveTo(ax(fx - 0.026f), ay(fy))
-                quadTo(ax(fx), ay(fy - 0.04f), ax(fx + 0.026f), ay(fy))
-            }
-        }
-    }
-    return floatArrayOf(ax(-0.11f), ay(0.72f), ax(0.11f), ay(0.72f), tall * 0.062f)
+    return Figures.owl(path, px, py, tall, details)
 }
 
 /**
@@ -1172,7 +1048,7 @@ internal object MoreScenes {
         p.glow(win.centerX(), win.centerY(), p.w * 0.5f, rgb(0xFFC878), 120)
         p.c.drawRect(win, p.fill(rgb(0xFFD99A)))
         val reader = Path()
-        p.cloaked(reader, p.x(0.28f), win.bottom, p.h * 0.18f)
+        Figures.seated(reader, p.x(0.28f), win.bottom, p.h * 0.18f)
         p.c.drawPath(reader, p.fill(alpha(rgb(0x6A3A20), 180)))
         p.c.drawRect(p.x(0.36f), p.y(0.74f), p.x(0.5f), p.y(0.76f), p.fill(alpha(rgb(0x6A3A20), 160)))
         p.c.drawRect(win, p.stroke(rgb(0x1E1A16), p.u * 1.2f))
@@ -1284,7 +1160,7 @@ internal object MoreScenes {
         val singer = Path()
         val sx = p.x(0.5f)
         val sy = p.y(0.72f)
-        p.cloaked(singer, sx, sy, p.h * 0.28f)
+        Figures.singer(singer, sx, sy, p.h * 0.28f)
         singer.addRect(sx + p.h * 0.04f, sy - p.h * 0.2f, sx + p.h * 0.045f, sy, Path.Direction.CW)
         singer.addOval(sx + p.h * 0.03f, sy - p.h * 0.215f, sx + p.h * 0.055f, sy - p.h * 0.195f, Path.Direction.CW)
         p.c.drawPath(singer, p.fill(dark))

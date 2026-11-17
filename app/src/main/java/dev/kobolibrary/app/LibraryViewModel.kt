@@ -956,6 +956,9 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
     /** How far each book has been read in the app's reader. */
     val readingHere = koboApp.readingHere
 
+    /** The time spent reading each book in the app's readers. */
+    val readingLog = koboApp.readingLog
+
     private var textEdit: TextEditState? = null
 
     /** The text editor for a book, kept while the editor is open (it holds the unsaved changes). */

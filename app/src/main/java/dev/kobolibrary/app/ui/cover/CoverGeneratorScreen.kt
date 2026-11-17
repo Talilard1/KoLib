@@ -96,6 +96,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.min
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -518,9 +519,14 @@ fun CoverGeneratorScreen(
                             ) {
                                 thumbs[s]?.let { Image(it, contentDescription = null, modifier = Modifier.fillMaxSize()) }
                             }
+                            // A long word ("Watercolour") is set a little smaller, so it isn't broken in two.
+                            val longWord = s.label.split(' ', '-').maxOf { it.length } >= 10
                             Text(
                                 s.label,
-                                style = MaterialTheme.typography.labelMedium,
+                                style = MaterialTheme.typography.labelMedium.let {
+                                    if (longWord) it.copy(fontSize = 10.5.sp, letterSpacing = 0.sp, hyphens = androidx.compose.ui.text.style.Hyphens.Auto)
+                                    else it.copy(hyphens = androidx.compose.ui.text.style.Hyphens.Auto)
+                                },
                                 textAlign = TextAlign.Center,
                                 minLines = 2,
                                 maxLines = 2,

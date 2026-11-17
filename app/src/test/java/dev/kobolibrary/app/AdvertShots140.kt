@@ -614,17 +614,18 @@ class AdvertShots140 {
     }
 
     /** The cover generator as it is now, on five of its designs for the Hound, each in a colour of its own. */
-    private fun generatorNow(name: String, style: CoverStyle, genre: dev.kobolibrary.app.ui.cover.CoverGenre, colors: CoverColors) {
+    private val wormText = CoverText("The Worm Ouroboros", listOf("E. R. Eddison"), null, null)
+    private fun generatorNow(name: String, style: CoverStyle, genre: dev.kobolibrary.app.ui.cover.CoverGenre, colors: CoverColors, text: CoverText = houndText) {
         out = five
         out.mkdirs()
         compose.mainClock.autoAdvance = true
-        compose.setContent { AppSurface(ThemeChoice.BOOKCASE) { CoverGeneratorScreen(houndText, onUse = { _, _ -> }, onCancel = {}, initial = CoverDesign(style, colors, genre)) } }
+        compose.setContent { AppSurface(ThemeChoice.BOOKCASE) { CoverGeneratorScreen(text, onUse = { _, _ -> }, onCancel = {}, initial = CoverDesign(style, colors, genre)) } }
         repeat(28) { compose.waitForIdle(); Thread.sleep(250) }
         captureScreenRoboImage(File(out, "$name.png").path)
     }
     @Test @Config(qualifiers = TAB) fun fiveGen1() = generatorNow("ad_newgen_1", CoverStyle.FRAMED, dev.kobolibrary.app.ui.cover.CoverGenre.HORROR, theme("Claret"))
     @Test @Config(qualifiers = TAB) fun fiveGen2() = generatorNow("ad_newgen_2", CoverStyle.GILDED, dev.kobolibrary.app.ui.cover.CoverGenre.DETECTIVE, theme("Emerald"))
-    @Test @Config(qualifiers = TAB) fun fiveGen3() = generatorNow("ad_newgen_3", CoverStyle.LAMPLIGHT, dev.kobolibrary.app.ui.cover.CoverGenre.DETECTIVE, theme("Midnight"))
+    @Test @Config(qualifiers = TAB) fun fiveGen3() = generatorNow("ad_newgen_3", CoverStyle.WYRM, dev.kobolibrary.app.ui.cover.CoverGenre.FANTASY, theme("Obsidian"), wormText)
     @Test @Config(qualifiers = TAB) fun fiveGen4() = generatorNow("ad_newgen_4", CoverStyle.SNAPSHOT, dev.kobolibrary.app.ui.cover.CoverGenre.HORROR, theme("Plum"))
     @Test @Config(qualifiers = TAB) fun fiveGen5() = generatorNow("ad_newgen_5", CoverStyle.OWL, dev.kobolibrary.app.ui.cover.CoverGenre.DETECTIVE, theme("Midnight"))
 

@@ -405,9 +405,9 @@ private fun EditorTopBar(
                     if (onChapters != null) {
                         // The chapter being edited, and the way to the others.
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
+                            FittedText(
                                 state.chapter?.title?.ifBlank { null } ?: tr("Chapters"), style = MaterialTheme.typography.titleMedium,
-                                maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false),
+                                smallest = 0.8f, modifier = Modifier.weight(1f, fill = false),
                             )
                             Icon(Icons.Filled.ArrowDropDown, null, Modifier.size(22.dp))
                         }

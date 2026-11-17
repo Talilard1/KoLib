@@ -172,6 +172,8 @@ class EditorTourTest {
     @Test
     @Config(qualifiers = PHONE)
     fun skippingEndsIt() {
+        // (Looks for the screen's words in English.)
+        org.junit.Assume.assumeTrue(TestLanguage.code == null)
         val state = editorState()
         var done = 0
         compose.setContent { AppSurface(ThemeChoice.SYSTEM) { TextEditorScreen(state, onClose = {}, onRead = {}, pagePreview = { FakeEditorPage() }, tour = true, onTourDone = { done++ }) } }
@@ -191,6 +193,8 @@ class EditorTourTest {
     @Test
     @Config(qualifiers = PHONE)
     fun onAPhoneEveryButtonOverThePageIsInViewWithoutScrolling() {
+        // (Looks for the screen's words in English.)
+        org.junit.Assume.assumeTrue(TestLanguage.code == null)
         val state = editorState()
         compose.setContent { AppSurface(ThemeChoice.SYSTEM) { TextEditorScreen(state, onClose = {}, onRead = {}, pagePreview = { FakeEditorPage() }) } }
         compose.waitForIdle()
@@ -206,6 +210,8 @@ class EditorTourTest {
     @Test
     @Config(qualifiers = TABLET_UP)
     fun onATabletUprightEveryButtonOverThePageIsInViewToo() {
+        // (Looks for the screen's words in English.)
+        org.junit.Assume.assumeTrue(TestLanguage.code == null)
         val state = editorState(CopiedSections(File(context.filesDir, "copied-" + UUID.randomUUID())))
         compose.setContent { AppSurface(ThemeChoice.SYSTEM) { TextEditorScreen(state, onClose = {}, onRead = {}, pagePreview = { FakeEditorPage() }) } }
         compose.waitForIdle()

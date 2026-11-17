@@ -76,6 +76,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.kolib.app.reader.ReaderFont
@@ -162,21 +163,27 @@ internal fun SetupDots(count: Int, current: Int, c: SetupColours, modifier: Modi
  */
 @Composable
 internal fun GuideHeader(count: Int, at: Int, c: SetupColours, onBack: (() -> Unit)?, onSkip: (() -> Unit)?) {
-    Box(Modifier.fillMaxWidth().padding(start = 12.dp, end = 8.dp, top = 12.dp).height(40.dp)) {
-        if (onBack != null) {
-            Box(
-                Modifier.align(Alignment.CenterStart).size(34.dp).clip(CircleShape).background(c.fill)
-                    .clickable(role = Role.Button, onClick = onBack).semantics { contentDescription = tr("Back") }.testTag("guide-back"),
-                contentAlignment = Alignment.Center,
-            ) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, null, tint = c.text, modifier = Modifier.size(24.dp)) }
+    Row(Modifier.fillMaxWidth().padding(start = 12.dp, end = 8.dp, top = 12.dp).height(40.dp), verticalAlignment = Alignment.CenterVertically) {
+        // The dots sit in the middle of the room between the two buttons, however long Skip is in the language shown,
+        // and where there's room, in the middle of the card: each side is as wide as the wider button.
+        Box(Modifier.width(34.dp)) {
+            if (onBack != null) {
+                Box(
+                    Modifier.size(34.dp).clip(CircleShape).background(c.fill)
+                        .clickable(role = Role.Button, onClick = onBack).semantics { contentDescription = tr("Back") }.testTag("guide-back"),
+                    contentAlignment = Alignment.Center,
+                ) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, null, tint = c.text, modifier = Modifier.size(24.dp)) }
+            }
         }
-        SetupDots(count, at, c, Modifier.align(Alignment.Center))
+        Box(Modifier.weight(1f).padding(horizontal = 6.dp), contentAlignment = Alignment.Center) { SetupDots(count, at, c) }
         if (onSkip != null) {
             Text(
-                tr("Skip"), color = c.soft, style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.Medium),
-                modifier = Modifier.align(Alignment.CenterEnd).clip(RoundedCornerShape(12.dp))
+                tr("Skip"), color = c.soft, style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.Medium), maxLines = 1,
+                modifier = Modifier.clip(RoundedCornerShape(12.dp))
                     .clickable(role = Role.Button, onClick = onSkip).padding(horizontal = 12.dp, vertical = 8.dp).testTag("guide-skip"),
             )
+        } else {
+            Spacer(Modifier.width(34.dp))
         }
     }
 }
@@ -350,7 +357,7 @@ internal fun <T> Segments(
             val x by animateDpAsState(each * at, spring(dampingRatio = 0.82f, stiffness = Spring.StiffnessMediumLow), label = "segment")
             Box(
                 Modifier
-                    .offset(x = x)
+                    .offset { IntOffset(x.roundToPx(), 0) }
                     .width(each)
                     .fillMaxHeight()
                     .shadow(2.dp, RoundedCornerShape(10.dp), clip = false)

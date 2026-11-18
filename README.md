@@ -52,7 +52,8 @@ Get the latest APK from [Releases](https://github.com/Talilard1/KoLib/releases/l
 - Convert Word, PDF, MOBI, FB2, text and comic files to EPUB, and scanned PDFs to text with
   on-device OCR.
 - Sync books and reading position between your phone and tablet over Wi-Fi. Pair them with a QR code.
-- Light, dark, OLED and bookcase themes.
+- 14 themes: warm paper, dark, OLED black, two bookcases, clean light and dark, a manuscript, romance,
+  cinema, a terminal, and three for science fiction.
 - English, Français, Deutsch, Español, Italiano, Nederlands, Português (Brasil), Русский and 日本語.
 - No account, no ads, no tracking.
 

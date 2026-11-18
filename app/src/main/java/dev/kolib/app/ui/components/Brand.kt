@@ -4,7 +4,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -73,7 +72,7 @@ fun GoldButton(
     content: @Composable RowScope.() -> Unit,
 ) {
     val style = LocalKoLibStyle.current
-    Button(
+    androidx.compose.material3.Button(
         onClick = onClick,
         enabled = enabled,
         colors = ButtonDefaults.buttonColors(
@@ -83,6 +82,7 @@ fun GoldButton(
             disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
         ),
         contentPadding = contentPadding,
+        shape = style.actionShape,
         modifier = modifier,
         content = content,
     )
@@ -98,7 +98,7 @@ fun GoldFab(text: String, icon: ImageVector, expanded: Boolean, onClick: () -> U
         // The label isn't read out by itself (it hides when shrunk), so the icon carries the name.
         icon = { Icon(icon, text) },
         text = { Text(text) },
-        shape = CircleShape,
+        shape = style.actionShape,
         containerColor = style.gold,
         contentColor = style.onGold,
         modifier = modifier,
@@ -112,3 +112,46 @@ fun SeriesStyle(): androidx.compose.ui.text.TextStyle =
         fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
         fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
     )
+
+/** Material's outlined button, in the look's shape for buttons (as [GoldButton] is). The app's screens use this one. */
+@Composable
+fun OutlinedButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    shape: androidx.compose.ui.graphics.Shape = LocalKoLibStyle.current.actionShape,
+    colors: androidx.compose.material3.ButtonColors = ButtonDefaults.outlinedButtonColors(),
+    border: androidx.compose.foundation.BorderStroke? = ButtonDefaults.outlinedButtonBorder(enabled),
+    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
+    content: @Composable RowScope.() -> Unit,
+) = androidx.compose.material3.OutlinedButton(
+    onClick = onClick, modifier = modifier, enabled = enabled, shape = shape, colors = colors, border = border, contentPadding = contentPadding, content = content,
+)
+
+/** Material's tonal button, in the look's shape for buttons. The app's screens use this one. */
+@Composable
+fun FilledTonalButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    shape: androidx.compose.ui.graphics.Shape = LocalKoLibStyle.current.actionShape,
+    colors: androidx.compose.material3.ButtonColors = ButtonDefaults.filledTonalButtonColors(),
+    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
+    content: @Composable RowScope.() -> Unit,
+) = androidx.compose.material3.FilledTonalButton(
+    onClick = onClick, modifier = modifier, enabled = enabled, shape = shape, colors = colors, contentPadding = contentPadding, content = content,
+)
+
+/** Material's filled button, in the look's shape for buttons. The app's screens use this one. */
+@Composable
+fun Button(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    shape: androidx.compose.ui.graphics.Shape = LocalKoLibStyle.current.actionShape,
+    colors: androidx.compose.material3.ButtonColors = ButtonDefaults.buttonColors(),
+    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
+    content: @Composable RowScope.() -> Unit,
+) = androidx.compose.material3.Button(
+    onClick = onClick, modifier = modifier, enabled = enabled, shape = shape, colors = colors, contentPadding = contentPadding, content = content,
+)

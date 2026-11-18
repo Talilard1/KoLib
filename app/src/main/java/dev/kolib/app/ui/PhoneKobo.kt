@@ -45,7 +45,7 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.LocalOffer
 import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Button
+import dev.kolib.app.ui.components.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -171,7 +171,7 @@ internal fun PhoneKoboBrowser(
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                     modifier = Modifier
                         .fillMaxSize()
-                        .then(if (bookcase) Modifier.background(ShelfColors.back) else Modifier),
+                        .then(if (bookcase) Modifier.background((dev.kolib.app.ui.theme.LocalKoLibStyle.current.shelf ?: ShelfColors).back) else Modifier),
                 ) {
                     itemsIndexed(books, key = { _, b -> b.contentId }) { index, book ->
                         BookGridItem(

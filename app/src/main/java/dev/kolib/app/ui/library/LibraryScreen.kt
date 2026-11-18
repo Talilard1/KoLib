@@ -83,12 +83,12 @@ import dev.kolib.app.ui.components.SeriesStyle
 import dev.kolib.app.ui.components.GoldButton
 import dev.kolib.app.ui.components.AlertDialog
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Button
+import dev.kolib.app.ui.components.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
+import dev.kolib.app.ui.components.FilledTonalButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -97,7 +97,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import dev.kolib.app.ui.components.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
@@ -139,6 +139,7 @@ import androidx.compose.material.icons.outlined.TaskAlt
 import dev.kolib.app.ui.components.ShelfSpace
 import dev.kolib.app.ui.components.shelfUnderCover
 import dev.kolib.app.ui.theme.LocalBookcase
+import dev.kolib.app.ui.theme.LocalKoLibStyle
 import dev.kolib.app.kobo.ReadStatus
 import dev.kolib.app.kobo.KoboPaths
 import dev.kolib.app.kobo.KoboBook
@@ -209,6 +210,8 @@ fun LibraryScreen(
     onContinueFromKobo: ((String, KoboBook) -> Unit)? = null,
     /** What to say at the top about the Kobo: opening, being saved to, safe to unplug, unplugged. */
     koboNotice: KoboNotice? = null,
+    /** What's being sent to or taken in from the user's other devices, for its progress bars. */
+    transfers: List<dev.kolib.app.link.Transfer> = emptyList(),
 ) {
     val reading: (LibraryBook) -> KoboBook? = remember(onKobo) {
         { b -> b.koboPath?.let { onKobo[KoboPaths.contentId(it)] } }
@@ -226,7 +229,7 @@ fun LibraryScreen(
             onChangeCover = onChangeCover, onDelete = onDelete, onSend = onSend, onRead = onRead, onEditText = onEditText,
             onNewBook = onNewBook, onMerge = onMerge, onSplit = onSplit, onExport = onExport, onDuplicate = onDuplicate,
             onAbout = onAbout, onStats = onStats, onTheme = onTheme, onMarkFinished = onMarkFinished, onMarkUnread = onMarkUnread,
-            onContinueFromKobo = onContinueFromKobo, koboNotice = koboNotice,
+            onContinueFromKobo = onContinueFromKobo, koboNotice = koboNotice, transfers = transfers,
         )
         return
     }
@@ -287,6 +290,7 @@ fun LibraryScreen(
     ) { padding ->
         Column(Modifier.padding(padding).fillMaxSize()) {
             KoboNoticeBar(koboNotice)
+            dev.kolib.app.ui.link.TransferStrip(transfers)
             if (job != null && !job.finished) JobStrip(job, onShowJob)
             dev.kolib.app.ui.ocr.OcrStrip(onShow = { id -> browse.selectedId = id })
             if (books.isEmpty()) {
@@ -539,7 +543,7 @@ private fun LibraryBrowser(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier
                     .fillMaxSize()
-                    .then(if (LocalBookcase.current) Modifier.background(ShelfColors.back) else Modifier),
+                    .then(if (LocalBookcase.current) Modifier.background((LocalKoLibStyle.current.shelf ?: ShelfColors).back) else Modifier),
             ) {
                 itemsIndexed(books, key = { _, b -> b.id }) { index, book ->
                     LibraryGridItem(

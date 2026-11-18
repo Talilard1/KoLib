@@ -27,6 +27,8 @@ import android.widget.FrameLayout
 import dev.kolib.app.log.AppLog
 import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.atan2
+import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sin
@@ -456,6 +458,10 @@ class PageTurner(private val host: TurnHost, private val pages: TurnPages) {
     private companion object {
         /** How soft the sweep's edge is, as a share of the way across. */
         const val SWEEP_EDGE = 0.16f
+        /** A fade under a finger is a wash across the page: its soft edge is as wide as the page. */
+        const val FADE_EDGE = 1f
+        /** The most a sweep or a fade leans to follow the finger: 35 degrees from straight across. */
+        const val MAX_LEAN = 0.61f
         /** A drag turns the page right over after this share of the screen's width, at most... */
         const val DRAG_MOST = 0.55f
         /** ...and at least (a drag starting near the far side). */
@@ -482,6 +488,14 @@ class PageTurner(private val host: TurnHost, private val pages: TurnPages) {
         var downY = 0f
         var lastX = 0f
         var finished = false
+        /**
+         * The way a sweep or a fade travels over the page, as a direction of length one: straight across
+         * for a tap; under a finger or a pen, the way that's being dragged, so its edge leans with the hand.
+         */
+        var wayX = -dir.toFloat()
+        var wayY = 0f
+        /** Dragged at some point (a fade then washes across the page the finger's way, rather than all at once). */
+        var dragged = false
         /** A drag at a chapter's end let go short of turning: the chapter it was in is opening again. */
         var restoring = false
     }
@@ -613,6 +627,7 @@ class PageTurner(private val host: TurnHost, private val pages: TurnPages) {
                 t.p = dragProgress(t)
                 // The held point follows the finger up and down too (it lands where the fold mirrors it).
                 t.bendY = (t.curl?.anchorY ?: 0f) + (ev.y - t.downY) / 2
+                lean(t, ev.y)
                 render()
             }
             MotionEvent.ACTION_UP -> release(t, cancelled = false)
@@ -627,11 +642,24 @@ class PageTurner(private val host: TurnHost, private val pages: TurnPages) {
         val kind = mode() ?: return false
         val t = Turn(dir, kind, edge = edge, spread = pages.spread && kind == PageTurn.CURL, anchorFrac = (downY / host.height).coerceIn(0.05f, 0.95f))
         t.dragging = true
+        t.dragged = true
         t.downX = downX
         t.downY = downY
         t.lastX = ev.x
+        lean(t, ev.y)
         start(t)
         return true
+    }
+
+    /**
+     * A sweep or a fade travels the way the finger is going: dragged up or down as well as across, its edge
+     * leans to stay square to the hand's path (as a curl's fold does), up to [MAX_LEAN].
+     */
+    private fun lean(t: Turn, y: Float) {
+        val across = max(abs(t.lastX - t.downX), host.touchSlop.toFloat())
+        val angle = atan2(y - t.downY, across).coerceIn(-MAX_LEAN, MAX_LEAN)
+        t.wayX = -t.dir * cos(angle)
+        t.wayY = sin(angle)
     }
 
     /**
@@ -897,26 +925,20 @@ class PageTurner(private val host: TurnHost, private val pages: TurnPages) {
         val h = host.height.toFloat()
         val paper = pages.paper
         when (t.kind) {
-            PageTurn.FADE -> {
+            PageTurn.FADE -> if (t.dragged) {
+                // Under a finger the old page washes away the way it's dragged, the near side first.
+                c.drawBitmap(a, 0f, 0f, plain)
+                if (t.live) wipe(c, t, w, h, FADE_EDGE)
+            } else {
                 plain.alpha = if (!t.live) 255 else (255 * (1 - t.p)).toInt().coerceIn(0, 255)
                 c.drawBitmap(a, 0f, 0f, plain)
                 plain.alpha = 255
             }
             PageTurn.SWEEP -> {
                 c.drawBitmap(a, 0f, 0f, plain)
-                if (t.live) {
-                    // The old page is wiped away from the side the page turns from (the right going on, the
-                    // left going back) across to the other, with a soft upright edge, uncovering the new
-                    // page underneath.
-                    val sx = if (t.dir > 0) w else 0f
-                    val ex = w - sx
-                    val k = t.p * (1 + SWEEP_EDGE)
-                    val x0 = sx + (ex - sx) * (k - SWEEP_EDGE)
-                    val x1 = sx + (ex - sx) * k
-                    erase.shader = LinearGradient(x0, 0f, x1, 0f, Color.BLACK, Color.TRANSPARENT, Shader.TileMode.CLAMP)
-                    c.drawRect(0f, 0f, w, h, erase)
-                    erase.shader = null
-                }
+                // The old page is wiped away from the side the page turns from (the right going on, the left
+                // going back) across to the other, with a soft edge, uncovering the new page underneath.
+                if (t.live) wipe(c, t, w, h, SWEEP_EDGE)
             }
             else -> {
                 val curl = t.curl ?: return
@@ -940,6 +962,23 @@ class PageTurner(private val host: TurnHost, private val pages: TurnPages) {
                 }
             }
         }
+    }
+
+    /**
+     * Takes the old page away up to an edge that has travelled [Turn.p] of the way over the page in the turn's
+     * direction ([Turn.wayX], [Turn.wayY]): gone behind the edge, whole ahead of it, and fading between over
+     * [soft] of the way. The edge is square to the direction, so it's upright for a turn straight across.
+     */
+    private fun wipe(c: Canvas, t: Turn, w: Float, h: Float, soft: Float) {
+        // How far along the direction each corner of the page is: the edge starts before the nearest and ends past the farthest.
+        val corners = floatArrayOf(0f, w * t.wayX, h * t.wayY, w * t.wayX + h * t.wayY)
+        val near = corners.min()
+        val range = (corners.max() - near).coerceAtLeast(1f)
+        val front = near + range * t.p * (1 + soft)
+        val gone = front - range * soft
+        erase.shader = LinearGradient(t.wayX * gone, t.wayY * gone, t.wayX * front, t.wayY * front, Color.BLACK, Color.TRANSPARENT, Shader.TileMode.CLAMP)
+        c.drawRect(0f, 0f, w, h, erase)
+        erase.shader = null
     }
 
     private fun render() {

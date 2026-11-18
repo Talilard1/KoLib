@@ -19,7 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.LibraryAdd
 import androidx.compose.material.icons.outlined.CollectionsBookmark
-import androidx.compose.material3.FilledTonalButton
+import dev.kolib.app.ui.components.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -199,7 +199,7 @@ private fun CollectionBooks(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier
                     .fillMaxSize()
-                    .then(if (bookcase) Modifier.background(ShelfColors.back) else Modifier),
+                    .then(if (bookcase) Modifier.background((dev.kolib.app.ui.theme.LocalKoLibStyle.current.shelf ?: ShelfColors).back) else Modifier),
             ) {
                 itemsIndexed(entry.books, key = { _, b -> b.contentId }) { index, book ->
                     BookGridItem(

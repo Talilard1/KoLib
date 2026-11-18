@@ -21,7 +21,7 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.automirrored.outlined.ListAlt
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FilledTonalButton
+import dev.kolib.app.ui.components.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme

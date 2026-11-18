@@ -58,7 +58,7 @@ import androidx.compose.material.icons.outlined.CollectionsBookmark
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.TaskAlt
 import androidx.compose.material.icons.outlined.RestartAlt
-import androidx.compose.material3.OutlinedButton
+import dev.kolib.app.ui.components.OutlinedButton
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.EditNote
@@ -76,11 +76,11 @@ import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material.icons.outlined.Usb
 import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Button
+import dev.kolib.app.ui.components.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
+import dev.kolib.app.ui.components.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -190,6 +190,7 @@ internal fun PhoneLibraryScreen(
     onMarkUnread: (List<String>) -> Unit = {},
     onContinueFromKobo: ((String, KoboBook) -> Unit)? = null,
     koboNotice: KoboNotice? = null,
+    transfers: List<dev.kolib.app.link.Transfer> = emptyList(),
 ) {
     // A book from a collection (in the Collections tab) opens on a page of its own too, going back to the collection.
     val fromCollection = if (browse.tab == 1 && browse.collectionKey != null) browse.collectionBookId?.let { id -> books.firstOrNull { it.id == id } } else null
@@ -249,6 +250,7 @@ internal fun PhoneLibraryScreen(
             onMarkUnread = { onMarkUnread(listOf(selected.id)) },
             onContinueFromKobo = onContinueFromKobo?.let { f -> { k: KoboBook -> f(selected.id, k) } },
             koboNotice = koboNotice,
+            transfers = transfers,
         )
         return
     }
@@ -332,6 +334,7 @@ internal fun PhoneLibraryScreen(
                 }
             }
             KoboNoticeBar(koboNotice)
+            dev.kolib.app.ui.link.TransferStrip(transfers)
             if (job != null && !job.finished) JobStrip(job, onShowJob)
             dev.kolib.app.ui.ocr.OcrStrip(onShow = { id -> browse.selectedId = id })
             if (books.isEmpty()) {
@@ -497,6 +500,8 @@ internal fun PhoneBookPage(
     onSearch: ((String) -> Unit)? = null,
     /** What to say about the Kobo under the bar at the top, as the library does. */
     koboNotice: KoboNotice? = null,
+    /** What's being sent to or taken in from the user's other devices (a book is sent from this page). */
+    transfers: List<dev.kolib.app.link.Transfer> = emptyList(),
 ) {
     val context = LocalContext.current
     val meta = book.meta
@@ -524,6 +529,7 @@ internal fun PhoneBookPage(
             colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
         )
         KoboNoticeBar(koboNotice)
+        dev.kolib.app.ui.link.TransferStrip(transfers)
         Column(
             Modifier
                 .fillMaxSize()
@@ -792,7 +798,7 @@ private fun PhoneBooksPage(
             verticalArrangement = Arrangement.spacedBy(4.dp),
             modifier = Modifier
                 .fillMaxSize()
-                .then(if (bookcase) Modifier.background(ShelfColors.back) else Modifier),
+                .then(if (bookcase) Modifier.background((dev.kolib.app.ui.theme.LocalKoLibStyle.current.shelf ?: ShelfColors).back) else Modifier),
         ) {
             itemsIndexed(visible, key = { _, b -> b.id }) { index, book ->
                 LibraryGridItem(

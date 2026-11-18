@@ -19,6 +19,8 @@ import org.junit.Assert.assertEquals
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.swipeLeft
@@ -160,6 +162,7 @@ class LibraryScreenshotTest {
         /** A phone or tablet is paired, so books can be sent to it. */
         linked: Boolean = false,
         koboNotice: dev.kolib.app.ui.KoboNotice? = null,
+        transfers: List<dev.kolib.app.link.Transfer> = emptyList(),
         /** Drawn over the library (a dialog). */
         over: (@Composable () -> Unit)? = null,
         act: (() -> Unit)? = null,
@@ -189,12 +192,37 @@ class LibraryScreenshotTest {
                     ),
                     onContinueFromKobo = if (continueFromKobo) ({ _, _ -> }) else null,
                     koboNotice = koboNotice,
+                    transfers = transfers,
                 )
                 }
             }
             over?.invoke()
         }
     }
+
+    // ---- books on their way to another device: the Devices screen's progress bars, in the library -----
+
+    private val sending = listOf(dev.kolib.app.link.Transfer(1, "Galaxy Tab S9", "The Histories", outgoing = true, done = 620_000, total = 1_000_000, item = 2, items = 5))
+
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun librarySendingToADevice() = libraryScreen("library_sending_to_device", transfers = sending, act = {
+        compose.onNodeWithTag("transfer-strip").assertIsDisplayed()
+        // The second of five, 62% through it: a little over a quarter of the way through them all.
+        compose.onNodeWithText("32%").assertIsDisplayed()
+    })
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun librarySendingToADevicePhone() = libraryScreen("library_sending_to_device_phone", transfers = sending, act = {
+        compose.onNodeWithTag("transfer-strip").assertIsDisplayed()
+    })
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun aBookPageWhileItsSentToADevice() = libraryScreen("library_sending_phone_book", transfers = sending, act = {
+        compose.onNodeWithTag("transfer-strip").assertIsDisplayed()
+    }) { selectedId = it.titled("The Histories").id }
 
     // ---- the Kobo's notices at the top, and another app taking over when it connects ------------------
 
@@ -960,4 +988,51 @@ class LibraryScreenshotTest {
         "kobo_place_phone", continueFromKobo = true,
         act = { compose.onNodeWithText(tr("Continue from the Kobo")).performScrollTo() },
     ) { selectedId = it.titled("The Sign of the Four").id }
+
+    // ---- every look, on the library ------------------------------------------------------------------
+
+    /** The library in each look in turn (one screen, re-themed), and the looks to choose from in Settings. */
+    private fun everyLook(device: String, picker: Boolean = false) {
+        val (lib, covers) = library()
+        val browse = LibraryBrowseState().apply { if (!picker) selectedId = lib.titled("The Histories").id }
+        val theme = androidx.compose.runtime.mutableStateOf(ThemeChoice.LIGHT)
+        compose.mainClock.autoAdvance = false
+        compose.setContent {
+            AppSurface(theme.value) {
+                AppFrame(Section.LIBRARY, {}, koboConnected = true, onNarrow = {}) {
+                    LibraryScreen(
+                        books = lib.books.value, covers = covers, browse = browse, job = null, koboConnected = true,
+                        onAddFiles = {}, onAddFromKobo = {}, onShowJob = {}, onEditDetails = {}, onChangeCover = {}, onDelete = {}, onSend = {},
+                        onKobo = koboBooks, koboLive = true,
+                        readingHere = mapOf(lib.titled("The Histories").id to ReadHere(0.42f, 1_794_400_000_000L)),
+                    )
+                }
+                if (picker) LookDialog(current = theme.value, onPick = {}, onDismiss = {})
+            }
+        }
+        val out = File(TestLanguage.folder("build/outputs/roborazzi"), "looks").apply { mkdirs() }
+        for (t in if (picker) listOf(ThemeChoice.LIGHT, ThemeChoice.DARK, ThemeChoice.HOLOGRAM, ThemeChoice.ROMANCE) else ThemeChoice.entries) {
+            theme.value = t
+            compose.waitForIdle()
+            compose.mainClock.advanceTimeBy(1_000)
+            val name = (if (picker) "picker" else "library") + "_${device}_${t.name.lowercase()}.png"
+            if (picker) captureScreenRoboImage(File(out, name).path) else compose.onRoot().captureRoboImage(File(out, name).path)
+        }
+    }
+
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun everyLookOnATablet() = everyLook("tablet")
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun everyLookOnAPhone() = everyLook("phone")
+
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun theLooksToChooseFromOnATablet() = everyLook("tablet", picker = true)
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun theLooksToChooseFromOnAPhone() = everyLook("phone", picker = true)
 }

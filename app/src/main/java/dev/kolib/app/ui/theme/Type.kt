@@ -43,3 +43,52 @@ val KoLibTypography = Typography(
     labelMedium = Base.labelMedium,
     labelSmall = Base.labelSmall,
 )
+
+/** The lettering of a look's headings and titles. */
+enum class Lettering { GARAMOND, GARAMOND_ITALIC, SANS, SANS_HEAVY, MONO, CONSOLE }
+
+/** The device's narrow sans-serif, for the looks of consoles and machines. */
+private val Condensed: FontFamily by lazy {
+    runCatching { FontFamily(android.graphics.Typeface.create("sans-serif-condensed", android.graphics.Typeface.NORMAL)) }.getOrDefault(FontFamily.SansSerif)
+}
+
+private fun headings(family: FontFamily, weight: FontWeight, style: FontStyle = FontStyle.Normal, spacing: Float = 0f, scale: Float = 1f) = Typography(
+    displayLarge = Base.displayLarge.copy(fontFamily = family, fontWeight = weight, fontStyle = style),
+    displayMedium = Base.displayMedium.copy(fontFamily = family, fontWeight = weight, fontStyle = style),
+    displaySmall = Base.displaySmall.copy(fontFamily = family, fontWeight = weight, fontStyle = style),
+    headlineLarge = Base.headlineLarge.copy(fontFamily = family, fontWeight = weight, fontStyle = style, fontSize = (32 * scale).sp, lineHeight = (40 * scale).sp, letterSpacing = spacing.sp),
+    headlineMedium = Base.headlineMedium.copy(fontFamily = family, fontWeight = weight, fontStyle = style, fontSize = (28 * scale).sp, lineHeight = (35 * scale).sp, letterSpacing = spacing.sp),
+    headlineSmall = Base.headlineSmall.copy(fontFamily = family, fontWeight = weight, fontStyle = style, fontSize = (24 * scale).sp, lineHeight = (31 * scale).sp, letterSpacing = spacing.sp),
+    titleLarge = Base.titleLarge.copy(fontFamily = family, fontWeight = weight, fontStyle = style, fontSize = (22 * scale).sp, lineHeight = (28 * scale).sp, letterSpacing = spacing.sp),
+    titleMedium = Base.titleMedium.copy(fontFamily = family, fontWeight = weight, fontStyle = style, fontSize = (17 * scale).sp, lineHeight = (23 * scale).sp, letterSpacing = spacing.sp),
+    titleSmall = Base.titleSmall.copy(fontFamily = family, fontWeight = weight, fontSize = (15 * scale).sp, lineHeight = (20 * scale).sp, letterSpacing = spacing.sp),
+    bodyLarge = Base.bodyLarge,
+    bodyMedium = Base.bodyMedium,
+    bodySmall = Base.bodySmall,
+    labelLarge = Base.labelLarge,
+    labelMedium = Base.labelMedium,
+    labelSmall = Base.labelSmall,
+)
+
+private val GaramondItalicType = KoLibTypography.let { t ->
+    // Flowing italic for the larger headings; the small titles in lists stay upright, to read at a glance.
+    fun androidx.compose.ui.text.TextStyle.italic() = copy(fontWeight = FontWeight.Medium, fontStyle = FontStyle.Italic)
+    t.copy(
+        headlineLarge = t.headlineLarge.italic(), headlineMedium = t.headlineMedium.italic(), headlineSmall = t.headlineSmall.italic(),
+        titleLarge = t.titleLarge.italic(), titleMedium = t.titleMedium.italic(),
+    )
+}
+private val SansType = headings(FontFamily.SansSerif, FontWeight.SemiBold, spacing = -0.2f)
+private val SansHeavyType = headings(FontFamily.SansSerif, FontWeight.Bold, spacing = -0.1f)
+// A fixed-width letter is wide: set a little smaller, to take the room the others do.
+private val MonoType = headings(FontFamily.Monospace, FontWeight.Medium, scale = 0.9f)
+private val ConsoleType by lazy { headings(Condensed, FontWeight.Medium, spacing = 0.9f, scale = 1.04f) }
+
+fun typographyFor(lettering: Lettering): Typography = when (lettering) {
+    Lettering.GARAMOND -> KoLibTypography
+    Lettering.GARAMOND_ITALIC -> GaramondItalicType
+    Lettering.SANS -> SansType
+    Lettering.SANS_HEAVY -> SansHeavyType
+    Lettering.MONO -> MonoType
+    Lettering.CONSOLE -> ConsoleType
+}

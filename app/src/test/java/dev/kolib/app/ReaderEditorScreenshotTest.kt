@@ -616,6 +616,19 @@ class ReaderEditorScreenshotTest {
     @Config(qualifiers = LANDSCAPE_NIGHT)
     fun editorDark() = editor("56_editor_dark", find = true, theme = ThemeChoice.DARK)
 
+    /** The editor in some of the other looks: their corners, lettering and colours reach its panels and buttons too. */
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun editorInTheManuscriptLook() = editor("56b_editor_manuscript", find = true, theme = ThemeChoice.MANUSCRIPT)
+
+    @Test
+    @Config(qualifiers = LANDSCAPE_NIGHT)
+    fun editorInTheHologramLook() = editor("56c_editor_hologram", find = true, theme = ThemeChoice.HOLOGRAM)
+
+    @Test
+    @Config(qualifiers = LANDSCAPE_NIGHT)
+    fun editorInTheTerminalLook() = editor("56d_editor_terminal", find = true, theme = ThemeChoice.TERMINAL)
+
     @Test
     @Config(qualifiers = PHONE)
     fun editorPhone() = editor("57_editor_phone", find = false)

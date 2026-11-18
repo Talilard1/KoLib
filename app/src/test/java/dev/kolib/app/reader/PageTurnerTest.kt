@@ -511,10 +511,14 @@ class PageTurnerTest {
         assertEquals(220f / 440f, turner.progress, 0.02f)
         val held = screen.shown()
         save(held, "turner_fade_drag")
-        // Half way across, the two pages are half and half, all over.
+        // Half way across, the old page is washing away from the side the finger came from: the new page shows through
+        // most on the right, least on the left, and in the middle the two are mixed. Dragged straight across, it's the
+        // same from top to bottom.
         val c = held.getPixel(400, 600)
         assertTrue("between the two: ${Integer.toHexString(c)}", !near(c, colourOf(0, 0), 6) && !near(c, colourOf(0, 1), 6))
-        assertEquals(c, held.getPixel(20, 20))
+        assertTrue("the new page on the right", near(held.getPixel(795, 600), colourOf(0, 1), 6))
+        assertTrue("the old page on the left", near(held.getPixel(4, 600), colourOf(0, 0), 6))
+        assertEquals(held.getPixel(400, 20), held.getPixel(400, 1180))
         // It stays there while it's held, and comes back the way it went.
         screen.run(16 * 10)
         assertEquals(220f / 440f, turner.progress, 0.02f)
@@ -590,6 +594,45 @@ class PageTurnerTest {
         screen.run(1000)
         assertFalse(turner.showing)
         assertEquals(0, book.page)
+    }
+
+    /** How far in from the left the new page has been uncovered along the row at [y] (0 to the page's width). */
+    private fun uncovered(shown: Bitmap, y: Int, new: Int): Int = (0 until shown.width).count { x -> near(shown.getPixel(x, y), new, 20) }
+
+    /**
+     * Dragged up or down as well as across, a sweep's edge leans to stay square to the way the finger is going, and a
+     * fade washes across that way too; a tap's, and a drag's straight across, are upright.
+     */
+    @Test
+    fun aSweepAndAFadeLeanTheWayTheFingerIsDragged() {
+        for (mode in listOf(PageTurn.SWEEP, PageTurn.FADE)) {
+            for (up in listOf(true, false)) {
+                val (book, screen, turner) = setUp()
+                book.mode = mode
+                var t = SystemClock.uptimeMillis()
+                val startY = if (up) 900f else 300f
+                turner.intercept(ev(MotionEvent.ACTION_DOWN, 760f, startY, t))
+                assertTrue(turner.intercept(ev(MotionEvent.ACTION_MOVE, 730f, startY, t + 16)))
+                screen.run(16 * 8)
+                // Across and (up or down) by about as much again.
+                for (step in 1..4) {
+                    t += 16
+                    turner.touch(ev(MotionEvent.ACTION_MOVE, 730f - step * 55f, startY + (if (up) -1 else 1) * step * 45f, t))
+                    screen.run(16 * 2)
+                }
+                val held = screen.shown()
+                save(held, "turner_${mode.name.lowercase()}_lean_${if (up) "up" else "down"}")
+                val top = uncovered(held, 20, colourOf(0, 1))
+                val bottom = uncovered(held, 1180, colourOf(0, 1))
+                // Dragged upward, the page clears from the bottom right first; downward, from the top right.
+                if (up) assertTrue("$mode up: top $top, bottom $bottom", bottom > top + 60) else assertTrue("$mode down: top $top, bottom $bottom", top > bottom + 60)
+                turner.touch(ev(MotionEvent.ACTION_UP, 510f, startY + (if (up) -180f else 180f), t + 400))
+                screen.run(1200)
+                assertFalse(turner.showing)
+                assertEquals(1, book.page)
+                assertTrue(near(screen.shown().getPixel(400, 600), colourOf(0, 1)))
+            }
+        }
     }
 
     @Test

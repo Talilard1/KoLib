@@ -53,11 +53,11 @@ import androidx.compose.material.icons.outlined.Checklist
 import androidx.compose.material.icons.outlined.CollectionsBookmark
 import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Button
+import dev.kolib.app.ui.components.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.FilledTonalButton
+import dev.kolib.app.ui.components.FilledTonalButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -74,7 +74,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import dev.kolib.app.ui.components.SeriesStyle
 import dev.kolib.app.ui.components.AlertDialog
-import androidx.compose.material3.OutlinedButton
+import dev.kolib.app.ui.components.OutlinedButton
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
@@ -114,6 +114,7 @@ import dev.kolib.app.ui.components.Fmt
 import dev.kolib.app.ui.components.InfoRow
 import dev.kolib.app.ui.components.SectionCard
 import dev.kolib.app.ui.theme.LocalBookcase
+import dev.kolib.app.ui.theme.LocalKoLibStyle
 import dev.kolib.app.ui.theme.ShelfColors
 import dev.kolib.app.ui.components.ShelfSpace
 import dev.kolib.app.ui.components.shelfUnderCover
@@ -276,7 +277,7 @@ private fun BookBrowser(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier
                     .fillMaxSize()
-                    .then(if (LocalBookcase.current) Modifier.background(ShelfColors.back) else Modifier),
+                    .then(if (LocalBookcase.current) Modifier.background((LocalKoLibStyle.current.shelf ?: ShelfColors).back) else Modifier),
             ) {
                 itemsIndexed(books, key = { _, b -> b.contentId }) { index, book ->
                     BookGridItem(

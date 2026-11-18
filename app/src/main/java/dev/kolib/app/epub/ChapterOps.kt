@@ -286,19 +286,27 @@ object ChapterOps {
     fun coverImagePath(files: BookFiles, structure: BookStructure): String? =
         (structure.opf.declaredCoverItem() ?: structure.opf.guessedCoverItem())?.let { structure.pathOf(it) }?.takeIf { files.has(it) }
 
-    /**
-     * Stops if the book has a cover page already: one it names as the cover, or a first page that is
-     * just a picture.
-     */
+    /** Stops if the book names a cover page already. */
     fun checkNoCoverPage(files: BookFiles, structure: BookStructure) {
         coverPagePath(structure)?.let { p ->
             throw OpError(tr("The book already has a cover page, “{0}”.", structure.chapterAt(p)?.title ?: p))
         }
-        val first = structure.chapters.firstOrNull() ?: return
-        val html = files.text(first.path) ?: return
-        if (EpubFile.firstImageReference(html) != null && EpubText.plainText(html).trim().length < 40) {
-            throw OpError(tr("“{0}” already looks like a cover page. To use it, open its menu and choose “Use as the cover page”.", first.title))
-        }
+    }
+
+    /**
+     * A first page that is the book's cover page already, though the book doesn't name it as one: little more
+     * than a picture, and that picture is the book's cover (or the book names no cover picture, so this one is
+     * what it shows as its cover). A first page with some other picture (a title page, as a book split from an
+     * omnibus often opens on) isn't one.
+     */
+    fun unnamedCoverPage(files: BookFiles, structure: BookStructure): String? {
+        if (coverPagePath(structure) != null) return null
+        val first = structure.chapters.firstOrNull() ?: return null
+        val html = files.text(first.path) ?: return null
+        val ref = EpubFile.firstImageReference(html) ?: return null
+        if (EpubText.plainText(html).trim().length >= 40) return null
+        val cover = coverImagePath(files, structure) ?: return first.path
+        return first.path.takeIf { EpubFile.resolvePath(first.path.substringBeforeLast('/', ""), ref) == cover }
     }
 
     /**
@@ -327,6 +335,8 @@ object ChapterOps {
      */
     fun addCoverPage(files: BookFiles, structure: BookStructure, picture: NewPicture?): Result {
         checkNoCoverPage(files, structure)
+        // The first page is the cover page in all but name: it's named, and no second one is made.
+        if (picture == null) unnamedCoverPage(files, structure)?.let { return setCoverPage(files, structure, it) }
         val changes = LinkedHashMap<String, ByteArray?>()
         var opfText = structure.opfText
         val imagePath: String

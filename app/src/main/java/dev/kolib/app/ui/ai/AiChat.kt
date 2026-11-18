@@ -1,5 +1,17 @@
 package dev.kolib.app.ui.ai
 
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.onLongClick
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.draw.clip
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -471,18 +483,17 @@ fun ColumnScope.ChatPane(session: ChatSession, place: ChatPlace, hub: AiHub) {
                 )
             }
             Row(Modifier.fillMaxWidth().padding(top = 10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.End) {
-                // A question can be changed and asked again: the chat carries on from there.
-                IconButton(
-                    onClick = { session.editing = i; question = turn.question }, enabled = !asking,
-                    modifier = Modifier.size(36.dp).testTag("chat-edit-$i"),
-                ) { Icon(Icons.Outlined.Edit, tr("Edit this message"), Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant) }
-                Text(
-                    turn.question, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier
-                        .widthIn(max = 400.dp)
-                        .background(if (session.editing == i) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(18.dp))
-                        .padding(horizontal = 14.dp, vertical = 9.dp),
-                )
+                // Held, a question can be copied, or changed and asked again: the chat carries on from there.
+                HeldMenu(turn.question, "chat-question-$i", onEdit = if (asking) null else ({ session.editing = i; question = turn.question })) { held ->
+                    Text(
+                        turn.question, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier
+                            .widthIn(max = 400.dp)
+                            .background(if (session.editing == i) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(18.dp))
+                            .then(held)
+                            .padding(horizontal = 14.dp, vertical = 9.dp),
+                    )
+                }
             }
             Column(Modifier.fillMaxWidth().padding(top = 8.dp, start = 8.dp, end = 24.dp)) {
                 if (answer.isNotBlank()) SelectionContainer {
@@ -566,6 +577,43 @@ private fun SavedChatRow(chat: SavedChat, current: Boolean, canOpen: Boolean, ca
  * it does, only while charging), with how far the notes have got.
  */
 @OptIn(ExperimentalLayoutApi::class)
+
+/**
+ * A message that, held, offers to copy it, and for the reader's own questions, to change it ([onEdit]; null while
+ * that can't be done). [content] is the message, given the modifier that makes it answer to being held.
+ */
+@Composable
+private fun HeldMenu(text: String, tag: String, onEdit: (() -> Unit)?, content: @Composable (Modifier) -> Unit) {
+    var open by remember { mutableStateOf(false) }
+    val haptic = LocalHapticFeedback.current
+    val clipboard = LocalClipboardManager.current
+    val label = tr("More options")
+    Box {
+        content(
+            Modifier
+                .clip(RoundedCornerShape(18.dp))
+                .pointerInput(Unit) {
+                    detectTapGestures(onLongPress = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        open = true
+                    })
+                }
+                .semantics { onLongClick(label) { open = true; true } }
+                .testTag(tag),
+        )
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            if (onEdit != null) DropdownMenuItem(
+                text = { Text(tr("Edit")) }, leadingIcon = { Icon(Icons.Outlined.Edit, null) },
+                onClick = { open = false; onEdit() }, modifier = Modifier.testTag("$tag-edit"),
+            )
+            DropdownMenuItem(
+                text = { Text(tr("Copy")) }, leadingIcon = { Icon(Icons.Outlined.ContentCopy, null) },
+                onClick = { open = false; clipboard.setText(AnnotatedString(text)) }, modifier = Modifier.testTag("$tag-copy"),
+            )
+        }
+    }
+}
+
 @Composable
 private fun BookSwitches(session: ChatSession, place: ChatPlace.Book, hub: AiHub, asking: Boolean) {
     val notes = place.notes

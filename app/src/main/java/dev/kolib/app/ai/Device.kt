@@ -43,9 +43,31 @@ object Device {
      * A recent, fast processor (2022's phones and tablets on): its cores can do the sums models are made of in
      * bigger steps (the "i8mm" or "sve2" features). Older ones run the same models several times slower.
      */
-    fun fast(cpuinfo: String = runCatching { File("/proc/cpuinfo").readText() }.getOrDefault("")): Boolean {
-        val features = cpuinfo.lineSequence().filter { it.startsWith("Features") || it.startsWith("flags") }.joinToString(" ")
-        val words = features.split(Regex("\\s+")).toSet()
+    fun fast(cpuinfo: String = cpuinfo()): Boolean {
+        val words = features(cpuinfo)
         return "i8mm" in words || "sve2" in words || "avx512f" in words || "avx_vnni" in words
     }
+
+    /** How quickly a processor runs a model, for picking the models that answer at a reading pace on it. */
+    enum class Speed { SLOW, MID, FAST }
+
+    /**
+     * The processor's [Speed]: [fast]; a few years old, with the dot-product sums ("asimddp", "avx2") or quick
+     * cores; or older and slower than that.
+     */
+    fun speed(cpuinfo: String = cpuinfo(), speeds: List<Long> = coreSpeeds()): Speed {
+        val words = features(cpuinfo)
+        return when {
+            fast(cpuinfo) -> Speed.FAST
+            "asimddp" in words || "avx2" in words || (speeds.maxOrNull() ?: 0L) >= 2_200_000L -> Speed.MID
+            else -> Speed.SLOW
+        }
+    }
+
+    private fun cpuinfo(): String = runCatching { File("/proc/cpuinfo").readText() }.getOrDefault("")
+
+    /** What the processor can do, as /proc/cpuinfo lists it ("Features" on ARM, "flags" on x86). */
+    private fun features(cpuinfo: String): Set<String> =
+        cpuinfo.lineSequence().filter { it.startsWith("Features") || it.startsWith("flags") }
+            .joinToString(" ").split(Regex("\\s+")).toSet()
 }

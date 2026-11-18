@@ -33,7 +33,7 @@ class AiHub(
     private val scope: CoroutineScope,
     canRunHere: () -> Boolean = { LlamaNative.available(context) },
     deviceMemory: () -> Long = { Device.memory(context) },
-    deviceFast: () -> Boolean = { Device.fast() },
+    deviceSpeed: () -> Device.Speed = { Device.speed() },
     /** Opens a model file to hold so many tokens; and the user's server. (Tests put their own in.) */
     private val openLocal: (File, Int) -> AiEngine = { file, tokens -> LocalEngine.open(context, file, tokens) },
     private val openServer: (AiSettings) -> AiEngine = { s -> ServerEngine(s.serverAddress, s.serverKey, s.serverModel) },
@@ -46,10 +46,13 @@ class AiHub(
     /** Whether this build, on this device, can run models itself (it's built for 64-bit devices). */
     val onDevice: Boolean by lazy(canRunHere)
 
-    /** The device's memory and whether its processor is a fast one, for suggesting a model. */
+    /** The device's memory and how quick its processor is, for suggesting a model. */
     val memory: Long by lazy(deviceMemory)
-    val fast: Boolean by lazy(deviceFast)
-    val suggested: AiModel get() = AiModels.bestFor(memory, fast)
+    val speed: Device.Speed by lazy(deviceSpeed)
+    val suggested: AiModel get() = AiModels.bestFor(memory, speed)
+
+    /** The models to offer on this device, the best first (see [AiModels.picks]). */
+    val picks: List<AiModel> get() = AiModels.picks(memory, speed)
 
     // ---- downloads -----------------------------------------------------------------------------------
 

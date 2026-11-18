@@ -159,8 +159,6 @@ object ModelSearch {
         bytes = file.bytes,
         sha256 = file.sha256,
         licence = licence.orEmpty(),
-        memoryGb = 0,
-        wantsFast = false,
         about = { "" },
     )
 

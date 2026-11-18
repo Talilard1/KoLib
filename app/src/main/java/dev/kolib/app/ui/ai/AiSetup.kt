@@ -61,6 +61,7 @@ import dev.kolib.app.ai.AiHub
 import dev.kolib.app.ai.AiModel
 import dev.kolib.app.ai.AiModels
 import dev.kolib.app.ai.AiSettings
+import dev.kolib.app.ai.Device
 import dev.kolib.app.ai.Fit
 import dev.kolib.app.ai.ModelSearch
 import dev.kolib.app.ai.ModelStore
@@ -112,7 +113,7 @@ fun AiSetupDialog(onDismiss: () -> Unit, hub: AiHub = (LocalContext.current.appl
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        icon = { Icon(Icons.Outlined.AutoAwesome, null) },
+        icon = { BotFace(BotMood.IDLE, BotLook.ICON, Modifier.size(24.dp)) },
         title = { Text(tr("AI")) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()).testTag("ai-setup")) {
@@ -123,17 +124,28 @@ fun AiSetupDialog(onDismiss: () -> Unit, hub: AiHub = (LocalContext.current.appl
                 Section(tr("On this device"))
                 if (hub.onDevice) {
                     Note(tr("Runs on this device, with no internet once it's downloaded. Nothing you read leaves it."))
-                    // What's suggested runs comfortably; what's biggest of those that run at all is marked too.
-                    val most = AiModels.all.lastOrNull { AiModels.fits(it, hub.memory) && (!it.wantsFast || hub.fast) }?.takeIf { it.id != hub.suggested.id }
-                    AiModels.all.forEach { model ->
+                    // The three that suit this device best, picked by its memory and processor; and any others already
+                    // downloaded (or on their way), so they can still be used or deleted.
+                    Text(
+                        when (hub.speed) {
+                            Device.Speed.FAST -> tr("Picked for this device: {0} of memory and a fast processor.", tr("{0} GB", AiModels.soldGb(hub.memory)))
+                            Device.Speed.MID -> tr("Picked for this device: {0} of memory and a mid-range processor.", tr("{0} GB", AiModels.soldGb(hub.memory)))
+                            Device.Speed.SLOW -> tr("Picked for this device: {0} of memory and an older processor.", tr("{0} GB", AiModels.soldGb(hub.memory)))
+                        },
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 2.dp, bottom = 4.dp).testTag("ai-picked-for"),
+                    )
+                    val picks = remember(hub) { hub.picks }
+                    val shown = picks + AiModels.all.filter { it !in picks && (downloads[it.id] != null || hub.models.installed(it)) }
+                    shown.forEach { model ->
                         ModelRow(
-                            most = most?.id == model.id,
                             model = model,
                             installed = remember(changed, downloads[model.id]) { hub.models.installed(model) },
                             selected = settings.modelId == model.id,
                             download = downloads[model.id],
                             suggested = hub.suggested.id == model.id,
-                            fits = AiModels.fits(model, hub.memory),
+                            fit = ModelSearch.fit(model.held, hub.memory),
+                            slow = model.held > AiModels.quickUpTo(hub.speed),
                             onUse = { use(hub, settings.copy(source = "model:${model.id}")) },
                             onDownload = { hub.download(model) },
                             onStop = { hub.stopDownload(model) },
@@ -341,8 +353,8 @@ private fun Note(text: String) {
 
 @Composable
 private fun ModelRow(
-    model: AiModel, installed: Boolean, selected: Boolean, download: AiDownload?, suggested: Boolean, fits: Boolean,
-    onUse: () -> Unit, onDownload: () -> Unit, onStop: () -> Unit, onDelete: () -> Unit, most: Boolean = false,
+    model: AiModel, installed: Boolean, selected: Boolean, download: AiDownload?, suggested: Boolean, fit: Fit, slow: Boolean,
+    onUse: () -> Unit, onDownload: () -> Unit, onStop: () -> Unit, onDelete: () -> Unit,
 ) {
     val context = LocalContext.current
     Row(
@@ -357,9 +369,12 @@ private fun ModelRow(
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(model.description, style = MaterialTheme.typography.bodySmall)
-            if (suggested) Text(tr("Suggested for this device"), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-            else if (most) Text(tr("The best this device can run"), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-            else if (!fits) Text(tr("Wants more memory than this device has"), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.error)
+            when {
+                suggested -> Text(tr("Suggested for this device"), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                fit == Fit.TOO_BIG -> Text(tr("Wants more memory than this device has"), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.error)
+                fit == Fit.TIGHT -> Text(tr("A tight fit: it may be slow, or close other apps"), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                slow -> Text(tr("Better answers, but slow on this device"), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
             DownloadProgress(download)
         }
         when {

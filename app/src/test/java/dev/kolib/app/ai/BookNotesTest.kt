@@ -29,7 +29,7 @@ class BookNotesTest {
     private val dir = Files.createTempDirectory("notes").toFile()
 
     private fun hub() = AiHub(
-        context, scope, canRunHere = { true }, deviceMemory = { 7_400_000_000L }, deviceFast = { true },
+        context, scope, canRunHere = { true }, deviceMemory = { 7_400_000_000L }, deviceSpeed = { Device.Speed.FAST },
         openLocal = { _, tokens ->
             FakeEngine(tokens) { m ->
                 val asked = m.last().content

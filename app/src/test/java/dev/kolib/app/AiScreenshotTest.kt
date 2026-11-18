@@ -16,6 +16,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.filterToOne
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onNodeWithText
@@ -126,7 +128,7 @@ class AiScreenshotTest {
     /** A hub whose model answers as a good one would, for the picture. */
     private fun hub(withModel: Boolean = true): AiHub {
         val hub = AiHub(
-            context, scope, canRunHere = { true }, deviceMemory = { 7_400_000_000L }, deviceFast = { true },
+            context, scope, canRunHere = { true }, deviceMemory = { 7_400_000_000L }, deviceSpeed = { dev.kolib.app.ai.Device.Speed.FAST },
             openLocal = { _, tokens ->
                 FakeEngine(tokens) { messages ->
                     asked += messages
@@ -147,7 +149,7 @@ class AiScreenshotTest {
         )
         if (withModel) {
             // The model as if it were downloaded: a file of its size (with nothing in it), chosen.
-            val model = AiModels.all[1]
+            val model = AiModels.byId("gemma-4-e2b")!!
             hub.models.dir.mkdirs()
             RandomAccessFile(hub.models.file(model), "rw").use { it.setLength(model.bytes) }
             hub.settingsStore.set(hub.settings.value.copy(source = "model:${model.id}"))
@@ -332,7 +334,7 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
             override fun close() {}
         }
         val hub = hub()
-        app.ai = AiHub(context, scope, canRunHere = { true }, deviceMemory = { 7_400_000_000L }, deviceFast = { true }, openLocal = { _, _ -> engine }).also {
+        app.ai = AiHub(context, scope, canRunHere = { true }, deviceMemory = { 7_400_000_000L }, deviceSpeed = { dev.kolib.app.ai.Device.Speed.FAST }, openLocal = { _, _ -> engine }).also {
             it.settingsStore.set(hub.settings.value)
         }
         val c = reader(1)
@@ -453,8 +455,12 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
         val ahead = synchronized(engines) { engines.flatMap { it.ahead } }
         assertEquals(sent.dropLast(1), ahead.first())
         shoot(name)
-        // The same question can be changed and asked again: the chat carries on from there, and what followed it goes.
-        compose.onNodeWithTag("chat-edit-0").performClick()
+        // Held, a question can be copied, or changed and asked again: the chat carries on from there, and what followed it goes.
+        compose.onNodeWithTag("chat-question-0").performTouchInput { longClick() }
+        compose.onNodeWithTag("chat-question-0-copy").performClick()
+        assertEquals("Who is Rosa?", context.getSystemService(android.content.ClipboardManager::class.java).primaryClip?.getItemAt(0)?.text?.toString())
+        compose.onNodeWithTag("chat-question-0").performTouchInput { longClick() }
+        compose.onNodeWithTag("chat-question-0-edit").performClick()
         compose.onNodeWithText("Changing your message: what came after it will go.").assertExists()
         compose.onNodeWithTag("companion-question").performTextReplacement("Who is Tam?")
         compose.onNodeWithTag("companion-send").performClick()
@@ -617,6 +623,39 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
     @Config(qualifiers = PHONE)
     fun askingAboutTheBookOnAPhone() = ask("92_ask_phone", 1)
 
+    /** The AI's faces, as the bubble and as an icon: at ease, reading, thinking, writing, and done. */
+    @Test
+    @Config(qualifiers = PHONE)
+    fun theAisFaces() {
+        compose.mainClock.autoAdvance = false
+        compose.setContent {
+            AppSurface(ThemeChoice.SYSTEM) {
+                androidx.compose.foundation.layout.Column(Modifier.fillMaxSize().background(Color(0xFFFBF7EE)).padding(24.dp)) {
+                    for (look in dev.kolib.app.ui.ai.BotLook.values()) {
+                        androidx.compose.foundation.layout.Row(Modifier.padding(vertical = 28.dp)) {
+                            for (mood in dev.kolib.app.ui.ai.BotMood.values()) {
+                                Box(Modifier.padding(horizontal = 6.dp).size(if (look == dev.kolib.app.ui.ai.BotLook.BUBBLE) 52.dp else 36.dp)) {
+                                    if (look == dev.kolib.app.ui.ai.BotLook.BUBBLE) {
+                                        androidx.compose.material3.Surface(shape = androidx.compose.foundation.shape.CircleShape, color = androidx.compose.material3.MaterialTheme.colorScheme.primaryContainer, shadowElevation = 6.dp, modifier = Modifier.fillMaxSize()) {}
+                                    }
+                                    dev.kolib.app.ui.ai.BotFace(
+                                        mood, look, Modifier.fillMaxSize(),
+                                        color = if (look == dev.kolib.app.ui.ai.BotLook.BUBBLE) androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer else androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
+                                        bubbles = androidx.compose.material3.MaterialTheme.colorScheme.primary,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // Part way into what each is doing: the thought bubbles rising, the mouth open as it writes, the eyes along a line.
+        compose.mainClock.advanceTimeBy(560)
+        shoot("92_faces")
+        compose.mainClock.autoAdvance = true
+    }
+
     /** The window's newer parts: book notes, words picked out to ask about, why KoLib closed last time, and the bubble. */
     @Test
     @Config(qualifiers = PHONE)
@@ -652,7 +691,9 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
         // still for the pictures: the bubble's words show for a few seconds.)
         compose.mainClock.autoAdvance = false
         app.aiPanel.minimise()
-        compose.mainClock.advanceTimeBy(600)
+        // The window warps into the bubble, which then pops up.
+        compose.waitForIdle()
+        compose.mainClock.advanceTimeBy(1_200)
         compose.onNodeWithTag("ai-window").assertDoesNotExist()
         compose.onNodeWithTag("ai-bubble").assertExists()
         compose.onNodeWithText(tr("Tap to open. Drag to the ✕ to close.")).assertExists()
@@ -660,6 +701,7 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
         // Once an answer is ready, it says so for a moment, and keeps a dot until it's opened.
         compose.mainClock.advanceTimeBy(7_000)
         app.aiPanel.finished("An answer.")
+        compose.waitForIdle()
         compose.mainClock.advanceTimeBy(600)
         compose.onNodeWithText(tr("Answer ready")).assertExists()
         compose.onNodeWithTag("ai-bubble-done").assertExists()
@@ -702,7 +744,10 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
         compose.mainClock.advanceTimeBy(500)
         compose.onNodeWithText("Everything else on this device").assertExists()
         captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/${name}_storage.png")
-        assertEquals("gemma-4-e2b", hub.suggested.id)
+        // Picked for the device: 8 GB and a fast processor.
+        assertEquals("gemma-4-e4b", hub.suggested.id)
+        assertEquals(listOf("gemma-4-e4b", "qwen3.5-4b", "gemma-4-e2b"), hub.picks.map { it.id })
+        compose.onNodeWithTag("ai-picked-for").assertTextEquals(tr("Picked for this device: {0} of memory and a fast processor.", tr("{0} GB", 8)))
         assertTrue(hub.ready())
     }
 

@@ -22,7 +22,7 @@ class ModelStoreTest {
 
     private val content = ByteArray(300_000) { (it * 31 + it / 7).toByte() }
     private val sum = MessageDigest.getInstance("SHA-256").digest(content).joinToString("") { "%02x".format(it) }
-    private val model = AiModel("test", "Test", "Nobody", "https://example.invalid/test.gguf", content.size.toLong(), sum, "Apache 2.0", 4, false) { "A model for tests." }
+    private val model = AiModel("test", "Test", "Nobody", "https://example.invalid/test.gguf", content.size.toLong(), sum, "Apache 2.0") { "A model for tests." }
 
     private fun store() = ModelStore(File(folder.root, "models"))
 

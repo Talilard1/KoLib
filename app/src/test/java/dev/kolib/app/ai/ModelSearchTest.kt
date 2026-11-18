@@ -118,8 +118,8 @@ class ModelSearchTest {
         assertEquals(Fit.TOO_BIG, ModelSearch.fit(4_482_402_656, eight))
         assertEquals(Fit.TOO_BIG, ModelSearch.fit(8_424_393_056, eight))
         // The "E" models hold only part of their files in memory: KoLib's own E2B is comfortable on 6 GB, E4B on 8 and 12.
-        val e2b = AiModels.all[1]
-        val e4b = AiModels.all[2]
+        val e2b = AiModels.byId("gemma-4-e2b")!!
+        val e4b = AiModels.byId("gemma-4-e4b")!!
         assertEquals(Fit.GOOD, ModelSearch.fit(ModelSearch.held(e2b.bytes, "ggml-org/gemma-4-E2B-it-GGUF"), (5.5 * gb).toLong()))
         assertEquals(Fit.GOOD, ModelSearch.fit(ModelSearch.held(e4b.bytes, "ggml-org/gemma-4-E4B-it-GGUF"), eight))
         assertEquals(Fit.GOOD, ModelSearch.fit(ModelSearch.held(e4b.bytes, "ggml-org/gemma-4-E4B-it-GGUF"), (11.2 * gb).toLong()))

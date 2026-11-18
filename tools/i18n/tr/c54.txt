@@ -1,0 +1,96 @@
+@fr
+2993|Rapide, avec des réponses simples mais justes.
+2994|Des réponses réfléchies, à une vitesse correcte.
+2995|De très bonnes réponses, un peu plus lentes.
+2996|Les meilleures réponses ici, et les plus lentes. Pour les appareils rapides avec beaucoup de mémoire.
+2997|Modifier
+2998|Choisis pour cet appareil : {0} de mémoire et un processeur rapide.
+2999|{0} Go
+3000|Choisis pour cet appareil : {0} de mémoire et un processeur milieu de gamme.
+3001|Choisis pour cet appareil : {0} de mémoire et un processeur plus ancien.
+3002|De meilleures réponses, mais lent sur cet appareil
+3003|Lecture…
+@de
+2993|Schnell, mit einfachen, aber soliden Antworten.
+2994|Durchdachte Antworten bei ordentlichem Tempo.
+2995|Sehr gute Antworten, etwas langsamer.
+2996|Die besten Antworten hier und die langsamsten. Für schnelle Geräte mit viel Speicher.
+2997|Bearbeiten
+2998|Für dieses Gerät ausgewählt: {0} Speicher und ein schneller Prozessor.
+2999|{0} GB
+3000|Für dieses Gerät ausgewählt: {0} Speicher und ein Prozessor der Mittelklasse.
+3001|Für dieses Gerät ausgewählt: {0} Speicher und ein älterer Prozessor.
+3002|Bessere Antworten, aber langsam auf diesem Gerät
+3003|Liest…
+@es
+2993|Rápido, con respuestas sencillas pero acertadas.
+2994|Respuestas bien pensadas a buena velocidad.
+2995|Respuestas muy buenas, algo más lentas.
+2996|Las mejores respuestas de aquí, y las más lentas. Para dispositivos rápidos con mucha memoria.
+2997|Editar
+2998|Elegidos para este dispositivo: {0} de memoria y un procesador rápido.
+2999|{0} GB
+3000|Elegidos para este dispositivo: {0} de memoria y un procesador de gama media.
+3001|Elegidos para este dispositivo: {0} de memoria y un procesador más antiguo.
+3002|Mejores respuestas, pero lento en este dispositivo
+3003|Leyendo…
+@it
+2993|Veloce, con risposte semplici ma corrette.
+2994|Risposte ponderate a una velocità discreta.
+2995|Risposte molto buone, un po’ più lente.
+2996|Le risposte migliori qui, e le più lente. Per dispositivi veloci con molta memoria.
+2997|Modifica
+2998|Scelti per questo dispositivo: {0} di memoria e un processore veloce.
+2999|{0} GB
+3000|Scelti per questo dispositivo: {0} di memoria e un processore di fascia media.
+3001|Scelti per questo dispositivo: {0} di memoria e un processore meno recente.
+3002|Risposte migliori, ma lento su questo dispositivo
+3003|Sta leggendo…
+@nl
+2993|Snel, met eenvoudige maar degelijke antwoorden.
+2994|Doordachte antwoorden in een redelijk tempo.
+2995|Zeer goede antwoorden, iets trager.
+2996|De beste antwoorden hier, en de traagste. Voor snelle apparaten met veel geheugen.
+2997|Bewerken
+2998|Gekozen voor dit apparaat: {0} geheugen en een snelle processor.
+2999|{0} GB
+3000|Gekozen voor dit apparaat: {0} geheugen en een middenklasse processor.
+3001|Gekozen voor dit apparaat: {0} geheugen en een oudere processor.
+3002|Betere antwoorden, maar traag op dit apparaat
+3003|Aan het lezen…
+@pt
+2993|Rápido, com respostas simples, mas certeiras.
+2994|Respostas bem pensadas, a uma velocidade razoável.
+2995|Respostas muito boas, um pouco mais lentas.
+2996|As melhores respostas daqui, e as mais lentas. Para aparelhos rápidos com bastante memória.
+2997|Editar
+2998|Escolhidos para este aparelho: {0} de memória e um processador rápido.
+2999|{0} GB
+3000|Escolhidos para este aparelho: {0} de memória e um processador intermediário.
+3001|Escolhidos para este aparelho: {0} de memória e um processador mais antigo.
+3002|Respostas melhores, mas lento neste aparelho
+3003|Lendo…
+@ru
+2993|Быстрая, отвечает просто, но толково.
+2994|Вдумчивые ответы при неплохой скорости.
+2995|Очень хорошие ответы, но чуть медленнее.
+2996|Лучшие ответы из всех, но и самые медленные. Для быстрых устройств с большим объёмом памяти.
+2997|Изменить
+2998|Подобрано для этого устройства: {0} памяти и быстрый процессор.
+2999|{0} ГБ
+3000|Подобрано для этого устройства: {0} памяти и процессор среднего класса.
+3001|Подобрано для этого устройства: {0} памяти и не самый новый процессор.
+3002|Ответы лучше, но на этом устройстве медленно
+3003|Читает…
+@ja
+2993|速く、簡潔でしっかりした答えを返します。
+2994|よく考えた答えを、ほどよい速さで返します。
+2995|とても良い答えを返しますが、少し遅めです。
+2996|ここで最も良い答えを返しますが、最も遅いです。メモリに余裕のある高速な端末向けです。
+2997|編集
+2998|この端末向けに選びました：メモリ {0}、高速なプロセッサ。
+2999|{0} GB
+3000|この端末向けに選びました：メモリ {0}、中程度のプロセッサ。
+3001|この端末向けに選びました：メモリ {0}、旧型のプロセッサ。
+3002|答えは良くなりますが、この端末では遅めです
+3003|読んでいます…

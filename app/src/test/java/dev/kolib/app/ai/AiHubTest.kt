@@ -28,7 +28,7 @@ class AiHubTest {
     private val engines = ArrayList<FakeEngine>()
 
     private fun hub(canRun: Boolean = true, memory: Long = 7_400_000_000L, reply: (List<AiMessage>) -> String = { "An answer." }) = AiHub(
-        context, scope, canRunHere = { canRun }, deviceMemory = { memory }, deviceFast = { true },
+        context, scope, canRunHere = { canRun }, deviceMemory = { memory }, deviceSpeed = { Device.Speed.FAST },
         openLocal = { file, tokens ->
             opened += file to tokens
             FakeEngine(tokens, reply).also { engines += it }
@@ -96,7 +96,8 @@ class AiHubTest {
         hub.addOwn()
         hub.settingsStore.set(hub.settings.value.copy(source = "own:Tiny"))
         assertEquals(4096, runBlocking { hub.use { it.contextTokens } })
-        assertEquals("qwen3.5-0.8b", hub.suggested.id)
+        // With a fast processor, the next smallest model.
+        assertEquals("qwen3.5-2b", hub.suggested.id)
     }
 
     @Test

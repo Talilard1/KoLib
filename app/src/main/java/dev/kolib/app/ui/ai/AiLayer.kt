@@ -3,13 +3,8 @@ package dev.kolib.app.ui.ai
 import android.content.SharedPreferences
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -38,9 +33,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Minimize
-import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -74,6 +67,15 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.layout.boundsInParent
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import kotlinx.coroutines.Job
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -119,6 +121,9 @@ class AiPanel(private val prefs: SharedPreferences? = null) {
         private set
     var doneAt by mutableStateOf(0L)
         private set
+
+    /** Where the AI button at the top is on the screen, for the window to warp into as it closes (and out of). */
+    var buttonAt by mutableStateOf<androidx.compose.ui.geometry.Rect?>(null)
 
     /** Whether the bubble has said how it's used (the first time the window is minimised). */
     var hinted: Boolean
@@ -180,28 +185,21 @@ class AiHost {
 
 val LocalAiHost = staticCompositionLocalOf<AiHost?> { null }
 
-/** Whether the AI is working on something for the reader where they can't see it: a question, or the chapter's summary. */
-@Composable
-fun aiBusy(place: ChatPlace? = null): Boolean {
-    val app = LocalContext.current.applicationContext as KoLibApp
-    val summary = (place as? ChatPlace.Book)?.companion?.stage?.collectAsState()?.value
-    return app.chat.asking || summary != null
-}
-
 /**
- * The AI's icon, for the button at the top that opens it: with a ring around it while it's working on something
- * out of sight, and a dot once something is done there, until the window is opened.
+ * The AI's icon, for the button at the top that opens it: its face, which shows what it's doing (reading, thinking,
+ * writing), and a dot once something is done out of sight, until the window is opened.
  */
 @Composable
 fun AiButtonIcon(description: String, place: ChatPlace? = null) {
     val app = LocalContext.current.applicationContext as KoLibApp
     val panel = app.aiPanel
-    val busy = aiBusy(place)
-    Box(contentAlignment = Alignment.Center) {
-        Icon(Icons.Outlined.AutoAwesome, description)
-        if (busy && panel.mode != AiPanel.Mode.OPEN) {
-            CircularProgressIndicator(Modifier.size(34.dp).testTag("ai-button-busy"), strokeWidth = 2.dp)
-        }
+    Box(
+        Modifier.size(24.dp)
+            .onGloballyPositioned { panel.buttonAt = it.boundsInRoot() }
+            .semantics { contentDescription = description },
+        contentAlignment = Alignment.Center,
+    ) {
+        BotFace(aiMood(place), BotLook.ICON, Modifier.size(24.dp).testTag("ai-button-face"))
         if (panel.unseen) {
             Box(Modifier.align(Alignment.TopEnd).size(10.dp).background(MaterialTheme.colorScheme.error, CircleShape).border(1.5.dp, MaterialTheme.colorScheme.surface, CircleShape).testTag("ai-button-done"))
         }
@@ -216,19 +214,120 @@ fun AiButtonIcon(description: String, place: ChatPlace? = null) {
 fun AiLayer(place: ChatPlace, modifier: Modifier = Modifier) {
     val app = LocalContext.current.applicationContext as KoLibApp
     val panel = app.aiPanel
-    BoxWithConstraints(modifier.fillMaxSize()) {
-        when (panel.mode) {
-            AiPanel.Mode.OPEN -> {
-                AiWindow(panel, place)
-                BackHandler { panel.close() }
-                // Open, there's nothing to tell of in a notification.
-                val context = LocalContext.current
-                LaunchedEffect(Unit) { dev.kolib.app.ai.AiAnswerService.seen(context) }
+    val density = LocalDensity.current
+    var layerAt by remember { mutableStateOf(Offset.Zero) }
+    BoxWithConstraints(modifier.fillMaxSize().onGloballyPositioned { layerAt = it.positionInRoot() }) {
+        val room = BubbleRoom(
+            w = constraints.maxWidth.toFloat(), h = constraints.maxHeight.toFloat(), margin = px(10f), bubble = px(56f),
+            top = WindowInsets.systemBars.getTop(density) + px(10f), bottom = WindowInsets.systemBars.getBottom(density) + px(10f),
+        )
+        // The window warps into the bubble as it's minimised, and into the AI button at the top as it's closed; out
+        // of whichever it was in as it opens. The bubble shows once the window has gone into it.
+        val warper = rememberWarper()
+        val warp = remember { Animatable(if (panel.mode == AiPanel.Mode.OPEN) 0f else 1f) }
+        var windowShown by remember { mutableStateOf(panel.mode == AiPanel.Mode.OPEN) }
+        var bubbleShown by remember { mutableStateOf(panel.mode == AiPanel.Mode.MINIMISED) }
+        var windowAt by remember { mutableStateOf(androidx.compose.ui.geometry.Rect.Zero) }
+        var point by remember { mutableStateOf<Offset?>(null) }
+        var pointSize by remember { mutableFloatStateOf(0f) }
+        var was by remember { mutableStateOf(panel.mode) }
+        val buttonSize = px(28f)
+        val noButton = Offset(room.w - px(52f), room.top + px(18f))
+        fun button(): Offset = panel.buttonAt?.center?.minus(layerAt) ?: noButton
+        LaunchedEffect(panel.mode) {
+            val from = was
+            was = panel.mode
+            when (panel.mode) {
+                AiPanel.Mode.OPEN -> {
+                    if (from == AiPanel.Mode.MINIMISED) {
+                        point = room.centreAt(panel.bubbleAt)
+                        pointSize = room.bubble
+                    } else {
+                        point = button()
+                        pointSize = buttonSize
+                    }
+                    bubbleShown = false
+                    windowShown = true
+                    warp.animateTo(0f, tween(420, easing = LinearOutSlowInEasing))
+                }
+                AiPanel.Mode.MINIMISED -> {
+                    if (windowShown) {
+                        point = room.centreAt(panel.bubbleAt)
+                        pointSize = room.bubble
+                        warp.animateTo(1f, tween(440, easing = FastOutLinearInEasing))
+                        windowShown = false
+                    }
+                    bubbleShown = true
+                }
+                AiPanel.Mode.CLOSED -> {
+                    bubbleShown = false
+                    if (windowShown) {
+                        point = button()
+                        pointSize = buttonSize
+                        warp.animateTo(1f, tween(400, easing = FastOutLinearInEasing))
+                        windowShown = false
+                    }
+                }
             }
-            AiPanel.Mode.MINIMISED -> AiBubble(panel, aiBusy(place))
-            AiPanel.Mode.CLOSED -> {}
         }
+        if (windowShown) {
+            BoxWithConstraints(Modifier.fillMaxSize().warp(warper, { warp.value }, { windowAt }, { point }, pointSize, px(16f))) {
+                AiWindow(panel, place) { windowAt = it }
+            }
+        }
+        if (panel.mode == AiPanel.Mode.OPEN) {
+            BackHandler { panel.close() }
+            // Open, there's nothing to tell of in a notification.
+            val context = LocalContext.current
+            LaunchedEffect(Unit) { dev.kolib.app.ai.AiAnswerService.seen(context) }
+        }
+        if (bubbleShown) AiBubble(panel, room, aiMood(place))
     }
+}
+
+/**
+ * Where the bubble can go in a layer [w] by [h] across: inside a [margin] at the sides, clear of the bars at the
+ * [top] and [bottom]. Its place is kept as fractions of that room, so it keeps its place when the screen turns.
+ */
+private class BubbleRoom(val w: Float, val h: Float, val margin: Float, val bubble: Float, val top: Float, val bottom: Float) {
+    private val freeX = (w - 2 * margin - bubble).coerceAtLeast(1f)
+    private val freeY = (h - top - bottom - bubble).coerceAtLeast(1f)
+
+    /** Where the bubble's corner may be. */
+    val area = androidx.compose.ui.geometry.Rect(margin, top, margin + freeX, top + freeY)
+
+    /** The bubble's corner, at [f] of the room each way. */
+    fun at(f: Offset) = Offset(margin + freeX * f.x, top + freeY * f.y)
+
+    fun centreAt(f: Offset) = at(f) + Offset(bubble / 2f, bubble / 2f)
+
+    /** How far across and down the room the bubble's corner at [p] is. */
+    fun fraction(p: Offset) = Offset(((p.x - margin) / freeX).coerceIn(0f, 1f), ((p.y - top) / freeY).coerceIn(0f, 1f))
+
+    override fun equals(other: Any?) = other is BubbleRoom && other.w == w && other.h == h && other.top == top && other.bottom == bottom
+
+    override fun hashCode() = (w * 31 + h).hashCode() * 31 + (top * 31 + bottom).hashCode()
+}
+
+/**
+ * One step of the bubble thrown across [area] (where its corner may go): from [at] at [velocity] (pixels a second)
+ * for [seconds], slowing as it goes ([friction]), and bouncing off the edges with [bounce] of its speed. Returns where
+ * it gets to, and how fast it's going then.
+ */
+internal fun glide(
+    at: Offset, velocity: Offset, seconds: Float, area: androidx.compose.ui.geometry.Rect,
+    friction: Float = 3.2f, bounce: Float = 0.5f,
+): Pair<Offset, Offset> {
+    var x = at.x + velocity.x * seconds
+    var y = at.y + velocity.y * seconds
+    var vx = velocity.x
+    var vy = velocity.y
+    if (x < area.left) { x = area.left + (area.left - x) * bounce; vx = -vx * bounce }
+    if (x > area.right) { x = area.right - (x - area.right) * bounce; vx = -vx * bounce }
+    if (y < area.top) { y = area.top + (area.top - y) * bounce; vy = -vy * bounce }
+    if (y > area.bottom) { y = area.bottom - (y - area.bottom) * bounce; vy = -vy * bounce }
+    val keep = kotlin.math.exp(-friction * seconds)
+    return Offset(x.coerceIn(area.left, area.right), y.coerceIn(area.top, area.bottom)) to Offset(vx * keep, vy * keep)
 }
 
 /** Pixels from dp, here. */
@@ -236,7 +335,7 @@ fun AiLayer(place: ChatPlace, modifier: Modifier = Modifier) {
 private fun px(dp: Float): Float = with(LocalDensity.current) { dp.dp.toPx() }
 
 @Composable
-private fun BoxWithConstraintsScope.AiWindow(panel: AiPanel, place: ChatPlace) {
+private fun BoxWithConstraintsScope.AiWindow(panel: AiPanel, place: ChatPlace, onPlaced: (androidx.compose.ui.geometry.Rect) -> Unit) {
     val context = LocalContext.current
     val app = context.applicationContext as KoLibApp
     val hub = app.ai
@@ -261,9 +360,6 @@ private fun BoxWithConstraintsScope.AiWindow(panel: AiPanel, place: ChatPlace) {
     val x = margin + freeX * panel.at.x
     val y = top + freeY * panel.at.y
 
-    val shown = remember { Animatable(0f) }
-    LaunchedEffect(Unit) { shown.animateTo(1f, spring(dampingRatio = 0.85f, stiffness = 420f)) }
-
     // Reading ahead, while the chat shows: when it opens, when the page changes, after each answer.
     val book = place as? ChatPlace.Book
     val chatShowing = ready && (book == null || panel.tab == 1)
@@ -282,12 +378,7 @@ private fun BoxWithConstraintsScope.AiWindow(panel: AiPanel, place: ChatPlace) {
                 .width(width.toDp())
                 .heightIn(max = most.toDp())
                 .onSizeChanged { size = it }
-                .graphicsLayer {
-                    val s = 0.95f + 0.05f * shown.value
-                    scaleX = s
-                    scaleY = s
-                    alpha = shown.value.coerceIn(0f, 1f)
-                }
+                .onGloballyPositioned { onPlaced(it.boundsInParent()) }
                 // A touch on the window is the window's, not the page's under it.
                 .pointerInput(Unit) { detectTapGestures { } }
                 .testTag("ai-window"),
@@ -314,7 +405,7 @@ private fun BoxWithConstraintsScope.AiWindow(panel: AiPanel, place: ChatPlace) {
                                 Tab(selected = panel.tab == 1, onClick = { panel.showTab(1) }, text = { Text(tr("Ask")) }, modifier = Modifier.testTag("ai-tab-ask"))
                             }
                         } else {
-                            Icon(Icons.Outlined.AutoAwesome, null, tint = MaterialTheme.colorScheme.primary)
+                            BotFace(aiMood(place), BotLook.ICON, Modifier.size(24.dp), color = MaterialTheme.colorScheme.primary)
                             Text(tr("AI"), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f).padding(start = 12.dp))
                         }
                         IconButton(onClick = { setup = true }) { Icon(Icons.Outlined.Settings, tr("AI and dictionary settings")) }
@@ -372,34 +463,28 @@ private fun NotReady(inBook: Boolean, onSetup: () -> Unit) {
 }
 
 /**
- * The window minimised: a bubble at the side of the screen, dragged anywhere and settling at the nearer side.
- * It turns while the AI works, and pulses with a dot once something is done, saying so for a moment. A tap opens
- * the window again; dragged onto the ✕ that shows at the foot of the screen, it closes (the AI carries on).
+ * The window minimised: a bubble that can be put anywhere, or thrown (it slides on and bounces off the edges). Its
+ * face shows what the AI is doing, and a dot once something is done, saying so for a moment. A tap opens the window
+ * again; dragged onto the ✕ that shows at the foot of the screen, it closes (the AI carries on).
  */
 @Composable
-private fun BoxWithConstraintsScope.AiBubble(panel: AiPanel, busy: Boolean) {
-    val density = LocalDensity.current
+private fun AiBubble(panel: AiPanel, room: BubbleRoom, mood: BotMood) {
     val scope = rememberCoroutineScope()
-    val margin = px(10f)
-    val bubble = px(56f)
-    val top = WindowInsets.systemBars.getTop(density) + margin
-    val bottom = WindowInsets.systemBars.getBottom(density) + margin
-    val w = constraints.maxWidth.toFloat()
-    val h = constraints.maxHeight.toFloat()
-    val freeX = (w - 2 * margin - bubble).coerceAtLeast(1f)
-    val freeY = (h - top - bottom - bubble).coerceAtLeast(1f)
+    val bubble = room.bubble
     val reach = px(64f)
-    val half = px(28f)
     val gap = px(8f)
-    // The label beside it, as big as its words: placed once it's been measured.
-    var labelSize by remember { mutableStateOf(IntSize.Zero) }
-    val side = remember { Animatable(panel.bubbleAt.x) }
-    var dragged by remember { mutableStateOf<Offset?>(null) }
-    val x = dragged?.x ?: (margin + freeX * side.value)
-    val y = dragged?.y ?: (top + freeY * panel.bubbleAt.y)
+    var at by remember { mutableStateOf(room.at(panel.bubbleAt)) }
+    var dragging by remember { mutableStateOf(false) }
+    var gliding by remember { mutableStateOf<Job?>(null) }
+    // It pops into being once the window's gone into it, and shrinks away into the ✕.
+    val shown = remember { Animatable(0f) }
+    LaunchedEffect(Unit) { shown.animateTo(1f, spring(dampingRatio = 0.45f, stiffness = 520f)) }
+    // When the room changes (the screen turns), it keeps its place in it.
+    LaunchedEffect(room) { if (!dragging && gliding == null) at = room.at(panel.bubbleAt) }
     // Where it's closed: a target at the foot of the screen, while it's being dragged.
-    val target = Offset(w / 2, h - bottom - bubble)
-    val overTarget = dragged?.let { hypot(it.x + bubble / 2 - target.x, it.y + bubble / 2 - target.y) < reach } == true
+    val target = Offset(room.w / 2, room.h - room.bottom - bubble)
+    fun over(p: Offset) = hypot(p.x + bubble / 2 - target.x, p.y + bubble / 2 - target.y) < reach
+    val overTarget = dragging && over(at)
     var hint by remember { mutableStateOf(!panel.hinted) }
     LaunchedEffect(Unit) {
         if (hint) {
@@ -417,12 +502,13 @@ private fun BoxWithConstraintsScope.AiBubble(panel: AiPanel, busy: Boolean) {
             notice = false
         }
     }
-    val pulse by rememberInfiniteTransition(label = "bubble").animateFloat(1f, 1.1f, infiniteRepeatable(tween(700), RepeatMode.Reverse), label = "bubble")
+    // The label beside it, as big as its words: placed once it's been measured, on the side with more room.
+    var labelSize by remember { mutableStateOf(IntSize.Zero) }
 
-    with(density) {
-        if (dragged != null) {
+    with(LocalDensity.current) {
+        if (dragging) {
             Box(
-                Modifier.offset { IntOffset((target.x - half).roundToInt(), (target.y - half).roundToInt()) }.size(56.dp)
+                Modifier.offset { IntOffset((target.x - bubble / 2).roundToInt(), (target.y - bubble / 2).roundToInt()) }.size(56.dp)
                     .scale(if (overTarget) 1.2f else 1f)
                     .background(if (overTarget) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.8f), CircleShape)
                     .testTag("ai-bubble-close"),
@@ -434,20 +520,20 @@ private fun BoxWithConstraintsScope.AiBubble(panel: AiPanel, busy: Boolean) {
             notice -> tr("Answer ready")
             else -> null
         }
-        if (label != null && dragged == null) {
-            val leftSide = side.value < 0.5f
+        if (label != null && !dragging && gliding == null) {
+            val rightSide = at.x + bubble / 2 < room.w / 2
             Surface(
                 shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.inverseSurface, shadowElevation = 4.dp,
                 modifier = Modifier
                     .offset {
                         IntOffset(
-                            if (leftSide) (x + bubble + gap).roundToInt() else (x - gap - labelSize.width).roundToInt(),
-                            (y + bubble / 2 - labelSize.height / 2f).roundToInt(),
+                            if (rightSide) (at.x + bubble + gap).roundToInt() else (at.x - gap - labelSize.width).roundToInt(),
+                            (at.y + bubble / 2 - labelSize.height / 2f).roundToInt(),
                         )
                     }
                     .widthIn(max = 220.dp)
                     .onSizeChanged { labelSize = it }
-                    .graphicsLayer { alpha = if (labelSize == IntSize.Zero) 0f else 1f },
+                    .graphicsLayer { alpha = if (labelSize == IntSize.Zero) 0f else shown.value.coerceIn(0f, 1f) },
             ) {
                 Text(
                     label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.inverseOnSurface, maxLines = 2, overflow = TextOverflow.Ellipsis,
@@ -457,33 +543,62 @@ private fun BoxWithConstraintsScope.AiBubble(panel: AiPanel, busy: Boolean) {
         }
         Box(
             Modifier
-                .offset { IntOffset(x.roundToInt(), y.roundToInt()) }
+                .offset { IntOffset(at.x.roundToInt(), at.y.roundToInt()) }
                 .size(56.dp)
-                .scale(if (panel.unseen && dragged == null) pulse else 1f)
-                .pointerInput(freeX, freeY) {
+                .graphicsLayer {
+                    val s = shown.value
+                    scaleX = s
+                    scaleY = s
+                    alpha = s.coerceIn(0f, 1f)
+                }
+                .pointerInput(room) {
+                    val tracker = VelocityTracker()
                     detectDragGestures(
-                        onDragStart = { dragged = Offset(margin + freeX * side.value, top + freeY * panel.bubbleAt.y) },
+                        onDragStart = {
+                            gliding?.cancel()
+                            gliding = null
+                            dragging = true
+                            tracker.resetTracking()
+                        },
                         onDragEnd = {
-                            val d = dragged
-                            if (d != null) {
-                                if (hypot(d.x + bubble / 2 - target.x, d.y + bubble / 2 - target.y) < reach) {
-                                    dragged = null
+                            dragging = false
+                            if (over(at)) {
+                                scope.launch {
+                                    shown.animateTo(0f, tween(160))
                                     panel.close()
-                                } else {
-                                    val fx = ((d.x - margin) / freeX).coerceIn(0f, 1f)
-                                    panel.moveBubbleTo(Offset(if (fx < 0.5f) 0f else 1f, ((d.y - top) / freeY).coerceIn(0f, 1f)))
-                                    scope.launch {
-                                        side.snapTo(fx)
-                                        dragged = null
-                                        side.animateTo(panel.bubbleAt.x, spring(Spring.DampingRatioLowBouncy, Spring.StiffnessMediumLow))
+                                }
+                            } else {
+                                // Thrown: it slides on at the speed it was let go, slowing, until it stops.
+                                val v = tracker.calculateVelocity()
+                                var velocity = Offset(v.x, v.y)
+                                val most = 9_000f
+                                if (velocity.getDistance() > most) velocity *= most / velocity.getDistance()
+                                gliding = scope.launch {
+                                    var last = withFrameNanos { it }
+                                    while (velocity.getDistance() > 40f) {
+                                        val now = withFrameNanos { it }
+                                        val (p, v2) = glide(at, velocity, ((now - last) / 1e9f).coerceIn(0f, 0.05f), room.area)
+                                        last = now
+                                        at = p
+                                        velocity = v2
                                     }
+                                    panel.moveBubbleTo(room.fraction(at))
+                                    gliding = null
                                 }
                             }
                         },
-                        onDragCancel = { dragged = null },
+                        onDragCancel = {
+                            dragging = false
+                            panel.moveBubbleTo(room.fraction(at))
+                        },
                     ) { change, drag ->
                         change.consume()
-                        dragged = (dragged ?: Offset(x, y)) + drag
+                        // Where the finger is on the screen, for how fast it's moving when it lets go.
+                        tracker.addPosition(change.uptimeMillis, at + change.position)
+                        at = Offset(
+                            (at.x + drag.x).coerceIn(room.area.left, room.area.right),
+                            (at.y + drag.y).coerceIn(room.area.top, room.area.bottom),
+                        )
                     }
                 }
                 .pointerInput(Unit) { detectTapGestures { panel.open() } }
@@ -491,12 +606,12 @@ private fun BoxWithConstraintsScope.AiBubble(panel: AiPanel, busy: Boolean) {
                 .testTag("ai-bubble"),
             contentAlignment = Alignment.Center,
         ) {
-            Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer, shadowElevation = 8.dp, modifier = Modifier.size(52.dp)) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(Icons.Outlined.AutoAwesome, null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
-                }
-            }
-            if (busy) CircularProgressIndicator(Modifier.size(56.dp).testTag("ai-bubble-busy"), strokeWidth = 3.dp)
+            Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer, shadowElevation = 8.dp, modifier = Modifier.size(52.dp)) {}
+            // Its face, over the bubble rather than in it, so its thoughts can rise out of it.
+            BotFace(
+                mood, BotLook.BUBBLE, Modifier.size(52.dp).testTag("ai-bubble-face"),
+                color = MaterialTheme.colorScheme.onPrimaryContainer, bubbles = MaterialTheme.colorScheme.primary,
+            )
             if (panel.unseen) Box(Modifier.align(Alignment.TopEnd).size(14.dp).background(MaterialTheme.colorScheme.error, CircleShape).border(2.dp, MaterialTheme.colorScheme.surface, CircleShape).testTag("ai-bubble-done"))
         }
     }

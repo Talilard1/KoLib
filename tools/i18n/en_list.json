@@ -2991,5 +2991,16 @@
 "Open the AI",
 "The summary of “{0}”",
 "Ask AI",
-"Writing a note on a chapter…"
+"Writing a note on a chapter…",
+"Quick, with simple but sound answers.",
+"Thoughtful answers at a fair speed.",
+"Very good answers, a little slower.",
+"The best answers here, and the slowest. For fast devices with plenty of memory.",
+"Edit",
+"Picked for this device: {0} of memory and a fast processor.",
+"{0} GB",
+"Picked for this device: {0} of memory and a mid-range processor.",
+"Picked for this device: {0} of memory and an older processor.",
+"Better answers, but slow on this device",
+"Reading…"
 ]

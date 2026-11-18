@@ -88,7 +88,7 @@ fun ModelSearchWindow(hub: AiHub, onDismiss: () -> Unit) {
         results = null
         failed = false
         try {
-            results = withContext(Dispatchers.IO) { ModelSearch.search(query, if (suits) ModelSearch.mostParameters(hub.memory) else null) }
+            results = withContext(Dispatchers.IO) { ModelSearch.search(query, if (suits) hub.memory else null) }
         } catch (e: Exception) {
             if (e is kotlinx.coroutines.CancellationException) throw e
             failed = true

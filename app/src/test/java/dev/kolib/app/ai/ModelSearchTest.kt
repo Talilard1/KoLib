@@ -31,6 +31,7 @@ class ModelSearchTest {
       {"type":"file","path":"Model-4B-Q8_0.gguf","size":135,"lfs":{"oid":"${"d".repeat(64)}","size":4482402656}},
       {"type":"file","path":"Model-4B-UD-Q2_K_XL.gguf","size":135,"lfs":{"oid":"${"e".repeat(64)}","size":1600000000}},
       {"type":"file","path":"mmproj-Model-4B-BF16.gguf","size":135,"lfs":{"oid":"${"f".repeat(64)}","size":675568768}},
+      {"type":"file","path":"Model-4B.mmproj-Q8_0.gguf","size":135,"lfs":{"oid":"${"9".repeat(64)}","size":620000000}},
       {"type":"file","path":"mtp-model-4b.gguf","size":135,"lfs":{"oid":"${"1".repeat(64)}","size":465109248}},
       {"type":"file","path":"imatrix_unsloth.gguf_file","size":7480640},
       {"type":"file","path":"big/Model-4B-Q4_K_M-00001-of-00002.gguf","size":135,"lfs":{"oid":"${"2".repeat(64)}","size":2000000000}},
@@ -56,12 +57,45 @@ class ModelSearchTest {
     fun aSearchIsForChatModelsInGgufFilesTheMostDownloadedFirst() {
         val all = ModelSearch.searchUrl("")
         assertTrue(all.startsWith("https://huggingface.co/api/models?filter=gguf&filter=conversational&sort=downloads&direction=-1&limit=40"))
-        val some = ModelSearch.searchUrl(" dark romance ", most = "6400M")
-        assertTrue(some.contains("&search=dark+romance&") && some.contains("&num_parameters=min:0,max:6400M&"))
+        val some = ModelSearch.searchUrl(" dark romance ", limit = 150)
+        assertTrue(some.contains("&search=dark+romance&") && some.contains("&limit=150&"))
         assertFalse(some.contains("conversational"))
-        // What's worth looking for on a device: with 8 GB, models of about six billion numbers; with 12, nine.
-        assertEquals("6413M", ModelSearch.mostParameters(eight))
-        assertEquals("9706M", ModelSearch.mostParameters((11.2 * gb).toLong()))
+        // Hugging Face's count of a model's numbers isn't asked for: it isn't kept for GGUF files.
+        assertFalse(some.contains("num_parameters"))
+    }
+
+    @Test
+    fun aModelsSizeIsReadFromItsName() {
+        val sizes = mapOf(
+            "unsloth/Qwen3.5-9B-GGUF" to 9.0,
+            "unsloth/Qwen3.5-0.8B-GGUF" to 0.8,
+            "HauhauCS/Gemma4-12B-QAT-Uncensored-HauhauCS-Balanced" to 12.0,
+            "unsloth/gemma-4-E4B-it-GGUF" to 8.0,
+            "HauhauCS/Gemma-4-E2B-Uncensored-HauhauCS-Aggressive" to 4.0,
+            "HauhauCS/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive" to 35.0,
+            "AtomicChat/LFM2.5-24B-A2B-Uncensored-GGUF" to 24.0,
+            "LiquidAI/LFM2.5-350M-GGUF" to 0.35,
+            "TheBloke/Mixtral-8x7B-Instruct-GGUF" to 56.0,
+            "mradermacher/smut_llama_8b_smut_2k_romance_1k_merged-GGUF" to 8.0,
+            "Novaciano/SEX_ROLEPLAY-3.2-1B" to 1.0,
+            "bartowski/Qwen3.5-4B-Qwen3.8-27B-Draft-GGUF" to 4.0,
+            "mradermacher/Ornith-1.5-9B-uncensored-GGUF" to 9.0,
+        )
+        for ((repo, b) in sizes) assertEquals(repo, b, ModelSearch.billionsByName(repo)!!, 0.001)
+        assertNull(ModelSearch.billionsByName("unsloth/Qwen3.8-Flash-Next-GGUF"))
+        assertNull(ModelSearch.billionsByName("L4ndbo/L4DK-UNCENSORED-Q4_0-GGUF"))
+        // On 8 GB: up to the four-billion and E4B models (whose smaller files fit); not nine billion and up.
+        assertTrue(ModelSearch.mayFit("unsloth/Qwen3.5-4B-GGUF", eight))
+        assertTrue(ModelSearch.mayFit("unsloth/gemma-4-E4B-it-GGUF", eight))
+        assertFalse(ModelSearch.mayFit("unsloth/Qwen3.5-9B-GGUF", eight))
+        assertFalse(ModelSearch.mayFit("HauhauCS/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive", eight))
+        // On 12 GB: nine billion too, and twelve (a tight fit); not twenty-four.
+        val twelve = (11.2 * gb).toLong()
+        assertTrue(ModelSearch.mayFit("unsloth/Qwen3.5-9B-GGUF", twelve))
+        assertTrue(ModelSearch.mayFit("HauhauCS/Gemma4-12B-QAT-Uncensored-HauhauCS-Balanced", twelve))
+        assertFalse(ModelSearch.mayFit("AtomicChat/LFM2.5-24B-A2B-Uncensored-GGUF", twelve))
+        // A name that doesn't say: its files are looked at.
+        assertTrue(ModelSearch.mayFit("unsloth/Qwen3.8-Flash-Next-GGUF", eight))
     }
 
     @Test
@@ -121,9 +155,14 @@ class ModelSearchTest {
         val before = ModelSearch.fetcher
         try {
             ModelSearch.fetcher = { url -> asked += url; if (url.contains("/tree/")) files else found }
-            assertEquals(3, ModelSearch.search("qwen", "6413M").size)
+            assertEquals(3, ModelSearch.search("qwen").size)
             assertEquals(5, ModelSearch.files("maker/Model-4B-GGUF").size)
-            assertTrue(asked[0].contains("search=qwen") && asked[0].contains("max:6413M"))
+            assertTrue(asked[0].contains("search=qwen") && asked[0].contains("limit=40"))
+            // For what suits a device, more are asked for, and those too big by their names are left out.
+            val big = found.replace("unsloth/Qwen3.5-4B-GGUF", "unsloth/Qwen3.5-27B-GGUF")
+            ModelSearch.fetcher = { url -> asked += url; big }
+            assertEquals(listOf("someone/Asked-For-GGUF", "HauhauCS/Qwen3.5-4B-Uncensored-HauhauCS-Aggressive"), ModelSearch.search("qwen", eight).map { it.repo })
+            assertTrue(asked.last().contains("limit=150"))
             assertEquals("https://huggingface.co/api/models/maker/Model-4B-GGUF/tree/main?recursive=true", asked[1])
         } finally {
             ModelSearch.fetcher = before

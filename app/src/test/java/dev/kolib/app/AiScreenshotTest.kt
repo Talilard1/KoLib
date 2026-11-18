@@ -62,6 +62,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -532,9 +533,10 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
             compose.setContent { AppSurface(ThemeChoice.SYSTEM) { dev.kolib.app.ui.ai.ModelSearchWindow(hub, onDismiss = {}) } }
             compose.waitUntil(20_000) { compose.onAllNodesWithText("Q4_K_M · 2.7 GB").fetchSemanticsNodes().size == 2 }
             compose.waitForIdle()
-            // It asked for what suits a device with this much memory, and left out the one whose files turned out too big.
-            assertTrue(asked.first().contains("num_parameters=min:0,max:6413M"))
+            // For what suits this device it left out the one too big by its name, without looking at its files.
+            assertFalse(asked.first().contains("num_parameters"))
             compose.onNodeWithTag("found-unsloth/Big-27B-GGUF").assertDoesNotExist()
+            assertTrue(asked.none { it.contains("Big-27B") })
             compose.onAllNodesWithText("Suits this device")[1].assertExists()
             shoot("98_model_search_phone")
             // Everything, when asked: the big one is listed too, and says it's too big; it can still be taken.

@@ -28,7 +28,7 @@ android {
         applicationId = "dev.kolib.app"
         minSdk = 29
         targetSdk = 36
-        versionCode = 84
+        versionCode = 85
         versionName = "2.1"
     }
 

@@ -47,22 +47,39 @@ object ModelSearch {
         else -> Fit.TOO_BIG
     }
 
+    // How big a model is, as its name says: "Qwen3.5-9B" (9 billion numbers), "gemma-4-E4B" (4 billion in use at a
+    // time, about twice that in all), "LFM2.5-350M", "Mixtral-8x7B". The first such size in the name is the model's
+    // own ("…-35B-A3B": 35 billion, of which 3 are in use at a time; "Qwen3.5-4B-Qwen3.8-27B-Draft": 4).
+    private val sizeRe = Regex("(?i)(?:^|[-_ .])(?:(\\d+)x)?(E)?(\\d+(?:\\.\\d+)?)([BM])(?=$|[-_ .])")
+
+    /** How many billion numbers a model has, as its [repo]'s name gives it; null when the name doesn't say. */
+    fun billionsByName(repo: String): Double? {
+        val m = sizeRe.find(repo.substringAfter('/')) ?: return null
+        val (times, effective, n, unit) = m.destructured
+        var b = n.toDouble() * (if (unit.equals("M", ignoreCase = true)) 0.001 else 1.0)
+        if (times.isNotEmpty()) b *= times.toDouble()
+        if (effective.isNotEmpty()) b *= 2
+        return b
+    }
+
     /**
-     * The biggest model worth looking for on a device with [memory] bytes of memory, as Hugging Face counts
-     * them ("6400M": millions of parameters). At the usual size of file (four bits and a bit each), that
-     * many still run comfortably.
+     * Whether a model might run on a device with [memory] bytes of memory, going by its name: a file of it
+     * that still answers well (a little under four and a half bits a number) would at least fit. Names that
+     * don't say are given the benefit of the doubt: their files are looked at.
      */
-    fun mostParameters(memory: Long): String = "${(memory * 0.52 / 0.6 / 1_000_000).toLong().coerceAtLeast(300)}M"
+    fun mayFit(repo: String, memory: Long): Boolean {
+        val b = billionsByName(repo) ?: return true
+        return fit((b * 0.55e9).toLong(), memory) != Fit.TOO_BIG
+    }
 
     /**
      * The address that lists chat models in GGUF files, the most downloaded first: those whose name or maker
-     * has [query] in it (all of them, with none), no bigger than [most] parameters when that's given.
+     * has [query] in it (all of them, with none).
      */
-    fun searchUrl(query: String, most: String? = null, limit: Int = 40): String = buildString {
+    fun searchUrl(query: String, limit: Int = 40): String = buildString {
         append(HUB).append("/api/models?filter=gguf")
         val q = query.trim()
         if (q.isNotEmpty()) append("&search=").append(URLEncoder.encode(q, "UTF-8")) else append("&filter=conversational")
-        if (most != null) append("&num_parameters=min:0,max:").append(most)
         append("&sort=downloads&direction=-1&limit=").append(limit).append('&').append(FIELDS)
     }
 
@@ -97,7 +114,7 @@ object ModelSearch {
             val name = path.substringAfterLast('/')
             if (o.optString("type") != "file" || !name.endsWith(".gguf", ignoreCase = true)) return@mapNotNull null
             val low = name.lowercase()
-            if (low.startsWith("mmproj") || low.contains("-mmproj") || low.startsWith("mtp-") || low.contains("imatrix") || splitRe.containsMatchIn(name)) return@mapNotNull null
+            if (low.contains("mmproj") || low.startsWith("mtp-") || low.contains("imatrix") || splitRe.containsMatchIn(name)) return@mapNotNull null
             val lfs = o.optJSONObject("lfs") ?: return@mapNotNull null
             val bytes = lfs.optLong("size", o.optLong("size"))
             val sum = lfs.optString("oid").takeIf { it.length == 64 } ?: return@mapNotNull null
@@ -139,7 +156,15 @@ object ModelSearch {
     /** How the search reaches Hugging Face (tests put their own in). */
     var fetcher: (String) -> String = ::get
 
-    fun search(query: String, most: String? = null): List<FoundModel> = parseSearch(fetcher(searchUrl(query, most)))
+    /**
+     * The models found for [query]. With the device's [memory] given, only those that might run on it: more are
+     * asked for, as many of the most downloaded are too big. (Hugging Face's own count of a model's numbers
+     * can't be asked for here: it isn't kept for GGUF files, so asking for it leaves out nearly all of them.)
+     */
+    fun search(query: String, memory: Long? = null): List<FoundModel> {
+        if (memory == null) return parseSearch(fetcher(searchUrl(query)))
+        return parseSearch(fetcher(searchUrl(query, limit = 150))).filter { mayFit(it.repo, memory) }.take(40)
+    }
 
     fun files(repo: String): List<FoundFile> = parseFiles(repo, fetcher(filesUrl(repo)))
 

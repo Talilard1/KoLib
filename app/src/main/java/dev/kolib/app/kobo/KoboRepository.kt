@@ -178,6 +178,13 @@ class KoboRepository(private val context: Context) {
      * Android's name for an attached Kobo's USB device, if it lists one (no permission needed to look). The
      * name changes each time it's plugged in.
      */
+    /** The Kobo plugged in over USB, if there is one (whether or not its drive is open). */
+    fun attachedKoboUsb(): android.hardware.usb.UsbDevice? = try {
+        context.getSystemService(UsbManager::class.java)?.deviceList?.values?.firstOrNull { it.vendorId == KoboModels.USB_VENDOR_ID }
+    } catch (e: Exception) {
+        null
+    }
+
     fun attachedKoboUsbName(): String? = try {
         val usb = context.getSystemService(UsbManager::class.java)
         usb?.deviceList?.values?.firstOrNull { it.vendorId == KoboModels.USB_VENDOR_ID }?.deviceName
@@ -411,7 +418,8 @@ class KoboRepository(private val context: Context) {
         val name = ".kolib-write-check.tmp"
         val started = System.currentTimeMillis()
         try {
-            tree.child(tree.rootDocId, name)?.let { tree.delete(it.docId) }
+            // One left by a check that was cut short, under this name or the one the app used before it was KoLib.
+            for (old in listOf(name, ".kobolibrary-write-check.tmp")) tree.child(tree.rootDocId, old)?.let { tree.delete(it.docId) }
             val id = tree.createFile(tree.rootDocId, "application/octet-stream", name)
                 ?: return@withContext WriteCheckResult(false, tr("Android didn't allow creating a file on the Kobo."))
             val data = Random.nextBytes(64 * 1024)

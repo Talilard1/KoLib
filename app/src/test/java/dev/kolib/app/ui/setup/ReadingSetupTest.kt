@@ -7,6 +7,8 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.geometry.Offset
 import androidx.test.core.app.ApplicationProvider
 import dev.kolib.app.L10n
 import dev.kolib.app.epub.BookStructure
@@ -225,5 +227,38 @@ class ReadingSetupTest {
         compose.onNodeWithText("145%").assertIsDisplayed()
         tap("guide-skip")
         assertEquals(ReaderSettings(), closed.single())
+    }
+
+    /** A tap as a pen or a finger really makes one: with a little movement between going down and coming up. */
+    private fun tapAsAHandDoes(tag: String) {
+        compose.onNodeWithTag(tag, useUnmergedTree = true).performTouchInput {
+            down(center)
+            advanceEventTime(16)
+            moveBy(Offset(1.5f, 1f))
+            advanceEventTime(16)
+            moveBy(Offset(0f, 0f))
+            advanceEventTime(16)
+            up()
+        }
+        settle()
+    }
+
+    @Test
+    @Config(qualifiers = TABLET)
+    fun itsButtonsTakeTapsThatMoveALittleAsAPensDo() {
+        val c = controller(ReaderSettings())
+        val closed = setup(c)
+        compose.onNodeWithText("Page colour").assertIsDisplayed()
+        tapAsAHandDoes("theme-SEPIA")
+        assertEquals(ReaderTheme.SEPIA, c.settings.theme)
+        tapAsAHandDoes("setup-next")
+        compose.onNodeWithText("Font").assertIsDisplayed()
+        tapAsAHandDoes("font-GARAMOND")
+        assertEquals(ReaderFont.GARAMOND, c.settings.font)
+        tapAsAHandDoes("guide-back")
+        compose.onNodeWithText("Page colour").assertIsDisplayed()
+        tapAsAHandDoes("guide-skip")
+        assertEquals(1, closed.size)
+        assertEquals(ReaderFont.GARAMOND, closed.single()?.font)
     }
 }

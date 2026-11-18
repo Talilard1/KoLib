@@ -170,21 +170,30 @@ class TextEditState(
 
     var dark = false
 
-    fun releaseView() {
-        webView?.let {
+    /**
+     * The page's view [view] is done with. When the screen is rearranged, a new view can be made before the old
+     * one is let go of: only that old one is taken down, and the new one stays the page.
+     */
+    fun releaseView(view: WebView? = webView) {
+        view?.let {
             it.stopLoading()
             it.removeJavascriptInterface("KLE")
             it.removeJavascriptInterface("KLC")
             it.destroy()
         }
-        webView = null
+        if (webView === view) webView = null
     }
+
+    /** The view the page is shown in now (for tests). */
+    internal val pageView: WebView? get() = webView
 
     private fun load(keepScroll: Boolean = false) {
         val path = currentPath ?: return
+        // Even with no view to show it in yet (a phone, on its list of chapters): the view made next starts from here,
+        // and another chapter mustn't open as far down as the last one was left.
+        if (!keepScroll) scrollY = 0
         val v = webView ?: return
         pageReady = false
-        if (!keepScroll) scrollY = 0
         if (showCode) {
             val text = edit.text(path).orEmpty()
             val error = XmlCheck.check(text, htmlEntities = XmlCheck.hasXhtmlDoctype(text))
@@ -322,9 +331,11 @@ class TextEditState(
                 js("KLED.find(${JSONObject.quote(then.toString())})")
                 return@go
             }
+            // Back to the chapter that was open, from a phone's list of chapters: where it was left.
+            val backToIt = path == currentPath && webView == null && then == null
             currentPath = path
             pendingFind = then
-            load()
+            load(keepScroll = backToIt)
         }
     }
 
@@ -376,7 +387,8 @@ class TextEditState(
     // ---- chapter operations ---------------------------------------------------------------------
 
     /** Runs a change to the book's chapters as one undoable step, and opens [ChapterOps.Result.focus]. */
-    fun change(work: suspend () -> ChapterOps.Result?) {
+    /** [done]: said once the change is made (for one that might not be in view: a page added at the front). */
+    fun change(done: String? = null, work: suspend () -> ChapterOps.Result?) {
         go {
             flush()
             busy = tr("Working…")
@@ -384,6 +396,7 @@ class TextEditState(
                 val result = withContext(Dispatchers.Default) { work() } ?: return@go
                 if (edit.apply(result.label, result.changes)) {
                     bump()
+                    if (done != null) message = done
                     val focus = result.focus?.takeIf { edit.has(it) }
                     val current = currentPath
                     when {
@@ -432,7 +445,7 @@ class TextEditState(
      * Adds a cover page at the front of the book showing its cover. A book without a cover picture gets
      * one made for it here, in a design that suits its genre, which becomes its cover too.
      */
-    fun makeCoverPage(context: Context) = change {
+    fun makeCoverPage(context: Context) = change(done = tr("Cover page added at the front.")) {
         if (ChapterOps.coverImagePath(edit, structure) != null) return@change ChapterOps.addCoverPage(edit, structure, null)
         ChapterOps.checkNoCoverPage(edit, structure)
         val meta = structure.opf.readMetadata()

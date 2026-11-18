@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A Kobo, as Android sees it once Connect is tapped on it: any device with Kobo's USB vendor ID (0x2237). -->
+<resources>
+    <usb-device vendor-id="8759" />
+</resources>

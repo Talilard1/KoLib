@@ -1,0 +1,80 @@
+@fr
+2742|La Kobo est débranchée.
+2743|Empêcher {0} de s’ouvrir
+2744|Empêcher d’autres applis de s’ouvrir
+2745|Si {0} s’ouvre quand vous connectez la Kobo, ouvrez ses réglages, touchez « Définir par défaut » (ou « Ouvrir par défaut »), puis « Effacer les valeurs par défaut ».
+2746|Si l’une de ces applis s’ouvre quand vous connectez la Kobo, ouvrez ses réglages, touchez « Définir par défaut » (ou « Ouvrir par défaut »), puis « Effacer les valeurs par défaut ».
+2747|La prochaine fois que vous connectez la Kobo, choisissez KoLib et touchez « Toujours ».
+2748|Ne plus afficher
+2749|Ouvrir les réglages
+2750|Page de couverture ajoutée au début.
+@de
+2742|Der Kobo ist abgezogen.
+2743|Verhindern, dass sich {0} öffnet
+2744|Verhindern, dass sich andere Apps öffnen
+2745|Wenn sich {0} öffnet, sobald du den Kobo verbindest, öffne die Einstellungen der App, tippe auf „Als Standard festlegen“ (oder „Standardmäßig öffnen“) und dann auf „Standardeinstellungen löschen“.
+2746|Wenn sich eine dieser Apps öffnet, sobald du den Kobo verbindest, öffne ihre Einstellungen, tippe auf „Als Standard festlegen“ (oder „Standardmäßig öffnen“) und dann auf „Standardeinstellungen löschen“.
+2747|Wenn du den Kobo das nächste Mal verbindest, wähle KoLib und tippe auf „Immer“.
+2748|Nicht mehr anzeigen
+2749|Einstellungen öffnen
+2750|Coverseite am Anfang hinzugefügt.
+@es
+2742|El Kobo está desconectado.
+2743|Evitar que se abra {0}
+2744|Evitar que se abran otras apps
+2745|Si {0} se abre al conectar el Kobo, abre sus ajustes, toca «Establecer como predeterminada» (o «Abrir de forma predeterminada») y luego «Borrar valores predeterminados».
+2746|Si una de estas apps se abre al conectar el Kobo, abre sus ajustes, toca «Establecer como predeterminada» (o «Abrir de forma predeterminada») y luego «Borrar valores predeterminados».
+2747|La próxima vez que conectes el Kobo, elige KoLib y toca «Siempre».
+2748|No volver a mostrar
+2749|Abrir ajustes
+2750|Página de portada añadida al principio.
+@it
+2742|Il Kobo è scollegato.
+2743|Impedisci che si apra {0}
+2744|Impedisci che si aprano altre app
+2745|Se {0} si apre quando colleghi il Kobo, apri le sue impostazioni, tocca «Imposta come predefinita» (o «Apri per impostazione predefinita»), poi «Cancella impostazioni predefinite».
+2746|Se una di queste app si apre quando colleghi il Kobo, apri le sue impostazioni, tocca «Imposta come predefinita» (o «Apri per impostazione predefinita»), poi «Cancella impostazioni predefinite».
+2747|La prossima volta che colleghi il Kobo, scegli KoLib e tocca «Sempre».
+2748|Non mostrare più
+2749|Apri impostazioni
+2750|Pagina di copertina aggiunta all’inizio.
+@nl
+2742|De Kobo is losgekoppeld.
+2743|Voorkomen dat {0} opent
+2744|Voorkomen dat andere apps openen
+2745|Opent {0} als je de Kobo verbindt? Open de instellingen van die app, tik op ‘Instellen als standaard’ (of ‘Standaard openen’) en daarna op ‘Standaardwaarden wissen’.
+2746|Opent een van deze apps als je de Kobo verbindt? Open de instellingen van die app, tik op ‘Instellen als standaard’ (of ‘Standaard openen’) en daarna op ‘Standaardwaarden wissen’.
+2747|Kies de volgende keer dat je de Kobo verbindt KoLib en tik op ‘Altijd’.
+2748|Niet meer tonen
+2749|Instellingen openen
+2750|Omslagpagina vooraan toegevoegd.
+@pt
+2742|O Kobo foi desconectado.
+2743|Impedir que {0} abra
+2744|Impedir que outros apps abram
+2745|Se {0} abrir quando você conectar o Kobo, abra as configurações dele, toque em “Definir como padrão” (ou “Abrir por padrão”) e depois em “Limpar padrões”.
+2746|Se um destes apps abrir quando você conectar o Kobo, abra as configurações dele, toque em “Definir como padrão” (ou “Abrir por padrão”) e depois em “Limpar padrões”.
+2747|Na próxima vez que conectar o Kobo, escolha o KoLib e toque em “Sempre”.
+2748|Não mostrar novamente
+2749|Abrir configurações
+2750|Página de capa adicionada no início.
+@ru
+2742|Kobo отсоединён.
+2743|Не давать {0} открываться
+2744|Не давать другим приложениям открываться
+2745|Если при подключении Kobo открывается {0}, откройте настройки этого приложения, нажмите «Установить по умолчанию» (или «Открывать по умолчанию»), затем «Удалить настройки по умолчанию».
+2746|Если при подключении Kobo открывается одно из этих приложений, откройте его настройки, нажмите «Установить по умолчанию» (или «Открывать по умолчанию»), затем «Удалить настройки по умолчанию».
+2747|В следующий раз при подключении Kobo выберите KoLib и нажмите «Всегда».
+2748|Больше не показывать
+2749|Открыть настройки
+2750|Страница обложки добавлена в начало.
+@ja
+2742|Kobo のケーブルが抜かれました。
+2743|{0} が開かないようにする
+2744|他のアプリが開かないようにする
+2745|Kobo を接続したときに {0} が開く場合は、そのアプリの設定を開き、「デフォルトに設定」（または「デフォルトで開く」）をタップしてから「デフォルト設定をクリア」をタップします。
+2746|Kobo を接続したときにこれらのアプリのどれかが開く場合は、そのアプリの設定を開き、「デフォルトに設定」（または「デフォルトで開く」）をタップしてから「デフォルト設定をクリア」をタップします。
+2747|次に Kobo を接続したときは、KoLib を選んで「常時」をタップします。
+2748|今後は表示しない
+2749|設定を開く
+2750|表紙ページを先頭に追加しました。

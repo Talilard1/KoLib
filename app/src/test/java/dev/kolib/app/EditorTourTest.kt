@@ -21,6 +21,9 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.click
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -231,5 +234,66 @@ class EditorTourTest {
         compose.setContent { AppSurface(ThemeChoice.SYSTEM) { TextEditorScreen(state, onClose = {}, onRead = {}, pagePreview = { FakeEditorPage() }) } }
         compose.waitForIdle()
         assertTrue(compose.onAllNodesWithTag("tour").fetchSemanticsNodes().isEmpty())
+    }
+
+    /**
+     * A real tap is rarely a clean down and up: a pen always moves or changes pressure in between, and so does a
+     * finger on a tablet's fast screen. Such taps must work the tour's buttons all the same.
+     */
+    private fun tapAsAHandDoes(tag: String) {
+        compose.onNodeWithTag(tag).performTouchInput {
+            down(center)
+            advanceEventTime(16)
+            moveBy(Offset(1.5f, 1f))
+            advanceEventTime(16)
+            moveBy(Offset(0f, 0f))
+            advanceEventTime(16)
+            up()
+        }
+        compose.mainClock.advanceTimeBy(900)
+        compose.waitForIdle()
+    }
+
+    private fun title() = compose.onAllNodesWithTag("tour-title").fetchSemanticsNodes().last().config[SemanticsProperties.Text].joinToString("") { it.text }
+
+    @Test
+    @Config(qualifiers = TABLET)
+    fun itsButtonsTakeTapsThatMoveALittleAsAPensDo() {
+        val state = editorState()
+        var done = 0
+        compose.mainClock.autoAdvance = true
+        compose.setContent { AppSurface(ThemeChoice.SYSTEM) { TextEditorScreen(state, onClose = {}, onRead = {}, pagePreview = { FakeEditorPage() }, tour = true, onTourDone = { done++ }) } }
+        compose.mainClock.advanceTimeBy(900)
+        compose.waitForIdle()
+        val first = title()
+        tapAsAHandDoes("tour-next")
+        val second = title()
+        assertTrue("Next goes on: $first, $second", first != second)
+        tapAsAHandDoes("tour-next")
+        val third = title()
+        assertTrue("and on: $second, $third", second != third)
+        tapAsAHandDoes("guide-back")
+        assertEquals("Back goes back", second, title())
+        tapAsAHandDoes("guide-skip")
+        assertEquals("Skip ends it", 1, done)
+        assertTrue(compose.onAllNodesWithTag("tour").fetchSemanticsNodes().isEmpty())
+    }
+
+    @Test
+    @Config(qualifiers = TABLET)
+    fun whileItsUpTheEditorUnderItCantBeTouched() {
+        val state = editorState()
+        compose.mainClock.autoAdvance = true
+        compose.setContent { AppSurface(ThemeChoice.SYSTEM) { TextEditorScreen(state, onClose = {}, onRead = {}, pagePreview = { FakeEditorPage() }, tour = true) } }
+        compose.mainClock.advanceTimeBy(900)
+        compose.waitForIdle()
+        // A tap on the chapters at the side, outside the card: the chapter open stays the one open.
+        val before = state.currentPath
+        compose.onNodeWithTag("tour").performTouchInput { click(Offset(60f, bottom - 60f)) }
+        compose.onNodeWithTag("tour").performTouchInput { click(Offset(100f, 400f)) }
+        compose.waitForIdle()
+        state.awaitWork()
+        assertEquals(before, state.currentPath)
+        compose.onNodeWithTag("tour-card").assertIsDisplayed()
     }
 }

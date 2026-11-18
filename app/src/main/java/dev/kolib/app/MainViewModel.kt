@@ -120,6 +120,15 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     private val usbKobo = UsbKoboTracker()
     private var unmountedNews: Job? = null
 
+    /** Watches for another app (a file manager) taking the screen from KoLib when the Kobo connects. */
+    private val takeover = dev.kolib.app.kobo.UsbTakeover()
+    /** Counts the checks for such apps, so one overtaken by events says nothing. */
+    @Volatile private var usbChecks = 0
+    private val usbPrefs = app.getSharedPreferences("usb", Context.MODE_PRIVATE)
+
+    /** Apps that may have opened over KoLib when the Kobo connected: KoLib says how to stop them. */
+    val takenOverBy = MutableStateFlow<List<dev.kolib.app.kobo.UsbApp>>(emptyList())
+
     private val volumeCallback: Any? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         object : StorageManager.StorageVolumeCallback() {
             override fun onStateChanged(volume: StorageVolume) {
@@ -135,6 +144,11 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     private val usbReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             AppLog.d("USB", "USB event: ${intent.action?.substringAfterLast('.')}")
+            if (intent.action == UsbManager.ACTION_USB_DEVICE_ATTACHED) {
+                androidx.core.content.IntentCompat.getParcelableExtra(intent, UsbManager.EXTRA_DEVICE, android.hardware.usb.UsbDevice::class.java)
+                    ?.takeIf { it.vendorId == dev.kolib.app.kobo.KoboModels.USB_VENDOR_ID }
+                    ?.let { takeover.attached(dev.kolib.app.kobo.UsbHandlers.describe(it), SystemClock.elapsedRealtime()) }
+            }
             refresh(auto = true)
         }
     }
@@ -174,6 +188,50 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         foreground = true
         refresh(auto = true)
         startPolling()
+        checkUsbApps()
+    }
+
+    /** KoLib went out of sight; it was last touched at [lastTouch] (milliseconds since start-up). */
+    fun onLeft(lastTouch: Long) = takeover.left(SystemClock.elapsedRealtime(), lastTouch)
+
+    /**
+     * Whether another app (a file manager) could take the screen when the Kobo connects: if one could,
+     * Android offers KoLib beside it, so KoLib can be chosen instead. And if one may just have done so, say
+     * how to stop it.
+     */
+    private fun checkUsbApps() {
+        val device = takeover.back()
+        val check = ++usbChecks
+        viewModelScope.launch(Dispatchers.IO) {
+            val app = getApplication<Application>()
+            val handlers = dev.kolib.app.kobo.UsbHandlers
+            val attached = repo.attachedKoboUsb()?.let { handlers.describe(it) }
+            val others = handlers.otherApps(app) + (attached?.let { handlers.otherApps(app, it) }.orEmpty())
+            handlers.offerKoLib(app, others.isNotEmpty())
+            if (device != null && !usbPrefs.getBoolean("takeover_muted", false)) {
+                val took = handlers.otherApps(app, device)
+                if (took.isNotEmpty() && check == usbChecks) {
+                    AppLog.i("USB", "KoLib went out of sight as the Kobo connected. Apps that may have opened: ${took.joinToString { it.name }}.")
+                    takenOverBy.value = took
+                }
+            }
+        }
+    }
+
+    /**
+     * Android opened KoLib for the Kobo: it's the app chosen for it (perhaps just now, in Android's own list of
+     * apps, which had the screen for a moment). No other app took over, so there's nothing to say about one.
+     */
+    fun openedForKobo() {
+        usbChecks++
+        takeover.forget()
+        takenOverBy.value = emptyList()
+    }
+
+    /** Stops saying how to keep another app from opening when the Kobo connects. */
+    fun muteTakeover() {
+        usbPrefs.edit().putBoolean("takeover_muted", true).apply()
+        takenOverBy.value = emptyList()
     }
 
     fun onBackground() {

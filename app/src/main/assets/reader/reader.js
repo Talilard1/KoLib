@@ -1410,6 +1410,101 @@
     return null;
   }
 
+  /**
+   * The first character on the screen after this one, in a paged chapter, or null when this is the last. Looked
+   * for from the start of this screen on: (the spaces between paragraphs have no place on the page, so the text
+   * isn't in order for halving).
+   */
+  function startOfNextScreen() {
+    if (page + 1 >= pages) return null;
+    var left = (page + 1) * W;
+    var nodes = textNodes();
+    var a = firstVisible();
+    for (var i = a ? Math.max(0, nodes.indexOf(a.node)) : 0; i < nodes.length; i++) {
+      var n = nodes[i];
+      if (!n.data.trim()) continue;
+      var rs = rangeRects(n);
+      if (!rs.length || rs[rs.length - 1].right + scroller.scrollLeft <= left) continue;
+      var o = offsetAtPage(n, left);
+      if (o < n.data.length) return { node: n, offset: o };
+    }
+    return null;
+  }
+
+  /** The first character below what shows of a scrolled chapter, or null when the chapter ends on the screen. */
+  function belowScrolled() {
+    var bottom = H - bandBottom;
+    var nodes = textNodes();
+    var a = firstVisibleScrolled();
+    for (var i = a ? Math.max(0, nodes.indexOf(a.node)) : 0; i < nodes.length; i++) {
+      var n = nodes[i];
+      if (!n.data.trim()) continue;
+      var rs = rangeRects(n);
+      if (!rs.length || rs[rs.length - 1].bottom <= bottom) continue;
+      // The first character in it whose line starts below the screen.
+      var lo = 0, hi = n.data.length;
+      while (lo < hi) {
+        var m = (lo + hi) >> 1;
+        var c = rectOf(n, m);
+        if (c && c.top >= bottom) hi = m; else lo = m + 1;
+      }
+      if (lo < n.data.length) return { node: n, offset: lo };
+    }
+    return null;
+  }
+
+  /** The block a piece of text is in (a paragraph, a heading, a line of verse): where a new line starts. */
+  function blockOf(n) {
+    for (var el = n.parentNode; el && el !== document.body; el = el.parentNode) {
+      var d = window.getComputedStyle(el).display;
+      if (d && d !== 'inline' && d !== 'inline-block' && d !== 'contents' && d.indexOf('ruby') < 0) return el;
+    }
+    return document.body;
+  }
+
+  function tidyText(t) {
+    return String(t || '').replace(/[\u00ad\u200b\u200c\u200d\ufeff]/g, '').replace(/[ \t\u00a0]+/g, ' ')
+      .replace(/ *\n */g, '\n').replace(/\n{2,}/g, '\n').trim();
+  }
+
+  /**
+   * What's on the screen now, for the app's AI: the text showing (a line to a paragraph, as it is on the page)
+   * and the words selected, if any.
+   */
+  function screenText() {
+    var sel = '';
+    var s0 = window.getSelection && window.getSelection();
+    if (s0 && s0.rangeCount && !s0.isCollapsed) sel = String(s0);
+    var a = firstVisible();
+    if (!a) return { text: '', selected: tidyText(sel) };
+    // The point the screen's first character is found from can fall just past a narrow one: back to the first
+    // that shows.
+    a = { node: a.node, offset: a.offset };
+    while (a.offset > 0) {
+      var r0 = rectOf(a.node, a.offset - 1);
+      var shows = r0 && (scrolled ? r0.bottom > bandTop : r0.left + scroller.scrollLeft >= page * W - 1 && r0.right + scroller.scrollLeft <= (page + 1) * W + 1);
+      if (!shows) break;
+      a.offset--;
+    }
+    var b = scrolled ? belowScrolled() : startOfNextScreen();
+    var nodes = textNodes();
+    var out = '', last = null, on = false;
+    for (var i = 0; i < nodes.length; i++) {
+      var n = nodes[i];
+      if (!on) { if (n !== a.node) continue; on = true; }
+      var from = n === a.node ? a.offset : 0;
+      var to = b && n === b.node ? b.offset : n.data.length;
+      if (to > from) {
+        var block = blockOf(n);
+        if (last && block !== last) out += '\n';
+        out += n.data.substring(from, to);
+        last = block;
+      }
+      if ((b && n === b.node) || out.length > 30000) break;
+    }
+    return { text: tidyText(out), selected: tidyText(sel) };
+  }
+
   function rangeRects(n) {
     var r = document.createRange();
     r.selectNodeContents(n);
@@ -2933,6 +3028,8 @@
     prev: function () { prev(); },
     turnNow: turnNow,
     selection: function () { var s0 = selectionInfo(); return s0 ? JSON.stringify(s0) : ''; },
+    /** What's on the screen now, for the app's AI ({text, selected}); empty before the chapter is laid out. */
+    screen: function () { return ready ? JSON.stringify(screenText()) : ''; },
     /** The user's fonts changed (one was added): their list is read again, and the page laid out in them. */
     userFonts: function () {
       var own = document.querySelector('link[href*="/app/reader/reader.css"]');

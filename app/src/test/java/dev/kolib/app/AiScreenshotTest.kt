@@ -13,6 +13,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onChildren
+import androidx.compose.ui.test.filterToOne
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onNodeWithText
@@ -63,6 +66,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -90,6 +94,10 @@ class AiScreenshotTest {
     private val app get() = context as KoLibApp
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val asked = ArrayList<List<AiMessage>>()
+    private val engines = java.util.Collections.synchronizedList(ArrayList<FakeEngine>())
+    /** When set, the model's answers wait for it: as if the model were slow. */
+    @Volatile
+    private var holding: java.util.concurrent.Semaphore? = null
 
     @get:Rule
     val compose = createComposeRule()
@@ -122,18 +130,19 @@ class AiScreenshotTest {
             openLocal = { _, tokens ->
                 FakeEngine(tokens) { messages ->
                     asked += messages
+                    holding?.acquire()
                     val last = messages.last().content
                     when {
                         last.startsWith("Instruction:") && last.contains("Teh gate") -> "Rosa came back to *the* garden at the end of winter.\n\nThe gate was rusted shut."
                         last.startsWith("Instruction:") -> "Rosa came back to *the* garden at the end of winter."
-                        last.contains("Books in the library:") -> "You have The Garden, by A. Gardener. It's the only one, so start there."
+                        messages.first().content.contains("Books in the library:") -> "You have The Garden, by A. Gardener. It's the only one, so start there."
                         messages.first().content.contains("You have not been shown any of it") -> "It's a quiet story about a garden brought back to life."
                         last.contains("Explain \"") -> "Here: The old house stood over the valley in a dark, heavy way, as if it were watching it.\nUsually: verb, to think about something sad or worrying for a long time"
                         last.contains("Summarise it") -> "Rosa comes back to the garden after the winter and finds it overgrown, with the gate rusted shut.\n\n" +
                             "- Rosa climbs the wall and finds the garden gone wild.\n- She uncovers the old sundial under the ivy.\n- A boy from the village offers to help her clear the paths.\n- They find the first green shoots by the pond."
                         else -> "She is the gardener's daughter, who has come back to look after the garden now that he is too old to. So far she has only met the boy from the village."
                     }
-                }
+                }.also { engines += it }
             },
         )
         if (withModel) {
@@ -389,12 +398,12 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
         // The window is as big as what's in it: small before there's a summary, bigger with one.
         compose.waitForIdle()
         val screenHeight = context.resources.displayMetrics.heightPixels
-        val before = compose.onNodeWithTag("companion-window").fetchSemanticsNode().size.height
+        val before = compose.onNodeWithTag("ai-window").fetchSemanticsNode().size.height
         assertTrue("the window is $before of $screenHeight high", before < screenHeight * 0.45f)
         compose.onNodeWithTag("companion-summarise").performClick()
         compose.waitUntil(20_000) { compose.onAllNodes(hasTestTag("companion-summary")).fetchSemanticsNodes().isNotEmpty() && app.ai.busy.value == AiHub.State.IDLE }
         compose.waitForIdle()
-        assertTrue(compose.onNodeWithTag("companion-window").fetchSemanticsNode().size.height > before)
+        assertTrue(compose.onNodeWithTag("ai-window").fetchSemanticsNode().size.height > before)
         // It's kept: asked for again, the model isn't.
         assertEquals(1, asked.size)
         assertTrue(File(context.filesDir, "ai/summaries.json").readText().contains("Rosa comes back"))
@@ -409,11 +418,14 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
     @Config(qualifiers = PHONE)
     fun aChaptersSummaryOnAPhone() = summary("91_summary_phone", 1)
 
-    /** Whether the chat has asked the model [count] times and finished. (Its work goes through the main thread's queue, which this runs.) */
-    private fun answered(count: Int): Boolean {
+    /** [condition], once the work waiting on the main thread's queue is done (the chat's work goes through it). */
+    private fun idled(condition: () -> Boolean): Boolean {
         org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
-        return asked.size == count && app.ai.busy.value == AiHub.State.IDLE && !app.chat.asking
+        return condition()
     }
+
+    /** Whether the chat has asked the model [count] times and finished. */
+    private fun answered(count: Int): Boolean = idled { asked.size == count && app.ai.busy.value == AiHub.State.IDLE && !app.chat.asking }
 
     private fun ask(name: String, columns: Int) {
         hub()
@@ -421,16 +433,25 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
         show(c)
         compose.onNodeWithTag("reader-companion").performClick()
         compose.waitUntil(10_000) { compose.onAllNodes(hasTestTag("companion-summarise")).fetchSemanticsNodes().isNotEmpty() }
+        // What's on the screen: the page the reader is looking at.
+        c.screenForPreview = ReaderController.OnScreen("She found the key under the sundial.\nIt was addressed to her, and it had been written the week he locked the gate.", "")
         compose.onNodeWithText(tr("Ask")).performClick()
+        // With the chat showing, what comes before a question is read ahead while it's typed.
+        compose.waitUntil(10_000) { idled { synchronized(engines) { engines.any { it.ahead.isNotEmpty() } } } }
         compose.onNodeWithTag("companion-question").performTextInput("Who is Rosa?")
         compose.onNodeWithTag("companion-send").performClick()
         compose.waitUntil(20_000) { compose.onAllNodes(hasTestTag("companion-answer")).fetchSemanticsNodes().isNotEmpty() && app.ai.busy.value == AiHub.State.IDLE }
         val sent = asked.single()
         assertTrue(sent.first().content.contains("Never reveal anything that happens later"))
         assertTrue(sent.last().content.endsWith("Question: Who is Rosa?"))
-        // It was given what the book has said about her so far, and nothing from the chapter not yet read.
-        assertTrue(sent.last().content.contains("Rosa came back to the garden at the end of winter"))
+        // It was told the page on the screen, before the question, and what the book has said about her so far; nothing
+        // from the chapter not yet read.
+        assertTrue(sent.first().content.contains("The page on the reader's screen now:\nShe found the key under the sundial.\nIt was addressed to her"))
+        assertTrue(sent.any { it.content.contains("Rosa came back to the garden at the end of winter") })
         assertTrue(sent.none { it.content.contains("potting shed") })
+        // What was read ahead is everything the question was asked after: only the question was left to read.
+        val ahead = synchronized(engines) { engines.flatMap { it.ahead } }
+        assertEquals(sent.dropLast(1), ahead.first())
         shoot(name)
         // The same question can be changed and asked again: the chat carries on from there, and what followed it goes.
         compose.onNodeWithTag("chat-edit-0").performClick()
@@ -450,7 +471,7 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
         val plain = asked.last()
         assertTrue(plain.first().content.contains("You have not been shown any of it this time"))
         assertEquals("Question: What kind of book is it?", plain.last().content)
-        assertTrue(plain.none { it.content.contains("Rosa came back to the garden") && it.role == "user" && it.content.contains("The pages the reader is on now") })
+        assertTrue(plain.none { it.content.contains("Rosa came back to the garden") })
         // It's all kept as one chat, called by its first question.
         compose.waitForIdle()
         assertEquals(listOf("Who is Tam?"), app.chat.saved.value.map { it.title })
@@ -467,14 +488,18 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
         val f = garden()
         runBlocking { lib.import("garden.epub", { f.inputStream() }, dev.kolib.app.library.BookSource.FILE) }
         val books = lib.books.value
-        var open by androidx.compose.runtime.mutableStateOf(true)
-        compose.setContent { AppSurface(ThemeChoice.SYSTEM) { if (open) dev.kolib.app.ui.ai.AiChatWindow(dev.kolib.app.ui.ai.ChatPlace.Library(books), onDismiss = { open = false }) } }
+        val place = dev.kolib.app.ui.ai.ChatPlace.Library(books) { dev.kolib.app.ui.ai.LibraryOnScreen("The library, showing 1 book, by title, in this order.", books.map { it.id }) }
+        compose.setContent { AppSurface(ThemeChoice.SYSTEM) { dev.kolib.app.ui.ai.AiLayer(place) } }
+        app.aiPanel.open()
         compose.onNodeWithText("What should I read next?").performClick()
         compose.waitUntil(20_000) { answered(1) }
         compose.waitForIdle()
         val sent = asked.single()
+        // Told what's on the screen and what's in the library, before the question.
         assertTrue(sent.first().content.contains("their library, which has 1 book."))
-        assertTrue(sent.last().content.contains("- The Garden"))
+        assertTrue(sent.first().content.contains("On the reader's screen now: The library, showing 1 book"))
+        assertTrue(sent.first().content.contains("- The Garden"))
+        assertEquals("Question: What should I read next?", sent.last().content)
         compose.onNodeWithText("You have The Garden, by A. Gardener. It's the only one, so start there.").assertExists()
         shoot("98_chat_library_phone")
         // A new chat: the first is kept, and can be opened again or deleted.
@@ -483,13 +508,16 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
         compose.onNodeWithTag("companion-question").performTextInput("Have I any horror?")
         compose.onNodeWithTag("companion-send").performClick()
         // Closed while it answers, it goes on answering: the answer is there, and kept, when the chat is opened again.
-        open = false
+        app.aiPanel.close()
         compose.waitForIdle()
-        compose.onNodeWithTag("ai-chat-window").assertDoesNotExist()
+        compose.onNodeWithTag("ai-window").assertDoesNotExist()
         compose.waitUntil(20_000) { answered(2) }
         assertTrue(app.chat.turns.single().answer.value.isNotBlank())
         assertEquals(2, app.chat.saved.value.size)
-        open = true
+        // Out of sight, it was flagged as done; opened, it isn't any more.
+        assertTrue(app.aiPanel.unseen)
+        app.aiPanel.open()
+        assertFalse(app.aiPanel.unseen)
         compose.waitForIdle()
         assertTrue(compose.onAllNodesWithText("Have I any horror?").fetchSemanticsNodes().isNotEmpty())
         compose.onNodeWithTag("companion-answer").assertExists()
@@ -588,6 +616,65 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
     @Test
     @Config(qualifiers = PHONE)
     fun askingAboutTheBookOnAPhone() = ask("92_ask_phone", 1)
+
+    /** The window's newer parts: book notes, words picked out to ask about, why KoLib closed last time, and the bubble. */
+    @Test
+    @Config(qualifiers = PHONE)
+    fun bookNotesPickedOutWordsAndTheBubble() {
+        val hub = hub()
+        val c = reader(1)
+        val notes = dev.kolib.app.ai.BookNotes(File(context.filesDir, "notes-${UUID.randomUUID()}.json"))
+        val book = dev.kolib.app.ai.BookAi.Book(c.bookTitle, c.bookAuthor, "en", null)
+        val writer = dev.kolib.app.ai.NotesWriter(
+            notes, hub, book, finished = { dev.kolib.app.ui.ai.finishedChapters(c) }, paragraphs = { c.paragraphsOf(it) }, blocked = { null },
+        )
+        val place = dev.kolib.app.ui.ai.ChatPlace.Book(c, "en", notes = notes, writer = writer)
+        compose.setContent { AppSurface(ThemeChoice.SYSTEM) { Box(Modifier.fillMaxSize()) { Page(); dev.kolib.app.ui.ai.AiLayer(place) } } }
+        app.aiPanel.open(tab = 1)
+        compose.waitForIdle()
+        // Book notes, turned on: kept to the charger if wanted, and how far they've got.
+        compose.onNodeWithTag("chat-notes").performClick()
+        compose.waitForIdle()
+        assertTrue(notes.on.value)
+        compose.onNodeWithTag("chat-notes-charging").assertExists()
+        compose.onNodeWithTag("chat-notes-status").assertExists()
+        // Words picked out on the page to ask about; and KoLib closed last time while the model was open.
+        app.chat.attached = "the hours pass, the garden stays"
+        app.aiClosed.value = dev.kolib.app.ai.AiClosed.MEMORY
+        compose.waitForIdle()
+        compose.onNodeWithTag("chat-attached").assertExists()
+        compose.onNodeWithTag("ai-closed-note").assertExists()
+        shoot("92_ask_notes_phone")
+        compose.onNodeWithTag("ai-closed-note").onChildren().filterToOne(hasClickAction()).performClick()
+        compose.waitForIdle()
+        assertNull(app.aiClosed.value)
+        // Minimised: a bubble at the side, which says how to open and close it the first time. (The clock is held
+        // still for the pictures: the bubble's words show for a few seconds.)
+        compose.mainClock.autoAdvance = false
+        app.aiPanel.minimise()
+        compose.mainClock.advanceTimeBy(600)
+        compose.onNodeWithTag("ai-window").assertDoesNotExist()
+        compose.onNodeWithTag("ai-bubble").assertExists()
+        compose.onNodeWithText(tr("Tap to open. Drag to the ✕ to close.")).assertExists()
+        captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/92_bubble_hint_phone.png")
+        // Once an answer is ready, it says so for a moment, and keeps a dot until it's opened.
+        compose.mainClock.advanceTimeBy(7_000)
+        app.aiPanel.finished("An answer.")
+        compose.mainClock.advanceTimeBy(600)
+        compose.onNodeWithText(tr("Answer ready")).assertExists()
+        compose.onNodeWithTag("ai-bubble-done").assertExists()
+        captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/92_bubble_phone.png")
+        // A tap opens the window again, and the dot goes; the window's own button minimises it.
+        compose.mainClock.autoAdvance = true
+        compose.onNodeWithTag("ai-bubble").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("ai-window").assertExists()
+        assertFalse(app.aiPanel.unseen)
+        compose.onNodeWithTag("ai-minimise").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("ai-window").assertDoesNotExist()
+        compose.onNodeWithTag("ai-bubble").assertExists()
+    }
 
     @Test
     @Config(qualifiers = PHONE)

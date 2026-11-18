@@ -40,6 +40,28 @@ class FakeEngine(
         stopped = true
     }
 
+    /** What was read ahead, each time. */
+    val ahead = ArrayList<List<AiMessage>>()
+    /** Reading ahead takes this long (ms), in steps a tenth as long, giving way when [yieldAhead] is called. */
+    var aheadTakes = 0L
+    @Volatile var yielded = false
+
+    override fun prefill(messages: List<AiMessage>): AiEnd {
+        yielded = false
+        ahead += messages
+        var waited = 0L
+        while (waited < aheadTakes) {
+            if (yielded) return AiEnd.CANCELLED
+            Thread.sleep(aheadTakes / 10)
+            waited += aheadTakes / 10
+        }
+        return AiEnd.DONE
+    }
+
+    override fun yieldAhead() {
+        yielded = true
+    }
+
     override fun close() {
         closed = true
     }

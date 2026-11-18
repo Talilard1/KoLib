@@ -112,17 +112,20 @@ class ModelSearchTest {
 
     @Test
     fun aFileSuitsADeviceByItsSizeAgainstTheMemory() {
-        // On 8 GB: the usual size of a four-billion model is comfortable, a bigger one is a tight fit, the biggest don't fit.
+        // On 8 GB: the usual size of a four-billion model is comfortable, a bigger one (3.5 GB) a tight fit, 4.5 GB too big.
         assertEquals(Fit.GOOD, ModelSearch.fit(2_707_513_696, eight))
-        assertEquals(Fit.GOOD, ModelSearch.fit(3_464_055_136, eight))
-        assertEquals(Fit.TIGHT, ModelSearch.fit(4_482_402_656, eight))
+        assertEquals(Fit.TIGHT, ModelSearch.fit(3_464_055_136, eight))
+        assertEquals(Fit.TOO_BIG, ModelSearch.fit(4_482_402_656, eight))
         assertEquals(Fit.TOO_BIG, ModelSearch.fit(8_424_393_056, eight))
-        // KoLib's own suggestions sit the same way: E2B is comfortable on 6 GB and 8, E4B a tight fit on 8 and comfortable on 12.
-        val e2b = AiModels.all[1].bytes
-        val e4b = AiModels.all[2].bytes
-        assertEquals(Fit.GOOD, ModelSearch.fit(e2b, (5.5 * gb).toLong()))
-        assertEquals(Fit.TIGHT, ModelSearch.fit(e4b, eight))
-        assertEquals(Fit.GOOD, ModelSearch.fit(e4b, (11.2 * gb).toLong()))
+        // The "E" models hold only part of their files in memory: KoLib's own E2B is comfortable on 6 GB, E4B on 8 and 12.
+        val e2b = AiModels.all[1]
+        val e4b = AiModels.all[2]
+        assertEquals(Fit.GOOD, ModelSearch.fit(ModelSearch.held(e2b.bytes, "ggml-org/gemma-4-E2B-it-GGUF"), (5.5 * gb).toLong()))
+        assertEquals(Fit.GOOD, ModelSearch.fit(ModelSearch.held(e4b.bytes, "ggml-org/gemma-4-E4B-it-GGUF"), eight))
+        assertEquals(Fit.GOOD, ModelSearch.fit(ModelSearch.held(e4b.bytes, "ggml-org/gemma-4-E4B-it-GGUF"), (11.2 * gb).toLong()))
+        // Held in memory: all of a model's file, but for those, part of it (going by the name of the file or the model).
+        assertTrue(ModelSearch.held(e4b.bytes, "gemma-4-E4B-it-Q4_0") < e4b.bytes * 0.7)
+        assertEquals(3_464_055_136L, ModelSearch.held(3_464_055_136, "Qwen3.5-4B-Uncensored-HauhauCS-Aggressive-Q6_K"))
         // The one offered first: the usual size where it's comfortable; on a small device, the biggest that is; else the smallest there is.
         val list = ModelSearch.parseFiles("maker/Model-4B-GGUF", files)
         assertEquals("Q4_K_M", ModelSearch.best(list, eight)!!.quant)

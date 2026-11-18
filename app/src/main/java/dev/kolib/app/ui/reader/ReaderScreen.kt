@@ -299,9 +299,45 @@ internal fun ReaderScreen(
     val view = LocalView.current
     val s = controller.settings
     var panel by remember { mutableStateOf(initialPanel) }
-    // The reading companion: what's been asked about this book stays while it's open.
+    // The AI, about this book: its chapter summary, its notes on the book (written as it's read, when they're
+    // kept), and the chat, which goes on from wherever it was. Its window is the app's, over this screen.
+    val app = context.applicationContext as dev.kolib.app.KoLibApp
     val companion = remember(controller) { CompanionState() }
-    var companionOpen by remember { mutableStateOf(false) }
+    val aiPlace = remember(controller, companion) {
+        val notes = controller.notesFile?.let { dev.kolib.app.ai.BookNotes(it) }
+        val book = dev.kolib.app.ai.BookAi.Book(controller.bookTitle, controller.bookAuthor, controller.bookLanguage, controller.bookDescription)
+        val writer = notes?.let { n ->
+            dev.kolib.app.ai.NotesWriter(
+                n, app.ai, book,
+                finished = { dev.kolib.app.ui.ai.finishedChapters(controller) },
+                paragraphs = { controller.paragraphsOf(it) },
+                blocked = {
+                    when {
+                        !app.inFront -> dev.kolib.app.ai.NotesWriter.Wait.AWAY
+                        app.ai.settings.value.notesOnCharge && !dev.kolib.app.ai.Device.charging(app) -> dev.kolib.app.ai.NotesWriter.Wait.CHARGER
+                        else -> null
+                    }
+                },
+            )
+        }
+        dev.kolib.app.ui.ai.ChatPlace.Book(controller, controller.bookLanguage, companion, notes, writer)
+    }
+    val aiHost = dev.kolib.app.ui.ai.LocalAiHost.current
+    if (aiHost != null) DisposableEffect(aiHost, aiPlace) {
+        aiHost.book = aiPlace
+        onDispose { if (aiHost.book === aiPlace) aiHost.book = null }
+    }
+    // A summary being written stops when the book is closed; the notes are written while it's open.
+    DisposableEffect(companion) { onDispose { companion.job?.cancel() } }
+    LaunchedEffect(aiPlace) { aiPlace.writer?.run() }
+    // "Ask AI" on the selection toolbar: the chat opens with those words, to ask about them.
+    LaunchedEffect(controller.askRequest) {
+        controller.askRequest?.let { words ->
+            controller.askRequest = null
+            app.chat.attached = words
+            app.aiPanel.open(tab = 1)
+        }
+    }
     // Led by the reading setup, the controls and panels stay away until it gets to them (and go away if it goes back).
     val menuAllowed = guide?.menu ?: true
     SideEffect { controller.menuLocked = !menuAllowed }
@@ -527,7 +563,8 @@ internal fun ReaderScreen(
                     onStats = { panel = Panel.STATS },
                     onEdit = onEdit?.let { edit -> { controller.chapter?.let { edit(it.path) } } },
                     onPdf = onReadAsPdf,
-                    onCompanion = { companionOpen = true },
+                    onCompanion = { app.aiPanel.open() },
+                    aiPlace = aiPlace,
                 )
             }
         }
@@ -580,8 +617,9 @@ internal fun ReaderScreen(
         AnnotationCard(controller, s, onSettings)
         NoteDialog(controller)
         LookUpSheet(controller, s, onSettings, controller.bookLanguage)
-        // Summaries of the chapter and questions about the book.
-        if (companionOpen) BookCompanionSheet(controller, companion, controller.bookLanguage) { companionOpen = false }
+        // Summaries of the chapter and questions about the book: the AI's window over the page, where nothing above
+        // this screen draws it (in pictures and tests).
+        if (aiHost == null) dev.kolib.app.ui.ai.AiLayer(aiPlace)
         // A font added or removed while the book is open: the page takes up the new list.
         val fontsVersion by (LocalContext.current.applicationContext as dev.kolib.app.KoLibApp).fonts.version.collectAsState()
         LaunchedEffect(fontsVersion) { if (fontsVersion > 0) controller.userFontsChanged() }
@@ -644,6 +682,7 @@ private fun ReaderTopBar(
     onEdit: (() -> Unit)?,
     onPdf: (() -> Unit)? = null,
     onCompanion: (() -> Unit)? = null,
+    aiPlace: dev.kolib.app.ui.ai.ChatPlace? = null,
 ) {
     // A phone's width hasn't room for every button: the ones used least go in a menu there.
     val compact = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 600
@@ -669,7 +708,7 @@ private fun ReaderTopBar(
                     tint = if (marked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
             }
             if (onCompanion != null) IconButton(onClick = onCompanion, modifier = Modifier.testTag("reader-companion")) {
-                Icon(Icons.Outlined.AutoAwesome, tr("Summary and questions"))
+                dev.kolib.app.ui.ai.AiButtonIcon(tr("Summary and questions"), aiPlace)
             }
             if (!compact) IconButton(onClick = onStats) { Icon(Icons.Outlined.BarChart, tr("Reading stats")) }
             IconButton(onClick = onLook) { Icon(Icons.Outlined.Settings, tr("Reading settings")) }

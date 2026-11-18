@@ -108,6 +108,11 @@ class MainActivity : ComponentActivity() {
      */
     private fun handleIncoming(intent: Intent?) {
         intent ?: return
+        // From the notification that the AI's answer is ready: its window opens.
+        if (intent.action == dev.kolib.app.ai.AiAnswerService.ACTION_OPEN) {
+            (application as KoLibApp).aiPanel.open()
+            return
+        }
         // Android opened KoLib because a Kobo was connected, and KoLib is the app chosen for it.
         if (intent.action == android.hardware.usb.UsbManager.ACTION_USB_DEVICE_ATTACHED) {
             vm.openedForKobo()

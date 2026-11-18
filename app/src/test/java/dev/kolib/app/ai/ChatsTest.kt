@@ -49,31 +49,43 @@ class ChatsTest {
     )
 
     @Test
-    fun aQuestionAboutTheLibraryComesWithTheListOfItsBooks() {
+    fun aQuestionAboutTheLibraryComesAfterTheListOfItsBooks() {
         val engine = FakeEngine { "You have two Wheel of Time books." }
         val history = ArrayList<AiMessage>()
-        val end = LibraryAi.answer(engine, history, "Which Wheel of Time books do I have?", shelf, "English") {}
+        val screen = "The library, showing 4 books, by title, in this order."
+        val end = LibraryAi.answer(engine, history, "Which Wheel of Time books do I have?", shelf, "English", screen = screen) {}
         assertEquals(AiEnd.DONE, end)
         val (system, user) = engine.asked.single()
         assertTrue(system.content.startsWith(Prompts.CHAT_DEFAULT))
         assertTrue(system.content.contains("their library, which has 4 books") && system.content.endsWith("Answer in English."))
-        assertTrue(user.content.contains("- The Eye of the World — Robert Jordan (The Wheel of Time #1) [Fantasy] · 42% read"))
-        assertTrue(user.content.contains("- Dracula — Bram Stoker [Horror, Classics] · finished"))
-        assertTrue(user.content.endsWith("Question: Which Wheel of Time books do I have?"))
-        // The books the question names come first.
-        assertTrue(user.content.indexOf("The Eye of the World") < user.content.indexOf("Dracula"))
-        // The conversation remembers the question as it was asked, without the list.
+        // What's on the screen, then the list, in the order given (the screen's): before any question, so it stays read.
+        assertTrue(system.content.contains("On the reader's screen now: $screen"))
+        assertTrue(system.content.contains("Books in the library:\n- Dracula — Bram Stoker [Horror, Classics] · finished\n- The Eye of the World — Robert Jordan (The Wheel of Time #1) [Fantasy] · 42% read"))
+        assertEquals("Question: Which Wheel of Time books do I have?", user.content)
+        // The conversation remembers the question as it was asked.
         assertEquals(listOf("Question: Which Wheel of Time books do I have?", "You have two Wheel of Time books."), history.map { it.content })
+        // Read ahead, it's the same: only the question is left.
+        val ahead = LibraryAi.ahead(engine, ArrayList(), shelf, screen, "English")
+        assertEquals(listOf(system), ahead)
     }
 
     @Test
-    fun aBigLibraryIsToldOfAsFarAsTheresRoomStartingWithWhatTheQuestionNames() {
+    fun aBigLibraryIsToldOfAsFarAsTheresRoomAndWhatTheQuestionNamesComesWithIt() {
         val many = (1..400).map { LibraryAi.Shelved("Book number $it", "Writer $it", null, emptyList(), null) } + shelf
         val words = { s: String -> s.split(Regex("\\s+")).size }
-        val (list, left) = LibraryAi.shelf(many, "Have I got Dracula?", 200, words)
-        assertTrue(list.startsWith("- Dracula — Bram Stoker"))
+        val (list, left) = LibraryAi.shelf(many, 200, words)
+        assertTrue(list.startsWith("- Book number 1 — Writer 1\n"))
         assertTrue(left > 300)
         assertEquals(many.size, list.trim().lines().size + left)
+        // Those the list left out that the question names go with the question.
+        val more = LibraryAi.matching(many, many.size - left, "Have I got Dracula?", 100, words)
+        assertTrue(more.startsWith("- Dracula — Bram Stoker"))
+        assertEquals("", LibraryAi.matching(many, many.size - left, "What's good?", 100, words).takeIf { it.isBlank() } ?: "")
+        val engine = FakeEngine(contextTokens = 1200) { "Yes." }
+        LibraryAi.answer(engine, ArrayList(), "Have I got Dracula?", many, "English") {}
+        val user = engine.asked.single().last().content
+        assertTrue(user.startsWith("More books in the library that may bear on this:\n- Dracula — Bram Stoker"))
+        assertTrue(user.endsWith("Question: Have I got Dracula?"))
     }
 
     @Test
@@ -103,15 +115,15 @@ class ChatsTest {
         )
         val engine = FakeEngine { "Three rangers are tracking wildlings north of the Wall." }
         val book = BookAi.Book("A Game of Thrones", "George R. R. Martin", "en", about = "Winter is coming. " + "The first book of an epic of rival houses. ".repeat(3))
-        BookAi.answer(engine, ArrayList(), "what is this book about", book, read, "Prologue", 1, "English", null, {}) {}
+        BookAi.answer(engine, ArrayList(), "what is this book about", book, BookAi.Place(read, "Prologue", 1), "English", null, {}) {}
         val (system, user) = engine.asked.single()
-        assertTrue(user.content.contains("“We should start back,”"))
-        assertFalse(user.content.contains("celebrates the author's style"))
+        assertTrue(system.content.contains("“We should start back,”"))
+        assertFalse(system.content.contains("celebrates the author's style") || user.content.contains("celebrates the author's style"))
         // And what the book says it's about, with leave to say what kind of book it is.
         assertTrue(system.content.contains("Its description: Winter is coming."))
         assertTrue(system.content.contains("never mention notes, passages or text you were given"))
         // In the introduction itself, that's what the reader is on.
-        BookAi.answer(engine, ArrayList(), "what is this about", book, read.take(1), "Introduction", 0, "English", null, {}) {}
-        assertTrue(engine.asked.last().last().content.contains("celebrates the author's style"))
+        BookAi.answer(engine, ArrayList(), "what is this about", book, BookAi.Place(read.take(1), "Introduction", 0), "English", null, {}) {}
+        assertTrue(engine.asked.last().first().content.contains("celebrates the author's style"))
     }
 }

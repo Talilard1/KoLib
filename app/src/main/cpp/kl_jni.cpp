@@ -34,6 +34,19 @@ std::string chars(JNIEnv * env, jstring s) {
 
 kl::Engine * engine(jlong handle) { return reinterpret_cast<kl::Engine *>(handle); }
 
+std::vector<kl::Message> conversation(JNIEnv * env, jobjectArray roles, jobjectArray contents) {
+    std::vector<kl::Message> messages;
+    const jsize n = env->GetArrayLength(roles);
+    for (jsize i = 0; i < n; i++) {
+        auto role = (jstring) env->GetObjectArrayElement(roles, i);
+        auto content = (jbyteArray) env->GetObjectArrayElement(contents, i);
+        messages.push_back({chars(env, role), bytes(env, content)});
+        env->DeleteLocalRef(role);
+        env->DeleteLocalRef(content);
+    }
+    return messages;
+}
+
 }  // namespace
 
 extern "C" {
@@ -42,10 +55,14 @@ JNIEXPORT void JNICALL Java_dev_kolib_app_ai_LlamaNative_init(JNIEnv * env, jobj
     kl::init(chars(env, dir));
 }
 
-JNIEXPORT jlong JNICALL Java_dev_kolib_app_ai_LlamaNative_load(JNIEnv * env, jobject, jstring path, jint n_ctx, jint n_threads) {
+JNIEXPORT jlong JNICALL Java_dev_kolib_app_ai_LlamaNative_load(JNIEnv * env, jobject, jstring path, jint n_ctx, jint n_threads, jboolean copy_weights) {
     g_load_error.clear();
-    kl::Engine * e = kl::load(chars(env, path), n_ctx, n_threads, g_load_error);
+    kl::Engine * e = kl::load(chars(env, path), n_ctx, n_threads, copy_weights == JNI_TRUE, g_load_error);
     return reinterpret_cast<jlong>(e);
+}
+
+JNIEXPORT jlong JNICALL Java_dev_kolib_app_ai_LlamaNative_copiedSize(JNIEnv * env, jobject, jstring path) {
+    return (jlong) kl::copied_size(chars(env, path));
 }
 
 JNIEXPORT jbyteArray JNICALL Java_dev_kolib_app_ai_LlamaNative_loadError(JNIEnv * env, jobject) {
@@ -60,6 +77,14 @@ JNIEXPORT void JNICALL Java_dev_kolib_app_ai_LlamaNative_stop(JNIEnv *, jobject,
     if (handle) engine(handle)->stop.store(true);
 }
 
+JNIEXPORT void JNICALL Java_dev_kolib_app_ai_LlamaNative_yieldAhead(JNIEnv *, jobject, jlong handle) {
+    if (handle) engine(handle)->yield.store(true);
+}
+
+JNIEXPORT jint JNICALL Java_dev_kolib_app_ai_LlamaNative_lastRead(JNIEnv *, jobject, jlong handle) {
+    return handle ? (jint) engine(handle)->last_read : 0;
+}
+
 JNIEXPORT jint JNICALL Java_dev_kolib_app_ai_LlamaNative_countTokens(JNIEnv * env, jobject, jlong handle, jbyteArray text) {
     return kl::count_tokens(engine(handle), bytes(env, text));
 }
@@ -72,19 +97,20 @@ JNIEXPORT jbyteArray JNICALL Java_dev_kolib_app_ai_LlamaNative_error(JNIEnv * en
     return bytes(env, handle ? engine(handle)->error : std::string());
 }
 
+JNIEXPORT jint JNICALL Java_dev_kolib_app_ai_LlamaNative_prefill(
+        JNIEnv * env, jobject, jlong handle, jobjectArray roles, jobjectArray contents) {
+    if (!handle || !roles || !contents) return kl::FAILED;
+    std::vector<kl::Message> messages = conversation(env, roles, contents);
+    // The question's place, at the end.
+    messages.push_back({"user", kl::ASK_MARK});
+    return (jint) kl::prefill(engine(handle), messages);
+}
+
 JNIEXPORT jint JNICALL Java_dev_kolib_app_ai_LlamaNative_generate(
         JNIEnv * env, jobject, jlong handle, jobjectArray roles, jobjectArray contents,
         jint max_tokens, jfloat temperature, jobject sink) {
     if (!handle || !roles || !contents || !sink) return kl::FAILED;
-    std::vector<kl::Message> messages;
-    const jsize n = env->GetArrayLength(roles);
-    for (jsize i = 0; i < n; i++) {
-        auto role = (jstring) env->GetObjectArrayElement(roles, i);
-        auto content = (jbyteArray) env->GetObjectArrayElement(contents, i);
-        messages.push_back({chars(env, role), bytes(env, content)});
-        env->DeleteLocalRef(role);
-        env->DeleteLocalRef(content);
-    }
+    std::vector<kl::Message> messages = conversation(env, roles, contents);
     jclass cls = env->GetObjectClass(sink);
     jmethodID progress = env->GetMethodID(cls, "progress", "(F)Z");
     jmethodID text = env->GetMethodID(cls, "text", "([B)Z");

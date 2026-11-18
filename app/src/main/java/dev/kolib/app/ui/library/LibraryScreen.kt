@@ -113,6 +113,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.testTag
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.runtime.getValue
@@ -223,6 +225,11 @@ fun LibraryScreen(
         LibrarySorting.filter(books, browse.query, browse.filter, browse.collection, browse.sort, browse.descending, browse.tags, browse.tagsMatchAll, reading, here)
     }
     val selected = browse.selectedId?.let { id -> books.firstOrNull { it.id == id } }
+    // What's showing, for the AI to know when it's asked about "these books".
+    dev.kolib.app.ui.ai.LocalAiHost.current?.let { host ->
+        SideEffect { host.library = libraryOnScreen(browse, visible, selected?.id) }
+        DisposableEffect(host) { onDispose { host.library = null } }
+    }
     if (phoneLayout()) {
         PhoneLibraryScreen(
             books = books, visible = visible, covers = covers, browse = browse, selected = selected, job = job,
@@ -253,7 +260,7 @@ fun LibraryScreen(
                 },
                 actions = {
                     dev.kolib.app.ui.ai.LocalOpenAiChat.current?.let { open ->
-                        IconButton(onClick = open, modifier = Modifier.testTag("library-ai")) { Icon(Icons.Outlined.AutoAwesome, tr("AI chat")) }
+                        IconButton(onClick = open, modifier = Modifier.testTag("library-ai")) { dev.kolib.app.ui.ai.AiButtonIcon(tr("AI chat")) }
                     }
                     IconButton(onClick = onStats) { Icon(Icons.Outlined.BarChart, tr("Reading stats")) }
                     IconButton(onClick = onAbout) { Icon(Icons.Outlined.Info, tr("About and licences")) }

@@ -13,6 +13,17 @@ object Device {
         return info.totalMem
     }
 
+    /** How much of the device's memory is free now, or could be freed without closing anything, in bytes. */
+    fun available(context: Context): Long {
+        val info = ActivityManager.MemoryInfo()
+        context.getSystemService(ActivityManager::class.java)?.getMemoryInfo(info)
+        return info.availMem
+    }
+
+    /** Whether the device is charging (plugged in, and taking it). */
+    fun charging(context: Context): Boolean =
+        runCatching { context.getSystemService(android.os.BatteryManager::class.java)?.isCharging == true }.getOrDefault(false)
+
     /** Each processor core's top speed in kHz, as the system reports it; empty where it doesn't. */
     fun coreSpeeds(root: File = File("/sys/devices/system/cpu")): List<Long> =
         (root.listFiles { f -> f.name.matches(Regex("cpu\\d+")) } ?: emptyArray())

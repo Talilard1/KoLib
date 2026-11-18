@@ -37,6 +37,16 @@ interface AiEngine {
      */
     fun generate(messages: List<AiMessage>, maxTokens: Int, temperature: Float, onProgress: (Float) -> Unit, onText: (String) -> Unit): AiEnd
 
+    /**
+     * Reads [messages] ahead, as a question asked after them will be read, so that then only the question is left
+     * to read: while the reader is still typing it, say. Blocks like [generate]. Engines that can't keep what
+     * they've read (a server) do nothing.
+     */
+    fun prefill(messages: List<AiMessage>): AiEnd = AiEnd.DONE
+
+    /** Reading ahead gives way, from any thread: it stops at its next step, and what it has read stays read. */
+    fun yieldAhead() {}
+
     /** Stops the answer being written, from any thread. */
     fun stop()
 

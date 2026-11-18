@@ -111,56 +111,15 @@ class CompanionState {
 }
 
 /**
- * The reading companion: a summary of the chapter the reader is in, and questions about the book answered from
- * what's been read so far. Both come from the AI model the user has set up.
+ * The summary of the chapter the reader is in, in the AI's window: of what's been read of it, or of the whole of
+ * it. It's written whether the window is open or not; only Stop stops it.
  */
-@Composable
-fun BookCompanionSheet(controller: ReaderController, state: CompanionState, language: String?, onDismiss: () -> Unit) {
-    val context = LocalContext.current
-    val hub = (context.applicationContext as KoLibApp).ai
-    val ai by hub.settings.collectAsState()
-    val files by hub.filesChanged.collectAsState()
-    val ready = remember(ai, files) { hub.ready(ai) }
-    var setup by remember { mutableStateOf(false) }
-    // A window floating over the page, as big as what's in it: it grows as a summary or an answer is written.
-    FloatingWindow(onDismiss, Modifier.testTag("companion-window"), maxWidth = 560.dp) {
-        Column(Modifier.fillMaxWidth().padding(top = 6.dp).testTag("companion")) {
-            if (!ready) {
-                Column(Modifier.fillMaxWidth().padding(horizontal = 28.dp).padding(top = 12.dp, bottom = 20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(Icons.Outlined.AutoAwesome, null, tint = MaterialTheme.colorScheme.primary)
-                    Spacer(Modifier.height(10.dp))
-                    Text(tr("Summaries and questions"), style = MaterialTheme.typography.titleLarge)
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        tr("With an AI model set up, KoLib can summarise the chapter you're in and answer questions about the book so far, without giving away what's ahead."),
-                        style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Spacer(Modifier.height(16.dp))
-                    Button(onClick = { setup = true }) { Text(tr("Set up AI")) }
-                }
-            } else {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    TabRow(selectedTabIndex = state.tab, modifier = Modifier.weight(1f), containerColor = androidx.compose.ui.graphics.Color.Transparent) {
-                        Tab(selected = state.tab == 0, onClick = { state.tab = 0 }, text = { Text(tr("Summary")) })
-                        Tab(selected = state.tab == 1, onClick = { state.tab = 1 }, text = { Text(tr("Ask")) })
-                    }
-                    IconButton(onClick = { setup = true }) { Icon(Icons.Outlined.Settings, tr("AI and dictionary settings")) }
-                    IconButton(onClick = onDismiss) { Icon(Icons.Filled.Close, tr("Close")) }
-                }
-                // Asking is the app's one chat, here about this book: it's the same conversation as in the library.
-                if (state.tab == 0) SummaryTab(controller, state, hub, language)
-                else ChatPane((context.applicationContext as KoLibApp).chat, remember(controller, language) { ChatPlace.Book(controller, language) }, hub)
-            }
-        }
-    }
-    if (setup) AiSetupDialog(onDismiss = { setup = false })
-}
-
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ColumnScope.SummaryTab(controller: ReaderController, state: CompanionState, hub: AiHub, language: String?) {
+fun ColumnScope.SummaryTab(controller: ReaderController, state: CompanionState, hub: AiHub, language: String?) {
     val context = LocalContext.current
-    val store = (context.applicationContext as KoLibApp).summaries
+    val app = context.applicationContext as KoLibApp
+    val store = app.summaries
     val scope = state.scope
     val summary by state.summary.collectAsState()
     val stage by state.stage.collectAsState()
@@ -182,8 +141,13 @@ private fun ColumnScope.SummaryTab(controller: ReaderController, state: Companio
             state.summaryFailed.value = null
             state.summary.value = ""
             state.summaryOf = index to all
+            var written: String? = null
+            app.aiStarted()
+            try {
+            // What's been read: to the end of the page on the screen.
+            val screen = if (all) null else controller.onScreen()?.text?.takeIf { it.isNotBlank() }
             val paragraphs = withContext(Dispatchers.Default) {
-                controller.paragraphsOf(index).let { if (all) it else BookText.upTo(it, progress) }
+                controller.paragraphsOf(index).let { p -> if (all) p else screen?.let { BookText.upToScreen(p, it, progress) } ?: BookText.upTo(p, progress) }
             }
             if (paragraphs.sumOf { it.length } < 120) {
                 state.summaryFailed.value = if (all) tr("There's too little text in this chapter to summarise.") else tr("You've read too little of this chapter to summarise yet.")
@@ -221,12 +185,16 @@ private fun ColumnScope.SummaryTab(controller: ReaderController, state: Companio
                     text.isNotBlank() -> {
                         state.summary.value = text
                         store.put(key, text)
+                        written = text
                     }
                 }
             } catch (e: AiException) {
                 state.summaryFailed.value = e.message
             } finally {
                 state.stage.value = null
+            }
+            } finally {
+                app.aiFinished(tr("The summary of “{0}”", chapter.ifBlank { controller.bookTitle }), written)
             }
         }
     }

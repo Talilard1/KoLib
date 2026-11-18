@@ -1,6 +1,7 @@
 package dev.kolib.app.ai
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -30,6 +31,38 @@ class BookTextTest {
         // Most of the way through a paragraph counts it as read.
         assertEquals(paragraphs.take(3), BookText.upTo(paragraphs, 0.7f))
         assertEquals(paragraphs, BookText.upTo(paragraphs, 1f))
+    }
+
+    @Test
+    fun whatsBeenReadEndsWithThePageOnTheScreen() {
+        val paragraphs = listOf(
+            "The ferry left Harrow Point an hour late.",
+            "Old Tobias Wren met her on the quay, his coat\u00ADbuttoned to the chin, and took her bag without a word.",
+            "They walked up through the village in the rain.",
+            "At the top, the old house brooded over the valley, its windows dark except for one.",
+            "Mirren stopped at the gate.",
+        )
+        // The screen ends part-way through the fourth paragraph, as the page shows it (a line to a paragraph).
+        val screen = "took her bag without a word.\nThey walked up through the village in the rain.\nAt the top, the old house brooded over"
+        val read = BookText.upToScreen(paragraphs, screen, 0.5f)!!
+        assertEquals(paragraphs.take(3) + "At the top, the old house brooded over", read)
+        // Up to its start instead: what came before the page, ending part-way through the second paragraph.
+        val before = BookText.upToScreen(paragraphs, screen, 0.5f, atEnd = false)!!
+        assertEquals(2, before.size)
+        assertTrue(before.last().startsWith("Old Tobias Wren met her on the quay") && before.last().endsWith("and"))
+        // A screen whose text isn't in the chapter: not found.
+        assertNull(BookText.upToScreen(paragraphs, "Something else altogether, from another book.", 0.5f))
+        assertNull(BookText.upToScreen(paragraphs, "", 0.5f))
+    }
+
+    @Test
+    fun wordsThatComeTwiceAreFoundNearWhereTheReaderIs() {
+        val paragraphs = (1..10).map { n -> "Chapter text $n goes on a while. She blew the whistle and waited." }
+        val screen = "goes on a while. She blew the whistle and waited."
+        // Near the start, the first time; near the end, the last.
+        assertEquals(1, BookText.upToScreen(paragraphs, screen, 0.05f)!!.size)
+        assertEquals(10, BookText.upToScreen(paragraphs, screen, 0.97f)!!.size)
+        assertEquals(6, BookText.upToScreen(paragraphs, screen, 0.55f)!!.size)
     }
 
     @Test

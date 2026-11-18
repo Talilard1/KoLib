@@ -15,12 +15,13 @@ enum class SelectionAction(val id: Int, val label: String, val order: Int) {
     NOTE(0x6B4C0002, tr("Note"), 0),
     LOOK_UP(0x6B4C0003, tr("Look up"), 0),
     SEARCH(0x6B4C0004, tr("Search in book"), 200),
+    ASK(0x6B4C0005, tr("Ask AI"), 0),
 }
 
 /**
  * The reader's WebView. When text is selected, the toolbar Android shows (Copy, Share, Translate and
- * any dictionary apps) gets the reader's own actions first: Highlight, Note, Look up, and Search in
- * book further along.
+ * any dictionary apps) gets the reader's own actions first: Highlight, Note, Look up, Ask AI, and Search
+ * in book further along.
  */
 class ReaderWebView(context: Context) : WebView(context) {
     /** Runs one of the reader's actions; the toolbar closes once it's done. Null leaves the toolbar alone. */

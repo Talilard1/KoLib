@@ -33,7 +33,9 @@ internal object LlamaNative {
     }
 
     external fun init(dir: String)
-    external fun load(path: String, nCtx: Int, nThreads: Int): Long
+    /** How many bytes of the model in [path] copying its weights into a faster order would copy; -1 if it can't be read. */
+    external fun copiedSize(path: String): Long
+    external fun load(path: String, nCtx: Int, nThreads: Int, copyWeights: Boolean): Long
     external fun loadError(): ByteArray
     external fun unload(handle: Long)
     external fun stop(handle: Long)
@@ -41,4 +43,10 @@ internal object LlamaNative {
     external fun describe(handle: Long): ByteArray
     external fun error(handle: Long): ByteArray
     external fun generate(handle: Long, roles: Array<String>, contents: Array<ByteArray>, maxTokens: Int, temperature: Float, sink: Sink): Int
+    /** Reads [roles] and [contents] ahead, as a question after them will be read (see kl::prefill). */
+    external fun prefill(handle: Long, roles: Array<String>, contents: Array<ByteArray>): Int
+    /** Reading ahead gives way at its next step, keeping what it has read. */
+    external fun yieldAhead(handle: Long)
+    /** How many tokens the last answer or reading ahead read (what it already held, it didn't). */
+    external fun lastRead(handle: Long): Int
 }

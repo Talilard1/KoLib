@@ -55,23 +55,74 @@ object BookAi {
         return end to cleanAnswer(out.toString())
     }
 
+    /** Where the reader is in the book, as a question asked there needs it. */
+    class Place(
+        /** What's been read: each chapter's place in the book, its name and its paragraphs (the last up to the end of the screen). */
+        val chapters: List<Triple<Int, String, List<String>>>,
+        /** The chapter the reader is in, by name, and how far through the book they are. */
+        val chapter: String,
+        val percent: Int,
+        /** The text on the reader's screen now, when it's known. */
+        val screen: String? = null,
+        /** When the screen is known: what's been read up to the top of it, to tell what came just before it. */
+        val beforeScreen: List<Triple<Int, String, List<String>>>? = null,
+        /** Notes on chapters read before this one: their names, and the notes. */
+        val notes: List<Pair<String, String>> = emptyList(),
+        /** Words the reader picked out on the page to ask about. */
+        val selected: String? = null,
+    )
+
     /**
-     * Answers [question] in a conversation about the book. [chapters]: what's been read, each chapter's place in
-     * the book, its name and its paragraphs (the last one only up to where the reader is). [history] is the
+     * What the model is told about the book before any question: the instructions, where the reader is, notes on
+     * the chapters before, the pages before the screen and the screen itself. It's the same for every question
+     * asked on the same page, so the model keeps it read from one to the next (and can read it ahead).
+     */
+    fun context(engine: AiEngine, book: Book, place: Place, answerIn: String, instructions: String = ""): AiMessage {
+        val count = engine::countTokens
+        val ctx = engine.contextTokens
+        val screen = place.screen?.takeIf { it.isNotBlank() }?.let { lastOf(it, minOf(SCREEN, ctx / 6), count) }
+        val before = latest(place.beforeScreen ?: place.chapters, if (screen != null) BEFORE else LATEST, count)
+        val notes = notesText(place.notes, minOf(NOTES_HELD, ctx / 5), count)
+        return Prompts.chatSystem(book.title, book.author, place.chapter, place.percent, answerIn, book.about, instructions, notes, before, screen.orEmpty())
+    }
+
+    /**
+     * The conversation so far, as much of it as fits beside [system] with room left for a question of [question]
+     * tokens and its answer: the oldest turns go first.
+     */
+    fun fitHistory(engine: AiEngine, system: AiMessage, history: MutableList<AiMessage>, question: Int): MutableList<AiMessage> {
+        val count = engine::countTokens
+        val room = engine.contextTokens - CHAT_ANSWER - 64
+        fun size() = count(system.content) + history.sumOf { count(it.content) + 8 } + question + 16
+        while (history.size >= 2 && size() > room) {
+            history.removeAt(0)
+            history.removeAt(0)
+        }
+        return history
+    }
+
+    /** What's read ahead while a question is typed: the book's context and the conversation so far, with room for a question. */
+    fun ahead(engine: AiEngine, history: MutableList<AiMessage>, book: Book, place: Place, answerIn: String, instructions: String = ""): List<AiMessage> {
+        val system = context(engine, book, place, answerIn, instructions)
+        return listOf(system) + fitHistory(engine, system, history, AHEAD_ROOM)
+    }
+
+    /**
+     * Answers [question] in a conversation about the book, read where the reader is ([place]). [history] is the
      * conversation so far (after its first, system message), and gets this question and its answer added.
      */
     fun answer(
-        engine: AiEngine, history: MutableList<AiMessage>, question: String, book: Book,
-        chapters: List<Triple<Int, String, List<String>>>, chapter: String, percent: Int, answerIn: String,
+        engine: AiEngine, history: MutableList<AiMessage>, question: String, book: Book, place: Place, answerIn: String,
         readSpeed: Float?, onProgress: (Float) -> Unit, instructions: String = "", onText: (String) -> Unit,
     ): AiEnd {
         val count = engine::countTokens
-        // As much of the book as the model reads in a quarter of a minute, where that's known; a third of what it holds otherwise.
+        val system = context(engine, book, place, answerIn, instructions)
+        // As much more of the book as the model reads in a quarter of a minute, where that's known; a third of what it holds otherwise.
         val most = minOf(MOST_PASSAGES, engine.contextTokens / 3)
         val budget = (readSpeed?.let { (it * READ_SECONDS).toInt() } ?: most).coerceIn(minOf(500, most), most)
-        val latest = latest(chapters, LATEST, count)
-        val found = BookText.passages(chapters.map { it.first to it.third }, question, budget - count(latest), count)
-        val names = chapters.associate { it.first to it.second }
+        val told = system.content
+        val found = BookText.passages(place.chapters.map { it.first to it.third }, question, budget, count).filter { !told.contains(it.text.trim()) }
+        val names = place.chapters.associate { it.first to it.second }
         val passages = buildString {
             var last = -1
             for (p in found) {
@@ -82,17 +133,10 @@ object BookAi {
                 append(p.text).append('\n')
             }
         }
-        // Nothing in the book matches the question's words (it asks what just happened, say): more of the latest pages instead.
-        val recent = if (found.isEmpty()) latest(chapters, budget, count) else latest
-        val system = Prompts.chatSystem(book.title, book.author, chapter, percent, answerIn, book.about, instructions)
-        val asked = Prompts.chatQuestion(question, passages, recent)
-        // The oldest turns go when the conversation outgrows the model.
-        val room = engine.contextTokens - CHAT_ANSWER - 64
-        fun size() = count(system.content) + history.sumOf { count(it.content) + 8 } + count(asked.content) + 16
-        while (history.size >= 2 && size() > room) {
-            history.removeAt(0)
-            history.removeAt(0)
-        }
+        // Nothing in the book matches the question's words (it asks what just happened, say): more of what came before instead.
+        val recent = if (found.isEmpty()) earlier(place.beforeScreen ?: place.chapters, budget, told, count) else ""
+        val asked = Prompts.chatQuestion(question, passages.ifBlank { recent }, place.selected.orEmpty())
+        fitHistory(engine, system, history, count(asked.content))
         val said = StringBuilder()
         val end = engine.generate(listOf(system) + history + asked, CHAT_ANSWER, 0.4f, onProgress) { said.append(it); onText(it) }
         if (end == AiEnd.DONE || end == AiEnd.LENGTH) {
@@ -102,14 +146,90 @@ object BookAi {
         return end
     }
 
+    /** Up to [mostTokens] of what was read before the part already [told], going back from it. */
+    private fun earlier(chapters: List<Triple<Int, String, List<String>>>, mostTokens: Int, told: String, count: (String) -> Int): String {
+        val paragraphs = story(chapters).flatMap { it.third }
+        var end = paragraphs.size
+        while (end > 0 && told.contains(paragraphs[end - 1].trim())) end--
+        val out = ArrayList<String>()
+        var held = 0
+        for (i in end - 1 downTo 0) {
+            val n = count(paragraphs[i]) + 1
+            if (held + n > mostTokens) break
+            out += paragraphs[i]
+            held += n
+        }
+        return out.asReversed().joinToString("\n")
+    }
+
+    /** The end of [text], at most [mostTokens] of it, starting at a line. */
+    private fun lastOf(text: String, mostTokens: Int, count: (String) -> Int): String {
+        if (count(text) <= mostTokens) return text.trim()
+        val lines = text.trim().lines()
+        val out = ArrayList<String>()
+        var held = 0
+        for (l in lines.asReversed()) {
+            val n = count(l) + 1
+            if (held + n > mostTokens) break
+            out += l
+            held += n
+        }
+        return out.asReversed().joinToString("\n")
+    }
+
+    /** Notes on earlier chapters, the latest kept where they don't all fit in [mostTokens]: "[Chapter] note" a line. */
+    fun notesText(notes: List<Pair<String, String>>, mostTokens: Int, count: (String) -> Int): String {
+        val out = ArrayList<String>()
+        var held = 0
+        for ((name, note) in notes.asReversed()) {
+            val line = (if (name.isBlank()) "" else "[$name] ") + note.replace(Regex("\\s+"), " ").trim()
+            val n = count(line) + 1
+            if (held + n > mostTokens) break
+            out += line
+            held += n
+        }
+        if (out.isEmpty()) return ""
+        val left = notes.size - out.size
+        return (if (left > 0) "(Notes on the first $left chapters are left out.)\n" else "") + out.asReversed().joinToString("\n")
+    }
+
+    /**
+     * A note on a chapter the reader has finished, for the model to remember the book by. A chapter too long to
+     * read in one go is read in parts, and the note written from what each part says. Returns how it ended, and
+     * the note.
+     */
+    fun note(engine: AiEngine, paragraphs: List<String>, chapter: String, book: Book): Pair<AiEnd, String> {
+        val room = (engine.contextTokens - NOTE - OVERHEAD).coerceIn(600, MOST_PART)
+        val parts = BookText.chunks(paragraphs, room, engine::countTokens)
+        if (parts.isEmpty()) return AiEnd.DONE to ""
+        var source = parts[0]
+        if (parts.size > 1) {
+            val notes = StringBuilder()
+            for ((i, part) in parts.withIndex()) {
+                val said = StringBuilder()
+                val end = engine.generate(Prompts.chapterPart(part, chapter, book.title, i + 1, parts.size, "English"), NOTES, 0.2f, {}) { said.append(it) }
+                if (end == AiEnd.CANCELLED || end == AiEnd.FAILED || end == AiEnd.TOO_LONG) return end to ""
+                notes.append("Part ").append(i + 1).append(":\n").append(cleanAnswer(said.toString())).append("\n\n")
+            }
+            source = notes.toString().trim()
+        }
+        val out = StringBuilder()
+        val end = engine.generate(Prompts.chapterNote(source, chapter, book.title, fromNotes = parts.size > 1), NOTE, 0.2f, {}) { out.append(it) }
+        return end to cleanAnswer(out.toString())
+    }
+
+    /**
+     * The pages the reader is on, and the story before them: not what's in front of it (an introduction, the
+     * copyright page), which would be told of as if it were the book.
+     */
+    private fun story(chapters: List<Triple<Int, String, List<String>>>) =
+        chapters.filterIndexed { i, c -> i == chapters.lastIndex || !BookText.frontMatter(c.second) }
+
     /** The last lines read: up to [mostTokens] tokens' worth of the paragraphs just before where the reader is. */
     fun latest(chapters: List<Triple<Int, String, List<String>>>, mostTokens: Int, count: (String) -> Int): String {
         val out = ArrayList<String>()
         var held = 0
-        // The pages the reader is on, and the story before them: not what's in front of it (an introduction, the
-        // copyright page), which would be told of as if it were the book.
-        val story = chapters.filterIndexed { i, c -> i == chapters.lastIndex || !BookText.frontMatter(c.second) }
-        loop@ for ((_, _, paragraphs) in story.asReversed()) {
+        loop@ for ((_, _, paragraphs) in story(chapters).asReversed()) {
             for (p in paragraphs.asReversed()) {
                 val n = count(p) + 1
                 if (held + n > mostTokens) break@loop
@@ -122,6 +242,11 @@ object BookAi {
 
     private const val ANSWER = 420
     private const val NOTES = 220
+    private const val NOTE = 170
+    private const val NOTES_HELD = 1500
+    private const val SCREEN = 1200
+    private const val BEFORE = 260
+    private const val AHEAD_ROOM = 300
     private const val OVERHEAD = 260
     private const val MOST_PART = 3000
     private const val CHAT_ANSWER = 320

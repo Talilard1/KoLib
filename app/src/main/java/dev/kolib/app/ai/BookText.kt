@@ -32,6 +32,94 @@ object BookText {
         return out
     }
 
+    private fun invisible(c: Char) = c == '\u00ad' || c == '\u200b' || c == '\u200c' || c == '\u200d' || c == '\ufeff'
+
+    /** [s] as the page shows it, without its invisible characters, its spaces one at a time; and where each of its characters was in [s]. */
+    private fun flatWithPlaces(s: String): Pair<String, IntArray> {
+        val out = StringBuilder()
+        val places = ArrayList<Int>()
+        var space = false
+        for ((i, c) in s.withIndex()) {
+            if (invisible(c)) continue
+            if (c.isWhitespace()) {
+                space = out.isNotEmpty()
+                continue
+            }
+            if (space) {
+                out.append(' ')
+                places += i - 1
+                space = false
+            }
+            out.append(c)
+            places += i
+        }
+        return out.toString() to places.toIntArray()
+    }
+
+    private fun flat(s: String) = flatWithPlaces(s).first
+
+    /**
+     * [paragraphs] up to the end of the text on the reader's screen ([screen], a line to a paragraph), or up to its
+     * start ([atEnd] false). It's found by the words at that end of it; where they come more than once, the place
+     * nearest [near] of the way through (by length) is taken. Null when they aren't found.
+     */
+    fun upToScreen(paragraphs: List<String>, screen: String, near: Float, atEnd: Boolean = true): List<String>? {
+        val lines = screen.lines().map { flat(it) }.filter { it.length >= 2 }
+        if (lines.isEmpty() || paragraphs.isEmpty()) return null
+        val flatsWithPlaces = paragraphs.map { flatWithPlaces(it) }
+        val flats = flatsWithPlaces.map { it.first }
+        val total = paragraphs.sumOf { it.length }.coerceAtLeast(1)
+        // The line at that end of the screen, by its last (or first) words; fewer of them, or the next line in,
+        // where those aren't found as they are (a note's number on the page that isn't in the text, say).
+        val tries = (if (atEnd) lines.asReversed() else lines).take(2).flatMap { l -> listOf(48, 24).map { n -> if (atEnd) l.takeLast(n) else l.take(n) } }
+        for ((attempt, key) in tries.withIndex()) {
+            if (key.length < 8) continue
+            var best = -1
+            var bestAt = 0
+            var bestDistance = Double.MAX_VALUE
+            var before = 0
+            for ((i, f) in flats.withIndex()) {
+                var from = 0
+                while (true) {
+                    val k = f.indexOf(key, from)
+                    if (k < 0) break
+                    val pos = before + k.toDouble() * paragraphs[i].length / f.length.coerceAtLeast(1)
+                    val d = kotlin.math.abs(pos - near * total)
+                    if (d < bestDistance) {
+                        best = i
+                        bestAt = k
+                        bestDistance = d
+                    }
+                    from = k + 1
+                }
+                before += paragraphs[i].length
+            }
+            if (best < 0) continue
+            // Found by the line before the last (or after the first): the whole of that paragraph is on the screen.
+            val whole = attempt >= 2
+            val (f, places) = flatsWithPlaces[best]
+            val p = paragraphs[best]
+            val cutFlat = when {
+                whole && atEnd -> f.length
+                whole -> 0
+                atEnd -> bestAt + key.length
+                else -> bestAt
+            }
+            // Back to where that is in the paragraph as written.
+            var cut = when {
+                f.isEmpty() -> 0
+                cutFlat >= f.length -> p.length
+                atEnd -> places[cutFlat - 1] + 1
+                else -> places[cutFlat]
+            }.coerceIn(0, p.length)
+            // To the end (or start) of a word.
+            if (atEnd) while (cut < p.length && !p[cut].isWhitespace()) cut++ else while (cut > 0 && !p[cut - 1].isWhitespace()) cut--
+            val part = p.substring(0, cut).trim()
+            return paragraphs.take(best) + listOfNotNull(part.takeIf { it.isNotEmpty() })
+        }
+        return null
+    }
+
     /**
      * [paragraphs] in runs of at most [mostTokens] tokens each, counted by [count]; a paragraph longer than that
      * by itself is cut at sentences.

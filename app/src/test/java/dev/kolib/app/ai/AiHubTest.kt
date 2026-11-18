@@ -71,6 +71,26 @@ class AiHubTest {
     }
 
     @Test
+    fun aModelHeldInMemoryIsToldOfAsItsOpenedAndLetGo() {
+        val hub = hub()
+        val told = java.util.Collections.synchronizedList(ArrayList<Boolean>())
+        hub.onHolding = { told += it }
+        hub.addOwn()
+        hub.settingsStore.set(hub.settings.value.copy(source = "own:Tiny"))
+        runBlocking { hub.use { it.contextTokens } }
+        assertEquals(listOf(true), told.toList())
+        hub.release()
+        runBlocking { for (i in 0 until 100) if (told.size < 2) delay(20) }
+        assertEquals(listOf(true, false), told.toList())
+        // Another model, chosen: the one held is let go as it opens.
+        hub.addOwn("Other.gguf")
+        runBlocking { hub.use { it.contextTokens } }
+        hub.settingsStore.set(hub.settings.value.copy(source = "own:Other"))
+        runBlocking { hub.use { it.contextTokens } }
+        assertEquals(listOf(true, false, true, false, true), told.toList())
+    }
+
+    @Test
     fun aSmallerDeviceHoldsLessAtOnce() {
         val hub = hub(memory = 3_700_000_000L)
         hub.addOwn()
@@ -136,6 +156,83 @@ class AiHubTest {
         }
         assertTrue(end)
         assertEquals(AiHub.State.IDLE, hub.busy.value)
+    }
+
+    private fun waitFor(what: String, until: () -> Boolean) {
+        val end = System.currentTimeMillis() + 10_000
+        while (!until() && System.currentTimeMillis() < end) Thread.sleep(10)
+        assertTrue(what, until())
+    }
+
+    @Test
+    fun whatsReadAheadIsReadWhenTheModelIsFree() {
+        val hub = hub()
+        hub.addOwn()
+        hub.settingsStore.set(hub.settings.value.copy(source = "own:Tiny"))
+        val context = listOf(AiMessage.system("You remember the book."), AiMessage.user("Question: Who?"), AiMessage.assistant("Ansel."))
+        hub.warm { e -> assertEquals(8192, e.contextTokens); context }
+        waitFor("read ahead") { engines.isNotEmpty() && engines[0].ahead.isNotEmpty() }
+        // It opened the model to read ahead, and read what it was given.
+        assertEquals(context, engines.single().ahead.single())
+        waitFor("done") { !hub.working }
+        assertTrue(hub.quietFor() < 5_000)
+        // With no model chosen, there's nothing to read ahead with.
+        hub.settingsStore.set(hub.settings.value.copy(source = ""))
+        hub.warm { context }
+        Thread.sleep(200)
+        assertEquals(1, engines.single().ahead.size)
+    }
+
+    @Test
+    fun aQuestionDoesntWaitForReadingAhead() {
+        val hub = hub()
+        hub.addOwn()
+        hub.settingsStore.set(hub.settings.value.copy(source = "own:Tiny"))
+        runBlocking { hub.use { } }
+        val engine = engines.single()
+        // Reading ahead that would take ten seconds.
+        engine.aheadTakes = 10_000
+        hub.warm { listOf(AiMessage.system("A long book.")) }
+        waitFor("reading ahead") { engine.ahead.isNotEmpty() }
+        val started = System.currentTimeMillis()
+        val said = runBlocking { hub.use { e -> StringBuilder().also { s -> e.generate(listOf(AiMessage.user("?")), 20, 0.2f, {}) { s.append(it) } }.toString() } }
+        assertEquals("An answer.", said)
+        // It gave way as soon as it was asked.
+        assertTrue(engine.yielded)
+        assertTrue(System.currentTimeMillis() - started < 3_000)
+    }
+
+    @Test
+    fun workInTheBackgroundStopsForAQuestionAndWaitsForAQuietSpell() {
+        val hub = hub { "word ".repeat(400) }
+        hub.addOwn()
+        hub.settingsStore.set(hub.settings.value.copy(source = "own:Tiny"))
+        runBlocking { hub.use { } }
+        val engine = engines.single()
+        val background = runBlocking {
+            val notes = async(Dispatchers.Default) {
+                hub.background { e -> e.generate(listOf(AiMessage.user("Note this.")), 400, 0.2f, {}) { Thread.sleep(5) } }
+            }
+            waitFor("writing in the background") { hub.working }
+            delay(100)
+            // A question: the background work is stopped for it, and it's answered.
+            val answer = hub.use { e -> e.contextTokens }
+            assertEquals(8192, answer)
+            notes.await()
+        }
+        assertEquals(AiEnd.CANCELLED, background)
+        assertTrue(engine.stopped || engine.asked.size >= 1)
+        // Just asked: no quiet spell yet.
+        assertTrue(hub.quietFor() < 1_000)
+        // While something's waiting, work in the background isn't started at all.
+        val none = runBlocking {
+            val long = async(Dispatchers.Default) { hub.use { e -> e.generate(listOf(AiMessage.user("?")), 400, 0.2f, {}) { Thread.sleep(2) } } }
+            waitFor("answering") { hub.working }
+            val notes = async(Dispatchers.Default) { hub.background { "written" } }
+            long.await()
+            notes.await()
+        }
+        assertTrue(none == null || none == "written")
     }
 
     @Test

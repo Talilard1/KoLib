@@ -18,6 +18,7 @@ import java.io.File
 import java.io.IOException
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 
 /** How a download of a model is going. */
 data class AiDownload(val bytes: Long, val total: Long, val error: String? = null, val checking: Boolean = false)
@@ -152,6 +153,7 @@ class AiHub(
     }
 
     private val worker = Executors.newSingleThreadExecutor { r -> Thread(r, "kolib-ai").apply { isDaemon = true } }.asCoroutineDispatcher()
+    @Volatile
     private var engine: AiEngine? = null
     private var engineFor: AiSettings? = null
     private var uses = 0L
@@ -173,49 +175,158 @@ class AiHub(
     private fun open(): AiEngine {
         val s = settings.value
         engine?.let { if (engineFor == s.copy(dictionary = true)) return it }
-        engine?.close()
-        engine = null
+        closeNow()
         if (!ready(s)) throw AiException(tr("Choose an AI model first."))
         state.value = State.OPENING
-        val made = if (s.usesServer) openServer(s) else openLocal(modelFile(s)!!, contextFor())
+        val made = if (s.usesServer) openServer(s) else {
+            onHolding(true)
+            try { openLocal(modelFile(s)!!, contextFor()) } catch (e: Throwable) { onHolding(false); throw e }
+        }
         engine = made
         engineFor = s.copy(dictionary = true)
         return made
     }
 
+    /** What the model is doing for whom: answering what was asked, reading ahead of a question, or work in the background. */
+    private enum class Kind { ASKED, AHEAD, BACKGROUND }
+
+    private val lock = Any()
+    private var running: Kind? = null
+    /** Things asked that are waiting for the model. */
+    private val waiting = AtomicInteger(0)
+    /** When something was last asked or read ahead: work in the background waits for a quiet spell. */
+    @Volatile
+    private var lastAsked = 0L
+
     /**
-     * Does [work] with the model, off the main thread, after anything already asked. Cancelling the coroutine
-     * stops the model writing. Throws [AiException] if the model can't be made ready.
+     * Makes way for something asked: reading ahead stops at its next step (what it read stays read), and work in
+     * the background is stopped, to be done again later. Reading ahead [forAhead] only stops work in the background.
      */
-    suspend fun <T> use(work: (AiEngine) -> T): T = withContext(worker) {
-        val mine = ++uses
-        try {
-            val e = open()
-            state.value = State.ANSWERING
-            coroutineScope {
-                val done = AtomicBoolean(false)
-                val stopper = launch(Dispatchers.Default) {
-                    try { awaitCancellation() } finally { if (!done.get()) e.stop() }
-                }
-                try { work(e) } finally {
-                    done.set(true)
-                    stopper.cancel()
-                }
-            }
-        } finally {
-            state.value = State.IDLE
-            scope.launch {
-                delay(IDLE_MS)
-                withContext(worker) { if (uses == mine) closeNow() }
+    private fun makeWay(forAhead: Boolean) {
+        synchronized(lock) {
+            when (running) {
+                Kind.AHEAD -> engine?.yieldAhead()
+                Kind.BACKGROUND -> engine?.stop()
+                Kind.ASKED, null -> {}
             }
         }
     }
 
+    private fun startOf(kind: Kind) = synchronized(lock) { running = kind }
+
+    private fun endOf(mine: Long) {
+        synchronized(lock) { running = null }
+        state.value = State.IDLE
+        scope.launch {
+            delay(IDLE_MS)
+            withContext(worker) { if (uses == mine) closeNow() }
+        }
+    }
+
+    /** Runs [work] on [e] where cancelling the coroutine stops the model writing. */
+    private suspend fun <T> stoppable(e: AiEngine, work: (AiEngine) -> T): T = coroutineScope {
+        val done = AtomicBoolean(false)
+        val stopper = launch(Dispatchers.Default) {
+            try { awaitCancellation() } finally { if (!done.get()) e.stop() }
+        }
+        try { work(e) } finally {
+            done.set(true)
+            stopper.cancel()
+        }
+    }
+
+    /**
+     * Does [work] with the model, off the main thread, after anything already asked; reading ahead and work in the
+     * background make way for it. Cancelling the coroutine stops the model writing. Throws [AiException] if the
+     * model can't be made ready.
+     */
+    suspend fun <T> use(work: (AiEngine) -> T): T {
+        waiting.incrementAndGet()
+        val counted = AtomicBoolean(true)
+        lastAsked = System.currentTimeMillis()
+        makeWay(forAhead = false)
+        try {
+            return withContext(worker) {
+                if (counted.getAndSet(false)) waiting.decrementAndGet()
+                val mine = ++uses
+                try {
+                    val e = open()
+                    state.value = State.ANSWERING
+                    startOf(Kind.ASKED)
+                    stoppable(e, work)
+                } finally {
+                    lastAsked = System.currentTimeMillis()
+                    endOf(mine)
+                }
+            }
+        } finally {
+            if (counted.getAndSet(false)) waiting.decrementAndGet()
+        }
+    }
+
+    /**
+     * Reads ahead (see [AiEngine.prefill]) what [build] makes for the model, when nothing is waiting for it, opening
+     * it if it isn't yet: done while the reader is typing a question, so then only the question is left to read.
+     * Anything asked meanwhile goes first; work in the background makes way for it, and so does reading ahead
+     * asked for before.
+     */
+    fun warm(build: (AiEngine) -> List<AiMessage>) {
+        if (!ready()) return
+        lastAsked = System.currentTimeMillis()
+        makeWay(forAhead = true)
+        scope.launch(worker) {
+            if (waiting.get() > 0) return@launch
+            val mine = ++uses
+            try {
+                val e = open()
+                if (waiting.get() > 0) return@launch
+                val messages = build(e)
+                if (messages.isEmpty() || waiting.get() > 0) return@launch
+                startOf(Kind.AHEAD)
+                e.prefill(messages)
+            } catch (e: AiException) {
+                // Nothing to read ahead with: the question will say why when it's asked.
+            } finally {
+                lastAsked = System.currentTimeMillis()
+                endOf(mine)
+            }
+        }
+    }
+
+    /**
+     * Does [work] with the model when nothing else wants it, for work that can be done again later (notes on a
+     * book): anything asked, or read ahead, meanwhile stops it. Null, without doing it, when something is waiting.
+     * Cancelling the coroutine stops it too. Throws [AiException] if the model can't be made ready.
+     */
+    suspend fun <T> background(work: (AiEngine) -> T): T? = withContext(worker) {
+        if (waiting.get() > 0) return@withContext null
+        val mine = ++uses
+        try {
+            val e = open()
+            if (waiting.get() > 0) return@withContext null
+            startOf(Kind.BACKGROUND)
+            stoppable(e, work)
+        } finally {
+            endOf(mine)
+        }
+    }
+
+    /** How long since anything was asked of the model or read ahead: what work in the background waits for. */
+    fun quietFor(now: Long = System.currentTimeMillis()): Long = now - lastAsked
+
+    /** Whether the model is doing anything, or something is waiting for it. */
+    val working: Boolean get() = synchronized(lock) { running != null } || waiting.get() > 0
+
     private fun closeNow() {
-        engine?.close()
+        val was = engine ?: return
+        was.close()
         engine = null
         engineFor = null
+        onHolding(false)
     }
+
+    /** Told as a model on the device is opened (true) and as it's let go (false): it's held in memory in between. */
+    var onHolding: (Boolean) -> Unit = {}
 
     /** Lets go of the model now (the app is short of memory, or another model was chosen). */
     fun release() {

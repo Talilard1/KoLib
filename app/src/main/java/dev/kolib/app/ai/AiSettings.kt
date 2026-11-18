@@ -15,6 +15,8 @@ data class AiSettings(
     val dictionary: Boolean = true,
     /** The user's own instructions for the chat, in place of the usual ones ([Prompts.CHAT_DEFAULT]); empty for those. */
     val chatPrompt: String = "",
+    /** Notes on books (see BookNotes) are only written while the device is charging. */
+    val notesOnCharge: Boolean = false,
 ) {
     val modelId: String? get() = source.removePrefix("model:").takeIf { source.startsWith("model:") }
     val ownName: String? get() = source.removePrefix("own:").takeIf { source.startsWith("own:") }
@@ -33,6 +35,7 @@ class AiSettingsStore(context: Context) {
         serverModel = prefs.getString("server_model", "").orEmpty(),
         dictionary = prefs.getBoolean("dictionary", true),
         chatPrompt = prefs.getString("chat_prompt", "").orEmpty(),
+        notesOnCharge = prefs.getBoolean("notes_on_charge", false),
     )
 
     fun set(s: AiSettings) {
@@ -43,6 +46,7 @@ class AiSettingsStore(context: Context) {
             .putString("server_model", s.serverModel)
             .putBoolean("dictionary", s.dictionary)
             .putString("chat_prompt", s.chatPrompt)
+            .putBoolean("notes_on_charge", s.notesOnCharge)
             .apply()
         state.value = s
     }

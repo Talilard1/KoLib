@@ -1,0 +1,192 @@
+@fr
+2970|Réponses de l’IA
+2971|Votre réponse est prête
+2972|IA au travail
+2973|Réponse en cours…
+2974|Ne pas poser de question sur ces mots
+2975|Notes sur le livre
+2976|Seulement pendant la charge
+2977|Écriture d’une note sur « {0} »…
+2978|un chapitre
+2979|Notes sur {0} des {1} chapitres lus. Les autres attendent le chargeur.
+2980|Notes sur {0} des {1} chapitres lus. Les autres s’écrivent pendant votre lecture.
+2981|Une note est écrite sur chaque chapitre dès que vous le terminez.
+2982|Notes sur {0} des {1} chapitres lus.
+2983|Il prend note de chaque chapitre que vous terminez, pour se souvenir de tout le livre jusqu’ici. Écrire ces notes consomme de la batterie.
+2984|Réduire
+2985|La dernière fois, Android a fermé KoLib pendant que le modèle d’IA était chargé, très probablement par manque de mémoire. Un modèle plus petit, ou une taille plus petite de celui-ci, devrait aider.
+2986|La dernière fois, KoLib s’est arrêté brusquement pendant que le modèle d’IA était chargé. Si cela se reproduit, essayez un autre modèle.
+2987|Touchez pour ouvrir. Faites glisser sur le ✕ pour fermer.
+2988|Réponse prête
+2989|Ouvrir l’IA
+2990|Le résumé de « {0} »
+2991|Demander à l’IA
+2992|Écriture d’une note sur un chapitre…
+@de
+2970|KI-Antworten
+2971|Deine Antwort ist da
+2972|KI bei der Arbeit
+2973|Antwortet…
+2974|Nicht nach diesen Wörtern fragen
+2975|Buchnotizen
+2976|Nur beim Laden
+2977|Schreibt eine Notiz zu „{0}“…
+2978|ein Kapitel
+2979|Notizen zu {0} von {1} gelesenen Kapiteln. Der Rest wartet aufs Ladegerät.
+2980|Notizen zu {0} von {1} gelesenen Kapiteln. Der Rest entsteht, während du liest.
+2981|Zu jedem Kapitel wird eine Notiz geschrieben, sobald du es beendest.
+2982|Notizen zu {0} von {1} gelesenen Kapiteln.
+2983|Es notiert jedes Kapitel, das du beendest, und behält so das ganze bisherige Buch im Kopf. Das Schreiben kostet Akku.
+2984|Minimieren
+2985|Beim letzten Mal hat Android KoLib geschlossen, während das KI-Modell geladen war, wahrscheinlich weil der Speicher knapp wurde. Ein kleineres Modell oder eine kleinere Größe dieses Modells sollte helfen.
+2986|Beim letzten Mal wurde KoLib plötzlich beendet, während das KI-Modell geladen war. Wenn das wieder passiert, probier ein anderes Modell.
+2987|Zum Öffnen tippen. Zum Schließen auf das ✕ ziehen.
+2988|Antwort da
+2989|KI öffnen
+2990|Die Zusammenfassung von „{0}“
+2991|KI fragen
+2992|Schreibt eine Notiz zu einem Kapitel…
+@es
+2970|Respuestas de la IA
+2971|Tu respuesta está lista
+2972|IA trabajando
+2973|Respondiendo…
+2974|No preguntar por estas palabras
+2975|Notas del libro
+2976|Solo mientras se carga
+2977|Escribiendo una nota sobre «{0}»…
+2978|un capítulo
+2979|Notas de {0} de {1} capítulos leídos. El resto espera al cargador.
+2980|Notas de {0} de {1} capítulos leídos. El resto se escribe mientras lees.
+2981|Se escribe una nota de cada capítulo en cuanto lo terminas.
+2982|Notas de {0} de {1} capítulos leídos.
+2983|Toma nota de cada capítulo que terminas, para recordar todo el libro hasta ahora. Escribirlas gasta batería.
+2984|Minimizar
+2985|La última vez, Android cerró KoLib mientras el modelo de IA estaba cargado, seguramente porque el dispositivo se quedó sin memoria. Un modelo más pequeño, o un tamaño más pequeño de este, debería ayudar.
+2986|La última vez, KoLib se detuvo de golpe mientras el modelo de IA estaba cargado. Si vuelve a pasar, prueba otro modelo.
+2987|Toca para abrir. Arrastra a la ✕ para cerrar.
+2988|Respuesta lista
+2989|Abrir la IA
+2990|El resumen de «{0}»
+2991|Preguntar a la IA
+2992|Escribiendo una nota sobre un capítulo…
+@it
+2970|Risposte dell’IA
+2971|La tua risposta è pronta
+2972|IA al lavoro
+2973|Sta rispondendo…
+2974|Non chiedere di queste parole
+2975|Note sul libro
+2976|Solo durante la ricarica
+2977|Sto scrivendo una nota su «{0}»…
+2978|un capitolo
+2979|Note su {0} dei {1} capitoli letti. Il resto aspetta il caricatore.
+2980|Note su {0} dei {1} capitoli letti. Il resto viene scritto mentre leggi.
+2981|Viene scritta una nota su ogni capitolo appena lo finisci.
+2982|Note su {0} dei {1} capitoli letti.
+2983|Prende nota di ogni capitolo che finisci, così ricorda tutto il libro fin qui. Scrivere le note consuma batteria.
+2984|Riduci a icona
+2985|L’ultima volta Android ha chiuso KoLib mentre il modello IA era caricato, molto probabilmente perché il dispositivo era a corto di memoria. Un modello più piccolo, o una dimensione più piccola di questo, dovrebbe aiutare.
+2986|L’ultima volta KoLib si è fermato all’improvviso mentre il modello IA era caricato. Se succede di nuovo, prova un altro modello.
+2987|Tocca per aprire. Trascina sulla ✕ per chiudere.
+2988|Risposta pronta
+2989|Apri l’IA
+2990|Il riassunto di «{0}»
+2991|Chiedi all’IA
+2992|Sto scrivendo una nota su un capitolo…
+@nl
+2970|AI-antwoorden
+2971|Je antwoord is klaar
+2972|AI aan het werk
+2973|Bezig met antwoorden…
+2974|Niet over deze woorden vragen
+2975|Boeknotities
+2976|Alleen tijdens het opladen
+2977|Notitie schrijven over ‘{0}’…
+2978|een hoofdstuk
+2979|Notities bij {0} van {1} gelezen hoofdstukken. De rest wacht op de oplader.
+2980|Notities bij {0} van {1} gelezen hoofdstukken. De rest wordt geschreven terwijl je leest.
+2981|Bij elk hoofdstuk wordt een notitie geschreven zodra je het uit hebt.
+2982|Notities bij {0} van {1} gelezen hoofdstukken.
+2983|Het maakt een notitie bij elk hoofdstuk dat je uitleest, zodat het het hele boek tot nu toe onthoudt. Dat schrijven kost batterij.
+2984|Minimaliseren
+2985|De vorige keer sloot Android KoLib terwijl het AI-model geladen was, waarschijnlijk omdat het apparaat te weinig geheugen had. Een kleiner model, of een kleinere versie van dit model, zou moeten helpen.
+2986|De vorige keer stopte KoLib plotseling terwijl het AI-model geladen was. Gebeurt het weer, probeer dan een ander model.
+2987|Tik om te openen. Sleep naar de ✕ om te sluiten.
+2988|Antwoord klaar
+2989|AI openen
+2990|De samenvatting van ‘{0}’
+2991|AI vragen
+2992|Notitie schrijven over een hoofdstuk…
+@pt
+2970|Respostas da IA
+2971|Sua resposta está pronta
+2972|IA trabalhando
+2973|Respondendo…
+2974|Não perguntar sobre estas palavras
+2975|Notas do livro
+2976|Só enquanto carrega
+2977|Escrevendo uma nota sobre “{0}”…
+2978|um capítulo
+2979|Notas de {0} dos {1} capítulos lidos. O resto espera o carregador.
+2980|Notas de {0} dos {1} capítulos lidos. O resto é escrito enquanto você lê.
+2981|Uma nota é escrita sobre cada capítulo assim que você o termina.
+2982|Notas de {0} dos {1} capítulos lidos.
+2983|Ele anota cada capítulo que você termina, para lembrar o livro todo até aqui. Escrever as notas gasta bateria.
+2984|Minimizar
+2985|Da última vez, o Android fechou o KoLib enquanto o modelo de IA estava carregado, provavelmente porque o aparelho ficou sem memória. Um modelo menor, ou um tamanho menor deste, deve ajudar.
+2986|Da última vez, o KoLib parou de repente enquanto o modelo de IA estava carregado. Se acontecer de novo, experimente outro modelo.
+2987|Toque para abrir. Arraste até o ✕ para fechar.
+2988|Resposta pronta
+2989|Abrir a IA
+2990|O resumo de “{0}”
+2991|Perguntar à IA
+2992|Escrevendo uma nota sobre um capítulo…
+@ru
+2970|Ответы ИИ
+2971|Ответ готов
+2972|ИИ за работой
+2973|Отвечает…
+2974|Не спрашивать об этих словах
+2975|Заметки о книге
+2976|Только во время зарядки
+2977|Пишется заметка о «{0}»…
+2978|главе
+2979|Заметки к {0} из {1} прочитанных глав. Остальные ждут зарядки.
+2980|Заметки к {0} из {1} прочитанных глав. Остальные пишутся, пока вы читаете.
+2981|Заметка пишется к каждой главе, как только вы её дочитываете.
+2982|Заметки к {0} из {1} прочитанных глав.
+2983|Он делает заметку к каждой дочитанной главе, чтобы помнить всю книгу до этого места. Это расходует заряд батареи.
+2984|Свернуть
+2985|В прошлый раз Android закрыл KoLib, пока модель ИИ была загружена, — скорее всего, устройству не хватило памяти. Поможет модель поменьше или эта же модель меньшего размера.
+2986|В прошлый раз KoLib внезапно остановился, пока модель ИИ была загружена. Если это повторится, попробуйте другую модель.
+2987|Нажмите, чтобы открыть. Перетащите на ✕, чтобы закрыть.
+2988|Ответ готов
+2989|Открыть ИИ
+2990|Пересказ «{0}»
+2991|Спросить ИИ
+2992|Пишется заметка о главе…
+@ja
+2970|AIの回答
+2971|回答の準備ができました
+2972|AIが処理中
+2973|回答中…
+2974|これらの言葉について質問しない
+2975|本のメモ
+2976|充電中のみ
+2977|「{0}」のメモを書いています…
+2978|章
+2979|読んだ{1}章のうち{0}章にメモがあります。残りは充電中に書きます。
+2980|読んだ{1}章のうち{0}章にメモがあります。残りは読んでいる間に書きます。
+2981|章を読み終えるたびにメモを書きます。
+2982|読んだ{1}章のうち{0}章にメモがあります。
+2983|読み終えた章ごとにメモを取り、ここまでの本全体を覚えておきます。メモの作成にはバッテリーを使います。
+2984|最小化
+2985|前回、AIモデルの読み込み中にAndroidがKoLibを閉じました。端末のメモリが足りなかった可能性が高いです。より小さいモデルか、このモデルの小さいサイズを使うと改善するはずです。
+2986|前回、AIモデルの読み込み中にKoLibが突然停止しました。再び起きる場合は、別のモデルを試してください。
+2987|タップで開きます。✕までドラッグすると閉じます。
+2988|回答完了
+2989|AIを開く
+2990|「{0}」の要約
+2991|AIに質問
+2992|章のメモを書いています…

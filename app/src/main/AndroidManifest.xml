@@ -169,6 +169,11 @@
             android:name=".ai.AiDownloadService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
+        <!-- Keeps the AI answering while the app is out of sight. -->
+        <service
+            android:name=".ai.AiAnswerService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
 
         <!-- Sends to, and takes in from, KoLib on the user's other devices while the app is closed. -->
         <service

@@ -73,6 +73,9 @@ class ReaderStore(
 ) {
     private val file get() = File(bookDir, "reader.json")
 
+    /** The AI's notes on the book's chapters (see BookNotes). */
+    val notesFile: File get() = File(bookDir, "ai-notes.json")
+
     fun load(): ReaderState = try {
         if (!file.exists()) ReaderState() else {
             val o = JSONObject(file.readText())

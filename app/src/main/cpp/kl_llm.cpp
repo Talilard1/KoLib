@@ -1,10 +1,12 @@
 #include "kl_llm.h"
 
 #include <algorithm>
+#include <cstring>
 #include <exception>
 
 #include "chat.h"
 #include "common.h"
+#include "gguf.h"
 #include "llama.h"
 #include "sampling.h"
 
@@ -13,6 +15,8 @@ namespace kl {
 namespace {
 
 constexpr int BATCH = 256;
+// Reading ahead goes in smaller steps, so a question waits less for it to give way.
+constexpr int AHEAD_BATCH = 96;
 // Room kept after the prompt for at least a short answer.
 constexpr int LEAST_ANSWER = 48;
 
@@ -40,7 +44,40 @@ size_t whole_utf8(const std::string & s) {
 
 bool aborted(void * data) { return ((Engine *) data)->stop.load(); }
 
+// The conversation as this model wants it written, in its parts (what the template adds, and what was said).
+common_chat_params render(Engine * e, const std::vector<Message> & messages) {
+    common_chat_templates_inputs in;
+    for (const auto & m : messages) {
+        common_chat_msg msg;
+        msg.role = m.role;
+        msg.content = m.content;
+        in.messages.push_back(msg);
+    }
+    in.add_generation_prompt = true;
+    in.use_jinja = true;
+    in.enable_thinking = false;
+    return common_chat_templates_apply(e->templates, in);
+}
+
+// What the context holds and [tokens] have in common at the start stays, up to [most] tokens; the rest is let go
+// of. Returns how many tokens are kept.
+size_t keep_shared(Engine * e, const std::vector<llama_token> & tokens, size_t most) {
+    size_t same = 0;
+    while (same < e->kept.size() && same < tokens.size() && same < most && e->kept[same] == tokens[same]) same++;
+    llama_memory_t mem = llama_get_memory(e->ctx);
+    if (same < e->kept.size()) {
+        if (same == 0 || !llama_memory_seq_rm(mem, 0, (llama_pos) same, -1)) {
+            llama_memory_clear(mem, true);
+            same = 0;
+        }
+    }
+    e->kept.resize(same);
+    return same;
+}
+
 }  // namespace
+
+const char * const ASK_MARK = "\x01KL-QUESTION\x01";
 
 void init(const std::string & backend_dir) {
     llama_log_set(quiet_log, nullptr);
@@ -48,13 +85,31 @@ void init(const std::string & backend_dir) {
     llama_backend_init();
 }
 
-Engine * load(const std::string & path, int n_ctx, int n_threads, std::string & error) {
+int64_t copied_size(const std::string & path) {
+    gguf_init_params gp = { /*.no_alloc =*/ true, /*.ctx =*/ nullptr };
+    gguf_context * g = gguf_init_from_file(path.c_str(), gp);
+    if (!g) return -1;
+    int64_t sum = 0;
+    for (int64_t i = 0; i < gguf_get_n_tensors(g); i++) {
+        if (!ggml_is_quantized(gguf_get_tensor_type(g, i))) continue;
+        // The tables words are looked up in (a row at a time) stay where they are.
+        if (strstr(gguf_get_tensor_name(g, i), "token_embd")) continue;
+        sum += (int64_t) gguf_get_tensor_size(g, i);
+    }
+    gguf_free(g);
+    return sum;
+}
+
+Engine * load(const std::string & path, int n_ctx, int n_threads, bool copy_weights, std::string & error) {
     auto * e = new Engine();
     try {
         llama_model_params mp = llama_model_default_params();
         mp.n_gpu_layers = 0;
         mp.load_mode = LLAMA_LOAD_MODE_MMAP;
         mp.lazy_mode = LLAMA_LAZY_MODE_ON;
+        // The weights copied into an order that's faster to work through holds the whole model in memory a second
+        // time: only where there's the room for it. Otherwise they're used where they lie in the file.
+        mp.use_extra_bufts = copy_weights;
         e->model = llama_model_load_from_file(path.c_str(), mp);
         if (!e->model) {
             error = "model";
@@ -122,17 +177,7 @@ Result generate(Engine * e, const std::vector<Message> & messages, int max_token
         const llama_vocab * vocab = llama_model_get_vocab(e->model);
 
         // The conversation as this model wants it written.
-        common_chat_templates_inputs in;
-        for (const auto & m : messages) {
-            common_chat_msg msg;
-            msg.role = m.role;
-            msg.content = m.content;
-            in.messages.push_back(msg);
-        }
-        in.add_generation_prompt = true;
-        in.use_jinja = true;
-        in.enable_thinking = false;
-        common_chat_params chat = common_chat_templates_apply(e->templates, in);
+        common_chat_params chat = render(e, messages);
 
         // What the reader wrote or the book says is never read as the model's own marks.
         std::vector<llama_token> tokens;
@@ -149,20 +194,13 @@ Result generate(Engine * e, const std::vector<Message> & messages, int max_token
         }
         if ((int) tokens.size() + LEAST_ANSWER > e->n_ctx) return TOO_LONG;
 
-        // What's the same as last time stays; the rest is read.
-        size_t same = 0;
-        while (same < e->kept.size() && same < tokens.size() && e->kept[same] == tokens[same]) same++;
-        if (same == tokens.size()) same--;
+        // What's the same as last time stays (read ahead, or the conversation so far); the rest is read. At least
+        // the last token is read again, for the model to answer from.
+        const size_t same = keep_shared(e, tokens, tokens.size() - 1);
         llama_memory_t mem = llama_get_memory(e->ctx);
-        if (same < e->kept.size()) {
-            if (same == 0 || !llama_memory_seq_rm(mem, 0, (llama_pos) same, -1)) {
-                llama_memory_clear(mem, true);
-                same = 0;
-            }
-        }
-        e->kept.resize(same);
 
         const size_t to_read = tokens.size() - same;
+        e->last_read = (int) to_read;
         for (size_t i = same; i < tokens.size(); i += BATCH) {
             const int n = (int) std::min((size_t) BATCH, tokens.size() - i);
             if (llama_decode(e->ctx, llama_batch_get_one(tokens.data() + i, n)) != 0) {
@@ -227,6 +265,55 @@ Result generate(Engine * e, const std::vector<Message> & messages, int max_token
         return result;
     } catch (const std::exception & ex) {
         if (sampler) common_sampler_free(sampler);
+        e->error = ex.what();
+        e->kept.clear();
+        if (e->ctx) llama_memory_clear(llama_get_memory(e->ctx), true);
+        return FAILED;
+    }
+}
+
+Result prefill(Engine * e, const std::vector<Message> & messages) {
+    if (!e || !e->ctx) return FAILED;
+    e->stop.store(false);
+    e->yield.store(false);
+    e->error.clear();
+    e->last_read = 0;
+    try {
+        const llama_vocab * vocab = llama_model_get_vocab(e->model);
+        common_chat_params chat = render(e, messages);
+        // Everything before the question's place, tokenised as [generate] will.
+        std::vector<llama_token> tokens;
+        bool first = true;
+        bool found = false;
+        for (const auto & part : chat.prompt.parts) {
+            if (part.text.find(ASK_MARK) != std::string::npos) {
+                found = true;
+                break;
+            }
+            if (part.text.empty()) continue;
+            auto piece = common_tokenize(vocab, part.text, first, !part.is_input);
+            tokens.insert(tokens.end(), piece.begin(), piece.end());
+            first = false;
+        }
+        if (!found || tokens.empty()) return DONE;
+        if ((int) tokens.size() + LEAST_ANSWER > e->n_ctx) return TOO_LONG;
+        const size_t same = keep_shared(e, tokens, tokens.size());
+        llama_memory_t mem = llama_get_memory(e->ctx);
+        for (size_t i = same; i < tokens.size(); i += AHEAD_BATCH) {
+            if (e->yield.load() || e->stop.load()) return CANCELLED;
+            const int n = (int) std::min((size_t) AHEAD_BATCH, tokens.size() - i);
+            if (llama_decode(e->ctx, llama_batch_get_one(tokens.data() + i, n)) != 0) {
+                llama_memory_clear(mem, true);
+                e->kept.clear();
+                if (e->stop.load()) return CANCELLED;
+                e->error = "decode";
+                return FAILED;
+            }
+            e->kept.insert(e->kept.end(), tokens.begin() + i, tokens.begin() + i + n);
+            e->last_read += n;
+        }
+        return DONE;
+    } catch (const std::exception & ex) {
         e->error = ex.what();
         e->kept.clear();
         if (e->ctx) llama_memory_clear(llama_get_memory(e->ctx), true);

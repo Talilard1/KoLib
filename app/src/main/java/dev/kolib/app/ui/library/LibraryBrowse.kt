@@ -191,3 +191,38 @@ object LibrarySorting {
             .toList()
     }
 }
+
+/**
+ * What the library is showing, as the AI is told it (in English, as the rest of what it's told is): which books,
+ * picked out how and in what order, and which of them is open.
+ */
+fun libraryOnScreen(browse: LibraryBrowseState, visible: List<dev.kolib.app.library.LibraryBook>, open: String?): dev.kolib.app.ui.ai.LibraryOnScreen {
+    if (browse.tab == 1) return dev.kolib.app.ui.ai.LibraryOnScreen("The library's Collections tab.", emptyList(), browse.collectionBookId)
+    val which = when (browse.filter) {
+        LibraryFilter.ALL -> "books"
+        LibraryFilter.ON_KOBO -> "books that are on the Kobo"
+        LibraryFilter.NOT_ON_KOBO -> "books that aren't on the Kobo"
+        LibraryFilter.CHANGED -> "books changed since they were sent to the Kobo"
+    }
+    val order = when (browse.sort) {
+        LibrarySort.TITLE -> "title"
+        LibrarySort.AUTHOR -> "author"
+        LibrarySort.SERIES -> "series"
+        LibrarySort.PUBLISHED -> "date published"
+        LibrarySort.ADDED -> "date added"
+        LibrarySort.EDITED -> "when last edited"
+        LibrarySort.SIZE -> "file size"
+        LibrarySort.PAGES -> "length"
+        LibrarySort.RATING -> "rating"
+        LibrarySort.LAST_READ -> "when last read on the Kobo"
+        LibrarySort.READ_HERE -> "when last read in KoLib"
+    }
+    val describe = buildString {
+        append("The library, showing ").append(visible.size).append(' ').append(if (visible.size == 1) which.replaceFirst("books", "book") else which)
+        browse.collection?.takeIf { it.isNotBlank() }?.let { append(" in the collection “").append(it).append("”") }
+        if (browse.tags.isNotEmpty()) append(" tagged ").append(browse.tags.joinToString(if (browse.tagsMatchAll) " and " else " or ") { "“$it”" })
+        browse.query.trim().takeIf { it.isNotEmpty() }?.let { append(" that match the search “").append(it).append("”") }
+        append(", by ").append(order).append(if (browse.descending != browse.sort.startsDescending) ", the other way round" else "").append(", in this order.")
+    }
+    return dev.kolib.app.ui.ai.LibraryOnScreen(describe, visible.map { it.id }, open)
+}

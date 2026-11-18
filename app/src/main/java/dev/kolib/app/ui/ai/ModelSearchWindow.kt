@@ -128,7 +128,7 @@ fun ModelSearchWindow(hub: AiHub, onDismiss: () -> Unit) {
                 // Asked for what suits the device, what turns out too big for it once its files are known is left out.
                 val shown = found.filter { m ->
                     val known = (files[m.repo] as? Files.Found)?.files
-                    if (suits && known != null) known.any { ModelSearch.fit(it.bytes, hub.memory) != Fit.TOO_BIG } else true
+                    if (suits && known != null) known.any { ModelSearch.fit(ModelSearch.held(it), hub.memory) != Fit.TOO_BIG } else true
                 }
                 LazyColumn(Modifier.weight(1f, fill = false).fillMaxWidth().padding(bottom = 10.dp)) {
                     items(shown, key = { it.repo }) { model ->
@@ -194,7 +194,7 @@ private fun FoundFileRow(hub: AiHub, file: FoundFile, licence: String?, download
     val model = remember(file) { ModelSearch.asModel(file, licence) }
     val here = remember(file, changed) { hub.models.installed(model) }
     val download = downloads[model.id]
-    val fit = ModelSearch.fit(file.bytes, hub.memory)
+    val fit = ModelSearch.fit(ModelSearch.held(file), hub.memory)
     Row(Modifier.fillMaxWidth().padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
             Text(

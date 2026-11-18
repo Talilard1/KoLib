@@ -173,7 +173,9 @@ fun AppRoot(
     var introAt by rememberSaveable { mutableStateOf(0) }
     var showLanguage by remember { mutableStateOf(false) }
     var showAi by remember { mutableStateOf(false) }
-    var showChat by remember { mutableStateOf(false) }
+    // Where the AI's window is drawn: a book open in the reader says it's the one the AI is about.
+    val aiHost = remember { dev.kolib.app.ui.ai.AiHost() }
+    val aiPanel = (androidx.compose.ui.platform.LocalContext.current.applicationContext as dev.kolib.app.KoLibApp).aiPanel
     /** Books waiting in the send dialog. */
     var sendIds by remember { mutableStateOf<List<String>?>(null) }
     /** The page offering books to the Kobo's web browser, while it's open. */
@@ -490,6 +492,7 @@ fun AppRoot(
     val linkTransfers by link.transfers.collectAsStateWithLifecycle()
     val noticeForLibrary = libraryNotice(connection, state.usbKobo, state.syncing, state.afterConnectRunning, justUnplugged)
 
+    CompositionLocalProvider(dev.kolib.app.ui.ai.LocalAiHost provides aiHost) {
     Box(
         Modifier
             .fillMaxSize()
@@ -675,7 +678,7 @@ fun AppRoot(
                 onLook = { showLook = true },
                 devicesHere = paired.any { d -> linkNearby.any { it.id == d.id } },
             ) {
-                CompositionLocalProvider(dev.kolib.app.ui.link.LocalLinkActions provides linkActions, dev.kolib.app.ui.ai.LocalOpenAiChat provides { showChat = true }) {
+                CompositionLocalProvider(dev.kolib.app.ui.link.LocalLinkActions provides linkActions, dev.kolib.app.ui.ai.LocalOpenAiChat provides { aiPanel.open() }) {
                 when (section) {
                     Section.DEVICES -> dev.kolib.app.ui.link.DevicesScreen(link, devicesActions)
                     Section.LIBRARY -> CompositionLocalProvider(dev.kolib.app.ui.ocr.LocalOcrActions provides ocrActions) { LibraryScreen(
@@ -790,6 +793,9 @@ fun AppRoot(
                 }
             }
         }
+        // The AI's window (or its bubble), over whatever screen is showing: about the book open, or the library.
+        val libraryPlace = remember(books, readingHere) { dev.kolib.app.ui.ai.ChatPlace.Library(books, readingHere) { aiHost.library } }
+        dev.kolib.app.ui.ai.AiLayer(aiHost.book ?: libraryPlace)
 
         val p = job
         // Files added that the library has already: once adding is done, ask what to do with them.
@@ -1057,8 +1063,6 @@ fun AppRoot(
             updater.lookIfDue()
         }
         dev.kolib.app.ui.update.UpdateWindow(updater)
-        // The chat with the model, asked for from the library: about the books in it.
-        if (showChat) dev.kolib.app.ui.ai.AiChatWindow(dev.kolib.app.ui.ai.ChatPlace.Library(books, readingHere), onDismiss = { showChat = false })
         if (showLanguage) dev.kolib.app.ui.library.LanguageDialog(
             onDismiss = { showLanguage = false },
             busy = job?.finished == false || state.syncing,
@@ -1132,6 +1136,7 @@ fun AppRoot(
                 startAt = introAt,
             )
         }
+    }
     }
 }
 

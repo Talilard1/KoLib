@@ -38,14 +38,25 @@ object ModelSearch {
     )
 
     /**
-     * A file this big runs comfortably in [memory] bytes of memory, runs with little to spare, or doesn't
-     * fit: the whole file is held in memory, beside Android and whatever else is open.
+     * A model that holds [bytes] in memory as it answers (see [held]) runs comfortably in [memory] bytes of memory,
+     * runs with little to spare, or doesn't fit, beside Android and whatever else is open.
      */
     fun fit(bytes: Long, memory: Long): Fit = when {
-        bytes <= memory * 0.52 -> Fit.GOOD
-        bytes <= memory * 0.65 -> Fit.TIGHT
+        bytes <= memory * 0.42 -> Fit.GOOD
+        bytes <= memory * 0.6 -> Fit.TIGHT
         else -> Fit.TOO_BIG
     }
+
+    /**
+     * How much of a model file of [bytes] is held in memory as it answers: all of it, but for the "E" models
+     * ([name] like "gemma-4-E2B…"), a third or more of whose file is a table only read a row at a time.
+     */
+    fun held(bytes: Long, name: String): Long {
+        val e = sizeRe.find(name.substringAfter('/'))?.groupValues?.get(2).orEmpty()
+        return if (e.isNotEmpty()) (bytes * 0.65).toLong() else bytes
+    }
+
+    fun held(file: FoundFile): Long = held(file.bytes, file.repo)
 
     // How big a model is, as its name says: "Qwen3.5-9B" (9 billion numbers), "gemma-4-E4B" (4 billion in use at a
     // time, about twice that in all), "LFM2.5-350M", "Mixtral-8x7B". The first such size in the name is the model's
@@ -69,7 +80,7 @@ object ModelSearch {
      */
     fun mayFit(repo: String, memory: Long): Boolean {
         val b = billionsByName(repo) ?: return true
-        return fit((b * 0.55e9).toLong(), memory) != Fit.TOO_BIG
+        return fit(held((b * 0.55e9).toLong(), repo), memory) != Fit.TOO_BIG
     }
 
     /**
@@ -129,7 +140,7 @@ object ModelSearch {
      * it's there, else the biggest; with none that do, the smallest there is.
      */
     fun best(files: List<FoundFile>, memory: Long): FoundFile? {
-        val good = files.filter { fit(it.bytes, memory) == Fit.GOOD }
+        val good = files.filter { fit(held(it), memory) == Fit.GOOD }
         if (good.isEmpty()) return files.minByOrNull { it.bytes }
         return good.lastOrNull { it.quant == "Q4_K_M" }
             ?: good.lastOrNull { it.quant.startsWith("Q4") || it.quant.endsWith("Q4_K_XL") || it.quant.startsWith("IQ4") }

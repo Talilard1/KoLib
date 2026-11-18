@@ -98,16 +98,56 @@ sealed interface ChatPlace {
     /** What a turn asked here is marked with: a book's title, or nothing for the library. */
     val where: String
 
-    /** In a book being read: answered from what's been read of it so far. */
-    class Book(val controller: ReaderController, val language: String?) : ChatPlace {
+    /**
+     * In a book being read: answered from what's been read of it so far and what's on the screen. Its chapter
+     * summary ([companion]) and the AI's notes on it ([notes], written by [writer]) go with it, where it has them.
+     */
+    class Book(
+        val controller: ReaderController,
+        val language: String?,
+        val companion: dev.kolib.app.ui.reader.CompanionState = dev.kolib.app.ui.reader.CompanionState(),
+        val notes: dev.kolib.app.ai.BookNotes? = null,
+        val writer: dev.kolib.app.ai.NotesWriter? = null,
+    ) : ChatPlace {
         override val where: String get() = controller.bookTitle
+
+        val book: BookAi.Book get() = BookAi.Book(controller.bookTitle, controller.bookAuthor, language, controller.bookDescription)
+
+        /** The chapters finished so far that may have notes: in the book's order, before the one the reader is in. */
+        fun finished(): List<dev.kolib.app.ai.NoteChapter> = finishedChapters(controller)
+
+        /** The notes on the chapters before the one the reader is in, by their names, when notes are kept. */
+        fun notesSoFar(): List<Pair<String, String>> {
+            val n = notes?.takeIf { it.on.value } ?: return emptyList()
+            return finished().mapNotNull { ch -> n.note(ch.path)?.takeIf { it.isNotBlank() }?.let { ch.title to it } }
+        }
     }
 
-    /** In the library: answered with the list of the books in it. */
-    class Library(val books: List<LibraryBook>, val reading: Map<String, ReadHere> = emptyMap()) : ChatPlace {
+    /**
+     * In the library: answered with the list of the books in it, the ones on the screen first. [screen] says what
+     * the library is showing (see [LibraryOnScreen]), when it's known.
+     */
+    class Library(
+        val books: List<LibraryBook>,
+        val reading: Map<String, ReadHere> = emptyMap(),
+        val screen: () -> LibraryOnScreen? = { null },
+    ) : ChatPlace {
         override val where: String get() = ""
     }
 }
+
+/** The chapters of the book open in [c] that the reader has finished, that may have notes: not what's in front of the book. */
+fun finishedChapters(c: ReaderController): List<dev.kolib.app.ai.NoteChapter> =
+    (0 until c.chapterIndex.coerceAtMost(c.chapters.size)).filter { c.chapters[it].linear }.mapNotNull { i ->
+        val title = c.titleOf(i)
+        if (dev.kolib.app.ai.BookText.frontMatter(title)) null else dev.kolib.app.ai.NoteChapter(i, c.chapters[i].path, title)
+    }
+
+/**
+ * What the library is showing, for the AI to know: which tab, the filter, search and order chosen, the books
+ * listed (by id, in order), and the book open, if one is.
+ */
+data class LibraryOnScreen(val describe: String, val shown: List<String>, val open: String? = null)
 
 /**
  * The chat with the model: one conversation, the same wherever it's opened from (the library, a book), which
@@ -118,9 +158,12 @@ class ChatSession(
     private val store: ChatStore,
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main),
     private val prefs: android.content.SharedPreferences? = null,
+    /** Told when the model starts on a question, and when it's done with it (with its answer, unless it gave none). */
+    private val onStarted: () -> Unit = {},
+    private val onFinished: (question: String, answer: String?) -> Unit = { _, _ -> },
 ) {
     /** A question and its answer as it's written. */
-    class Turn(val question: String, val where: String, answer: String = "") {
+    class Turn(val question: String, val where: String, answer: String = "", val picked: String? = null) {
         val answer = MutableStateFlow(answer)
         val failed = MutableStateFlow<String?>(null)
     }
@@ -151,6 +194,9 @@ class ChatSession(
 
     /** The turn whose question is being changed (the next thing sent takes its place, and what came after it goes). */
     var editing by mutableStateOf<Int?>(null)
+
+    /** Words picked out on a book's page to ask about ("Ask AI"): sent with the next question, then let go of. */
+    var attached by mutableStateOf<String?>(null)
 
     private fun newId() = java.util.UUID.randomUUID().toString()
 
@@ -186,7 +232,7 @@ class ChatSession(
     }
 
     /** What's been asked in the same place before, and answered: what the model is reminded of. */
-    private fun history(where: String, before: Turn): MutableList<AiMessage> {
+    private fun history(where: String, before: Turn?): MutableList<AiMessage> {
         val out = ArrayList<AiMessage>()
         for (t in turns) {
             if (t === before) break
@@ -198,6 +244,43 @@ class ChatSession(
         return out
     }
 
+    /** Where a book's reader is, as a question asked there is answered from: what's been read, the screen, the notes. */
+    private suspend fun placeIn(place: ChatPlace.Book, selected: String?): BookAi.Place {
+        val c = place.controller
+        val index = c.chapterIndex
+        val progress = c.chapterProgress
+        val chapter = c.chapterTitle
+        val percent = (c.bookProgress * 100).roundToInt().coerceIn(0, 100)
+        val screen = c.onScreen()?.text?.takeIf { it.isNotBlank() }
+        val notes = place.notesSoFar()
+        return withContext(Dispatchers.Default) {
+            BookAi.Place(
+                chapters = c.readSoFar(index, progress, screen),
+                chapter = chapter,
+                percent = percent,
+                screen = screen,
+                beforeScreen = screen?.let { c.readSoFar(index, progress, it, toScreenStart = true) },
+                notes = notes,
+                selected = selected,
+            )
+        }
+    }
+
+    /** The library's books as the model is told of them: the ones on the screen first, in the order they're shown. */
+    private suspend fun shelfIn(place: ChatPlace.Library): Pair<List<LibraryAi.Shelved>, String> {
+        val screen = place.screen()
+        return withContext(Dispatchers.Default) {
+            val order = screen?.shown.orEmpty().withIndex().associate { it.value to it.index }
+            val books = place.books.withIndex().sortedBy { order[it.value.id] ?: (order.size + it.index) }.map { it.value }
+            val open = screen?.open?.let { id -> place.books.firstOrNull { it.id == id } }
+            val describe = listOfNotNull(
+                screen?.describe?.takeIf { it.isNotBlank() },
+                open?.let { "The book open on the screen is “" + it.meta.title + "”" + (it.meta.authors.takeIf { a -> a.isNotEmpty() }?.let { a -> " by " + a.joinToString(", ") } ?: "") + "." },
+            ).joinToString(" ")
+            books.map { shelved(it, place.reading[it.id]) } to describe
+        }
+    }
+
     /** Asks [text] from [place]. When a question is being changed, this takes its place and what followed it goes. */
     fun ask(hub: AiHub, place: ChatPlace, text: String) {
         val q = text.trim()
@@ -206,10 +289,14 @@ class ChatSession(
             if (at in turns.indices) turns.removeRange(at, turns.size)
             editing = null
         }
-        val turn = Turn(q, place.where)
+        val words = attached?.takeIf { place is ChatPlace.Book }
+        attached = null
+        val turn = Turn(q, place.where, picked = words)
         turns += turn
+        onStarted()
         job = scope.launch {
             reading.value = 0f
+            var answered: String? = null
             try {
                 val answerIn = Prompts.languageName(L10n.language)
                 val instructions = hub.settings.value.chatPrompt
@@ -220,39 +307,63 @@ class ChatSession(
                 val (end, error) = when (place) {
                     is ChatPlace.Book -> if (!readBook) {
                         val c = place.controller
+                        val asked = if (words != null) q + "\n\n(About these words in the book: “" + words + "”)" else q
                         hub.use { engine ->
-                            LibraryAi.plain(engine, history(place.where, turn), q, c.bookTitle, c.bookAuthor, answerIn, onProgress = { reading.value = it }, onText = onText, instructions = instructions) to engine.lastError
+                            LibraryAi.plain(engine, history(place.where, turn), asked, c.bookTitle, c.bookAuthor, answerIn, instructions, onProgress = { reading.value = it }, onText = onText) to engine.lastError
                         }
                     } else {
-                        val c = place.controller
-                        val index = c.chapterIndex
-                        val progress = c.chapterProgress
-                        val chapter = c.chapterTitle
-                        val percent = (c.bookProgress * 100).roundToInt().coerceIn(0, 100)
-                        val chapters = withContext(Dispatchers.Default) { c.readSoFar(index, progress) }
-                        val book = BookAi.Book(c.bookTitle, c.bookAuthor, place.language, c.bookDescription)
+                        val where = placeIn(place, words)
                         hub.use { engine ->
                             BookAi.answer(
-                                engine, history(place.where, turn), q, book, chapters, chapter, percent, answerIn,
-                                (engine as? LocalEngine)?.readSpeed, onProgress = { reading.value = it }, onText = onText, instructions = instructions,
+                                engine, history(place.where, turn), q, place.book, where, answerIn,
+                                (engine as? LocalEngine)?.readSpeed, onProgress = { reading.value = it }, instructions = instructions, onText = onText,
                             ) to engine.lastError
                         }
                     }
                     is ChatPlace.Library -> {
-                        val shelf = withContext(Dispatchers.Default) { place.books.map { shelved(it, place.reading[it.id]) } }
+                        val (shelf, screen) = shelfIn(place)
                         hub.use { engine ->
-                            LibraryAi.answer(engine, history(place.where, turn), q, shelf, answerIn, onProgress = { reading.value = it }, onText = onText, instructions = instructions) to engine.lastError
+                            LibraryAi.answer(engine, history(place.where, turn), q, shelf, answerIn, instructions, screen, onProgress = { reading.value = it }, onText = onText) to engine.lastError
                         }
                     }
                 }
                 if (end == AiEnd.FAILED) turn.failed.value = error ?: tr("The model couldn't answer.")
                 else if (end == AiEnd.TOO_LONG) turn.failed.value = tr("That's more than the model can take in at once. Try a shorter question.")
+                else if (end == AiEnd.DONE || end == AiEnd.LENGTH) answered = cleanAnswer(turn.answer.value).takeIf { it.isNotBlank() }
             } catch (e: AiException) {
                 turn.failed.value = e.message
             } finally {
                 reading.value = null
                 job = null
                 keep()
+                onFinished(q, answered)
+            }
+        }
+    }
+
+    /**
+     * Reads ahead what a question asked from [place] will be read with (the book's context, or the library's, and
+     * the conversation so far), so that when it's asked only the question is left to read: done while the reader
+     * types it. Nothing while something's being answered.
+     */
+    fun warm(hub: AiHub, place: ChatPlace) {
+        if (asking || !hub.ready()) return
+        scope.launch {
+            val answerIn = Prompts.languageName(L10n.language)
+            val instructions = hub.settings.value.chatPrompt
+            val history = history(place.where, null)
+            when (place) {
+                is ChatPlace.Book -> if (!readBook) {
+                    val c = place.controller
+                    hub.warm { e -> LibraryAi.plainAhead(e, history, c.bookTitle, c.bookAuthor, answerIn, instructions) }
+                } else {
+                    val where = placeIn(place, null)
+                    hub.warm { e -> BookAi.ahead(e, history, place.book, where, answerIn, instructions) }
+                }
+                is ChatPlace.Library -> {
+                    val (shelf, screen) = shelfIn(place)
+                    hub.warm { e -> LibraryAi.ahead(e, history, shelf, screen, answerIn, instructions) }
+                }
             }
         }
     }
@@ -273,39 +384,6 @@ class ChatSession(
             else -> "not started"
         },
     )
-}
-
-/** The chat with the model in a window of its own, floating over whatever's showing: opened from the library. */
-@Composable
-fun AiChatWindow(place: ChatPlace, onDismiss: () -> Unit) {
-    val context = LocalContext.current
-    val app = context.applicationContext as KoLibApp
-    val hub = app.ai
-    val ai by hub.settings.collectAsState()
-    val files by hub.filesChanged.collectAsState()
-    val ready = remember(ai, files) { hub.ready(ai) }
-    var setup by remember { mutableStateOf(false) }
-    FloatingWindow(onDismiss, Modifier.testTag("ai-chat-window"), maxWidth = 560.dp) {
-        Row(Modifier.padding(start = 20.dp, end = 6.dp, top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Outlined.AutoAwesome, null, tint = MaterialTheme.colorScheme.primary)
-            Text(tr("AI"), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f).padding(start = 12.dp))
-            IconButton(onClick = { setup = true }) { Icon(Icons.Outlined.Settings, tr("AI and dictionary settings")) }
-            IconButton(onClick = onDismiss) { Icon(Icons.Filled.Close, tr("Close")) }
-        }
-        if (!ready) {
-            Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp).padding(top = 4.dp, bottom = 20.dp)) {
-                Text(
-                    tr("With an AI model set up, you can ask about your library here, and about a book while you read it."),
-                    style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(Modifier.height(14.dp))
-                Button(onClick = { setup = true }) { Text(tr("Set up AI")) }
-            }
-        } else {
-            ChatPane(app.chat, place, hub)
-        }
-    }
-    if (setup) AiSetupDialog(onDismiss = { setup = false })
 }
 
 /**
@@ -386,6 +464,12 @@ fun ColumnScope.ChatPane(session: ChatSession, place: ChatPlace, hub: AiHub) {
                 )
             }
             lastWhere = turn.where
+            turn.picked?.let { words ->
+                Text(
+                    "“" + words.replace(Regex("\\s+"), " ") + "”", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.fillMaxWidth().padding(top = 10.dp, start = 48.dp, end = 8.dp),
+                )
+            }
             Row(Modifier.fillMaxWidth().padding(top = 10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.End) {
                 // A question can be changed and asked again: the chat carries on from there.
                 IconButton(
@@ -428,15 +512,21 @@ fun ColumnScope.ChatPane(session: ChatSession, place: ChatPlace, hub: AiHub) {
             IconButton(onClick = { session.editing = null; question = "" }, modifier = Modifier.size(36.dp)) { Icon(Icons.Filled.Close, tr("Cancel"), Modifier.size(16.dp)) }
         }
     }
-    if (inBook) {
-        // Whether it's shown the book: on, its answers come from what's been read; off, from what it knows.
-        androidx.compose.material3.FilterChip(
-            selected = session.readBook, onClick = { session.readBook = !session.readBook }, enabled = !asking,
-            label = { Text(tr("Reads the book")) },
-            leadingIcon = if (session.readBook) ({ Icon(androidx.compose.material.icons.Icons.Filled.Check, null, Modifier.size(16.dp)) }) else null,
-            modifier = Modifier.padding(start = 20.dp).testTag("chat-reads-book"),
-        )
+    // Words picked out on the page to ask about: they go with the next question.
+    session.attached?.takeIf { inBook }?.let { words ->
+        Row(
+            Modifier.fillMaxWidth().padding(start = 20.dp, end = 8.dp, top = 2.dp)
+                .background(MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(12.dp)).padding(start = 12.dp).testTag("chat-attached"),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                "“" + words.replace(Regex("\\s+"), " ") + "”", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondaryContainer,
+                maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f).padding(vertical = 6.dp),
+            )
+            IconButton(onClick = { session.attached = null }, modifier = Modifier.size(36.dp)) { Icon(Icons.Filled.Close, tr("Don't ask about these words"), Modifier.size(16.dp)) }
+        }
     }
+    if (place is ChatPlace.Book) BookSwitches(session, place, hub, asking)
     Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 4.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
         OutlinedTextField(
             value = question, onValueChange = { question = it },
@@ -468,5 +558,51 @@ private fun SavedChatRow(chat: SavedChat, current: Boolean, canOpen: Boolean, ca
             )
         }
         IconButton(onClick = onDelete, enabled = canDelete, modifier = Modifier.testTag("chat-delete-${chat.id}")) { Icon(Icons.Outlined.Delete, tr("Delete this chat")) }
+    }
+}
+
+/**
+ * In a book, under the chat: whether the AI reads the book, and whether it keeps notes on it as it's read (and, if
+ * it does, only while charging), with how far the notes have got.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun BookSwitches(session: ChatSession, place: ChatPlace.Book, hub: AiHub, asking: Boolean) {
+    val notes = place.notes
+    val writer = place.writer
+    val notesOn = notes?.on?.collectAsState()?.value == true
+    val written = notes?.written?.collectAsState()?.value ?: 0
+    val status = writer?.status?.collectAsState()?.value
+    val settings by hub.settings.collectAsState()
+    @Composable
+    fun Switch(on: Boolean, label: String, tag: String, enabled: Boolean = true, onChange: (Boolean) -> Unit) = androidx.compose.material3.FilterChip(
+        selected = on, onClick = { onChange(!on) }, enabled = enabled,
+        label = { Text(label) },
+        leadingIcon = if (on) ({ Icon(Icons.Filled.Check, null, Modifier.size(16.dp)) }) else null,
+        modifier = Modifier.testTag(tag),
+    )
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
+        // Whether it's shown the book: on, its answers come from what's been read; off, from what it knows.
+        Switch(session.readBook, tr("Reads the book"), "chat-reads-book", enabled = !asking) { session.readBook = it }
+        if (notes != null) {
+            Switch(notesOn, tr("Book notes"), "chat-notes") { notes.setOn(it) }
+            if (notesOn) Switch(settings.notesOnCharge, tr("Only while charging"), "chat-notes-charging") { hub.settingsStore.set(settings.copy(notesOnCharge = it)) }
+        }
+    }
+    if (notes != null && writer != null && notesOn) {
+        val (done, of) = remember(written, place.controller.chapterIndex) { writer.progress() }
+        val line = when (status) {
+            is dev.kolib.app.ai.NotesWriter.Status.Writing -> (if (status.chapter.isBlank()) tr("Writing a note on a chapter…") else tr("Writing a note on “{0}”…", status.chapter))
+            is dev.kolib.app.ai.NotesWriter.Status.Waiting -> when (status.why) {
+                dev.kolib.app.ai.NotesWriter.Wait.CHARGER -> tr("Notes on {0} of {1} chapters read. The rest wait for the charger.", done, of)
+                else -> tr("Notes on {0} of {1} chapters read. The rest are written while you read.", done, of)
+            }
+            else -> if (of == 0) tr("Notes are written on each chapter as you finish it.") else tr("Notes on {0} of {1} chapters read.", done, of)
+        }
+        Text(
+            tr("It notes each chapter you finish, so it remembers the whole book so far. Writing them uses battery.") + " " + line,
+            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 24.dp, vertical = 2.dp).testTag("chat-notes-status"),
+        )
     }
 }

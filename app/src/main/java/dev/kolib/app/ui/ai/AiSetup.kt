@@ -61,6 +61,8 @@ import dev.kolib.app.ai.AiHub
 import dev.kolib.app.ai.AiModel
 import dev.kolib.app.ai.AiModels
 import dev.kolib.app.ai.AiSettings
+import dev.kolib.app.ai.Fit
+import dev.kolib.app.ai.ModelSearch
 import dev.kolib.app.ai.ModelStore
 import dev.kolib.app.ai.ServerEngine
 import dev.kolib.app.tr
@@ -145,6 +147,11 @@ fun AiSetupDialog(onDismiss: () -> Unit, hub: AiHub = (LocalContext.current.appl
                             Column(Modifier.weight(1f)) {
                                 Text(name, style = MaterialTheme.typography.titleSmall)
                                 Text(tr("Your own model · {0}", Fmt.bytes(context, file.length()).orEmpty()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                when (ModelSearch.fit(ModelSearch.held(file.length(), name), hub.memory)) {
+                                    Fit.GOOD -> {}
+                                    Fit.TIGHT -> Text(tr("A tight fit: it may be slow, or close other apps"), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Fit.TOO_BIG -> Text(tr("Wants more memory than this device has"), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.error)
+                                }
                             }
                             IconButton(onClick = { hub.deleteOwn(file) }) { Icon(Icons.Outlined.Delete, tr("Delete this model")) }
                         }

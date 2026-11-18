@@ -66,6 +66,7 @@ object LibraryAi {
     data class Shelved(val title: String, val authors: String, val series: String?, val tags: List<String>, val state: String?)
 
     private const val ANSWER = 420
+    private const val AHEAD_ROOM = 300
 
     private fun line(b: Shelved): String = buildString {
         append("- ").append(b.title)
@@ -76,21 +77,14 @@ object LibraryAi {
     }
 
     /**
-     * The books to tell the model of for [question], as lines of a list no longer than [room] tokens: all of
-     * them when they fit; otherwise those whose title, author, series or tags share a word with the question
-     * first, then the rest for as long as there's room. Returns the list and how many books it left out.
+     * [books] as lines of a list no longer than [room] tokens, in the order they're given (the ones on the screen
+     * first): all of them when they fit. Returns the list and how many books it left out.
      */
-    fun shelf(books: List<Shelved>, question: String, room: Int, count: (String) -> Int): Pair<String, Int> {
-        val asked = BookText.keywords(question).map { it.lowercase() }.toSet()
-        fun score(b: Shelved): Int {
-            val words = (b.title + " " + b.authors + " " + b.series.orEmpty() + " " + b.tags.joinToString(" ")).lowercase().split(Regex("[^\\p{L}\\p{N}]+")).toSet()
-            return asked.count { it in words }
-        }
-        val ordered = books.withIndex().sortedWith(compareByDescending<IndexedValue<Shelved>> { score(it.value) }.thenBy { it.index }).map { it.value }
+    fun shelf(books: List<Shelved>, room: Int, count: (String) -> Int): Pair<String, Int> {
         val out = StringBuilder()
         var used = 0
         var shown = 0
-        for (b in ordered) {
+        for (b in books) {
             val l = line(b)
             val n = count(l) + 1
             if (used + n > room) break
@@ -101,16 +95,53 @@ object LibraryAi {
         return out.toString() to books.size - shown
     }
 
+    /** Of the books the list left out (all after the first [listed]), those whose title, author, series or tags share a word with [question]. */
+    fun matching(books: List<Shelved>, listed: Int, question: String, room: Int, count: (String) -> Int): String {
+        val asked = BookText.keywords(question).map { it.lowercase() }.toSet()
+        if (asked.isEmpty()) return ""
+        val out = StringBuilder()
+        var used = 0
+        for (b in books.drop(listed)) {
+            val words = (b.title + " " + b.authors + " " + b.series.orEmpty() + " " + b.tags.joinToString(" ")).lowercase().split(Regex("[^\\p{L}\\p{N}]+")).toSet()
+            if (asked.none { it in words }) continue
+            val l = line(b)
+            val n = count(l) + 1
+            if (used + n > room) break
+            out.append(l).append('\n')
+            used += n
+        }
+        return out.toString()
+    }
+
+    private fun room(engine: AiEngine) = minOf(1800, engine.contextTokens / 3)
+
     /**
-     * Answers [question] about the reader's library. [history] is the conversation so far, and gets this
-     * question and its answer added.
+     * What the model is told before any question asked in the library: the instructions, what's on the [screen],
+     * and the [books] (the ones on the screen first). The same for every question while the screen stays as it
+     * is, so the model keeps it read from one question to the next. Returns it, and how many books it lists.
+     */
+    fun context(engine: AiEngine, books: List<Shelved>, screen: String, answerIn: String, instructions: String = ""): Pair<AiMessage, Int> {
+        val (list, left) = shelf(books, room(engine), engine::countTokens)
+        return Prompts.librarySystem(books.size, answerIn, instructions, screen, list, left) to books.size - left
+    }
+
+    /** What's read ahead while a question is typed in the library: its context and the conversation so far. */
+    fun ahead(engine: AiEngine, history: MutableList<AiMessage>, books: List<Shelved>, screen: String, answerIn: String, instructions: String = ""): List<AiMessage> {
+        val system = context(engine, books, screen, answerIn, instructions).first
+        return listOf(system) + BookAi.fitHistory(engine, system, history, AHEAD_ROOM)
+    }
+
+    /**
+     * Answers [question] about the reader's library, whose [books] are given with the ones on the [screen] first.
+     * [history] is the conversation so far, and gets this question and its answer added.
      */
     fun answer(
         engine: AiEngine, history: MutableList<AiMessage>, question: String, books: List<Shelved>, answerIn: String,
-        instructions: String = "", onProgress: (Float) -> Unit = {}, onText: (String) -> Unit,
+        instructions: String = "", screen: String = "", onProgress: (Float) -> Unit = {}, onText: (String) -> Unit,
     ): AiEnd {
-        val (list, left) = shelf(books, question, minOf(1800, engine.contextTokens / 3), engine::countTokens)
-        return converse(engine, history, Prompts.librarySystem(books.size, answerIn, instructions), Prompts.libraryQuestion(question, list, left), question, onProgress, onText)
+        val (system, listed) = context(engine, books, screen, answerIn, instructions)
+        val more = matching(books, listed, question, minOf(600, engine.contextTokens / 8), engine::countTokens)
+        return converse(engine, history, system, Prompts.libraryQuestion(question, more), question, onProgress, onText)
     }
 
     /**
@@ -122,18 +153,17 @@ object LibraryAi {
         instructions: String = "", onProgress: (Float) -> Unit = {}, onText: (String) -> Unit,
     ): AiEnd = converse(engine, history, Prompts.plainSystem(title, author, answerIn, instructions), AiMessage.user("Question: " + question.trim()), question, onProgress, onText)
 
+    /** What's read ahead for a question in a book with the reading of it turned off. */
+    fun plainAhead(engine: AiEngine, history: MutableList<AiMessage>, title: String, author: String?, answerIn: String, instructions: String = ""): List<AiMessage> {
+        val system = Prompts.plainSystem(title, author, answerIn, instructions)
+        return listOf(system) + BookAi.fitHistory(engine, system, history, AHEAD_ROOM)
+    }
+
     private fun converse(
         engine: AiEngine, history: MutableList<AiMessage>, system: AiMessage, asked: AiMessage, question: String,
         onProgress: (Float) -> Unit, onText: (String) -> Unit,
     ): AiEnd {
-        val count = engine::countTokens
-        // The oldest turns go when the conversation outgrows the model.
-        val room = engine.contextTokens - ANSWER - 64
-        fun size() = count(system.content) + history.sumOf { count(it.content) + 8 } + count(asked.content) + 16
-        while (history.size >= 2 && size() > room) {
-            history.removeAt(0)
-            history.removeAt(0)
-        }
+        BookAi.fitHistory(engine, system, history, engine.countTokens(asked.content))
         val said = StringBuilder()
         val end = engine.generate(listOf(system) + history + asked, ANSWER, 0.5f, onProgress) { said.append(it); onText(it) }
         if (end == AiEnd.DONE || end == AiEnd.LENGTH) {

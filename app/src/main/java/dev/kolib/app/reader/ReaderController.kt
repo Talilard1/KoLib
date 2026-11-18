@@ -739,11 +739,47 @@ class ReaderController(
      * What's been read with the reader in chapter [index], [progress] of the way through it: the chapters
      * before it, and it up to there; each with its place in the book and its name.
      */
-    fun readSoFar(index: Int = chapterIndex, progress: Float = chapterProgress): List<Triple<Int, String, List<String>>> =
+    fun readSoFar(index: Int = chapterIndex, progress: Float = chapterProgress, screen: String? = null, toScreenStart: Boolean = false): List<Triple<Int, String, List<String>>> =
         (0..index.coerceIn(0, chapters.size - 1)).filter { chapters[it].linear }.map { i ->
             val paragraphs = paragraphsOf(i)
-            Triple(i, titleOf(i), if (i == index) dev.kolib.app.ai.BookText.upTo(paragraphs, progress) else paragraphs)
+            Triple(i, titleOf(i), if (i == index) readOf(paragraphs, progress, screen, toScreenStart) else paragraphs)
         }
+
+    /**
+     * What's been read of the chapter the reader is in: up to the end of what's on the screen (the page being read
+     * counts as read), or to its start; as far as [progress] says where the screen's text isn't known or found.
+     */
+    private fun readOf(paragraphs: List<String>, progress: Float, screen: String?, toScreenStart: Boolean): List<String> =
+        screen?.takeIf { it.isNotBlank() }?.let { dev.kolib.app.ai.BookText.upToScreen(paragraphs, it, progress, atEnd = !toScreenStart) }
+            ?: dev.kolib.app.ai.BookText.upTo(paragraphs, progress)
+
+    /** What's on the screen, for the AI: the text showing (a line to a paragraph) and any words selected. */
+    class OnScreen(val text: String, val selected: String)
+
+    /** For pictures and tests, where there's no page to ask: what's taken to be on the screen. */
+    internal var screenForPreview: OnScreen? = null
+
+    /** What's on the screen now; null where the page can't say (it isn't laid out yet). On the main thread. */
+    suspend fun onScreen(): OnScreen? {
+        screenForPreview?.let { return it }
+        val v = webView ?: return null
+        if (loading) return null
+        return withTimeoutOrNull(1_500) {
+            kotlinx.coroutines.suspendCancellableCoroutine { cont ->
+                v.evaluateJavascript("KLR.screen()") { r ->
+                    val json = runCatching { org.json.JSONTokener(r).nextValue() as? String }.getOrNull()
+                    val o = json?.takeIf { it.isNotEmpty() }?.let { runCatching { JSONObject(it) }.getOrNull() }
+                    if (cont.isActive) cont.resumeWith(Result.success(o?.let { OnScreen(it.optString("text"), it.optString("selected")) }))
+                }
+            }
+        }
+    }
+
+    /** Words picked out on the page to ask the AI about ("Ask AI" on the selection toolbar), until the chat takes them. */
+    var askRequest by mutableStateOf<String?>(null)
+
+    /** Where this book's notes for the AI are kept, when it's a book of the library's. */
+    val notesFile: java.io.File? get() = store?.notesFile
 
     /** The user's fonts changed: the page reads their list again, so one just added shows without the chapter being opened again. */
     fun userFontsChanged() {
@@ -1212,7 +1248,7 @@ class ReaderController(
         open(home, target("start"))
     }
 
-    private fun titleOf(index: Int): String {
+    fun titleOf(index: Int): String {
         if (index > 0 && isOpening(index - 1)) return chapters[index - 1].title
         // A page put together from pieces: the contents' name for it (a part's), as its first piece has it.
         inFront(index).firstOrNull { chapters[it].titleFromToc }?.let { return chapters[it].title }
@@ -1557,6 +1593,7 @@ class ReaderController(
                     lookUpText = sel.optString("text").trim()
                 }
                 SelectionAction.SEARCH -> searchRequest = sel.optString("text").replace(Regex("\\s+"), " ").trim()
+                SelectionAction.ASK -> askRequest = sel.optString("text").replace(Regex("[ \\t]+"), " ").trim()
             }
             js("KLR.clearSelection()")
             done()

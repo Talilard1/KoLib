@@ -49,11 +49,16 @@ Get the latest APK from [Releases](https://github.com/Talilard1/KoLib/releases/l
 - Look a word up without leaving the book: a small card by the word says what it means in the
   sentence you're reading, with its dictionary entry a tap away.
 - Optional AI that runs on your device, with no account: chapter summaries, and questions about the
-  book answered from what you've read so far. Choose a model to suit your device, add your own, or
-  use your own server.
-- An AI chat on the main page too. It knows what's in your library, keeps answering if you close
-  it, and saves your chats so you can come back to them. You can edit a message and ask again, and
-  change the instructions it's given.
+  book answered from what you've read so far. It sees the page you're on, so you can ask about "this
+  page", or select some words and choose Ask AI. It starts reading while you type, so answers come
+  sooner. Choose a model to suit your device, add your own, or use your own server.
+- The AI opens in a window you can drag anywhere, or shrink to a bubble that lights up when an answer
+  is ready. Close it and it keeps working; if you've left KoLib, a notification tells you when it's done.
+- Book notes, if you want them: the AI writes a short note on each chapter you finish, so it remembers
+  the whole book so far, not just the last few pages. You can keep this to when your device is charging.
+- An AI chat on the main page too. It knows what's in your library and what's on your screen, and
+  saves your chats so you can come back to them. You can edit a message and ask again, and change the
+  instructions it's given.
 - Find more models from inside the app: search Hugging Face, see which ones suit your device, and
   download any of them. A storage bar shows how much room each model takes.
 - A comic reader modelled on [Mihon](https://github.com/mihonapp/mihon)'s.
@@ -132,8 +137,9 @@ a word up in Wiktionary, to download OCR language data or an AI model when you a
 search Hugging Face when you look for a model, and to ask GitHub once a day whether there's a new
 version. You can turn that check off in Settings.
 
-AI models run on your device: nothing you read is sent anywhere. If you choose to use a server of
-your own instead, the words you look up and the pages around them are sent to that server.
+AI models run on your device: nothing you read is sent anywhere. If you use a server of your own
+instead, what the AI needs to answer is sent to that server: the words you look up, the pages you ask
+about, and your book list when you ask about your library.
 
 The camera is used only to scan a pairing QR code.
 

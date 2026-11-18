@@ -295,7 +295,7 @@ internal fun PhoneLibraryScreen(
                     Spacer(Modifier.width(10.dp))
                     Text(tr("Library"), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
                     dev.kolib.app.ui.ai.LocalOpenAiChat.current?.let { open ->
-                        IconButton(onClick = open, modifier = Modifier.testTag("library-ai")) { Icon(Icons.Outlined.AutoAwesome, tr("AI chat")) }
+                        IconButton(onClick = open, modifier = Modifier.testTag("library-ai")) { dev.kolib.app.ui.ai.AiButtonIcon(tr("AI chat")) }
                     }
                     var menu by remember { mutableStateOf(false) }
                     Box {
@@ -327,7 +327,7 @@ internal fun PhoneLibraryScreen(
                         modifier = Modifier.weight(1f),
                     )
                     dev.kolib.app.ui.ai.LocalOpenAiChat.current?.let { open ->
-                        IconButton(onClick = open, modifier = Modifier.size(40.dp).testTag("library-ai")) { Icon(Icons.Outlined.AutoAwesome, tr("AI chat")) }
+                        IconButton(onClick = open, modifier = Modifier.size(40.dp).testTag("library-ai")) { dev.kolib.app.ui.ai.AiButtonIcon(tr("AI chat")) }
                     }
                     PhoneListMenu(
                         grid = browse.grid,

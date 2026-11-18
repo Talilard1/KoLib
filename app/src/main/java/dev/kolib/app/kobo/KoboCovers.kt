@@ -24,7 +24,7 @@ enum class CoverFitting(val label: String, val explanation: String) {
     ),
     AS_IS(
         tr("Original size"),
-        tr("Original size. The Kobo shows blank space around it."),
+        tr("Original size"),
     ),
 }
 

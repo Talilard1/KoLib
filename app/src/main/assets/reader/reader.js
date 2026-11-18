@@ -2374,7 +2374,7 @@
     touch.v = (t.clientX - touch.lastX) / Math.max(1, now - touch.lastT);
     touch.lastX = t.clientX;
     touch.lastT = now;
-    // With Curl or Fade the page stays put while the finger moves; the turn comes when it lets go.
+    // With Curl, Sweep or Fade the app turns the page with the finger; if it couldn't, the turn comes when it lets go.
     if (appTurns()) return;
     var x = touch.base - dx;
     var min = 0, max = (pages - 1) * W;

@@ -154,10 +154,12 @@ fun Tour(stops: List<TourStop>, places: TourPlaces, onDone: () -> Unit, modifier
         modifier
             .fillMaxSize()
             .onGloballyPositioned { origin = it.positionInWindow() }
-            // Nothing under the tour can be touched.
-            .pointerInput(Unit) { awaitPointerEventScope { while (true) awaitPointerEvent().changes.forEach { it.consume() } } }
             .testTag("tour"),
     ) {
+        // Nothing under the tour can be touched: touches stop at this layer, which lies under the card and
+        // isn't around it. (Around it, it would take every movement of a finger or pen on the card's buttons
+        // too, and a tap that moves at all, as a pen's always does, would be dropped by the button.)
+        Box(Modifier.fillMaxSize().pointerInput(Unit) { awaitPointerEventScope { while (true) awaitPointerEvent().changes.forEach { it.consume() } } })
         val density = LocalDensity.current
         val w = constraints.maxWidth.toFloat()
         val h = constraints.maxHeight.toFloat()
@@ -242,6 +244,8 @@ fun Tour(stops: List<TourStop>, places: TourPlaces, onDone: () -> Unit, modifier
                 .clip(shape)
                 .background(c.card)
                 .border(0.5.dp, c.line, shape)
+                // Touches on the card are its own: none fall through it.
+                .pointerInput(Unit) { awaitPointerEventScope { while (true) awaitPointerEvent() } }
                 .verticalScroll(rememberScrollState())
                 .testTag("tour-card"),
         ) {

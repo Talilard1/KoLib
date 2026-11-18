@@ -158,6 +158,8 @@ import dev.kolib.app.ui.components.gridCover
 import dev.kolib.app.ui.components.phoneLayout
 import dev.kolib.app.ui.components.TabBackHandler
 import dev.kolib.app.ui.components.TabPages
+import dev.kolib.app.ui.KoboNotice
+import dev.kolib.app.ui.KoboNoticeBar
 import dev.kolib.app.ui.components.rememberTabPager
 import dev.kolib.app.ui.components.rememberTabTap
 import androidx.compose.runtime.LaunchedEffect
@@ -205,6 +207,8 @@ fun LibraryScreen(
     onMarkUnread: (List<String>) -> Unit = {},
     /** Moving the app's reader to where the Kobo is in a book, and opening it there. */
     onContinueFromKobo: ((String, KoboBook) -> Unit)? = null,
+    /** What to say at the top about the Kobo: opening, being saved to, safe to unplug, unplugged. */
+    koboNotice: KoboNotice? = null,
 ) {
     val reading: (LibraryBook) -> KoboBook? = remember(onKobo) {
         { b -> b.koboPath?.let { onKobo[KoboPaths.contentId(it)] } }
@@ -222,7 +226,7 @@ fun LibraryScreen(
             onChangeCover = onChangeCover, onDelete = onDelete, onSend = onSend, onRead = onRead, onEditText = onEditText,
             onNewBook = onNewBook, onMerge = onMerge, onSplit = onSplit, onExport = onExport, onDuplicate = onDuplicate,
             onAbout = onAbout, onStats = onStats, onTheme = onTheme, onMarkFinished = onMarkFinished, onMarkUnread = onMarkUnread,
-            onContinueFromKobo = onContinueFromKobo,
+            onContinueFromKobo = onContinueFromKobo, koboNotice = koboNotice,
         )
         return
     }
@@ -282,6 +286,7 @@ fun LibraryScreen(
         },
     ) { padding ->
         Column(Modifier.padding(padding).fillMaxSize()) {
+            KoboNoticeBar(koboNotice)
             if (job != null && !job.finished) JobStrip(job, onShowJob)
             dev.kolib.app.ui.ocr.OcrStrip(onShow = { id -> browse.selectedId = id })
             if (books.isEmpty()) {

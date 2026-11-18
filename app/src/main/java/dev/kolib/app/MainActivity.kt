@@ -108,6 +108,11 @@ class MainActivity : ComponentActivity() {
      */
     private fun handleIncoming(intent: Intent?) {
         intent ?: return
+        // Android opened KoLib because a Kobo was connected, and KoLib is the app chosen for it.
+        if (intent.action == android.hardware.usb.UsbManager.ACTION_USB_DEVICE_ATTACHED) {
+            vm.openedForKobo()
+            return
+        }
         if (intent.action == dev.kolib.app.link.ShareToDeviceActivity.ACTION_SEND_BOOKS) {
             intent.getStringExtra(dev.kolib.app.link.ShareToDeviceActivity.EXTRA_DEVICE)?.let { vm.booksForDevice.value = it }
             return
@@ -123,9 +128,18 @@ class MainActivity : ComponentActivity() {
         libraryVm.importUris(uris)
     }
 
+    /** When KoLib was last touched, to tell it going out of sight by itself from another app opening over it. */
+    private var lastTouch = 0L
+
+    override fun dispatchTouchEvent(ev: android.view.MotionEvent): Boolean {
+        if (ev.actionMasked == android.view.MotionEvent.ACTION_DOWN) lastTouch = android.os.SystemClock.elapsedRealtime()
+        return super.dispatchTouchEvent(ev)
+    }
+
     /** The volume buttons turn pages while a book is open. */
     @SuppressLint("RestrictedApi") // Calling the activity's own dispatchKeyEvent from its override is fine.
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (event.action == KeyEvent.ACTION_DOWN) lastTouch = android.os.SystemClock.elapsedRealtime()
         if (ReaderKeys.handler?.invoke(event) == true) return true
         return super.dispatchKeyEvent(event)
     }
@@ -142,6 +156,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onStop() {
+        if (!isChangingConfigurations) vm.onLeft(lastTouch)
         vm.onBackground()
         if (!underTest) (application as KoLibApp).link.stop()
         super.onStop()

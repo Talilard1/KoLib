@@ -419,7 +419,7 @@ class PageTurnerTest {
     }
 
     @Test
-    fun aSweepUncoversTheNewPageFromTheTopCorner() {
+    fun aSweepUncoversTheNewPageFromTheSideWithAnUprightEdge() {
         val (book, screen, turner) = setUp()
         book.mode = PageTurn.SWEEP
         assertTrue(turner.turn(1, 0.5f))
@@ -431,19 +431,24 @@ class PageTurnerTest {
         val mid = screen.shown()
         save(mid, "turner_sweep_mid")
         assertTrue(turner.showing)
-        // Part way: the new page at the top right, where the sweep began; the old one still at the bottom left.
-        assertTrue("new page top right: ${Integer.toHexString(mid.getPixel(790, 10))}", near(mid.getPixel(790, 10), colourOf(0, 1)))
-        assertTrue("old page bottom left: ${Integer.toHexString(mid.getPixel(10, 1190))}", near(mid.getPixel(10, 1190), colourOf(0, 0)))
+        // Part way: the new page on the right, where the sweep began, from top to bottom; the old one still on the left.
+        for (y in listOf(10, 600, 1190)) {
+            assertTrue("new page on the right at $y: ${Integer.toHexString(mid.getPixel(790, y))}", near(mid.getPixel(790, y), colourOf(0, 1)))
+            assertTrue("old page on the left at $y: ${Integer.toHexString(mid.getPixel(10, y))}", near(mid.getPixel(10, y), colourOf(0, 0)))
+        }
+        // The edge is upright: the same at the top as at the bottom, all the way across.
+        for (x in 0 until 800 step 40) assertEquals("upright at $x", mid.getPixel(x, 5), mid.getPixel(x, 1195))
         screen.run(600)
         assertFalse(turner.showing)
         assertEquals(1, book.page)
         assertTrue(near(screen.shown().getPixel(10, 1190), colourOf(0, 1)))
-        // Going back, it sweeps from the top left.
+        // Going back, it sweeps from the left.
         assertTrue(turner.turn(-1, 0.5f))
         screen.run(16 * 20)
         val back = screen.shown()
         save(back, "turner_sweep_back")
-        assertTrue(near(back.getPixel(10, 10), colourOf(0, 0)) && near(back.getPixel(790, 1190), colourOf(0, 1)))
+        assertTrue(near(back.getPixel(10, 10), colourOf(0, 0)) && near(back.getPixel(10, 1190), colourOf(0, 0)))
+        assertTrue(near(back.getPixel(790, 10), colourOf(0, 1)) && near(back.getPixel(790, 1190), colourOf(0, 1)))
         screen.run(600)
         assertEquals(0, book.page)
     }
@@ -464,8 +469,9 @@ class PageTurnerTest {
         val held = screen.shown()
         save(held, "turner_sweep_drag")
         assertEquals(260f / 440f, turner.progress, 0.02f)
-        // Held there: the new page uncovered at the top right, the old one still at the bottom left.
-        assertTrue(near(held.getPixel(790, 10), colourOf(0, 1)) && near(held.getPixel(10, 1190), colourOf(0, 0)))
+        // Held there: the new page uncovered on the right, the old one still on the left, top to bottom.
+        assertTrue(near(held.getPixel(790, 10), colourOf(0, 1)) && near(held.getPixel(790, 1190), colourOf(0, 1)))
+        assertTrue(near(held.getPixel(10, 10), colourOf(0, 0)) && near(held.getPixel(10, 1190), colourOf(0, 0)))
         // It doesn't run on by itself while it's held.
         screen.run(16 * 10)
         assertEquals(260f / 440f, turner.progress, 0.02f)
@@ -486,6 +492,104 @@ class PageTurnerTest {
         screen.run(400)
         assertFalse(turner.showing)
         assertEquals(1, book.page)
+    }
+
+    @Test
+    fun aFadeFollowsTheFingerAndGoesOnWhenLetGo() {
+        val (book, screen, turner) = setUp()
+        book.mode = PageTurn.FADE
+        var t = SystemClock.uptimeMillis()
+        turner.intercept(ev(MotionEvent.ACTION_DOWN, 760f, 600f, t))
+        // A fade is taken over by the finger, as a curl or a sweep is.
+        assertTrue(turner.intercept(ev(MotionEvent.ACTION_MOVE, 730f, 600f, t + 16)))
+        screen.run(16 * 8)
+        for (x in listOf(700f, 640f, 540f)) {
+            t += 16
+            turner.touch(ev(MotionEvent.ACTION_MOVE, x, 600f, t))
+            screen.run(16 * 2)
+        }
+        assertEquals(220f / 440f, turner.progress, 0.02f)
+        val held = screen.shown()
+        save(held, "turner_fade_drag")
+        // Half way across, the two pages are half and half, all over.
+        val c = held.getPixel(400, 600)
+        assertTrue("between the two: ${Integer.toHexString(c)}", !near(c, colourOf(0, 0), 6) && !near(c, colourOf(0, 1), 6))
+        assertEquals(c, held.getPixel(20, 20))
+        // It stays there while it's held, and comes back the way it went.
+        screen.run(16 * 10)
+        assertEquals(220f / 440f, turner.progress, 0.02f)
+        t += 16
+        turner.touch(ev(MotionEvent.ACTION_MOVE, 640f, 600f, t))
+        screen.frame()
+        assertEquals(120f / 440f, turner.progress, 0.02f)
+        t += 16
+        turner.touch(ev(MotionEvent.ACTION_MOVE, 500f, 600f, t))
+        screen.frame()
+        turner.touch(ev(MotionEvent.ACTION_UP, 500f, 600f, t + 400))
+        screen.run(900)
+        assertFalse(turner.showing)
+        assertEquals(1, book.page)
+        assertTrue(near(screen.shown().getPixel(400, 600), colourOf(0, 1)))
+    }
+
+    @Test
+    fun aFadeLetGoEarlyFadesBackToThePage() {
+        val (book, screen, turner) = setUp()
+        book.mode = PageTurn.FADE
+        book.page = 2
+        val t = SystemClock.uptimeMillis()
+        // Back a page, dragging to the right.
+        turner.intercept(ev(MotionEvent.ACTION_DOWN, 100f, 600f, t))
+        assertTrue(turner.intercept(ev(MotionEvent.ACTION_MOVE, 130f, 600f, t + 16)))
+        screen.run(16 * 6)
+        turner.touch(ev(MotionEvent.ACTION_MOVE, 150f, 600f, t + 400))
+        screen.run(16 * 3)
+        assertTrue(turner.progress > 0f)
+        turner.touch(ev(MotionEvent.ACTION_UP, 150f, 600f, t + 800))
+        screen.run(1000)
+        assertFalse(turner.showing)
+        assertEquals(2, book.page)
+        assertTrue(near(screen.shown().getPixel(400, 600), colourOf(0, 2)))
+    }
+
+    /** A flick so quick it's over before the copy of the page is up still turns the page, in every style. */
+    @Test
+    fun aQuickFlickLetGoBeforeTheCopyIsUpStillTurnsThePage() {
+        for (mode in listOf(PageTurn.CURL, PageTurn.SWEEP, PageTurn.FADE)) {
+            val (book, screen, turner) = setUp()
+            book.mode = mode
+            val t = SystemClock.uptimeMillis()
+            turner.intercept(ev(MotionEvent.ACTION_DOWN, 760f, 600f, t))
+            assertTrue(turner.intercept(ev(MotionEvent.ACTION_MOVE, 720f, 600f, t + 8)))
+            turner.touch(ev(MotionEvent.ACTION_MOVE, 480f, 600f, t + 16))
+            // No frame has passed: the copy hasn't arrived.
+            turner.touch(ev(MotionEvent.ACTION_UP, 480f, 600f, t + 24))
+            screen.run(1500)
+            assertFalse("$mode", turner.showing)
+            assertEquals("$mode", 1, book.page)
+            assertTrue("$mode", near(screen.shown().getPixel(400, 600), colourOf(0, 1)))
+            // And back, the same way.
+            turner.intercept(ev(MotionEvent.ACTION_DOWN, 100f, 600f, t + 3000))
+            assertTrue(turner.intercept(ev(MotionEvent.ACTION_MOVE, 140f, 600f, t + 3008)))
+            turner.touch(ev(MotionEvent.ACTION_MOVE, 400f, 600f, t + 3016))
+            turner.touch(ev(MotionEvent.ACTION_UP, 400f, 600f, t + 3024))
+            screen.run(1500)
+            assertFalse("$mode back", turner.showing)
+            assertEquals("$mode back", 0, book.page)
+        }
+    }
+
+    @Test
+    fun aTouchThatBarelyMovedAndWasLetGoBeforeTheCopyIsUpTurnsNothing() {
+        val (book, screen, turner) = setUp()
+        book.mode = PageTurn.FADE
+        val t = SystemClock.uptimeMillis()
+        turner.intercept(ev(MotionEvent.ACTION_DOWN, 760f, 600f, t))
+        assertTrue(turner.intercept(ev(MotionEvent.ACTION_MOVE, 740f, 600f, t + 300)))
+        turner.touch(ev(MotionEvent.ACTION_UP, 740f, 600f, t + 900))
+        screen.run(1000)
+        assertFalse(turner.showing)
+        assertEquals(0, book.page)
     }
 
     @Test

@@ -159,6 +159,9 @@ class LibraryScreenshotTest {
         continueFromKobo: Boolean = false,
         /** A phone or tablet is paired, so books can be sent to it. */
         linked: Boolean = false,
+        koboNotice: dev.kolib.app.ui.KoboNotice? = null,
+        /** Drawn over the library (a dialog). */
+        over: (@Composable () -> Unit)? = null,
         act: (() -> Unit)? = null,
         configure: LibraryBrowseState.(Library) -> Unit = {},
     ) {
@@ -185,11 +188,53 @@ class LibraryScreenshotTest {
                         lib.titled("Meditations").id to ReadHere(1f, 1_794_200_000_000L, finished = true),
                     ),
                     onContinueFromKobo = if (continueFromKobo) ({ _, _ -> }) else null,
+                    koboNotice = koboNotice,
                 )
                 }
             }
+            over?.invoke()
         }
     }
+
+    // ---- the Kobo's notices at the top, and another app taking over when it connects ------------------
+
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun libraryKoboSafeToUnplug() = libraryScreen("library_kobo_safe_to_unplug", koboNotice = dev.kolib.app.ui.KoboNotice.SAFE_TO_UNPLUG) {
+        selectedId = it.titled("The Histories").id
+    }
+
+    @Test
+    @Config(qualifiers = PORTRAIT)
+    fun libraryKoboUnplugged() = libraryScreen("library_kobo_unplugged", koboNotice = dev.kolib.app.ui.KoboNotice.UNPLUGGED)
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun libraryKoboOpeningPhone() = libraryScreen("library_kobo_opening_phone", koboNotice = dev.kolib.app.ui.KoboNotice.OPENING)
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun libraryKoboSafeToUnplugPhoneBook() = libraryScreen("library_kobo_safe_phone_book", koboNotice = dev.kolib.app.ui.KoboNotice.SAFE_TO_UNPLUG) {
+        selectedId = it.titled("Dracula").id
+    }
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun anotherAppTookOverPhone() = libraryScreen("kobo_takeover_one_phone", act = {}, over = {
+        // (A made-up app: in the app, the name is that of whichever installed app Android may open for the Kobo.)
+        dev.kolib.app.ui.KoboTakeoverDialog(listOf(dev.kolib.app.kobo.UsbApp("Acme Files", "com.example.acmefiles"))) {}
+    })
+
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun otherAppsCouldTakeOver() = libraryScreen("kobo_takeover_several", act = {}, over = {
+        dev.kolib.app.ui.KoboTakeoverDialog(
+            listOf(
+                dev.kolib.app.kobo.UsbApp("Acme Files", "com.example.acmefiles"),
+                dev.kolib.app.kobo.UsbApp("Drive Browser", "com.example.drivebrowser"),
+            ),
+        ) {}
+    })
 
     @Test
     @Config(qualifiers = LANDSCAPE)

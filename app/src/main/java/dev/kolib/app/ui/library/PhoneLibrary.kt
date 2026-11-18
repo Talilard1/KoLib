@@ -8,6 +8,8 @@ import dev.kolib.app.ui.components.titleSearch
 import dev.kolib.app.ui.components.authorSearch
 import androidx.compose.ui.text.rememberTextMeasurer
 import dev.kolib.app.tr
+import dev.kolib.app.ui.KoboNotice
+import dev.kolib.app.ui.KoboNoticeBar
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.ui.semantics.contentDescription
@@ -187,6 +189,7 @@ internal fun PhoneLibraryScreen(
     onMarkFinished: (List<String>) -> Unit = {},
     onMarkUnread: (List<String>) -> Unit = {},
     onContinueFromKobo: ((String, KoboBook) -> Unit)? = null,
+    koboNotice: KoboNotice? = null,
 ) {
     // A book from a collection (in the Collections tab) opens on a page of its own too, going back to the collection.
     val fromCollection = if (browse.tab == 1 && browse.collectionKey != null) browse.collectionBookId?.let { id -> books.firstOrNull { it.id == id } } else null
@@ -245,6 +248,7 @@ internal fun PhoneLibraryScreen(
             onMarkFinished = { onMarkFinished(listOf(selected.id)) },
             onMarkUnread = { onMarkUnread(listOf(selected.id)) },
             onContinueFromKobo = onContinueFromKobo?.let { f -> { k: KoboBook -> f(selected.id, k) } },
+            koboNotice = koboNotice,
         )
         return
     }
@@ -327,6 +331,7 @@ internal fun PhoneLibraryScreen(
                     )
                 }
             }
+            KoboNoticeBar(koboNotice)
             if (job != null && !job.finished) JobStrip(job, onShowJob)
             dev.kolib.app.ui.ocr.OcrStrip(onShow = { id -> browse.selectedId = id })
             if (books.isEmpty()) {
@@ -490,6 +495,8 @@ internal fun PhoneBookPage(
     onContinueFromKobo: ((KoboBook) -> Unit)? = null,
     /** Searches for books (a search for the tab: the book's title, author or series), from holding one of those. */
     onSearch: ((String) -> Unit)? = null,
+    /** What to say about the Kobo under the bar at the top, as the library does. */
+    koboNotice: KoboNotice? = null,
 ) {
     val context = LocalContext.current
     val meta = book.meta
@@ -516,6 +523,7 @@ internal fun PhoneBookPage(
             },
             colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
         )
+        KoboNoticeBar(koboNotice)
         Column(
             Modifier
                 .fillMaxSize()

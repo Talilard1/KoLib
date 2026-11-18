@@ -445,7 +445,7 @@ class ViewTurnHost(private val frame: ReaderFrame) : TurnHost {
 }
 
 /**
- * Turns pages with Curl or Fade. A turn: copy the screen; show the copy on the surface; move the
+ * Turns pages with Curl, Sweep or Fade. A turn: copy the screen; show the copy on the surface; move the
  * page underneath on (or open the next chapter); then animate the copy away, revealing the new page.
  * Turning back in single-page view, the previous page comes back over this one, so that page is
  * copied too once it's underneath. In two-page view the right-hand page turns over onto the left, and
@@ -455,7 +455,7 @@ class PageTurner(private val host: TurnHost, private val pages: TurnPages) {
 
     private companion object {
         /** How soft the sweep's edge is, as a share of the way across. */
-        const val SWEEP_EDGE = 0.22f
+        const val SWEEP_EDGE = 0.16f
         /** A drag turns the page right over after this share of the screen's width, at most... */
         const val DRAG_MOST = 0.55f
         /** ...and at least (a drag starting near the far side). */
@@ -568,7 +568,7 @@ class PageTurner(private val host: TurnHost, private val pages: TurnPages) {
         }
     }
 
-    // ---- touch: only Curl follows the finger ------------------------------------------------------
+    // ---- touch: a turn follows the finger -----------------------------------------------------------
 
     private var tracking = false
     private var downX = 0f
@@ -580,8 +580,8 @@ class PageTurner(private val host: TurnHost, private val pages: TurnPages) {
             MotionEvent.ACTION_DOWN -> {
                 // A drag whose end went missing: let it go.
                 turn?.let { t -> if (t.dragging) release(t, cancelled = true) }
-                // Curl and Sweep follow the finger; Fade only plays out.
-                tracking = (mode() == PageTurn.CURL || mode() == PageTurn.SWEEP) && !busy && !pages.selecting && canAnimate()
+                // Curl, Sweep and Fade all follow the finger, and go on or back when it lets go.
+                tracking = mode() != null && !busy && !pages.selecting && canAnimate()
                 downX = ev.x
                 downY = ev.y
                 velocity?.recycle()
@@ -655,7 +655,9 @@ class PageTurner(private val host: TurnHost, private val pages: TurnPages) {
         val toward = -t.dir * v // positive: moving the way the page turns
         val commit = !cancelled && (toward > fling || (t.p > 0.3f && toward > -fling))
         when {
-            t.a == null -> end(t) // let go before the copy was ready
+            // Let go before the copy of the page was ready (a quick flick): a swipe that was to turn the page
+            // still does, played out from the start once the copy is up, as a tap's turn is. Less is dropped.
+            t.a == null -> if (commit) t.p = 0f else end(t)
             // The next chapter isn't on screen yet: the leaf waits where it is, and goes on once it is.
             commit && t.edge && !t.live -> phase = Phase.WAITING
             commit -> animate(t, to = 1f) { finish(t) }
@@ -903,17 +905,15 @@ class PageTurner(private val host: TurnHost, private val pages: TurnPages) {
             PageTurn.SWEEP -> {
                 c.drawBitmap(a, 0f, 0f, plain)
                 if (t.live) {
-                    // The old page is wiped away from the top corner the page turns from (top right going
-                    // on, top left going back) across to the opposite corner, with a soft edge, uncovering
-                    // the new page underneath.
+                    // The old page is wiped away from the side the page turns from (the right going on, the
+                    // left going back) across to the other, with a soft upright edge, uncovering the new
+                    // page underneath.
                     val sx = if (t.dir > 0) w else 0f
                     val ex = w - sx
                     val k = t.p * (1 + SWEEP_EDGE)
                     val x0 = sx + (ex - sx) * (k - SWEEP_EDGE)
-                    val y0 = h * (k - SWEEP_EDGE)
                     val x1 = sx + (ex - sx) * k
-                    val y1 = h * k
-                    erase.shader = LinearGradient(x0, y0, x1, y1, Color.BLACK, Color.TRANSPARENT, Shader.TileMode.CLAMP)
+                    erase.shader = LinearGradient(x0, 0f, x1, 0f, Color.BLACK, Color.TRANSPARENT, Shader.TileMode.CLAMP)
                     c.drawRect(0f, 0f, w, h, erase)
                     erase.shader = null
                 }

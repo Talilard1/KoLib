@@ -2740,5 +2740,14 @@
 "Check the book for problems, restore its original text, or see this tour again.",
 "Editor tour",
 "Read upright, on its side, or either way.",
-"Choose which way you hold your device to read."
+"Choose which way you hold your device to read.",
+"The Kobo is unplugged.",
+"Stop {0} opening",
+"Stop other apps opening",
+"If {0} opens when you connect the Kobo, open its settings, tap Set as default (or Open by default), then Clear defaults.",
+"If one of these apps opens when you connect the Kobo, open its settings, tap Set as default (or Open by default), then Clear defaults.",
+"Next time you connect the Kobo, choose KoLib and tap Always.",
+"Don't show this again",
+"Open settings",
+"Cover page added at the front."
 ]

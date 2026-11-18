@@ -581,6 +581,37 @@ class ReaderEditorScreenshotTest {
         compose.onRoot().captureRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/58_editor_copied.png")
     }
 
+    /** Upright, find & replace takes the chapters' place beside the page. */
+    @Test
+    @Config(qualifiers = PORTRAIT)
+    fun editorPortraitWithFind() = editor("55b_editor_portrait_find", find = true)
+
+    /** On a phone it has the screen to itself. */
+    @Test
+    @Config(qualifiers = PHONE)
+    fun editorPhoneWithFind() = editor("57b_editor_phone_find", find = true)
+
+    /** A phone on its side: the chapters beside the page, as on a tablet held upright. */
+    @Test
+    @Config(qualifiers = "w891dp-h411dp-land-mdpi")
+    fun editorPhoneOnItsSide() = editor("57c_editor_phone_across", find = false)
+
+    /** Upright, the copied sections are at the page's other side, in place of the chapters. */
+    @Test
+    @Config(qualifiers = PORTRAIT)
+    fun editorPortraitCopiedSections() {
+        val store = dev.kolib.app.library.CopiedSections(File(context.filesDir, "copied-" + UUID.randomUUID()))
+        val state = editorState(store)
+        val page = """<html xmlns="http://www.w3.org/1999/xhtml"><head><title>T</title></head><body><p>x</p></body></html>"""
+        store.add(dev.kolib.app.epub.ChapterOps.CopiedPage("Copyright Notice", "OEBPS/c.xhtml", page.replace("x", (1..105).joinToString(" ") { "word" }),
+            emptyList(), emptyMap(), false), "The Wheel of Time")
+        state.copiedOpen = true
+        compose.mainClock.autoAdvance = true
+        compose.setContent { AppSurface(ThemeChoice.SYSTEM) { TextEditorScreen(state, onClose = {}, onRead = {}, pagePreview = { FakeEditorPage() }) } }
+        compose.waitForIdle()
+        compose.onRoot().captureRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/58b_editor_portrait_copied.png")
+    }
+
     @Test
     @Config(qualifiers = LANDSCAPE_NIGHT)
     fun editorDark() = editor("56_editor_dark", find = true, theme = ThemeChoice.DARK)

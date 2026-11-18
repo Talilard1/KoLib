@@ -439,6 +439,8 @@ fun AppRoot(
     LaunchedEffect(state.message) {
         state.message?.let {
             vm.consumeMessage()
+            // The Kobo screen and the library say it's safe to unplug at the top already.
+            if (it == usbKoboText(UsbKobo.UNMOUNTED) && koboNoticeShown(section, overlay)) return@let
             snackbar.showSnackbar(it)
         }
     }
@@ -465,6 +467,21 @@ fun AppRoot(
     val koboView = remember(state.connection, state.lastSeen, state.removedIds) { state.koboView }
     val liveSession = (connection as? Connection.Connected)?.takeIf { !it.unplugged }?.session
     var narrow by remember { mutableStateOf(false) }
+    // Once a Kobo that was open here is unplugged, the library says so for a few seconds.
+    val gone = koboGone(connection, state.usbKobo)
+    var goneAt by rememberSaveable { androidx.compose.runtime.mutableLongStateOf(0L) }
+    LaunchedEffect(gone) {
+        if (!gone) goneAt = 0L else if (goneAt == 0L) goneAt = android.os.SystemClock.elapsedRealtime()
+    }
+    val justUnplugged by androidx.compose.runtime.produceState(false, goneAt) {
+        val left = goneAt + UNPLUGGED_NOTICE_MS - android.os.SystemClock.elapsedRealtime()
+        value = goneAt != 0L && left > 0
+        if (value) {
+            kotlinx.coroutines.delay(left)
+            value = false
+        }
+    }
+    val noticeForLibrary = libraryNotice(connection, state.usbKobo, state.syncing, state.afterConnectRunning, justUnplugged)
 
     Box(
         Modifier
@@ -702,6 +719,7 @@ fun AppRoot(
                                 overlay = "read:$id"
                             }
                         },
+                        koboNotice = noticeForLibrary,
                     ) }
                     Section.KOBO -> CompositionLocalProvider(dev.kolib.app.ui.components.LocalKoboLibraryCovers provides koboLibraryCovers) { when {
                         connection is Connection.Connected && koboView != null -> DeviceScreen(
@@ -919,8 +937,9 @@ fun AppRoot(
         }
         // Putting books together can take a few seconds: say so, over everything. So can checking and
         // saving to the Kobo's database, which must be done before the Kobo is ejected, or what was to be
-        // saved (collections of books just sent, say) waits until next time. The Kobo screen has its own notice.
-        val elsewhere = section != Section.KOBO || overlay != null
+        // saved (collections of books just sent, say) waits until next time. The Kobo screen and the
+        // library have their own notices for the Kobo.
+        val elsewhere = !koboNoticeShown(section, overlay)
         // From plugging the Kobo in to having read it, there's a wait: say what's happening, wherever you are.
         val koboOpening = when {
             !elsewhere -> null
@@ -980,6 +999,11 @@ fun AppRoot(
             }
         }
 
+        // Another app (a file manager) may have opened over KoLib as the Kobo connected: how to stop it.
+        val takenOverBy by vm.takenOverBy.collectAsStateWithLifecycle()
+        if (takenOverBy.isNotEmpty() && introSeen) {
+            KoboTakeoverDialog(takenOverBy) { mute -> if (mute) vm.muteTakeover() else vm.takenOverBy.value = emptyList() }
+        }
         if (showEject) {
             EjectDialog(
                 onDismiss = { showEject = false },
@@ -1369,3 +1393,7 @@ private fun SwitchLine(title: String, detail: String, on: Boolean, onChange: (Bo
         Switch(checked = on, onCheckedChange = null, enabled = enabled)
     }
 }
+
+/** The Kobo screen or the library is showing, with its own notices about the Kobo at the top. */
+private fun koboNoticeShown(section: Section, overlay: String?) =
+    overlay == null && (section == Section.KOBO || section == Section.LIBRARY)

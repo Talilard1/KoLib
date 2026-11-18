@@ -347,55 +347,6 @@ private fun OfflineBanner(readAt: Long, onHowToConnect: () -> Unit) {
     }
 }
 
-@Composable
-private fun SyncingBanner() {
-    Surface(color = MaterialTheme.colorScheme.tertiaryContainer, modifier = Modifier.fillMaxWidth()) {
-        Row(Modifier.padding(horizontal = 20.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-            CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.onTertiaryContainer)
-            Spacer(Modifier.width(12.dp))
-            Text(
-                tr("Updating the Kobo… Don't eject it yet."),
-                color = MaterialTheme.colorScheme.onTertiaryContainer,
-                style = MaterialTheme.typography.bodyMedium,
-            )
-        }
-    }
-}
-
-/**
- * A Kobo has been plugged in (Connect tapped on it), and Android is checking and opening its drive. This takes a
- * few seconds, and without this the app would look as if nothing were happening.
- */
-@Composable
-private fun OpeningBanner(slow: Boolean) {
-    Surface(color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.fillMaxWidth()) {
-        Row(Modifier.padding(horizontal = 20.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-            CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.onPrimaryContainer)
-            Spacer(Modifier.width(12.dp))
-            Text(
-                usbKoboText(if (slow) UsbKobo.SLOW else UsbKobo.OPENING).orEmpty(),
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                style = MaterialTheme.typography.bodyMedium,
-            )
-        }
-    }
-}
-
-/** The Kobo has been unmounted and is still plugged in: it can be unplugged. */
-@Composable
-private fun SafeToUnplugBanner() {
-    Surface(color = MaterialTheme.colorScheme.tertiaryContainer, modifier = Modifier.fillMaxWidth()) {
-        Row(Modifier.padding(horizontal = 20.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Outlined.CheckCircle, null, tint = MaterialTheme.colorScheme.onTertiaryContainer)
-            Spacer(Modifier.width(12.dp))
-            Text(
-                usbKoboText(UsbKobo.UNMOUNTED).orEmpty(),
-                color = MaterialTheme.colorScheme.onTertiaryContainer,
-                style = MaterialTheme.typography.bodyMedium,
-            )
-        }
-    }
-}
 
 @Composable
 private fun UnpluggedBanner(readAt: Long) {

@@ -116,6 +116,7 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalDensity
 import dev.kolib.app.ui.tour.LocalTourPlaces
@@ -193,19 +194,28 @@ fun TextEditorScreen(
         }
     }
 
+    // How the editor is arranged on this screen, as it's laid out below: the chapters as a screen of their own
+    // (a phone) rather than beside the page, and the top bar's less used buttons in its menu.
+    val screenWidth = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp
+    var chaptersApart by remember { mutableStateOf(screenWidth < 600) }
+    var toolsInMenu by remember { mutableStateOf(screenWidth < 600) }
+
     CompositionLocalProvider(LocalTourPlaces provides places.takeIf { touring }) {
     Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
         // On a phone the chapters are a screen of their own: while the page shows, the chapter's name in the top bar leads there.
-        val chaptersApart = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 600
         val pageShowing = narrowShowsEditor && !state.find.open && !(state.copiedOpen && state.copied != null)
         EditorTopBar(state, onBack = close, onRead = { scope.launch { state.flush(); onRead(state.currentPath) } },
             onFind = { state.find.open = !state.find.open; if (state.find.open) state.copiedOpen = false },
             onCleanups = { showCleanups = true }, onRevert = { confirmRevert = true }, onTour = { touring = true },
-            onChapters = if (chaptersApart && pageShowing) ({ narrowShowsEditor = false }) else null)
+            onChapters = if (chaptersApart && pageShowing) ({ narrowShowsEditor = false }) else null,
+            onToolsInMenu = { toolsInMenu = it })
         BoxWithConstraints(Modifier.fillMaxSize().imePadding()) {
             val wide = maxWidth >= 1000.dp
             val medium = maxWidth >= 600.dp
+            // (What the top bar and the tour go by is what's laid out here, not the screen's size as Android gives it,
+            // which can differ by the width of a navigation bar at the side.)
+            SideEffect { chaptersApart = !medium }
             val chapters: @Composable (Modifier) -> Unit = { m ->
                 ChaptersPane(state, onOpen = { state.open(it); narrowShowsEditor = true }, onAction = { if (it is ChapterAction.Duplicate) state.duplicate(it.chapter.path) else action = it }, modifier = m)
             }
@@ -216,33 +226,34 @@ fun TextEditorScreen(
                     copiedCount = copiedItems.size, toolbarScroll = toolbarScroll)
             }
             val copiedOpen = state.copiedOpen && state.copied != null && !state.find.open
-            when {
-                wide -> Row(Modifier.fillMaxSize()) {
-                    chapters(Modifier.width(290.dp).fillMaxHeight().tourPlace(EditorPlace.CHAPTERS))
-                    VerticalDivider()
-                    editor(Modifier.weight(1f).fillMaxHeight())
-                    if (state.find.open) {
+            // The page is one and the same part of the screen however the rest is arranged around it, so turning
+            // the device (which changes the arrangement) leaves it as it is, with its cursor and its place. Three
+            // across where there's the width (the chapters, the page, a panel); two on a narrower tablet, where a
+            // panel takes the chapters' place or their side; and one thing at a time on a phone.
+            val pageShows = medium || (narrowShowsEditor && !state.find.open && !copiedOpen)
+            val chaptersShow = when {
+                wide -> true
+                medium -> !state.find.open && !copiedOpen
+                else -> !state.find.open && !copiedOpen && !narrowShowsEditor
+            }
+            val findInChaptersPlace = state.find.open && !wide
+            val panel = MaterialTheme.colorScheme.surfaceContainerLow
+            Row(Modifier.fillMaxSize()) {
+                val all = Modifier.weight(1f).fillMaxHeight()
+                if (chaptersShow) chapters(if (medium) Modifier.width(if (wide) 290.dp else 270.dp).fillMaxHeight().tourPlace(EditorPlace.CHAPTERS) else all)
+                if (findInChaptersPlace) findPanel((if (medium) Modifier.width(340.dp).fillMaxHeight() else all).background(panel))
+                if (copiedOpen && !medium) copiedPanel(all.background(panel))
+                if (pageShows) {
+                    if (chaptersShow || findInChaptersPlace) VerticalDivider()
+                    editor(all)
+                    if (wide && state.find.open) {
                         VerticalDivider()
-                        findPanel(Modifier.width(390.dp).fillMaxHeight().background(MaterialTheme.colorScheme.surfaceContainerLow))
+                        findPanel(Modifier.width(390.dp).fillMaxHeight().background(panel))
                     } else if (copiedOpen) {
                         VerticalDivider()
-                        copiedPanel(Modifier.width(360.dp).fillMaxHeight().background(MaterialTheme.colorScheme.surfaceContainerLow))
+                        copiedPanel(Modifier.width(if (wide) 360.dp else 320.dp).fillMaxHeight().background(panel))
                     }
                 }
-                medium -> Row(Modifier.fillMaxSize()) {
-                    if (state.find.open) findPanel(Modifier.width(340.dp).fillMaxHeight().background(MaterialTheme.colorScheme.surfaceContainerLow))
-                    else if (!copiedOpen) chapters(Modifier.width(270.dp).fillMaxHeight().tourPlace(EditorPlace.CHAPTERS))
-                    if (!copiedOpen) VerticalDivider()
-                    editor(Modifier.weight(1f).fillMaxHeight())
-                    if (copiedOpen) {
-                        VerticalDivider()
-                        copiedPanel(Modifier.width(320.dp).fillMaxHeight().background(MaterialTheme.colorScheme.surfaceContainerLow))
-                    }
-                }
-                state.find.open -> findPanel(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceContainerLow))
-                copiedOpen -> copiedPanel(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceContainerLow))
-                narrowShowsEditor -> editor(Modifier.fillMaxSize())
-                else -> chapters(Modifier.fillMaxSize())
             }
             state.busy?.let { what ->
                 Surface(
@@ -261,7 +272,6 @@ fun TextEditorScreen(
         }
     }
     if (touring) {
-        val toolsInMenu = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 600
         val edge = with(LocalDensity.current) { 10.dp.toPx() }
         val stops = remember(toolsInMenu, edge) { editorTourStops(places, toolbarScroll, toolsInMenu, edge) }
         Tour(stops, places, onDone = {
@@ -387,6 +397,8 @@ private fun EditorTopBar(
     state: TextEditState, onBack: () -> Unit, onRead: () -> Unit, onFind: () -> Unit, onCleanups: () -> Unit, onRevert: () -> Unit, onTour: () -> Unit,
     /** Opens the list of chapters, where it's a screen of its own (a phone) and the page is showing: the chapter's name is the way to it. */
     onChapters: (() -> Unit)? = null,
+    /** Told whether the less used buttons are in the menu (there isn't the width for them in the bar). */
+    onToolsInMenu: (Boolean) -> Unit = {},
 ) {
     Surface(color = MaterialTheme.colorScheme.surfaceContainer, shadowElevation = 2.dp) {
         // The status bar is hidden while the editor is open, but a camera cutout, or the status bar
@@ -395,6 +407,7 @@ private fun EditorTopBar(
         BoxWithConstraints(Modifier.fillMaxWidth().windowInsetsPadding(clear)) {
             // On a phone the less used buttons move into the menu.
             val roomy = maxWidth >= 600.dp
+            SideEffect { onToolsInMenu(!roomy) }
             Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Close the editor")) }
                 Column(
@@ -476,7 +489,7 @@ private fun EditorPane(
                 AndroidView(
                     factory = { ctx -> state.createView(ctx, dark) },
                     modifier = Modifier.fillMaxSize(),
-                    onRelease = { state.releaseView() },
+                    onRelease = { state.releaseView(it) },
                 )
             }
         }
@@ -498,7 +511,8 @@ private fun EditorToolbar(state: TextEditState, onPicture: () -> Unit, copiedCou
     )
     Surface(color = MaterialTheme.colorScheme.surfaceContainerLow) {
         BoxWithConstraints(Modifier.fillMaxWidth()) {
-            val compact = maxWidth < 600.dp
+            // (With their names the buttons need some 800 across: less than that, the row would have to be scrolled along.)
+            val compact = maxWidth < 800.dp
             val tight = maxWidth < 440.dp
             CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides if (tight) 40.dp else 48.dp) {
                 Row(Modifier.fillMaxWidth().padding(horizontal = if (tight) 4.dp else 6.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {

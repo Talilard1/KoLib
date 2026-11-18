@@ -177,6 +177,25 @@ fun ChaptersPane(
     val listState = rememberLazyListState()
     val byPath = remember(chapters) { chapters.associateBy { it.path } }
 
+    // A chapter that's just been added (a new one, a copy, a cover page at the front) is brought into view. The
+    // list keeps its place when the book changes, so one added above what's showing would be out of sight.
+    val listed = remember { arrayOfNulls<Set<String>>(1) }
+    LaunchedEffect(order) {
+        val before = listed[0]
+        listed[0] = order.toSet()
+        if (before == null || dragging != null) return@LaunchedEffect
+        val added = order.indices.filter { order[it] !in before }
+        if (added.isEmpty()) return@LaunchedEffect
+        val target = added.firstOrNull { order[it] == state.currentPath } ?: added.first()
+        // Once the list has been laid out with it in.
+        withFrameNanos { }
+        val info = listState.layoutInfo
+        val row = info.visibleItemsInfo.firstOrNull { it.index == target }
+        val inView = row != null && row.offset >= info.viewportStartOffset && row.offset + row.size <= info.viewportEndOffset - info.afterContentPadding
+        // With the chapter before it showing too, so it's seen where it went.
+        if (!inView) listState.animateScrollToItem((target - 1).coerceAtLeast(0))
+    }
+
     // ---- choosing several ---------------------------------------------------------------------
     var selecting by remember { mutableStateOf(false) }
     val picked = remember { mutableStateMapOf<String, Boolean>() }

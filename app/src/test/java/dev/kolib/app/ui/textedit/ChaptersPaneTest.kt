@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
@@ -203,5 +205,41 @@ class ChaptersPaneTest {
         assertEquals(listOf("Part One", "Chapter 3", "Notes"), titles(state))
         // With what was chosen gone, choosing ends.
         compose.onNodeWithText(tr("Chapters")).assertExists()
+    }
+
+    @Test
+    fun makeACoverPagePutsOneAtTheFrontAndOpensIt() {
+        val state = open(TestBooks::garden)
+        show(state)
+        val before = titles(state)
+        compose.onNodeWithContentDescription(tr("Table of contents options")).performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText(tr("Make a cover page")).performClick()
+        settle(state)
+        assertEquals("message: ${state.message}", before.size + 1, titles(state).size)
+        assertEquals(state.structure.chapters.first().path, state.coverPath)
+        // It says so, since on a phone the page itself isn't in view from the list of chapters.
+        assertEquals(tr("Cover page added at the front."), state.message)
+        // It's the page that's open, and the book has changed.
+        assertEquals(state.coverPath, state.currentPath)
+        assertTrue(state.dirty)
+        // And it's in view at the top of the list, not added out of sight above it.
+        compose.onNodeWithText("Cover", useUnmergedTree = true).assertIsDisplayed()
+        // There's one now, so another can't be made.
+        compose.onNodeWithContentDescription(tr("Table of contents options")).performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText(tr("Make a cover page")).assertIsNotEnabled()
+    }
+
+    @Test
+    fun inALongBookTheNewCoverPageIsShownNotAddedOutOfSightAboveTheList() {
+        val state = open { TestBooks.long(it, 40) }
+        show(state)
+        compose.onNodeWithContentDescription(tr("Table of contents options")).performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText(tr("Make a cover page")).performClick()
+        settle(state)
+        assertEquals(41, titles(state).size)
+        compose.onNodeWithText("Cover", useUnmergedTree = true).assertIsDisplayed()
     }
 }

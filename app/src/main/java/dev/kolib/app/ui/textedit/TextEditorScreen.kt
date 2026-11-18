@@ -51,6 +51,8 @@ import androidx.compose.material.icons.automirrored.filled.Redo
 import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.ui.platform.testTag
 import androidx.compose.material.icons.outlined.AutoFixHigh
 import androidx.compose.material.icons.outlined.CallSplit
 import androidx.compose.material.icons.outlined.Code
@@ -152,6 +154,7 @@ fun TextEditorScreen(
     var action by remember { mutableStateOf<ChapterAction?>(null) }
     var confirmClose by remember { mutableStateOf(false) }
     var showCleanups by remember { mutableStateOf(false) }
+    var assistant by remember { mutableStateOf(false) }
     var confirmRevert by remember { mutableStateOf(false) }
     var narrowShowsEditor by remember { mutableStateOf(state.currentPath != null) }
     val dark = MaterialTheme.colorScheme.background.luminance() < 0.4f
@@ -208,6 +211,7 @@ fun TextEditorScreen(
         EditorTopBar(state, onBack = close, onRead = { scope.launch { state.flush(); onRead(state.currentPath) } },
             onFind = { state.find.open = !state.find.open; if (state.find.open) state.copiedOpen = false },
             onCleanups = { showCleanups = true }, onRevert = { confirmRevert = true }, onTour = { touring = true },
+            onAssistant = { assistant = true },
             onChapters = if (chaptersApart && pageShowing) ({ narrowShowsEditor = false }) else null,
             onToolsInMenu = { toolsInMenu = it })
         BoxWithConstraints(Modifier.fillMaxSize().imePadding()) {
@@ -322,6 +326,7 @@ fun TextEditorScreen(
     }
 
     if (showCleanups) CleanupsDialog(state, onDismiss = { showCleanups = false })
+    if (assistant) EditorAssistant(state, onDismiss = { assistant = false })
 
     if (confirmClose) {
         AlertDialog(
@@ -395,6 +400,7 @@ fun TextEditorScreen(
 @Composable
 private fun EditorTopBar(
     state: TextEditState, onBack: () -> Unit, onRead: () -> Unit, onFind: () -> Unit, onCleanups: () -> Unit, onRevert: () -> Unit, onTour: () -> Unit,
+    onAssistant: () -> Unit = {},
     /** Opens the list of chapters, where it's a screen of its own (a phone) and the page is showing: the chapter's name is the way to it. */
     onChapters: (() -> Unit)? = null,
     /** Told whether the less used buttons are in the menu (there isn't the width for them in the bar). */
@@ -440,6 +446,7 @@ private fun EditorTopBar(
                 if (roomy) {
                     IconButton(onClick = onFind, modifier = Modifier.tourPlace(EditorPlace.FIND)) { Icon(Icons.Filled.Search, tr("Find & replace"), tint = if (state.find.open) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface) }
                     IconButton(onClick = onCleanups, modifier = Modifier.tourPlace(EditorPlace.CLEANUPS)) { Icon(Icons.Outlined.AutoFixHigh, tr("Clean-ups")) }
+                    IconButton(onClick = onAssistant, modifier = Modifier.testTag("editor-ai")) { Icon(Icons.Outlined.AutoAwesome, tr("AI assistant")) }
                     IconButton(onClick = onRead, modifier = Modifier.tourPlace(EditorPlace.PREVIEW)) { Icon(Icons.AutoMirrored.Filled.MenuBook, tr("Preview in reader")) }
                     Spacer(Modifier.width(4.dp))
                 }
@@ -451,6 +458,7 @@ private fun EditorTopBar(
                         if (!roomy) {
                             DropdownMenuItem(text = { Text(tr("Find & replace")) }, leadingIcon = { Icon(Icons.Filled.Search, null) }, onClick = { menu = false; onFind() })
                             DropdownMenuItem(text = { Text(tr("Clean-ups")) }, leadingIcon = { Icon(Icons.Outlined.AutoFixHigh, null) }, onClick = { menu = false; onCleanups() })
+                            DropdownMenuItem(text = { Text(tr("AI assistant")) }, leadingIcon = { Icon(Icons.Outlined.AutoAwesome, null) }, onClick = { menu = false; onAssistant() })
                             DropdownMenuItem(text = { Text(tr("Preview in reader")) }, leadingIcon = { Icon(Icons.AutoMirrored.Filled.MenuBook, null) }, onClick = { menu = false; onRead() })
                             HorizontalDivider()
                         }

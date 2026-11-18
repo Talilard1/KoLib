@@ -18,6 +18,24 @@ To install KoLib, see [Download](../README.md#download). This page is for buildi
 A release build produces one APK per ABI and a universal one. The tests include screenshots of
 every screen, saved in `app/build/outputs/roborazzi/`.
 
+## The AI engine
+
+The part that runs AI models on the device is [llama.cpp](https://github.com/ggml-org/llama.cpp)
+(a git submodule in `third_party/llama.cpp`) with a small layer of KoLib's own in `app/src/main/cpp`.
+It's built once, outside Gradle, for 64-bit devices (arm64-v8a and x86_64):
+
+```
+git submodule update --init --depth 1
+ANDROID_NDK=/path/to/android-sdk/ndk/29.0.14206865 tools/llama/build-android.sh
+```
+
+That needs the Android NDK, CMake 3.22 or newer and Ninja, and puts the libraries in
+`app/src/main/jniLibs/`, where the app's build picks them up. Run it again after changing
+`app/src/main/cpp` or updating llama.cpp.
+
+Without those libraries KoLib still builds and runs; it just can't run models itself, and says so.
+`tools/llama/try.cpp` runs the same layer on a computer, for trying a model and a prompt.
+
 ## The signing key
 
 The release signing key is **not** in this repository and must never be added to it: anyone with

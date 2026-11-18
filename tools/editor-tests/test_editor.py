@@ -109,6 +109,80 @@ def main():
         check('a paragraph cut keeps its italics and bold', o, {'text': 'Bravo italic words and bold words six seven.', 'html': 'Bravo <i>italic words</i> and <b>bold words</b> six seven.'})
         pg.evaluate(SET, ['d', 5]); pg.evaluate('([t, h]) => KLED.paste(t, h)', [o['text'], o['html']]); settle(pg)
         check('and pasted back', ['<p id="d">DeltaBravo <i>italic words</i> and <b>bold words</b> six seven. eleven twelve.</p>' in pg.evaluate(BODY), pg.evaluate(VALID)], [True, True])
+
+        # The assistant: what it's given to work on, and its words going back in.
+        pg = fresh()
+        pg.evaluate("() => { const t = document.getElementById('a').firstChild; getSelection().setBaseAndExtent(t, 6, t, 19); }")
+        o = json.loads(pg.evaluate('KLED.around()'))
+        check('the assistant is given the words selected and the words before them', [o['text'], o['before'][-18:]], ['one two three', 'Chapter One\n\nAlpha'])
+        pg.evaluate("() => getSelection().removeAllRanges()")       # as when its window takes the cursor away
+        pg.evaluate('([t, h]) => KLED.putBack(t, h)', ['1 2 3', '<p>1 2 3</p>']); settle(pg)
+        check('its words replace what was selected, though the selection was lost meanwhile',
+              ['<p class="first" id="a">Alpha 1 2 3 four five.</p>' in pg.evaluate(BODY), pg.evaluate(VALID)], [True, True])
+
+        pg = fresh()
+        pg.evaluate("() => { const t = document.getElementById('c').firstChild; getSelection().setBaseAndExtent(t, 0, document.getElementById('c').lastChild, 6); }")
+        o = json.loads(pg.evaluate('KLED.around()'))
+        check('words with styling among them are flagged: replacing them would lose it', [o['text'], o['more']], ['Charlie small caps here eight', True])
+        pg.evaluate(SET, ['b', 3]); pg.evaluate("KLED.select('paragraph')")
+        o = json.loads(pg.evaluate('KLED.around()'))
+        check('a paragraph of words, italics and bold is not', [o['html'], o['more'], 'runs' in o], ['<p>Bravo <i>italic words</i> and <b>bold words</b> six seven.</p>', False, False])
+
+        # Over several paragraphs it's given whole paragraphs, and each stays the paragraph it is.
+        pg = fresh()
+        pg.evaluate("() => { getSelection().setBaseAndExtent(document.getElementById('b').firstChild, 2, document.getElementById('c').firstChild, 7); }")
+        o = json.loads(pg.evaluate('KLED.around()'))
+        check('a selection over two paragraphs: the plain one whole, with italics and bold marked; the styled one left out',
+              [o['runs'], o['skipped'], o['text']], [[['Bravo *italic words* and **bold words** six seven.']], 1, 'Bravo *italic words* and **bold words** six seven.'])
+        pg.evaluate("() => getSelection().removeAllRanges()")
+        n = pg.evaluate('(j) => KLED.putRuns(j)', json.dumps([{'run': 0, 'from': 0, 'count': 1, 'html': ['Bravo <i>words</i> &amp; more.']}])); settle(pg)
+        body = pg.evaluate(BODY)
+        check('its words go into that paragraph, and the styled one is untouched',
+              [n, '<p id="b">Bravo <i>words</i> &amp; more.</p>' in body, '<p id="c">Charlie <span style="font-variant: small-caps;">small caps here</span> eight nine ten.</p>' in body, pg.evaluate(VALID)], [1, True, True, True])
+        check('and the change is sent, to be saved and undone', len(pg.evaluate('window.__log')) >= 1 and 'Bravo <i>words</i> &amp; more.' in pg.evaluate('window.__log')[-1], True)
+
+        pg = fresh()
+        pg.evaluate("""() => { const d = document.getElementById('d'); const s = document.createElementNS('http://www.w3.org/1999/xhtml', 'span'); s.setAttribute('class', 'c3');
+          s.textContent = d.textContent; d.textContent = ''; d.appendChild(s); d.setAttribute('class', 'c1'); KLED.select('all'); }""")
+        o = json.loads(pg.evaluate('KLED.around()'))
+        check('a whole chapter: paragraphs side by side go together; the heading and the styled paragraph stay out',
+              [o['runs'], o['skipped']], [[['Alpha one two three four five.', 'Bravo *italic words* and **bold words** six seven.'], ['Item one', 'Item two'], ['Delta eleven twelve.']], 2])
+        n = pg.evaluate('(j) => KLED.putRuns(j)', json.dumps([
+            {'run': 0, 'from': 0, 'count': 2, 'html': ['One.', 'Two <b>bold</b>.', 'Three.']},
+            {'run': 1, 'from': 0, 'count': 2, 'html': ['Only item']},
+            {'run': 2, 'from': 0, 'count': 1, 'html': ['Delta <i>new</i>.']}])); settle(pg)
+        body = pg.evaluate(BODY)
+        check('more paragraphs back than went: the extra one is made like the last, without its id',
+              '<h2>Chapter One</h2> <p class="first" id="a">One.</p> <p id="b">Two <b>bold</b>.</p><p>Three.</p> <p id="c">Charlie' in body, True)
+        check('fewer back than went: the one left over goes', '<ul><li id="li1">Only item</li></ul>' in body, True)
+        check('words wrapped in a styled box stay in it', '<p id="d" class="c1"><span class="c3">Delta <i>new</i>.</span></p>' in body, True)
+        check('and the page is still sound', [n, pg.evaluate(VALID), pg.evaluate(IDS)], [6, True, 'ch1,a,b,c,li1,d'])
+        check('markup that is not well formed is put right, not put in', pg.evaluate("""() => { KLED.select('all'); KLED.around();
+          return KLED.putRuns(JSON.stringify([{ run: 0, from: 0, count: 1, html: ['<b>a <i>b</b> c</i> <script>x</script>&'] }])); }"""), 1)
+        check('the page is sound after it', [pg.evaluate(VALID), '<script' in pg.evaluate("() => document.getElementById('a').innerHTML")], [True, False])
+
+        # Carrying on writing.
+        pg = fresh(); pg.evaluate(SET, ['d', 20])
+        o = json.loads(pg.evaluate('KLED.around()'))
+        check('with nothing selected it gets the words up to the cursor', [o['text'], o['before'][-20:], 'runs' in o], ['', 'Delta eleven twelve.', False])
+        pg.evaluate("() => getSelection().removeAllRanges()")
+        pg.evaluate('([t, h]) => KLED.addAfter(t, h)', ['Next one.\n\nAnd *another*.', '<p>Next one.</p><p>And <i>another</i>.</p>']); settle(pg)
+        check('after a finished paragraph, what it writes starts new ones',
+              ['<p id="d">Delta eleven twelve.</p><p>Next one.</p><p>And <i>another</i>.</p>' in pg.evaluate(BODY), pg.evaluate(VALID)], [True, True])
+        check('and the cursor is left at the end of them', pg.evaluate(CARET), lambda g: g[0].endswith('another.') and g[1].strip() == '')
+        pg = fresh(); pg.evaluate(SET, ['d', 12]); pg.evaluate('KLED.around()')
+        pg.evaluate('([t, h]) => KLED.addAfter(t, h)', ['and more', '<p>and more</p>']); settle(pg)
+        check('in the middle of a line, it carries on the line', ['<p id="d">Delta eleven and more twelve.</p>' in pg.evaluate(BODY), pg.evaluate(VALID)], [True, True])
+        pg = fresh()
+        pg.evaluate("() => { document.getElementById('d').textContent = 'He opened the door and'; }"); pg.evaluate(SET, ['d', 22]); pg.evaluate('KLED.around()')
+        pg.evaluate('([t, h]) => KLED.addAfter(t, h)', ['saw the garden.\n\nIt was bright.', '<p>saw the garden.</p><p>It was bright.</p>']); settle(pg)
+        body = pg.evaluate(BODY)
+        check('after an unfinished sentence, its first paragraph finishes the line and the rest follow',
+              ['<p id="d">He opened the door and saw the garden.</p>' in body, 'It was bright.</p> </section>' in body, pg.evaluate(VALID)], [True, True, True])
+        pg = fresh()
+        pg.evaluate("() => { const t = document.getElementById('a').firstChild; getSelection().setBaseAndExtent(t, 6, t, 30); }"); pg.evaluate('KLED.around()')
+        pg.evaluate('([t, h]) => KLED.addAfter(t, h)', ['Six.', '<p>Six.</p>']); settle(pg)
+        check('with words selected, it writes after them and they stay', '<p class="first" id="a">Alpha one two three four five.</p><p class="first">Six.</p>' in pg.evaluate(BODY), True)
         b.close()
     server.shutdown(); shutil.rmtree(site, ignore_errors=True)
     print(f"\n{'ALL PASSED' if not failed else str(len(failed)) + ' FAILED: ' + '; '.join(failed)}")

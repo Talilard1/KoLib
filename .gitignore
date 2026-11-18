@@ -22,3 +22,6 @@ captures/
 .DS_Store
 __pycache__/
 *.pyc
+
+# The AI engine's libraries, built by tools/llama/build-android.sh (see docs/BUILDING.md)
+/app/src/main/jniLibs/

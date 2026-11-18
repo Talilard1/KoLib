@@ -1,0 +1,32 @@
+@fr
+2900|Les liens, les images et les styles particuliers qu’il contient seront perdus.
+2901|C’est beaucoup plus court que ce que vous avez sélectionné.
+2902|Les titres, et les paragraphes contenant des liens, des images ou des styles particuliers, sont laissés tels quels.
+@de
+2900|Links, Bilder und besondere Formatierungen darin gehen verloren.
+2901|Das ist viel kürzer als das, was du ausgewählt hast.
+2902|Überschriften und Absätze mit Links, Bildern oder besonderer Formatierung bleiben, wie sie sind.
+@es
+2900|Se perderán los enlaces, las imágenes y los estilos especiales que contiene.
+2901|Esto es mucho más corto que lo que has seleccionado.
+2902|Los títulos, y los párrafos con enlaces, imágenes o estilos especiales, se dejan como están.
+@it
+2900|I link, le immagini e gli stili particolari che contiene andranno persi.
+2901|È molto più corto di ciò che hai selezionato.
+2902|I titoli, e i paragrafi con link, immagini o stili particolari, restano come sono.
+@nl
+2900|Links, afbeeldingen en bijzondere opmaak erin gaan verloren.
+2901|Dit is veel korter dan wat je hebt geselecteerd.
+2902|Koppen, en alinea’s met links, afbeeldingen of bijzondere opmaak, blijven zoals ze zijn.
+@pt
+2900|Links, imagens e estilos especiais que ele contém serão perdidos.
+2901|Isto é bem mais curto do que o que você selecionou.
+2902|Títulos, e parágrafos com links, imagens ou estilos especiais, ficam como estão.
+@ru
+2900|Ссылки, изображения и особое оформление в нём будут потеряны.
+2901|Это намного короче того, что вы выделили.
+2902|Заголовки и абзацы со ссылками, изображениями или особым оформлением остаются как есть.
+@ja
+2900|含まれているリンク、画像、特別な書式は失われます。
+2901|選択した文章よりかなり短くなっています。
+2902|見出しと、リンク・画像・特別な書式を含む段落は、そのまま残します。

@@ -41,13 +41,23 @@ Get the latest APK from [Releases](https://github.com/Talilard1/KoLib/releases/l
 - Send books to a Kobo over USB as kepub or EPUB, straight into your Kobo collections, with covers
   sized for its screen.
 - Send over Wi-Fi through the Kobo's web browser when there's no cable to hand.
-- A configurable reader: fonts, page colours, paged or scrolling, two-page view, print-style
+- More than one Kobo? Each keeps its own books and collections, and you can switch between them.
+- A configurable reader: fonts (and your own), page colours, paged or scrolling, two-page view, print-style
   layout, highlights, notes, bookmarks, dictionary lookup and autoscroll.
+- Settings of its own for each book, and for portrait and landscape: turn the device and the reader
+  switches. The header, clock and battery keep clear of the camera hole.
+- Look a word up without leaving the book: a small card by the word says what it means in the
+  sentence you're reading, with its dictionary entry a tap away.
+- Optional AI that runs on your device, with no account: chapter summaries, and questions about the
+  book answered from what you've read so far. Choose a model to suit your device, add your own, or
+  use your own server.
 - A comic reader modelled on [Mihon](https://github.com/mihonapp/mihon)'s.
 - Reading stats, including the reading time recorded by your Kobo.
 - Edit titles, authors, series, tags and covers. Find covers online, or generate one from 123
   designs in 43 colour schemes.
 - Edit a book's text: find and replace, chapter tools, clean-ups, and splitting or combining books.
+- An AI assistant in the editor: it fixes spelling, tidies formatting, rewrites what you select or
+  carries on writing, and asks before it changes your text.
 - A guided setup for the reader and a tour of the text editor, the first time you open them.
 - Convert Word, PDF, MOBI, FB2, text and comic files to EPUB, and scanned PDFs to text with
   on-device OCR.
@@ -110,8 +120,13 @@ Tested with a Kobo Clara 2E. Other Kobo e-readers store books the same way and s
 
 ## Privacy
 
-Your books stay on your devices and your Kobo. KoLib only goes online to search for covers and to
-download OCR language data. The camera is used only to scan a pairing QR code.
+Your books stay on your devices and your Kobo. KoLib only goes online to search for covers, to look
+a word up in Wiktionary, and to download OCR language data or an AI model when you ask for one.
+
+AI models run on your device: nothing you read is sent anywhere. If you choose to use a server of
+your own instead, the words you look up and the pages around them are sent to that server.
+
+The camera is used only to scan a pairing QR code.
 
 ## Reporting a problem
 
@@ -126,6 +141,9 @@ attach the log (Kobo → Device → Open log).
   CBR and CB7 comics.
 - [Tesseract](https://github.com/tesseract-ocr/tesseract) and [Tesseract4Android](https://github.com/adaptech-cz/Tesseract4Android):
   OCR.
+- [llama.cpp](https://github.com/ggml-org/llama.cpp): runs AI models on the device. The models
+  offered are Gemma 4 (Google) and Qwen3.5 (Alibaba), downloaded from Hugging Face.
+- [Wiktionary](https://en.wiktionary.org/): dictionary entries.
 - [ZXing](https://github.com/zxing/zxing) and [CameraX](https://developer.android.com/media/camera/camerax): QR codes
   for pairing devices.
 

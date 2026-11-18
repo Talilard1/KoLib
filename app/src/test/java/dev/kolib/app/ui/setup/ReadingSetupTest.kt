@@ -19,6 +19,10 @@ import dev.kolib.app.reader.ReaderFont
 import dev.kolib.app.reader.ReaderMargins
 import dev.kolib.app.reader.ReaderRotation
 import dev.kolib.app.reader.ReaderSettings
+import dev.kolib.app.reader.ProgressLine
+import dev.kolib.app.reader.MarginItem
+import dev.kolib.app.reader.MarginSpot
+import dev.kolib.app.reader.RunningHeads
 import dev.kolib.app.reader.ReaderSettingsStore
 import dev.kolib.app.reader.ReaderSpread
 import dev.kolib.app.reader.ReaderTheme
@@ -143,6 +147,23 @@ class ReadingSetupTest {
         compose.onNodeWithText("Try the other page turns too.").assertIsDisplayed()
         tap("setup-next")
 
+        // What shows round the page: the headings, the time and battery, and the progress bar.
+        compose.onNodeWithText("Around the page").assertIsDisplayed()
+        tap("heads-Bottom")
+        assertEquals(RunningHeads.BOTTOM, c.settings.runningHeads)
+        // With the headings at the foot, the time and the battery are in the top corners.
+        assertEquals(MarginSpot.TOP_LEFT to MarginSpot.TOP_RIGHT, c.settings.spotOf(MarginItem.CLOCK) to c.settings.spotOf(MarginItem.BATTERY))
+        tap("clock-Off")
+        assertFalse(c.settings.clockShown)
+        tap("heads-Top")
+        assertFalse("Still off with the headings moved", c.settings.clockShown)
+        tap("clock-On")
+        assertEquals(MarginSpot.BOTTOM_CENTER, c.settings.spotOf(MarginItem.CLOCK))
+        tap("heads-Bottom")
+        tap("progress-Chapter")
+        assertEquals(ProgressLine.CHAPTER, c.settings.progressLine)
+        tap("setup-next")
+
         compose.onNodeWithText("The menu").assertIsDisplayed()
         tap("setup-next")
         assertTrue("Show me brings up the reader's controls", c.controlsVisible)
@@ -161,9 +182,12 @@ class ReadingSetupTest {
         assertEquals(ReaderRotation.PORTRAIT, chosen.rotation)
         assertEquals(ReaderSpread.ONE, chosen.spread)
         assertEquals(PageTurn.FADE, chosen.pageTurn)
+        assertEquals(ReaderSettings.PHONE.aroundCamera().runningHeads to ReaderSettings.PHONE.aroundCamera().marginItems, chosen.runningHeads to chosen.marginItems)
+        assertEquals(ProgressLine.CHAPTER, chosen.progressLine)
         // What wasn't asked about is as it was.
         assertEquals(ReaderSettings.PHONE.copy(theme = chosen.theme, font = chosen.font, lineSpacing = chosen.lineSpacing, margins = chosen.margins,
-            rotation = chosen.rotation, spread = chosen.spread, pageTurn = chosen.pageTurn), chosen)
+            rotation = chosen.rotation, spread = chosen.spread, pageTurn = chosen.pageTurn, runningHeads = chosen.runningHeads,
+            marginItems = chosen.marginItems, progressLine = chosen.progressLine), chosen)
     }
 
     @Test
@@ -178,7 +202,7 @@ class ReadingSetupTest {
         settle()
         // Back a step: the controls go away with it.
         tap("guide-back")
-        compose.onNodeWithText("Turning pages").assertIsDisplayed()
+        compose.onNodeWithText("Around the page").assertIsDisplayed()
         assertFalse(c.controlsVisible)
         assertTrue(c.menuLocked)
     }

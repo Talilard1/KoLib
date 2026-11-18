@@ -47,6 +47,31 @@ class KoLibApp : Application() {
     /** Makes scanned books into text, in the background. */
     val ocr: dev.kolib.app.ocr.OcrManager by lazy { dev.kolib.app.ocr.OcrManager(this) }
 
+    private var aiHub: dev.kolib.app.ai.AiHub? = null
+
+    /** The language model that explains words and answers questions about books, and its files. */
+    var ai: dev.kolib.app.ai.AiHub
+        @Synchronized get() = aiHub ?: dev.kolib.app.ai.AiHub(this, appScope).also { hub ->
+            hub.onDownloading = { dev.kolib.app.ai.AiDownloadService.start(this) }
+            aiHub = hub
+        }
+        @Synchronized set(value) { aiHub = value }
+
+    /** Chapter summaries the model has written, kept so they're there at once the next time. */
+    val summaries: dev.kolib.app.ai.SummaryStore by lazy { dev.kolib.app.ai.SummaryStore(java.io.File(filesDir, "ai/summaries.json")) }
+
+    /** The fonts the user has added for reading in. */
+    val fonts: dev.kolib.app.reader.UserFonts by lazy {
+        dev.kolib.app.reader.UserFonts(java.io.File(filesDir, "fonts")).also { dev.kolib.app.reader.UserFonts.shared = it }
+    }
+
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        // A model holds a good share of the device's memory: let go of it when Android runs short.
+        if (level >= android.content.ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL && level < android.content.ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN ||
+            level >= android.content.ComponentCallbacks2.TRIM_MEMORY_COMPLETE) aiHub?.release()
+    }
+
     /** Work that goes on whatever is on the screen: the link to the user's other devices. */
     val appScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Default)
 
@@ -108,6 +133,7 @@ class KoLibApp : Application() {
         L10n.load(this)
         dev.kolib.app.kobo.CoverScreen.load(this)
         AppLog.init(this)
+        fonts
         val previous = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, error ->
             AppLog.crash(thread, error)

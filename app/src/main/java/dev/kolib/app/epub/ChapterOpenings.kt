@@ -42,6 +42,13 @@ object ChapterOpenings {
     }
 
     /**
+     * An ornament alone in its file (the decoration over a chapter's name) right before [next], a chapter
+     * of [nextWords] words, is that chapter's opening too: it goes over the chapter, not on a page by itself.
+     */
+    fun joinsOrnament(ornament: Chapter, next: Chapter, nextWords: Int): Boolean =
+        ornament.linear && next.linear && nextWords >= LEAST_WORDS
+
+    /**
      * [text] (a chapter at [textPath]) with [opening] (its opening's page, at [openingPath]) put in
      * front of it, for the reader: the opening's content goes in a box of its own just before the
      * chapter's body, so the body (and every place in it the reader remembers) is untouched. Null if

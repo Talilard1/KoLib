@@ -83,6 +83,8 @@ import androidx.compose.material3.Switch
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.ui.platform.testTag
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.clickable
@@ -169,6 +171,7 @@ fun AppRoot(
     var readingSetup by rememberSaveable { mutableStateOf(false) }
     var introAt by rememberSaveable { mutableStateOf(0) }
     var showLanguage by remember { mutableStateOf(false) }
+    var showAi by remember { mutableStateOf(false) }
     /** Books waiting in the send dialog. */
     var sendIds by remember { mutableStateOf<List<String>?>(null) }
     /** The page offering books to the Kobo's web browser, while it's open. */
@@ -370,8 +373,9 @@ fun AppRoot(
             localMessage = tr("No folder picker on this device. KoLib needs one to open the Kobo.")
         }
     }
-    val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
-        libraryVm.importUris(uris)
+    // With the user's own file manager, if they like: Android asks which app the first time.
+    val filePicker = rememberLauncherForActivityResult(dev.kolib.app.ui.components.PickFiles()) { uris ->
+        if (uris.isNotEmpty()) libraryVm.importUris(uris)
     }
     val addFiles = {
         try {
@@ -733,6 +737,8 @@ fun AppRoot(
                             onWriteCheck = vm::runWriteCheck,
                             onBackupNow = vm::backupNow,
                             onForget = vm::forgetKobo,
+                            onShowKobo = vm::showKobo,
+                            onForgetSavedKobo = vm::forgetSavedKobo,
                             onOpenBackups = {
                                 vm.refreshBackups()
                                 overlay = "backups"
@@ -754,6 +760,8 @@ fun AppRoot(
                             onWriteCheck = vm::runWriteCheck,
                             onBackupNow = vm::backupNow,
                             onForget = vm::forgetKobo,
+                            onShowKobo = vm::showKobo,
+                            onForgetSavedKobo = vm::forgetSavedKobo,
                             onOpenBackups = {
                                 vm.refreshBackups()
                                 overlay = "backups"
@@ -1036,7 +1044,9 @@ fun AppRoot(
                 showLook = false
                 readingSetup = true
             }) else null,
+            onAi = { showAi = true },
         )
+        if (showAi) dev.kolib.app.ui.ai.AiSetupDialog(onDismiss = { showAi = false })
         if (showLanguage) dev.kolib.app.ui.library.LanguageDialog(
             onDismiss = { showLanguage = false },
             busy = job?.finished == false || state.syncing,
@@ -1276,6 +1286,8 @@ fun LookDialog(
     onRescanFolder: (() -> Unit)? = null,
     /** Opens the reading setup: the reader's main choices, on an example book. */
     onReadingSetup: (() -> Unit)? = null,
+    /** Opens the AI settings: the model that explains words, summarises and answers questions. */
+    onAi: (() -> Unit)? = null,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -1336,6 +1348,26 @@ fun LookDialog(
                     }
                     HorizontalDivider(Modifier.padding(vertical = 10.dp))
                 }
+                if (onAi != null) {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable(onClick = onAi)
+                            .padding(vertical = 10.dp, horizontal = 4.dp)
+                            .testTag("settings-ai"),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(Icons.Outlined.AutoAwesome, null, Modifier.padding(horizontal = 10.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(tr("AI and dictionary"), style = MaterialTheme.typography.titleSmall)
+                            Text(tr("Meanings of words, chapter summaries and questions about a book"), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                    HorizontalDivider(Modifier.padding(vertical = 10.dp))
+                }
+                FileManagerLine()
                 dev.kolib.app.ui.theme.ThemePicker(current, onPick)
                 if (onOpening != null) {
                     HorizontalDivider(Modifier.padding(vertical = 10.dp))
@@ -1381,3 +1413,25 @@ private fun SwitchLine(title: String, detail: String, on: Boolean, onChange: (Bo
 /** The Kobo screen or the library is showing, with its own notices about the Kobo at the top. */
 private fun koboNoticeShown(section: Section, overlay: String?) =
     overlay == null && (section == Section.KOBO || section == Section.LIBRARY)
+
+
+/** The file manager chosen to add books with, once one has been, with a way to choose another. */
+@Composable
+private fun FileManagerLine() {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    var name by remember { mutableStateOf(dev.kolib.app.ui.components.FileManagers.chosenName(context)) }
+    val shown = name ?: return
+    Row(Modifier.fillMaxWidth().padding(vertical = 4.dp, horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+        Icon(Icons.Outlined.Folder, null, Modifier.padding(horizontal = 10.dp))
+        Spacer(Modifier.width(4.dp))
+        Column(Modifier.weight(1f)) {
+            Text(tr("Files are chosen with"), style = MaterialTheme.typography.titleSmall)
+            Text(shown, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        TextButton(onClick = {
+            dev.kolib.app.ui.components.FileManagers.forget(context)
+            name = null
+        }) { Text(tr("Ask again")) }
+    }
+    HorizontalDivider(Modifier.padding(vertical = 10.dp))
+}

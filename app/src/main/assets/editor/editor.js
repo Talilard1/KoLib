@@ -702,7 +702,240 @@
     select: select,
     copy: copySelection,
     paste: pasteIn,
+    /**
+     * For the assistant: what's selected and the words before it, to work on or carry on from. Where they are
+     * is remembered, for putBack, putRuns and addAfter.
+     *
+     * Words selected inside one paragraph come as text and markup (with `more` when there's a link, a picture
+     * or styling among them that wouldn't survive being replaced). A selection over several paragraphs comes
+     * as `runs`: the paragraphs it takes words from, whole, those side by side together, each as text with
+     * *italics* and **bold** marked. Headings, and paragraphs holding more than words, are left out (`skipped`
+     * counts them), so they stay as they are.
+     */
+    around: function () {
+      var sel = window.getSelection();
+      if (!sel || !sel.rangeCount) return '';
+      var r = sel.getRangeAt(0);
+      if (!body.contains(r.commonAncestorContainer) && r.commonAncestorContainer !== body) return '';
+      aroundRange = r.cloneRange();
+      aroundRuns = null;
+      var lead = document.createRange();
+      lead.selectNodeContents(body);
+      lead.setEnd(r.startContainer, r.startOffset);
+      var before = blocksFrom(lead.cloneContents()).map(function (b) { return b.text; }).join('\n\n');
+      var out = { before: before.slice(-6000), text: '', html: '', more: false, skipped: 0 };
+      var picked = sel.isCollapsed ? [] : selectedBlocks();
+      if (picked.length > 1) {
+        var runs = [], texts = [], last = null;
+        for (var i = 0; i < picked.length; i++) {
+          var el = picked[i];
+          var marked = /^(p|li|blockquote|div|dd)$/i.test(el.localName) && wordsOnly(holderOf(el)) ? markedOf(holderOf(el)).replace(/[ \t]*\n[ \t]*/g, '\n').trim() : '';
+          if (!marked) {
+            if (/\S/.test(el.textContent) || el.querySelector('img,svg')) out.skipped++;
+            last = null;
+            continue;
+          }
+          if (last && last.nextElementSibling === el && last.localName === el.localName) { runs[runs.length - 1].push(el); texts[texts.length - 1].push(marked); }
+          else { runs.push([el]); texts.push([marked]); }
+          last = el;
+        }
+        aroundRuns = runs;
+        out.runs = texts;
+        out.text = texts.map(function (t) { return t.join('\n\n'); }).join('\n\n');
+      } else if (!sel.isCollapsed) {
+        var cut = r.cloneContents();
+        var blocks = blocksFrom(cut);
+        out.text = blocks.map(function (b) { return b.text; }).join('\n\n');
+        out.html = blocks.map(function (b) { return '<' + b.tag + '>' + b.html + '</' + b.tag + '>'; }).join('');
+        out.more = !wordsOnly(holderOf(cut));
+      }
+      return JSON.stringify(out);
+    },
+    /** Puts words in where around() last looked (in place of what was selected there), as pasting would. */
+    putBack: function (text, html) {
+      if (aroundRange) {
+        try {
+          var sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(aroundRange);
+        } catch (e) {}
+      }
+      body.focus();
+      return pasteIn(text, html);
+    },
+    /**
+     * Puts the assistant's paragraphs in place of those around() gave it. Each edit is {run, from, count, html}:
+     * `count` paragraphs of a run, from the one at `from`, become the paragraphs in `html`. Each keeps being
+     * the paragraph it was (its class, its place); when more come back than went, the extra ones are made
+     * like the last, and when fewer do, the ones left over go. Returns how many paragraphs it changed.
+     */
+    putRuns: function (json) {
+      var edits = [];
+      try { edits = JSON.parse(json) || []; } catch (e) { edits = []; }
+      if (!aroundRuns) return 0;
+      var changed = 0, end = null;
+      for (var x = 0; x < edits.length; x++) {
+        var e = edits[x], run = aroundRuns[e.run];
+        if (!run || !e.html || !e.html.length) continue;
+        var els = run.slice(e.from, e.from + e.count);
+        if (els.length !== e.count || els.some(function (el) { return !el.parentNode || !body.contains(el); })) continue;
+        var n = Math.min(els.length, e.html.length), i;
+        for (i = 0; i < n; i++) if (setWords(els[i], e.html[i])) changed++;
+        var lastEl = els[n - 1];
+        for (i = n; i < e.html.length; i++) {
+          var extra = likeThis(lastEl);
+          if (!setWords(extra, e.html[i])) continue;
+          lastEl.parentNode.insertBefore(extra, lastEl.nextSibling);
+          lastEl = extra;
+          changed++;
+        }
+        for (i = n; i < els.length; i++) { els[i].parentNode.removeChild(els[i]); changed++; }
+        end = lastEl;
+      }
+      aroundRuns = null;
+      aroundRange = null;
+      if (changed) {
+        if (end && end.parentNode) cursorAtEndOf(end);
+        tidy();
+        schedule();
+        reportState();
+      }
+      return changed;
+    },
+    /**
+     * Puts new writing in after where around() last looked. After a finished paragraph it starts new ones,
+     * made like that one; anywhere else its first paragraph carries on the line the cursor is in.
+     */
+    addAfter: function (text, html) {
+      var sel = window.getSelection();
+      if (aroundRange) {
+        try {
+          var at = aroundRange.cloneRange();
+          at.collapse(false);
+          sel.removeAllRanges();
+          sel.addRange(at);
+        } catch (e) {}
+      }
+      aroundRange = null;
+      aroundRuns = null;
+      body.focus();
+      var r = sel && sel.rangeCount ? sel.getRangeAt(0) : null;
+      var blk = r ? blockOf(r.startContainer) : null;
+      if (!blk) return pasteIn(text, html);
+      var rest = document.createRange();
+      rest.selectNodeContents(blk);
+      rest.setStart(r.startContainer, r.startOffset);
+      var led = document.createRange();
+      led.selectNodeContents(blk);
+      led.setEnd(r.startContainer, r.startOffset);
+      var said = led.toString();
+      if (!/\S/.test(rest.toString()) && /[.!?…:"”’'»)\]*]\s*$/.test(said)) {
+        var blocks = null;
+        if (html) { try { blocks = blocksFrom(new DOMParser().parseFromString(html, 'text/html').body); } catch (e) { blocks = null; } }
+        if (!blocks || !blocks.length) blocks = blocksFromText(text);
+        if (!blocks.length) return false;
+        var after = blk;
+        for (var i = 0; i < blocks.length; i++) {
+          var el = /^(p|li)$/i.test(blk.localName) ? likeThis(blk) : document.createElementNS(blk.namespaceURI, 'p');
+          if (!setWords(el, blocks[i].html)) continue;
+          after.parentNode.insertBefore(el, after.nextSibling);
+          after = el;
+        }
+        cursorAtEndOf(after);
+        tidy();
+        showCursor();
+        schedule();
+        reportState();
+        return true;
+      }
+      if (/\S$/.test(said) && !/^[\s.,;:!?…)\]”’]/.test(String(text || ''))) document.execCommand('insertText', false, ' ');
+      return pasteIn(text, html);
+    },
   };
+  var aroundRange = null;
+  var aroundRuns = null;
+
+  // ---- for the assistant ------------------------------------------------------------------------
+
+  var wordTags = /^(i|em|b|strong|br)$/i;
+
+  /** The element holding a paragraph's words: the paragraph, or the box all its words are wrapped in. */
+  function holderOf(el) {
+    for (;;) {
+      var kids = [];
+      for (var n = el.firstChild; n; n = n.nextSibling) {
+        if (n.nodeType === 8 || (n.nodeType === 3 && !/\S/.test(n.data))) continue;
+        kids.push(n);
+      }
+      if (kids.length !== 1 || kids[0].nodeType !== 1 || wordTags.test(kids[0].localName) || !kids[0].firstChild) return el;
+      el = kids[0];
+    }
+  }
+
+  /** Whether there's nothing in [node] but words, italics, bold and line breaks. */
+  function wordsOnly(node) {
+    for (var n = node.firstChild; n; n = n.nextSibling) {
+      if (n.nodeType === 3 || n.nodeType === 4 || n.nodeType === 8) continue;
+      if (n.nodeType !== 1) return false;
+      var name = n.localName.toLowerCase();
+      if (name === 'br') continue;
+      if (!(wordTags.test(name) || (name === 'span' && !n.attributes.length))) return false;
+      if (!wordsOnly(n)) return false;
+    }
+    return true;
+  }
+
+  /** Words for the assistant: *italics* and **bold** in asterisks, a line break as a new line. */
+  function markedOf(node) {
+    var out = '';
+    for (var n = node.firstChild; n; n = n.nextSibling) {
+      if (n.nodeType === 3 || n.nodeType === 4) { out += n.data.replace(BAD, '').replace(/\s+/g, ' '); continue; }
+      if (n.nodeType !== 1) continue;
+      var name = n.localName.toLowerCase();
+      if (name === 'br') { out += '\n'; continue; }
+      var inner = markedOf(n);
+      var mark = (name === 'b' || name === 'strong') ? '**' : (name === 'i' || name === 'em') ? '*' : '';
+      // The marks hug the words: spaces at the ends stay outside them.
+      if (mark && /\S/.test(inner)) inner = inner.replace(/^(\s*)([\s\S]*?)(\s*)$/, function (_, a, b, c) { return a + mark + b + mark + c; });
+      out += inner;
+    }
+    return out;
+  }
+
+  /** Gives a paragraph new words (markup with italics, bold and line breaks), leaving the paragraph itself as it is. */
+  function setWords(el, html) {
+    var blocks = [];
+    try { blocks = blocksFrom(new DOMParser().parseFromString(String(html || ''), 'text/html').body); } catch (e) { blocks = []; }
+    var inner = blocks.map(function (b) { return b.html; }).join('<br/>');
+    if (!inner) return false;
+    var holder = holderOf(el);
+    try {
+      holder.innerHTML = inner;
+    } catch (e) {
+      holder.textContent = blocks.map(function (b) { return b.text; }).join('\n');
+    }
+    return true;
+  }
+
+  /** A new, empty-handed paragraph made like [el]: its class and the boxes round its words, none of its ids. */
+  function likeThis(el) {
+    var copy = el.cloneNode(true);
+    copy.removeAttribute('id');
+    var ids = copy.querySelectorAll('[id]');
+    for (var i = 0; i < ids.length; i++) ids[i].removeAttribute('id');
+    return copy;
+  }
+
+  function cursorAtEndOf(el) {
+    try {
+      var sel = window.getSelection();
+      var r = document.createRange();
+      r.selectNodeContents(holderOf(el));
+      r.collapse(false);
+      sel.removeAllRanges();
+      sel.addRange(r);
+    } catch (e) {}
+  }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
   else start();

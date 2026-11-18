@@ -22,6 +22,9 @@ Third-party components and their licences are listed below. Each licence text is
 | Leptonica, © 2001 Leptonica | Image handling for Tesseract | BSD 2-clause | `leptonica-BSD.txt` |
 | libjpeg, © 1991–2024 Thomas G. Lane, Guido Vollbeding. This software is based in part on the work of the Independent JPEG Group | JPEG support for Tesseract | IJG | `libjpeg-IJG.txt` |
 | libpng, © 1995–2025 The PNG Reference Library Authors | PNG support for Tesseract | PNG Reference Library License 2 | `libpng-LICENSE.txt` |
+| llama.cpp, © 2023–2026 The ggml authors, with the libraries it includes (their licences are in `third_party/llama.cpp/licenses`) | Runs AI models on the device (64-bit builds) | MIT | `llama.cpp-MIT.txt` |
+| AI models: Gemma 4 E2B and E4B (© Google), Qwen3.5 0.8B (© Alibaba Cloud) | Not bundled: downloaded from Hugging Face when the user asks for one | Apache 2.0 | `apache-2.0.txt` |
+| Wiktionary, © its contributors | Dictionary entries. Not bundled: fetched from en.wiktionary.org when a word is looked up | CC BY-SA 4.0 | https://creativecommons.org/licenses/by-sa/4.0/ |
 | ZXing (`com.google.zxing:core`), © ZXing authors | QR codes for pairing devices | Apache 2.0 | `apache-2.0.txt` |
 | CameraX (`androidx.camera`), © The Android Open Source Project | The camera, for scanning a pairing QR code | Apache 2.0 | `apache-2.0.txt` |
 

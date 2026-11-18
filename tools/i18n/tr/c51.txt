@@ -1,0 +1,24 @@
+@fr
+2907|Le portrait et le paysage ont des réglages distincts. Ceux-ci sont ceux du paysage.
+2908|Le portrait et le paysage ont des réglages distincts. Ceux-ci sont ceux du portrait.
+@de
+2907|Hoch- und Querformat haben getrennte Einstellungen. Das sind die fürs Querformat.
+2908|Hoch- und Querformat haben getrennte Einstellungen. Das sind die fürs Hochformat.
+@es
+2907|Vertical y horizontal tienen ajustes separados. Estos son los de horizontal.
+2908|Vertical y horizontal tienen ajustes separados. Estos son los de vertical.
+@it
+2907|Verticale e orizzontale hanno impostazioni separate. Queste sono quelle dell’orizzontale.
+2908|Verticale e orizzontale hanno impostazioni separate. Queste sono quelle del verticale.
+@nl
+2907|Staand en liggend hebben aparte instellingen. Dit zijn die van liggend.
+2908|Staand en liggend hebben aparte instellingen. Dit zijn die van staand.
+@pt
+2907|Retrato e paisagem têm configurações separadas. Estas são as de paisagem.
+2908|Retrato e paisagem têm configurações separadas. Estas são as de retrato.
+@ru
+2907|У книжной и альбомной ориентации отдельные настройки. Это настройки альбомной.
+2908|У книжной и альбомной ориентации отдельные настройки. Это настройки книжной.
+@ja
+2907|縦向きと横向きで設定は別々です。これは横向きの設定です。
+2908|縦向きと横向きで設定は別々です。これは縦向きの設定です。

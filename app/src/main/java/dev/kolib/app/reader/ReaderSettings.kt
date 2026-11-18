@@ -202,6 +202,18 @@ enum class MarginItem(val label: String, val example: String, val default: Margi
     BATTERY(tr("Battery"), "70%", MarginSpot.BOTTOM_CENTER),
     PERCENT(tr("Percent of book read"), "34%", MarginSpot.OFF);
 
+    /** About how wide it shows, in dp: to tell whether a camera in the top of the screen would be over it. A title takes what room it's given. */
+    val room: Float get() = when (this) {
+        BOOK, CHAPTER -> 1000f
+        PAGE -> 70f
+        BOOK_PAGE -> 92f
+        PAGES_LEFT -> 110f
+        TIME_LEFT -> 150f
+        CLOCK -> 58f
+        BATTERY -> 46f
+        PERCENT -> 34f
+    }
+
     companion object {
         val DEFAULTS: Map<MarginItem, MarginSpot> = entries.associateWith { it.default }
 
@@ -224,6 +236,28 @@ enum class MarginItem(val label: String, val example: String, val default: Margi
 }
 
 /**
+ * The camera's cutouts (a punch hole, a notch) in the screen the reader fills, in dp: the screen's size, the
+ * one at the top and the one at the bottom, and how far in from the sides one in a side comes. What's shown
+ * round the page keeps clear of them: beside the camera where there's room, below it otherwise.
+ */
+data class Cutouts(val width: Float = 0f, val height: Float = 0f, val top: Span? = null, val bottom: Span? = null, val side: Float = 0f) {
+    /** A cutout in the top or bottom edge: from [from] to [to] across the screen, and [depth] deep. */
+    data class Span(val from: Float, val to: Float, val depth: Float) {
+        fun over(a: Float, b: Float): Boolean = to > a && from < b
+    }
+
+    /** There's a camera in the middle of the top of the screen: where a heading, or the time in the middle, would be. */
+    val topMiddle: Boolean get() = top != null && (width <= 0f || top.over(width * 0.38f, width * 0.62f))
+
+    companion object {
+        val NONE = Cutouts()
+
+        /** A cutout [depth] dp deep at the top, and nothing known of where along it: as if it were all the way across. */
+        fun top(depth: Int): Cutouts = if (depth <= 0) NONE else Cutouts(top = Span(0f, Float.MAX_VALUE, depth.toFloat()))
+    }
+}
+
+/**
  * Room kept above and below the text for what shows in the margins, in dp: the text starts (and ends) at
  * least this far from the edge, so a heading or the time never sits on it, or under a camera's cutout.
  */
@@ -241,6 +275,8 @@ data class MarginRoom(val top: Int = 0, val bottom: Int = 0) {
 data class ReaderSettings(
     val theme: ReaderTheme = ReaderTheme.PAPER,
     val font: ReaderFont = ReaderFont.GARAMOND,
+    /** A font of the user's own (see [UserFonts]) to read in, by its family's name; empty for [font]. */
+    val userFont: String = "",
     /** Text size, 1 = as the book sets it. */
     val fontScale: Float = 1.45f,
     /** Line spacing; 0 = as the book sets it. */
@@ -375,38 +411,149 @@ data class ReaderSettings(
         get() = if (headGap == HeadGap.CLOSE) MarginRoom.GAP
         else maxOf(MarginRoom.GAP, Math.round(textDp * (if (lineSpacing > 0f) lineSpacing else 1.45f) * headGap.lines))
 
+    /** One page to a screen or two, on a screen [width] by [height] dp: as reader.js lays pages out. */
+    fun pagesAcross(width: Float, height: Float): Int = when {
+        scrolling -> 1
+        spread.columns == 2 -> 2
+        spread.columns == 1 -> 1
+        else -> if (width > height && width >= 880f) 2 else 1
+    }
+
+    /** About how wide what's shown at [spot] is, in dp, on a screen [width] across: 0 with nothing there. */
+    internal fun spotWidth(spot: MarginSpot, width: Float): Float {
+        val items = MarginItem.entries.filter { shownSpotOf(it) == spot }
+        if (items.isEmpty()) return 0f
+        val all = items.sumOf { it.room.toDouble() }.toFloat() + (items.size - 1) * 22f
+        return if (width <= 0f) all else minOf(all, width * (if (spot.align == 0) 0.4f else 0.28f))
+    }
+
     /**
-     * The room the margins need above and below the text, with a camera's cutout [cutoutTop] dp deep at
-     * the top of the screen: a row at the top sits below it. None when scrolling, which has bands of its own.
+     * How far in from its edge of the screen what's at a top corner ([spot]) starts, in dp: where it always
+     * has, or further in to clear a camera in that corner, when there's room before the middle. Null when the
+     * camera can't be cleared that way (or [spot] is the middle, and the camera's over it).
+     */
+    internal fun topInset(spot: MarginSpot, cut: Cutouts): Float? {
+        val w = cut.width
+        val hole = cut.top ?: return SIDE
+        val own = spotWidth(spot, w)
+        if (own == 0f) return SIDE
+        if (w <= 0f) return null
+        val middle = spotWidth(MarginSpot.TOP_CENTER, w)
+        return when (spot.align) {
+            0 -> if (hole.over(w / 2 - own / 2 - CLEAR, w / 2 + own / 2 + CLEAR)) null else SIDE
+            -1 -> {
+                if (!hole.over(SIDE - CLEAR, SIDE + own + CLEAR)) return SIDE
+                val start = hole.to + CLEAR
+                val limit = if (middle > 0f) w / 2 - middle / 2 - CLEAR else w / 2
+                if (hole.from < w * 0.3f && start + own <= limit) start else null
+            }
+            else -> {
+                if (!hole.over(w - SIDE - own - CLEAR, w - SIDE + CLEAR)) return SIDE
+                val end = hole.from - CLEAR
+                val limit = if (middle > 0f) w / 2 + middle / 2 + CLEAR else w / 2
+                if (hole.to > w * 0.7f && end - own >= limit) w - end else null
+            }
+        }
+    }
+
+    /**
+     * Whether a camera in the top of the screen would be over something shown along the top: a page heading
+     * (over the text of a page; not when it's over the gap between two pages), the chapter's title when
+     * scrolling, or what's in the margins there. Then the top row goes below the camera; otherwise it stays
+     * where it is, beside it.
+     */
+    fun cameraInTheWay(cut: Cutouts): Boolean {
+        val hole = cut.top ?: return false
+        val w = cut.width
+        val items = MarginSpot.entries.any { it.top && spotWidth(it, w) > 0f }
+        // Nothing known of where along the top it is: it's in the way of whatever's there.
+        if (w <= 0f) return items || (runningHeads == RunningHeads.TOP)
+        if (scrolling) {
+            if (runningHeads == RunningHeads.TOP && hole.over(w * 0.2f, w * 0.8f)) return true
+        } else if (headsShown && runningHeads.top && overText(hole, w, cut.height)) return true
+        return MarginSpot.entries.any { it.top && spotWidth(it, w) > 0f && topInset(it, cut) == null }
+    }
+
+    /** Whether a cutout in the top or bottom edge is over the text of a page (not just the gap between two, or the margins). */
+    private fun overText(hole: Cutouts.Span, w: Float, h: Float): Boolean {
+        if (w <= 0f) return true
+        val across = pagesAcross(w, h)
+        val padX = Math.round((w / across * margins.fraction).coerceIn(16f, 140f)).toFloat()
+        val col = if (across == 2) Math.floor(((w - 4 * padX) / 2).toDouble()).toFloat() else w - 2 * padX
+        return (0 until across).any { slot ->
+            val left = padX + slot * (col + 2 * padX)
+            hole.over(left - CLEAR, left + col + CLEAR)
+        }
+    }
+
+    /**
+     * The room the margins need above and below the text, with the camera's cutouts where [cut] has them:
+     * a row at the top sits below a camera that would be over it, and the text starts below one that's
+     * over it. None when scrolling, which has bands of its own.
      * With the page headings at one end, the room there is for them and the space under them; at the
      * other end, there's room for a chapter's first page to have its number there, as in print.
      */
-    fun marginRoom(cutoutTop: Int = 0): MarginRoom {
+    fun marginRoom(cut: Cutouts): MarginRoom {
         if (scrolling) return MarginRoom()
         val atTop = (headsShown && runningHeads.top) || MarginItem.entries.any { shownSpotOf(it).top }
         val atBottom = (headsShown && !runningHeads.top) || MarginItem.entries.any { shownSpotOf(it).let { s -> s != MarginSpot.OFF && !s.top } }
         val row = MarginRoom.ROW_HEIGHT + MarginRoom.GAP
         val headRoom = headRow + headGapDp
         val top = when {
-            headsShown && runningHeads.top -> topRowAt(cutoutTop) + headRoom
-            atTop -> topRowAt(cutoutTop) + row
+            headsShown && runningHeads.top -> topRowAt(cut) + headRoom
+            atTop -> topRowAt(cut) + row
             else -> 0
         }
         val bottom = when {
-            headsShown && !runningHeads.top -> bottomRowAt() + headRoom
+            headsShown && !runningHeads.top -> bottomRowAt(cut) + headRoom
             // The page number of a chapter's first page goes at the foot too, as big as the headings'.
-            atBottom && headsShown -> bottomRowAt() + maxOf(row, headRow + MarginRoom.GAP)
-            atBottom -> bottomRowAt() + row
+            atBottom && headsShown -> bottomRowAt(cut) + maxOf(row, headRow + MarginRoom.GAP)
+            atBottom -> bottomRowAt(cut) + row
             else -> 0
         }
-        return MarginRoom(top = top, bottom = bottom)
+        // The text itself keeps out from under a camera, whatever's in the margins.
+        val under = cut.top?.takeIf { overText(it, cut.width, cut.height) }?.let { Math.round(it.depth) + UNDER } ?: 0
+        val over = cut.bottom?.takeIf { overText(it, cut.width, cut.height) }?.let { Math.round(it.depth) + UNDER } ?: 0
+        return MarginRoom(top = maxOf(top, under), bottom = maxOf(bottom, over))
     }
 
-    /** How far down the top row of the margins sits: below a camera's cutout [cutoutTop] dp deep, if there is one. */
+    /** The same with a cutout [cutoutTop] dp deep at the top of the screen, and nothing known of where along it. */
+    fun marginRoom(cutoutTop: Int = 0): MarginRoom = marginRoom(Cutouts.top(cutoutTop))
+
+    /** How far down the top row of the margins sits: where it always has, or below a camera that would be over it. */
+    fun topRowAt(cut: Cutouts): Int = if (cameraInTheWay(cut)) maxOf(MarginRoom.ROW_TOP, Math.round(cut.top!!.depth) + 2) else MarginRoom.ROW_TOP
+
     fun topRowAt(cutoutTop: Int): Int = maxOf(MarginRoom.ROW_TOP, if (cutoutTop > 0) cutoutTop + 2 else 0)
 
-    /** How far up the bottom row of the margins sits: above the progress bar, when there is one. */
-    fun bottomRowAt(): Int = if (progressLine == ProgressLine.OFF) 5 else 10
+    /** How far up the bottom row of the margins sits: above the progress bar, when there is one, and above a cutout there. */
+    fun bottomRowAt(cut: Cutouts = Cutouts.NONE): Int = maxOf(if (progressLine == ProgressLine.OFF) 5 else 10, cut.bottom?.let { Math.round(it.depth) + 2 } ?: 0)
+
+    /** Nobody has moved anything round the page: the headings and the margins are as the reader starts with them. */
+    val stockArrangement: Boolean get() = runningHeads == RunningHeads.TOP && marginItems == MarginItem.DEFAULTS
+
+    /**
+     * For a screen with a camera in the middle of its top, showing one page at a time (or scrolling): the
+     * page headings at the foot of the page, and the time and the battery in the top corners, either side
+     * of the camera. Nothing then has to move down from under it, and the text keeps its room.
+     */
+    fun aroundCamera(): ReaderSettings = withHeads(RunningHeads.BOTTOM).withClock(true)
+
+    /** The time or the battery is shown somewhere. */
+    val clockShown: Boolean get() = spotOf(MarginItem.CLOCK) != MarginSpot.OFF || spotOf(MarginItem.BATTERY) != MarginSpot.OFF
+
+    /**
+     * With the time and the battery shown where they sit best with the page headings where they are (in
+     * the top corners when the headings are at the foot of the page, together at the foot otherwise), or
+     * not shown.
+     */
+    fun withClock(on: Boolean): ReaderSettings {
+        val (clock, battery) = when {
+            !on -> MarginSpot.OFF to MarginSpot.OFF
+            runningHeads == RunningHeads.BOTTOM -> MarginSpot.TOP_LEFT to MarginSpot.TOP_RIGHT
+            else -> MarginSpot.BOTTOM_CENTER to MarginSpot.BOTTOM_CENTER
+        }
+        return copy(marginItems = marginItems + (MarginItem.CLOCK to clock) + (MarginItem.BATTERY to battery))
+    }
 
     /**
      * Brightness as one number, for the slider and the swipe down the left edge: 1 is the brightest,
@@ -435,7 +582,7 @@ data class ReaderSettings(
      * turn and autoscroll are the same for every book.
      */
     fun withLookOf(book: ReaderSettings): ReaderSettings = copy(
-        font = book.font, fontScale = book.fontScale, lineSpacing = book.lineSpacing, margins = book.margins, align = book.align,
+        font = book.font, userFont = book.userFont, fontScale = book.fontScale, lineSpacing = book.lineSpacing, margins = book.margins, align = book.align,
         hyphens = book.hyphens, spread = book.spread, flow = book.flow, marginItems = book.marginItems, runningHeads = book.runningHeads,
         headTitlePlace = book.headTitlePlace, headSize = book.headSize, headGap = book.headGap, collectionTitle = book.collectionTitle,
         pictures = book.pictures, colourLinks = book.colourLinks, joinOpenings = book.joinOpenings, rectoOpenings = book.rectoOpenings,
@@ -447,7 +594,7 @@ data class ReaderSettings(
 
     /** The look (see [withLookOf]), to keep with a book. */
     fun lookJson(): JSONObject = JSONObject()
-        .put("font", font.name).put("fontScale", fontScale.toDouble()).put("line", lineSpacing.toDouble()).put("margins", margins.name)
+        .put("font", font.name).put("userFont", userFont).put("fontScale", fontScale.toDouble()).put("line", lineSpacing.toDouble()).put("margins", margins.name)
         .put("align", align.name).put("hyphens", hyphens.name).put("spread", spread.name).put("flow", flow.name)
         .put("marginItems", MarginItem.write(marginItems)).put("heads", runningHeads.name).put("headTitles", headTitlePlace.name)
         .put("headSize", headSize.name).put("headGap", headGap.name).put("collectionTitle", collectionTitle.name)
@@ -468,11 +615,42 @@ data class ReaderSettings(
      * When scrolling, the bands the margins' items show in, top and bottom (none where nothing shows). With
      * page headings on, their end has one too, with the chapter's title in it.
      */
-    val bandTop: Int get() = if (scrolling && (marginItems.values.any { it.top } || runningHeads == RunningHeads.TOP)) BAND else 0
-    val bandBottom: Int get() = if (scrolling && (marginItems.values.any { !it.top && it != MarginSpot.OFF } || runningHeads == RunningHeads.BOTTOM)) BAND else 0
+    val bandTop: Int get() = bandTop(Cutouts.NONE)
+    val bandBottom: Int get() = bandBottom(Cutouts.NONE)
+
+    /**
+     * The same with the camera's cutouts where [cut] has them. The band at the top is deep enough to hide
+     * the text as it goes by behind a camera there, even with nothing shown in it; and when the camera would
+     * be over what's shown, deep enough for that to sit below it.
+     */
+    fun bandTop(cut: Cutouts): Int {
+        if (!scrolling) return 0
+        val used = marginItems.values.any { it.top } || runningHeads == RunningHeads.TOP
+        val depth = cut.top?.let { Math.round(it.depth) } ?: 0
+        return when {
+            used && cameraInTheWay(cut) -> topRowAt(cut) + MarginRoom.ROW_HEIGHT + 8
+            used -> maxOf(BAND, depth + 4)
+            depth > 0 -> depth + 4
+            else -> 0
+        }
+    }
+
+    fun bandBottom(cut: Cutouts): Int {
+        if (!scrolling) return 0
+        val used = marginItems.values.any { !it.top && it != MarginSpot.OFF } || runningHeads == RunningHeads.BOTTOM
+        val depth = cut.bottom?.let { Math.round(it.depth) } ?: 0
+        return when {
+            used -> maxOf(BAND, depth + MarginRoom.ROW_HEIGHT + 10)
+            depth > 0 -> depth + 4
+            else -> 0
+        }
+    }
 
     /** What reader.js is told; [cutoutTop], how deep a camera's cutout is at the top of the screen, in dp. */
-    fun toJs(language: String?, cutoutTop: Int = 0): String = JSONObject().apply {
+    fun toJs(language: String?, cutoutTop: Int = 0): String = toJs(language, Cutouts.top(cutoutTop))
+
+    /** What reader.js is told, with the camera's cutouts where [cut] has them. */
+    fun toJs(language: String?, cut: Cutouts): String = JSONObject().apply {
         put("bg", css(theme.bg))
         put("fg", css(theme.fg))
         put("link", css(theme.link))
@@ -481,16 +659,16 @@ data class ReaderSettings(
         put("sel", if (theme.dark) "rgba(120, 160, 255, 0.35)" else "rgba(255, 196, 0, 0.35)")
         put("hl", if (theme.dark) "rgba(255, 196, 0, 0.35)" else "rgba(255, 196, 0, 0.55)")
         put("fontScale", fontScale.toDouble())
-        put("font", font.css)
+        put("font", UserFonts.shared?.cssFor(userFont) ?: font.css)
         put("line", lineSpacing.toDouble())
         put("align", align.js)
         put("hyphens", hyphens.js)
         put("marginFrac", margins.fraction.toDouble())
         put("columns", spread.columns)
         put("flow", flow.js)
-        put("bandTop", bandTop)
-        put("bandBottom", bandBottom)
-        marginRoom(cutoutTop).let { room ->
+        put("bandTop", bandTop(cut))
+        put("bandBottom", bandBottom(cut))
+        marginRoom(cut).let { room ->
             put("minTop", room.top)
             put("minBottom", room.bottom)
         }
@@ -513,6 +691,7 @@ data class ReaderSettings(
             fun <E : Enum<E>> pick(key: String, values: Array<E>, d: E): E = o.optString(key).let { v -> values.firstOrNull { it.name == v } } ?: d
             return base.copy(
                 font = pick("font", ReaderFont.values(), base.font),
+                userFont = if (o.has("userFont")) o.optString("userFont") else base.userFont,
                 fontScale = o.optDouble("fontScale", base.fontScale.toDouble()).toFloat(),
                 lineSpacing = o.optDouble("line", base.lineSpacing.toDouble()).toFloat(),
                 margins = pick("margins", ReaderMargins.values(), base.margins),
@@ -558,6 +737,12 @@ data class ReaderSettings(
         const val HEAD_SMALL = 13f
         /** How tall the bands are that margin items show in when scrolling, in dp (the page's pixels). */
         const val BAND = 36
+        /** How far in from the sides what's in the margins sits, in dp. */
+        const val SIDE = 24f
+        /** The least space between a camera and what's beside it, in dp. */
+        const val CLEAR = 8f
+        /** The space between a camera and the text below it, in dp. */
+        const val UNDER = 6
         const val MIN_WPM = 80
         const val MAX_WPM = 600
     }
@@ -569,12 +754,68 @@ class ReaderSettingsStore(context: Context) {
     /** A phone rather than a tablet: the reader starts differently on one (see [ReaderSettings.PHONE]). */
     val phone: Boolean = context.resources.configuration.smallestScreenWidthDp < 600
     private val _settings = MutableStateFlow(load())
+    /** The usual settings, as they are with the device held upright. */
     val settings: StateFlow<ReaderSettings> = _settings.asStateFlow()
+
+    private val _landscape = MutableStateFlow(loadLandscape(_settings.value))
+    /**
+     * The usual settings with the device held sideways: the same, but for the look (see
+     * [ReaderSettings.withLookOf]), which each way of holding it has to itself. Changing one leaves the other.
+     */
+    val landscape: StateFlow<ReaderSettings> = _landscape.asStateFlow()
+
+    /** The usual settings with the device held one way or the other. */
+    fun usual(landscape: Boolean): ReaderSettings = if (landscape) _landscape.value else _settings.value
 
     fun update(change: (ReaderSettings) -> ReaderSettings) {
         val next = change(_settings.value)
         _settings.value = next
         save(next)
+        // What isn't the look is the same both ways.
+        _landscape.value = next.withLookOf(_landscape.value)
+    }
+
+    /** Changes the usual settings as they are with the device held one way: the look that way, and the rest for both. */
+    fun update(landscape: Boolean, change: (ReaderSettings) -> ReaderSettings) {
+        if (!landscape) return update(change)
+        val next = change(_landscape.value)
+        _landscape.value = next
+        prefs.edit().putString(LANDSCAPE_LOOK, next.lookJson().toString()).apply()
+        val upright = next.withLookOf(_settings.value)
+        if (upright != _settings.value) {
+            _settings.value = upright
+            save(upright)
+        }
+    }
+
+    /** These become the usual settings both ways the device is held: where the reading setup leaves them. */
+    fun setBoth(next: ReaderSettings) {
+        update { next }
+        update(true) { next }
+    }
+
+    /**
+     * For a screen with a camera in the middle of its top ([cut]), the first time the reader is shown on
+     * it held this way: if nothing round the page has been moved and it shows one page at a time, the
+     * headings go to the foot of the page and the time and battery to the top corners (see
+     * [ReaderSettings.aroundCamera]). Once only: from then on it's as the reader leaves it. Returns whether
+     * anything was moved.
+     */
+    fun placeAroundCamera(landscape: Boolean, cut: Cutouts): Boolean {
+        val key = if (landscape) "cameraPlaced.landscape" else "cameraPlaced.portrait"
+        if (cut.top == null || cut.width <= 0f || prefs.getBoolean(key, false)) return false
+        prefs.edit().putBoolean(key, true).apply()
+        val usual = usual(landscape)
+        if (!cut.topMiddle || usual.pagesAcross(cut.width, cut.height) != 1 || !usual.stockArrangement) return false
+        update(landscape) { it.aroundCamera() }
+        return true
+    }
+
+    private fun loadLandscape(upright: ReaderSettings): ReaderSettings {
+        val kept = prefs.getString(LANDSCAPE_LOOK, null)?.let { runCatching { JSONObject(it) }.getOrNull() }
+        // From before each way had a look of its own: sideways starts with the one there was.
+        if (kept == null) prefs.edit().putString(LANDSCAPE_LOOK, upright.lookJson().toString()).apply()
+        return if (kept == null) upright else ReaderSettings.withLook(upright, kept)
     }
 
     /** A book is being opened: it starts at the tablet's own brightness, unless the reader's last is to be kept. */
@@ -586,6 +827,7 @@ class ReaderSettingsStore(context: Context) {
         prefs.edit()
             .putString("theme", next.theme.name)
             .putString("font", next.font.name)
+            .putString("userFont", next.userFont)
             .putFloat("fontScale", next.fontScale)
             .putFloat("line", next.lineSpacing)
             .putString("margins", next.margins.name)
@@ -638,6 +880,10 @@ class ReaderSettingsStore(context: Context) {
     private inline fun <reified E : Enum<E>> enumOf(key: String, default: E): E =
         prefs.getString(key, null)?.let { v -> enumValues<E>().firstOrNull { it.name == v } } ?: default
 
+    private companion object {
+        const val LANDSCAPE_LOOK = "lookLandscape"
+    }
+
     private fun load(): ReaderSettings {
         // Nothing kept yet, the first time the reader's settings are read: they start as suits the device, and are
         // kept from then on, so they stay as they are if the starting ones ever change.
@@ -656,6 +902,7 @@ class ReaderSettingsStore(context: Context) {
         return ReaderSettings(
             theme = enumOf("theme", d.theme),
             font = enumOf("font", d.font),
+            userFont = prefs.getString("userFont", d.userFont).orEmpty(),
             fontScale = prefs.getFloat("fontScale", d.fontScale),
             lineSpacing = prefs.getFloat("line", d.lineSpacing),
             margins = enumOf("margins", d.margins),

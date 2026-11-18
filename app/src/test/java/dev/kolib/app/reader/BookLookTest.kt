@@ -46,7 +46,7 @@ class BookLookTest {
         val store = ReaderStore(dir)
         assertNull(store.look(usual))
         store.saveLook(starWars)
-        assertTrue(File(dir, "look.json").exists())
+        assertTrue(File(dir, LOOK_PORTRAIT).exists())
         val back = store.look(usual.copy(theme = ReaderTheme.SEPIA))!!
         assertTrue(back.sameLook(starWars))
         assertEquals(ReaderTheme.SEPIA, back.theme)

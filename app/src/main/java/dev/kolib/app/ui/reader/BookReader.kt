@@ -55,6 +55,7 @@ fun BookReader(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val landscape = heldSideways()
     var controller by remember(book.id) { mutableStateOf<ReaderController?>(null) }
     val store = remember(book.id) { ReaderStore(library.bookDir(book.id)) { saved -> readingHere?.update(book.id, saved.position) } }
     var error by remember(book.id) { mutableStateOf<String?>(null) }
@@ -81,7 +82,7 @@ fun BookReader(
                     language = book.meta.language,
                     store = store,
                     // With the book's own text, page and layout settings, if it has them.
-                    initialSettings = settings.settings.value.let { usual -> store.look(usual)?.let { usual.withLookOf(it) } ?: usual },
+                    initialSettings = settings.usual(landscape).let { usual -> store.look(usual, landscape)?.let { usual.withLookOf(it) } ?: usual },
                     assets = context.assets,
                     bookAuthor = book.authorLine,
                     bookSeriesIndex = book.meta.seriesIndex,
@@ -128,16 +129,22 @@ fun BookReader(
 @Composable
 fun PreviewReader(files: BookFiles, structure: BookStructure, title: String, language: String?, startPath: String?, settings: ReaderSettingsStore, onClose: () -> Unit) {
     val context = LocalContext.current
+    val landscape = heldSideways()
     val controller = remember(files, structure) {
-        ReaderController(files, structure, title, language, store = null, initialSettings = settings.settings.value, assets = context.assets)
+        ReaderController(files, structure, title, language, store = null, initialSettings = settings.usual(landscape), assets = context.assets)
             .apply { initialPath = startPath }
     }
     ReaderWith(controller, settings, onClose, onEdit = null)
 }
 
+/** The screen is wider than it's tall: the device is held sideways (or its window is that shape). */
+@Composable
+internal fun heldSideways(): Boolean = androidx.compose.ui.platform.LocalConfiguration.current.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+
 /**
  * The reader with its settings: the usual ones, and a book's own text, page and layout settings
- * ([lookStore] keeps them), which it has once one of those is changed while it's read.
+ * ([lookStore] keeps them), which it has once one of those is changed while it's read. Both are kept for
+ * each way the device is held: turned, the reader takes up that way's, and a change is to that way's only.
  */
 @Composable
 private fun ReaderWith(
@@ -149,19 +156,22 @@ private fun ReaderWith(
     onAppSettings: (() -> Unit)? = null,
     lookStore: ReaderStore? = null,
 ) {
-    val current by settings.settings.collectAsStateWithLifecycle()
-    var own by remember(controller) { mutableStateOf(lookStore?.look(settings.settings.value)) }
+    val landscape = heldSideways()
+    val upright by settings.settings.collectAsStateWithLifecycle()
+    val sideways by settings.landscape.collectAsStateWithLifecycle()
+    val current = if (landscape) sideways else upright
+    var own by remember(controller, landscape) { mutableStateOf(lookStore?.look(settings.usual(landscape), landscape)) }
     val shown = own?.let { current.withLookOf(it) } ?: current
     ReaderScreen(
         controller = controller,
         onSettings = { s ->
-            if (lookStore == null) settings.update { s }
+            if (lookStore == null) settings.update(landscape) { s }
             else {
                 // The page colour, brightness, controls and the rest are every book's; the look is this book's.
-                settings.update { usual -> s.withLookOf(usual) }
+                settings.update(landscape) { usual -> s.withLookOf(usual) }
                 if (!s.sameLook(shown)) {
                     own = s
-                    lookStore.saveLook(s)
+                    lookStore.saveLook(s, landscape)
                 }
             }
             controller.applySettings(s)
@@ -174,18 +184,32 @@ private fun ReaderWith(
             BookLook(
                 own = own != null,
                 makeUsual = {
-                    own?.let { o -> settings.update { usual -> usual.withLookOf(o) } }
+                    own?.let { o -> settings.update(landscape) { usual -> usual.withLookOf(o) } }
                     own = null
-                    ls.forgetLook()
+                    ls.forgetLook(landscape)
                 },
                 useUsual = {
                     own = null
-                    ls.forgetLook()
+                    ls.forgetLook(landscape)
                 },
+                landscape = landscape,
             )
         },
     )
-    // Settings changed elsewhere (or the book going back to the usual ones) reach this book too.
+    // On a screen with a camera in the middle of its top, the first time it's read on held this way: the headings
+    // and the time move clear of the camera, where nobody has moved them (the usual ones, and this book's own).
+    val cut = controller.cutouts
+    androidx.compose.runtime.LaunchedEffect(landscape, cut, controller) {
+        if (cut.top == null || cut.width <= 0f) return@LaunchedEffect
+        settings.placeAroundCamera(landscape, cut)
+        val mine = own
+        if (lookStore != null && mine != null && !lookStore.lookPlacedForCamera(landscape)) {
+            val placed = if (cut.topMiddle && mine.stockArrangement && mine.pagesAcross(cut.width, cut.height) == 1) mine.aroundCamera() else mine
+            own = placed
+            lookStore.saveLook(placed, landscape)
+        }
+    }
+    // Settings changed elsewhere (or the book going back to the usual ones, or the device being turned) reach this book too.
     androidx.compose.runtime.LaunchedEffect(shown) {
         if (controller.settings != shown) controller.applySettings(shown)
     }

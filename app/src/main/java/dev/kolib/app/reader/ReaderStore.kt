@@ -60,6 +60,11 @@ data class ReaderState(
     val annotations: List<Annotation> = emptyList(),
 )
 
+/** The files a book's own look is kept in, for the device held upright and sideways. */
+const val LOOK_PORTRAIT = "look-portrait.json"
+const val LOOK_LANDSCAPE = "look-landscape.json"
+private const val CAMERA_PLACED = "cameraPlaced"
+
 /** Where each book was left, and its bookmarks: kept in the book's folder in the library. */
 class ReaderStore(
     private val bookDir: File,
@@ -102,34 +107,64 @@ class ReaderStore(
         onSaved?.invoke(state)
     }
 
-    private val lookFile get() = File(bookDir, "look.json")
+    /**
+     * A book's own look is kept for each way the device is held: changing one leaves the other. From
+     * before that, a book had one look for both ("look.json"), which becomes both the first time it's read.
+     */
+    private fun lookFile(landscape: Boolean) = File(bookDir, if (landscape) LOOK_LANDSCAPE else LOOK_PORTRAIT)
 
-    /** The book's own look, over [base] (see [ReaderSettings.withLookOf]); null if it follows the usual settings. */
-    fun look(base: ReaderSettings): ReaderSettings? = try {
-        if (!lookFile.exists()) null else ReaderSettings.withLook(base, JSONObject(lookFile.readText()))
+    private fun splitOldLook() {
+        val old = File(bookDir, "look.json")
+        if (!old.exists()) return
+        try {
+            for (file in listOf(lookFile(false), lookFile(true))) if (!file.exists()) old.copyTo(file)
+            old.delete()
+        } catch (e: Exception) {
+            AppLog.w("Reader", "The book's own settings couldn't be kept for each way the device is held", e)
+        }
+    }
+
+    private fun lookJson(landscape: Boolean): JSONObject? = try {
+        splitOldLook()
+        lookFile(landscape).takeIf { it.exists() }?.let { JSONObject(it.readText()) }
     } catch (e: Exception) {
         AppLog.w("Reader", "The book's own settings couldn't be read", e)
         null
     }
 
-    /** Keeps [s]'s look as the book's own. */
-    fun saveLook(s: ReaderSettings) {
+    /**
+     * The book's own look with the device held one way, over [base] (see [ReaderSettings.withLookOf]);
+     * null if it follows the usual settings that way.
+     */
+    fun look(base: ReaderSettings, landscape: Boolean = false): ReaderSettings? = lookJson(landscape)?.let { ReaderSettings.withLook(base, it) }
+
+    /**
+     * Whether the book's own look that way has been seen to on a screen with a camera in its top (see
+     * [ReaderSettingsStore.placeAroundCamera]): true once it's been kept by a version that does that.
+     */
+    fun lookPlacedForCamera(landscape: Boolean): Boolean = lookJson(landscape)?.optBoolean(CAMERA_PLACED) ?: true
+
+    /** Keeps [s]'s look as the book's own, with the device held one way. */
+    fun saveLook(s: ReaderSettings, landscape: Boolean = false) {
         try {
+            splitOldLook()
             bookDir.mkdirs()
-            val tmp = File(bookDir, "look.json.part")
-            tmp.writeText(s.lookJson().toString())
-            if (!tmp.renameTo(lookFile)) {
-                lookFile.delete()
-                tmp.renameTo(lookFile)
+            val file = lookFile(landscape)
+            val tmp = File(bookDir, file.name + ".part")
+            tmp.writeText(s.lookJson().put(CAMERA_PLACED, true).toString())
+            if (!tmp.renameTo(file)) {
+                file.delete()
+                tmp.renameTo(file)
             }
         } catch (e: Exception) {
             AppLog.w("Reader", "The book's own settings couldn't be saved", e)
         }
     }
 
-    /** The book goes back to the usual settings. */
-    fun forgetLook() {
-        lookFile.delete()
+    /** The book goes back to the usual settings, with the device held one way. */
+    fun forgetLook(landscape: Boolean = false) {
+        splitOldLook()
+        lookFile(landscape).delete()
     }
 
     private val picturesFile get() = File(bookDir, "pictures.json")

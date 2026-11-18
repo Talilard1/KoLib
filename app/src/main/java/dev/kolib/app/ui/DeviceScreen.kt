@@ -2,6 +2,14 @@
 
 package dev.kolib.app.ui
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
 import dev.kolib.app.tr
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
@@ -79,6 +87,9 @@ fun DeviceScreen(
     onWriteCheck: () -> Unit,
     onBackupNow: () -> Unit,
     onForget: () -> Unit,
+    /** Shows another Kobo's saved copy; forgets one. For someone with more than one Kobo. */
+    onShowKobo: (String) -> Unit = {},
+    onForgetSavedKobo: (String) -> Unit = {},
     onOpenBackups: () -> Unit,
     onOpenLog: () -> Unit,
     extras: KoboExtras = KoboExtras(),
@@ -170,7 +181,14 @@ fun DeviceScreen(
             if (!choosing) TopAppBar(
                 title = {
                     Column {
-                        Text(view.info.displayName, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        KoboName(
+                            view = view,
+                            known = state.knownKobos,
+                            // The Kobo plugged in is the one shown; another's saved copy can be looked at once it's unplugged.
+                            canSwitch = !view.live || unplugged,
+                            onShow = onShowKobo,
+                            onForget = onForgetSavedKobo,
+                        )
                         Text(
                             listOfNotNull(
                                 view.info.version?.firmware?.takeIf { !phone }?.let { tr("Firmware {0}", it) },
@@ -359,6 +377,65 @@ private fun UnpluggedBanner(readAt: Long) {
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                 style = MaterialTheme.typography.bodyMedium,
             )
+        }
+    }
+}
+
+
+/**
+ * The Kobo's name at the top of its window. With more than one Kobo known (someone with two, each with its
+ * own books), it opens a list of them to choose which one's books and collections to look at.
+ */
+@Composable
+private fun KoboName(
+    view: KoboView,
+    known: List<dev.kolib.app.kobo.KnownKobo>,
+    canSwitch: Boolean,
+    onShow: (String) -> Unit,
+    onForget: (String) -> Unit,
+) {
+    val shown = dev.kolib.app.kobo.LastSeenStore.keyOf(view.info)
+    // Two of the same model are told apart by the end of their serial numbers.
+    val twins = known.groupBy { it.name }.filterValues { it.size > 1 }.keys
+    fun label(k: dev.kolib.app.kobo.KnownKobo) = if (k.name in twins && k.serialEnd.isNotEmpty()) "${k.name} (…${k.serialEnd})" else k.name
+    val mine = known.firstOrNull { it.key == shown }
+    val name = mine?.let { label(it) } ?: view.info.displayName
+    if (known.size < 2 || !canSwitch) {
+        Text(name, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        return
+    }
+    var open by remember { mutableStateOf(false) }
+    Box {
+        Row(
+            Modifier.clip(RoundedCornerShape(8.dp)).clickable { open = true }.testTag("kobo-switch"),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(name, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+            Icon(Icons.Filled.ArrowDropDown, tr("Choose another Kobo"))
+        }
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            known.forEach { k ->
+                DropdownMenuItem(
+                    text = {
+                        Column {
+                            Text(label(k))
+                            Text(
+                                listOfNotNull(Fmt.plural(k.books, "book"), Fmt.date(k.readAtMillis)?.let { tr("seen {0}", it) }).joinToString(" · "),
+                                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    },
+                    leadingIcon = { if (k.key == shown) Icon(Icons.Filled.Check, tr("Shown now")) else Spacer(Modifier.size(24.dp)) },
+                    trailingIcon = if (k.key == shown) null else {
+                        { IconButton(onClick = { onForget(k.key) }) { Icon(Icons.Filled.Close, tr("Forget this Kobo")) } }
+                    },
+                    onClick = {
+                        open = false
+                        if (k.key != shown) onShow(k.key)
+                    },
+                    modifier = Modifier.testTag("kobo-${k.key}"),
+                )
+            }
         }
     }
 }

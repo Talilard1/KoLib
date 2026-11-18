@@ -19,6 +19,7 @@ import androidx.compose.runtime.setValue
 import dev.kolib.app.epub.BookFiles
 import dev.kolib.app.epub.EpubFileFiles
 import dev.kolib.app.epub.BookStructure
+import dev.kolib.app.epub.Chapter
 import dev.kolib.app.epub.ChapterOps
 import dev.kolib.app.epub.ChapterOpenings
 import dev.kolib.app.epub.EpubText
@@ -112,8 +113,8 @@ class ReaderController(
      */
     var displayPage by mutableStateOf(false)
         private set
-    /** How deep a camera's cutout is at the top of the screen, in dp: a top row in the margins sits below it. */
-    var cutoutTop = 0
+    /** The camera's cutouts in the screen: what's round the page keeps clear of them. */
+    var cutouts by mutableStateOf(Cutouts.NONE)
         private set
     var chapterProgress by mutableStateOf(0f)
         private set
@@ -472,19 +473,20 @@ class ReaderController(
         return toc.isEmpty() || c.titleFromToc || inFront(i).any { chapters[it].titleFromToc }
     }
 
-    /** The camera's cutout at the top of the screen is [dp] deep: the margins' top row goes below it, the text with it. */
-    fun setCutoutTop(dp: Int) {
-        if (dp == cutoutTop) return
-        val before = settings.marginRoom(cutoutTop)
-        cutoutTop = dp
-        if (settings.marginRoom(dp) != before) {
-            startJson = JSONObject(startJson.ifEmpty { "{}" }).put("settings", JSONObject(settingsJs(settings))).toString()
-            js("KLR.apply(${quote(settingsJs(settings))})")
+    /** Where the camera's cutouts are in the screen: the margins' rows, the bands and the text keep clear of them. */
+    fun placeCutouts(cut: Cutouts) {
+        if (cut == cutouts) return
+        val before = settingsJs(settings)
+        cutouts = cut
+        val now = settingsJs(settings)
+        if (now != before) {
+            startJson = JSONObject(startJson.ifEmpty { "{}" }).put("settings", JSONObject(now)).toString()
+            js("KLR.apply(${quote(now)})")
         }
     }
 
     /** The reader's settings as the page is told them. */
-    private fun settingsJs(s: ReaderSettings): String = s.toJs(language, cutoutTop)
+    private fun settingsJs(s: ReaderSettings): String = s.toJs(language, cutouts)
 
     // ---- counting every chapter's pages ------------------------------------------------------------
 
@@ -717,6 +719,31 @@ class ReaderController(
 
     private fun quote(s: String) = JSONObject.quote(s)
 
+    // ---- for the reading companion (summaries, questions about the book) ---------------------------
+
+    private val paragraphCache = java.util.concurrent.ConcurrentHashMap<Int, List<String>>()
+
+    /** Chapter [i]'s paragraphs, as plain text. */
+    fun paragraphsOf(i: Int): List<String> = paragraphCache.getOrPut(i) {
+        chapters.getOrNull(i)?.let { c -> files.text(c.path) }?.let { dev.kolib.app.ai.BookText.paragraphs(it) } ?: emptyList()
+    }
+
+    /**
+     * What's been read with the reader in chapter [index], [progress] of the way through it: the chapters
+     * before it, and it up to there; each with its place in the book and its name.
+     */
+    fun readSoFar(index: Int = chapterIndex, progress: Float = chapterProgress): List<Triple<Int, String, List<String>>> =
+        (0..index.coerceIn(0, chapters.size - 1)).filter { chapters[it].linear }.map { i ->
+            val paragraphs = paragraphsOf(i)
+            Triple(i, titleOf(i), if (i == index) dev.kolib.app.ai.BookText.upTo(paragraphs, progress) else paragraphs)
+        }
+
+    /** The user's fonts changed: the page reads their list again, so one just added shows without the chapter being opened again. */
+    fun userFontsChanged() {
+        js("KLR.userFonts()")
+        js("KLR.apply(${quote(settingsJs(settings))})")
+    }
+
     // ---- moving around --------------------------------------------------------------------------
 
     /** A chapter to open at instead of where the book was left (reading from the editor). */
@@ -837,9 +864,25 @@ class ReaderController(
             // already say: not read through again (in a long book, most chapters are one or the other).
             val plainlyNot = wordsCounted && i + 1 < chapterWords.size &&
                 (chapterWords[i] > ChapterOpenings.MOST_WORDS || chapterWords[i + 1] < ChapterOpenings.LEAST_WORDS)
-            !plainlyNot && a != null && b != null &&
-                runCatching { ChapterOpenings.joins(a, files.text(a.path).orEmpty(), b, files.text(b.path).orEmpty()) }.getOrDefault(false)
+            !plainlyNot && a != null && b != null && (
+                runCatching { ChapterOpenings.joins(a, files.text(a.path).orEmpty(), b, files.text(b.path).orEmpty()) }.getOrDefault(false) ||
+                    runCatching { headpiece(i, a, b) }.getOrDefault(false)
+                )
         }
+    }
+
+    /**
+     * Chapter [i] is a chapter's headpiece: an ornament alone in its file, with the chapter of text right after
+     * it (some books keep the decoration over each chapter's name in a file of its own). Not an ornament that
+     * goes with a little page before it (a part's title with a divider under it).
+     */
+    private fun headpiece(i: Int, a: Chapter, b: Chapter): Boolean {
+        if (pageKind(i) != PageKind.ORNAMENT) return false
+        val words = chapterWords.getOrNull(i + 1)?.takeIf { wordsCounted }
+            ?: EpubText.countWords(EpubText.plainText(files.text(b.path).orEmpty()))
+        if (!ChapterOpenings.joinsOrnament(a, b, words)) return false
+        val before = chapters.getOrNull(i - 1)
+        return !(before != null && before.linear && little(i - 1, pageKind(i - 1)))
     }
 
     /** The chapter at [path] with its opening in front of it, if it has one; or the short page shown beside it. */
@@ -1366,7 +1409,7 @@ class ReaderController(
             }
         }
         // What the page shows, or the room kept round it for the margins, changed: laid out again.
-        val pageChanged = s.pageOnly() != old.pageOnly() || s.marginRoom(cutoutTop) != old.marginRoom(cutoutTop)
+        val pageChanged = s.pageOnly() != old.pageOnly() || s.marginRoom(cutouts) != old.marginRoom(cutouts) || s.bandTop(cutouts) != old.bandTop(cutouts) || s.bandBottom(cutouts) != old.bandBottom(cutouts)
         if (pageChanged) stopTurn()
         startJson = JSONObject(startJson.ifEmpty { "{}" }).put("settings", JSONObject(settingsJs(s))).toString()
         main.post {
@@ -1412,6 +1455,18 @@ class ReaderController(
     var editingNote by mutableStateOf<Annotation?>(null)
     /** Words to look up (the look-up sheet is showing). */
     var lookUpText by mutableStateOf<String?>(null)
+
+    /** The paragraph the words being looked up are in, to tell how they're used there. */
+    var lookUpParagraph: String = ""
+        private set
+
+    /** Where on the page the words being looked up are, for what's found to be shown beside them. */
+    var lookUpRect: android.graphics.RectF? = null
+        private set
+
+    /** The same a line at a time, to mark the words while they're being looked up. */
+    var lookUpLines: List<android.graphics.RectF> = emptyList()
+        private set
     /** Words to search the book for (the search panel opens with them). */
     var searchRequest by mutableStateOf<String?>(null)
 
@@ -1483,7 +1538,17 @@ class ReaderController(
             when (action) {
                 SelectionAction.HIGHLIGHT -> addAnnotation(sel)
                 SelectionAction.NOTE -> addAnnotation(sel)?.let { editingNote = it }
-                SelectionAction.LOOK_UP -> lookUpText = sel.optString("text").trim()
+                SelectionAction.LOOK_UP -> {
+                    lookUpParagraph = sel.optString("para")
+                    fun box(r: JSONObject): android.graphics.RectF {
+                        val x = r.optDouble("x", 0.0).toFloat()
+                        val y = r.optDouble("y", 0.0).toFloat()
+                        return android.graphics.RectF(x, y, x + r.optDouble("w", 0.0).toFloat(), y + r.optDouble("h", 0.0).toFloat())
+                    }
+                    lookUpRect = sel.optJSONObject("rect")?.let { box(it) }
+                    lookUpLines = sel.optJSONArray("lines")?.let { all -> (0 until all.length()).mapNotNull { i -> all.optJSONObject(i)?.let { box(it) } } }.orEmpty()
+                    lookUpText = sel.optString("text").trim()
+                }
                 SelectionAction.SEARCH -> searchRequest = sel.optString("text").replace(Regex("\\s+"), " ").trim()
             }
             js("KLR.clearSelection()")
@@ -1758,6 +1823,22 @@ class ReaderController(
     internal fun wordsForPreview(words: IntArray) {
         chapterWords = words
         wordsCounted = true
+    }
+
+    /** For pictures and tests: [text] being looked up, from [paragraph]. */
+    internal fun lookUpForPreview(text: String, paragraph: String, rect: android.graphics.RectF? = null) {
+        lookUpParagraph = paragraph
+        lookUpRect = rect
+        lookUpLines = listOfNotNull(rect)
+        lookUpText = text
+    }
+
+    /** Looks up the words of a highlight ([text], shown at [rect]): there's no sentence to go with them. */
+    fun lookUpHighlight(text: String, rect: android.graphics.RectF?) {
+        lookUpParagraph = ""
+        lookUpRect = rect
+        lookUpLines = emptyList()
+        lookUpText = text
     }
 
     internal fun showForPreview(chapter: Int, page: Int, pages: Int, columns: Int = pages, twoUp: Boolean = false, blank: Int = 0, display: Boolean = false) {

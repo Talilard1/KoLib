@@ -105,6 +105,8 @@ import dev.kolib.app.reader.ReaderMargins
 import dev.kolib.app.reader.ReaderRotation
 import dev.kolib.app.reader.ReaderSettings
 import dev.kolib.app.reader.ReaderSettingsStore
+import dev.kolib.app.reader.ProgressLine
+import dev.kolib.app.reader.RunningHeads
 import dev.kolib.app.reader.ReaderSpread
 import dev.kolib.app.reader.TapZones
 import dev.kolib.app.tr
@@ -114,7 +116,7 @@ import dev.kolib.app.ui.reader.ReaderScreen
 import kotlin.math.roundToInt
 
 /** The reading setup's steps, in order. */
-internal enum class SetupStep { COLOUR, FONT, SIZE, SPACING, ROTATION, TURNING, MENU, DONE }
+internal enum class SetupStep { COLOUR, FONT, SIZE, SPACING, ROTATION, TURNING, EDGES, MENU, DONE }
 
 /**
  * The reading setup: the reader itself, open at an example book, with a card over the page that goes
@@ -129,12 +131,22 @@ internal enum class SetupStep { COLOUR, FONT, SIZE, SPACING, ROTATION, TURNING, 
 @Composable
 fun ReadingSetup(settings: ReaderSettingsStore, onClose: (finished: Boolean) -> Unit) {
     val context = LocalContext.current
+    val landscape = dev.kolib.app.ui.reader.heldSideways()
     val controller = remember {
         val files = ExampleBook.files()
-        ReaderController(files, BookStructure(files), ExampleBook.title, L10n.language, store = null, initialSettings = settings.settings.value, assets = context.assets)
+        ReaderController(files, BookStructure(files), ExampleBook.title, L10n.language, store = null, initialSettings = settings.usual(landscape), assets = context.assets)
+    }
+    // On a screen with a camera in the middle of its top, the headings and the time start clear of it.
+    val cut = controller.cutouts
+    androidx.compose.runtime.LaunchedEffect(cut, landscape) {
+        if (settings.placeAroundCamera(landscape, cut)) {
+            val placed = settings.usual(landscape)
+            controller.applySettings(controller.settings.copy(runningHeads = placed.runningHeads, marginItems = placed.marginItems))
+        }
     }
     ReadingSetupScreen(controller, onClose = { chosen ->
-        if (chosen != null) settings.update { chosen }
+        // What's chosen here is where reading starts, whichever way the device is held.
+        if (chosen != null) settings.setBoth(chosen)
         onClose(chosen != null)
     })
 }
@@ -345,6 +357,7 @@ private fun BoxScope.SetupGuide(
                                 SetupStep.SPACING -> SpacingStep(s, c, change)
                                 SetupStep.ROTATION -> RotationStep(s, c, change)
                                 SetupStep.TURNING -> TurningStep(s, c, turns, tapBack, choices = !madeWay, change)
+                                SetupStep.EDGES -> EdgesStep(s, c, change)
                                 SetupStep.MENU -> MenuStep(c, menuOpen)
                                 SetupStep.DONE -> DoneStep(s, c)
                             }
@@ -503,6 +516,34 @@ private fun TurningStep(s: ReaderSettings, c: SetupColours, turns: Int, tapBack:
             }
         }
     }
+}
+
+/**
+ * What shows round the page while reading: the page headings, the time and battery, and the progress bar,
+ * each seen on the page as it's chosen. The time and battery go where they sit best with the headings: in
+ * the top corners when the headings are at the foot, together at the foot otherwise.
+ */
+@Composable
+private fun EdgesStep(s: ReaderSettings, c: SetupColours, change: (ReaderSettings) -> Unit) {
+    StepTitle(tr("Around the page"), tr("Choose what shows at the top and bottom of the page."), c)
+    Spacer(Modifier.height(16.dp))
+    GroupName(tr("Page headings"), c)
+    Segments(
+        RunningHeads.entries, s.runningHeads, c, "heads", describe = { it.label }, modifier = Modifier.padding(horizontal = Edge),
+        onPick = { h -> change(s.withHeads(h).let { it.withClock(s.clockShown) }) },
+    ) { h, chosen -> SegmentWords(h.label, chosen, c) }
+    Spacer(Modifier.height(16.dp))
+    GroupName(tr("Time and battery"), c)
+    Segments(
+        listOf(true, false), s.clockShown, c, "clock", describe = { if (it) tr("On") else tr("Off") }, modifier = Modifier.padding(horizontal = Edge),
+        onPick = { change(s.withClock(it)) },
+    ) { on, chosen -> SegmentWords(if (on) tr("On") else tr("Off"), chosen, c) }
+    Spacer(Modifier.height(16.dp))
+    GroupName(tr("Progress bar"), c)
+    Segments(
+        ProgressLine.entries, s.progressLine, c, "progress", describe = { it.label }, modifier = Modifier.padding(horizontal = Edge),
+        onPick = { change(s.copy(progressLine = it)) },
+    ) { p, chosen -> SegmentWords(p.label, chosen, c) }
 }
 
 /** The reader's menu: how to bring it up, and once it's up, what its buttons are, in the order they're in along the top. */

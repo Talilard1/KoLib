@@ -28,8 +28,8 @@ android {
         applicationId = "dev.kolib.app"
         minSdk = 29
         targetSdk = 36
-        versionCode = 82
-        versionName = "1.30"
+        versionCode = 83
+        versionName = "2.0"
     }
 
     // An APK for each kind of processor, a little smaller, and a universal one that runs on any of them.
@@ -97,6 +97,10 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+        // The language models' engine finds its processor-specific parts as files in the app's library folder.
+        jniLibs {
+            useLegacyPackaging = true
         }
     }
 }

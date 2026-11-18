@@ -74,6 +74,8 @@ data class UiState(
     val message: String? = null,
     /** What was on the Kobo the last time it was connected, for browsing while it's unplugged. */
     val lastSeen: KoboView? = null,
+    /** Every Kobo the app has a saved copy of (someone may have two), the one seen last first. */
+    val knownKobos: List<dev.kolib.app.kobo.KnownKobo> = emptyList(),
     /** Books deleted from the Kobo that it hasn't caught up with yet (it does once ejected). */
     val removedIds: Set<String> = emptySet(),
     /** The Kobo's database is being brought in line with the library. */
@@ -158,6 +160,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             val seen = withContext(Dispatchers.IO) { repo.loadLastSeen() }
             if (seen != null) _state.update { it.copy(lastSeen = seen) }
+            refreshKnownKobos()
             // A Kobo known from before this was remembered: covers are made for its screen.
             if (!dev.kolib.app.kobo.CoverScreen.fromKobo) {
                 seen?.info?.screen?.let { dev.kolib.app.kobo.CoverScreen.remember(getApplication(), it) }
@@ -363,6 +366,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                     try {
                         // A copy to browse while the Kobo is unplugged, with its covers.
                         withContext(Dispatchers.IO) { repo.saveLastSeen(session, session.snapshot.without(stillListed)) }
+                        refreshKnownKobos()
                         val result = repo.afterConnect(session)
                         _state.update {
                             it.copy(
@@ -572,6 +576,44 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     private fun fail(message: String, candidate: VolumeCandidate?) {
         val best = candidate ?: runCatching { repo.removableVolumes().firstOrNull { !it.isLikelySdCard } }.getOrNull()
         _state.update { it.copy(connection = Connection.Failed(message, best)) }
+    }
+
+    /** Reads again which Kobos there are saved copies of. */
+    private fun refreshKnownKobos() {
+        viewModelScope.launch {
+            val known = withContext(Dispatchers.IO) { repo.lastSeen.known() }
+            _state.update { it.copy(knownKobos = known) }
+        }
+    }
+
+    /**
+     * Shows the saved copy of another Kobo the app has been connected to: its books and collections as they
+     * were when it was last plugged in. Not while a Kobo is plugged in: that one is the one shown.
+     */
+    fun showKobo(key: String) {
+        val c = _state.value.connection
+        if (c is Connection.Connected && !c.unplugged) return
+        viewModelScope.launch {
+            val seen = withContext(Dispatchers.IO) {
+                repo.lastSeen.selected = key
+                repo.loadLastSeen(key)
+            } ?: return@launch
+            _state.update { s ->
+                val now = s.connection
+                s.copy(lastSeen = seen, connection = if (now is Connection.Connected && now.unplugged) Connection.Waiting() else now)
+            }
+        }
+    }
+
+    /** Forgets the saved copy of a Kobo that isn't the one shown (one given away, say). The Kobo itself isn't touched. */
+    fun forgetSavedKobo(key: String) {
+        viewModelScope.launch {
+            val known = withContext(Dispatchers.IO) {
+                repo.lastSeen.forget(key)
+                repo.lastSeen.known()
+            }
+            _state.update { it.copy(knownKobos = known) }
+        }
     }
 
     fun forgetKobo() {

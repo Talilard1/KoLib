@@ -92,7 +92,7 @@ import dev.kolib.app.ui.components.Fmt
 import kotlin.math.roundToInt
 
 /** Where the card for a tapped highlight goes: under it if there's room, otherwise over it. */
-private class NearRect(private val rect: android.graphics.RectF, private val density: Float) : PopupPositionProvider {
+internal class NearRect(private val rect: android.graphics.RectF, private val density: Float) : PopupPositionProvider {
     override fun calculatePosition(anchorBounds: IntRect, windowSize: IntSize, layoutDirection: LayoutDirection, popupContentSize: IntSize): IntOffset {
         val gap = (10 * density).roundToInt()
         val left = anchorBounds.left + (rect.centerX() * density).roundToInt() - popupContentSize.width / 2
@@ -184,7 +184,7 @@ fun AnnotationCard(controller: ReaderController, settings: ReaderSettings, onSet
                     }
                     CardAction(Icons.AutoMirrored.Outlined.MenuBook, tr("Look up")) {
                         controller.openAnnotation = null
-                        controller.lookUpText = a.text.trim()
+                        controller.lookUpHighlight(a.text.trim(), open.rect)
                     }
                     CardAction(Icons.Outlined.Delete, tr("Remove")) { controller.removeAnnotation(a.id) }
                 }
@@ -265,83 +265,6 @@ fun NoteDialog(controller: ReaderController) {
     )
 }
 
-/**
- * Looking up words: straight into the app chosen to look things up in, or, until one is chosen, a
- * sheet of the dictionary and translation apps installed, Wikipedia and a web search.
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun LookUpSheet(controller: ReaderController, settings: ReaderSettings, onSettings: (ReaderSettings) -> Unit, language: String?) {
-    val text = controller.lookUpText ?: return
-    val context = LocalContext.current
-    val apps = remember { LookUp.apps(context) }
-    val chosen = apps.firstOrNull { it.key == settings.dictionary }
-    if (chosen != null) {
-        androidx.compose.runtime.LaunchedEffect(text) {
-            LookUp.open(context, chosen, text)
-            controller.lookUpText = null
-        }
-        return
-    }
-    var always by remember { mutableStateOf(false) }
-    val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    ModalBottomSheet(onDismissRequest = { controller.lookUpText = null }, sheetState = sheet) {
-        Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(bottom = 12.dp)) {
-            Text(
-                tr("Look up “{0}”", text.replace(Regex("\\s+"), " ").take(60)),
-                style = MaterialTheme.typography.titleMedium,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp),
-            )
-            if (apps.isEmpty()) {
-                Text(
-                    tr("No dictionary apps found. Install one, such as ColorDict or Google Translate."),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
-                )
-            }
-            apps.forEach { app ->
-                SheetRow(label = app.label, icon = { app.icon?.let { d -> Image(d.toBitmap(96, 96).asImageBitmap(), null, Modifier.size(28.dp)) } }) {
-                    if (always) onSettings(settings.copy(dictionary = app.key))
-                    LookUp.open(context, app, text)
-                    controller.lookUpText = null
-                }
-            }
-            if (apps.isNotEmpty()) {
-                Row(
-                    Modifier.fillMaxWidth().clickable { always = !always }.padding(horizontal = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Checkbox(checked = always, onCheckedChange = { always = it })
-                    Text(tr("Remember my choice"), style = MaterialTheme.typography.bodyMedium)
-                }
-            }
-            HorizontalDivider(Modifier.padding(vertical = 6.dp))
-            SheetRow(tr("Wikipedia"), icon = { Icon(Icons.Outlined.Language, null) }) {
-                LookUp.wikipedia(context, text, language)
-                controller.lookUpText = null
-            }
-            SheetRow(if (text.trim().contains(' ')) tr("Search the web") else tr("Define on the web"), icon = { Icon(Icons.Outlined.Search, null) }) {
-                LookUp.webSearch(context, LookUp.defineQuery(text))
-                controller.lookUpText = null
-            }
-        }
-    }
-}
-
-@Composable
-private fun SheetRow(label: String, icon: @Composable () -> Unit, onClick: () -> Unit) {
-    Row(
-        Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 24.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(Modifier.size(28.dp), contentAlignment = Alignment.Center) { icon() }
-        Spacer(Modifier.width(18.dp))
-        Text(label, style = MaterialTheme.typography.bodyLarge)
-    }
-}
 
 /** Every highlight and note in the book, in reading order, for the contents panel. */
 @Composable

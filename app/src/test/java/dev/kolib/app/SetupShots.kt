@@ -145,6 +145,7 @@ class SetupShots {
     @Test @Config(qualifiers = PHONE) fun phone5Turning() = shot("phone_5_turning", "phone", SetupStep.TURNING)
     @Test @Config(qualifiers = PHONE) fun phone5Turned() = shot("phone_5_turned", "phone", SetupStep.TURNING, page = 1)
     @Test @Config(qualifiers = PHONE) fun phone5Scrolling() = shot("phone_5_scrolling", "phone_scroll", SetupStep.TURNING)
+    @Test @Config(qualifiers = PHONE) fun phone5Edges() = shot("phone_5b_edges", "phone", SetupStep.EDGES)
     @Test @Config(qualifiers = PHONE) fun phone6Menu() = shot("phone_6_menu", "phone", SetupStep.MENU)
     @Test @Config(qualifiers = PHONE) fun phone6MenuOpen() = shot("phone_6_menu_open", "phone", SetupStep.MENU) { it.controlsVisible = true }
     @Test @Config(qualifiers = PHONE) fun phone7Done() = shot("phone_7_done", "phone", SetupStep.DONE)
@@ -168,6 +169,7 @@ class SetupShots {
     @Test @Config(qualifiers = TABLET) fun tablet4Rotation() = shot("tablet_4b_rotation", "tablet", SetupStep.ROTATION)
     @Test @Config(qualifiers = TABLET) fun tablet5Turning() = shot("tablet_5_turning", "tablet", SetupStep.TURNING)
     @Test @Config(qualifiers = TABLET) fun tablet5Turned() = shot("tablet_5_turned", "tablet", SetupStep.TURNING, page = 1)
+    @Test @Config(qualifiers = TABLET) fun tablet5Edges() = shot("tablet_5b_edges", "tablet", SetupStep.EDGES)
     @Test @Config(qualifiers = TABLET) fun tablet6MenuOpen() = shot("tablet_6_menu_open", "tablet", SetupStep.MENU) { it.controlsVisible = true }
     @Test @Config(qualifiers = TABLET) fun tablet7Done() = shot("tablet_7_done", "tablet", SetupStep.DONE)
     @Test @Config(qualifiers = TABLET) fun tabletSlate() = shot("tablet_slate_font", "tablet_slate", SetupStep.FONT)

@@ -1,0 +1,40 @@
+@fr
+2903|{0} s
+2904|Autour de la page
+2905|Choisissez ce qui s’affiche en haut et en bas de la page.
+2906|Heure et batterie
+@de
+2903|{0} s
+2904|Rund um die Seite
+2905|Wähle, was oben und unten auf der Seite angezeigt wird.
+2906|Uhrzeit und Akku
+@es
+2903|{0} s
+2904|Alrededor de la página
+2905|Elige qué se muestra en la parte superior e inferior de la página.
+2906|Hora y batería
+@it
+2903|{0} s
+2904|Intorno alla pagina
+2905|Scegli cosa mostrare in alto e in basso nella pagina.
+2906|Ora e batteria
+@nl
+2903|{0} s
+2904|Rond de pagina
+2905|Kies wat er boven en onder aan de pagina staat.
+2906|Tijd en batterij
+@pt
+2903|{0} s
+2904|Em volta da página
+2905|Escolha o que aparece no alto e no pé da página.
+2906|Hora e bateria
+@ru
+2903|{0} с
+2904|Вокруг страницы
+2905|Выберите, что показывать вверху и внизу страницы.
+2906|Время и батарея
+@ja
+2903|{0} 秒
+2904|ページのまわり
+2905|ページの上と下に表示するものを選びます。
+2906|時刻とバッテリー

@@ -1,0 +1,69 @@
+{
+ "en": [
+  {
+   "partOfSpeech": "Noun",
+   "language": "English",
+   "definitions": [
+    {
+     "definition": "The young of certain animals, especially a group of young birds or fowl hatched at one time by the same mother.",
+     "examples": [
+      "The <b>brood</b> of ducklings followed their mother."
+     ]
+    },
+    {
+     "definition": "<span class=\"usage-label-sense\"><span class=\"ib-brac\">(</span><span class=\"ib-content\"><a rel=\"mw:WikiLink\" href=\"/wiki/Appendix:Glossary#uncountable\" title=\"Appendix:Glossary\">uncountable</a></span><span class=\"ib-brac\">)</span></span> The young of any egg-laying creature, especially if produced at the same time."
+    },
+    {
+     "definition": ""
+    },
+    {
+     "definition": "The children in one family; offspring."
+    }
+   ]
+  },
+  {
+   "partOfSpeech": "Verb",
+   "language": "English",
+   "definitions": [
+    {
+     "definition": "<span class=\"usage-label-sense\"><span class=\"ib-brac\">(</span><span class=\"ib-content\"><a rel=\"mw:WikiLink\" href=\"/wiki/Appendix:Glossary#transitive\" title=\"Appendix:Glossary\">transitive</a></span><span class=\"ib-brac\">)</span></span> To keep an egg warm to make it hatch.",
+     "examples": [
+      "In some species of birds, both the mother and father <b>brood</b> the eggs."
+     ]
+    },
+    {
+     "definition": "<span class=\"usage-label-sense\"><span class=\"ib-brac\">(</span><span class=\"ib-content\">intransitive</span><span class=\"ib-brac\">)</span></span> To <a rel=\"mw:WikiLink\" href=\"/wiki/dwell\" title=\"dwell\">dwell</a> upon moodily and at length, mainly alone."
+    },
+    {
+     "definition": "<span class=\"usage-label-sense\"><span class=\"ib-brac\">(</span><span class=\"ib-content\">intransitive</span><span class=\"ib-brac\">)</span></span> To be in a state of gloomy, serious thought; to think deeply and darkly, often with &quot;over&quot; or &quot;on&quot;."
+    },
+    {
+     "definition": "To hang or hover over something in a heavy, threatening way."
+    },
+    {
+     "definition": "To protect (something that is gradually maturing); to foster."
+    }
+   ]
+  },
+  {
+   "partOfSpeech": "Adjective",
+   "language": "English",
+   "definitions": [
+    {
+     "definition": "Kept for breeding from."
+    }
+   ]
+  }
+ ],
+ "nl": [
+  {
+   "partOfSpeech": "Noun",
+   "language": "Dutch",
+   "definitions": [
+    {
+     "definition": "<a rel=\"mw:WikiLink\" href=\"/wiki/bread\" title=\"bread\">bread</a>"
+    }
+   ]
+  }
+ ]
+}

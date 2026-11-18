@@ -169,6 +169,10 @@ import dev.kolib.app.reader.MarginSpot
 import dev.kolib.app.reader.MarginItem
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.testTag
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
@@ -228,6 +232,7 @@ import dev.kolib.app.reader.TapZones
 import dev.kolib.app.reader.ReaderRotation
 import dev.kolib.app.reader.ReaderFrame
 import dev.kolib.app.reader.ReaderAlign
+import dev.kolib.app.reader.Cutouts
 import dev.kolib.app.reader.ReaderController
 import dev.kolib.app.reader.ReaderFont
 import dev.kolib.app.reader.ReaderHit
@@ -287,11 +292,16 @@ internal fun ReaderScreen(
     bookLook: BookLook? = null,
     /** The reading setup, when this is its example book. */
     guide: ReaderGuide? = null,
+    /** Where the camera's cutouts are taken to be, for pictures and tests (the window says otherwise). */
+    cutouts: Cutouts? = null,
 ) {
     val context = LocalContext.current
     val view = LocalView.current
     val s = controller.settings
     var panel by remember { mutableStateOf(initialPanel) }
+    // The reading companion: what's been asked about this book stays while it's open.
+    val companion = remember(controller) { CompanionState() }
+    var companionOpen by remember { mutableStateOf(false) }
     // Led by the reading setup, the controls and panels stay away until it gets to them (and go away if it goes back).
     val menuAllowed = guide?.menu ?: true
     SideEffect { controller.menuLocked = !menuAllowed }
@@ -354,9 +364,14 @@ internal fun ReaderScreen(
         }
         onDispose { ReaderKeys.handler = null }
     }
-    // The camera's cutout at the top of the screen: a row of headings at the top goes below it.
-    val cutoutTop = with(LocalDensity.current) { (WindowInsets.displayCutout.getTop(this) / density).roundToInt() }
-    SideEffect { controller.setCutoutTop(cutoutTop) }
+    // The camera's cutouts, where the window overlaps them. One in a side narrows the page from both sides
+    // (so it stays in the middle); one at the top or bottom is kept clear of by what's shown round the page.
+    val density = LocalDensity.current
+    val cutInsets = WindowInsets.displayCutout
+    val cutTopPx = cutInsets.getTop(density)
+    val cutBottomPx = cutInsets.getBottom(density)
+    val cutSidePx = maxOf(cutInsets.getLeft(density, androidx.compose.ui.unit.LayoutDirection.Ltr), cutInsets.getRight(density, androidx.compose.ui.unit.LayoutDirection.Ltr))
+    val cutSide = cutouts?.side ?: (cutSidePx / density.density)
     LaunchedEffect(Unit) { controller.start() }
 
     // Going back closes what's over the page, else the book: from Android's back, or KoLib's own back swipe.
@@ -380,8 +395,20 @@ internal fun ReaderScreen(
     fun pageClear(): Boolean = panel == Panel.NONE && controller.note == null && controller.image == null && controller.browsing == null &&
         controller.externalLink == null && !controller.atEnd && controller.openAnnotation == null && controller.editingNote == null &&
         controller.lookUpText == null
-    BoxWithConstraints(Modifier.fillMaxSize().background(pageColor).edgeBackSwipe(edgeBack, backSwipe) { goBack() }) {
+    BoxWithConstraints(Modifier.fillMaxSize().background(pageColor).edgeBackSwipe(edgeBack, backSwipe) { goBack() }.padding(horizontal = cutSide.dp)) {
         val wide = maxWidth >= 720.dp
+        val cut = cutouts?.copy(width = maxWidth.value, height = maxHeight.value) ?: remember(cutTopPx, cutBottomPx, cutSidePx, maxWidth, maxHeight) {
+            val d = density.density
+            val shape = view.rootWindowInsets?.displayCutout
+            // Where along the edge it is, from the window's left: the page starts the side cutout's depth in from there.
+            fun span(r: android.graphics.Rect?, depthPx: Int): Cutouts.Span? = when {
+                depthPx <= 0 -> null
+                r == null || r.isEmpty -> Cutouts.Span(0f, Float.MAX_VALUE, depthPx / d)
+                else -> Cutouts.Span(r.left / d - cutSide, r.right / d - cutSide, depthPx / d)
+            }
+            Cutouts(maxWidth.value, maxHeight.value, top = span(shape?.boundingRectTop, cutTopPx), bottom = span(shape?.boundingRectBottom, cutBottomPx), side = cutSide)
+        }
+        SideEffect { controller.placeCutouts(cut) }
         if (pagePreview != null) pagePreview() else {
             AndroidView(
                 factory = { ctx -> ReaderFrame(ctx, controller) },
@@ -408,7 +435,7 @@ internal fun ReaderScreen(
         // The page headings, as a printed book has them, and the time and the rest, each where it's been put.
         // When scrolling, they sit on strips of the page's colour that the text scrolls under.
         if (!controller.controlsVisible) {
-            if (s.scrolling) ScrollBands(s, pageColor)
+            if (s.scrolling) ScrollBands(s, pageColor, cut)
             if (s.headsShown) PageHeads(controller, s, inkColor)
             if (s.scrolling && s.runningHeads != RunningHeads.OFF) ScrollHead(controller, s, inkColor)
             Margins(controller, s, inkColor.copy(alpha = 0.5f))
@@ -500,6 +527,7 @@ internal fun ReaderScreen(
                     onStats = { panel = Panel.STATS },
                     onEdit = onEdit?.let { edit -> { controller.chapter?.let { edit(it.path) } } },
                     onPdf = onReadAsPdf,
+                    onCompanion = { companionOpen = true },
                 )
             }
         }
@@ -552,6 +580,11 @@ internal fun ReaderScreen(
         AnnotationCard(controller, s, onSettings)
         NoteDialog(controller)
         LookUpSheet(controller, s, onSettings, controller.bookLanguage)
+        // Summaries of the chapter and questions about the book.
+        if (companionOpen) BookCompanionSheet(controller, companion, controller.bookLanguage) { companionOpen = false }
+        // A font added or removed while the book is open: the page takes up the new list.
+        val fontsVersion by (LocalContext.current.applicationContext as dev.kolib.app.KoLibApp).fonts.version.collectAsState()
+        LaunchedEffect(fontsVersion) { if (fontsVersion > 0) controller.userFontsChanged() }
         // "Search in book" from the selection toolbar.
         LaunchedEffect(controller.searchRequest) {
             controller.searchRequest?.let { words ->
@@ -610,7 +643,11 @@ private fun ReaderTopBar(
     onStats: () -> Unit,
     onEdit: (() -> Unit)?,
     onPdf: (() -> Unit)? = null,
+    onCompanion: (() -> Unit)? = null,
 ) {
+    // A phone's width hasn't room for every button: the ones used least go in a menu there.
+    val compact = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 600
+    var more by remember { mutableStateOf(false) }
     Surface(color = MaterialTheme.colorScheme.surfaceContainer, shadowElevation = 4.dp, modifier = Modifier.fillMaxWidth()) {
         Row(
             Modifier.statusBarsPadding().padding(horizontal = 4.dp, vertical = 4.dp),
@@ -631,10 +668,22 @@ private fun ReaderTopBar(
                 Icon(if (marked) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder, if (marked) tr("Remove bookmark") else tr("Bookmark this page"),
                     tint = if (marked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
             }
-            IconButton(onClick = onStats) { Icon(Icons.Outlined.BarChart, tr("Reading stats")) }
+            if (onCompanion != null) IconButton(onClick = onCompanion, modifier = Modifier.testTag("reader-companion")) {
+                Icon(Icons.Outlined.AutoAwesome, tr("Summary and questions"))
+            }
+            if (!compact) IconButton(onClick = onStats) { Icon(Icons.Outlined.BarChart, tr("Reading stats")) }
             IconButton(onClick = onLook) { Icon(Icons.Outlined.Settings, tr("Reading settings")) }
-            if (onPdf != null) IconButton(onClick = onPdf) { Icon(Icons.Outlined.PictureAsPdf, tr("Read as PDF")) }
-            if (onEdit != null) IconButton(onClick = onEdit) { Icon(Icons.Outlined.EditNote, tr("Edit this chapter's text")) }
+            if (!compact) {
+                if (onPdf != null) IconButton(onClick = onPdf) { Icon(Icons.Outlined.PictureAsPdf, tr("Read as PDF")) }
+                if (onEdit != null) IconButton(onClick = onEdit) { Icon(Icons.Outlined.EditNote, tr("Edit this chapter's text")) }
+            } else Box {
+                IconButton(onClick = { more = true }, modifier = Modifier.testTag("reader-more")) { Icon(Icons.Filled.MoreVert, tr("More")) }
+                DropdownMenu(expanded = more, onDismissRequest = { more = false }) {
+                    DropdownMenuItem(text = { Text(tr("Reading stats")) }, leadingIcon = { Icon(Icons.Outlined.BarChart, null) }, onClick = { more = false; onStats() })
+                    if (onPdf != null) DropdownMenuItem(text = { Text(tr("Read as PDF")) }, leadingIcon = { Icon(Icons.Outlined.PictureAsPdf, null) }, onClick = { more = false; onPdf() })
+                    if (onEdit != null) DropdownMenuItem(text = { Text(tr("Edit this chapter's text")) }, leadingIcon = { Icon(Icons.Outlined.EditNote, null) }, onClick = { more = false; onEdit() })
+                }
+            }
         }
     }
 }
@@ -825,7 +874,7 @@ private val ProgressBarInset = 5.dp
  * How far up from the foot of the page the items at the bottom sit: clear of the progress bar when it
  * shows, and down in its place when it's off.
  */
-private fun bottomItemsInset(s: ReaderSettings) = if (s.progressLine == ProgressLine.OFF) 5.dp else 10.dp
+private fun bottomItemsInset(s: ReaderSettings, cut: Cutouts = Cutouts.NONE) = s.bottomRowAt(cut).dp
 
 /**
  * The bar itself, in the text's colour: what's been read is a thicker line from the left, and what's
@@ -841,19 +890,21 @@ private fun ProgressBarLine(f: Float, ink: Color, modifier: Modifier = Modifier)
 
 /** When scrolling: the strips at the top and bottom that the margins' items show on, with the text going by under them. */
 @Composable
-private fun androidx.compose.foundation.layout.BoxScope.ScrollBands(s: ReaderSettings, paper: Color) {
-    if (s.bandTop > 0) Box(
+private fun androidx.compose.foundation.layout.BoxScope.ScrollBands(s: ReaderSettings, paper: Color, cut: Cutouts) {
+    val bandTop = s.bandTop(cut)
+    val bandBottom = s.bandBottom(cut)
+    if (bandTop > 0) Box(
         Modifier
             .align(Alignment.TopCenter)
             .fillMaxWidth()
-            .height(s.bandTop.dp)
+            .height(bandTop.dp)
             .background(androidx.compose.ui.graphics.Brush.verticalGradient(0f to paper, 0.75f to paper, 1f to paper.copy(alpha = 0f)))
     )
-    if (s.bandBottom > 0) Box(
+    if (bandBottom > 0) Box(
         Modifier
             .align(Alignment.BottomCenter)
             .fillMaxWidth()
-            .height(s.bandBottom.dp)
+            .height(bandBottom.dp)
             .background(androidx.compose.ui.graphics.Brush.verticalGradient(0f to paper.copy(alpha = 0f), 0.25f to paper, 1f to paper))
     )
 }
@@ -1337,7 +1388,7 @@ private fun LookPanel(
  * A book's own text, page and layout settings: whether it has them (changed while reading it), and going
  * back to the usual ones or making its own the usual.
  */
-class BookLook(val own: Boolean, val makeUsual: () -> Unit, val useUsual: () -> Unit)
+class BookLook(val own: Boolean, val makeUsual: () -> Unit, val useUsual: () -> Unit, val landscape: Boolean = false)
 
 /** The tabs whose settings a book keeps for itself. */
 private val BOOK_LOOK_TABS = setOf(LookTab.TEXT, LookTab.PAGE, LookTab.LAYOUT)
@@ -1357,6 +1408,14 @@ private fun BookLookNote(look: BookLook) {
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(end = 6.dp),
+            )
+            // Each way of holding the device has settings of its own: which these are.
+            Text(
+                if (look.landscape) tr("Portrait and landscape have separate settings. These are landscape's.")
+                else tr("Portrait and landscape have separate settings. These are portrait's."),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(end = 6.dp, top = 2.dp),
             )
             if (look.own) FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 TextButton(onClick = look.makeUsual) { Text(tr("Set as default")) }
@@ -1399,8 +1458,9 @@ private fun TextSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) 
     Heading(tr("Font"), first = true)
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp)) {
         ReaderFont.entries.forEach { f ->
-            FilterChip(selected = s.font == f, onClick = { onChange(s.copy(font = f)) }, label = { Text(f.label) })
+            FilterChip(selected = s.userFont.isEmpty() && s.font == f, onClick = { onChange(s.copy(font = f, userFont = "")) }, label = { Text(f.label) })
         }
+        UserFontChips(s, onChange)
     }
 
     Heading(tr("Text size"))
@@ -2026,16 +2086,21 @@ private fun BoxWithConstraintsScope.Margins(controller: ReaderController, s: Rea
     val time = remember(now) { android.text.format.DateFormat.getTimeFormat(context).format(java.util.Date(now)) }
     val battery = remember(now, clocked) { if (clocked) batteryNow(context) else null }
     val style = MaterialTheme.typography.labelMedium
-    val rowTop = if (s.scrolling) 12 else s.topRowAt(controller.cutoutTop)
+    // The top row sits beside a camera in the top of the screen when it can (a corner's things moving in from one
+    // in that corner), and below it when the camera would be over something.
+    val cut = controller.cutouts
+    val rowTop = s.topRowAt(cut)
+    val beside = !s.cameraInTheWay(cut)
     for (spot in MarginSpot.entries) {
         if (spot == MarginSpot.OFF) continue
         val pieces = MarginItem.entries.filter { s.shownSpotOf(it) == spot }.mapNotNull { marginPiece(it, controller, time, battery) }
         if (pieces.isEmpty()) continue
+        val inset = (if (spot.top && beside) s.topInset(spot, cut) else null) ?: ReaderSettings.SIDE
         Row(
             Modifier
                 .align(spot.alignment())
-                .padding(horizontal = 24.dp)
-                .padding(top = if (spot.top) rowTop.dp else 0.dp, bottom = if (spot.top) 0.dp else bottomItemsInset(s))
+                .padding(start = if (spot.align < 0) inset.dp else ReaderSettings.SIDE.dp, end = if (spot.align > 0) inset.dp else ReaderSettings.SIDE.dp)
+                .padding(top = if (spot.top) rowTop.dp else 0.dp, bottom = if (spot.top) 0.dp else bottomItemsInset(s, cut))
                 .widthIn(max = maxWidth * (if (spot.align == 0) 0.4f else 0.28f)),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -2095,15 +2160,15 @@ private fun BoxWithConstraintsScope.PageHeads(controller: ReaderController, s: R
     val pages = controller.shownPages
     if (pages.isEmpty()) return
     val frame = controller.frame?.takeIf { it.perScreen == controller.perScreen }
-        ?: PageFrame.of(maxWidth.value, maxHeight.value, s, s.marginRoom(controller.cutoutTop))
+        ?: PageFrame.of(maxWidth.value, maxHeight.value, s, s.marginRoom(controller.cutouts))
     val top = s.runningHeads.top
     val row = s.headRow
     // Over (or under) the text, the space chosen away from it, as in print; never under the camera, nor
     // nearer the edge than the margins' rows.
     val inset = if (top) {
-        maxOf(s.topRowAt(controller.cutoutTop).toFloat(), frame.padTop - s.headGapDp - row)
+        maxOf(s.topRowAt(controller.cutouts).toFloat(), frame.padTop - s.headGapDp - row)
     } else {
-        maxOf(bottomItemsInset(s).value, frame.padBottom - s.headGapDp - row)
+        maxOf(bottomItemsInset(s, controller.cutouts).value, frame.padBottom - s.headGapDp - row)
     }
     val color = ink.copy(alpha = 0.72f)
     val size = s.headFontSize.sp
@@ -2124,7 +2189,7 @@ private fun BoxWithConstraintsScope.PageHeads(controller: ReaderController, s: R
         val footRight = controller.perScreen == 1 || p.side != PageSide.LEFT
         val footSpot = if (footRight) MarginSpot.BOTTOM_RIGHT else MarginSpot.BOTTOM_LEFT
         val numberAtFoot = p.opening && top
-        val footShown = numberAtFoot && frame.padBottom >= bottomItemsInset(s).value + row &&
+        val footShown = numberAtFoot && frame.padBottom >= bottomItemsInset(s, controller.cutouts).value + row &&
             MarginItem.entries.none { s.shownSpotOf(it) == footSpot }
         Box(
             Modifier
@@ -2151,7 +2216,7 @@ private fun BoxWithConstraintsScope.PageHeads(controller: ReaderController, s: R
                 Modifier
                     .align(Alignment.BottomStart)
                     .offset(x = frame.textLeft(p.slot).dp)
-                    .padding(bottom = bottomItemsInset(s))
+                    .padding(bottom = bottomItemsInset(s, controller.cutouts))
                     .width(frame.col.dp)
                     .height(row.dp),
             ) {
@@ -2226,7 +2291,7 @@ private fun BoxWithConstraintsScope.ScrollHead(controller: ReaderController, s: 
         modifier = Modifier
             .align(if (top) Alignment.TopCenter else Alignment.BottomCenter)
             .padding(horizontal = 24.dp)
-            .padding(top = if (top) 10.dp else 0.dp, bottom = if (top) 0.dp else bottomItemsInset(s))
+            .padding(top = if (top) (s.topRowAt(controller.cutouts) - 2).dp else 0.dp, bottom = if (top) 0.dp else bottomItemsInset(s, controller.cutouts))
             .widthIn(max = maxWidth * 0.6f),
     )
 }

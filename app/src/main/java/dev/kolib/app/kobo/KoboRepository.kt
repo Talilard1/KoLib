@@ -133,9 +133,15 @@ class KoboRepository(private val context: Context) {
         session.afterWrite(written.database, read, snapshot)
     }
 
-    /** What was on the Kobo the last time it was connected, with covers kept on the tablet. */
-    fun loadLastSeen(): KoboView? = lastSeen.load()?.let { s ->
-        KoboView(s.info, s.snapshot, KoboCoverLoader(null, lastSeen.coverDir), s.readAtMillis, s.databaseBytes, s.databaseHadWal, null)
+    /**
+     * What was on a Kobo the last time it was connected, with covers kept on the tablet: the Kobo kept under
+     * [key], or the one shown (the one chosen, or seen last) without one.
+     */
+    fun loadLastSeen(key: String? = null): KoboView? {
+        val which = key ?: lastSeen.selected ?: return null
+        return lastSeen.load(which)?.let { s ->
+            KoboView(s.info, s.snapshot, KoboCoverLoader(null, lastSeen.coverDir(which)), s.readAtMillis, s.databaseBytes, s.databaseHadWal, null)
+        }
     }
 
     fun saveLastSeen(session: KoboSession, snapshot: KoboSnapshot = session.snapshot) = lastSeen.save(
@@ -353,7 +359,7 @@ class KoboRepository(private val context: Context) {
             connectedAtMillis = System.currentTimeMillis(),
             databaseBytes = pristine.length(),
             databaseHadWal = walEntry != null,
-            covers = KoboCoverLoader(tree, lastSeen.coverDir),
+            covers = KoboCoverLoader(tree, lastSeen.coverDir(LastSeenStore.keyOf(info))),
             pristineDb = pristine,
             pristineWal = pristineWal.takeIf { walEntry != null },
             workDb = workDb,

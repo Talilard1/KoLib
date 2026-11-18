@@ -35,7 +35,22 @@ class KoboView(
     }
 }
 
-/** Keeps a copy of what was on the Kobo, so it can be browsed while the Kobo isn't plugged in. */
+/** A Kobo the app has been connected to: what its copy is kept under, what it's called and what was on it. */
+data class KnownKobo(
+    val key: String,
+    val name: String,
+    /** The end of its serial number, to tell two of the same model apart. */
+    val serialEnd: String,
+    val readAtMillis: Long,
+    val books: Int,
+    val collections: Int,
+)
+
+/**
+ * Keeps a copy of what was on each Kobo the app has been connected to, so it can be browsed while the Kobo
+ * isn't plugged in. Someone with two Kobos has two copies, each with its own books, collections and covers;
+ * the one [selected] is the one shown.
+ */
 class LastSeenStore(private val dir: File) {
 
     data class LastSeen(
@@ -46,24 +61,81 @@ class LastSeenStore(private val dir: File) {
         val databaseHadWal: Boolean,
     )
 
-    private val file = File(dir, "last-seen.json")
-    val coverDir: File get() = File(dir, "covers")
+    private val devices = File(dir, "devices")
+    private val chosen = File(dir, "selected")
+    private var movedOld = false
 
-    fun save(seen: LastSeen) {
-        try {
-            dir.mkdirs()
-            val tmp = File(dir, "last-seen.json.part")
-            tmp.writeText(toJson(seen).toString())
-            if (!tmp.renameTo(file)) {
-                file.delete()
-                tmp.renameTo(file)
+    private fun folder(key: String) = File(devices, key)
+    private fun file(key: String) = File(folder(key), "last-seen.json")
+    private fun about(key: String) = File(folder(key), "about.json")
+
+    /** Where [key]'s covers are kept. */
+    fun coverDir(key: String): File = File(folder(key), "covers")
+
+    /** Where the covers of the Kobo shown are kept. */
+    val coverDir: File get() = selected?.let { coverDir(it) } ?: File(dir, "covers")
+
+    /** The Kobo shown while none is connected: the one chosen, or else the one seen last. */
+    var selected: String?
+        @Synchronized get() {
+            moveOld()
+            val named = runCatching { chosen.readText().trim() }.getOrNull()?.takeIf { it.isNotEmpty() && folder(it).isDirectory }
+            return named ?: known().firstOrNull()?.key
+        }
+        @Synchronized set(value) {
+            runCatching {
+                dir.mkdirs()
+                if (value == null) chosen.delete() else chosen.writeText(value)
             }
+        }
+
+    /** The copy from before each Kobo had its own (one file for whichever Kobo was last connected): now that Kobo's. */
+    @Synchronized
+    private fun moveOld() {
+        if (movedOld) return
+        movedOld = true
+        val old = File(dir, "last-seen.json")
+        if (!old.isFile) return
+        try {
+            val seen = fromJson(JSONObject(old.readText()))
+            val key = keyOf(seen.info)
+            folder(key).mkdirs()
+            if (!file(key).exists()) {
+                old.renameTo(file(key))
+                File(dir, "covers").takeIf { it.isDirectory }?.renameTo(coverDir(key))
+                about(key).writeText(aboutJson(seen).toString())
+            }
+        } catch (e: Exception) {
+            AppLog.w("Kobo", "The saved copy of what's on the Kobo couldn't be read", e)
+        }
+        old.delete()
+        File(dir, "covers").deleteRecursively()
+    }
+
+    @Synchronized
+    fun save(seen: LastSeen) {
+        moveOld()
+        val key = keyOf(seen.info)
+        try {
+            folder(key).mkdirs()
+            val tmp = File(folder(key), "last-seen.json.part")
+            tmp.writeText(toJson(seen).toString())
+            if (!tmp.renameTo(file(key))) {
+                file(key).delete()
+                tmp.renameTo(file(key))
+            }
+            about(key).writeText(aboutJson(seen).toString())
+            selected = key
         } catch (e: Exception) {
             AppLog.w("Kobo", "Couldn't save what's on the Kobo for later", e)
         }
     }
 
-    fun load(): LastSeen? {
+    /** The copy kept for [key]; for the Kobo shown, without one. */
+    @Synchronized
+    fun load(key: String? = null): LastSeen? {
+        moveOld()
+        val file = file(key ?: selected ?: return null)
         if (!file.exists()) return null
         return try {
             fromJson(JSONObject(file.readText()))
@@ -73,10 +145,37 @@ class LastSeenStore(private val dir: File) {
         }
     }
 
-    fun clear() {
-        file.delete()
-        coverDir.deleteRecursively()
+    /** Every Kobo there's a copy of, the one seen last first. */
+    @Synchronized
+    fun known(): List<KnownKobo> {
+        moveOld()
+        return (devices.listFiles { f -> f.isDirectory } ?: emptyArray()).mapNotNull { f ->
+            runCatching {
+                val o = JSONObject(about(f.name).readText())
+                KnownKobo(f.name, o.getString("name"), o.optString("serialEnd"), o.optLong("readAt"), o.optInt("books"), o.optInt("collections"))
+            }.getOrNull()
+        }.sortedByDescending { it.readAtMillis }
     }
+
+    /** Forgets [key]'s copy (the Kobo itself isn't touched). */
+    @Synchronized
+    fun forget(key: String) {
+        moveOld()
+        folder(key).deleteRecursively()
+        if (runCatching { chosen.readText().trim() }.getOrNull() == key) chosen.delete()
+    }
+
+    /** Forgets the copy of the Kobo shown. */
+    fun clear() {
+        selected?.let { forget(it) }
+    }
+
+    private fun aboutJson(s: LastSeen) = JSONObject()
+        .put("name", s.info.displayName)
+        .put("serialEnd", s.info.version?.serial?.takeLast(4).orEmpty())
+        .put("readAt", s.readAtMillis)
+        .put("books", s.snapshot.books.size)
+        .put("collections", s.snapshot.collections.size)
 
     private fun toJson(s: LastSeen) = JSONObject().apply {
         put("version", 1)
@@ -237,4 +336,10 @@ class LastSeenStore(private val dir: File) {
     private fun JSONObject.optLongOrNull(k: String): Long? = if (has(k) && !isNull(k)) getLong(k) else null
     private fun JSONObject.optIntOrNull(k: String): Int? = if (has(k) && !isNull(k)) getInt(k) else null
     private fun JSONArray.strings(): List<String> = List(length()) { getString(it) }
+
+    companion object {
+        /** What a Kobo's copy is kept under: its serial number (or, failing that, its drive's number). */
+        fun keyOf(info: KoboDeviceInfo): String =
+            (info.version?.serial?.takeIf { it.isNotBlank() } ?: info.volumeUuid ?: "kobo").replace(Regex("[^A-Za-z0-9_-]"), "_").take(64).ifEmpty { "kobo" }
+    }
 }

@@ -67,7 +67,13 @@ class BookServer(private val assets: AssetManager, @Volatile var files: BookFile
     }
 
     private fun asset(path: String): WebResourceResponse = try {
-        val bytes = assets.open(path).use { it.readBytes() }
+        val fonts = UserFonts.shared
+        val bytes = when {
+            // The user's own fonts: their list (as a style sheet the reader's own asks for) and their files.
+            path == "reader/userfonts.css" -> (fonts?.css(APP + USER_FONT) ?: "").toByteArray(Charsets.UTF_8)
+            path.startsWith(USER_FONT) -> fonts?.bytes(decode(path.removePrefix(USER_FONT))) ?: return notFound()
+            else -> assets.open(path).use { it.readBytes() }
+        }
         val type = mediaType(path)
         WebResourceResponse(type, if (type.startsWith("text/") || type.endsWith("javascript")) "utf-8" else null, 200, "OK", headers(type), ByteArrayInputStream(bytes))
     } catch (e: Exception) {
@@ -82,6 +88,7 @@ class BookServer(private val assets: AssetManager, @Volatile var files: BookFile
         const val ORIGIN = "https://kolib.invalid"
         const val BOOK = "$ORIGIN/book/"
         const val APP = "$ORIGIN/app/"
+        private const val USER_FONT = "userfont/"
         const val XHTML_NS = "http://www.w3.org/1999/xhtml"
 
         const val READER_HEAD =

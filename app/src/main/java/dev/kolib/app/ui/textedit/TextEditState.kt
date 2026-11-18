@@ -584,6 +584,56 @@ class TextEditState(
         js("KLED.paste(${JSONObject.quote(text)}, ${JSONObject.quote(html)})") { webView?.requestFocus() }
     }
 
+    /**
+     * What the assistant works on. Words selected inside one paragraph come as [text] and [html] (with their
+     * italics and bold); [more] says there's a link, a picture or styling among them that replacing them would
+     * lose. A selection over several paragraphs comes as [runs]: its paragraphs of plain words, those side by
+     * side together, each with *italics* and **bold** marked, and [text] is all of them. [skipped] counts the
+     * headings and the paragraphs holding more than words, which are left as they are. [before] is the text
+     * up to the selection or the cursor.
+     */
+    class Around(
+        val text: String, val html: String, val before: String,
+        val runs: List<List<String>>? = null, val skipped: Int = 0, val more: Boolean = false,
+    )
+
+    /** [count] paragraphs of run [run], from the one at [from], become the paragraphs in [html] (each one's markup). */
+    class RunEdit(val run: Int, val from: Int, val count: Int, val html: List<String>)
+
+    /** Reads what's selected in the page and what comes before it; null if the page can't say (the code is showing). */
+    fun around(then: (Around?) -> Unit) {
+        if (showCode || webView == null) return then(null)
+        js("KLED.around()") { raw ->
+            val o = raw?.let { runCatching { JSONObject(JSONArray("[$it]").optString(0)) }.getOrNull() }
+            then(o?.let {
+                val runs = it.optJSONArray("runs")?.let { all ->
+                    (0 until all.length()).map { r -> all.optJSONArray(r)?.let { run -> (0 until run.length()).map { i -> run.optString(i) } }.orEmpty() }
+                }
+                Around(it.optString("text"), it.optString("html"), it.optString("before"), runs, it.optInt("skipped"), it.optBoolean("more"))
+            })
+        }
+    }
+
+    /** Puts words where [around] last looked, in place of what was selected there: one step to undo, like a paste. */
+    fun putBack(text: String, html: String) {
+        if (showCode) return
+        js("KLED.putBack(${JSONObject.quote(text)}, ${JSONObject.quote(html)})") { webView?.requestFocus() }
+    }
+
+    /** Gives the paragraphs [around] read their new words; each stays the paragraph it was. One step to undo. */
+    fun putRuns(edits: List<RunEdit>) {
+        if (showCode) return
+        val json = JSONArray()
+        for (e in edits) json.put(JSONObject().put("run", e.run).put("from", e.from).put("count", e.count).put("html", JSONArray(e.html)))
+        js("KLED.putRuns(${JSONObject.quote(json.toString())})") { webView?.requestFocus() }
+    }
+
+    /** Puts new writing in after where [around] last looked: new paragraphs after a finished one, or carrying on the line. */
+    fun addAfter(text: String, html: String) {
+        if (showCode) return
+        js("KLED.addAfter(${JSONObject.quote(text)}, ${JSONObject.quote(html)})") { webView?.requestFocus() }
+    }
+
     /** Adds a picture to the book and puts it in the page where the cursor is. */
     fun insertPicture(bytes: ByteArray) {
         val path = currentPath ?: return

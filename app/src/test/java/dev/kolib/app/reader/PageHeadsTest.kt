@@ -549,6 +549,76 @@ ${pages.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" media-
         }
     }
 
+    /**
+     * Some books keep the decoration over each chapter's name in a file of its own (A Game of Thrones does): it
+     * goes over the chapter it's before, on the same page, not on a page by itself.
+     */
+    @Test
+    fun anOrnamentInItsOwnFileGoesOverTheChapterAfterIt() {
+        fun png(w: Int, h: Int) = byteArrayOf(0x89.toByte(), 'P'.code.toByte(), 'N'.code.toByte(), 'G'.code.toByte(), 13, 10, 26, 10, 0, 0, 0, 13,
+            'I'.code.toByte(), 'H'.code.toByte(), 'D'.code.toByte(), 'R'.code.toByte(),
+            0, 0, (w shr 8).toByte(), (w and 0xff).toByte(), 0, 0, (h shr 8).toByte(), (h and 0xff).toByte(), 8, 6, 0, 0, 0)
+        val chapter = { n: String -> "<h1>$n</h1>" + (1..60).joinToString("") { "<p>Paragraph $it of this chapter, with enough words in it to read.</p>" } }
+        val pages = linkedMapOf(
+            "notice" to "<p>This is a work of fiction. Names, characters, places and incidents are the product of the author's imagination or are used fictitiously.</p>",
+            "orn0" to """<div class="center"><img src="../images/head.png" alt=""/></div>""",
+            "pro" to chapter("PROLOGUE"),
+            "orn1" to """<div class="center"><img src="../images/head.png" alt=""/></div>""",
+            "ch1" to chapter("BRAN"),
+            "map" to """<div><img src="../images/map.png" alt=""/></div>""",
+            "ch2" to chapter("CATELYN"),
+        )
+        val opf = """<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="id">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="id">urn:uuid:12</dc:identifier><dc:title>Thrones</dc:title><dc:language>en</dc:language></metadata>
+  <manifest><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
+<item id="i-h" href="images/head.png" media-type="image/png"/><item id="i-m" href="images/map.png" media-type="image/png"/>
+${pages.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" media-type="application/xhtml+xml"/>""" }}</manifest>
+  <spine>${pages.keys.joinToString("") { """<itemref idref="$it"/>""" }}</spine>
+</package>"""
+        val nav = """<?xml version="1.0" encoding="utf-8"?><html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops"><head><title>Contents</title></head>
+<body><nav epub:type="toc"><ol><li><a href="text/orn0.xhtml">Prologue</a></li><li><a href="text/orn1.xhtml">Bran</a></li><li><a href="text/ch2.xhtml">Catelyn</a></li></ol></nav></body></html>"""
+        val entries = linkedMapOf<String, ByteArray>(
+            "META-INF/container.xml" to TestEpubs.CONTAINER.toByteArray(),
+            "OEBPS/content.opf" to opf.toByteArray(),
+            "OEBPS/nav.xhtml" to nav.toByteArray(),
+            "OEBPS/images/head.png" to png(1000, 110),
+            "OEBPS/images/map.png" to png(1600, 1200),
+        )
+        for ((f, body) in pages) entries["OEBPS/text/$f.xhtml"] = """<?xml version="1.0" encoding="utf-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>$f</title></head><body>$body</body></html>""".toByteArray()
+        val book = TestEpubs.build(File(context.cacheDir, "thrones-${UUID.randomUUID()}.epub"), entries)
+        EpubFile.open(book).use { epub ->
+            val files = EpubFileFiles(epub)
+            val c = ReaderController(files, BookStructure(files), "Thrones", "en", null, ReaderSettings(), context.assets)
+            settle { c.lengthsCounted }
+            val at = { name: String -> c.index("$name.xhtml") }
+            assertEquals(PageKind.ORNAMENT, c.pageKind(at("orn0")))
+            // Each ornament opens the chapter after it; a picture that's a page of its own (the map) doesn't.
+            assertEquals(listOf("orn0", "orn1"), pages.keys.filter { c.isOpening(at(it)) })
+            val served = c.servedText(c.chapters[at("pro")].path)!!
+            assertTrue(served.contains("kl-opening"))
+            assertTrue(served.indexOf("head.png") in 0 until served.indexOf("PROLOGUE"))
+            // Opening the contents' "Prologue" (the ornament's file) opens the chapter, with its name.
+            c.open(at("orn0"), JSONObject().put("type", "start"))
+            assertEquals(at("pro"), c.chapterIndex)
+            assertEquals("Prologue", c.chapterTitle)
+            assertTrue(JSONObject(c.startState).optBoolean("opening"))
+            c.nextChapter()
+            assertEquals(at("ch1"), c.chapterIndex)
+            assertEquals("Bran", c.chapterTitle)
+            c.release()
+        }
+        // Left as the book has them when the reader asks for that.
+        EpubFile.open(book).use { epub ->
+            val files = EpubFileFiles(epub)
+            val c = ReaderController(files, BookStructure(files), "Thrones", "en", null, ReaderSettings(joinOpenings = false), context.assets)
+            settle { c.lengthsCounted }
+            assertFalse(c.isOpening(c.index("orn0.xhtml")))
+            c.release()
+        }
+    }
+
     @Test
     fun aBookOfSeveralBooksHeadsEachWithItsOwnTitle() {
         fun page(title: String) = TestBooks.simplePage(title, "Words.").toByteArray()

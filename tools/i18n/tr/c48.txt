@@ -1,0 +1,1032 @@
+@fr
+2772|Téléchargements de modèles d’IA
+2773|Téléchargement de {0}
+2774|Modèle d’IA
+2775|Le téléchargement a échoué. Vérifiez la connexion et réessayez.
+2776|Votre serveur
+2777|Choisissez d’abord un modèle d’IA.
+2778|Petit et rapide, avec des réponses plus approximatives. Pour les téléphones plus anciens.
+2779|De bonnes réponses à bonne vitesse. Pour la plupart des téléphones et tablettes de ces dernières années.
+2780|Les meilleures réponses ici, et les plus lentes. Pour les appareils rapides avec beaucoup de mémoire : 12 Go, c’est confortable ; 8 Go, c’est parfois juste.
+2781|Cet appareil ne peut pas faire tourner de modèles d’IA lui-même. Vous pouvez toujours utiliser votre propre serveur.
+2782|Le fichier du modèle est introuvable. Téléchargez-le à nouveau.
+2783|Il n’y a pas assez de mémoire libre pour ce modèle. Fermez d’autres applis ou choisissez un modèle plus petit.
+2784|Ce modèle n’a pas pu être ouvert. Son fichier est peut-être abîmé, ou c’est un type que KoLib ne sait pas faire tourner.
+2785|Il n’y a pas assez d’espace libre pour ce modèle.
+2786|Le téléchargement a échoué (erreur {0}).
+2787|Le téléchargement s’est arrêté en cours de route. Réessayez pour reprendre là où il en était.
+2788|Le téléchargement est arrivé incomplet. Réessayez.
+2789|Impossible d’enregistrer le modèle.
+2790|Ce n’est pas un fichier de modèle GGUF.
+2791|Le serveur a répondu par l’erreur {0}.
+2792|Impossible de joindre le serveur : {0}
+2793|IA et dictionnaire
+2794|Sens des mots, résumés de chapitres et questions sur un livre
+2795|Les fichiers sont choisis avec
+2796|Redemander
+2797|Choisir une autre Kobo
+2798|vue le {0}
+2799|Affichée en ce moment
+2800|Ouvrir dans le navigateur
+2801|Choisir les fichiers avec
+2802|Copie de {0}…
+2803|Copie de {0}… {1}
+2804|Ce fichier n’a pas pu être ajouté.
+2805|IA
+2806|Un modèle d’IA peut expliquer un mot tel qu’il est employé là où vous lisez, résumer un chapitre et répondre à des questions sur le livre.
+2807|Sur cet appareil
+2808|Fonctionne sur cet appareil, sans internet une fois téléchargé. Rien de ce que vous lisez n’en sort.
+2809|Votre propre modèle · {0}
+2810|Supprimer ce modèle
+2811|Ajouter un modèle à vous
+2812|N’importe quel modèle de conversation dans un fichier GGUF convient : ceux que llama.cpp fait tourner, disponibles sur Hugging Face.
+2813|Cet appareil ne peut pas faire tourner de modèles d’IA lui-même : il faut un téléphone ou une tablette 64 bits. Vous pouvez toujours utiliser votre propre serveur.
+2814|Votre propre serveur
+2815|Ne pas utiliser l’IA
+2816|Chercher les mots dans Wiktionary
+2817|Le dictionnaire libre, par internet. Seul le mot est envoyé.
+2818|{0} · {1} · {2}
+2819|Conseillé pour cet appareil
+2820|Demande plus de mémoire que n’en a cet appareil
+2821|Vérification du téléchargement…
+2822|Pour Ollama, LM Studio ou llama.cpp sur un de vos ordinateurs, ou tout service compatible avec l’API de conversation d’OpenAI. Les mots que vous cherchez et les pages autour lui sont envoyés.
+2823|Adresse
+2824|Clé (s’il en faut une)
+2825|Le serveur n’a indiqué aucun modèle. Saisissez le nom du modèle.
+2826|Modèle
+2827|Recherche…
+2828|Voir les modèles du serveur
+2829|Utiliser ce serveur
+2830|Résumés et questions
+2831|Avec un modèle d’IA configuré, KoLib peut résumer le chapitre en cours et répondre à des questions sur le livre jusqu’ici, sans dévoiler la suite.
+2832|Configurer l’IA
+2833|Résumé
+2834|Demander
+2835|Réglages de l’IA et du dictionnaire
+2836|Il y a trop peu de texte dans ce chapitre pour le résumer.
+2837|Vous avez lu trop peu de ce chapitre pour le résumer.
+2838|Préparation de {0}…
+2839|Rédaction du résumé…
+2840|Lecture du chapitre…
+2841|Lecture de la partie {0} sur {1}…
+2842|Ce chapitre est trop long pour le modèle.
+2843|Le modèle n’a pas pu répondre.
+2844|Ce que j’ai lu
+2845|Tout le chapitre
+2846|Un résumé de tout ce chapitre. Il peut dévoiler ce que vous n’avez pas encore lu.
+2847|Un résumé de ce chapitre jusqu’à l’endroit où vous êtes.
+2848|Résumer
+2849|C’est plus que le modèle ne peut absorber d’un coup. Essayez une question plus courte.
+2850|Posez des questions sur le livre. Il répond d’après ce que vous avez lu jusqu’ici, sans dévoiler la suite.
+2851|Que s’est-il passé jusqu’ici ?
+2852|Qui sont les personnages de ce chapitre ?
+2853|Où cela se passe-t-il ?
+2854|Lecture du livre…
+2855|Posez une question sur le livre
+2856|Dans cette phrase
+2857|En mots simples
+2858|En général : {0}
+2859|Réflexion…
+2860|{0} · {1} s
+2861|Ce que cela veut dire dans cette phrase
+2862|Un modèle d’IA sur cet appareil peut vous le dire.
+2863|Configurer
+2864|Aucune entrée de dictionnaire pour « {0} ».
+2865|Impossible de joindre le dictionnaire. Vérifiez la connexion internet.
+2866|D’après Wiktionary
+2867|Toujours ouvrir l’appli que je choisis
+2868|Résumé et questions
+2869|Cette police n’a pas pu être ajoutée.
+2870|Retirer cette police
+2871|Ajouter une police
+2872|Impossible d’ajouter la police
+2873|Les livres composés avec elle repassent en {0}.
+2874|Modifié. Annuler le défait.
+2875|Ajouté. Annuler le défait.
+2876|Traitement de la partie {0} sur {1}…
+2877|Écriture…
+2878|Le modèle n’a pas pu le faire.
+2879|Assistant IA
+2880|Avec un modèle d’IA configuré, l’assistant peut corriger l’orthographe, nettoyer la mise en forme, réécrire ce que vous sélectionnez ou continuer d’écrire pour vous.
+2881|Lecture de la page…
+2882|Ouvrez la page (pas son code) pour utiliser l’assistant.
+2883|Rien n’est sélectionné. Sélectionnez le texte à modifier, ou laissez-le continuer d’écrire à partir du curseur.
+2884|1 mot sélectionné.
+2885|{0} mots sélectionnés.
+2886|Sélectionner ce paragraphe
+2887|Sélectionner tout le chapitre
+2888|Corriger l’orthographe et la ponctuation
+2889|Nettoyer la mise en forme
+2890|Rendre plus clair
+2891|Continuer d’écrire
+2892|Ou dites-lui quoi faire
+2893|Rends ceci plus soutenu
+2894|Modifier la sélection
+2895|Ceci remplacera le texte que vous avez sélectionné.
+2896|Appliquer les modifications sans demander
+2897|Sinon, une modification de votre texte est d’abord montrée, pour que vous l’acceptiez.
+2898|Ce fichier est trop gros pour être une police.
+2899|« {0} » n’est pas un fichier de police. Les polices se terminent par .ttf, .otf, .ttc, .woff ou .woff2.
+@de
+2772|KI-Modell-Downloads
+2773|{0} wird heruntergeladen
+2774|KI-Modell
+2775|Der Download ist fehlgeschlagen. Prüfe die Verbindung und versuche es erneut.
+2776|Dein Server
+2777|Wähle zuerst ein KI-Modell.
+2778|Klein und schnell, mit gröberen Antworten. Für ältere Handys.
+2779|Gute Antworten bei guter Geschwindigkeit. Für die meisten Handys und Tablets der letzten Jahre.
+2780|Die besten Antworten hier, und die langsamsten. Für schnelle Geräte mit viel Speicher: 12 GB sind bequem, 8 GB können knapp werden.
+2781|Dieses Gerät kann KI-Modelle nicht selbst ausführen. Du kannst trotzdem einen eigenen Server verwenden.
+2782|Die Datei des Modells fehlt. Lade es erneut herunter.
+2783|Für dieses Modell ist nicht genug Arbeitsspeicher frei. Schließe andere Apps oder wähle ein kleineres Modell.
+2784|Dieses Modell ließ sich nicht öffnen. Die Datei ist vielleicht beschädigt, oder KoLib kann diese Art nicht ausführen.
+2785|Für dieses Modell ist nicht genug Speicherplatz frei.
+2786|Der Download ist fehlgeschlagen (Fehler {0}).
+2787|Der Download wurde mittendrin unterbrochen. Versuche es erneut, um dort weiterzumachen.
+2788|Der Download ist nicht vollständig angekommen. Versuche es erneut.
+2789|Das Modell konnte nicht gespeichert werden.
+2790|Das ist keine GGUF-Modelldatei.
+2791|Der Server hat mit Fehler {0} geantwortet.
+2792|Der Server ist nicht erreichbar: {0}
+2793|KI und Wörterbuch
+2794|Wortbedeutungen, Kapitelzusammenfassungen und Fragen zu einem Buch
+2795|Dateien werden ausgewählt mit
+2796|Erneut fragen
+2797|Anderen Kobo wählen
+2798|gesehen am {0}
+2799|Wird gerade angezeigt
+2800|Im Browser öffnen
+2801|Dateien auswählen mit
+2802|{0} wird kopiert…
+2803|{0} wird kopiert… {1}
+2804|Diese Datei konnte nicht hinzugefügt werden.
+2805|KI
+2806|Ein KI-Modell kann ein Wort so erklären, wie es an der Stelle gebraucht wird, an der du liest, ein Kapitel zusammenfassen und Fragen zum Buch beantworten.
+2807|Auf diesem Gerät
+2808|Läuft auf diesem Gerät, nach dem Download ohne Internet. Nichts von dem, was du liest, verlässt es.
+2809|Dein eigenes Modell · {0}
+2810|Dieses Modell löschen
+2811|Eigenes Modell hinzufügen
+2812|Jedes Chat-Modell in einer GGUF-Datei funktioniert: die Art, die llama.cpp ausführt, zu finden auf Hugging Face.
+2813|Dieses Gerät kann KI-Modelle nicht selbst ausführen: Dafür braucht es ein 64-Bit-Handy oder -Tablet. Du kannst trotzdem einen eigenen Server verwenden.
+2814|Dein eigener Server
+2815|Keine KI verwenden
+2816|Wörter in Wiktionary nachschlagen
+2817|Das freie Wörterbuch, über das Internet. Nur das Wort wird gesendet.
+2818|{0} · {1} · {2}
+2819|Für dieses Gerät empfohlen
+2820|Braucht mehr Arbeitsspeicher, als dieses Gerät hat
+2821|Download wird geprüft…
+2822|Für Ollama, LM Studio oder llama.cpp auf einem deiner Computer oder jeden Dienst, der die OpenAI-Chat-API spricht. Die Wörter, die du nachschlägst, und die Seiten drumherum werden dorthin gesendet.
+2823|Adresse
+2824|Schlüssel (falls nötig)
+2825|Der Server hat keine Modelle aufgelistet. Gib den Namen des Modells ein.
+2826|Modell
+2827|Suche…
+2828|Modelle des Servers ansehen
+2829|Diesen Server verwenden
+2830|Zusammenfassungen und Fragen
+2831|Mit einem eingerichteten KI-Modell kann KoLib das Kapitel zusammenfassen, in dem du bist, und Fragen zum bisherigen Buch beantworten, ohne zu verraten, was noch kommt.
+2832|KI einrichten
+2833|Zusammenfassung
+2834|Fragen
+2835|Einstellungen für KI und Wörterbuch
+2836|In diesem Kapitel steht zu wenig Text für eine Zusammenfassung.
+2837|Du hast von diesem Kapitel noch zu wenig gelesen, um es zusammenzufassen.
+2838|{0} wird vorbereitet…
+2839|Zusammenfassung wird geschrieben…
+2840|Kapitel wird gelesen…
+2841|Teil {0} von {1} wird gelesen…
+2842|Dieses Kapitel ist zu lang für das Modell.
+2843|Das Modell konnte nicht antworten.
+2844|Was ich gelesen habe
+2845|Das ganze Kapitel
+2846|Eine Zusammenfassung des ganzen Kapitels. Sie kann verraten, was du noch nicht gelesen hast.
+2847|Eine Zusammenfassung dieses Kapitels bis zu der Stelle, an der du bist.
+2848|Zusammenfassen
+2849|Das ist mehr, als das Modell auf einmal aufnehmen kann. Versuche eine kürzere Frage.
+2850|Frag etwas zum Buch. Die Antwort kommt aus dem, was du bisher gelesen hast, und verrät nicht, was noch kommt.
+2851|Was ist bisher passiert?
+2852|Wer kommt in diesem Kapitel vor?
+2853|Wo spielt das?
+2854|Buch wird gelesen…
+2855|Frag etwas zum Buch
+2856|In diesem Satz
+2857|In einfachen Worten
+2858|Normalerweise: {0}
+2859|Denkt nach…
+2860|{0} · {1} s
+2861|Was es in diesem Satz bedeutet
+2862|Ein KI-Modell auf diesem Gerät kann es dir sagen.
+2863|Einrichten
+2864|Kein Wörterbucheintrag für „{0}“.
+2865|Das Wörterbuch ist nicht erreichbar. Prüfe die Internetverbindung.
+2866|Aus Wiktionary
+2867|Immer die App öffnen, die ich wähle
+2868|Zusammenfassung und Fragen
+2869|Diese Schrift konnte nicht hinzugefügt werden.
+2870|Diese Schrift entfernen
+2871|Schrift hinzufügen
+2872|Die Schrift konnte nicht hinzugefügt werden
+2873|Bücher, die darin gesetzt sind, wechseln zurück zu {0}.
+2874|Geändert. Mit Rückgängig nimmst du es zurück.
+2875|Hinzugefügt. Mit Rückgängig nimmst du es zurück.
+2876|Teil {0} von {1} wird bearbeitet…
+2877|Schreibt…
+2878|Das Modell konnte das nicht tun.
+2879|KI-Assistent
+2880|Mit einem eingerichteten KI-Modell kann der Assistent die Rechtschreibung korrigieren, die Formatierung aufräumen, deine Auswahl umschreiben oder für dich weiterschreiben.
+2881|Seite wird angesehen…
+2882|Öffne die Seite (nicht ihren Code), um den Assistenten zu verwenden.
+2883|Nichts ist ausgewählt. Wähle den Text aus, der geändert werden soll, oder lass ihn ab der Cursorposition weiterschreiben.
+2884|1 Wort ausgewählt.
+2885|{0} Wörter ausgewählt.
+2886|Diesen Absatz auswählen
+2887|Das ganze Kapitel auswählen
+2888|Rechtschreibung und Zeichensetzung korrigieren
+2889|Formatierung aufräumen
+2890|Klarer formulieren
+2891|Weiterschreiben
+2892|Oder sag ihm, was es tun soll
+2893|Formuliere das förmlicher
+2894|Auswahl ändern
+2895|Das ersetzt den Text, den du ausgewählt hast.
+2896|Änderungen ohne Nachfrage anwenden
+2897|Sonst wird dir eine Änderung an deinem Text erst gezeigt, damit du sie annimmst.
+2898|Diese Datei ist zu groß für eine Schrift.
+2899|„{0}“ ist keine Schriftdatei. Schriften enden auf .ttf, .otf, .ttc, .woff oder .woff2.
+@es
+2772|Descargas de modelos de IA
+2773|Descargando {0}
+2774|Modelo de IA
+2775|La descarga ha fallado. Comprueba la conexión e inténtalo de nuevo.
+2776|Tu servidor
+2777|Elige primero un modelo de IA.
+2778|Pequeño y rápido, con respuestas más toscas. Para teléfonos más antiguos.
+2779|Buenas respuestas a buena velocidad. Para la mayoría de teléfonos y tabletas de los últimos años.
+2780|Las mejores respuestas de aquí, y las más lentas. Para dispositivos rápidos con mucha memoria: 12 GB van cómodos, 8 GB pueden quedarse justos.
+2781|Este dispositivo no puede ejecutar modelos de IA por sí mismo. Aun así puedes usar un servidor tuyo.
+2782|Falta el archivo del modelo. Descárgalo de nuevo.
+2783|No hay suficiente memoria libre para este modelo. Cierra otras apps o elige un modelo más pequeño.
+2784|No se ha podido abrir este modelo. Puede que su archivo esté dañado o que sea de un tipo que KoLib no puede ejecutar.
+2785|No hay suficiente espacio libre para este modelo.
+2786|La descarga ha fallado (error {0}).
+2787|La descarga se detuvo a medias. Inténtalo de nuevo para seguir desde ahí.
+2788|La descarga no ha llegado entera. Inténtalo de nuevo.
+2789|No se ha podido guardar el modelo.
+2790|Eso no es un archivo de modelo GGUF.
+2791|El servidor respondió con el error {0}.
+2792|No se ha podido conectar con el servidor: {0}
+2793|IA y diccionario
+2794|Significados de palabras, resúmenes de capítulos y preguntas sobre un libro
+2795|Los archivos se eligen con
+2796|Volver a preguntar
+2797|Elegir otro Kobo
+2798|visto el {0}
+2799|Se muestra ahora
+2800|Abrir en el navegador
+2801|Elegir archivos con
+2802|Copiando {0}…
+2803|Copiando {0}… {1}
+2804|No se ha podido añadir ese archivo.
+2805|IA
+2806|Un modelo de IA puede explicar una palabra tal como se usa donde estás leyendo, resumir un capítulo y responder preguntas sobre el libro.
+2807|En este dispositivo
+2808|Funciona en este dispositivo, sin internet una vez descargado. Nada de lo que lees sale de él.
+2809|Tu propio modelo · {0}
+2810|Eliminar este modelo
+2811|Añadir un modelo tuyo
+2812|Sirve cualquier modelo de chat en un archivo GGUF: los que ejecuta llama.cpp, disponibles en Hugging Face.
+2813|Este dispositivo no puede ejecutar modelos de IA por sí mismo: hace falta un teléfono o una tableta de 64 bits. Aun así puedes usar un servidor tuyo.
+2814|Tu propio servidor
+2815|No usar IA
+2816|Buscar palabras en Wiktionary
+2817|El diccionario libre, por internet. Solo se envía la palabra.
+2818|{0} · {1} · {2}
+2819|Recomendado para este dispositivo
+2820|Pide más memoria de la que tiene este dispositivo
+2821|Comprobando la descarga…
+2822|Para Ollama, LM Studio o llama.cpp en un ordenador tuyo, o cualquier servicio que hable la API de chat de OpenAI. Se le envían las palabras que buscas y las páginas de alrededor.
+2823|Dirección
+2824|Clave (si hace falta)
+2825|El servidor no ha indicado ningún modelo. Escribe el nombre del modelo.
+2826|Modelo
+2827|Buscando…
+2828|Ver los modelos del servidor
+2829|Usar este servidor
+2830|Resúmenes y preguntas
+2831|Con un modelo de IA configurado, KoLib puede resumir el capítulo en el que estás y responder preguntas sobre el libro hasta ahora, sin desvelar lo que viene.
+2832|Configurar la IA
+2833|Resumen
+2834|Preguntar
+2835|Ajustes de IA y diccionario
+2836|Hay muy poco texto en este capítulo para resumirlo.
+2837|Has leído muy poco de este capítulo para resumirlo.
+2838|Preparando {0}…
+2839|Escribiendo el resumen…
+2840|Leyendo el capítulo…
+2841|Leyendo la parte {0} de {1}…
+2842|Este capítulo es demasiado largo para el modelo.
+2843|El modelo no ha podido responder.
+2844|Lo que he leído
+2845|Todo el capítulo
+2846|Un resumen de todo este capítulo. Puede desvelar lo que aún no has leído.
+2847|Un resumen de este capítulo hasta donde estás.
+2848|Resumir
+2849|Es más de lo que el modelo puede asimilar de una vez. Prueba con una pregunta más corta.
+2850|Pregunta sobre el libro. Responde a partir de lo que has leído hasta ahora, así que no desvela lo que viene.
+2851|¿Qué ha pasado hasta ahora?
+2852|¿Quiénes aparecen en este capítulo?
+2853|¿Dónde ocurre esto?
+2854|Leyendo el libro…
+2855|Pregunta sobre el libro
+2856|En esta frase
+2857|En palabras sencillas
+2858|Normalmente: {0}
+2859|Pensando…
+2860|{0} · {1} s
+2861|Qué significa en esta frase
+2862|Un modelo de IA en este dispositivo puede decírtelo.
+2863|Configurar
+2864|No hay entrada de diccionario para «{0}».
+2865|No se ha podido conectar con el diccionario. Comprueba la conexión a internet.
+2866|De Wiktionary
+2867|Abrir siempre la app que elija
+2868|Resumen y preguntas
+2869|No se ha podido añadir esa fuente.
+2870|Quitar esta fuente
+2871|Añadir una fuente
+2872|No se ha podido añadir la fuente
+2873|Los libros compuestos con ella vuelven a {0}.
+2874|Cambiado. Deshacer lo revierte.
+2875|Añadido. Deshacer lo revierte.
+2876|Trabajando en la parte {0} de {1}…
+2877|Escribiendo…
+2878|El modelo no ha podido hacerlo.
+2879|Asistente de IA
+2880|Con un modelo de IA configurado, el asistente puede corregir la ortografía, ordenar el formato, reescribir lo que selecciones o seguir escribiendo por ti.
+2881|Mirando la página…
+2882|Abre la página (no su código) para usar el asistente.
+2883|No hay nada seleccionado. Selecciona el texto que quieres cambiar, o deja que siga escribiendo desde donde está el cursor.
+2884|1 palabra seleccionada.
+2885|{0} palabras seleccionadas.
+2886|Seleccionar este párrafo
+2887|Seleccionar todo el capítulo
+2888|Corregir ortografía y puntuación
+2889|Ordenar el formato
+2890|Hacerlo más claro
+2891|Seguir escribiendo
+2892|O dile qué hacer
+2893|Haz esto más formal
+2894|Cambiar la selección
+2895|Esto sustituirá el texto que has seleccionado.
+2896|Aplicar los cambios sin preguntar
+2897|Si no, un cambio en tu texto se muestra primero, para que lo aceptes.
+2898|Ese archivo es demasiado grande para ser una fuente.
+2899|«{0}» no es un archivo de fuente. Las fuentes terminan en .ttf, .otf, .ttc, .woff o .woff2.
+@it
+2772|Download dei modelli IA
+2773|Download di {0}
+2774|Modello IA
+2775|Il download non è riuscito. Controlla la connessione e riprova.
+2776|Il tuo server
+2777|Scegli prima un modello IA.
+2778|Piccolo e veloce, con risposte più approssimative. Per i telefoni meno recenti.
+2779|Buone risposte a una buona velocità. Per la maggior parte dei telefoni e tablet degli ultimi anni.
+2780|Le risposte migliori qui, e le più lente. Per dispositivi veloci con molta memoria: 12 GB sono comodi, 8 GB possono essere scarsi.
+2781|Questo dispositivo non può eseguire da solo i modelli IA. Puoi comunque usare un tuo server.
+2782|Il file del modello manca. Scaricalo di nuovo.
+2783|Non c’è abbastanza memoria libera per questo modello. Chiudi altre app o scegli un modello più piccolo.
+2784|Non è stato possibile aprire questo modello. Il file potrebbe essere danneggiato, o è di un tipo che KoLib non può eseguire.
+2785|Non c’è abbastanza spazio libero per questo modello.
+2786|Il download non è riuscito (errore {0}).
+2787|Il download si è interrotto a metà. Riprova per continuare da lì.
+2788|Il download non è arrivato intero. Riprova.
+2789|Impossibile salvare il modello.
+2790|Non è un file di modello GGUF.
+2791|Il server ha risposto con l’errore {0}.
+2792|Impossibile raggiungere il server: {0}
+2793|IA e dizionario
+2794|Significati delle parole, riassunti dei capitoli e domande su un libro
+2795|I file si scelgono con
+2796|Chiedi di nuovo
+2797|Scegli un altro Kobo
+2798|visto il {0}
+2799|Mostrato ora
+2800|Apri nel browser
+2801|Scegli i file con
+2802|Copia di {0}…
+2803|Copia di {0}… {1}
+2804|Impossibile aggiungere quel file.
+2805|IA
+2806|Un modello IA può spiegare una parola per come è usata nel punto in cui stai leggendo, riassumere un capitolo e rispondere a domande sul libro.
+2807|Su questo dispositivo
+2808|Funziona su questo dispositivo, senza internet una volta scaricato. Nulla di ciò che leggi esce da qui.
+2809|Il tuo modello · {0}
+2810|Elimina questo modello
+2811|Aggiungi un tuo modello
+2812|Va bene qualsiasi modello di chat in un file GGUF: quelli che esegue llama.cpp, disponibili su Hugging Face.
+2813|Questo dispositivo non può eseguire da solo i modelli IA: serve un telefono o un tablet a 64 bit. Puoi comunque usare un tuo server.
+2814|Il tuo server
+2815|Non usare l’IA
+2816|Cerca le parole su Wiktionary
+2817|Il dizionario libero, via internet. Viene inviata solo la parola.
+2818|{0} · {1} · {2}
+2819|Consigliato per questo dispositivo
+2820|Richiede più memoria di quella di questo dispositivo
+2821|Controllo del download…
+2822|Per Ollama, LM Studio o llama.cpp su un tuo computer, o qualsiasi servizio che parli l’API di chat di OpenAI. Le parole che cerchi e le pagine intorno gli vengono inviate.
+2823|Indirizzo
+2824|Chiave (se serve)
+2825|Il server non ha elencato alcun modello. Scrivi il nome del modello.
+2826|Modello
+2827|Ricerca…
+2828|Vedi i modelli del server
+2829|Usa questo server
+2830|Riassunti e domande
+2831|Con un modello IA configurato, KoLib può riassumere il capitolo in cui ti trovi e rispondere a domande sul libro fin qui, senza svelare cosa viene dopo.
+2832|Configura l’IA
+2833|Riassunto
+2834|Chiedi
+2835|Impostazioni di IA e dizionario
+2836|In questo capitolo c’è troppo poco testo da riassumere.
+2837|Hai letto troppo poco di questo capitolo per riassumerlo.
+2838|Preparazione di {0}…
+2839|Scrittura del riassunto…
+2840|Lettura del capitolo…
+2841|Lettura della parte {0} di {1}…
+2842|Questo capitolo è troppo lungo per il modello.
+2843|Il modello non è riuscito a rispondere.
+2844|Quello che ho letto
+2845|Tutto il capitolo
+2846|Un riassunto di tutto il capitolo. Può svelare ciò che non hai ancora letto.
+2847|Un riassunto di questo capitolo fino al punto in cui sei.
+2848|Riassumi
+2849|È più di quanto il modello riesca a elaborare in una volta. Prova con una domanda più breve.
+2850|Fai domande sul libro. Risponde in base a ciò che hai letto finora, quindi non svela cosa viene dopo.
+2851|Che cosa è successo finora?
+2852|Chi compare in questo capitolo?
+2853|Dove si svolge?
+2854|Lettura del libro…
+2855|Fai una domanda sul libro
+2856|In questa frase
+2857|In parole semplici
+2858|Di solito: {0}
+2859|Sto pensando…
+2860|{0} · {1} s
+2861|Che cosa significa in questa frase
+2862|Un modello IA su questo dispositivo può dirtelo.
+2863|Configura
+2864|Nessuna voce di dizionario per «{0}».
+2865|Impossibile raggiungere il dizionario. Controlla la connessione a internet.
+2866|Da Wiktionary
+2867|Apri sempre l’app che scelgo
+2868|Riassunto e domande
+2869|Impossibile aggiungere quel carattere.
+2870|Rimuovi questo carattere
+2871|Aggiungi un carattere
+2872|Impossibile aggiungere il carattere
+2873|I libri composti con questo tornano a {0}.
+2874|Modificato. Annulla lo ripristina.
+2875|Aggiunto. Annulla lo ripristina.
+2876|Elaborazione della parte {0} di {1}…
+2877|Scrittura…
+2878|Il modello non è riuscito a farlo.
+2879|Assistente IA
+2880|Con un modello IA configurato, l’assistente può correggere l’ortografia, sistemare la formattazione, riscrivere ciò che selezioni o continuare a scrivere per te.
+2881|Lettura della pagina…
+2882|Apri la pagina (non il suo codice) per usare l’assistente.
+2883|Non è selezionato nulla. Seleziona il testo da modificare, o lascia che continui a scrivere da dove si trova il cursore.
+2884|1 parola selezionata.
+2885|{0} parole selezionate.
+2886|Seleziona questo paragrafo
+2887|Seleziona tutto il capitolo
+2888|Correggi ortografia e punteggiatura
+2889|Sistema la formattazione
+2890|Rendilo più chiaro
+2891|Continua a scrivere
+2892|Oppure digli cosa fare
+2893|Rendilo più formale
+2894|Modifica la selezione
+2895|Questo sostituirà il testo che hai selezionato.
+2896|Applica le modifiche senza chiedere
+2897|Altrimenti una modifica al tuo testo viene prima mostrata, perché tu la accetti.
+2898|Quel file è troppo grande per essere un carattere.
+2899|«{0}» non è un file di carattere. I caratteri terminano con .ttf, .otf, .ttc, .woff o .woff2.
+@nl
+2772|Downloads van AI-modellen
+2773|{0} downloaden
+2774|AI-model
+2775|Het downloaden is mislukt. Controleer de verbinding en probeer het opnieuw.
+2776|Je server
+2777|Kies eerst een AI-model.
+2778|Klein en snel, met ruwere antwoorden. Voor oudere telefoons.
+2779|Goede antwoorden op een goede snelheid. Voor de meeste telefoons en tablets van de laatste jaren.
+2780|De beste antwoorden hier, en de traagste. Voor snelle apparaten met veel geheugen: 12 GB is ruim, 8 GB kan krap zijn.
+2781|Dit apparaat kan zelf geen AI-modellen draaien. Je kunt wel een eigen server gebruiken.
+2782|Het bestand van het model ontbreekt. Download het opnieuw.
+2783|Er is niet genoeg vrij geheugen voor dit model. Sluit andere apps of kies een kleiner model.
+2784|Dit model kon niet worden geopend. Het bestand is misschien beschadigd, of het is een soort die KoLib niet kan draaien.
+2785|Er is niet genoeg vrije opslag voor dit model.
+2786|Het downloaden is mislukt (fout {0}).
+2787|Het downloaden stopte halverwege. Probeer het opnieuw om daar verder te gaan.
+2788|De download is niet heel aangekomen. Probeer het opnieuw.
+2789|Het model kon niet worden opgeslagen.
+2790|Dat is geen GGUF-modelbestand.
+2791|De server antwoordde met fout {0}.
+2792|De server is niet bereikbaar: {0}
+2793|AI en woordenboek
+2794|Betekenissen van woorden, samenvattingen van hoofdstukken en vragen over een boek
+2795|Bestanden worden gekozen met
+2796|Opnieuw vragen
+2797|Een andere Kobo kiezen
+2798|gezien op {0}
+2799|Nu getoond
+2800|Openen in de browser
+2801|Bestanden kiezen met
+2802|{0} kopiëren…
+2803|{0} kopiëren… {1}
+2804|Dat bestand kon niet worden toegevoegd.
+2805|AI
+2806|Een AI-model kan een woord uitleggen zoals het wordt gebruikt waar je leest, een hoofdstuk samenvatten en vragen over het boek beantwoorden.
+2807|Op dit apparaat
+2808|Draait op dit apparaat, zonder internet zodra het is gedownload. Niets van wat je leest verlaat het.
+2809|Je eigen model · {0}
+2810|Dit model verwijderen
+2811|Een eigen model toevoegen
+2812|Elk chatmodel in een GGUF-bestand werkt: het soort dat llama.cpp draait, te vinden op Hugging Face.
+2813|Dit apparaat kan zelf geen AI-modellen draaien: daarvoor is een 64-bits telefoon of tablet nodig. Je kunt wel een eigen server gebruiken.
+2814|Je eigen server
+2815|Geen AI gebruiken
+2816|Woorden opzoeken in Wiktionary
+2817|Het vrije woordenboek, via internet. Alleen het woord wordt verstuurd.
+2818|{0} · {1} · {2}
+2819|Aanbevolen voor dit apparaat
+2820|Wil meer geheugen dan dit apparaat heeft
+2821|Download controleren…
+2822|Voor Ollama, LM Studio of llama.cpp op een computer van jou, of elke dienst die de chat-API van OpenAI spreekt. De woorden die je opzoekt en de pagina’s eromheen worden ernaartoe gestuurd.
+2823|Adres
+2824|Sleutel (als die nodig is)
+2825|De server gaf geen modellen op. Typ de naam van het model.
+2826|Model
+2827|Zoeken…
+2828|De modellen van de server bekijken
+2829|Deze server gebruiken
+2830|Samenvattingen en vragen
+2831|Met een ingesteld AI-model kan KoLib het hoofdstuk waarin je bent samenvatten en vragen over het boek tot nu toe beantwoorden, zonder te verklappen wat er komt.
+2832|AI instellen
+2833|Samenvatting
+2834|Vragen
+2835|Instellingen voor AI en woordenboek
+2836|Er staat te weinig tekst in dit hoofdstuk om samen te vatten.
+2837|Je hebt nog te weinig van dit hoofdstuk gelezen om het samen te vatten.
+2838|{0} voorbereiden…
+2839|Samenvatting schrijven…
+2840|Hoofdstuk lezen…
+2841|Deel {0} van {1} lezen…
+2842|Dit hoofdstuk is te lang voor het model.
+2843|Het model kon geen antwoord geven.
+2844|Wat ik heb gelezen
+2845|Het hele hoofdstuk
+2846|Een samenvatting van dit hele hoofdstuk. Die kan verklappen wat je nog niet hebt gelezen.
+2847|Een samenvatting van dit hoofdstuk tot waar je bent.
+2848|Samenvatten
+2849|Dat is meer dan het model in één keer aankan. Probeer een kortere vraag.
+2850|Stel een vraag over het boek. Het antwoordt op basis van wat je tot nu toe hebt gelezen, dus het verklapt niet wat er komt.
+2851|Wat is er tot nu toe gebeurd?
+2852|Wie komen er in dit hoofdstuk voor?
+2853|Waar speelt dit zich af?
+2854|Boek lezen…
+2855|Stel een vraag over het boek
+2856|In deze zin
+2857|In gewone woorden
+2858|Meestal: {0}
+2859|Denken…
+2860|{0} · {1} s
+2861|Wat het in deze zin betekent
+2862|Een AI-model op dit apparaat kan het je vertellen.
+2863|Instellen
+2864|Geen woordenboekvermelding voor “{0}”.
+2865|Het woordenboek is niet bereikbaar. Controleer de internetverbinding.
+2866|Uit Wiktionary
+2867|Altijd de app openen die ik kies
+2868|Samenvatting en vragen
+2869|Dat lettertype kon niet worden toegevoegd.
+2870|Dit lettertype verwijderen
+2871|Een lettertype toevoegen
+2872|Het lettertype kon niet worden toegevoegd
+2873|Boeken die erin zijn gezet, gaan terug naar {0}.
+2874|Gewijzigd. Met Ongedaan maken draai je het terug.
+2875|Toegevoegd. Met Ongedaan maken draai je het terug.
+2876|Bezig met deel {0} van {1}…
+2877|Schrijven…
+2878|Het model kon dat niet doen.
+2879|AI-assistent
+2880|Met een ingesteld AI-model kan de assistent spelling verbeteren, de opmaak opruimen, herschrijven wat je selecteert of voor je verder schrijven.
+2881|Pagina bekijken…
+2882|Open de pagina (niet de code) om de assistent te gebruiken.
+2883|Er is niets geselecteerd. Selecteer de tekst die je wilt wijzigen, of laat hem verder schrijven vanaf de cursor.
+2884|1 woord geselecteerd.
+2885|{0} woorden geselecteerd.
+2886|Deze alinea selecteren
+2887|Het hele hoofdstuk selecteren
+2888|Spelling en interpunctie verbeteren
+2889|De opmaak opruimen
+2890|Duidelijker maken
+2891|Verder schrijven
+2892|Of zeg wat hij moet doen
+2893|Maak dit formeler
+2894|De selectie wijzigen
+2895|Dit vervangt de tekst die je hebt geselecteerd.
+2896|Wijzigingen toepassen zonder te vragen
+2897|Anders wordt een wijziging in je tekst eerst getoond, zodat je die kunt accepteren.
+2898|Dat bestand is te groot om een lettertype te zijn.
+2899|“{0}” is geen lettertypebestand. Lettertypen eindigen op .ttf, .otf, .ttc, .woff of .woff2.
+@pt
+2772|Downloads de modelos de IA
+2773|Baixando {0}
+2774|Modelo de IA
+2775|O download falhou. Verifique a conexão e tente de novo.
+2776|Seu servidor
+2777|Escolha primeiro um modelo de IA.
+2778|Pequeno e rápido, com respostas menos precisas. Para celulares mais antigos.
+2779|Boas respostas a uma boa velocidade. Para a maioria dos celulares e tablets dos últimos anos.
+2780|As melhores respostas daqui, e as mais lentas. Para aparelhos rápidos com bastante memória: 12 GB é confortável, 8 GB pode ficar apertado.
+2781|Este aparelho não consegue rodar modelos de IA sozinho. Você ainda pode usar um servidor seu.
+2782|O arquivo do modelo está faltando. Baixe-o de novo.
+2783|Não há memória livre suficiente para este modelo. Feche outros apps ou escolha um modelo menor.
+2784|Não foi possível abrir este modelo. O arquivo pode estar danificado, ou é de um tipo que o KoLib não consegue rodar.
+2785|Não há espaço livre suficiente para este modelo.
+2786|O download falhou (erro {0}).
+2787|O download parou no meio. Tente de novo para continuar de onde parou.
+2788|O download não chegou inteiro. Tente de novo.
+2789|Não foi possível salvar o modelo.
+2790|Isso não é um arquivo de modelo GGUF.
+2791|O servidor respondeu com o erro {0}.
+2792|Não foi possível acessar o servidor: {0}
+2793|IA e dicionário
+2794|Significados de palavras, resumos de capítulos e perguntas sobre um livro
+2795|Os arquivos são escolhidos com
+2796|Perguntar de novo
+2797|Escolher outro Kobo
+2798|visto em {0}
+2799|Mostrado agora
+2800|Abrir no navegador
+2801|Escolher arquivos com
+2802|Copiando {0}…
+2803|Copiando {0}… {1}
+2804|Não foi possível adicionar esse arquivo.
+2805|IA
+2806|Um modelo de IA pode explicar uma palavra do jeito que ela é usada onde você está lendo, resumir um capítulo e responder a perguntas sobre o livro.
+2807|Neste aparelho
+2808|Roda neste aparelho, sem internet depois de baixado. Nada do que você lê sai dele.
+2809|Seu próprio modelo · {0}
+2810|Excluir este modelo
+2811|Adicionar um modelo seu
+2812|Qualquer modelo de chat em um arquivo GGUF funciona: do tipo que o llama.cpp roda, encontrado no Hugging Face.
+2813|Este aparelho não consegue rodar modelos de IA sozinho: é preciso um celular ou tablet de 64 bits. Você ainda pode usar um servidor seu.
+2814|Seu próprio servidor
+2815|Não usar IA
+2816|Procurar palavras no Wiktionary
+2817|O dicionário livre, pela internet. Só a palavra é enviada.
+2818|{0} · {1} · {2}
+2819|Sugerido para este aparelho
+2820|Pede mais memória do que este aparelho tem
+2821|Verificando o download…
+2822|Para Ollama, LM Studio ou llama.cpp em um computador seu, ou qualquer serviço que fale a API de chat da OpenAI. As palavras que você procura e as páginas ao redor são enviadas para ele.
+2823|Endereço
+2824|Chave (se precisar)
+2825|O servidor não listou nenhum modelo. Digite o nome do modelo.
+2826|Modelo
+2827|Procurando…
+2828|Ver os modelos do servidor
+2829|Usar este servidor
+2830|Resumos e perguntas
+2831|Com um modelo de IA configurado, o KoLib pode resumir o capítulo em que você está e responder a perguntas sobre o livro até aqui, sem revelar o que vem depois.
+2832|Configurar a IA
+2833|Resumo
+2834|Perguntar
+2835|Configurações de IA e dicionário
+2836|Há texto de menos neste capítulo para resumir.
+2837|Você leu pouco deste capítulo para resumir.
+2838|Preparando {0}…
+2839|Escrevendo o resumo…
+2840|Lendo o capítulo…
+2841|Lendo a parte {0} de {1}…
+2842|Este capítulo é longo demais para o modelo.
+2843|O modelo não conseguiu responder.
+2844|O que eu li
+2845|O capítulo inteiro
+2846|Um resumo deste capítulo inteiro. Pode revelar o que você ainda não leu.
+2847|Um resumo deste capítulo até onde você está.
+2848|Resumir
+2849|Isso é mais do que o modelo consegue absorver de uma vez. Tente uma pergunta mais curta.
+2850|Pergunte sobre o livro. Ele responde com base no que você leu até agora, então não revela o que vem depois.
+2851|O que aconteceu até agora?
+2852|Quem aparece neste capítulo?
+2853|Onde isso se passa?
+2854|Lendo o livro…
+2855|Pergunte sobre o livro
+2856|Nesta frase
+2857|Em palavras simples
+2858|Normalmente: {0}
+2859|Pensando…
+2860|{0} · {1} s
+2861|O que significa nesta frase
+2862|Um modelo de IA neste aparelho pode dizer.
+2863|Configurar
+2864|Nenhum verbete de dicionário para “{0}”.
+2865|Não foi possível acessar o dicionário. Verifique a conexão com a internet.
+2866|Do Wiktionary
+2867|Sempre abrir o app que eu escolher
+2868|Resumo e perguntas
+2869|Não foi possível adicionar essa fonte.
+2870|Remover esta fonte
+2871|Adicionar uma fonte
+2872|Não foi possível adicionar a fonte
+2873|Os livros compostos nela voltam para {0}.
+2874|Alterado. Desfazer reverte.
+2875|Adicionado. Desfazer reverte.
+2876|Trabalhando na parte {0} de {1}…
+2877|Escrevendo…
+2878|O modelo não conseguiu fazer isso.
+2879|Assistente de IA
+2880|Com um modelo de IA configurado, o assistente pode corrigir a ortografia, arrumar a formatação, reescrever o que você selecionar ou continuar escrevendo por você.
+2881|Olhando a página…
+2882|Abra a página (não o código) para usar o assistente.
+2883|Nada está selecionado. Selecione o texto a alterar, ou deixe-o continuar escrevendo de onde o cursor está.
+2884|1 palavra selecionada.
+2885|{0} palavras selecionadas.
+2886|Selecionar este parágrafo
+2887|Selecionar o capítulo inteiro
+2888|Corrigir ortografia e pontuação
+2889|Arrumar a formatação
+2890|Deixar mais claro
+2891|Continuar escrevendo
+2892|Ou diga a ele o que fazer
+2893|Deixe isto mais formal
+2894|Alterar a seleção
+2895|Isto vai substituir o texto que você selecionou.
+2896|Aplicar alterações sem perguntar
+2897|Caso contrário, uma alteração no seu texto é mostrada primeiro, para você aceitar.
+2898|Esse arquivo é grande demais para ser uma fonte.
+2899|“{0}” não é um arquivo de fonte. Fontes terminam em .ttf, .otf, .ttc, .woff ou .woff2.
+@ru
+2772|Загрузки моделей ИИ
+2773|Загрузка {0}
+2774|Модель ИИ
+2775|Не удалось загрузить. Проверьте соединение и попробуйте ещё раз.
+2776|Ваш сервер
+2777|Сначала выберите модель ИИ.
+2778|Маленькая и быстрая, ответы грубее. Для старых телефонов.
+2779|Хорошие ответы с хорошей скоростью. Для большинства телефонов и планшетов последних лет.
+2780|Лучшие ответы здесь, и самые медленные. Для быстрых устройств с большим объёмом памяти: с 12 ГБ удобно, с 8 ГБ может быть тесно.
+2781|Это устройство не может само запускать модели ИИ. Но можно использовать свой сервер.
+2782|Файл модели отсутствует. Загрузите её снова.
+2783|Для этой модели не хватает свободной памяти. Закройте другие приложения или выберите модель поменьше.
+2784|Не удалось открыть эту модель. Возможно, файл повреждён или это тип, который KoLib не умеет запускать.
+2785|Для этой модели не хватает свободного места.
+2786|Не удалось загрузить (ошибка {0}).
+2787|Загрузка прервалась на полпути. Попробуйте ещё раз, чтобы продолжить с того же места.
+2788|Файл загрузился не полностью. Попробуйте ещё раз.
+2789|Не удалось сохранить модель.
+2790|Это не файл модели GGUF.
+2791|Сервер ответил ошибкой {0}.
+2792|Не удалось связаться с сервером: {0}
+2793|ИИ и словарь
+2794|Значения слов, краткое содержание глав и вопросы о книге
+2795|Файлы выбираются через
+2796|Спросить снова
+2797|Выбрать другой Kobo
+2798|подключён {0}
+2799|Показан сейчас
+2800|Открыть в браузере
+2801|Выбрать файлы через
+2802|Копирование {0}…
+2803|Копирование {0}… {1}
+2804|Не удалось добавить этот файл.
+2805|ИИ
+2806|Модель ИИ может объяснить слово так, как оно употреблено там, где вы читаете, кратко пересказать главу и ответить на вопросы о книге.
+2807|На этом устройстве
+2808|Работает на этом устройстве, без интернета после загрузки. Ничто из того, что вы читаете, его не покидает.
+2809|Ваша модель · {0}
+2810|Удалить эту модель
+2811|Добавить свою модель
+2812|Подойдёт любая чат-модель в файле GGUF: такие запускает llama.cpp, их можно найти на Hugging Face.
+2813|Это устройство не может само запускать модели ИИ: нужен 64-битный телефон или планшет. Но можно использовать свой сервер.
+2814|Свой сервер
+2815|Не использовать ИИ
+2816|Искать слова в Wiktionary
+2817|Свободный словарь, через интернет. Отправляется только слово.
+2818|{0} · {1} · {2}
+2819|Рекомендуется для этого устройства
+2820|Требует больше памяти, чем есть у этого устройства
+2821|Проверка загруженного файла…
+2822|Для Ollama, LM Studio или llama.cpp на вашем компьютере либо любого сервиса, который понимает чат-API OpenAI. Ему отправляются слова, которые вы ищете, и страницы вокруг них.
+2823|Адрес
+2824|Ключ (если нужен)
+2825|Сервер не перечислил моделей. Введите название модели.
+2826|Модель
+2827|Поиск…
+2828|Посмотреть модели сервера
+2829|Использовать этот сервер
+2830|Пересказы и вопросы
+2831|Если настроена модель ИИ, KoLib может кратко пересказать главу, в которой вы находитесь, и ответить на вопросы о прочитанной части книги, не раскрывая того, что дальше.
+2832|Настроить ИИ
+2833|Пересказ
+2834|Спросить
+2835|Настройки ИИ и словаря
+2836|В этой главе слишком мало текста для пересказа.
+2837|Вы прочитали слишком мало этой главы для пересказа.
+2838|Подготовка {0}…
+2839|Пишется пересказ…
+2840|Читается глава…
+2841|Читается часть {0} из {1}…
+2842|Эта глава слишком длинная для модели.
+2843|Модель не смогла ответить.
+2844|То, что я прочитал
+2845|Вся глава
+2846|Пересказ всей главы. Он может раскрыть то, что вы ещё не прочитали.
+2847|Пересказ этой главы до того места, где вы сейчас.
+2848|Пересказать
+2849|Это больше, чем модель может принять за один раз. Попробуйте вопрос покороче.
+2850|Спросите о книге. Ответ строится на том, что вы уже прочитали, поэтому не раскрывает того, что дальше.
+2851|Что произошло до сих пор?
+2852|Кто действует в этой главе?
+2853|Где это происходит?
+2854|Читается книга…
+2855|Спросите о книге
+2856|В этом предложении
+2857|Простыми словами
+2858|Обычно: {0}
+2859|Думает…
+2860|{0} · {1} с
+2861|Что это значит в этом предложении
+2862|Модель ИИ на этом устройстве может подсказать.
+2863|Настроить
+2864|В словаре нет статьи для «{0}».
+2865|Не удалось связаться со словарём. Проверьте подключение к интернету.
+2866|Из Wiktionary
+2867|Всегда открывать приложение, которое я выберу
+2868|Пересказ и вопросы
+2869|Не удалось добавить этот шрифт.
+2870|Удалить этот шрифт
+2871|Добавить шрифт
+2872|Не удалось добавить шрифт
+2873|Книги, набранные им, вернутся к шрифту {0}.
+2874|Изменено. «Отменить» вернёт как было.
+2875|Добавлено. «Отменить» вернёт как было.
+2876|Обрабатывается часть {0} из {1}…
+2877|Пишет…
+2878|Модель не смогла это сделать.
+2879|ИИ-помощник
+2880|Если настроена модель ИИ, помощник может исправить орфографию, привести в порядок оформление, переписать выделенное или продолжить писать за вас.
+2881|Просмотр страницы…
+2882|Откройте страницу (не её код), чтобы пользоваться помощником.
+2883|Ничего не выделено. Выделите текст, который нужно изменить, или пусть он продолжит писать с места, где стоит курсор.
+2884|Выделено 1 слово.
+2885|Выделено слов: {0}.
+2886|Выделить этот абзац
+2887|Выделить всю главу
+2888|Исправить орфографию и пунктуацию
+2889|Привести оформление в порядок
+2890|Сделать понятнее
+2891|Продолжить писать
+2892|Или скажите, что сделать
+2893|Сделай это более официальным
+2894|Изменить выделенное
+2895|Это заменит выделенный вами текст.
+2896|Применять изменения без вопросов
+2897|Иначе изменение вашего текста сначала показывается, чтобы вы его приняли.
+2898|Этот файл слишком велик для шрифта.
+2899|«{0}» — не файл шрифта. Файлы шрифтов заканчиваются на .ttf, .otf, .ttc, .woff или .woff2.
+@ja
+2772|AIモデルのダウンロード
+2773|{0}をダウンロード中
+2774|AIモデル
+2775|ダウンロードに失敗しました。接続を確認して、もう一度お試しください。
+2776|自分のサーバー
+2777|先にAIモデルを選んでください。
+2778|小さくて速いですが、答えは粗めです。古めのスマートフォン向け。
+2779|良い答えを良い速さで。ここ数年のほとんどのスマートフォンとタブレット向け。
+2780|ここで最も良い答えですが、最も遅いモデルです。メモリに余裕のある速い端末向け：12 GBなら快適、8 GBではぎりぎりのことがあります。
+2781|この端末では、端末だけでAIモデルを動かせません。自分のサーバーは使えます。
+2782|モデルのファイルが見つかりません。もう一度ダウンロードしてください。
+2783|このモデルを動かす空きメモリが足りません。ほかのアプリを閉じるか、小さいモデルを選んでください。
+2784|このモデルを開けませんでした。ファイルが壊れているか、KoLibで動かせない種類です。
+2785|このモデルを保存する空き容量が足りません。
+2786|ダウンロードに失敗しました（エラー {0}）。
+2787|ダウンロードが途中で止まりました。もう一度試すと、続きから再開します。
+2788|ダウンロードが完全ではありませんでした。もう一度お試しください。
+2789|モデルを保存できませんでした。
+2790|これはGGUFモデルのファイルではありません。
+2791|サーバーがエラー {0} を返しました。
+2792|サーバーに接続できませんでした：{0}
+2793|AIと辞書
+2794|言葉の意味、章の要約、本についての質問
+2795|ファイルの選択に使うアプリ
+2796|もう一度たずねる
+2797|別のKoboを選ぶ
+2798|{0}に接続
+2799|表示中
+2800|ブラウザーで開く
+2801|ファイルの選択に使うアプリ
+2802|{0}をコピー中…
+2803|{0}をコピー中… {1}
+2804|そのファイルは追加できませんでした。
+2805|AI
+2806|AIモデルは、読んでいる箇所での言葉の意味を説明し、章を要約し、本についての質問に答えられます。
+2807|この端末で
+2808|この端末で動きます。ダウンロード後はインターネット不要です。読んでいる内容が端末の外に出ることはありません。
+2809|自分のモデル · {0}
+2810|このモデルを削除
+2811|自分のモデルを追加
+2812|GGUFファイルのチャットモデルなら何でも使えます。llama.cppで動く種類で、Hugging Faceで見つかります。
+2813|この端末では、端末だけでAIモデルを動かせません。64ビットのスマートフォンかタブレットが必要です。自分のサーバーは使えます。
+2814|自分のサーバー
+2815|AIを使わない
+2816|Wiktionaryで言葉を調べる
+2817|フリーの辞書です。インターネット経由で、送られるのは言葉だけです。
+2818|{0} · {1} · {2}
+2819|この端末におすすめ
+2820|この端末より多くのメモリが必要です
+2821|ダウンロードを確認中…
+2822|自分のパソコンのOllama、LM Studio、llama.cpp、またはOpenAIのチャットAPIに対応するサービス向け。調べた言葉とその前後のページが送られます。
+2823|アドレス
+2824|キー（必要な場合）
+2825|サーバーからモデルの一覧が返りませんでした。モデル名を入力してください。
+2826|モデル
+2827|検索中…
+2828|サーバーのモデルを見る
+2829|このサーバーを使う
+2830|要約と質問
+2831|AIモデルを設定すると、KoLibは今読んでいる章を要約し、ここまでの内容についての質問に、先の展開を明かさずに答えられます。
+2832|AIを設定
+2833|要約
+2834|質問
+2835|AIと辞書の設定
+2836|この章は要約するには文章が少なすぎます。
+2837|この章はまだ要約できるほど読んでいません。
+2838|{0}を準備中…
+2839|要約を書いています…
+2840|章を読んでいます…
+2841|パート {0}/{1} を読んでいます…
+2842|この章はモデルには長すぎます。
+2843|モデルが答えられませんでした。
+2844|読んだところまで
+2845|章全体
+2846|この章全体の要約です。まだ読んでいない内容が含まれることがあります。
+2847|この章の、今いるところまでの要約です。
+2848|要約する
+2849|モデルが一度に扱える量を超えています。短い質問でお試しください。
+2850|本について質問できます。ここまで読んだ内容から答えるので、先の展開は明かしません。
+2851|ここまでに何が起きましたか？
+2852|この章には誰が出てきますか？
+2853|ここはどこですか？
+2854|本を読んでいます…
+2855|本について質問する
+2856|この文では
+2857|やさしい言葉で
+2858|ふつうは：{0}
+2859|考え中…
+2860|{0} · {1} 秒
+2861|この文での意味
+2862|この端末のAIモデルが教えてくれます。
+2863|設定
+2864|「{0}」の辞書項目はありません。
+2865|辞書に接続できませんでした。インターネット接続を確認してください。
+2866|Wiktionaryより
+2867|選んだアプリを常に開く
+2868|要約と質問
+2869|そのフォントは追加できませんでした。
+2870|このフォントを削除
+2871|フォントを追加
+2872|フォントを追加できませんでした
+2873|このフォントを使っている本は{0}に戻ります。
+2874|変更しました。「元に戻す」で取り消せます。
+2875|追加しました。「元に戻す」で取り消せます。
+2876|パート {0}/{1} を処理中…
+2877|書いています…
+2878|モデルにはできませんでした。
+2879|AIアシスタント
+2880|AIモデルを設定すると、アシスタントがつづりの修正、書式の整理、選択部分の書き直し、続きの執筆を行えます。
+2881|ページを確認中…
+2882|アシスタントを使うには、（コードではなく）ページを開いてください。
+2883|何も選択されていません。変更する文章を選択するか、カーソルの位置から続きを書かせてください。
+2884|1語を選択中。
+2885|{0}語を選択中。
+2886|この段落を選択
+2887|章全体を選択
+2888|つづりと句読点を直す
+2889|書式を整える
+2890|わかりやすくする
+2891|続きを書く
+2892|またはしてほしいことを入力
+2893|もっと丁寧な文体にして
+2894|選択部分を変更
+2895|選択した文章が置き換えられます。
+2896|確認せずに変更を適用
+2897|オフの場合、文章の変更はまず表示され、承認してから反映されます。
+2898|そのファイルはフォントにしては大きすぎます。
+2899|「{0}」はフォントファイルではありません。フォントの拡張子は .ttf、.otf、.ttc、.woff、.woff2 です。

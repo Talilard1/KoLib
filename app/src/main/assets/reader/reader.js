@@ -1949,7 +1949,46 @@
       occurrence: occurrenceOf(r, text),
       progress: progress,
       rect: rectJson(r.getBoundingClientRect()),
+      lines: lineRects(r),
+      para: paragraphOf(r),
     };
+  }
+
+  /** Where a selection's words are on the screen, a box for each line of them (the first dozen). */
+  function lineRects(r) {
+    var list = r.getClientRects(), out = [];
+    for (var i = 0; i < list.length; i++) {
+      var q = list[i];
+      if (q.width < 1 || q.height < 1) continue;
+      var joined = false;
+      for (var j = 0; j < out.length && !joined; j++) {
+        var o = out[j];
+        // On the same line: their heights mostly overlap.
+        var overlap = Math.min(o.y + o.h, q.bottom) - Math.max(o.y, q.top);
+        if (overlap > Math.min(o.h, q.height) * 0.6) {
+          var left = Math.min(o.x, q.left), right = Math.max(o.x + o.w, q.right);
+          var top = Math.max(o.y, q.top), bottom = Math.min(o.y + o.h, q.bottom);
+          o.x = left; o.w = right - left; o.y = top; o.h = bottom - top;
+          joined = true;
+        }
+      }
+      if (!joined && out.length < 12) out.push({ x: q.left, y: q.top, w: q.width, h: q.height });
+    }
+    return out;
+  }
+
+  /** The words of the paragraph a selection is in, for looking a word up as it's used there. */
+  function paragraphOf(r) {
+    var n = r.commonAncestorContainer;
+    if (n && n.nodeType !== 1) n = n.parentNode;
+    while (n && n !== document.body && !/^(p|div|li|blockquote|td|th|dd|dt|h[1-6]|section|article)$/i.test(n.localName || '')) n = n.parentNode;
+    var t = n && n !== document.documentElement ? (n.textContent || '') : '';
+    t = t.replace(/\s+/g, ' ').trim();
+    if (t.length <= 2400) return t;
+    // A long block (a chapter in one div): the words round the selection.
+    var at = t.indexOf(r.toString().replace(/\s+/g, ' ').trim());
+    if (at < 0) at = 0;
+    return t.substring(Math.max(0, at - 800), Math.min(t.length, at + 1200));
   }
 
   // ---- laying out, and again when something changes -----------------------------------------------
@@ -2894,6 +2933,24 @@
     prev: function () { prev(); },
     turnNow: turnNow,
     selection: function () { var s0 = selectionInfo(); return s0 ? JSON.stringify(s0) : ''; },
+    /** The user's fonts changed (one was added): their list is read again, and the page laid out in them. */
+    userFonts: function () {
+      var own = document.querySelector('link[href*="/app/reader/reader.css"]');
+      if (!own) return;
+      var old = document.getElementById('kl-userfonts');
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = own.href.replace(/reader\.css.*$/, 'userfonts.css?' + Date.now());
+      link.onload = function () {
+        if (old && old.parentNode) old.parentNode.removeChild(old);
+        link.id = 'kl-userfonts';
+        var again = function () { if (ready) relayout(function () {}); };
+        if (document.fonts && document.fonts.load && settings && settings.font) document.fonts.load('16px ' + settings.font).then(again, again);
+        else again();
+      };
+      document.head.appendChild(link);
+    },
     clearSelection: function () { try { window.getSelection().removeAllRanges(); } catch (e) {} },
     setAnnotations: function (json) { applyAnnotations(parse(json).list || []); },
     annotationRect: function (id) { var a = annotationById(id); return a ? JSON.stringify(rectJson(a.range.getBoundingClientRect())) : ''; },

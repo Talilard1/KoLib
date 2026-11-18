@@ -3,6 +3,8 @@
  * settings on top of the book's own styles. Loaded last, so it wins where it has to.
  */
 @import url("fonts.css");
+/* The fonts the user added, listed by the app. */
+@import url("userfonts.css");
 
 :root {
   --kl-bg: #fbf8f1;

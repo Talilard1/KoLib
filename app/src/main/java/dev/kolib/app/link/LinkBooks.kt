@@ -95,6 +95,7 @@ internal object LinkBooks {
      */
     fun sendable(name: String): Boolean =
         name == "book.epub" || name == "cover.jpg" || name == "original.epub" ||
-            name == "look.json" || name == "pictures.json" || name == "comic.json" ||
+            name == "look.json" || name == dev.kolib.app.reader.LOOK_PORTRAIT || name == dev.kolib.app.reader.LOOK_LANDSCAPE ||
+            name == "pictures.json" || name == "comic.json" ||
             (name.startsWith("source.") && name.length > 7) || (name.startsWith("original-cover.") && name.length > 15)
 }

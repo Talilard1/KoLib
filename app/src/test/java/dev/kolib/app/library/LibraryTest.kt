@@ -611,4 +611,91 @@ ${names.joinToString("\n") { "    <itemref idref=\"$it\"/>" }}
         assertTrue(db.all().single().coverAsIs)
         db.close()
     }
+
+    private fun editor(lib: Library, b: LibraryBook) =
+        dev.kolib.app.ui.textedit.TextEditState(b.id, b.title, lib, kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Unconfined), context.assets, null)
+
+    /**
+     * Books split from an omnibus, in the editor's "Make a cover page". The second book has no cover of its own, so
+     * the split draws it one; it opens on the omnibus's title page, whose picture isn't its cover. It gets a cover
+     * page in front of that, showing its cover (and following the cover when another is made for it). The first
+     * book opens on the omnibus's cover page, which is named as its cover page rather than a second one being made.
+     */
+    @Test
+    fun booksSplitFromAnOmnibusGetACoverPageShowingTheCoverMadeForThem() = runBlocking {
+        val lib = library().apply { load() }
+        val f = omnibusWithAPictureOnItsTitlePage()
+        val omni = (lib.import("omnibus.epub", { f.inputStream() }, BookSource.FILE) as ImportOutcome.Added).book
+        val pages = lib.pagesOf(omni.id)
+        val parts = lib.splitBook(
+            omni.id, listOf(pages.indexOfFirst { it.path.endsWith("b.xhtml") }),
+            listOf(dev.kolib.app.epub.BookMetadata(title = "Book A"), dev.kolib.app.epub.BookMetadata(title = "Book B")),
+            dev.kolib.app.epub.BookAssembly.Shared(listOf(pages.indexOfFirst { it.path.endsWith("title.xhtml") }), emptyList()),
+        )
+
+        // The second book: a cover drawn for it, as the split does.
+        var b = lib.updateCover(parts[1].id, realJpeg(536, 724, Color.GREEN), "image/jpeg", 536, 724, first = true)
+        var ed = editor(lib, b)
+        assertEquals(listOf("Title Page", "Book B", "B One"), ed.structure.chapters.map { it.title })
+        ed.makeCoverPage(context)
+        ed.awaitWork()
+        assertEquals(dev.kolib.app.tr("Cover page added at the front."), ed.message)
+        assertEquals(listOf("Cover", "Title Page", "Book B", "B One"), ed.structure.chapters.map { it.title })
+        val coverPage = ed.coverPath!!
+        assertEquals(ed.structure.chapters.first().path, coverPage)
+        val cover = dev.kolib.app.epub.ChapterOps.coverImagePath(ed.edit, ed.structure)!!
+        assertTrue(ed.edit.text(coverPage)!!, ed.edit.text(coverPage)!!.contains(cover.substringAfterLast('/')) && ed.edit.text(coverPage)!!.contains("viewBox=\"0 0 536 724\""))
+        assertFalse("its cover isn't the title page's picture", cover.endsWith("logo.jpg"))
+        // The title page is as it was, second now.
+        assertTrue(ed.edit.text(ed.structure.chapters[1].path)!!.contains("logo.jpg"))
+        ed.message = null
+        ed.save()
+        ed.awaitWork()
+        assertNull(ed.refused)
+        assertTrue(ed.message, ed.message!!.startsWith(dev.kolib.app.tr("Saved. No new problems found.")))
+
+        // Another cover made for it in the cover generator: the cover page shows that one, at its size.
+        b = lib.updateCover(b.id, realJpeg(540, 730, Color.YELLOW), "image/jpeg", 540, 730)
+        ed = editor(lib, b)
+        assertEquals(coverPage, ed.coverPath)
+        val now = dev.kolib.app.epub.ChapterOps.coverImagePath(ed.edit, ed.structure)!!
+        assertArrayEquals(realJpeg(540, 730, Color.YELLOW), ed.edit.bytes(now))
+        assertTrue(ed.edit.text(coverPage)!!, ed.edit.text(coverPage)!!.contains(now.substringAfterLast('/')) && ed.edit.text(coverPage)!!.contains("viewBox=\"0 0 540 730\""))
+        // There's one now: another isn't made.
+        ed.makeCoverPage(context)
+        ed.awaitWork()
+        assertEquals(4, ed.structure.chapters.size)
+
+        // The first book opens on the omnibus's cover page already: it's named as the cover page, and nothing is added.
+        val first = editor(lib, parts[0])
+        assertNull(first.coverPath)
+        first.makeCoverPage(context)
+        first.awaitWork()
+        assertEquals(dev.kolib.app.tr("“{0}” is now the cover page.", "Cover"), first.message)
+        assertEquals(listOf("Cover", "Title Page", "Book A", "A One"), first.structure.chapters.map { it.title })
+        assertEquals(first.structure.chapters.first().path, first.coverPath)
+    }
+
+    /** A split book with no cover at all, not even one drawn for it, has one made with its cover page. */
+    @Test
+    fun aSplitBookWithoutAnyCoverHasOneMadeWithItsCoverPage() = runBlocking {
+        val lib = library().apply { load() }
+        val f = omnibusWithAPictureOnItsTitlePage()
+        val omni = (lib.import("omnibus.epub", { f.inputStream() }, BookSource.FILE) as ImportOutcome.Added).book
+        val pages = lib.pagesOf(omni.id)
+        val parts = lib.splitBook(
+            omni.id, listOf(pages.indexOfFirst { it.path.endsWith("b.xhtml") }),
+            listOf(dev.kolib.app.epub.BookMetadata(title = "Book A"), dev.kolib.app.epub.BookMetadata(title = "Book B")), null,
+        )
+        assertFalse(parts[1].hasCover)
+        val ed = editor(lib, parts[1])
+        ed.makeCoverPage(context)
+        ed.awaitWork()
+        assertEquals(listOf("Cover", "Book B", "B One"), ed.structure.chapters.map { it.title })
+        assertNotNull(dev.kolib.app.epub.ChapterOps.coverImagePath(ed.edit, ed.structure))
+        ed.save()
+        ed.awaitWork()
+        assertNull(ed.refused)
+        assertTrue(lib.book(parts[1].id)!!.hasCover)
+    }
 }

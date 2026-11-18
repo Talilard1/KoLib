@@ -1,0 +1,176 @@
+@fr
+2751|Étagères, sombre
+2752|Des étagères aux couleurs du thème Sombre
+2753|Épuré clair
+2754|Blanc et gris doux, avec du bleu. Simple et lumineux
+2755|Épuré sombre
+2756|Noir et graphite, avec du bleu. Simple et discret
+2757|Manuscrit
+2758|Parchemin, rouge sang-de-bœuf et feuille d’or, sur une page ornée
+2771|Romantique
+2759|Rose poudré, rose et lie-de-vin, avec des titres en italique
+2760|Cinéma
+2761|Noir et rouge, comme un écran quand la salle s’éteint
+2762|Terminal
+2763|Caractères verts sur fond noir, comme un vieil écran d’ordinateur
+2764|Vaisseau
+2765|Une console de vaisseau la nuit : bleu ardoise, ambre et sarcelle
+2766|Hologramme
+2767|Lumière cyan sur bleu nuit, sur une fine grille
+2768|Relique
+2769|Gris acier et orange braise, comme une vieille machine
+2770|« {0} » est maintenant la page de couverture.
+@de
+2751|Bücherregal, dunkel
+2752|Regale in den Farben von „Dunkel“
+2753|Schlicht, hell
+2754|Weiß und sanftes Grau, mit Blau. Schlicht und hell
+2755|Schlicht, dunkel
+2756|Schwarz und Graphit, mit Blau. Schlicht und ruhig
+2757|Handschrift
+2758|Pergament, Ochsenblutrot und Blattgold, auf gemusterter Seite
+2771|Romantik
+2759|Zartrosa, Rosé und Weinrot, mit geschwungenen Titeln
+2760|Kino
+2761|Schwarz und Rot, wie eine Leinwand, wenn das Licht ausgeht
+2762|Terminal
+2763|Grüne Schrift auf Schwarz, wie ein alter Computerbildschirm
+2764|Raumschiff
+2765|Eine Schiffskonsole bei Nacht: Schieferblau, Bernstein und Petrol
+2766|Hologramm
+2767|Cyanfarbenes Licht auf tiefem Marineblau, über einem feinen Raster
+2768|Relikt
+2769|Stahlgrau und Glutorange, wie eine alte Maschine
+2770|„{0}“ ist jetzt die Coverseite.
+@es
+2751|Estantería, oscuro
+2752|Estantes con los colores del tema Oscuro
+2753|Limpio claro
+2754|Blanco y gris suave, con azul. Sencillo y luminoso
+2755|Limpio oscuro
+2756|Negro y grafito, con azul. Sencillo y sobrio
+2757|Manuscrito
+2758|Pergamino, rojo sangre y pan de oro, sobre una página ornamentada
+2771|Romántico
+2759|Rosa pálido, rosa y vino, con títulos en cursiva
+2760|Cine
+2761|Negro y rojo, como una pantalla al apagarse las luces
+2762|Terminal
+2763|Letras verdes sobre negro, como una pantalla de ordenador antigua
+2764|Nave estelar
+2765|La consola de una nave de noche: azul pizarra, ámbar y verde azulado
+2766|Holograma
+2767|Luz cian sobre azul marino, sobre una cuadrícula fina
+2768|Reliquia
+2769|Gris acero y naranja brasa, como una máquina antigua
+2770|«{0}» es ahora la página de portada.
+@it
+2751|Scaffale, scuro
+2752|Scaffali con i colori del tema Scuro
+2753|Essenziale chiaro
+2754|Bianco e grigio tenue, con blu. Semplice e luminoso
+2755|Essenziale scuro
+2756|Nero e grafite, con blu. Semplice e discreto
+2757|Manoscritto
+2758|Pergamena, rosso sangue di bue e foglia d’oro, su una pagina decorata
+2771|Romantico
+2759|Rosa cipria, rosa e vinaccia, con titoli in corsivo
+2760|Cinema
+2761|Nero e rosso, come uno schermo quando si spengono le luci
+2762|Terminale
+2763|Caratteri verdi su nero, come un vecchio schermo di computer
+2764|Astronave
+2765|La console di una nave di notte: blu ardesia, ambra e verde petrolio
+2766|Ologramma
+2767|Luce ciano su blu notte, sopra una griglia sottile
+2768|Reliquia
+2769|Grigio canna di fucile e arancio brace, come una vecchia macchina
+2770|«{0}» ora è la pagina di copertina.
+@nl
+2751|Boekenkast, donker
+2752|Planken in de kleuren van Donker
+2753|Strak, licht
+2754|Wit en zachtgrijs, met blauw. Eenvoudig en licht
+2755|Strak, donker
+2756|Zwart en grafiet, met blauw. Eenvoudig en rustig
+2757|Handschrift
+2758|Perkament, ossenbloedrood en bladgoud, op een bladzijde met patroon
+2771|Romantisch
+2759|Zachtroze, roze en wijnrood, met sierlijke titels
+2760|Bioscoop
+2761|Zwart en rood, als een scherm wanneer het licht uitgaat
+2762|Terminal
+2763|Groene letters op zwart, als een oud computerscherm
+2764|Sterrenschip
+2765|Een scheepsconsole bij nacht: leiblauw, amber en blauwgroen
+2766|Hologram
+2767|Cyaan licht op diep marineblauw, over een fijn raster
+2768|Relikwie
+2769|Staalgrijs en gloeiend oranje, als een oude machine
+2770|‘{0}’ is nu de omslagpagina.
+@pt
+2751|Estante, escuro
+2752|Prateleiras nas cores do tema Escuro
+2753|Limpo claro
+2754|Branco e cinza suave, com azul. Simples e claro
+2755|Limpo escuro
+2756|Preto e grafite, com azul. Simples e discreto
+2757|Manuscrito
+2758|Pergaminho, vermelho-escuro e folha de ouro, em uma página ornamentada
+2771|Romântico
+2759|Rosa-claro, rosa e vinho, com títulos em itálico
+2760|Cinema
+2761|Preto e vermelho, como uma tela quando as luzes se apagam
+2762|Terminal
+2763|Letras verdes sobre preto, como uma tela de computador antiga
+2764|Nave estelar
+2765|O console de uma nave à noite: azul-ardósia, âmbar e verde-azulado
+2766|Holograma
+2767|Luz ciano sobre azul-marinho, sobre uma grade fina
+2768|Relíquia
+2769|Cinza-chumbo e laranja-brasa, como uma máquina antiga
+2770|“{0}” agora é a página de capa.
+@ru
+2751|Книжный шкаф, тёмный
+2752|Полки в цветах тёмной темы
+2753|Чистая светлая
+2754|Белый и мягкий серый с синим. Просто и светло
+2755|Чистая тёмная
+2756|Чёрный и графит с синим. Просто и спокойно
+2757|Манускрипт
+2758|Пергамент, тёмно-красный и сусальное золото на узорной странице
+2771|Романтика
+2759|Пудровый, розовый и винный, заголовки курсивом
+2760|Кино
+2761|Чёрный и красный, как экран, когда гаснет свет
+2762|Терминал
+2763|Зелёный текст на чёрном, как на старом мониторе
+2764|Звездолёт
+2765|Пульт корабля ночью: серо-синий, янтарный и бирюзовый
+2766|Голограмма
+2767|Голубой свет на тёмно-синем, поверх тонкой сетки
+2768|Реликвия
+2769|Оружейная сталь и оранжевый, как у старой машины
+2770|«{0}» теперь страница обложки.
+@ja
+2751|本棚（ダーク）
+2752|ダークの色合いの本棚
+2753|クリーン（ライト）
+2754|白とやわらかいグレーに青。シンプルで明るい
+2755|クリーン（ダーク）
+2756|黒とグラファイトに青。シンプルで落ち着いた色合い
+2757|写本
+2758|羊皮紙に深い赤と金箔。模様入りのページ
+2771|ロマンス
+2759|淡いピンクにローズとワインレッド。タイトルは流れるような斜体
+2760|シネマ
+2761|黒と赤。照明が落ちた映画館のスクリーンのよう
+2762|ターミナル
+2763|黒に緑の文字。昔のコンピューター画面のよう
+2764|スターシップ
+2765|夜の宇宙船のコンソール。スレートブルーに琥珀色とティール
+2766|ホログラム
+2767|濃紺にシアンの光。細かいグリッド入り
+2768|レリック
+2769|ガンメタルに燃えるようなオレンジ。古い機械のよう
+2770|「{0}」が表紙ページになりました。

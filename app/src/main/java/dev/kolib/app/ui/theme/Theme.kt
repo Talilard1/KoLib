@@ -15,7 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
+import androidx.compose.foundation.shape.CircleShape
 import dev.kolib.app.ui.components.PenTapsOpenTheKeyboard
 import kotlin.math.max
 
@@ -37,7 +42,7 @@ object KoLibGold {
 // ---- the looks --------------------------------------------------------------------------------
 
 // Warm paper, ink, and gold leaf.
-private val Light = lightColorScheme(
+internal val LightScheme = lightColorScheme(
     primary = Color(0xFF87591A),
     onPrimary = Color(0xFFFFFFFF),
     primaryContainer = Color(0xFFF3DDB3),
@@ -76,7 +81,7 @@ private val Light = lightColorScheme(
 )
 
 // The opening's own colours: gold on deep brown.
-private val Dark = darkColorScheme(
+internal val DarkScheme = darkColorScheme(
     primary = Color(0xFFE6BE78),
     onPrimary = Color(0xFF2B1903),
     primaryContainer = Color(0xFF5B3F16),
@@ -115,7 +120,7 @@ private val Dark = darkColorScheme(
 )
 
 // Gold on true black: the screen's black parts are switched off on an OLED screen.
-private val Oled = Dark.copy(
+internal val OledScheme = DarkScheme.copy(
     background = Color(0xFF000000),
     surface = Color(0xFF000000),
     surfaceVariant = Color(0xFF2E2219),
@@ -131,7 +136,7 @@ private val Oled = Dark.copy(
 )
 
 // Dark walnut shelves, brass fittings, oxblood leather and parchment.
-private val Bookcase = darkColorScheme(
+internal val BookcaseScheme = darkColorScheme(
     primary = Color(0xFFE2B76A),
     onPrimary = Color(0xFF2E1D04),
     primaryContainer = Color(0xFF5E4314),
@@ -169,21 +174,28 @@ private val Bookcase = darkColorScheme(
     inversePrimary = Color(0xFF7A5A1F),
 )
 
-/** True in the Bookcase look: covers stand on wooden shelves. */
+/** True in the Bookcase looks: covers stand on wooden shelves. */
 val LocalBookcase = staticCompositionLocalOf { false }
 
-/** The wood of the shelves (Bookcase look): plank face, its lit top edge, and the back of the case. */
-object ShelfColors {
-    val plankTop = Color(0xFF9A6A40)
-    val plankBottom = Color(0xFF5E3B22)
-    val plankEdge = Color(0xFFC08B5A)
-    val back = Color(0xFF22160F)
-}
+/** The wood of a bookcase's shelves: plank face, its lit top edge, and the back of the case. */
+@Immutable
+class ShelfWood(val plankTop: Color, val plankBottom: Color, val plankEdge: Color, val back: Color)
+
+/** Walnut, for the Bookcase look. */
+val ShelfColors = ShelfWood(
+    plankTop = Color(0xFF9A6A40),
+    plankBottom = Color(0xFF5E3B22),
+    plankEdge = Color(0xFFC08B5A),
+    back = Color(0xFF22160F),
+)
 
 // ---- what the colour scheme can't say -----------------------------------------------------------
 
-/** What's drawn behind the screens: a glow like the opening's, lamplight, paper, or plain black. */
-enum class Backdrop { GLOW, LAMP, PAPER, BLACK }
+/**
+ * What's drawn behind the screens: a glow like the opening's, lamplight, paper, plain black or a plain
+ * colour, or one of the patterned backdrops (see [appBackdrop]).
+ */
+enum class Backdrop { GLOW, LAMP, PAPER, BLACK, FLAT, SCANLINES, PARCHMENT, STARS, GRID, PLATES, SPOTLIGHT, BLUSH }
 
 /**
  * The parts of a look beyond Material's colour roles: the gold of the main buttons and the mark, and
@@ -206,9 +218,16 @@ class KoLibStyle(
     val onBadge: Color,
     /** Shadows' colour: warmer than black on paper. */
     val shadow: Color,
-)
+    /** The shape of the main buttons. */
+    val actionShape: Shape = CircleShape,
+    /** The shelves covers stand on, in a bookcase look. */
+    val shelf: ShelfWood? = null,
+) {
+    fun copy(backdrop: Backdrop = this.backdrop, shelf: ShelfWood? = this.shelf, hairline: Color = this.hairline) =
+        KoLibStyle(dark, backdrop, gold, onGold, markGold, hairline, badge, onBadge, shadow, actionShape, shelf)
+}
 
-private val DarkStyle = KoLibStyle(
+internal val DarkStyle = KoLibStyle(
     dark = true,
     backdrop = Backdrop.GLOW,
     gold = Color(0xFFE8BE78),
@@ -220,7 +239,7 @@ private val DarkStyle = KoLibStyle(
     shadow = Color.Black,
 )
 
-private val OledStyle = KoLibStyle(
+internal val OledStyle = KoLibStyle(
     dark = true,
     backdrop = Backdrop.BLACK,
     gold = Color(0xFFE8BE78),
@@ -232,7 +251,7 @@ private val OledStyle = KoLibStyle(
     shadow = Color.Black,
 )
 
-private val BookcaseStyle = KoLibStyle(
+internal val BookcaseStyle = KoLibStyle(
     dark = true,
     backdrop = Backdrop.LAMP,
     gold = Color(0xFFE6BA70),
@@ -242,9 +261,10 @@ private val BookcaseStyle = KoLibStyle(
     badge = Color.Black.copy(alpha = 0.64f),
     onBadge = Color(0xFFFFF3E0),
     shadow = Color.Black,
+    shelf = ShelfColors,
 )
 
-private val LightStyle = KoLibStyle(
+internal val LightStyle = KoLibStyle(
     dark = false,
     backdrop = Backdrop.PAPER,
     gold = Color(0xFFE5B567),
@@ -260,25 +280,20 @@ val LocalKoLibStyle = staticCompositionLocalOf { LightStyle }
 
 @Composable
 fun KoLibTheme(choice: ThemeChoice = ThemeChoice.SYSTEM, content: @Composable () -> Unit) {
-    val systemDark = isSystemInDarkTheme()
-    val (scheme, style) = when (choice) {
-        ThemeChoice.SYSTEM -> if (systemDark) Dark to DarkStyle else Light to LightStyle
-        ThemeChoice.LIGHT -> Light to LightStyle
-        ThemeChoice.DARK -> Dark to DarkStyle
-        ThemeChoice.OLED -> Oled to OledStyle
-        ThemeChoice.BOOKCASE -> Bookcase to BookcaseStyle
-    }
+    val look = lookOf(choice, isSystemInDarkTheme())
     CompositionLocalProvider(
-        LocalBookcase provides (choice == ThemeChoice.BOOKCASE),
-        LocalKoLibStyle provides style,
+        LocalBookcase provides (look.style.shelf != null),
+        LocalKoLibStyle provides look.style,
     ) {
-        MaterialTheme(colorScheme = scheme, typography = KoLibTypography, content = content)
+        MaterialTheme(colorScheme = look.scheme, typography = look.typography, shapes = look.shapes, content = content)
     }
 }
 
 /**
  * The look's background, with what's drawn on it: in Dark, a warm glow from the top like the opening's;
- * in Bookcase, lamplight on the wood; in Light, paper catching the light; in OLED black, nothing.
+ * in the Bookcase looks, lamplight on the wood; in Light, paper catching the light; in OLED black and the
+ * Clean looks, nothing; and in the others a pattern of their own (scan lines, a parchment's diaper pattern,
+ * stars, a grid, plating, a spotlight, a scatter of hearts), all faint enough to read over.
  */
 @Composable
 fun Modifier.appBackdrop(): Modifier {
@@ -289,7 +304,7 @@ fun Modifier.appBackdrop(): Modifier {
         val h = size.height
         val big = max(w, h).coerceAtLeast(1f)
         val layers: List<Brush> = when (style.backdrop) {
-            Backdrop.BLACK -> emptyList()
+            Backdrop.BLACK, Backdrop.FLAT -> emptyList()
             Backdrop.GLOW -> listOf(
                 Brush.radialGradient(
                     0f to KoLibGold.glow.copy(alpha = 0.62f),
@@ -332,10 +347,41 @@ fun Modifier.appBackdrop(): Modifier {
                     radius = big * 0.7f,
                 ),
             )
+            else -> patternLayers(style.backdrop, w, h, big)
         }
-        onDrawBehind {
-            drawRect(background)
-            for (layer in layers) drawRect(layer)
+        val pattern = backdropPattern(style.backdrop, w, h)
+        if (pattern == null || w < 1f || h < 1f) {
+            onDrawBehind {
+                drawRect(background)
+                for (layer in layers) drawRect(layer)
+            }
+        } else {
+            // A pattern has hundreds of small shapes: drawn once into a picture, which is all that's drawn after.
+            // The picture is shared by everything that shows this backdrop at this size (the app, a screen over it).
+            val picture = BackdropPictures.get(listOf(style.backdrop, background, w.toInt(), h.toInt(), density)) {
+                ImageBitmap(w.toInt().coerceAtLeast(1), h.toInt().coerceAtLeast(1)).also { made ->
+                    CanvasDrawScope().draw(this, layoutDirection, Canvas(made), size) {
+                        drawRect(background)
+                        for (layer in layers) drawRect(layer)
+                        pattern()
+                    }
+                }
+            }
+            onDrawBehind { drawImage(picture) }
+        }
+    }
+}
+
+/** The patterned backdrop last drawn, kept while it's the one being shown: a screenful of picture, so only one. */
+private object BackdropPictures {
+    private var key: Any? = null
+    private var picture: ImageBitmap? = null
+
+    fun get(key: Any, make: () -> ImageBitmap): ImageBitmap {
+        picture?.takeIf { key == this.key }?.let { return it }
+        return make().also {
+            picture = it
+            this.key = key
         }
     }
 }

@@ -375,6 +375,7 @@ fun ShelfGridBox(minCell: Dp, coverPadding: Dp, columns: Int? = null, content: @
 @Composable
 fun Modifier.shelfUnderCover(coverTop: Dp, index: Int, count: Int): Modifier {
     val shelf = LocalShelf.current ?: return this
+    val wood = LocalKoLibStyle.current.shelf ?: ShelfColors
     val emptyCellsAfter = if (index == count - 1) (shelf.columns - 1 - index % shelf.columns).coerceAtLeast(0) else 0
     return drawWithContent {
         drawContent()
@@ -382,11 +383,11 @@ fun Modifier.shelfUnderCover(coverTop: Dp, index: Int, count: Int): Modifier {
         val width = size.width + emptyCellsAfter * shelf.cellWidthPx
         val plank = SHELF_HEIGHT.toPx() * 0.6f
         drawRect(
-            Brush.verticalGradient(listOf(ShelfColors.plankTop, ShelfColors.plankBottom), startY = top, endY = top + plank),
+            Brush.verticalGradient(listOf(wood.plankTop, wood.plankBottom), startY = top, endY = top + plank),
             topLeft = Offset(0f, top),
             size = Size(width, plank),
         )
-        drawRect(ShelfColors.plankEdge, topLeft = Offset(0f, top), size = Size(width, 1.5.dp.toPx()))
+        drawRect(wood.plankEdge, topLeft = Offset(0f, top), size = Size(width, 1.5.dp.toPx()))
         drawRect(
             Brush.verticalGradient(listOf(Color.Black.copy(alpha = 0.5f), Color.Transparent), startY = top + plank, endY = top + SHELF_HEIGHT.toPx()),
             topLeft = Offset(0f, top + plank),

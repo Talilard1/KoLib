@@ -387,8 +387,8 @@ class TextEditState(
     // ---- chapter operations ---------------------------------------------------------------------
 
     /** Runs a change to the book's chapters as one undoable step, and opens [ChapterOps.Result.focus]. */
-    /** [done]: said once the change is made (for one that might not be in view: a page added at the front). */
-    fun change(done: String? = null, work: suspend () -> ChapterOps.Result?) {
+    /** [done]: what to say once the change is made (for one that might not be in view: a page added at the front). */
+    fun change(done: (() -> String?)? = null, work: suspend () -> ChapterOps.Result?) {
         go {
             flush()
             busy = tr("Working…")
@@ -396,7 +396,7 @@ class TextEditState(
                 val result = withContext(Dispatchers.Default) { work() } ?: return@go
                 if (edit.apply(result.label, result.changes)) {
                     bump()
-                    if (done != null) message = done
+                    done?.invoke()?.let { message = it }
                     val focus = result.focus?.takeIf { edit.has(it) }
                     val current = currentPath
                     when {
@@ -442,18 +442,27 @@ class TextEditState(
     fun setCoverPage(path: String) = change { ChapterOps.setCoverPage(edit, structure, path) }
 
     /**
-     * Adds a cover page at the front of the book showing its cover. A book without a cover picture gets
+     * Gives the book a cover page at the front, showing its cover. A first page that is the cover page already
+     * (just the cover's picture) is named as it; otherwise a page is added. A book without a cover picture gets
      * one made for it here, in a design that suits its genre, which becomes its cover too.
      */
-    fun makeCoverPage(context: Context) = change(done = tr("Cover page added at the front.")) {
-        if (ChapterOps.coverImagePath(edit, structure) != null) return@change ChapterOps.addCoverPage(edit, structure, null)
-        ChapterOps.checkNoCoverPage(edit, structure)
-        val meta = structure.opf.readMetadata()
-        val design = CoverDesign.random(genre = CoverGenre.guess(meta.tags, meta.series, meta.title, meta.description))
-        val cover = CoverGenerator(context.applicationContext).render(CoverText(meta.title, meta.authors, meta.series, meta.seriesIndex), design)
-        val out = ByteArrayOutputStream()
-        cover.compress(Bitmap.CompressFormat.JPEG, 90, out)
-        ChapterOps.addCoverPage(edit, structure, ChapterOps.NewPicture(out.toByteArray(), "image/jpeg", cover.width, cover.height))
+    fun makeCoverPage(context: Context) {
+        var said: String? = null
+        change(done = { said }) {
+            ChapterOps.unnamedCoverPage(edit, structure)?.let { page ->
+                said = tr("“{0}” is now the cover page.", structure.chapterAt(page)?.title ?: page.substringAfterLast('/'))
+                return@change ChapterOps.setCoverPage(edit, structure, page)
+            }
+            said = tr("Cover page added at the front.")
+            if (ChapterOps.coverImagePath(edit, structure) != null) return@change ChapterOps.addCoverPage(edit, structure, null)
+            ChapterOps.checkNoCoverPage(edit, structure)
+            val meta = structure.opf.readMetadata()
+            val design = CoverDesign.random(genre = CoverGenre.guess(meta.tags, meta.series, meta.title, meta.description))
+            val cover = CoverGenerator(context.applicationContext).render(CoverText(meta.title, meta.authors, meta.series, meta.seriesIndex), design)
+            val out = ByteArrayOutputStream()
+            cover.compress(Bitmap.CompressFormat.JPEG, 90, out)
+            ChapterOps.addCoverPage(edit, structure, ChapterOps.NewPicture(out.toByteArray(), "image/jpeg", cover.width, cover.height))
+        }
     }
 
     // ---- copied sections ------------------------------------------------------------------------

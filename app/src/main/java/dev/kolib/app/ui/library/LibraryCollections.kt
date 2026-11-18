@@ -18,7 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.outlined.CollectionsBookmark
-import androidx.compose.material3.FilledTonalButton
+import dev.kolib.app.ui.components.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -198,7 +198,7 @@ private fun CollectionShelf(
                 verticalArrangement = Arrangement.spacedBy(if (phone) 4.dp else 8.dp),
                 modifier = Modifier
                     .fillMaxSize()
-                    .then(if (bookcase) Modifier.background(ShelfColors.back) else Modifier),
+                    .then(if (bookcase) Modifier.background((dev.kolib.app.ui.theme.LocalKoLibStyle.current.shelf ?: ShelfColors).back) else Modifier),
             ) {
                 itemsIndexed(books, key = { _, b -> b.id }) { index, book ->
                     LibraryGridItem(

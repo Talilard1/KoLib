@@ -481,6 +481,7 @@ fun AppRoot(
             value = false
         }
     }
+    val linkTransfers by link.transfers.collectAsStateWithLifecycle()
     val noticeForLibrary = libraryNotice(connection, state.usbKobo, state.syncing, state.afterConnectRunning, justUnplugged)
 
     Box(
@@ -720,6 +721,7 @@ fun AppRoot(
                             }
                         },
                         koboNotice = noticeForLibrary,
+                        transfers = linkTransfers,
                     ) }
                     Section.KOBO -> CompositionLocalProvider(dev.kolib.app.ui.components.LocalKoboLibraryCovers provides koboLibraryCovers) { when {
                         connection is Connection.Connected && koboView != null -> DeviceScreen(
@@ -1334,25 +1336,7 @@ fun LookDialog(
                     }
                     HorizontalDivider(Modifier.padding(vertical = 10.dp))
                 }
-                Column(Modifier.selectableGroup()) {
-                    ThemeChoice.entries.forEach { choice ->
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(12.dp))
-                                .selectable(selected = choice == current, role = Role.RadioButton, onClick = { onPick(choice) })
-                                .padding(vertical = 10.dp, horizontal = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            RadioButton(selected = choice == current, onClick = null)
-                            Spacer(Modifier.width(12.dp))
-                            Column {
-                                Text(choice.label, style = MaterialTheme.typography.titleSmall)
-                                Text(choice.description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-                        }
-                    }
-                }
+                dev.kolib.app.ui.theme.ThemePicker(current, onPick)
                 if (onOpening != null) {
                     HorizontalDivider(Modifier.padding(vertical = 10.dp))
                     SwitchLine(tr("Opening animation"), tr("Plays when KoLib starts. Tap it to skip."), opening, onOpening)

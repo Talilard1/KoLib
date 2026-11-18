@@ -70,12 +70,12 @@ import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Restore
 import androidx.compose.material.icons.outlined.Title
 import dev.kolib.app.ui.components.AlertDialog
-import androidx.compose.material3.Button
+import dev.kolib.app.ui.components.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.FilledTonalButton
+import dev.kolib.app.ui.components.FilledTonalButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.HorizontalDivider

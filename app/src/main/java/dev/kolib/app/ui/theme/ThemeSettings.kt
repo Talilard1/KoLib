@@ -13,6 +13,16 @@ enum class ThemeChoice(val label: String, val description: String) {
     DARK(tr("Dark"), tr("Gold on dark brown, like the opening. Easy on the eyes at night")),
     OLED(tr("OLED black"), tr("Gold on pure black, for OLED screens. Saves battery")),
     BOOKCASE(tr("Bookcase"), tr("Dark wood and brass, with your books on shelves")),
+    BOOKCASE_DARK(tr("Bookcase, dark"), tr("Shelves in the Dark look's colours")),
+    CLEAN_LIGHT(tr("Clean light"), tr("White and soft grey, with blue. Plain and bright")),
+    CLEAN_DARK(tr("Clean dark"), tr("Black and graphite, with blue. Plain and quiet")),
+    MANUSCRIPT(tr("Manuscript"), tr("Parchment, oxblood and gold leaf, on a patterned page")),
+    ROMANCE(dev.kolib.app.trc("look", "Romance"), tr("Blush, rose and wine, with flowing titles")),
+    CINEMA(tr("Cinema"), tr("Black and red, like a screen as the lights go down")),
+    TERMINAL(tr("Terminal"), tr("Green type on black, like an old computer screen")),
+    STARSHIP(tr("Starship"), tr("A ship's console at night: slate blue, amber and teal")),
+    HOLOGRAM(tr("Hologram"), tr("Cyan light on deep navy, over a fine grid")),
+    RELIC(tr("Relic"), tr("Gunmetal and ember orange, like an old machine")),
 }
 
 /** The chosen look, and how the opening animation plays (at all, with its sound, lighter), remembered between visits. */

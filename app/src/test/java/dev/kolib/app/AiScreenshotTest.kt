@@ -9,11 +9,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.printToString
 import androidx.compose.ui.test.performClick
@@ -120,6 +125,8 @@ class AiScreenshotTest {
                     when {
                         last.startsWith("Instruction:") && last.contains("Teh gate") -> "Rosa came back to *the* garden at the end of winter.\n\nThe gate was rusted shut."
                         last.startsWith("Instruction:") -> "Rosa came back to *the* garden at the end of winter."
+                        last.contains("Books in the library:") -> "You have The Garden, by A. Gardener. It's the only one, so start there."
+                        messages.first().content.contains("You have not been shown any of it") -> "It's a quiet story about a garden brought back to life."
                         last.contains("Explain \"") -> "Here: The old house stood over the valley in a dark, heavy way, as if it were watching it.\nUsually: verb, to think about something sad or worrying for a long time"
                         last.contains("Summarise it") -> "Rosa comes back to the garden after the winter and finds it overgrown, with the gate rusted shut.\n\n" +
                             "- Rosa climbs the wall and finds the garden gone wild.\n- She uncovers the old sundial under the ivy.\n- A boy from the village offers to help her clear the paths.\n- They find the first green shoots by the pond."
@@ -401,6 +408,12 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
     @Config(qualifiers = PHONE)
     fun aChaptersSummaryOnAPhone() = summary("91_summary_phone", 1)
 
+    /** Whether the chat has asked the model [count] times and finished. (Its work goes through the main thread's queue, which this runs.) */
+    private fun answered(count: Int): Boolean {
+        org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+        return asked.size == count && app.ai.busy.value == AiHub.State.IDLE && !app.chat.asking
+    }
+
     private fun ask(name: String, columns: Int) {
         hub()
         val c = reader(columns)
@@ -412,12 +425,158 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
         compose.onNodeWithTag("companion-send").performClick()
         compose.waitUntil(20_000) { compose.onAllNodes(hasTestTag("companion-answer")).fetchSemanticsNodes().isNotEmpty() && app.ai.busy.value == AiHub.State.IDLE }
         val sent = asked.single()
-        assertTrue(sent.first().content.contains("Never give away"))
+        assertTrue(sent.first().content.contains("Never reveal anything that happens later"))
         assertTrue(sent.last().content.endsWith("Question: Who is Rosa?"))
         // It was given what the book has said about her so far, and nothing from the chapter not yet read.
         assertTrue(sent.last().content.contains("Rosa came back to the garden at the end of winter"))
         assertTrue(sent.none { it.content.contains("potting shed") })
         shoot(name)
+        // The same question can be changed and asked again: the chat carries on from there, and what followed it goes.
+        compose.onNodeWithTag("chat-edit-0").performClick()
+        compose.onNodeWithText("Changing your message: what came after it will go.").assertExists()
+        compose.onNodeWithTag("companion-question").performTextReplacement("Who is Tam?")
+        compose.onNodeWithTag("companion-send").performClick()
+        compose.waitUntil(20_000) { answered(2) }
+        compose.waitForIdle()
+        assertEquals(listOf("Who is Tam?"), app.chat.turns.map { it.question })
+        // The first answer isn't in what the model is reminded of: it was taken back.
+        assertEquals(2, asked.last().size)
+        // With the reading of the book turned off, it's asked without being shown any of it.
+        compose.onNodeWithTag("chat-reads-book").performClick()
+        compose.onNodeWithTag("companion-question").performTextInput("What kind of book is it?")
+        compose.onNodeWithTag("companion-send").performClick()
+        compose.waitUntil(20_000) { answered(3) }
+        val plain = asked.last()
+        assertTrue(plain.first().content.contains("You have not been shown any of it this time"))
+        assertEquals("Question: What kind of book is it?", plain.last().content)
+        assertTrue(plain.none { it.content.contains("Rosa came back to the garden") && it.role == "user" && it.content.contains("The pages the reader is on now") })
+        // It's all kept as one chat, called by its first question.
+        compose.waitForIdle()
+        assertEquals(listOf("Who is Tam?"), app.chat.saved.value.map { it.title })
+        assertEquals(2, app.chat.saved.value.single().questions)
+    }
+
+    /** The chat from the library: it's told what's in it, it's the same conversation as in a book, and chats are kept. */
+    @Test
+    @Config(qualifiers = PHONE)
+    fun theChatInTheLibraryAndItsSavedChats() {
+        hub()
+        val lib = dev.kolib.app.library.Library(context, File(context.filesDir, "lib-${UUID.randomUUID()}"), null)
+        runBlocking { lib.load() }
+        val f = garden()
+        runBlocking { lib.import("garden.epub", { f.inputStream() }, dev.kolib.app.library.BookSource.FILE) }
+        val books = lib.books.value
+        var open by androidx.compose.runtime.mutableStateOf(true)
+        compose.setContent { AppSurface(ThemeChoice.SYSTEM) { if (open) dev.kolib.app.ui.ai.AiChatWindow(dev.kolib.app.ui.ai.ChatPlace.Library(books), onDismiss = { open = false }) } }
+        compose.onNodeWithText("What should I read next?").performClick()
+        compose.waitUntil(20_000) { answered(1) }
+        compose.waitForIdle()
+        val sent = asked.single()
+        assertTrue(sent.first().content.contains("their library, which has 1 book."))
+        assertTrue(sent.last().content.contains("- The Garden"))
+        compose.onNodeWithText("You have The Garden, by A. Gardener. It's the only one, so start there.").assertExists()
+        shoot("98_chat_library_phone")
+        // A new chat: the first is kept, and can be opened again or deleted.
+        compose.onNodeWithTag("chat-new").performClick()
+        assertTrue(app.chat.turns.isEmpty())
+        compose.onNodeWithTag("companion-question").performTextInput("Have I any horror?")
+        compose.onNodeWithTag("companion-send").performClick()
+        // Closed while it answers, it goes on answering: the answer is there, and kept, when the chat is opened again.
+        open = false
+        compose.waitForIdle()
+        compose.onNodeWithTag("ai-chat-window").assertDoesNotExist()
+        compose.waitUntil(20_000) { answered(2) }
+        assertTrue(app.chat.turns.single().answer.value.isNotBlank())
+        assertEquals(2, app.chat.saved.value.size)
+        open = true
+        compose.waitForIdle()
+        assertTrue(compose.onAllNodesWithText("Have I any horror?").fetchSemanticsNodes().isNotEmpty())
+        compose.onNodeWithTag("companion-answer").assertExists()
+        compose.onNodeWithTag("chat-saved").performClick()
+        compose.waitForIdle()
+        assertEquals(listOf("Have I any horror?", "What should I read next?"), app.chat.saved.value.map { it.title })
+        shoot("98_chat_saved_phone")
+        val first = app.chat.saved.value.last()
+        compose.onNodeWithTag("chat-${first.id}").performClick()
+        compose.waitForIdle()
+        assertEquals(listOf("What should I read next?"), app.chat.turns.map { it.question })
+        compose.onNodeWithTag("chat-saved").performClick()
+        compose.onNodeWithTag("chat-delete-${first.id}").performClick()
+        compose.waitForIdle()
+        assertEquals(listOf("Have I any horror?"), app.chat.saved.value.map { it.title })
+        // The one that was open is gone: a new chat takes its place.
+        assertTrue(app.chat.turns.isEmpty())
+    }
+
+    /** Finding a model on Hugging Face: what suits the device, with the size of file to take, and everything when asked. */
+    @Test
+    @Config(qualifiers = PHONE)
+    fun findingAModelOnHuggingFace() {
+        val hub = hub()
+        val asked = java.util.Collections.synchronizedList(ArrayList<String>())
+        val before = dev.kolib.app.ai.ModelSearch.fetcher
+        fun file(name: String, bytes: Long) = """{"type":"file","path":"$name","size":135,"lfs":{"oid":"${"ab".repeat(32)}","size":$bytes}}"""
+        dev.kolib.app.ai.ModelSearch.fetcher = { url ->
+            asked += url
+            when {
+                url.contains("/tree/") && url.contains("Big-27B") -> "[" + file("Big-27B-Q4_K_M.gguf", 16_500_000_000) + "]"
+                url.contains("/tree/") -> "[" + listOf(file("Small-4B-Q4_K_M.gguf", 2_707_513_696), file("Small-4B-Q8_0.gguf", 4_482_402_656), file("mmproj-Small-4B.gguf", 675_568_768)).joinToString(",") + "]"
+                else -> """[
+                  {"id":"unsloth/Small-4B-GGUF","downloads":1633531,"gated":false,"tags":["gguf","license:apache-2.0","conversational"]},
+                  {"id":"HauhauCS/Small-4B-Uncensored-GGUF","downloads":353187,"gated":false,"tags":["gguf","license:apache-2.0"]},
+                  {"id":"unsloth/Big-27B-GGUF","downloads":6998076,"gated":false,"tags":["gguf","license:apache-2.0"]}
+                ]"""
+            }
+        }
+        try {
+            compose.setContent { AppSurface(ThemeChoice.SYSTEM) { dev.kolib.app.ui.ai.ModelSearchWindow(hub, onDismiss = {}) } }
+            compose.waitUntil(20_000) { compose.onAllNodesWithText("Q4_K_M · 2.7 GB").fetchSemanticsNodes().size == 2 }
+            compose.waitForIdle()
+            // It asked for what suits a device with this much memory, and left out the one whose files turned out too big.
+            assertTrue(asked.first().contains("num_parameters=min:0,max:6413M"))
+            compose.onNodeWithTag("found-unsloth/Big-27B-GGUF").assertDoesNotExist()
+            compose.onAllNodesWithText("Suits this device")[1].assertExists()
+            shoot("98_model_search_phone")
+            // Everything, when asked: the big one is listed too, and says it's too big; it can still be taken.
+            compose.onNodeWithTag("model-search-all").performClick()
+            compose.waitUntil(20_000) { compose.onAllNodes(hasTestTag("found-unsloth/Big-27B-GGUF")).fetchSemanticsNodes().isNotEmpty() }
+            compose.waitUntil(20_000) { compose.onAllNodesWithText("Wants more memory than this device has").fetchSemanticsNodes().isNotEmpty() }
+            assertTrue(asked.any { it.contains("search") .not() && !it.contains("num_parameters") && it.contains("/api/models?") })
+            // Taking one downloads it as a model of the user's own.
+            compose.onAllNodes(hasTestTag("found-download-Small-4B-Q4_K_M.gguf"))[0].performClick()
+            compose.waitUntil(10_000) { hub.found.value.containsKey("own-Small-4B-Q4_K_M") || hub.downloads.value.containsKey("own-Small-4B-Q4_K_M") }
+            hub.stopDownload(hub.found.value.values.first())
+        } finally {
+            dev.kolib.app.ai.ModelSearch.fetcher = before
+        }
+    }
+
+    /** A newer KoLib: what's new in it, and the choice to update. */
+    @Test
+    @Config(qualifiers = PHONE)
+    fun aNewerVersionIsOffered() {
+        val notes = "### What's new\n\n- Look a word up in a small card by the word\n- Summaries and questions about a book\n- **Updates** from inside the app\n"
+        val json = """{"tag_name":"v2.1","html_url":"https://github.com/Talilard1/KoLib/releases/tag/v2.1","body":"$notes",
+          "assets":[{"name":"KoLib-2.1-arm64-v8a.apk","size":24800676,"browser_download_url":"https://github.com/Talilard1/KoLib/releases/download/v2.1/KoLib-2.1-arm64-v8a.apk"}]}"""
+        val handed = ArrayList<File>()
+        val updater = dev.kolib.app.update.Updater(
+            context, scope, installed = "2.0", abis = listOf("arm64-v8a"), fetch = { json },
+            open = { _, _ -> dev.kolib.app.ai.ModelStore.Answer(200, ByteArray(24_800_676).inputStream()) }, verify = { null }, install = { handed += it },
+        )
+        compose.setContent { AppSurface(ThemeChoice.SYSTEM) { dev.kolib.app.ui.update.UpdateWindow(updater) } }
+        // Nothing to say: nothing shown.
+        compose.onNodeWithTag("update-window").assertDoesNotExist()
+        updater.lookNow()
+        compose.waitUntil(10_000) { compose.onAllNodes(hasTestTag("update-go")).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithText("KoLib 2.1 is available").assertExists()
+        compose.onNodeWithText("You have 2.0.").assertExists()
+        compose.onNodeWithTag("update-notes").assertTextEquals("•  Look a word up in a small card by the word\n•  Summaries and questions about a book\n•  Updates from inside the app")
+        compose.waitForIdle()
+        shoot("99_update_phone")
+        compose.onNodeWithTag("update-go").performClick()
+        compose.waitUntil(20_000) { updater.state.value is dev.kolib.app.update.Updater.State.Installing }
+        compose.waitUntil(10_000) { compose.onAllNodesWithText("Installing KoLib 2.1…").fetchSemanticsNodes().isNotEmpty() }
+        assertEquals(24_800_676L, handed.single().length())
     }
 
     @Test
@@ -449,6 +608,11 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
         compose.setContent { AppSurface(ThemeChoice.SYSTEM) { AiSetupDialog(onDismiss = {}, hub = hub) } }
         compose.mainClock.advanceTimeBy(1_000)
         captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/$name.png")
+        // Further down: how the storage is taken up, a piece of the bar for each model.
+        compose.onNodeWithTag("ai-storage-bar").performScrollTo()
+        compose.mainClock.advanceTimeBy(500)
+        compose.onNodeWithText("Everything else on this device").assertExists()
+        captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/${name}_storage.png")
         assertEquals("gemma-4-e2b", hub.suggested.id)
         assertTrue(hub.ready())
     }

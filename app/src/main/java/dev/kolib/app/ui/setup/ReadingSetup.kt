@@ -59,6 +59,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -180,11 +181,21 @@ internal fun ReadingSetupScreen(
             if (stepNow == SetupStep.TURNING && controller.settings.scrolling && p > 0.02f && turns == 0) turns = 1
         }
     }
-    // But for trying page turns, each step is on the chapter's first page, with its heading: pages turned to are turned back.
+    // Each step starts on the chapter's first page, with its heading: pages turned to are turned back.
     LaunchedEffect(step) {
-        if (step != SetupStep.TURNING && !controller.loading && (controller.page > 0 || controller.chapterProgress > 0.02f)) controller.goToStart()
+        if (step != SetupStep.EDGES && !controller.loading && (controller.page > 0 || controller.chapterProgress > 0.02f)) controller.goToStart()
         if (step == SetupStep.TURNING) turns = 0
     }
+    // But what shows round the page is chosen on a page that has it all: a chapter's first page has no heading over
+    // it (as in print), so it's the one after, where the book's title and the chapter's are over the text.
+    LaunchedEffect(step, controller.loading, controller.settings.scrolling, controller.pages) {
+        if (step == SetupStep.EDGES && !controller.loading && !controller.settings.scrolling && controller.page == 0 && controller.pages > 1) controller.nextPage()
+    }
+    // A book too short to have such a page: its one page is given the headings while they're being chosen.
+    LaunchedEffect(step, controller.loading, controller.chapterPages) {
+        controller.headsOnOpenings = step == SetupStep.EDGES && !controller.loading && controller.chapterPages <= 1
+    }
+    DisposableEffect(controller) { onDispose { controller.headsOnOpenings = false } }
 
     ReaderScreen(
         controller = controller,

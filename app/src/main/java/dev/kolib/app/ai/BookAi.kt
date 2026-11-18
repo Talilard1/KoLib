@@ -4,7 +4,7 @@ package dev.kolib.app.ai
 object BookAi {
 
     /** What the reader is reading, as far as it bears on an answer. */
-    class Book(val title: String, val author: String?, val language: String?)
+    class Book(val title: String, val author: String?, val language: String?, val about: String? = null)
 
     /** The words selected are a word or a short phrase to define, not a passage to put in plain words. */
     fun isPhrase(text: String): Boolean = text.trim().split(Regex("\\s+")).size <= 4
@@ -63,7 +63,7 @@ object BookAi {
     fun answer(
         engine: AiEngine, history: MutableList<AiMessage>, question: String, book: Book,
         chapters: List<Triple<Int, String, List<String>>>, chapter: String, percent: Int, answerIn: String,
-        readSpeed: Float?, onProgress: (Float) -> Unit, onText: (String) -> Unit,
+        readSpeed: Float?, onProgress: (Float) -> Unit, instructions: String = "", onText: (String) -> Unit,
     ): AiEnd {
         val count = engine::countTokens
         // As much of the book as the model reads in a quarter of a minute, where that's known; a third of what it holds otherwise.
@@ -84,7 +84,7 @@ object BookAi {
         }
         // Nothing in the book matches the question's words (it asks what just happened, say): more of the latest pages instead.
         val recent = if (found.isEmpty()) latest(chapters, budget, count) else latest
-        val system = Prompts.chatSystem(book.title, book.author, chapter, percent, answerIn)
+        val system = Prompts.chatSystem(book.title, book.author, chapter, percent, answerIn, book.about, instructions)
         val asked = Prompts.chatQuestion(question, passages, recent)
         // The oldest turns go when the conversation outgrows the model.
         val room = engine.contextTokens - CHAT_ANSWER - 64
@@ -106,7 +106,10 @@ object BookAi {
     fun latest(chapters: List<Triple<Int, String, List<String>>>, mostTokens: Int, count: (String) -> Int): String {
         val out = ArrayList<String>()
         var held = 0
-        loop@ for ((_, _, paragraphs) in chapters.asReversed()) {
+        // The pages the reader is on, and the story before them: not what's in front of it (an introduction, the
+        // copyright page), which would be told of as if it were the book.
+        val story = chapters.filterIndexed { i, c -> i == chapters.lastIndex || !BookText.frontMatter(c.second) }
+        loop@ for ((_, _, paragraphs) in story.asReversed()) {
             for (p in paragraphs.asReversed()) {
                 val n = count(p) + 1
                 if (held + n > mostTokens) break@loop

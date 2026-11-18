@@ -377,8 +377,8 @@ data class ReaderSettings(
     /**
      * With the page headings at [h]. Turned on, what they show (the titles and page numbers) is taken out
      * of the margins, so it isn't there twice, and anything at their end of the page moves to the other
-     * end. Turned off, the chapter's title and the page number come back to where they used to be, if
-     * nothing else is there.
+     * end. Turned off, nothing is put in their place: the chapter's title and the page numbers can be
+     * shown in the margins, but they're off until they're asked for.
      */
     fun withHeads(h: RunningHeads): ReaderSettings {
         if (h == runningHeads) return this
@@ -386,12 +386,6 @@ data class ReaderSettings(
         if (h != RunningHeads.OFF) {
             MarginItem.IN_HEADINGS.forEach { items[it] = MarginSpot.OFF }
             for ((item, spot) in items.toMap()) if (spot != MarginSpot.OFF && spot.top == h.top) items[item] = spot.otherEnd()
-        } else {
-            fun free(spot: MarginSpot) = items.values.none { it == spot }
-            if (items[MarginItem.CHAPTER] == MarginSpot.OFF && free(MarginSpot.TOP_CENTER)) items[MarginItem.CHAPTER] = MarginSpot.TOP_CENTER
-            if (items[MarginItem.PAGE] == MarginSpot.OFF && items[MarginItem.BOOK_PAGE] == MarginSpot.OFF && free(MarginSpot.BOTTOM_LEFT)) {
-                items[MarginItem.PAGE] = MarginSpot.BOTTOM_LEFT
-            }
         }
         return copy(runningHeads = h, marginItems = items)
     }

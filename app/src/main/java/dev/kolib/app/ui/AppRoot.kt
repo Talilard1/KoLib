@@ -84,6 +84,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.material.icons.outlined.SystemUpdate
 import androidx.compose.ui.platform.testTag
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.foundation.layout.Arrangement
@@ -172,6 +173,7 @@ fun AppRoot(
     var introAt by rememberSaveable { mutableStateOf(0) }
     var showLanguage by remember { mutableStateOf(false) }
     var showAi by remember { mutableStateOf(false) }
+    var showChat by remember { mutableStateOf(false) }
     /** Books waiting in the send dialog. */
     var sendIds by remember { mutableStateOf<List<String>?>(null) }
     /** The page offering books to the Kobo's web browser, while it's open. */
@@ -673,7 +675,7 @@ fun AppRoot(
                 onLook = { showLook = true },
                 devicesHere = paired.any { d -> linkNearby.any { it.id == d.id } },
             ) {
-                CompositionLocalProvider(dev.kolib.app.ui.link.LocalLinkActions provides linkActions) {
+                CompositionLocalProvider(dev.kolib.app.ui.link.LocalLinkActions provides linkActions, dev.kolib.app.ui.ai.LocalOpenAiChat provides { showChat = true }) {
                 when (section) {
                     Section.DEVICES -> dev.kolib.app.ui.link.DevicesScreen(link, devicesActions)
                     Section.LIBRARY -> CompositionLocalProvider(dev.kolib.app.ui.ocr.LocalOcrActions provides ocrActions) { LibraryScreen(
@@ -1047,6 +1049,16 @@ fun AppRoot(
             onAi = { showAi = true },
         )
         if (showAi) dev.kolib.app.ui.ai.AiSetupDialog(onDismiss = { showAi = false })
+        // A newer KoLib, when there is one (or what a look for one found, when it was asked for). It's looked for
+        // a moment after the app starts, once a day, unless that's turned off.
+        val updater = (androidx.compose.ui.platform.LocalContext.current.applicationContext as dev.kolib.app.KoLibApp).updater
+        LaunchedEffect(Unit) {
+            kotlinx.coroutines.delay(2_500)
+            updater.lookIfDue()
+        }
+        dev.kolib.app.ui.update.UpdateWindow(updater)
+        // The chat with the model, asked for from the library: about the books in it.
+        if (showChat) dev.kolib.app.ui.ai.AiChatWindow(dev.kolib.app.ui.ai.ChatPlace.Library(books, readingHere), onDismiss = { showChat = false })
         if (showLanguage) dev.kolib.app.ui.library.LanguageDialog(
             onDismiss = { showLanguage = false },
             busy = job?.finished == false || state.syncing,
@@ -1368,6 +1380,7 @@ fun LookDialog(
                     HorizontalDivider(Modifier.padding(vertical = 10.dp))
                 }
                 FileManagerLine()
+                UpdateLines()
                 dev.kolib.app.ui.theme.ThemePicker(current, onPick)
                 if (onOpening != null) {
                     HorizontalDivider(Modifier.padding(vertical = 10.dp))
@@ -1414,6 +1427,26 @@ private fun SwitchLine(title: String, detail: String, on: Boolean, onChange: (Bo
 private fun koboNoticeShown(section: Section, overlay: String?) =
     overlay == null && (section == Section.KOBO || section == Section.LIBRARY)
 
+
+/** Looking for a newer KoLib: now, and whether to by itself when the app starts. */
+@Composable
+private fun UpdateLines() {
+    val updater = (androidx.compose.ui.platform.LocalContext.current.applicationContext as dev.kolib.app.KoLibApp).updater
+    var auto by remember { mutableStateOf(updater.auto) }
+    Row(
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).clickable { updater.lookNow() }.padding(vertical = 10.dp, horizontal = 4.dp).testTag("settings-update"),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(Icons.Outlined.SystemUpdate, null, Modifier.padding(horizontal = 10.dp))
+        Spacer(Modifier.width(4.dp))
+        Column(Modifier.weight(1f)) {
+            Text(tr("Check for updates"), style = MaterialTheme.typography.titleSmall)
+            Text(tr("You have KoLib {0}.", updater.installed), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+    SwitchLine(tr("Check for updates automatically"), tr("Asks GitHub for the newest version when KoLib starts, once a day."), auto, { auto = it; updater.auto = it })
+    HorizontalDivider(Modifier.padding(vertical = 10.dp))
+}
 
 /** The file manager chosen to add books with, once one has been, with a way to choose another. */
 @Composable

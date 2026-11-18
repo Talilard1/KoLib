@@ -74,21 +74,58 @@ object Prompts {
 
     private fun chapterName(chapter: String) = if (chapter.isBlank()) "a chapter" else "the chapter “$chapter”"
 
-    /** How the companion behaves, for a conversation about the book. */
-    fun chatSystem(title: String, author: String?, chapter: String, percent: Int, answerIn: String): AiMessage = AiMessage.system(
-        "You are a reading companion inside an e-book reader. The reader is reading ${book(title, author)} and is $percent% of the way through" +
-            (if (chapter.isBlank()) "" else ", in the chapter “$chapter”") + ". " +
-            "With each question you are given passages from the part of the book they have read. Answer from those passages. " +
-            "Never give away anything that happens later in the book than where the reader is. " +
-            "If the passages don't answer the question, say so and tell them what the passages do show. " +
-            "Keep answers short: a few sentences, plain words, no markdown. Answer in $answerIn."
+    /**
+     * How the chat behaves, unless the user has written instructions of their own: these are what they see
+     * and can change. What the reader is reading and where they are in it is told to the model after them.
+     */
+    const val CHAT_DEFAULT =
+        "You are a reading companion in an e-book app, like a well-read friend. With a question you may be given notes: what the reader " +
+            "has read of a book so far, or a list of the books in their library. Treat them as things you remember, and never mention " +
+            "notes, passages or text you were given. You may also use what you know of a book in general: what kind of book it is and " +
+            "what it sets out to do. Never reveal anything that happens later in a book than where the reader is, unless they ask you to. " +
+            "If you don't know, say so. Keep answers short: a few sentences, plain words, no markdown."
+
+    private fun instructions(custom: String) = custom.trim().ifEmpty { CHAT_DEFAULT }
+
+    /** The chat's instructions for a question about the book being read: the reader's own or the usual ones, then where they are in it. */
+    fun chatSystem(title: String, author: String?, chapter: String, percent: Int, answerIn: String, about: String? = null, custom: String = ""): AiMessage = AiMessage.system(
+        instructions(custom) + "\n\n" +
+            "The reader is reading ${book(title, author)} and is $percent% of the way through" + (if (chapter.isBlank()) "" else ", in “$chapter”") + ". " +
+            (about?.replace(Regex("\\s+"), " ")?.trim()?.takeIf { it.length > 40 }?.let { "Its description: " + (if (it.length > 900) it.take(900) + "…" else it) + " " } ?: "") +
+            "Answer in $answerIn."
     )
 
-    /** A question, with the [passages] of the book that bear on it and the [latest] lines the reader has read. */
+    /** For questions asked from the library rather than from inside a book. */
+    fun librarySystem(books: Int, answerIn: String, custom: String = ""): AiMessage = AiMessage.system(
+        instructions(custom) + "\n\n" +
+            "The reader is in their library, which has $books " + (if (books == 1) "book" else "books") + ". The list you are given has each book's title, " +
+            "author, series, tags, and how far they've read where that's known. For questions about what they have, go by that list and don't add " +
+            "books that aren't on it. Answer in $answerIn."
+    )
+
+    /** For a question asked in a book with the reading of it turned off: the model answers from what it knows. */
+    fun plainSystem(title: String, author: String?, answerIn: String, custom: String = ""): AiMessage = AiMessage.system(
+        instructions(custom) + "\n\n" +
+            "The reader is reading ${book(title, author)}. You have not been shown any of it this time: answer from what you know. Answer in $answerIn."
+    )
+
+    /** A question about the library, with the [list] of its books (and how many more there wasn't room for). */
+    fun libraryQuestion(question: String, list: String, left: Int): AiMessage = AiMessage.user(
+        buildString {
+            if (list.isNotBlank()) {
+                append("Books in the library:\n").append(list.trim())
+                if (left > 0) append("\n(and ").append(left).append(" more not listed)")
+                append("\n\n")
+            }
+            append("Question: ").append(question.trim())
+        }
+    )
+
+    /** A question, with what of the book bears on it ([passages]) and the [latest] lines the reader has read. */
     fun chatQuestion(question: String, passages: String, latest: String): AiMessage = AiMessage.user(
         buildString {
-            if (passages.isNotBlank()) append("Passages from the book so far:\n").append(passages.trim()).append("\n\n")
-            if (latest.isNotBlank()) append("Where the reader is now:\n").append(latest.trim()).append("\n\n")
+            if (passages.isNotBlank()) append("What you remember of the book so far:\n").append(passages.trim()).append("\n\n")
+            if (latest.isNotBlank()) append("The pages the reader is on now:\n").append(latest.trim()).append("\n\n")
             append("Question: ").append(question.trim())
         }
     )

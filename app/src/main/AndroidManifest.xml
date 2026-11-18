@@ -4,6 +4,9 @@
     <!-- For finding covers online, when asked to, downloading the language data for text recognition, and talking
          to KoLib on the user's other devices on the same network. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Installing a newer KoLib from its GitHub releases, when the user says to. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION" />
     <!-- Scanning another device's pairing QR code. Asked for only when Scan QR code is tapped; KoLib works without it. -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
@@ -159,6 +162,7 @@
 
         <!-- Hears which file manager the user chose to add books with, to open it straight away the next time. -->
         <receiver android:name=".ui.components.FileManagerChosen" android:exported="false" />
+        <receiver android:name=".update.Updater$InstallReceiver" android:exported="false" />
 
         <!-- Keeps a download of an AI model going while the app is in the background. -->
         <service

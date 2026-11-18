@@ -81,6 +81,8 @@ import dev.kolib.app.ai.cleanAnswer
 import dev.kolib.app.reader.ReaderController
 import dev.kolib.app.tr
 import dev.kolib.app.ui.ai.AiSetupDialog
+import dev.kolib.app.ui.ai.ChatPane
+import dev.kolib.app.ui.ai.ChatPlace
 import dev.kolib.app.ui.components.Button
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -90,18 +92,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
-/** What's been asked and answered about the book while it's open: kept when the panel is closed and opened again. */
+/**
+ * The chapter's summary while the book is open: kept when the window is closed and opened again, and written
+ * on whether the window is open or not. Only Stop stops it.
+ */
 class CompanionState {
-    /** A question and its answer as it's written. */
-    class Turn(val question: String) {
-        val answer = MutableStateFlow("")
-        val failed = MutableStateFlow<String?>(null)
-    }
-
-    val turns = mutableStateListOf<Turn>()
-    /** The conversation as the model is given it. */
-    val history = ArrayList<AiMessage>()
-
+    val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + Dispatchers.Main)
+    var job by mutableStateOf<Job?>(null)
     val summary = MutableStateFlow("")
     /** What the model is doing for the summary ("Reading part 2 of 3…"), or null when it's doing nothing. */
     val stage = MutableStateFlow<String?>(null)
@@ -110,8 +107,6 @@ class CompanionState {
     /** Which chapter [summary] is of, and whether it's of the whole of it. */
     var summaryOf: Pair<Int, Boolean>? = null
 
-    /** How much of the book has been read for the question being answered (0 to 1); null when none is. */
-    val reading = MutableStateFlow<Float?>(null)
     var tab by mutableIntStateOf(0)
 }
 
@@ -152,7 +147,9 @@ fun BookCompanionSheet(controller: ReaderController, state: CompanionState, lang
                     IconButton(onClick = { setup = true }) { Icon(Icons.Outlined.Settings, tr("AI and dictionary settings")) }
                     IconButton(onClick = onDismiss) { Icon(Icons.Filled.Close, tr("Close")) }
                 }
-                if (state.tab == 0) SummaryTab(controller, state, hub, language) else AskTab(controller, state, hub, language)
+                // Asking is the app's one chat, here about this book: it's the same conversation as in the library.
+                if (state.tab == 0) SummaryTab(controller, state, hub, language)
+                else ChatPane((context.applicationContext as KoLibApp).chat, remember(controller, language) { ChatPlace.Book(controller, language) }, hub)
             }
         }
     }
@@ -164,14 +161,13 @@ fun BookCompanionSheet(controller: ReaderController, state: CompanionState, lang
 private fun ColumnScope.SummaryTab(controller: ReaderController, state: CompanionState, hub: AiHub, language: String?) {
     val context = LocalContext.current
     val store = (context.applicationContext as KoLibApp).summaries
-    val scope = rememberCoroutineScope()
+    val scope = state.scope
     val summary by state.summary.collectAsState()
     val stage by state.stage.collectAsState()
     val fraction by state.stageFraction.collectAsState()
     val failed by state.summaryFailed.collectAsState()
     val busy by hub.busy.collectAsState()
     var whole by remember { mutableStateOf(controller.chapterProgress >= 0.9f) }
-    var job by remember { mutableStateOf<Job?>(null) }
     // A summary of another chapter, or of more or less of this one, isn't the one asked for now.
     val current = state.summaryOf == (controller.chapterIndex to whole)
 
@@ -181,8 +177,8 @@ private fun ColumnScope.SummaryTab(controller: ReaderController, state: Companio
         val chapter = controller.chapterTitle
         val path = controller.chapters.getOrNull(index)?.path.orEmpty()
         val all = whole
-        job?.cancel()
-        job = scope.launch {
+        state.job?.cancel()
+        state.job = scope.launch {
             state.summaryFailed.value = null
             state.summary.value = ""
             state.summaryOf = index to all
@@ -251,7 +247,7 @@ private fun ColumnScope.SummaryTab(controller: ReaderController, state: Companio
                 if (fraction > 0f && fraction < 1f) LinearProgressIndicator(progress = { fraction }, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp))
                 else LinearProgressIndicator(Modifier.fillMaxWidth().padding(vertical = 8.dp))
                 if (summary.isNotBlank()) SummaryText(summary, writing = true)
-                TextButton(onClick = { job?.cancel() }) { Text(tr("Stop")) }
+                TextButton(onClick = { state.job?.cancel() }) { Text(tr("Stop")) }
             }
             current && failed != null -> {
                 Text(failed.orEmpty(), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
@@ -281,106 +277,4 @@ private fun SummaryText(text: String, writing: Boolean = false) {
         if (t.startsWith("- ") || t.startsWith("* ")) "•  " + t.substring(2).replace("**", "") else line.replace("**", "")
     }
     SelectionContainer { StreamingText(shown, writing, Modifier.testTag("companion-summary"), style = MaterialTheme.typography.bodyLarge) }
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun ColumnScope.AskTab(controller: ReaderController, state: CompanionState, hub: AiHub, language: String?) {
-    val scope = rememberCoroutineScope()
-    val reading by state.reading.collectAsState()
-    val busy by hub.busy.collectAsState()
-    var question by remember { mutableStateOf("") }
-    var job by remember { mutableStateOf<Job?>(null) }
-    val asking = job?.isActive == true
-    val scroll = rememberScrollState()
-    // What's newest stays in view: a question just asked, and its answer as it's written.
-    LaunchedEffect(state.turns.size, asking) { if (state.turns.isNotEmpty()) snapshotFlow { scroll.maxValue }.collect { scroll.scrollTo(it) } }
-
-    fun ask(text: String) {
-        val q = text.trim()
-        if (q.isEmpty() || job?.isActive == true) return
-        question = ""
-        val turn = CompanionState.Turn(q)
-        state.turns += turn
-        val index = controller.chapterIndex
-        val progress = controller.chapterProgress
-        val chapter = controller.chapterTitle
-        val percent = (controller.bookProgress * 100).roundToInt().coerceIn(0, 100)
-        job = scope.launch {
-            state.reading.value = 0f
-            try {
-                val chapters = withContext(Dispatchers.Default) { controller.readSoFar(index, progress) }
-                val book = BookAi.Book(controller.bookTitle, controller.bookAuthor, language)
-                val (end, error) = hub.use { engine ->
-                    BookAi.answer(
-                        engine, state.history, q, book, chapters, chapter, percent, Prompts.languageName(L10n.language),
-                        (engine as? LocalEngine)?.readSpeed,
-                        onProgress = { state.reading.value = it },
-                        onText = { piece ->
-                            state.reading.value = null
-                            turn.answer.update { it + piece }
-                        },
-                    ) to engine.lastError
-                }
-                if (end == AiEnd.FAILED) turn.failed.value = error ?: tr("The model couldn't answer.")
-                else if (end == AiEnd.TOO_LONG) turn.failed.value = tr("That's more than the model can take in at once. Try a shorter question.")
-            } catch (e: AiException) {
-                turn.failed.value = e.message
-            } finally {
-                state.reading.value = null
-                job = null
-            }
-        }
-    }
-
-    // The conversation is the part that grows; the box to ask in rides under it.
-    Column(Modifier.weight(1f, fill = false).grows().verticalScroll(scroll).fillMaxWidth().padding(horizontal = 16.dp)) {
-        Text(
-            tr("Ask about the book. It answers from what you've read so far, so it won't give away what's ahead."),
-            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 8.dp, vertical = 10.dp),
-        )
-        if (state.turns.isEmpty()) {
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(horizontal = 8.dp)) {
-                listOf(tr("What has happened so far?"), tr("Who are the people in this chapter?"), tr("Where is this taking place?")).forEach { s ->
-                    AssistChip(onClick = { ask(s) }, label = { Text(s) })
-                }
-            }
-        }
-        state.turns.forEachIndexed { i, turn ->
-            val answer by turn.answer.collectAsState()
-            val failed by turn.failed.collectAsState()
-            val last = i == state.turns.size - 1
-            Box(Modifier.fillMaxWidth().padding(top = 10.dp), contentAlignment = Alignment.CenterEnd) {
-                Text(
-                    turn.question, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.widthIn(max = 420.dp).background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(18.dp)).padding(horizontal = 14.dp, vertical = 9.dp),
-                )
-            }
-            Column(Modifier.fillMaxWidth().padding(top = 8.dp, start = 8.dp, end = 24.dp)) {
-                if (answer.isNotBlank()) SelectionContainer {
-                    StreamingText(cleanAnswer(answer).replace("**", ""), last && asking, Modifier.testTag("companion-answer"), style = MaterialTheme.typography.bodyLarge)
-                }
-                else if (last && asking && failed == null) {
-                    val r = reading
-                    Text(
-                        if (busy == AiHub.State.OPENING) tr("Getting {0} ready…", hub.name()) else tr("Reading the book…"),
-                        style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    if (r != null && r > 0f && r < 1f) LinearProgressIndicator(progress = { r }, modifier = Modifier.width(180.dp).padding(top = 6.dp))
-                    else LinearProgressIndicator(Modifier.width(180.dp).padding(top = 6.dp))
-                }
-                failed?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error) }
-            }
-        }
-        Spacer(Modifier.height(8.dp))
-    }
-    Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 4.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-        OutlinedTextField(
-            value = question, onValueChange = { question = it }, placeholder = { Text(tr("Ask about the book")) },
-            modifier = Modifier.weight(1f).testTag("companion-question"), maxLines = 3, shape = RoundedCornerShape(24.dp),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send), keyboardActions = KeyboardActions(onSend = { ask(question) }),
-        )
-        if (asking) IconButton(onClick = { job?.cancel() }) { Icon(Icons.Filled.Stop, tr("Stop")) }
-            else IconButton(onClick = { ask(question) }, enabled = question.isNotBlank(), modifier = Modifier.testTag("companion-send")) { Icon(Icons.AutoMirrored.Filled.Send, tr("Ask")) }
-    }
 }

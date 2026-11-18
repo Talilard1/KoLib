@@ -96,6 +96,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.testTag
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -292,6 +294,9 @@ internal fun PhoneLibraryScreen(
                     KoLibMark(Modifier.size(34.dp), glow = true)
                     Spacer(Modifier.width(10.dp))
                     Text(tr("Library"), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+                    dev.kolib.app.ui.ai.LocalOpenAiChat.current?.let { open ->
+                        IconButton(onClick = open, modifier = Modifier.testTag("library-ai")) { Icon(Icons.Outlined.AutoAwesome, tr("AI chat")) }
+                    }
                     var menu by remember { mutableStateOf(false) }
                     Box {
                         IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, tr("More options")) }
@@ -321,6 +326,9 @@ internal fun PhoneLibraryScreen(
                         onHelp = { showHelp = true },
                         modifier = Modifier.weight(1f),
                     )
+                    dev.kolib.app.ui.ai.LocalOpenAiChat.current?.let { open ->
+                        IconButton(onClick = open, modifier = Modifier.size(40.dp).testTag("library-ai")) { Icon(Icons.Outlined.AutoAwesome, tr("AI chat")) }
+                    }
                     PhoneListMenu(
                         grid = browse.grid,
                         onSelect = { browse.selecting = true },

@@ -149,6 +149,17 @@ class ReadingSetupTest {
 
         // What shows round the page: the headings, the time and battery, and the progress bar.
         compose.onNodeWithText("Around the page").assertIsDisplayed()
+        // A chapter's first page has no heading over it, so this step isn't shown on one: it turns to the next page.
+        // (The page here is a stand-in that can't turn.) A book with a single page is given the headings on that page.
+        assertFalse(c.headsOnOpenings)
+        assertTrue(c.shownPages.single().opening)
+        c.showForPreview(0, 0, 1)
+        settle()
+        assertTrue(c.headsOnOpenings)
+        assertFalse(c.shownPages.single().opening)
+        c.showForPreview(0, 0, 3)
+        settle()
+        assertFalse(c.headsOnOpenings)
         tap("heads-Bottom")
         assertEquals(RunningHeads.BOTTOM, c.settings.runningHeads)
         // With the headings at the foot, the time and the battery are in the top corners.

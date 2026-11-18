@@ -142,6 +142,8 @@ fun StreamingText(text: String, writing: Boolean, modifier: Modifier = Modifier,
 fun FloatingWindow(onDismiss: () -> Unit, modifier: Modifier = Modifier, maxWidth: Dp = 560.dp, content: @Composable ColumnScope.() -> Unit) {
     // The window itself fills the screen and stays still: only the card in it changes size, which is what keeps that smooth.
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        // A dialog is a window of its own: a pen's tap on a text box in it opens the keyboard, as in the app's other dialogs.
+        PenTapsOpenTheKeyboard {
         val shown = remember { Animatable(0f) }
         LaunchedEffect(Unit) { shown.animateTo(1f, spring(dampingRatio = 0.85f, stiffness = 420f)) }
         Box(
@@ -162,6 +164,7 @@ fun FloatingWindow(onDismiss: () -> Unit, modifier: Modifier = Modifier, maxWidt
             ) {
                 Column(content = content)
             }
+        }
         }
     }
 }

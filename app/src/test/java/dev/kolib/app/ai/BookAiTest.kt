@@ -105,13 +105,13 @@ class BookAiTest {
         assertEquals(AiEnd.DONE, end)
         assertEquals("He is Tobias's brother.", said.toString())
         val asked = engine.asked.single()
-        assertTrue(asked.first().content.contains("12% of the way through, in the chapter “The Dark Lamp”"))
-        assertTrue(asked.first().content.contains("Never give away"))
+        assertTrue(asked.first().content.contains("12% of the way through, in “The Dark Lamp”"))
+        assertTrue(asked.first().content.contains("Never reveal anything that happens later"))
         val question = asked.last().content
         // The passage about him, under its chapter's name; the latest lines read; then the question.
         assertTrue(question.contains("[The Ferry]\n"))
         assertTrue(question.contains("“My brother Ansel looked at it straight,” he said."))
-        assertTrue(question.contains("Where the reader is now:\n") && question.contains("She blew the whistle."))
+        assertTrue(question.contains("The pages the reader is on now:\n") && question.contains("She blew the whistle."))
         assertTrue(question.endsWith("Question: Who is Ansel?"))
         // The conversation remembers both.
         assertEquals(listOf("user", "assistant"), history.map { it.role })
@@ -127,7 +127,7 @@ class BookAiTest {
         val engine = FakeEngine { "The wind dropped and she blew the whistle." }
         BookAi.answer(engine, ArrayList(), "What has happened so far?", book, read, "The Dark Lamp", 12, "English", null, {}) {}
         val question = engine.asked.single().last().content
-        assertFalse(question.contains("Passages from the book so far"))
+        assertFalse(question.contains("What you remember of the book so far"))
         assertTrue(question.contains("Old Tobias Wren met her on the quay.") && question.contains("She blew the whistle."))
     }
 

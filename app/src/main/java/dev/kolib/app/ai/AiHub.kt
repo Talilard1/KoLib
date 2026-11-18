@@ -66,6 +66,7 @@ class AiHub(
     @Synchronized
     fun download(model: AiModel) {
         if (downloadJobs[model.id]?.isActive == true) return
+        if (models.isOwn(model)) found.value = found.value + (model.id to model)
         downloadStates.value = downloadStates.value + (model.id to AiDownload(models.partBytes(model), model.bytes))
         downloadJobs[model.id] = scope.launch(Dispatchers.IO) {
             var last = 0L
@@ -78,9 +79,10 @@ class AiHub(
                     }
                 }
                 downloadStates.value = downloadStates.value - model.id
+                found.value = found.value - model.id
                 filesChanged.value++
                 // The first model downloaded is the one used, with nothing else to do.
-                if (!ready()) settingsStore.set(settings.value.copy(source = "model:${model.id}"))
+                if (!ready()) settingsStore.set(settings.value.copy(source = sourceOf(model)))
             } catch (e: ModelStore.StoppedException) {
                 downloadStates.value = downloadStates.value - model.id
                 filesChanged.value++
@@ -97,7 +99,17 @@ class AiHub(
     fun stopDownload(model: AiModel) {
         downloadJobs.remove(model.id)?.cancel()
         downloadStates.value = downloadStates.value - model.id
+        found.value = found.value - model.id
     }
+
+    /**
+     * The models found for the user (on Hugging Face) that are being downloaded, or whose download stopped
+     * with an error: by what they're known by.
+     */
+    val found = MutableStateFlow<Map<String, AiModel>>(emptyMap())
+
+    /** What the settings call [model] when it's the one used. */
+    fun sourceOf(model: AiModel): String = if (models.isOwn(model)) "own:" + models.ownName(models.file(model)) else "model:${model.id}"
 
     val downloading: Boolean get() = downloadStates.value.values.any { it.error == null }
 

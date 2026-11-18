@@ -57,6 +57,14 @@ class KoLibApp : Application() {
         }
         @Synchronized set(value) { aiHub = value }
 
+    /** Looking for a newer KoLib on GitHub, and installing it. */
+    val updater: dev.kolib.app.update.Updater by lazy { dev.kolib.app.update.Updater(this, appScope) }
+
+    /** The chat with the model: the same conversation wherever it's opened from, and the ones kept before it. */
+    val chat: dev.kolib.app.ui.ai.ChatSession by lazy {
+        dev.kolib.app.ui.ai.ChatSession(dev.kolib.app.ai.ChatStore(java.io.File(filesDir, "ai/chats")), prefs = getSharedPreferences("ai", MODE_PRIVATE))
+    }
+
     /** Chapter summaries the model has written, kept so they're there at once the next time. */
     val summaries: dev.kolib.app.ai.SummaryStore by lazy { dev.kolib.app.ai.SummaryStore(java.io.File(filesDir, "ai/summaries.json")) }
 

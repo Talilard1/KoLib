@@ -61,6 +61,8 @@ class ReaderController(
     private val assets: android.content.res.AssetManager,
     /** For quotes shared from the book. */
     val bookAuthor: String? = null,
+    /** What the book says it's about (its description, as plain words), for the chat to know. */
+    val bookDescription: String? = null,
     /** The book's number in its series, if it has one: a title starting with it has it there to sort by. */
     private val bookSeriesIndex: Double? = null,
     /**
@@ -123,6 +125,11 @@ class ReaderController(
     var controlsVisible by mutableStateOf(false)
     /** A tap in the middle of the page doesn't bring up the controls: the reading setup isn't up to them yet. */
     var menuLocked = false
+    /**
+     * A chapter's first page is given its heading like any other page: for the reading setup, where the
+     * headings are being chosen and there's no other page to show them on.
+     */
+    var headsOnOpenings by mutableStateOf(false)
     var note by mutableStateOf<ReaderNote?>(null)
     var image by mutableStateOf<String?>(null)
 
@@ -421,7 +428,7 @@ class ReaderController(
                 }
                 // A page on its own (an epigraph, a dedication) has its number but no title over it, as in print.
                 val alone = blankBefore > 0 && chapterPages == 1
-                ShownPage(slot, number, side, opening = alone || (inChapter == 0 && startsChapter(chapterIndex)))
+                ShownPage(slot, number, side, opening = !headsOnOpenings && (alone || (inChapter == 0 && startsChapter(chapterIndex))))
             }
         }
 

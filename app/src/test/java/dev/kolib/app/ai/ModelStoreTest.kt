@@ -106,6 +106,28 @@ class ModelStoreTest {
     }
 
     @Test
+    fun aModelFoundOnHuggingFaceIsDownloadedAsOneOfTheUsersOwn() {
+        val store = store()
+        val found = ModelSearch.asModel(FoundFile("maker/Test-GGUF", "Test-Q4_K_M.gguf", content.size.toLong(), sum, "Q4_K_M"), "mit")
+        assertEquals("https://huggingface.co/maker/Test-GGUF/resolve/main/Test-Q4_K_M.gguf", found.url)
+        val asked = ArrayList<String>()
+        store.download(found, { url, from -> asked += url; serve()(url, from) })
+        assertEquals(listOf(found.url), asked)
+        // Checked against what Hugging Face says the file is, and then listed with the user's own models.
+        assertTrue(store.installed(found))
+        assertEquals(listOf("Test-Q4_K_M"), store.own().map { store.ownName(it) })
+        assertEquals(content.size.toLong(), store.storedBytes())
+        // One that doesn't match is thrown away.
+        val wrong = ModelSearch.asModel(FoundFile("maker/Test-GGUF", "Other-Q4_K_M.gguf", content.size.toLong(), "0".repeat(64), "Q4_K_M"), null)
+        assertThrows(IOException::class.java) { store.download(wrong, serve()) }
+        assertFalse(store.installed(wrong))
+        assertEquals(1, store.own().size)
+        // Deleted like any other.
+        store.delete(found)
+        assertTrue(store.own().isEmpty())
+    }
+
+    @Test
     fun theUsersOwnModelIsKeptIfItsAGgufFile() {
         val store = store()
         val gguf = "GGUF".toByteArray() + ByteArray(5000) { 7 }

@@ -98,6 +98,18 @@ object BookText {
         "happened", "happen", "happens", "book", "chapter", "story", "far", "again", "explain", "mean", "means",
     )
 
+    private val frontRe = Regex(
+        "(?i)^\\W*(cover|title(\\s*page)?|half[- ]?title|copyright( page)?|dedication|epigraph|(table of )?contents|foreword|introduction|preface|prologue to the .* edition|" +
+            "acknowledge?ments?|about the (author|publisher|book|illustrator)s?|also by.*|books by.*|praise( for.*)?|maps?|list of (maps|illustrations)|illustrations|" +
+            "a note (on|from|about).*|author'?s?’?s? note|publisher'?s?’?s? note|imprint|frontispiece)\\W*$"
+    )
+
+    /**
+     * Whether a part of a book called [name] is what's put round the book rather than the book itself: its
+     * title page, the copyright, an introduction or foreword, the acknowledgements.
+     */
+    fun frontMatter(name: String): Boolean = frontRe.matches(name.trim())
+
     /** The words of a question worth looking for in the book: its names and its uncommon words. */
     fun keywords(question: String): List<String> =
         wordRe.findAll(question).map { it.value }.filter { it.length > 1 && it.lowercase() !in common }.distinctBy { it.lowercase() }.toList()

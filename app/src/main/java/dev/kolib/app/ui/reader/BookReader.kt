@@ -85,6 +85,7 @@ fun BookReader(
                     initialSettings = settings.usual(landscape).let { usual -> store.look(usual, landscape)?.let { usual.withLookOf(it) } ?: usual },
                     assets = context.assets,
                     bookAuthor = book.authorLine,
+                    bookDescription = book.meta.description?.let { dev.kolib.app.epub.EpubText.plainText(it).replace(Regex("\\s+"), " ").trim() },
                     bookSeriesIndex = book.meta.seriesIndex,
                     koboSpans = koboSpans,
                     session = session,

@@ -164,10 +164,10 @@ class PageHeadsTest {
         val below = on.withHeads(RunningHeads.BOTTOM)
         assertEquals(MarginSpot.TOP_RIGHT, below.spotOf(MarginItem.CLOCK))
         assertEquals(MarginSpot.TOP_CENTER, below.spotOf(MarginItem.BATTERY))
-        // Off: the chapter's title and the page number come back where they were.
+        // Off: nothing comes on in their place. The chapter's title and the page number stay off until they're asked for.
         val off = on.withHeads(RunningHeads.OFF)
-        assertEquals(MarginSpot.TOP_CENTER, off.spotOf(MarginItem.CHAPTER))
-        assertEquals(MarginSpot.BOTTOM_LEFT, off.spotOf(MarginItem.PAGE))
+        MarginItem.IN_HEADINGS.forEach { assertEquals(it.name, MarginSpot.OFF, off.spotOf(it)) }
+        assertEquals(on.marginItems, off.marginItems)
         // To start with, they're on, at the top, with nothing else at the top.
         val fresh = ReaderSettings()
         assertEquals(RunningHeads.TOP, fresh.runningHeads)

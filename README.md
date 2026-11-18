@@ -51,6 +51,11 @@ Get the latest APK from [Releases](https://github.com/Talilard1/KoLib/releases/l
 - Optional AI that runs on your device, with no account: chapter summaries, and questions about the
   book answered from what you've read so far. Choose a model to suit your device, add your own, or
   use your own server.
+- An AI chat on the main page too. It knows what's in your library, keeps answering if you close
+  it, and saves your chats so you can come back to them. You can edit a message and ask again, and
+  change the instructions it's given.
+- Find more models from inside the app: search Hugging Face, see which ones suit your device, and
+  download any of them. A storage bar shows how much room each model takes.
 - A comic reader modelled on [Mihon](https://github.com/mihonapp/mihon)'s.
 - Reading stats, including the reading time recorded by your Kobo.
 - Edit titles, authors, series, tags and covers. Find covers online, or generate one from 123
@@ -59,6 +64,8 @@ Get the latest APK from [Releases](https://github.com/Talilard1/KoLib/releases/l
 - An AI assistant in the editor: it fixes spelling, tidies formatting, rewrites what you select or
   carries on writing, and asks before it changes your text.
 - A guided setup for the reader and a tour of the text editor, the first time you open them.
+- Updates from inside the app: KoLib tells you when there's a new version, shows what's new, and
+  downloads and installs it.
 - Convert Word, PDF, MOBI, FB2, text and comic files to EPUB, and scanned PDFs to text with
   on-device OCR.
 - Sync books and reading position between your phone and tablet over Wi-Fi. Pair them with a QR code.
@@ -121,7 +128,9 @@ Tested with a Kobo Clara 2E. Other Kobo e-readers store books the same way and s
 ## Privacy
 
 Your books stay on your devices and your Kobo. KoLib only goes online to search for covers, to look
-a word up in Wiktionary, and to download OCR language data or an AI model when you ask for one.
+a word up in Wiktionary, to download OCR language data or an AI model when you ask for one, to
+search Hugging Face when you look for a model, and to ask GitHub once a day whether there's a new
+version. You can turn that check off in Settings.
 
 AI models run on your device: nothing you read is sent anywhere. If you choose to use a server of
 your own instead, the words you look up and the pages around them are sent to that server.

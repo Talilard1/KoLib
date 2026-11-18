@@ -33,6 +33,12 @@ class ModelStore(val dir: File) {
 
     fun freeBytes(): Long = (dir.takeIf { it.exists() } ?: dir.parentFile ?: dir).usableSpace
 
+    /** How much the storage the models are kept on holds in all. */
+    fun totalBytes(): Long = generateSequence(dir) { it.parentFile }.firstOrNull { it.exists() }?.totalSpace ?: 0L
+
+    /** Whether [model] is one found or added by the user, kept with their own. */
+    fun isOwn(model: AiModel): Boolean = model.id.startsWith(OWN)
+
     fun storedBytes(): Long = dir.listFiles()?.sumOf { it.length() } ?: 0L
 
     fun delete(model: AiModel) {
@@ -110,8 +116,7 @@ class ModelStore(val dir: File) {
      */
     fun addOwn(name: String, input: InputStream, stillWanted: () -> Boolean = { true }, progress: (Long) -> Unit = {}): File {
         dir.mkdirs()
-        val clean = name.substringAfterLast('/').removeSuffix(".gguf").replace(Regex("[^\\p{L}\\p{N}._ -]"), "_").trim().take(80).ifEmpty { "model" }
-        val file = ownFile(clean)
+        val file = ownFile(cleanName(name))
         val part = File(dir, file.name + ".part")
         try {
             part.outputStream().use { out ->
@@ -145,6 +150,13 @@ class ModelStore(val dir: File) {
 
     companion object {
         private const val OWN = "own-"
+
+        /** A model file's name as one of the user's own is kept under. */
+        fun cleanName(name: String): String =
+            name.substringAfterLast('/').removeSuffix(".gguf").replace(Regex("[^\\p{L}\\p{N}._ -]"), "_").trim().take(80).ifEmpty { "model" }
+
+        /** What a model found for the user is known by: downloaded, it's kept with their own, under its file's name. */
+        fun ownId(fileName: String): String = OWN + cleanName(fileName)
         /** Storage left free after a download. */
         private const val SPARE = 200L * 1024 * 1024
 

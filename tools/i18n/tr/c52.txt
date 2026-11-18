@@ -1,0 +1,496 @@
+@fr
+2909|Rechercher des mises à jour
+2910|Vous avez KoLib {0}.
+2911|Rechercher les mises à jour automatiquement
+2912|Demande à GitHub la dernière version au démarrage de KoLib, une fois par jour.
+2913|Avec un modèle d’IA configuré, vous pouvez poser ici des questions sur votre bibliothèque, et sur un livre pendant que vous le lisez.
+2914|Discussions enregistrées
+2915|Nouvelle discussion
+2916|Aucune discussion enregistrée pour l’instant.
+2917|Demandez ce que vous voulez. Il ne lit pas le livre : il répond d’après ce qu’il sait.
+2918|Posez des questions sur vos livres, ou sur autre chose. Il sait ce que contient votre bibliothèque.
+2919|Que lire ensuite ?
+2920|Lesquels de mes livres font partie d’une série ?
+2921|Modifier ce message
+2922|Modification de votre message : ce qui venait après disparaîtra.
+2923|Lit le livre
+2924|Posez une question sur vos livres
+2925|{0} · {1}
+2926|1 question
+2927|{0} questions
+2928|Supprimer cette discussion
+2929|Trouver un modèle
+2930|Tout le reste sur cet appareil
+2931|Le meilleur que cet appareil puisse faire tourner
+2932|Rechercher sur Hugging Face
+2933|Convient à cet appareil
+2934|Toutes les tailles
+2935|Non censuré
+2936|Depuis Hugging Face. Ce sont les modèles d’autres personnes, et KoLib ne les a pas vérifiés.
+2937|Impossible de joindre Hugging Face. Vérifiez la connexion internet.
+2938|Rien trouvé.
+2939|{0} téléchargements
+2940|Celui-ci doit d’abord être demandé sur Hugging Face : il ne peut pas être téléchargé ici.
+2941|Aucun fichier ici que KoLib puisse faire tourner.
+2942|Moins de tailles
+2943|Autres tailles
+2944|C’est juste : il peut être lent, ou fermer d’autres applis
+2945|Utilisé
+2946|Utiliser
+2947|Discussion avec l’IA
+2948|KoLib {0} est disponible
+2949|Téléchargement de KoLib {0}…
+2950|Installation de KoLib {0}…
+2951|Mises à jour
+2952|Recherche de mises à jour…
+2953|Vous avez la dernière version, {0}.
+2954|Impossible de rechercher des mises à jour. Vérifiez la connexion internet.
+2955|Vous avez la version {0}.
+2956|Il n’y a pas encore de téléchargement pour cet appareil dans cette version.
+2957|Ignorer cette version
+2958|Pas maintenant
+2959|Mettre à jour ({0})
+2960|Mettre à jour
+2961|Ouvrir la page de téléchargement
+2962|Android peut vous demander de confirmer. La première fois, il vous demande aussi d’autoriser KoLib à installer des mises à jour. KoLib se ferme pendant la mise à jour : rouvrez-le ensuite.
+2963|Nouveautés
+2964|La mise à jour n’a pas pu être installée : {0}
+2965|Ce téléchargement n’est pas une mise à jour de KoLib : il n’a pas été installé.
+2966|Ce téléchargement n’est pas plus récent que le KoLib que vous avez.
+2967|Instructions de la discussion
+2968|Ce qui est dit au modèle avant chaque question. Modifiez-le pour changer sa façon de répondre.
+2969|Utiliser les instructions habituelles
+@de
+2909|Nach Updates suchen
+2910|Du hast KoLib {0}.
+2911|Automatisch nach Updates suchen
+2912|Fragt GitHub beim Start von KoLib nach der neuesten Version, einmal am Tag.
+2913|Mit einem eingerichteten KI-Modell kannst du hier Fragen zu deiner Bibliothek stellen, und zu einem Buch, während du es liest.
+2914|Gespeicherte Chats
+2915|Neuer Chat
+2916|Noch keine gespeicherten Chats.
+2917|Frag, was du willst. Es liest das Buch nicht und antwortet aus dem, was es weiß.
+2918|Frag etwas zu deinen Büchern oder zu etwas anderem. Es weiß, was in deiner Bibliothek ist.
+2919|Was soll ich als Nächstes lesen?
+2920|Welche meiner Bücher gehören zu einer Reihe?
+2921|Diese Nachricht bearbeiten
+2922|Du änderst deine Nachricht: Was danach kam, verschwindet.
+2923|Liest das Buch
+2924|Frag etwas zu deinen Büchern
+2925|{0} · {1}
+2926|1 Frage
+2927|{0} Fragen
+2928|Diesen Chat löschen
+2929|Modell suchen
+2930|Alles andere auf diesem Gerät
+2931|Das beste, das dieses Gerät ausführen kann
+2932|Auf Hugging Face suchen
+2933|Passt zu diesem Gerät
+2934|Alle Größen
+2935|Unzensiert
+2936|Von Hugging Face. Das sind Modelle anderer Leute, und KoLib hat sie nicht geprüft.
+2937|Hugging Face ist nicht erreichbar. Prüfe die Internetverbindung.
+2938|Nichts gefunden.
+2939|{0} Downloads
+2940|Dieses muss erst auf Hugging Face angefragt werden und lässt sich hier nicht herunterladen.
+2941|Hier ist keine Datei, die KoLib ausführen kann.
+2942|Weniger Größen
+2943|Andere Größen
+2944|Knapp: Es kann langsam sein oder andere Apps schließen
+2945|In Verwendung
+2946|Verwenden
+2947|KI-Chat
+2948|KoLib {0} ist verfügbar
+2949|KoLib {0} wird heruntergeladen…
+2950|KoLib {0} wird installiert…
+2951|Updates
+2952|Suche nach Updates…
+2953|Du hast die neueste Version, {0}.
+2954|Die Suche nach Updates ist fehlgeschlagen. Prüfe die Internetverbindung.
+2955|Du hast {0}.
+2956|Für dieses Gerät gibt es in dieser Version noch keinen Download.
+2957|Diese Version überspringen
+2958|Nicht jetzt
+2959|Aktualisieren ({0})
+2960|Aktualisieren
+2961|Download-Seite öffnen
+2962|Android fragt vielleicht nach einer Bestätigung. Beim ersten Mal bittet es auch darum, KoLib das Installieren von Updates zu erlauben. KoLib schließt sich während des Updates: Öffne es danach wieder.
+2963|Was ist neu
+2964|Das Update konnte nicht installiert werden: {0}
+2965|Dieser Download ist kein KoLib-Update und wurde deshalb nicht installiert.
+2966|Dieser Download ist nicht neuer als dein KoLib.
+2967|Anweisungen für den Chat
+2968|Was dem Chat vor jeder Frage gesagt wird. Ändere es, um zu ändern, wie er antwortet.
+2969|Die üblichen Anweisungen verwenden
+@es
+2909|Buscar actualizaciones
+2910|Tienes KoLib {0}.
+2911|Buscar actualizaciones automáticamente
+2912|Pregunta a GitHub por la última versión al abrir KoLib, una vez al día.
+2913|Con un modelo de IA configurado, puedes preguntar aquí por tu biblioteca, y por un libro mientras lo lees.
+2914|Chats guardados
+2915|Chat nuevo
+2916|Aún no hay chats guardados.
+2917|Pregunta lo que quieras. No está leyendo el libro, así que responde con lo que sabe.
+2918|Pregunta por tus libros o por cualquier otra cosa. Sabe lo que hay en tu biblioteca.
+2919|¿Qué leo ahora?
+2920|¿Cuáles de mis libros son de una serie?
+2921|Editar este mensaje
+2922|Cambiando tu mensaje: lo que venía después se irá.
+2923|Lee el libro
+2924|Pregunta por tus libros
+2925|{0} · {1}
+2926|1 pregunta
+2927|{0} preguntas
+2928|Eliminar este chat
+2929|Buscar un modelo
+2930|Todo lo demás en este dispositivo
+2931|El mejor que puede ejecutar este dispositivo
+2932|Buscar en Hugging Face
+2933|Apto para este dispositivo
+2934|Todos los tamaños
+2935|Sin censura
+2936|De Hugging Face. Son modelos de otras personas, y KoLib no los ha revisado.
+2937|No se ha podido conectar con Hugging Face. Comprueba la conexión a internet.
+2938|No se ha encontrado nada.
+2939|{0} descargas
+2940|Este hay que solicitarlo antes en Hugging Face, así que no se puede descargar aquí.
+2941|Aquí no hay ningún archivo que KoLib pueda ejecutar.
+2942|Menos tamaños
+2943|Otros tamaños
+2944|Va justo: puede ir lento o cerrar otras apps
+2945|En uso
+2946|Usar
+2947|Chat con la IA
+2948|KoLib {0} está disponible
+2949|Descargando KoLib {0}…
+2950|Instalando KoLib {0}…
+2951|Actualizaciones
+2952|Buscando actualizaciones…
+2953|Tienes la última versión, {0}.
+2954|No se han podido buscar actualizaciones. Comprueba la conexión a internet.
+2955|Tienes la {0}.
+2956|Aún no hay descarga para este dispositivo en esa versión.
+2957|Omitir esta versión
+2958|Ahora no
+2959|Actualizar ({0})
+2960|Actualizar
+2961|Abrir la página de descarga
+2962|Puede que Android te pida confirmarlo. La primera vez, también te pide que permitas a KoLib instalar actualizaciones. KoLib se cierra mientras se actualiza: ábrelo de nuevo después.
+2963|Novedades
+2964|No se ha podido instalar la actualización: {0}
+2965|Esa descarga no es una actualización de KoLib, así que no se ha instalado.
+2966|Esa descarga no es más nueva que el KoLib que tienes.
+2967|Instrucciones del chat
+2968|Lo que se le dice al chat antes de cada pregunta. Cámbialo para cambiar cómo responde.
+2969|Usar las instrucciones habituales
+@it
+2909|Cerca aggiornamenti
+2910|Hai KoLib {0}.
+2911|Cerca aggiornamenti automaticamente
+2912|Chiede a GitHub l’ultima versione all’avvio di KoLib, una volta al giorno.
+2913|Con un modello IA configurato, qui puoi fare domande sulla tua libreria, e su un libro mentre lo leggi.
+2914|Chat salvate
+2915|Nuova chat
+2916|Ancora nessuna chat salvata.
+2917|Chiedi quello che vuoi. Non sta leggendo il libro, quindi risponde con ciò che sa.
+2918|Chiedi dei tuoi libri, o di qualsiasi altra cosa. Sa cosa c’è nella tua libreria.
+2919|Cosa leggo adesso?
+2920|Quali dei miei libri fanno parte di una serie?
+2921|Modifica questo messaggio
+2922|Stai cambiando il tuo messaggio: ciò che veniva dopo sparirà.
+2923|Legge il libro
+2924|Chiedi dei tuoi libri
+2925|{0} · {1}
+2926|1 domanda
+2927|{0} domande
+2928|Elimina questa chat
+2929|Trova un modello
+2930|Tutto il resto su questo dispositivo
+2931|Il migliore che questo dispositivo può eseguire
+2932|Cerca su Hugging Face
+2933|Adatto a questo dispositivo
+2934|Tutte le dimensioni
+2935|Senza censura
+2936|Da Hugging Face. Sono modelli di altre persone, e KoLib non li ha controllati.
+2937|Impossibile raggiungere Hugging Face. Controlla la connessione a internet.
+2938|Nessun risultato.
+2939|{0} download
+2940|Questo va prima richiesto su Hugging Face, quindi non si può scaricare qui.
+2941|Qui non c’è nessun file che KoLib possa eseguire.
+2942|Meno dimensioni
+2943|Altre dimensioni
+2944|Ci sta a fatica: può essere lento o chiudere altre app
+2945|In uso
+2946|Usa
+2947|Chat IA
+2948|KoLib {0} è disponibile
+2949|Download di KoLib {0}…
+2950|Installazione di KoLib {0}…
+2951|Aggiornamenti
+2952|Ricerca di aggiornamenti…
+2953|Hai l’ultima versione, {0}.
+2954|Impossibile cercare aggiornamenti. Controlla la connessione a internet.
+2955|Hai la {0}.
+2956|In quella versione non c’è ancora un download per questo dispositivo.
+2957|Salta questa versione
+2958|Non ora
+2959|Aggiorna ({0})
+2960|Aggiorna
+2961|Apri la pagina di download
+2962|Android potrebbe chiederti di confermare. La prima volta ti chiede anche di consentire a KoLib di installare aggiornamenti. KoLib si chiude durante l’aggiornamento: riaprilo dopo.
+2963|Novità
+2964|Impossibile installare l’aggiornamento: {0}
+2965|Quel download non è un aggiornamento di KoLib, quindi non è stato installato.
+2966|Quel download non è più recente del KoLib che hai.
+2967|Istruzioni della chat
+2968|Ciò che viene detto alla chat prima di ogni domanda. Cambialo per cambiare il modo in cui risponde.
+2969|Usa le istruzioni abituali
+@nl
+2909|Controleren op updates
+2910|Je hebt KoLib {0}.
+2911|Automatisch controleren op updates
+2912|Vraagt GitHub bij het starten van KoLib naar de nieuwste versie, één keer per dag.
+2913|Met een ingesteld AI-model kun je hier vragen stellen over je bibliotheek, en over een boek terwijl je het leest.
+2914|Bewaarde chats
+2915|Nieuwe chat
+2916|Nog geen bewaarde chats.
+2917|Vraag wat je wilt. Het leest het boek niet en antwoordt met wat het weet.
+2918|Vraag iets over je boeken, of iets anders. Het weet wat er in je bibliotheek staat.
+2919|Wat zal ik hierna lezen?
+2920|Welke van mijn boeken horen bij een serie?
+2921|Dit bericht bewerken
+2922|Je wijzigt je bericht: wat erna kwam, verdwijnt.
+2923|Leest het boek
+2924|Vraag iets over je boeken
+2925|{0} · {1}
+2926|1 vraag
+2927|{0} vragen
+2928|Deze chat verwijderen
+2929|Een model zoeken
+2930|Al het andere op dit apparaat
+2931|Het beste dat dit apparaat kan draaien
+2932|Zoeken op Hugging Face
+2933|Past bij dit apparaat
+2934|Alle groottes
+2935|Ongecensureerd
+2936|Van Hugging Face. Dit zijn modellen van andere mensen, en KoLib heeft ze niet gecontroleerd.
+2937|Hugging Face is niet bereikbaar. Controleer de internetverbinding.
+2938|Niets gevonden.
+2939|{0} downloads
+2940|Deze moet eerst op Hugging Face worden aangevraagd en kan hier dus niet worden gedownload.
+2941|Hier staat geen bestand dat KoLib kan draaien.
+2942|Minder groottes
+2943|Andere groottes
+2944|Krap: het kan traag zijn of andere apps sluiten
+2945|In gebruik
+2946|Gebruiken
+2947|AI-chat
+2948|KoLib {0} is beschikbaar
+2949|KoLib {0} downloaden…
+2950|KoLib {0} installeren…
+2951|Updates
+2952|Controleren op updates…
+2953|Je hebt de nieuwste versie, {0}.
+2954|Kon niet controleren op updates. Controleer de internetverbinding.
+2955|Je hebt {0}.
+2956|Voor dit apparaat is er in die versie nog geen download.
+2957|Deze versie overslaan
+2958|Niet nu
+2959|Bijwerken ({0})
+2960|Bijwerken
+2961|De downloadpagina openen
+2962|Android kan je vragen om te bevestigen. De eerste keer vraagt het ook of KoLib updates mag installeren. KoLib sluit tijdens het bijwerken: open het daarna opnieuw.
+2963|Wat is er nieuw
+2964|De update kon niet worden geïnstalleerd: {0}
+2965|Die download is geen update van KoLib en is dus niet geïnstalleerd.
+2966|Die download is niet nieuwer dan de KoLib die je hebt.
+2967|Instructies voor de chat
+2968|Wat de chat vóór elke vraag te horen krijgt. Wijzig het om te veranderen hoe hij antwoordt.
+2969|De gebruikelijke instructies gebruiken
+@pt
+2909|Procurar atualizações
+2910|Você tem o KoLib {0}.
+2911|Procurar atualizações automaticamente
+2912|Pergunta ao GitHub pela versão mais recente quando o KoLib abre, uma vez por dia.
+2913|Com um modelo de IA configurado, você pode perguntar aqui sobre a sua biblioteca, e sobre um livro enquanto o lê.
+2914|Conversas salvas
+2915|Nova conversa
+2916|Nenhuma conversa salva ainda.
+2917|Pergunte o que quiser. Ele não está lendo o livro, então responde com o que sabe.
+2918|Pergunte sobre seus livros, ou qualquer outra coisa. Ele sabe o que há na sua biblioteca.
+2919|O que devo ler em seguida?
+2920|Quais dos meus livros fazem parte de uma série?
+2921|Editar esta mensagem
+2922|Alterando sua mensagem: o que veio depois dela será removido.
+2923|Lê o livro
+2924|Pergunte sobre seus livros
+2925|{0} · {1}
+2926|1 pergunta
+2927|{0} perguntas
+2928|Excluir esta conversa
+2929|Encontrar um modelo
+2930|Todo o resto neste aparelho
+2931|O melhor que este aparelho consegue rodar
+2932|Procurar no Hugging Face
+2933|Adequado para este aparelho
+2934|Todos os tamanhos
+2935|Sem censura
+2936|Do Hugging Face. São modelos de outras pessoas, e o KoLib não os verificou.
+2937|Não foi possível acessar o Hugging Face. Verifique a conexão com a internet.
+2938|Nada encontrado.
+2939|{0} downloads
+2940|Este precisa ser solicitado antes no Hugging Face, então não pode ser baixado aqui.
+2941|Não há aqui nenhum arquivo que o KoLib consiga rodar.
+2942|Menos tamanhos
+2943|Outros tamanhos
+2944|Fica apertado: pode ficar lento ou fechar outros apps
+2945|Em uso
+2946|Usar
+2947|Conversa com a IA
+2948|O KoLib {0} está disponível
+2949|Baixando o KoLib {0}…
+2950|Instalando o KoLib {0}…
+2951|Atualizações
+2952|Procurando atualizações…
+2953|Você tem a versão mais recente, {0}.
+2954|Não foi possível procurar atualizações. Verifique a conexão com a internet.
+2955|Você tem a {0}.
+2956|Ainda não há download para este aparelho nessa versão.
+2957|Pular esta versão
+2958|Agora não
+2959|Atualizar ({0})
+2960|Atualizar
+2961|Abrir a página de download
+2962|O Android pode pedir que você confirme. Na primeira vez, ele também pede para permitir que o KoLib instale atualizações. O KoLib fecha enquanto é atualizado: abra-o de novo depois.
+2963|Novidades
+2964|Não foi possível instalar a atualização: {0}
+2965|Esse download não é uma atualização do KoLib, então não foi instalado.
+2966|Esse download não é mais novo que o KoLib que você tem.
+2967|Instruções da conversa
+2968|O que é dito à conversa antes de cada pergunta. Altere para mudar a forma como ela responde.
+2969|Usar as instruções habituais
+@ru
+2909|Проверить обновления
+2910|У вас KoLib {0}.
+2911|Проверять обновления автоматически
+2912|При запуске KoLib спрашивает у GitHub последнюю версию, раз в день.
+2913|Если настроена модель ИИ, здесь можно спрашивать о своей библиотеке, а во время чтения — о книге.
+2914|Сохранённые чаты
+2915|Новый чат
+2916|Сохранённых чатов пока нет.
+2917|Спрашивайте что угодно. Он не читает книгу и отвечает из того, что знает.
+2918|Спросите о своих книгах или о чём угодно. Он знает, что есть в вашей библиотеке.
+2919|Что мне почитать дальше?
+2920|Какие из моих книг входят в серии?
+2921|Изменить это сообщение
+2922|Вы меняете сообщение: всё, что было после него, исчезнет.
+2923|Читает книгу
+2924|Спросите о своих книгах
+2925|{0} · {1}
+2926|1 вопрос
+2927|Вопросов: {0}
+2928|Удалить этот чат
+2929|Найти модель
+2930|Всё остальное на этом устройстве
+2931|Лучшая из тех, что потянет это устройство
+2932|Поиск на Hugging Face
+2933|Подходит этому устройству
+2934|Все размеры
+2935|Без цензуры
+2936|С Hugging Face. Это модели других людей, KoLib их не проверял.
+2937|Не удалось связаться с Hugging Face. Проверьте подключение к интернету.
+2938|Ничего не найдено.
+2939|Загрузок: {0}
+2940|Эту нужно сначала запросить на Hugging Face, поэтому здесь её не загрузить.
+2941|Здесь нет файла, который KoLib может запустить.
+2942|Меньше размеров
+2943|Другие размеры
+2944|Впритык: может работать медленно или закрывать другие приложения
+2945|Используется
+2946|Использовать
+2947|Чат с ИИ
+2948|Доступен KoLib {0}
+2949|Загрузка KoLib {0}…
+2950|Установка KoLib {0}…
+2951|Обновления
+2952|Проверка обновлений…
+2953|У вас последняя версия, {0}.
+2954|Не удалось проверить обновления. Проверьте подключение к интернету.
+2955|У вас {0}.
+2956|Для этого устройства в этой версии пока нет файла.
+2957|Пропустить эту версию
+2958|Не сейчас
+2959|Обновить ({0})
+2960|Обновить
+2961|Открыть страницу загрузки
+2962|Android может попросить подтверждения. В первый раз он также попросит разрешить KoLib устанавливать обновления. На время обновления KoLib закроется: потом откройте его снова.
+2963|Что нового
+2964|Не удалось установить обновление: {0}
+2965|Этот файл — не обновление KoLib, поэтому он не установлен.
+2966|Этот файл не новее того KoLib, что у вас есть.
+2967|Инструкции для чата
+2968|То, что сообщается чату перед каждым вопросом. Измените, чтобы он отвечал иначе.
+2969|Вернуть обычные инструкции
+@ja
+2909|アップデートを確認
+2910|KoLib {0} を使用中です。
+2911|アップデートを自動で確認
+2912|KoLibの起動時に、1日1回GitHubで最新バージョンを確認します。
+2913|AIモデルを設定すると、ここでライブラリについて、また読書中にはその本について質問できます。
+2914|保存したチャット
+2915|新しいチャット
+2916|保存したチャットはまだありません。
+2917|何でも質問できます。本は読まずに、知っていることから答えます。
+2918|自分の本のことや、ほかのことも質問できます。ライブラリの内容を把握しています。
+2919|次は何を読めばいい？
+2920|シリーズものの本はどれ？
+2921|このメッセージを編集
+2922|メッセージを変更中：これより後のやり取りは消えます。
+2923|本を読む
+2924|自分の本について質問する
+2925|{0} · {1}
+2926|質問 1件
+2927|質問 {0}件
+2928|このチャットを削除
+2929|モデルを探す
+2930|この端末のその他すべて
+2931|この端末で動かせる最良のモデル
+2932|Hugging Faceで検索
+2933|この端末に適しています
+2934|すべてのサイズ
+2935|無検閲
+2936|Hugging Faceから。ほかの人が作ったモデルで、KoLibは内容を確認していません。
+2937|Hugging Faceに接続できませんでした。インターネット接続を確認してください。
+2938|見つかりませんでした。
+2939|ダウンロード {0}回
+2940|これはHugging Faceで事前に申請が必要なため、ここではダウンロードできません。
+2941|KoLibで動かせるファイルがここにはありません。
+2942|サイズを減らす
+2943|ほかのサイズ
+2944|ぎりぎりです：遅くなったり、ほかのアプリが閉じられたりすることがあります
+2945|使用中
+2946|使う
+2947|AIチャット
+2948|KoLib {0} が利用できます
+2949|KoLib {0} をダウンロード中…
+2950|KoLib {0} をインストール中…
+2951|アップデート
+2952|アップデートを確認中…
+2953|最新バージョン（{0}）です。
+2954|アップデートを確認できませんでした。インターネット接続を確認してください。
+2955|現在のバージョンは {0} です。
+2956|このバージョンには、この端末向けのダウンロードがまだありません。
+2957|このバージョンをスキップ
+2958|あとで
+2959|アップデート（{0}）
+2960|アップデート
+2961|ダウンロードページを開く
+2962|Androidから確認を求められることがあります。初回は、KoLibによるアップデートのインストールを許可するかも尋ねられます。アップデート中はKoLibが閉じるので、終わったらもう一度開いてください。
+2963|新機能
+2964|アップデートをインストールできませんでした：{0}
+2965|このダウンロードはKoLibのアップデートではないため、インストールしませんでした。
+2966|このダウンロードは、お使いのKoLibより新しくありません。
+2967|チャットへの指示
+2968|質問のたびにチャットへ伝えられる内容です。変更すると答え方が変わります。
+2969|通常の指示に戻す

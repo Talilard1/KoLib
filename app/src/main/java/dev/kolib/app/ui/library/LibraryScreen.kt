@@ -113,6 +113,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.testTag
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -250,6 +252,9 @@ fun LibraryScreen(
                     }
                 },
                 actions = {
+                    dev.kolib.app.ui.ai.LocalOpenAiChat.current?.let { open ->
+                        IconButton(onClick = open, modifier = Modifier.testTag("library-ai")) { Icon(Icons.Outlined.AutoAwesome, tr("AI chat")) }
+                    }
                     IconButton(onClick = onStats) { Icon(Icons.Outlined.BarChart, tr("Reading stats")) }
                     IconButton(onClick = onAbout) { Icon(Icons.Outlined.Info, tr("About and licences")) }
                     Box {

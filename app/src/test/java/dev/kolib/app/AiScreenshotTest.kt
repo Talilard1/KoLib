@@ -1,11 +1,19 @@
 package dev.kolib.app
 
+import androidx.compose.ui.test.performSemanticsAction
+import dev.kolib.app.ui.ai.Fidget
+import dev.kolib.app.ui.ai.Act
+import dev.kolib.app.ui.ai.MascotHead
+import dev.kolib.app.ui.ai.MascotView
+import dev.kolib.app.ui.ai.Mascot
+import dev.kolib.app.ui.ai.MascotMotion
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -107,6 +115,8 @@ class AiScreenshotTest {
     @Before
     fun setUp() {
         TestLanguage.apply()
+        // The characters stand still here: pictures are taken of them at moments the tests choose.
+        dev.kolib.app.ui.ai.mascotsMove = false
         context.getSharedPreferences("ai", Context.MODE_PRIVATE).edit().clear().commit()
         File(context.filesDir, "models").deleteRecursively()
         File(context.filesDir, "ai").deleteRecursively()
@@ -139,7 +149,7 @@ class AiScreenshotTest {
                         last.startsWith("Instruction:") -> "Rosa came back to *the* garden at the end of winter."
                         messages.first().content.contains("Books in the library:") -> "You have The Garden, by A. Gardener. It's the only one, so start there."
                         messages.first().content.contains("You have not been shown any of it") -> "It's a quiet story about a garden brought back to life."
-                        last.contains("Explain \"") -> "Here: The old house stood over the valley in a dark, heavy way, as if it were watching it.\nUsually: verb, to think about something sad or worrying for a long time"
+                        last.contains("Define \"") -> "Meaning: verb, to think about something sad or worrying for a long time\nHere: The old house stood over the valley in a dark, heavy way, as if it were watching it."
                         last.contains("Summarise it") -> "Rosa comes back to the garden after the winter and finds it overgrown, with the gate rusted shut.\n\n" +
                             "- Rosa climbs the wall and finds the garden gone wild.\n- She uncovers the old sundial under the ivy.\n- A boy from the village offers to help her clear the paths.\n- They find the first green shoots by the pond."
                         else -> "She is the gardener's daughter, who has come back to look after the garden now that he is too old to. So far she has only met the boy from the village."
@@ -292,8 +302,9 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
         show(c)
         compose.waitUntil(20_000) { compose.onAllNodes(hasTestTag("look-up-ai")).fetchSemanticsNodes().isNotEmpty() }
         compose.waitUntil(20_000) { app.ai.busy.value == AiHub.State.IDLE }
-        compose.onNodeWithText("The old house stood over the valley in a dark, heavy way, as if it were watching it.").assertExists()
-        // The card is a small one by the word: the dictionary's entry waits behind its button.
+        // What the word means first; what it means here, and the dictionary's entry, wait behind their buttons.
+        compose.onNodeWithText("verb, to think about something sad or worrying for a long time").assertExists()
+        compose.onNodeWithTag("look-up-here").assertDoesNotExist()
         compose.onNodeWithTag("look-up-dictionary").assertDoesNotExist()
         val screen = compose.onRoot().fetchSemanticsNode().size
         val small = compose.onNodeWithTag("look-up-card").fetchSemanticsNode().size
@@ -304,6 +315,12 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
         assertTrue(user.contains("\"At the top, the old house brooded over the valley, its windows dark except for one.\""))
         assertTrue(user.contains("“The Garden” by A. Gardener"))
         shoot(name)
+        // What it means in this sentence: written already, opened out when asked for.
+        compose.onNodeWithTag("look-up-here-button").performClick()
+        compose.onNodeWithText("The old house stood over the valley in a dark, heavy way, as if it were watching it.").assertExists()
+        assertEquals(1, asked.size)
+        compose.onNodeWithTag("look-up-here-button").performClick()
+        compose.waitForIdle()
         // Asked for, the entry opens out in the card, which grows to hold it.
         compose.onNodeWithTag("look-up-dictionary-button").performClick()
         compose.waitUntil(20_000) { compose.onAllNodes(hasTestTag("look-up-dictionary")).fetchSemanticsNodes().isNotEmpty() }
@@ -325,9 +342,9 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
             override val lastError: String? = null
             override fun countTokens(text: String) = text.split(' ').size
             override fun generate(messages: List<dev.kolib.app.ai.AiMessage>, maxTokens: Int, temperature: Float, onProgress: (Float) -> Unit, onText: (String) -> Unit): dev.kolib.app.ai.AiEnd {
-                onText("Here: The old house")
+                onText("Meaning: verb, to think")
                 gate.acquire()
-                onText(" stood over the valley in a dark, heavy way, as if it were watching everything that went on below it, by day and by night, and thinking it over at great length.\nUsually: verb, to think about something for a long time")
+                onText(" about something sad or worrying for a long time, over and over, without coming to any end of it, by day and by night, at great length.\nHere: The old house stood over the valley.")
                 return dev.kolib.app.ai.AiEnd.DONE
             }
             override fun stop() = gate.release()
@@ -508,6 +525,13 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
         assertEquals("Question: What should I read next?", sent.last().content)
         compose.onNodeWithText("You have The Garden, by A. Gardener. It's the only one, so start there.").assertExists()
         shoot("98_chat_library_phone")
+        // Instructions kept as presets, switched in the chat on the fly: the next question is asked with them.
+        app.ai.settingsStore.set(app.ai.settings.value.withPreset("Brief", "Answer in one sentence.").using(null))
+        compose.onNodeWithTag("chat-instructions").performClick()
+        compose.onNodeWithTag("chat-preset-Brief").performClick()
+        compose.waitForIdle()
+        assertEquals("Brief", app.ai.settings.value.preset?.name)
+        compose.onNodeWithText(tr("It's using your “{0}” instructions.", "Brief"), substring = true).assertExists()
         // A new chat: the first is kept, and can be opened again or deleted.
         compose.onNodeWithTag("chat-new").performClick()
         assertTrue(app.chat.turns.isEmpty())
@@ -519,6 +543,7 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
         compose.onNodeWithTag("ai-window").assertDoesNotExist()
         compose.waitUntil(20_000) { answered(2) }
         assertTrue(app.chat.turns.single().answer.value.isNotBlank())
+        assertTrue(asked.last().first().content.contains("Answer in one sentence."))
         assertEquals(2, app.chat.saved.value.size)
         // Out of sight, it was flagged as done; opened, it isn't any more.
         assertTrue(app.aiPanel.unseen)
@@ -623,37 +648,85 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
     @Config(qualifiers = PHONE)
     fun askingAboutTheBookOnAPhone() = ask("92_ask_phone", 1)
 
-    /** The AI's faces, as the bubble and as an icon: at ease, reading, thinking, writing, and done. */
+    /**
+     * The AI's characters, each in all it does: what the AI's up to, what's done to it, and its fidgets; then their
+     * heads, as the button's icon.
+     */
     @Test
-    @Config(qualifiers = PHONE)
-    fun theAisFaces() {
-        compose.mainClock.autoAdvance = false
+    @Config(qualifiers = "w1280dp-h800dp-land-xhdpi")
+    fun theMascots() {
+        val cells = listOf(
+            "Idle" to { m: MascotMotion -> m.forced = Act.IDLE },
+            "Hello" to { m: MascotMotion -> m.forced = Act.HELLO },
+            "Reading" to { m: MascotMotion -> m.forced = Act.READING },
+            "Library" to { m: MascotMotion -> m.forced = Act.READING; m.library = true },
+            "Thinking" to { m: MascotMotion -> m.forced = Act.THINKING },
+            "Writing" to { m: MascotMotion -> m.forced = Act.WRITING },
+            "Happy" to { m: MascotMotion -> m.forced = Act.HAPPY },
+            "Sad" to { m: MascotMotion -> m.forced = Act.SAD },
+            "Asleep" to { m: MascotMotion -> m.forced = Act.SLEEPING },
+            "Held" to { m: MascotMotion -> m.forced = Act.HELD },
+            "Over the ✕" to { m: MascotMotion -> m.forced = Act.SCARED },
+            "Flying" to { m: MascotMotion -> m.forced = Act.FLYING; m.velocity = androidx.compose.ui.geometry.Offset(2600f, -900f) },
+            "Dizzy" to { m: MascotMotion -> m.forced = Act.DIZZY },
+            "Bumped" to { m: MascotMotion -> m.forced = Act.BUMPED },
+            "Wave" to { m: MascotMotion -> m.forced = Act.IDLE; m.forcedFidget = Fidget.WAVE },
+            "Yawn" to { m: MascotMotion -> m.forced = Act.IDLE; m.forcedFidget = Fidget.YAWN },
+            "Hum" to { m: MascotMotion -> m.forced = Act.IDLE; m.forcedFidget = Fidget.HUM },
+            "Wink" to { m: MascotMotion -> m.forced = Act.IDLE; m.forcedFidget = Fidget.WINK },
+            "Hop" to { m: MascotMotion -> m.forced = Act.IDLE; m.forcedFidget = Fidget.HOP },
+            "Special" to { m: MascotMotion -> m.forced = Act.IDLE; m.forcedFidget = Fidget.SPECIAL; m.forcedFidgetAt = 0.35f },
+            "Special 2" to { m: MascotMotion -> m.forced = Act.IDLE; m.forcedFidget = Fidget.SPECIAL; m.forcedFidgetAt = 0.62f },
+        )
+        // Each put in its act and moved on a while, as it would be on the screen.
+        val motions = cells.mapIndexed { i, (_, set) ->
+            MascotMotion(seed = i).also { m ->
+                m.noBlinks = true
+                set(m)
+                repeat(66) { k ->
+                    if (cells[i].first == "Bumped" && k == 60) m.bump(3_000f)
+                    m.step(1 / 60f)
+                }
+            }
+        }
+        val heads = listOf(Act.IDLE, Act.READING, Act.THINKING, Act.WRITING, Act.HAPPY, Act.SAD).map { act ->
+            MascotMotion(calm = true).also { m ->
+                m.noBlinks = true
+                m.forced = act
+                repeat(90) { m.step(1 / 60f) }
+            }
+        }
+        var shown by androidx.compose.runtime.mutableStateOf(Mascot.ROBOT)
         compose.setContent {
             AppSurface(ThemeChoice.SYSTEM) {
-                androidx.compose.foundation.layout.Column(Modifier.fillMaxSize().background(Color(0xFFFBF7EE)).padding(24.dp)) {
-                    for (look in dev.kolib.app.ui.ai.BotLook.values()) {
-                        androidx.compose.foundation.layout.Row(Modifier.padding(vertical = 28.dp)) {
-                            for (mood in dev.kolib.app.ui.ai.BotMood.values()) {
-                                Box(Modifier.padding(horizontal = 6.dp).size(if (look == dev.kolib.app.ui.ai.BotLook.BUBBLE) 52.dp else 36.dp)) {
-                                    if (look == dev.kolib.app.ui.ai.BotLook.BUBBLE) {
-                                        androidx.compose.material3.Surface(shape = androidx.compose.foundation.shape.CircleShape, color = androidx.compose.material3.MaterialTheme.colorScheme.primaryContainer, shadowElevation = 6.dp, modifier = Modifier.fillMaxSize()) {}
+                androidx.compose.foundation.layout.Row(Modifier.fillMaxSize().background(Color(0xFFF4EFE6)).padding(12.dp)) {
+                    androidx.compose.foundation.layout.Column {
+                        for (row in cells.indices.chunked(7)) {
+                            androidx.compose.foundation.layout.Row {
+                                for (i in row) {
+                                    androidx.compose.foundation.layout.Column(Modifier.padding(4.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                                        MascotView(shown, motions[i], Modifier.size(140.dp).background(Color.White.copy(alpha = 0.55f)))
+                                        Text(cells[i].first, style = androidx.compose.material3.MaterialTheme.typography.labelSmall)
                                     }
-                                    dev.kolib.app.ui.ai.BotFace(
-                                        mood, look, Modifier.fillMaxSize(),
-                                        color = if (look == dev.kolib.app.ui.ai.BotLook.BUBBLE) androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer else androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
-                                        bubbles = androidx.compose.material3.MaterialTheme.colorScheme.primary,
-                                    )
                                 }
+                            }
+                        }
+                    }
+                    androidx.compose.foundation.layout.Column(Modifier.padding(start = 8.dp)) {
+                        for (size in listOf(24, 28, 56)) {
+                            androidx.compose.foundation.layout.Row(Modifier.padding(vertical = 6.dp)) {
+                                heads.forEach { MascotHead(shown, it, Modifier.padding(2.dp).size(size.dp)) }
                             }
                         }
                     }
                 }
             }
         }
-        // Part way into what each is doing: the thought bubbles rising, the mouth open as it writes, the eyes along a line.
-        compose.mainClock.advanceTimeBy(560)
-        shoot("92_faces")
-        compose.mainClock.autoAdvance = true
+        for (mascot in Mascot.entries) {
+            shown = mascot
+            compose.waitForIdle()
+            shoot("93_mascot_${mascot.id}")
+        }
     }
 
     /** The window's newer parts: book notes, words picked out to ask about, why KoLib closed last time, and the bubble. */
@@ -739,9 +812,11 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
         compose.setContent { AppSurface(ThemeChoice.SYSTEM) { AiSetupDialog(onDismiss = {}, hub = hub) } }
         compose.mainClock.advanceTimeBy(1_000)
         captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/$name.png")
-        // Further down: how the storage is taken up, a piece of the bar for each model.
+        // Further down: how the storage is taken up, a piece of the bar for each model. (Scrolling there is animated:
+        // the clock goes on by itself again for it.)
+        compose.mainClock.autoAdvance = true
         compose.onNodeWithTag("ai-storage-bar").performScrollTo()
-        compose.mainClock.advanceTimeBy(500)
+        compose.waitForIdle()
         compose.onNodeWithText("Everything else on this device").assertExists()
         captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/${name}_storage.png")
         // Picked for the device: 8 GB and a fast processor.
@@ -749,11 +824,33 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
         assertEquals(listOf("gemma-4-e4b", "qwen3.5-4b", "gemma-4-e2b"), hub.picks.map { it.id })
         compose.onNodeWithTag("ai-picked-for").assertTextEquals(tr("Picked for this device: {0} of memory and a fast processor.", tr("{0} GB", 8)))
         assertTrue(hub.ready())
+        // The chat's instructions, changed and kept as a preset: then there's a choice of them to switch between.
+        compose.onNodeWithTag("ai-chat-prompt").performScrollTo()
+        compose.onNodeWithTag("ai-chat-prompt").performTextReplacement("Answer in one sentence.")
+        compose.onNodeWithTag("ai-preset-save").performClick()
+        compose.onNodeWithTag("ai-preset-name").performTextReplacement("Brief")
+        compose.onNodeWithTag("ai-preset-name-save").performClick()
+        compose.waitForIdle()
+        assertEquals(listOf("Brief"), hub.settings.value.presets.map { it.name })
+        assertEquals("Brief", hub.settings.value.preset?.name)
+        compose.onNodeWithTag("ai-preset-usual").performClick()
+        compose.waitForIdle()
+        assertEquals("", hub.settings.value.chatPrompt)
+        compose.onNodeWithTag("ai-preset-Brief").performClick()
+        compose.waitForIdle()
+        assertEquals("Answer in one sentence.", hub.settings.value.chatPrompt)
+        // The characters to choose from: picked, it's the AI's.
+        compose.onNodeWithTag("ai-mascot-owl").performScrollTo().performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick)
+        compose.waitForIdle()
+        assertEquals("owl", hub.settings.value.mascot)
     }
 
     @Test
     @Config(qualifiers = TABLET)
     fun theAiSettings() = setup("94_ai_setup")
+
+
+
 
     // No picture of this on a phone: there, Robolectric measures a dialog at two widths in turn (it gives every
     // window the whole screen), and with text boxes in it that never settles. A real phone measures it once.

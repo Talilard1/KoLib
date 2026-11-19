@@ -14,31 +14,57 @@ object Prompts {
 
     private fun book(title: String, author: String?) = if (author.isNullOrBlank()) "“$title”" else "“$title” by $author"
 
-    /** What [word] means where it's used, in [sentence]: its answer is two lines, "Here: …" and "Usually: …". */
+    /**
+     * What [word] means: in general first, then where it's used, in [sentence]. Its answer is two lines, "Meaning: …"
+     * and "Here: …", so the meaning can be shown as soon as it's written while what it means here is still coming.
+     */
     fun lookUp(word: String, sentence: String, title: String, author: String?, answerIn: String): List<AiMessage> = listOf(
         AiMessage.system(
             "You are the dictionary inside an e-book reader. A reader has tapped a word or phrase in a book and wants to know what it " +
-                "means where they are reading. Answer in $answerIn. Be accurate, plain and brief."
+                "means. Answer in $answerIn. Be accurate, plain and brief."
         ),
         AiMessage.user(
             "From ${book(title, author)}:\n\"$sentence\"\n\n" +
-                "Explain \"$word\" as it is used in this sentence. Do not use the word itself to explain it. " +
+                "Define \"$word\", then say what it means in this sentence. Do not use the word itself to explain it. " +
                 "Reply in exactly this form, two lines and nothing else:\n" +
-                "$HERE <one sentence saying what it means in this sentence>\n" +
-                "$USUALLY <its part of speech>, <its general dictionary meaning in a few words>"
+                "$MEANING <its part of speech>, <its general dictionary meaning in a few words>\n" +
+                "$HERE <one sentence saying what it means in this sentence>"
         ),
     )
 
+    const val MEANING = "Meaning:"
     const val HERE = "Here:"
-    const val USUALLY = "Usually:"
 
-    /** A look-up's answer in its two parts: what the word means here, and what it usually means (either may be empty). */
-    fun readLookUp(answer: String): Pair<String, String> {
+    /** What an older answer, or a model that changed the label, calls the meaning. */
+    private const val USUALLY = "Usually:"
+
+    /** A look-up's answer in its two parts: what the word means, and what it means here. */
+    data class LookedUp(val meaning: String, val here: String)
+
+    /** A look-up's answer, read in its two parts (either may be empty, or still being written). */
+    fun readLookUp(answer: String): LookedUp {
         val text = cleanAnswer(answer)
-        val u = text.indexOf(USUALLY)
-        val here = (if (u >= 0) text.substring(0, u) else text).trim().removePrefix(HERE).trim()
-        val usually = if (u >= 0) text.substring(u + USUALLY.length).trim() else ""
-        return here to usually
+        // Just the start of a label so far: nothing to show yet.
+        if (text.isNotEmpty() && (MEANING.startsWith(text) || HERE.startsWith(text))) return LookedUp("", "")
+        val m = text.indexOf(MEANING).takeIf { it >= 0 }
+        val u = if (m == null) text.indexOf(USUALLY).takeIf { it >= 0 } else null
+        val mean = m ?: u
+        val meanLabel = if (m != null) MEANING else USUALLY
+        val h = text.indexOf(HERE).takeIf { it >= 0 }
+        // No labels: the whole of it is the meaning.
+        if (mean == null && h == null) return LookedUp(text.trim(), "")
+        fun part(from: Int?, label: String, next: Int?): String {
+            if (from == null) return ""
+            val end = if (next != null && next > from) next else text.length
+            return text.substring(from + label.length, end).trim()
+        }
+        // A label part-written at the end of what's come so far isn't part of the meaning.
+        val meaning = part(mean, meanLabel, h).replace(Regex("\\n\\s*H(e(r(e)?)?)?\\s*$"), "").trim()
+        val here = part(h, HERE, mean)
+        // Words before the first label (a model that left it off): its meaning, unless there is one.
+        val first = listOfNotNull(mean, h).min()
+        val before = text.substring(0, first).trim()
+        return LookedUp(meaning.ifEmpty { if (mean == null) before else "" }, here)
     }
 
     /** A passage put in plain words. */

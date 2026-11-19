@@ -69,7 +69,8 @@ import kotlinx.coroutines.withContext
  * devices at the top of Share (their shortcuts), it sends straight to that one.
  *
  * Opened from the link's notification or a device's shortcut ([ACTION_CHOOSE]), it asks what to send: books (chosen in
- * the library, in KoLib), files (chosen here) or what's on the clipboard.
+ * the library, in KoLib), files (chosen here) or what's on the clipboard. From the notification's Send clipboard
+ * ([ACTION_CLIPBOARD]), it sends the clipboard straight away: to the one device paired, or the one chosen.
  */
 class ShareToDeviceActivity : ComponentActivity() {
 
@@ -80,6 +81,8 @@ class ShareToDeviceActivity : ComponentActivity() {
         const val EXTRA_DEVICE = "dev.kolib.app.link.DEVICE"
         /** For KoLib: choose books in the library to send to the device [EXTRA_DEVICE]. */
         const val ACTION_SEND_BOOKS = "dev.kolib.app.link.SEND_BOOKS"
+        /** What's on the clipboard is sent (from the link's notification). */
+        const val ACTION_CLIPBOARD = "dev.kolib.app.link.SEND_CLIPBOARD"
 
         /** Offers "Send to device" in other apps' Share, or stops offering it. */
         fun offer(context: Context, on: Boolean) {
@@ -95,6 +98,9 @@ class ShareToDeviceActivity : ComponentActivity() {
         /** Asks what to send, to a device chosen next (or [device]). */
         fun chooseIntent(context: Context, device: String? = null): Intent =
             Intent(context, ShareToDeviceActivity::class.java).setAction(ACTION_CHOOSE).putExtra(EXTRA_DEVICE, device)
+
+        /** Sends what's on the clipboard, to the device paired (or one chosen next). */
+        fun clipboardIntent(context: Context): Intent = Intent(context, ShareToDeviceActivity::class.java).setAction(ACTION_CLIPBOARD)
     }
 
     private val link get() = (application as KoLibApp).link
@@ -111,6 +117,10 @@ class ShareToDeviceActivity : ComponentActivity() {
     private var chosen: String? = null
     /** Sending has begun. Kept if Android makes the screen again, so nothing is then sent a second time unasked. */
     private var begun = false
+    /** Opened to send the clipboard: it's read as soon as this is in front (Android allows it no sooner). */
+    private var forClipboard by mutableStateOf(false)
+    /** Opened to send the clipboard, and there was nothing on it. */
+    private var clipboardEmpty by mutableStateOf(false)
 
     private val pickFiles = registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
         if (uris.isNotEmpty()) shared = Shared(null, uris)
@@ -119,7 +129,8 @@ class ShareToDeviceActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        choosing = intent?.action == ACTION_CHOOSE
+        forClipboard = intent?.action == ACTION_CLIPBOARD && savedInstanceState == null
+        choosing = intent?.action == ACTION_CHOOSE || intent?.action == ACTION_CLIPBOARD
         chosen = intent?.getStringExtra(EXTRA_DEVICE) ?: DeviceShortcuts.deviceOf(intent?.getStringExtra(ShortcutManagerCompat.EXTRA_SHORTCUT_ID))
         shared = savedInstanceState?.let { b ->
             Shared(
@@ -133,6 +144,15 @@ class ShareToDeviceActivity : ComponentActivity() {
         setContent {
             val choice by theme.choice.collectAsStateWithLifecycle()
             KoLibTheme(choice) { ShareSheet() }
+        }
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus && forClipboard) {
+            forClipboard = false
+            val text = clipboardText()
+            if (text == null) clipboardEmpty = true else shared = Shared(text, emptyList())
         }
     }
 
@@ -180,6 +200,7 @@ class ShareToDeviceActivity : ComponentActivity() {
         val scope = rememberCoroutineScope()
         // What came of the sending; what the link says about anything else (places kept in step meanwhile) isn't for here.
         LaunchedEffect(Unit) { link.messages.collect { if (sending != null) said = it } }
+        LaunchedEffect(clipboardEmpty) { if (clipboardEmpty) said = tr("The clipboard is empty.") }
         val what = shared
         val nothing = what.nothing
         // The device chosen already, while it's still paired; with only one paired, when choosing what to send, that one.
@@ -221,6 +242,7 @@ class ShareToDeviceActivity : ComponentActivity() {
         ShareSheetContent(
             title = target?.let { tr("Send to {0}", it.name) } ?: tr("Send to device"),
             about = when {
+                forClipboard && nothing -> ""
                 choosing && nothing -> tr("What would you like to send?")
                 nothing -> tr("Nothing here can be sent.")
                 what.books -> tr("Books from your library: choose them in KoLib.")
@@ -232,6 +254,8 @@ class ShareToDeviceActivity : ComponentActivity() {
                 said != null -> SheetBody.Said(said.orEmpty())
                 busy != null -> SheetBody.Sending(busy, t?.takeIf { it.total > 0 || it.items > 1 }?.fraction)
                 paired.isEmpty() -> SheetBody.NoDevices
+                // Waiting to read the clipboard.
+                forClipboard && nothing -> SheetBody.Empty
                 choosing && nothing -> SheetBody.ChooseWhat
                 // (Also after the screen was made again part-way: a tap sends again, nothing does by itself.)
                 !nothing && (target == null || begun) -> SheetBody.ChooseDevice(paired, nearby.map { it.id }.toSet())

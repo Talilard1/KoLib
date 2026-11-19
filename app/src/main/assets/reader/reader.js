@@ -74,6 +74,8 @@
     bindTouchMove();
     applyColours(s);
     setVar('--kl-font-size', Math.round((s.fontScale || 1) * 100) + '%');
+    // The same as a number: for pictures, which keep their size whatever size the text is (reader.css).
+    setVar('--kl-text-scale', String(Math.round((s.fontScale || 1) * 100) / 100));
     if (s.font) { setVar('--kl-font', s.font); root.classList.add('kl-font'); } else root.classList.remove('kl-font');
     root.classList.toggle('kl-plain-links', !!s.plainLinks);
     root.classList.toggle('kl-print-heads', !!s.printHeads);
@@ -455,6 +457,8 @@
   /**
    * A picture on a line of its own sits in the middle of it, as a printed book has it: the paragraph
    * holding nothing else is centred, without its first-line indent (which would push it off centre).
+   * And it keeps its size when the text is made bigger or smaller: what holds nothing but the picture,
+   * as far out as that goes, is marked for reader.css to take sizes given in ems at the book's own size.
    */
   function centrePictures() {
     // In the body, and in a chapter's opening or a page beside the next, which the app puts in front of it.
@@ -470,6 +474,10 @@
         // Out through anything wrapped round just it (a link, a span).
         while (box && box !== scope && box.nodeType === 1 && /^(a|span)$/i.test(box.localName) && holdsOnly(box, pic)) box = box.parentNode;
         if (box && box !== scope && box.nodeType === 1 && holdsOnly(box, pic)) box.classList.add('kl-picture-box');
+        var outer = null;
+        for (var up = pic.parentNode; up && up !== scope && up.nodeType === 1 && holdsOnly(up, pic); up = up.parentNode) outer = up;
+        if (outer) outer.classList.add('kl-picture-own');
+        else if (pic.parentNode === scope) pic.classList.add('kl-picture-own');
       }
     }
   }

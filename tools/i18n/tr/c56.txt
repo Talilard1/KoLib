@@ -1,0 +1,48 @@
+@fr
+3022|Quitter le plein écran
+3023|Plein écran
+@de
+3022|Vollbild beenden
+3023|Vollbild
+@es
+3022|Salir de pantalla completa
+3023|Pantalla completa
+@it
+3022|Esci da schermo intero
+3023|Schermo intero
+@nl
+3022|Volledig scherm sluiten
+3023|Volledig scherm
+@pt
+3022|Sair da tela cheia
+3023|Tela cheia
+@ru
+3022|Выйти из полноэкранного режима
+3023|Во весь экран
+@ja
+3022|全画面表示を終了
+3023|全画面表示
+@fr
+3024|L’afficher sur le bouton IA
+3025|Le bouton en haut montre son visage, qui change selon ce que fait l’IA. Désactivé : l’icône IA simple.
+@de
+3024|Auf dem KI-Knopf zeigen
+3025|Der Knopf oben zeigt das Gesicht der Figur, das sich mit dem ändert, was die KI gerade tut. Aus: das einfache KI-Symbol.
+@es
+3024|Mostrarlo en el botón de IA
+3025|El botón de arriba muestra su cara, que cambia según lo que hace la IA. Desactivado: el icono de IA normal.
+@it
+3024|Mostralo sul pulsante IA
+3025|Il pulsante in alto mostra il suo volto, che cambia con ciò che sta facendo l’IA. Disattivato: la semplice icona IA.
+@nl
+3024|Op de AI-knop tonen
+3025|De knop bovenaan toont het gezicht, dat verandert met wat de AI aan het doen is. Uit: het gewone AI-pictogram.
+@pt
+3024|Mostrar no botão de IA
+3025|O botão no topo mostra o rosto dele, que muda conforme o que a IA está fazendo. Desligado: o ícone simples de IA.
+@ru
+3024|Показывать на кнопке ИИ
+3025|Кнопка вверху показывает лицо персонажа, которое меняется в зависимости от того, чем занят ИИ. Выкл.: обычный значок ИИ.
+@ja
+3024|AIボタンに表示する
+3025|上のボタンにキャラクターの顔が表示され、AIのしていることに合わせて表情が変わります。オフ：通常のAIアイコン。

@@ -352,6 +352,10 @@ html.kl-lh #kl-pair blockquote, html.kl-lh #kl-pair span, html.kl-lh #kl-pair dd
 }
 html.kl-paged .kl-align-left { text-align: left !important; }
 html.kl-paged .kl-align-justify { text-align: justify !important; }
+/* A picture on a line of its own keeps the size the book gives it as the text is made bigger or smaller: a size in
+   ems is taken at the book's own size of text, not the reader's (reader.js marks what holds only the picture). A
+   picture in a line of text (a letter drawn as a picture) still grows with the text. */
+.kl-picture-own { font-size: calc(1em / var(--kl-text-scale, 1)) !important; }
 /* A picture on a line of its own, in the middle (reader.js marks the line). */
 html.kl-paged .kl-picture-box { text-align: center !important; text-indent: 0 !important; }
 html.kl-paged .kl-picture-box > img, html.kl-paged .kl-picture-box > svg,

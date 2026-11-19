@@ -3,7 +3,7 @@ package dev.kolib.app.ai
 /** A model for tests: it answers with what [reply] makes of the conversation, a word at a time, and remembers what it was asked. */
 class FakeEngine(
     override val contextTokens: Int = 4096,
-    private val reply: (List<AiMessage>) -> String = { "Here: it means what it says.\nUsually: noun, a thing" },
+    private val reply: (List<AiMessage>) -> String = { "Meaning: noun, a thing\nHere: it means what it says." },
 ) : AiEngine {
     val asked = ArrayList<List<AiMessage>>()
     @Volatile var stopped = false

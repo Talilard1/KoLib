@@ -6,6 +6,7 @@ import dev.kolib.app.tr
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.coroutineScope
@@ -37,6 +38,8 @@ class AiHub(
     /** Opens a model file to hold so many tokens; and the user's server. (Tests put their own in.) */
     private val openLocal: (File, Int) -> AiEngine = { file, tokens -> LocalEngine.open(context, file, tokens) },
     private val openServer: (AiSettings) -> AiEngine = { s -> ServerEngine(s.serverAddress, s.serverKey, s.serverModel) },
+    /** Where a model's file is downloaded from (from so many bytes in). */
+    private val fetch: (String, Long) -> ModelStore.Answer = { url, from -> ModelStore.fetch(url, from) },
 ) {
 
     val settingsStore = AiSettingsStore(context)
@@ -69,15 +72,20 @@ class AiHub(
 
     @Synchronized
     fun download(model: AiModel) {
-        if (downloadJobs[model.id]?.isActive == true) return
+        val before = downloadJobs[model.id]
+        if (before?.isActive == true) return
         if (models.isOwn(model)) found.value = found.value + (model.id to model)
         downloadStates.value = downloadStates.value + (model.id to AiDownload(models.partBytes(model), model.bytes))
-        downloadJobs[model.id] = scope.launch(Dispatchers.IO) {
+        val job = scope.launch(Dispatchers.IO) {
             var last = 0L
             try {
-                models.download(model, stillWanted = { downloadJobs[model.id]?.isActive != false }) { bytes ->
+                // One stopped a moment ago may still be finishing the piece it was reading: waited for, so that
+                // two never write to the file at once.
+                before?.join()
+                // Its own stopping is what stops it (not what's in the list of downloads).
+                models.download(model, open = fetch, stillWanted = { isActive }) { bytes ->
                     val now = System.currentTimeMillis()
-                    if (now - last > 300 || bytes >= model.bytes) {
+                    if (isActive && (now - last > 300 || bytes >= model.bytes)) {
                         last = now
                         downloadStates.value = downloadStates.value + (model.id to AiDownload(bytes, model.bytes, checking = bytes >= model.bytes))
                     }
@@ -88,22 +96,31 @@ class AiHub(
                 // The first model downloaded is the one used, with nothing else to do.
                 if (!ready()) settingsStore.set(settings.value.copy(source = sourceOf(model)))
             } catch (e: ModelStore.StoppedException) {
-                downloadStates.value = downloadStates.value - model.id
+                // Stopped: what came of it is let go too.
+                models.dropPart(model)
                 filesChanged.value++
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
             } catch (e: Exception) {
                 AppLog.w("AI", "Downloading ${model.id} failed", e)
                 val why = (e as? IOException)?.message?.takeIf { it.isNotBlank() && !it.contains("Exception") } ?: tr("The download failed. Check the connection and try again.")
                 downloadStates.value = downloadStates.value + (model.id to AiDownload(models.partBytes(model), model.bytes, error = why))
             }
         }
+        downloadJobs[model.id] = job
+        job.invokeOnCompletion { synchronized(this) { if (downloadJobs[model.id] === job) downloadJobs.remove(model.id) } }
         onDownloading()
     }
 
+    /** Stops [model]'s download, and lets go of what it had downloaded (or what's left of one that failed). */
     @Synchronized
     fun stopDownload(model: AiModel) {
-        downloadJobs.remove(model.id)?.cancel()
+        val job = downloadJobs[model.id]
+        job?.cancel()
         downloadStates.value = downloadStates.value - model.id
         found.value = found.value - model.id
+        // Still running, it lets go of its part itself as it ends.
+        if (job == null || job.isCompleted) models.dropPart(model)
     }
 
     /**
@@ -220,10 +237,33 @@ class AiHub(
     private fun endOf(mine: Long) {
         synchronized(lock) { running = null }
         state.value = State.IDLE
+        settle(mine)
+    }
+
+    /**
+     * Whether the model is kept open though nothing's been asked of it a while (the user wants it ready, and KoLib
+     * is in sight).
+     */
+    var keepOpen: () -> Boolean = { false }
+
+    /** Lets go of the model if nothing's asked of it for a while, unless it's kept open: after work, and as KoLib goes out of sight. */
+    fun settle(mine: Long = uses) {
         scope.launch {
             delay(IDLE_MS)
-            withContext(worker) { if (uses == mine) closeNow() }
+            withContext(worker) { if (uses == mine && !keepOpen()) closeNow() }
         }
+    }
+
+    /** How much is taken up by downloads that were stopped or failed part-way, and aren't going on. */
+    fun unfinishedBytes(): Long = synchronized(this) {
+        models.parts().filter { f -> downloadJobs.keys.none { f.name == "$it.gguf.part" } }.sumOf { it.length() }
+    }
+
+    /** Lets go of those. */
+    fun dropUnfinished() = synchronized(this) {
+        models.parts().filter { f -> downloadJobs.keys.none { f.name == "$it.gguf.part" } }.forEach { it.delete() }
+        downloadStates.value = downloadStates.value.filterValues { it.error == null }
+        filesChanged.value++
     }
 
     /** Runs [work] on [e] where cancelling the coroutine stops the model writing. */

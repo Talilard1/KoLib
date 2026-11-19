@@ -294,7 +294,7 @@ internal fun PhoneLibraryScreen(
                     KoLibMark(Modifier.size(34.dp), glow = true)
                     Spacer(Modifier.width(10.dp))
                     Text(tr("Library"), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
-                    dev.kolib.app.ui.ai.LocalOpenAiChat.current?.let { open ->
+                    dev.kolib.app.ui.ai.LocalOpenAiChat.current?.takeIf { dev.kolib.app.ui.ai.aiButtonShown() }?.let { open ->
                         IconButton(onClick = open, modifier = Modifier.testTag("library-ai")) { dev.kolib.app.ui.ai.AiButtonIcon(tr("AI chat")) }
                     }
                     var menu by remember { mutableStateOf(false) }
@@ -326,7 +326,7 @@ internal fun PhoneLibraryScreen(
                         onHelp = { showHelp = true },
                         modifier = Modifier.weight(1f),
                     )
-                    dev.kolib.app.ui.ai.LocalOpenAiChat.current?.let { open ->
+                    dev.kolib.app.ui.ai.LocalOpenAiChat.current?.takeIf { dev.kolib.app.ui.ai.aiButtonShown() }?.let { open ->
                         IconButton(onClick = open, modifier = Modifier.size(40.dp).testTag("library-ai")) { dev.kolib.app.ui.ai.AiButtonIcon(tr("AI chat")) }
                     }
                     PhoneListMenu(

@@ -46,23 +46,28 @@ Get the latest APK from [Releases](https://github.com/Talilard1/KoLib/releases/l
   layout, highlights, notes, bookmarks, dictionary lookup and autoscroll.
 - Settings of its own for each book, and for portrait and landscape: turn the device and the reader
   switches. The header, clock and battery keep clear of the camera hole.
-- Look a word up without leaving the book: a small card by the word says what it means in the
-  sentence you're reading, with its dictionary entry a tap away.
+- Look a word up without leaving the book: a small card by the word says what it means, with what it
+  means in the sentence you're reading, and its dictionary entry, a tap away.
 - Optional AI that runs on your device, with no account: chapter summaries, and questions about the
   book answered from what you've read so far. It sees the page you're on, so you can ask about "this
   page", or select some words and choose Ask AI. It starts reading while you type, so answers come
   sooner. KoLib picks three models to suit your device's memory and processor; you can also add your
-  own, or use your own server.
-- The AI opens in a window you can drag anywhere, or shrink into a bubble with a little face that
-  shows what it's doing: reading, thinking or writing. Fling the bubble wherever you like. Close it and
-  the AI keeps working; if you've left KoLib, a notification tells you when it's done.
+  own, or use your own server. It can get the model ready as KoLib opens, so the first answer comes
+  quicker.
+- The AI opens in a window you can drag anywhere or make full screen, or shrinks into a bubble. Pick who it is: a robot,
+  an anime woman, a cat, an owl or a ghost. Each one shows what the AI is doing (reading, thinking,
+  writing), cheers when an answer's ready, and reacts when you pick it up, fling it or bump it into
+  the edge of the screen. Leave it alone and it nods off. It can show its face on the AI button too.
+  Close the bubble and the AI keeps working; if you've left KoLib, a notification tells you when it's
+  done.
 - Book notes, if you want them: the AI writes a short note on each chapter you finish, so it remembers
   the whole book so far, not just the last few pages. You can keep this to when your device is charging.
 - An AI chat on the main page too. It knows what's in your library and what's on your screen, and
-  saves your chats so you can come back to them. Hold a message to copy it, or edit it and ask again,
-  and change the instructions it's given.
+  saves your chats so you can come back to them. Hold a message to copy it, or edit it and ask again.
+  Change the instructions it's given, save them as presets, and switch between them in the chat.
 - Find more models from inside the app: search Hugging Face, see which ones suit your device, and
-  download any of them. A storage bar shows how much room each model takes.
+  download any of them. A storage bar shows how much room each model takes, and downloads that
+  stopped part-way can be deleted.
 - A comic reader modelled on [Mihon](https://github.com/mihonapp/mihon)'s.
 - Reading stats, including the reading time recorded by your Kobo.
 - Edit titles, authors, series, tags and covers. Find covers online, or generate one from 123

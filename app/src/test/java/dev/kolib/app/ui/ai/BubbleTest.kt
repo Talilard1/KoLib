@@ -16,9 +16,9 @@ class BubbleTest {
         var v = velocity
         var steps = 0
         while (v.getDistance() > 40f && steps < 2_000) {
-            val (np, nv) = glide(p, v, 1 / 60f, area)
-            p = np
-            v = nv
+            val step = glide(p, v, 1 / 60f, area)
+            p = step.at
+            v = step.velocity
             steps++
         }
         return p to steps
@@ -36,9 +36,12 @@ class BubbleTest {
     @Test
     fun itBouncesOffTheEdgesAndStaysInside() {
         // Thrown hard at the right: it bounces back off the edge.
-        val (p, v) = glide(Offset(990f, 100f), Offset(3_000f, 0f), 0.02f, area)
-        assertTrue(p.x < 1000f)
-        assertTrue(v.x < 0f)
+        val hit = glide(Offset(990f, 100f), Offset(3_000f, 0f), 0.02f, area)
+        assertTrue(hit.at.x < 1000f)
+        assertTrue(hit.velocity.x < 0f)
+        // It says how hard it hit, for the character to feel it; not when it didn't.
+        assertEquals(3_000f, hit.impact, 0.01f)
+        assertEquals(0f, glide(Offset(500f, 100f), Offset(300f, 0f), 0.02f, area).impact, 0.01f)
         // However it's thrown, it ends up inside.
         val r = Random(7)
         repeat(200) {

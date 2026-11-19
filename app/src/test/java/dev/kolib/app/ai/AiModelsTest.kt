@@ -105,11 +105,17 @@ class AiModelsTest {
 
     @Test
     fun aLookUpsAnswerIsReadInItsTwoParts() {
-        assertEquals("The house loomed over the valley." to "verb, to think deeply", Prompts.readLookUp("Here: The house loomed over the valley.\nUsually: verb, to think deeply"))
-        // Still being written: what there is of it.
-        assertEquals("The house" to "", Prompts.readLookUp("Here: The house"))
-        // A model that didn't keep to the form: its words as they are.
-        assertEquals("It means to loom." to "", Prompts.readLookUp("It means to loom."))
+        val both = Prompts.LookedUp("verb, to think deeply", "The house loomed over the valley.")
+        assertEquals(both, Prompts.readLookUp("Meaning: verb, to think deeply\nHere: The house loomed over the valley."))
+        // The other way round, or with the old label for the meaning: the same.
+        assertEquals(both, Prompts.readLookUp("Here: The house loomed over the valley.\nUsually: verb, to think deeply"))
+        // Still being written: the meaning as far as it's got, with no half-written label after it, or nothing yet.
+        assertEquals(Prompts.LookedUp("verb, to think", ""), Prompts.readLookUp("Meaning: verb, to think"))
+        assertEquals(Prompts.LookedUp("verb, to think deeply", ""), Prompts.readLookUp("Meaning: verb, to think deeply\nHer"))
+        assertEquals(Prompts.LookedUp("", ""), Prompts.readLookUp("Mean"))
+        assertEquals(Prompts.LookedUp("verb, to think deeply", "The house"), Prompts.readLookUp("Meaning: verb, to think deeply\nHere: The house"))
+        // A model that didn't keep to the form: its words as they are, as the meaning.
+        assertEquals(Prompts.LookedUp("It means to loom.", ""), Prompts.readLookUp("It means to loom."))
         assertEquals("French", Prompts.languageName("fr"))
         assertEquals("Japanese", Prompts.languageName("ja-JP"))
         assertEquals("English", Prompts.languageName(null))

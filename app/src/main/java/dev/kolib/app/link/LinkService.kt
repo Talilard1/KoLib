@@ -29,8 +29,8 @@ import kotlinx.coroutines.launch
 /**
  * Keeps KoLib running while it sends to or takes in from another device (a few hundred books can take a while), and,
  * when asked to, all the time, so paired devices can reach it with KoLib closed. A notification says what it's doing,
- * and while it waits, offers Send (books, files or the clipboard, chosen next), Sync (reading positions, with the
- * paired devices on the network) and Stop; what came of the last one shows in it for a few seconds. Android shows no
+ * and while it waits, offers Send (books, files or the clipboard, chosen next), Send clipboard (straight to the paired
+ * device, or one chosen next) and Stop; what came of the last one shows in it for a few seconds. Android shows no
  * more than three actions. It stops itself when there's nothing left to do.
  */
 class LinkService : Service() {
@@ -45,7 +45,7 @@ class LinkService : Service() {
 
         /**
          * The notification: what's being sent or taken in, or, while it waits, that it's ready, with what came of the
-         * last thing done ([said]) for a while, and Send and Sync (with a device [paired]) and Stop.
+         * last thing done ([said]) for a while, and Send and Send clipboard (with a device [paired]) and Stop.
          */
         internal fun build(context: Context, transfers: List<Transfer>, paired: Boolean, said: String?): android.app.Notification {
             val open = PendingIntent.getActivity(
@@ -78,11 +78,12 @@ class LinkService : Service() {
                         context, 2, ShareToDeviceActivity.chooseIntent(context).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
                     )
-                    val sync = PendingIntent.getService(
-                        context, 3, Intent(context, LinkService::class.java).setAction(ACTION_SYNC),
+                    // The clipboard can only be read by what's in front: a small screen opens to read and send it.
+                    val clipboard = PendingIntent.getActivity(
+                        context, 3, ShareToDeviceActivity.clipboardIntent(context).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
                     )
-                    b.addAction(0, tr("Send"), send).addAction(0, tr("Sync"), sync)
+                    b.addAction(0, tr("Send"), send).addAction(0, tr("Send clipboard"), clipboard)
                 }
                 b.addAction(0, tr("Stop"), stop)
             }

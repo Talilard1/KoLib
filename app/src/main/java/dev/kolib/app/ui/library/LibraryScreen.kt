@@ -259,7 +259,7 @@ fun LibraryScreen(
                     }
                 },
                 actions = {
-                    dev.kolib.app.ui.ai.LocalOpenAiChat.current?.let { open ->
+                    dev.kolib.app.ui.ai.LocalOpenAiChat.current?.takeIf { dev.kolib.app.ui.ai.aiButtonShown() }?.let { open ->
                         IconButton(onClick = open, modifier = Modifier.testTag("library-ai")) { dev.kolib.app.ui.ai.AiButtonIcon(tr("AI chat")) }
                     }
                     IconButton(onClick = onStats) { Icon(Icons.Outlined.BarChart, tr("Reading stats")) }

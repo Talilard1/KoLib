@@ -53,6 +53,8 @@ class KoLibApp : Application() {
     var ai: dev.kolib.app.ai.AiHub
         @Synchronized get() = aiHub ?: dev.kolib.app.ai.AiHub(this, appScope).also { hub ->
             hub.onDownloading = { dev.kolib.app.ai.AiDownloadService.start(this) }
+            // Wanted ready: kept open while KoLib is in sight.
+            hub.keepOpen = { hub.settings.value.preload && inFront }
             // Noted before the model's opened, so that if KoLib is closed while it's held, the next start knows.
             hub.onHolding = { on ->
                 val edit = getSharedPreferences("ai", MODE_PRIVATE).edit().putBoolean(MODEL_HELD, on)
@@ -212,6 +214,8 @@ class KoLibApp : Application() {
             override fun onActivityStopped(activity: android.app.Activity) {
                 started = (started - 1).coerceAtLeast(0)
                 inFront = started > 0
+                // Out of sight, a model kept ready is let go of after a while.
+                if (!inFront) aiHub?.settle()
             }
 
             override fun onActivityCreated(activity: android.app.Activity, savedInstanceState: android.os.Bundle?) {}

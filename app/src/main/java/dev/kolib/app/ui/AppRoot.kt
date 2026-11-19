@@ -678,7 +678,7 @@ fun AppRoot(
                 onLook = { showLook = true },
                 devicesHere = paired.any { d -> linkNearby.any { it.id == d.id } },
             ) {
-                CompositionLocalProvider(dev.kolib.app.ui.link.LocalLinkActions provides linkActions, dev.kolib.app.ui.ai.LocalOpenAiChat provides { aiPanel.open() }) {
+                CompositionLocalProvider(dev.kolib.app.ui.link.LocalLinkActions provides linkActions, dev.kolib.app.ui.ai.LocalOpenAiChat provides { aiPanel.toggle() }) {
                 when (section) {
                     Section.DEVICES -> dev.kolib.app.ui.link.DevicesScreen(link, devicesActions)
                     Section.LIBRARY -> CompositionLocalProvider(dev.kolib.app.ui.ocr.LocalOcrActions provides ocrActions) { LibraryScreen(
@@ -796,6 +796,16 @@ fun AppRoot(
         // The AI's window (or its bubble), over whatever screen is showing: about the book open, or the library.
         val libraryPlace = remember(books, readingHere) { dev.kolib.app.ui.ai.ChatPlace.Library(books, readingHere) { aiHost.library } }
         dev.kolib.app.ui.ai.AiLayer(aiHost.book ?: libraryPlace)
+        // Got ready as KoLib opens, if asked to be: the model opened and the library read ahead, in the background.
+        val aiApp = androidx.compose.ui.platform.LocalContext.current.applicationContext as dev.kolib.app.KoLibApp
+        val aiSettings by aiApp.ai.settings.collectAsStateWithLifecycle()
+        val inLibrary = aiHost.book == null
+        LaunchedEffect(aiSettings.preload, aiSettings.source, inLibrary, books.isNotEmpty()) {
+            if (aiSettings.preload && inLibrary && books.isNotEmpty() && aiApp.ai.ready()) {
+                kotlinx.coroutines.delay(2_500)
+                aiApp.chat.warm(aiApp.ai, libraryPlace)
+            }
+        }
 
         val p = job
         // Files added that the library has already: once adding is done, ask what to do with them.

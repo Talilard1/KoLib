@@ -1,5 +1,7 @@
 package dev.kolib.app.ui.ai
 
+import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
 import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -113,7 +115,7 @@ fun AiSetupDialog(onDismiss: () -> Unit, hub: AiHub = (LocalContext.current.appl
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        icon = { BotFace(BotMood.IDLE, BotLook.ICON, Modifier.size(24.dp)) },
+        icon = { MascotIcon(chosenMascot(), BotMood.IDLE, Modifier.size(32.dp)) },
         title = { Text(tr("AI")) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()).testTag("ai-setup")) {
@@ -121,6 +123,22 @@ fun AiSetupDialog(onDismiss: () -> Unit, hub: AiHub = (LocalContext.current.appl
                     tr("An AI model can explain a word as it's used where you're reading, summarise a chapter and answer questions about the book."),
                     style = MaterialTheme.typography.bodyMedium,
                 )
+                Section(tr("Look"))
+                Note(tr("Who the AI is on your screen. Each has its own ways of showing what it's up to."))
+                MascotPicker(Mascot.of(settings.mascot)) { hub.settingsStore.set(settings.copy(mascot = it.id)) }
+                Row(
+                    Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).clickable { hub.settingsStore.set(settings.copy(mascotButton = !settings.mascotButton)) },
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(Modifier.weight(1f).padding(start = 12.dp)) {
+                        Text(tr("Show it on the AI button"), style = MaterialTheme.typography.titleSmall)
+                        Text(
+                            tr("The button at the top shows its face, which changes with what the AI is doing. Off: the plain AI icon."),
+                            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Switch(checked = settings.mascotButton, onCheckedChange = { hub.settingsStore.set(settings.copy(mascotButton = it)) }, modifier = Modifier.testTag("ai-mascot-button"))
+                }
                 Section(tr("On this device"))
                 if (hub.onDevice) {
                     Note(tr("Runs on this device, with no internet once it's downloaded. Nothing you read leaves it."))
@@ -187,6 +205,19 @@ fun AiSetupDialog(onDismiss: () -> Unit, hub: AiHub = (LocalContext.current.appl
                         }
                     }
                     Note(tr("Any chat model in a GGUF file works: the kind llama.cpp runs, found on Hugging Face."))
+                    Row(
+                        Modifier.fillMaxWidth().padding(top = 10.dp).clip(RoundedCornerShape(12.dp)).clickable { hub.settingsStore.set(settings.copy(preload = !settings.preload)) },
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(Modifier.weight(1f).padding(start = 12.dp)) {
+                            Text(tr("Get ready when KoLib opens"), style = MaterialTheme.typography.titleSmall)
+                            Text(
+                                tr("Opens the model and reads ahead in the background, so the first answer comes sooner. Uses more memory and battery."),
+                                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        Switch(checked = settings.preload, onCheckedChange = { hub.settingsStore.set(settings.copy(preload = it)) }, modifier = Modifier.testTag("ai-preload"))
+                    }
                     ModelStorage(hub, own, changed)
                 } else {
                     Note(tr("This device can't run AI models itself: that needs a 64-bit phone or tablet. You can still use a server of your own."))
@@ -197,14 +228,26 @@ fun AiSetupDialog(onDismiss: () -> Unit, hub: AiHub = (LocalContext.current.appl
                 ServerFields(hub, settings)
 
                 Section(tr("Chat instructions"))
-                Note(tr("What the chat is told before each question. Change it to change how it answers."))
+                Note(tr("What the chat is told before each question. Change it to change how it answers. Keep the ones you like as presets, and switch between them in the chat."))
+                PresetChips(settings) { hub.settingsStore.set(settings.using(it)) }
                 OutlinedTextField(
                     value = settings.chatPrompt.ifEmpty { dev.kolib.app.ai.Prompts.CHAT_DEFAULT },
                     onValueChange = { hub.settingsStore.set(settings.copy(chatPrompt = if (it == dev.kolib.app.ai.Prompts.CHAT_DEFAULT) "" else it)) },
                     minLines = 3, maxLines = 9, textStyle = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.fillMaxWidth().testTag("ai-chat-prompt"),
                 )
-                TextButton(onClick = { hub.settingsStore.set(settings.copy(chatPrompt = "")) }, enabled = settings.chatPrompt.isNotEmpty()) { Text(tr("Use the usual instructions")) }
+                var naming by remember { mutableStateOf(false) }
+                androidx.compose.foundation.layout.FlowRow {
+                    TextButton(onClick = { naming = true }, modifier = Modifier.testTag("ai-preset-save")) { Text(tr("Save as a preset")) }
+                    settings.preset?.let { p ->
+                        TextButton(onClick = { hub.settingsStore.set(settings.withoutPreset(p.name)) }, modifier = Modifier.testTag("ai-preset-delete")) { Text(tr("Delete “{0}”", p.name)) }
+                    }
+                    TextButton(onClick = { hub.settingsStore.set(settings.copy(chatPrompt = "")) }, enabled = settings.chatPrompt.isNotEmpty()) { Text(tr("Use the usual instructions")) }
+                }
+                if (naming) PresetNameDialog(settings.preset?.name.orEmpty(), onDismiss = { naming = false }) { name ->
+                    hub.settingsStore.set(settings.withPreset(name, settings.chatPrompt.ifEmpty { dev.kolib.app.ai.Prompts.CHAT_DEFAULT }))
+                    naming = false
+                }
 
                 Section(tr("Off"))
                 Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).clickable { use(hub, settings.copy(source = "")) }, verticalAlignment = Alignment.CenterVertically) {
@@ -276,6 +319,78 @@ internal class StorageShare(val name: String, val bytes: Long, val colour: andro
  * How the device's storage is taken up: a bar with a coloured piece for each model here, a grey one for
  * everything else on the device, and the rest free; under it, each model's size and its share of the storage.
  */
+/** The usual instructions and each preset, to switch between: the one in use picked out. */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@Composable
+internal fun PresetChips(settings: dev.kolib.app.ai.AiSettings, onUse: (dev.kolib.app.ai.PromptPreset?) -> Unit) {
+    if (settings.presets.isEmpty()) return
+    val now = settings.preset
+    androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(bottom = 6.dp)) {
+        androidx.compose.material3.FilterChip(
+            selected = settings.chatPrompt.isEmpty(), onClick = { onUse(null) }, label = { Text(tr("Usual")) },
+            modifier = Modifier.testTag("ai-preset-usual"),
+        )
+        settings.presets.forEach { p ->
+            androidx.compose.material3.FilterChip(
+                selected = p == now, onClick = { onUse(p) }, label = { Text(p.name, maxLines = 1) },
+                modifier = Modifier.testTag("ai-preset-${p.name}"),
+            )
+        }
+    }
+}
+
+/** Asks what to call the instructions being kept as a preset. */
+@Composable
+internal fun PresetNameDialog(start: String, onDismiss: () -> Unit, onSave: (String) -> Unit) {
+    var name by remember { mutableStateOf(start) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(tr("Save as a preset")) },
+        text = {
+            Column {
+                Text(tr("Give these instructions a name. A preset with the same name is replaced."), style = MaterialTheme.typography.bodyMedium)
+                OutlinedTextField(
+                    value = name, onValueChange = { name = it.take(40) }, singleLine = true, label = { Text(tr("Name")) },
+                    modifier = Modifier.fillMaxWidth().padding(top = 12.dp).testTag("ai-preset-name"),
+                )
+            }
+        },
+        confirmButton = { TextButton(onClick = { onSave(name) }, enabled = name.isNotBlank(), modifier = Modifier.testTag("ai-preset-name-save")) { Text(tr("Save")) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Cancel")) } },
+    )
+}
+
+/** The characters to choose from, each showing itself off in turn. */
+@Composable
+private fun MascotPicker(chosen: Mascot, onPick: (Mascot) -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(top = 8.dp, bottom = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Mascot.entries.forEachIndexed { i, mascot ->
+            val motion = rememberMascotMotion(seed = i)
+            motion.demo = true
+            motion.demoShift = i * 1.1f
+            val picked = mascot == chosen
+            Column(
+                Modifier
+                    .width(96.dp)
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(if (picked) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))
+                    .border(if (picked) 2.dp else 1.dp, if (picked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(18.dp))
+                    .clickable { onPick(mascot) }
+                    .padding(top = 10.dp, bottom = 8.dp)
+                    .testTag("ai-mascot-${mascot.id}"),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                MascotView(mascot, motion, Modifier.size(72.dp))
+                Text(mascot.title, style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(top = 4.dp))
+                Text(mascot.kind, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+    }
+}
+
 @Composable
 private fun ModelStorage(hub: AiHub, own: List<java.io.File>, changed: Int) {
     val context = LocalContext.current
@@ -301,7 +416,16 @@ private fun ModelStorage(hub: AiHub, own: List<java.io.File>, changed: Int) {
             Text(tr("{0} · {1}", Fmt.bytes(context, share.bytes).orEmpty(), percent(share.bytes)), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
-    val others = (total - free - shares.sumOf { it.bytes }).coerceAtLeast(0L)
+    // What's left of downloads stopped part-way, which can be let go of.
+    var unfinished by remember(changed) { mutableStateOf(hub.unfinishedBytes()) }
+    if (unfinished > 0L) Row(Modifier.padding(top = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(10.dp).clip(RoundedCornerShape(3.dp)).background(MaterialTheme.colorScheme.error.copy(alpha = 0.6f)))
+        Spacer(Modifier.width(8.dp))
+        Text(tr("Unfinished downloads"), style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+        Text(Fmt.bytes(context, unfinished).orEmpty(), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        TextButton(onClick = { hub.dropUnfinished(); unfinished = 0L }, modifier = Modifier.testTag("ai-drop-unfinished")) { Text(tr("Delete")) }
+    }
+    val others = (total - free - shares.sumOf { it.bytes } - unfinished).coerceAtLeast(0L)
     Row(Modifier.padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.size(10.dp).clip(RoundedCornerShape(3.dp)).background(MaterialTheme.colorScheme.outline))
         Spacer(Modifier.width(8.dp))

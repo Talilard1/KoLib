@@ -1,0 +1,152 @@
+@fr
+3004|Instructions utilisées : « {0} ».
+3005|Habituelles
+3006|Les vôtres (non enregistrées)
+3007|Enregistrer comme préréglage
+3008|Modifier les instructions
+3009|Apparence
+3010|Qui représente l’IA à l’écran. Chacun a sa façon de montrer ce qu’il fait.
+3011|Se préparer à l’ouverture de KoLib
+3012|Ouvre le modèle et lit à l’avance en arrière-plan, pour que la première réponse arrive plus vite. Utilise plus de mémoire et de batterie.
+3013|Ce qui est dit au modèle avant chaque question. Modifiez-le pour changer sa façon de répondre. Gardez celles qui vous plaisent comme préréglages, et passez de l’une à l’autre dans le chat.
+3014|Supprimer « {0} »
+3015|Donnez un nom à ces instructions. Un préréglage du même nom sera remplacé.
+3016|Téléchargements inachevés
+3017|Robot
+3018|Anime
+3019|Chat
+3020|Fantôme
+3021|Endormi
+@de
+3004|Verwendete Anweisungen: „{0}“.
+3005|Standard
+3006|Eigene (nicht gespeichert)
+3007|Als Vorlage speichern
+3008|Anweisungen ändern
+3009|Aussehen
+3010|Wer die KI auf deinem Bildschirm ist. Jede Figur zeigt auf ihre Weise, was sie gerade tut.
+3011|Beim Öffnen von KoLib vorbereiten
+3012|Öffnet das Modell und liest im Hintergrund vor, damit die erste Antwort schneller kommt. Braucht mehr Speicher und Akku.
+3013|Was dem Chat vor jeder Frage gesagt wird. Ändere es, um zu ändern, wie er antwortet. Behalte die, die dir gefallen, als Vorlagen und wechsle im Chat zwischen ihnen.
+3014|„{0}“ löschen
+3015|Gib diesen Anweisungen einen Namen. Eine Vorlage mit demselben Namen wird ersetzt.
+3016|Unvollständige Downloads
+3017|Roboter
+3018|Anime
+3019|Katze
+3020|Geist
+3021|Schläft
+@es
+3004|Instrucciones en uso: «{0}».
+3005|Habituales
+3006|Las tuyas (sin guardar)
+3007|Guardar como preajuste
+3008|Cambiar las instrucciones
+3009|Aspecto
+3010|Quién es la IA en tu pantalla. Cada uno muestra a su manera lo que está haciendo.
+3011|Prepararse al abrir KoLib
+3012|Abre el modelo y lee por adelantado en segundo plano, para que la primera respuesta llegue antes. Usa más memoria y batería.
+3013|Lo que se le dice al chat antes de cada pregunta. Cámbialo para cambiar cómo responde. Guarda las que te gusten como preajustes y cambia entre ellas en el chat.
+3014|Eliminar «{0}»
+3015|Ponle un nombre a estas instrucciones. Un preajuste con el mismo nombre se reemplaza.
+3016|Descargas sin terminar
+3017|Robot
+3018|Anime
+3019|Gato
+3020|Fantasma
+3021|Dormido
+@it
+3004|Istruzioni in uso: «{0}».
+3005|Predefinite
+3006|Le tue (non salvate)
+3007|Salva come preimpostazione
+3008|Cambia le istruzioni
+3009|Aspetto
+3010|Chi è l’IA sul tuo schermo. Ognuno ha il suo modo di mostrare cosa sta facendo.
+3011|Prepararsi all’apertura di KoLib
+3012|Apre il modello e legge in anticipo in background, così la prima risposta arriva prima. Usa più memoria e batteria.
+3013|Ciò che viene detto alla chat prima di ogni domanda. Cambialo per cambiare il modo in cui risponde. Tieni quelle che ti piacciono come preimpostazioni e passa dall’una all’altra nella chat.
+3014|Elimina «{0}»
+3015|Dai un nome a queste istruzioni. Una preimpostazione con lo stesso nome viene sostituita.
+3016|Download incompleti
+3017|Robot
+3018|Anime
+3019|Gatto
+3020|Fantasma
+3021|Addormentato
+@nl
+3004|Instructies in gebruik: ‘{0}’.
+3005|Standaard
+3006|Je eigen (niet bewaard)
+3007|Opslaan als voorinstelling
+3008|Instructies wijzigen
+3009|Uiterlijk
+3010|Wie de AI op je scherm is. Elk laat op een eigen manier zien waar het mee bezig is.
+3011|Klaarmaken als KoLib opent
+3012|Opent het model en leest vooruit op de achtergrond, zodat het eerste antwoord sneller komt. Gebruikt meer geheugen en batterij.
+3013|Wat de chat vóór elke vraag te horen krijgt. Wijzig het om te veranderen hoe hij antwoordt. Bewaar de instructies die je bevallen als voorinstellingen en wissel ertussen in de chat.
+3014|‘{0}’ verwijderen
+3015|Geef deze instructies een naam. Een voorinstelling met dezelfde naam wordt vervangen.
+3016|Onvoltooide downloads
+3017|Robot
+3018|Anime
+3019|Kat
+3020|Spook
+3021|Slaapt
+@pt
+3004|Instruções em uso: “{0}”.
+3005|Padrão
+3006|As suas (não salvas)
+3007|Salvar como predefinição
+3008|Alterar as instruções
+3009|Aparência
+3010|Quem é a IA na sua tela. Cada um mostra do seu jeito o que está fazendo.
+3011|Preparar-se ao abrir o KoLib
+3012|Abre o modelo e lê antecipadamente em segundo plano, para a primeira resposta chegar mais rápido. Usa mais memória e bateria.
+3013|O que é dito à conversa antes de cada pergunta. Altere para mudar a forma como ela responde. Salve as que você gostar como predefinições e alterne entre elas na conversa.
+3014|Excluir “{0}”
+3015|Dê um nome a estas instruções. Uma predefinição com o mesmo nome é substituída.
+3016|Downloads incompletos
+3017|Robô
+3018|Anime
+3019|Gato
+3020|Fantasma
+3021|Dormindo
+@ru
+3004|Используются инструкции «{0}».
+3005|Обычные
+3006|Ваши (не сохранены)
+3007|Сохранить как шаблон
+3008|Изменить инструкции
+3009|Внешний вид
+3010|Кем ИИ будет на экране. Каждый по-своему показывает, чем занят.
+3011|Готовиться при запуске KoLib
+3012|Открывает модель и заранее читает в фоне, чтобы первый ответ пришёл быстрее. Расходует больше памяти и заряда.
+3013|То, что сообщается чату перед каждым вопросом. Измените, чтобы он отвечал иначе. Сохраняйте понравившиеся инструкции как шаблоны и переключайтесь между ними в чате.
+3014|Удалить «{0}»
+3015|Дайте этим инструкциям название. Шаблон с таким же названием будет заменён.
+3016|Незавершённые загрузки
+3017|Робот
+3018|Аниме
+3019|Кошка
+3020|Призрак
+3021|Спит
+@ja
+3004|使用中の指示：「{0}」
+3005|通常
+3006|自分の指示（未保存）
+3007|プリセットとして保存
+3008|指示を変更
+3009|見た目
+3010|画面上のAIの姿です。それぞれ自分なりのやり方で、今していることを見せます。
+3011|KoLibを開いたときに準備する
+3012|モデルを開いてバックグラウンドで先読みするので、最初の答えが早く届きます。メモリとバッテリーを多く使います。
+3013|質問のたびにチャットへ伝えられる内容です。変更すると答え方が変わります。気に入った指示はプリセットとして保存し、チャットで切り替えられます。
+3014|「{0}」を削除
+3015|この指示に名前を付けてください。同じ名前のプリセットは置き換えられます。
+3016|未完了のダウンロード
+3017|ロボット
+3018|アニメ
+3019|ネコ
+3020|おばけ
+3021|おやすみ中

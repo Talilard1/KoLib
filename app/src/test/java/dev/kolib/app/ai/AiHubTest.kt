@@ -12,6 +12,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -88,6 +89,108 @@ class AiHubTest {
         hub.settingsStore.set(hub.settings.value.copy(source = "own:Other"))
         runBlocking { hub.use { it.contextTokens } }
         assertEquals(listOf(true, false, true, false, true), told.toList())
+    }
+
+    @Test
+    fun aStoppedDownloadStopsAndLetsGoOfWhatItHad() {
+        // A download that hands over a piece only when one's put in: it would never end on its own.
+        val pieces = java.util.concurrent.LinkedBlockingQueue<Int>()
+        val read = java.util.concurrent.atomic.AtomicLong()
+        val opened = java.util.concurrent.atomic.AtomicInteger()
+        fun body() = object : java.io.InputStream() {
+            override fun read(): Int = throw UnsupportedOperationException()
+            override fun read(b: ByteArray, off: Int, len: Int): Int {
+                val n = pieces.poll(10, java.util.concurrent.TimeUnit.SECONDS) ?: return -1
+                read.addAndGet(n.toLong())
+                return n.coerceAtMost(len)
+            }
+        }
+        val model = AiModel("big", "Big", "Nobody", "https://example.invalid/big.gguf", 10_000_000L, "0".repeat(64), "Apache 2.0") { "" }
+        val hub = AiHub(
+            context, scope, canRunHere = { true }, deviceMemory = { 7_400_000_000L }, deviceSpeed = { Device.Speed.FAST },
+            openLocal = { _, tokens -> FakeEngine(tokens) { "" } }, fetch = { _, _ -> opened.incrementAndGet(); ModelStore.Answer(200, body()) },
+        )
+        fun until(what: () -> Boolean) = runBlocking { for (i in 0 until 250) if (!what()) delay(20) }
+        val part = File(context.filesDir, "models/big.gguf.part")
+        hub.download(model)
+        pieces.put(1000)
+        until { hub.downloads.value["big"]?.bytes == 1000L }
+        assertEquals(1000L, hub.downloads.value["big"]?.bytes)
+        assertTrue(part.isFile)
+        // Stopped while it waits for the next piece: it takes that one in, then stops for good.
+        hub.stopDownload(model)
+        assertNull(hub.downloads.value["big"])
+        pieces.put(1000)
+        until { !part.exists() }
+        assertFalse(part.exists())
+        pieces.put(1000)
+        Thread.sleep(300)
+        assertEquals(2000L, read.get())
+        assertNull(hub.downloads.value["big"])
+        assertFalse(hub.downloading)
+        // Downloaded again: a fresh start, and only the one download at a time.
+        pieces.clear()
+        hub.download(model)
+        hub.download(model)
+        pieces.put(500)
+        until { hub.downloads.value["big"]?.bytes == 500L }
+        assertEquals(2, opened.get())
+        hub.stopDownload(model)
+        pieces.put(500)
+        until { !part.exists() }
+        assertFalse(part.exists())
+    }
+
+    @Test
+    fun aDownloadCutOffPartWayCanBeLetGoOf() {
+        val model = AiModel("big", "Big", "Nobody", "https://example.invalid/big.gguf", 10_000_000L, "0".repeat(64), "Apache 2.0") { "" }
+        val hub = AiHub(
+            context, scope, canRunHere = { true }, deviceMemory = { 7_400_000_000L }, deviceSpeed = { Device.Speed.FAST },
+            openLocal = { _, tokens -> FakeEngine(tokens) { "" } },
+            fetch = { _, _ ->
+                ModelStore.Answer(200, object : java.io.InputStream() {
+                    var sent = false
+                    override fun read(): Int = throw UnsupportedOperationException()
+                    override fun read(b: ByteArray, off: Int, len: Int): Int {
+                        if (sent) throw java.io.IOException("Cut off")
+                        sent = true
+                        return 1000.coerceAtMost(len)
+                    }
+                })
+            },
+        )
+        fun until(what: () -> Boolean) = runBlocking { for (i in 0 until 250) if (!what()) delay(20) }
+        hub.download(model)
+        until { hub.downloads.value["big"]?.error != null && hub.unfinishedBytes() > 0L }
+        val part = File(context.filesDir, "models/big.gguf.part")
+        assertTrue(part.isFile)
+        assertEquals(1000L, hub.unfinishedBytes())
+        hub.dropUnfinished()
+        assertFalse(part.exists())
+        assertEquals(0L, hub.unfinishedBytes())
+        assertNull(hub.downloads.value["big"])
+    }
+
+    @Test
+    fun instructionsKeptAsPresetsAreSwitchedBetween() {
+        val hub = hub()
+        hub.settingsStore.set(hub.settings.value.withPreset("Brief", "Answer in a sentence.").withPreset(" Teacher ", "Explain it simply."))
+        assertEquals("Explain it simply.", hub.settings.value.chatPrompt)
+        assertEquals("Teacher", hub.settings.value.preset?.name)
+        // Kept: read back as they were.
+        val again = AiSettingsStore(context).settings.value
+        assertEquals(listOf("Brief", "Teacher"), again.presets.map { it.name })
+        assertEquals("Teacher", again.preset?.name)
+        // Switched; back to the usual; one replaced by its name; one deleted.
+        assertEquals("Answer in a sentence.", again.using(again.presets[0]).chatPrompt)
+        assertEquals("", again.using(null).chatPrompt)
+        assertNull(again.using(null).preset)
+        val replaced = again.withPreset("brief", "Two sentences at most.")
+        assertEquals(listOf("brief", "Teacher"), replaced.presets.map { it.name })
+        assertEquals("Two sentences at most.", replaced.presets[0].text)
+        assertEquals(listOf("Teacher"), replaced.withoutPreset("brief").presets.map { it.name })
+        // Changed after it's picked: not that preset any more.
+        assertNull(again.copy(chatPrompt = "Explain it simply!").preset)
     }
 
     @Test

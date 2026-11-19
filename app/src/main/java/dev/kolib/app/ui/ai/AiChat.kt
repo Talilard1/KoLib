@@ -1,5 +1,7 @@
 package dev.kolib.app.ui.ai
 
+import androidx.compose.ui.draw.alpha
+import androidx.compose.material.icons.outlined.TheaterComedy
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.onLongClick
@@ -404,7 +406,7 @@ class ChatSession(
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ColumnScope.ChatPane(session: ChatSession, place: ChatPlace, hub: AiHub) {
+fun ColumnScope.ChatPane(session: ChatSession, place: ChatPlace, hub: AiHub, onSettings: (() -> Unit)? = null) {
     val reading by session.reading.collectAsState()
     val busy by hub.busy.collectAsState()
     val saved by session.saved.collectAsState()
@@ -425,6 +427,7 @@ fun ColumnScope.ChatPane(session: ChatSession, place: ChatPlace, hub: AiHub) {
         IconButton(onClick = { listing = !listing }, modifier = Modifier.testTag("chat-saved")) {
             Icon(Icons.Outlined.History, tr("Saved chats"), tint = if (listing) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
         }
+        InstructionsMenu(session, place, hub, asking, onSettings)
     }
 
     if (listing) {
@@ -447,13 +450,16 @@ fun ColumnScope.ChatPane(session: ChatSession, place: ChatPlace, hub: AiHub) {
     val scroll = rememberScrollState()
     // What's newest stays in view: a question just asked, and its answer as it's written.
     LaunchedEffect(session.turns.size, asking) { if (session.turns.isNotEmpty()) snapshotFlow { scroll.maxValue }.collect { scroll.scrollTo(it) } }
-    Column(Modifier.weight(1f, fill = false).grows().verticalScroll(scroll).fillMaxWidth().padding(horizontal = 16.dp)) {
+    // Full screen, the conversation takes all the room, with the box to ask in at the foot of it.
+    val full = (LocalContext.current.applicationContext as dev.kolib.app.KoLibApp).aiPanel.full
+    Column(Modifier.weight(1f, fill = full).grows().verticalScroll(scroll).fillMaxWidth().padding(horizontal = 16.dp)) {
+        val presetNow = hub.settings.collectAsState().value.preset
         Text(
             when {
                 inBook && session.readBook -> tr("Ask about the book. It answers from what you've read so far, so it won't give away what's ahead.")
                 inBook -> tr("Ask anything. It isn't reading the book, so it answers from what it knows.")
                 else -> tr("Ask about your books, or anything else. It knows what's in your library.")
-            },
+            } + (presetNow?.let { " " + tr("It's using your “{0}” instructions.", it.name) } ?: ""),
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 8.dp).padding(bottom = 10.dp),
         )
         if (session.turns.isEmpty()) {
@@ -611,6 +617,64 @@ private fun HeldMenu(text: String, tag: String, onEdit: (() -> Unit)?, content: 
                 onClick = { open = false; clipboard.setText(AnnotatedString(text)) }, modifier = Modifier.testTag("$tag-copy"),
             )
         }
+    }
+}
+
+/**
+ * The chat's instructions, switched on the fly: the usual ones or a preset; the ones in use can be kept as a preset
+ * from here, or changed in the AI settings.
+ */
+@Composable
+private fun InstructionsMenu(session: ChatSession, place: ChatPlace, hub: AiHub, asking: Boolean, onSettings: (() -> Unit)?) {
+    val settings by hub.settings.collectAsState()
+    var open by remember { mutableStateOf(false) }
+    var naming by remember { mutableStateOf(false) }
+    val now = settings.preset
+    fun use(preset: dev.kolib.app.ai.PromptPreset?) {
+        hub.settingsStore.set(settings.using(preset))
+        open = false
+        // Read ahead again, with the new instructions.
+        if (!asking) session.warm(hub, place)
+    }
+    Box {
+        IconButton(onClick = { open = true }, modifier = Modifier.testTag("chat-instructions")) {
+            Icon(
+                Icons.Outlined.TheaterComedy, tr("Chat instructions"),
+                tint = if (settings.chatPrompt.isNotEmpty()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            Text(
+                tr("Chat instructions"), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
+            )
+            DropdownMenuItem(
+                text = { Text(tr("Usual")) }, onClick = { use(null) },
+                leadingIcon = { Icon(Icons.Filled.Check, null, Modifier.size(18.dp).alpha(if (settings.chatPrompt.isEmpty()) 1f else 0f)) },
+                modifier = Modifier.testTag("chat-preset-usual"),
+            )
+            settings.presets.forEach { p ->
+                DropdownMenuItem(
+                    text = { Text(p.name, maxLines = 1, overflow = TextOverflow.Ellipsis) }, onClick = { use(p) },
+                    leadingIcon = { Icon(Icons.Filled.Check, null, Modifier.size(18.dp).alpha(if (p == now) 1f else 0f)) },
+                    modifier = Modifier.testTag("chat-preset-${p.name}"),
+                )
+            }
+            if (settings.chatPrompt.isNotEmpty() && now == null) DropdownMenuItem(
+                text = { Text(tr("Your own (not saved)")) }, onClick = { open = false }, enabled = false,
+                leadingIcon = { Icon(Icons.Filled.Check, null, Modifier.size(18.dp)) },
+            )
+            androidx.compose.material3.HorizontalDivider()
+            DropdownMenuItem(
+                text = { Text(tr("Save as a preset")) }, onClick = { open = false; naming = true },
+                modifier = Modifier.testTag("chat-preset-save"),
+            )
+            if (onSettings != null) DropdownMenuItem(text = { Text(tr("Change the instructions")) }, onClick = { open = false; onSettings() })
+        }
+    }
+    if (naming) PresetNameDialog(now?.name.orEmpty(), onDismiss = { naming = false }) { name ->
+        hub.settingsStore.set(settings.withPreset(name, settings.chatPrompt.ifEmpty { dev.kolib.app.ai.Prompts.CHAT_DEFAULT }))
+        naming = false
     }
 }
 

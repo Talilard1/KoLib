@@ -330,6 +330,13 @@ internal fun ReaderScreen(
     // A summary being written stops when the book is closed; the notes are written while it's open.
     DisposableEffect(companion) { onDispose { companion.job?.cancel() } }
     LaunchedEffect(aiPlace) { aiPlace.writer?.run() }
+    // Got ready for questions about the book as it opens, if asked to be: what's on the page read ahead.
+    LaunchedEffect(aiPlace) {
+        if (app.ai.settings.value.preload && app.ai.ready()) {
+            kotlinx.coroutines.delay(3_000)
+            app.chat.warm(app.ai, aiPlace)
+        }
+    }
     // "Ask AI" on the selection toolbar: the chat opens with those words, to ask about them.
     LaunchedEffect(controller.askRequest) {
         controller.askRequest?.let { words ->
@@ -563,7 +570,7 @@ internal fun ReaderScreen(
                     onStats = { panel = Panel.STATS },
                     onEdit = onEdit?.let { edit -> { controller.chapter?.let { edit(it.path) } } },
                     onPdf = onReadAsPdf,
-                    onCompanion = { app.aiPanel.open() },
+                    onCompanion = { app.aiPanel.toggle() },
                     aiPlace = aiPlace,
                 )
             }
@@ -707,7 +714,8 @@ private fun ReaderTopBar(
                 Icon(if (marked) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder, if (marked) tr("Remove bookmark") else tr("Bookmark this page"),
                     tint = if (marked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
             }
-            if (onCompanion != null) IconButton(onClick = onCompanion, modifier = Modifier.testTag("reader-companion")) {
+            // Out of sight while the AI is out as its bubble, which stands in for it.
+            if (onCompanion != null && dev.kolib.app.ui.ai.aiButtonShown()) IconButton(onClick = onCompanion, modifier = Modifier.testTag("reader-companion")) {
                 dev.kolib.app.ui.ai.AiButtonIcon(tr("Summary and questions"), aiPlace)
             }
             if (!compact) IconButton(onClick = onStats) { Icon(Icons.Outlined.BarChart, tr("Reading stats")) }

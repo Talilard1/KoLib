@@ -24,6 +24,14 @@ class ModelStore(val dir: File) {
     /** How much of [model] is here already, from a download that stopped part-way. */
     fun partBytes(model: AiModel): Long = part(model).takeIf { it.isFile }?.length() ?: 0L
 
+    /** What's been downloaded of models so far, that isn't whole yet. */
+    fun parts(): List<File> = dir.listFiles { f -> f.isFile && f.name.endsWith(".gguf.part") }?.toList().orEmpty()
+
+    /** Lets go of what's been downloaded of [model] so far. */
+    fun dropPart(model: AiModel) {
+        part(model).delete()
+    }
+
     /** The user's own model files, by name. */
     fun own(): List<File> = (dir.listFiles { f -> f.isFile && f.name.startsWith(OWN) && f.name.endsWith(".gguf") } ?: emptyArray()).sortedBy { it.name.lowercase() }
 

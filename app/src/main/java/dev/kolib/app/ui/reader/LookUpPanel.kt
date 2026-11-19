@@ -1,5 +1,8 @@
 package dev.kolib.app.ui.reader
 
+import androidx.compose.ui.draw.clip
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.ExpandLess
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -97,9 +100,10 @@ private sealed interface Dict {
 }
 
 /**
- * Looking words up without leaving the book, in a window floating by them: what they mean in the sentence they're in (from the AI model,
- * if one is set up), their dictionary entry (Wiktionary), and Google, Wikipedia and the dictionary apps
- * installed for more. With an app chosen to always look things up in, that app opens straight away instead.
+ * Looking words up without leaving the book, in a window floating by them: what they mean (from the AI model, if one is
+ * set up), with what they mean in the sentence they're in a tap away; their dictionary entry (Wiktionary); and Google,
+ * Wikipedia and the dictionary apps installed for more. With an app chosen to always look things up in, that app
+ * opens straight away instead.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -179,6 +183,8 @@ fun LookUpSheet(controller: ReaderController, settings: ReaderSettings, onSettin
     }
     // The dictionary entry in full: asked for, when there's an answer from the model to read first.
     var dictOpen by remember(word) { mutableStateOf(false) }
+    // What it means in the sentence it's in: written along with its meaning, shown when asked for.
+    var hereOpen by remember(word) { mutableStateOf(false) }
 
     // A small card by the words looked up, pointing at them: as big as what's in it, growing as the answer is written.
     val screen = LocalConfiguration.current
@@ -198,19 +204,31 @@ fun LookUpSheet(controller: ReaderController, settings: ReaderSettings, onSettin
             IconButton(onClick = close, modifier = Modifier.size(44.dp)) { Icon(Icons.Filled.Close, tr("Close"), Modifier.size(20.dp)) }
         }
 
-        // What it means here, then the dictionary. This is the part that grows; what's under it rides its edge.
+        // What it means, then the dictionary. This is the part that grows; what's under it rides its edge.
         Column(Modifier.weight(1f, fill = false).grows().verticalScroll(rememberScrollState()).fillMaxWidth().padding(horizontal = 16.dp).padding(bottom = 2.dp).testTag("look-up")) {
             if (ready) {
-                val (here, usually) = if (phrase) Prompts.readLookUp(saidNow) else cleanAnswer(saidNow) to ""
+                val looked = if (phrase) Prompts.readLookUp(saidNow) else Prompts.LookedUp(cleanAnswer(saidNow), "")
                 when {
-                    here.isNotEmpty() -> StreamingText(here, working, Modifier.testTag("look-up-ai"), style = MaterialTheme.typography.bodyLarge)
+                    looked.meaning.isNotEmpty() -> StreamingText(looked.meaning, working && looked.here.isEmpty(), Modifier.testTag("look-up-ai"), style = MaterialTheme.typography.bodyLarge)
                     working -> StreamingText(
                         if (busy == AiHub.State.OPENING) tr("Getting {0} ready…", hub.name(ai)) else tr("Thinking…"), true,
                         style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                if (usually.isNotEmpty()) {
-                    Text(tr("Usually: {0}", usually), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 4.dp))
+                // What it means where it's used: there for the asking.
+                if (phrase && (looked.meaning.isNotEmpty() || looked.here.isNotEmpty())) {
+                    Row(
+                        Modifier.fillMaxWidth().padding(top = 6.dp).clip(RoundedCornerShape(8.dp)).clickable { hereOpen = !hereOpen }.padding(vertical = 4.dp)
+                            .testTag("look-up-here-button"),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(tr("What it means in this sentence"), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary, modifier = Modifier.weight(1f))
+                        Icon(if (hereOpen) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                    }
+                    if (hereOpen) when {
+                        looked.here.isNotEmpty() -> StreamingText(looked.here, working, Modifier.testTag("look-up-here"), style = MaterialTheme.typography.bodyMedium)
+                        working -> StreamingText(tr("Thinking…"), true, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                 }
                 failed?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error) }
             }

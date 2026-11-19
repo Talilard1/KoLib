@@ -14,13 +14,15 @@ class BookAiTest {
         val said = StringBuilder()
         val end = BookAi.explain(engine, " brooded ", "At the top, the old house brooded over the valley.", book, "French", {}) { said.append(it) }
         assertEquals(AiEnd.DONE, end)
-        assertEquals("it means what it says." to "noun, a thing", Prompts.readLookUp(said.toString()))
+        assertEquals(Prompts.LookedUp("noun, a thing", "it means what it says."), Prompts.readLookUp(said.toString()))
         val (system, user) = engine.asked.single()
         assertEquals("system", system.role)
         assertTrue(system.content.contains("Answer in French"))
         assertTrue(user.content.contains("“The Keeper's Island” by A. Writer"))
         assertTrue(user.content.contains("\"At the top, the old house brooded over the valley.\""))
-        assertTrue(user.content.contains("Explain \"brooded\""))
+        // Asked what it means first, then what it means in the sentence.
+        assertTrue(user.content.contains("Define \"brooded\", then say what it means in this sentence."))
+        assertTrue(user.content.indexOf(Prompts.MEANING) < user.content.indexOf(Prompts.HERE))
     }
 
     @Test

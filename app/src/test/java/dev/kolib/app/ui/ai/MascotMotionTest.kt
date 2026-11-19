@@ -80,6 +80,35 @@ class MascotMotionTest {
     }
 
     @Test
+    fun shakenAboutItGetsDizzy() {
+        val m = MascotMotion(seed = 6)
+        m.shakeReach = 20f
+        m.held = true
+        m.run(0.1f)
+        assertEquals(Act.HELD, m.act)
+        // Carried along, one way: not shaken.
+        repeat(10) {
+            m.dragged(Offset(5f, 0f))
+            m.step(1 / 60f)
+        }
+        assertEquals(Act.HELD, m.act)
+        // Back and forth, hard: dizzy, even as it's held.
+        repeat(6) { i ->
+            repeat(3) {
+                m.dragged(Offset(if (i % 2 == 0) 15f else -15f, 0f))
+                m.step(1 / 60f)
+            }
+        }
+        assertEquals(Act.DIZZY, m.act)
+        // Let go: dizzy a while yet, then itself again.
+        m.held = false
+        m.run(0.2f)
+        assertEquals(Act.DIZZY, m.act)
+        m.run(2f)
+        assertEquals(Act.IDLE, m.act)
+    }
+
+    @Test
     fun leftAloneItNodsOffButAnIconDoesnt() {
         val m = MascotMotion(seed = 3)
         m.run(50f)

@@ -890,8 +890,8 @@
       var wide = picturePage && widePicture();
       if (halves) {
         spreadPicture = true;
-        setVar('--kl-spread-top', Math.max(12, Math.round((settings.minTop || 0) - 10)) + 'px');
-        setVar('--kl-spread-bottom', Math.max(12, Math.round((settings.minBottom || 0) - 10)) + 'px');
+        setVar('--kl-spread-top', pictureRoom().top + 'px');
+        setVar('--kl-spread-bottom', pictureRoom().bottom + 'px');
         // Only shown, not counted: it's two pages either way.
         if (!countingOnly) placeHalves(halves);
         root.classList.add('kl-spread-pair');
@@ -902,8 +902,8 @@
         columns = wide ? 2 : 1;
         displayPage = true;
         // Into the margins, up to the rows of the time and the rest over and under the page, if they're there.
-        setVar('--kl-spread-top', Math.max(12, Math.round((settings.minTop || 0) - 10)) + 'px');
-        setVar('--kl-spread-bottom', Math.max(12, Math.round((settings.minBottom || 0) - 10)) + 'px');
+        setVar('--kl-spread-top', pictureRoom().top + 'px');
+        setVar('--kl-spread-bottom', pictureRoom().bottom + 'px');
         root.classList.add('kl-spread-pic');
       } else if (columns === 1 && centred()) {
         // A book's title page: in the middle of the screen.
@@ -1067,8 +1067,7 @@
    * is left off, so the map runs on across the join.
    */
   function placeHalves(halves) {
-    var top = Math.max(12, Math.round((settings.minTop || 0) - 10));
-    var bottom = Math.max(12, Math.round((settings.minBottom || 0) - 10));
+    var room = pictureRoom(), top = room.top, bottom = room.bottom;
     var availW = W - 24, availH = Math.max(40, H - top - bottom);
     var a = halves[0], b = halves[1];
     a.cut = a.el.localName === 'img' ? blankEdge(a.el, true) : 0;
@@ -1093,12 +1092,16 @@
     st.setProperty('object-position', at, 'important');
   }
 
-  /** The room a picture placed on the screen has, into the margins: up to the rows over and under the page. */
+  /**
+   * The room a picture placed on the screen has, into the margins: up to the rows over and under the page. The page
+   * headings aren't shown over a picture, so their room isn't kept (it grows with the text, and the picture would
+   * shrink with it): the app says how much the rest needs (picTop, picBottom).
+   */
   function pictureRoom() {
-    return {
-      top: Math.max(12, Math.round((settings.minTop || 0) - 10)),
-      bottom: Math.max(12, Math.round((settings.minBottom || 0) - 10)),
-    };
+    var s = settings;
+    var top = s.picTop != null ? s.picTop : (s.minTop || 0);
+    var bottom = s.picBottom != null ? s.picBottom : (s.minBottom || 0);
+    return { top: Math.max(12, Math.round(top - 10)), bottom: Math.max(12, Math.round(bottom - 10)) };
   }
 
   /** [el] set in the box from [x] to [x2] across, as big as fits and in the middle of it, into the margins. */

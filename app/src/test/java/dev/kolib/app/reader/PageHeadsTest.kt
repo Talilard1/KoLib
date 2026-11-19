@@ -196,6 +196,14 @@ class PageHeadsTest {
         val js = JSONObject(s.toJs("en", cutoutTop = 32))
         assertEquals(62, js.getInt("minTop"))
         assertEquals(38, js.getInt("minBottom"))
+        // A page that's only a picture keeps no room for the headings, which aren't shown over it: the same whatever
+        // the text size, so the picture doesn't change size with the text.
+        val printJs = JSONObject(print.toJs("en", 0))
+        val bigger = JSONObject(print.copy(fontScale = print.fontScale * 1.5f).toJs("en", 0))
+        assertTrue(bigger.getInt("minTop") > printJs.getInt("minTop"))
+        assertEquals(printJs.getInt("picTop"), bigger.getInt("picTop"))
+        assertEquals(printJs.getInt("picBottom"), bigger.getInt("picBottom"))
+        assertTrue(printJs.getInt("picTop") < printJs.getInt("minTop"))
         // Nothing at the bottom, no room kept there; scrolling keeps its own bands instead.
         val bare = s.copy(marginItems = MarginItem.entries.associateWith { MarginSpot.OFF }, progressLine = ProgressLine.OFF)
         assertEquals(0, bare.marginRoom().bottom)

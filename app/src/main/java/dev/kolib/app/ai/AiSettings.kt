@@ -22,8 +22,8 @@ data class AiSettings(
     val notesOnCharge: Boolean = false,
     /** Who the AI is on the screen: see Mascot. */
     val mascot: String = "robot",
-    /** The AI button at the top shows the character's face; otherwise the plain AI icon. */
-    val mascotButton: Boolean = true,
+    /** The AI button at the top shows the character's face; otherwise (as it starts) the plain AI icon. */
+    val mascotButton: Boolean = false,
     /** The model is opened as KoLib opens, and reads ahead what's showing, so the first answer comes quicker. */
     val preload: Boolean = false,
     /** Instructions kept under names, to switch between. */
@@ -64,7 +64,7 @@ class AiSettingsStore(context: Context) {
         chatPrompt = prefs.getString("chat_prompt", "").orEmpty(),
         notesOnCharge = prefs.getBoolean("notes_on_charge", false),
         mascot = prefs.getString("mascot", "robot").orEmpty(),
-        mascotButton = prefs.getBoolean("mascot_button", true),
+        mascotButton = prefs.getBoolean("mascot_button", false),
         preload = prefs.getBoolean("preload", false),
         presets = runCatching {
             val all = org.json.JSONArray(prefs.getString("prompt_presets", "[]"))

@@ -445,8 +445,7 @@ private fun BoxWithConstraintsScope.AiWindow(panel: AiPanel, place: ChatPlace, o
                                 Tab(selected = panel.tab == 1, onClick = { panel.showTab(1) }, text = { Text(tr("Ask")) }, modifier = Modifier.testTag("ai-tab-ask"))
                             }
                         } else {
-                            MascotIcon(chosenMascot(), aiMood(place), Modifier.size(28.dp))
-                            Text(tr("AI"), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f).padding(start = 12.dp))
+                            Text(tr("AI"), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
                         }
                         IconButton(onClick = { setup = true }) { Icon(Icons.Outlined.Settings, tr("AI and dictionary settings")) }
                         IconButton(onClick = { panel.fill(!full) }, modifier = Modifier.testTag("ai-full")) {
@@ -519,6 +518,7 @@ private fun AiBubble(panel: AiPanel, room: BubbleRoom, mood: BotMood, library: B
     val motion = rememberMascotMotion()
     motion.mood = mood
     motion.library = library
+    motion.shakeReach = px(18f)
     LaunchedEffect(Unit) { motion.appear() }
     val reach = px(64f)
     val gap = px(8f)
@@ -662,6 +662,8 @@ private fun AiBubble(panel: AiPanel, room: BubbleRoom, mood: BotMood, library: B
                         change.consume()
                         // Where the finger is on the screen, for how fast it's moving when it lets go.
                         tracker.addPosition(change.uptimeMillis, at + change.position)
+                        // Shaken about, it gets dizzy.
+                        motion.dragged(drag)
                         motion.velocity = Offset(drag.x * 60f, drag.y * 60f) * 0.2f
                         at = Offset(
                             (at.x + drag.x).coerceIn(room.area.left, room.area.right),

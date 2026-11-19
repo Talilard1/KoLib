@@ -116,6 +116,14 @@ class AiModelsTest {
         assertEquals(Prompts.LookedUp("verb, to think deeply", "The house"), Prompts.readLookUp("Meaning: verb, to think deeply\nHere: The house"))
         // A model that didn't keep to the form: its words as they are, as the meaning.
         assertEquals(Prompts.LookedUp("It means to loom.", ""), Prompts.readLookUp("It means to loom."))
+        // Or that left the labels off: the first line is the meaning, the next what it means here (not run into it).
+        assertEquals(
+            Prompts.LookedUp("verb, to breathe out with weariness or relief", "Lanoree let out a tired breath as she sat up."),
+            Prompts.readLookUp("verb, to breathe out with weariness or relief\nLanoree let out a tired breath as she sat up."),
+        )
+        // Labels of its own, in bold; or both parts on the one line.
+        assertEquals(both, Prompts.readLookUp("**Definition:** verb, to think deeply\n**In this sentence:** The house loomed over the valley."))
+        assertEquals(both, Prompts.readLookUp("Meaning: verb, to think deeply Here: The house loomed over the valley."))
         assertEquals("French", Prompts.languageName("fr"))
         assertEquals("Japanese", Prompts.languageName("ja-JP"))
         assertEquals("English", Prompts.languageName(null))

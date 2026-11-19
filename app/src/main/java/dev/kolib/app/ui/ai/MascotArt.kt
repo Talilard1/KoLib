@@ -55,8 +55,8 @@ private inline fun DrawScope.fit(s: Float, region: Rect, block: DrawScope.() -> 
 }
 
 /** A limb from [from] to [to], bending outwards ([side]: −1 left, 1 right), as a soft tube. */
-private fun DrawScope.limb(from: Offset, to: Offset, side: Int, s: Float, fill: Color, line: Color, width: Float) {
-    val mid = mix(from, to, 0.5f) + Offset(side * 0.035f * s, 0.01f * s)
+private fun DrawScope.limb(from: Offset, to: Offset, side: Int, s: Float, fill: Color, line: Color, width: Float, bend: Float = 0.035f) {
+    val mid = mix(from, to, 0.5f) + Offset(side * bend * s, 0.01f * s)
     val p = Path().apply {
         moveTo(from)
         quadTo(mid, to)
@@ -441,419 +441,460 @@ internal object RobotArt : MascotArt {
 }
 
 // =================================================================================================================
-// Yume: an anime woman, her long violet hair swept to one side, in a rose cardigan over a cream blouse; a crescent moon
-// clip in her hair, little gold earrings, and reading glasses when she reads.
+// Yume: a glamorous woman, long wavy blonde hair swept to one side, green eyes under heavy lashes, red lips; an
+// off-the-shoulder wine-red dress, gold hoops and a pendant, a red rose in her hair. Cat-eye glasses when she reads.
 
 internal object AnimeArt : MascotArt {
-    private val hair = Color(0xFF3E2E73)
-    private val hairDark = Color(0xFF231848)
-    private val sheen = Color(0xFFA493EE)
-    private val skin = Color(0xFFFFEAE0)
-    private val skinShade = Color(0xFFF2C6B4)
-    private val line = Color(0xFF2E2240)
-    private val irisTop = Color(0xFF3F2185)
-    private val irisLow = Color(0xFFC79BFF)
-    private val pupil = Color(0xFF1A0D33)
-    private val blouse = Color(0xFFFFF8EE)
-    private val cardigan = Color(0xFFD06C86)
-    private val cardiganShade = Color(0xFFAE5069)
-    private val skirt = Color(0xFF2D2F55)
-    private val gold = Color(0xFFFFC94D)
-    private val lips = Color(0xFFC9466C)
-    private val mouthIn = Color(0xFF8E2343)
-    private val tongue = Color(0xFFFF8FA0)
-    override val head = Offset(0.5f, 0.37f)
-    override val headR = 0.22f
+    private val hair = Color(0xFFF2C14E)
+    private val hairShade = Color(0xFFD69A2D)
+    private val hairDeep = Color(0xFFB27420)
+    private val sheen = Color(0xFFFFF1BE)
+    private val skin = Color(0xFFFFE7DA)
+    private val skinShade = Color(0xFFF0BFA8)
+    private val line = Color(0xFF3A2418)
+    private val irisTop = Color(0xFF145A30)
+    private val irisLow = Color(0xFF6FDB98)
+    private val pupil = Color(0xFF0A2414)
+    private val shadow = Color(0xFFD9818F)
+    private val lips = Color(0xFFD2283F)
+    private val lipsDark = Color(0xFF9E1229)
+    private val dress = Color(0xFF8E1E3A)
+    private val dressShade = Color(0xFF64122A)
+    private val gold = Color(0xFFFFCB52)
+    private val rose = Color(0xFFD81E3C)
+    private val leaf = Color(0xFF3E8E4E)
+    override val head = Offset(0.5f, 0.266f)
+    override val headR = 0.19f
+
+    /** Her head, drawn a little larger than her figure's proportions, so her face reads in a small bubble. */
+    private const val HEAD = 1.14f
 
     private fun sway(m: MascotMotion, phase: Float = 0f) =
-        0.012f * sin(m.t * 1.6f + phase) + m.lean * 0.05f + m.dangle * 0.025f * sin(m.t * 9f + phase) + m.hop * 0.015f
+        0.01f * sin(m.t * 1.4f + phase) + m.lean * 0.05f + m.dangle * 0.025f * sin(m.t * 9f + phase) + m.hop * 0.015f
+
+    /** Her hips' sway as she stands, slow. */
+    private fun hips(m: MascotMotion) = 0.008f * sin(m.t * 1.3f) * m.hover
 
     override fun DrawScope.figure(m: MascotMotion, s: Float) {
         fun p(x: Float, y: Float) = Offset(x * s, y * s)
-        val o = 0.013f * s
-        backHair(m, s)
-        // Her neck, shaded under the chin.
-        drawRect(skin, p(0.468f, 0.53f), Size(0.064f * s, 0.11f * s))
-        drawRect(skinShade, p(0.468f, 0.55f), Size(0.064f * s, 0.032f * s))
-        drawLine(line, p(0.468f, 0.56f), p(0.468f, 0.63f), strokeWidth = o * 0.8f)
-        drawLine(line, p(0.532f, 0.56f), p(0.532f, 0.63f), strokeWidth = o * 0.8f)
-        // A navy skirt, pleated.
-        val skirtPath = Path().apply {
-            moveTo(p(0.375f, 0.86f))
-            lineTo(p(0.625f, 0.86f))
-            lineTo(p(0.665f, 0.972f))
-            quadTo(p(0.5f, 0.99f), p(0.335f, 0.972f))
+        val o = 0.011f * s
+        val hp = hips(m)
+        val neck = p(0.5f, 0.45f)
+        withTransform({ scale(HEAD, HEAD, pivot = neck) }) { backHair(m, s) }
+        // Her neck, and her bare shoulders.
+        drawRect(skin, p(0.476f, 0.4f), Size(0.048f * s, 0.15f * s))
+        drawRect(skinShade, p(0.476f, 0.42f), Size(0.048f * s, 0.03f * s))
+        val shoulders = Path().apply {
+            moveTo(p(0.476f, 0.5f))
+            cubicTo(p(0.445f, 0.53f), p(0.395f, 0.535f), p(0.37f, 0.553f))
+            quadTo(p(0.353f, 0.565f), p(0.355f, 0.6f))
+            lineTo(p(0.645f, 0.6f))
+            quadTo(p(0.647f, 0.565f), p(0.63f, 0.553f))
+            cubicTo(p(0.605f, 0.535f), p(0.555f, 0.53f), p(0.524f, 0.5f))
             close()
         }
-        shape(skirtPath, skirt, line, o)
-        for (x in floatArrayOf(0.44f, 0.5f, 0.56f)) drawLine(Color.White.copy(alpha = 0.2f), p(x, 0.885f), p(x + (x - 0.5f) * 0.4f, 0.975f), strokeWidth = 0.006f * s)
-        // The cardigan, shaped at the waist; the blouse shows in its V.
-        val torso = Path().apply {
-            moveTo(p(0.44f, 0.628f))
-            cubicTo(p(0.375f, 0.632f), p(0.335f, 0.652f), p(0.33f, 0.7f))
-            quadTo(p(0.35f, 0.78f), p(0.385f, 0.815f))
-            quadTo(p(0.37f, 0.85f), p(0.365f, 0.888f))
-            lineTo(p(0.635f, 0.888f))
-            quadTo(p(0.63f, 0.85f), p(0.615f, 0.815f))
-            quadTo(p(0.65f, 0.78f), p(0.67f, 0.7f))
-            cubicTo(p(0.665f, 0.652f), p(0.625f, 0.632f), p(0.56f, 0.628f))
-            close()
+        shape(shoulders, skin, line, o)
+        drawRect(skin, p(0.477f, 0.47f), Size(0.046f * s, 0.06f * s))
+        drawLine(line, p(0.476f, 0.43f), p(0.476f, 0.5f), strokeWidth = o * 0.8f)
+        drawLine(line, p(0.524f, 0.43f), p(0.524f, 0.5f), strokeWidth = o * 0.8f)
+        for (side in intArrayOf(-1, 1)) {
+            drawPath(Path().apply {
+                moveTo(p(0.5f + side * 0.075f, 0.552f))
+                quadTo(p(0.5f + side * 0.045f, 0.548f), p(0.5f + side * 0.018f, 0.556f))
+            }, skinShade, style = Stroke(0.005f * s, cap = StrokeCap.Round))
         }
-        shape(torso, Brush.verticalGradient(listOf(cardigan, cardiganShade), 0.63f * s, 0.89f * s), line, o)
-        drawLine(cardiganShade, p(0.37f, 0.866f), p(0.63f, 0.866f), strokeWidth = 0.005f * s)
-        val v = Path().apply {
-            moveTo(p(0.445f, 0.632f))
-            lineTo(p(0.555f, 0.632f))
-            lineTo(p(0.5f, 0.775f))
-            close()
-        }
-        drawPath(v, blouse)
+        // A gold chain and its pendant.
         drawPath(Path().apply {
-            moveTo(p(0.445f, 0.632f))
-            lineTo(p(0.5f, 0.775f))
-            lineTo(p(0.555f, 0.632f))
-        }, line, style = Stroke(o * 0.8f, join = StrokeJoin.Round))
-        drawLine(line, p(0.5f, 0.775f), p(0.5f, 0.888f), strokeWidth = o * 0.7f)
-        for (y in floatArrayOf(0.8f, 0.838f)) {
-            drawCircle(gold, 0.0105f * s, p(0.5f, y))
-            drawCircle(line, 0.0105f * s, p(0.5f, y), style = Stroke(o * 0.5f))
-        }
-        // A standing collar, and a brooch at her throat.
-        val collar = Path().apply {
-            moveTo(p(0.455f, 0.616f))
-            quadTo(p(0.5f, 0.63f), p(0.545f, 0.616f))
-            lineTo(p(0.553f, 0.645f))
-            quadTo(p(0.5f, 0.662f), p(0.447f, 0.645f))
+            moveTo(p(0.468f, 0.505f))
+            quadTo(p(0.48f, 0.55f), p(0.5f, 0.56f))
+            quadTo(p(0.52f, 0.55f), p(0.532f, 0.505f))
+        }, gold, style = Stroke(0.004f * s))
+        val gem = dropPath(p(0.5f, 0.567f), 0.008f * s)
+        shape(gem, rose, line, 0.003f * s)
+
+        // Her dress: off the shoulder, fitted, with a slit at the side.
+        val body = Path().apply {
+            moveTo(p(0.355f, 0.592f))
+            quadTo(p(0.43f, 0.58f), p(0.5f, 0.598f))
+            quadTo(p(0.57f, 0.58f), p(0.645f, 0.592f))
+            cubicTo(p(0.652f, 0.635f), p(0.622f, 0.675f), p(0.585f + hp, 0.71f))
+            cubicTo(p(0.632f + hp, 0.75f), p(0.642f + hp, 0.79f), p(0.638f + hp, 0.83f))
+            lineTo(p(0.655f + hp, 0.95f))
+            quadTo(p(0.5f + hp, 0.965f), p(0.345f + hp, 0.95f))
+            lineTo(p(0.362f + hp, 0.83f))
+            cubicTo(p(0.358f + hp, 0.79f), p(0.368f + hp, 0.75f), p(0.415f + hp, 0.71f))
+            cubicTo(p(0.378f, 0.675f), p(0.348f, 0.635f), p(0.355f, 0.592f))
             close()
         }
-        shape(collar, blouse, line, o * 0.7f)
-        drawCircle(gold, 0.012f * s, p(0.5f, 0.662f))
-        drawCircle(line, 0.012f * s, p(0.5f, 0.662f), style = Stroke(o * 0.5f))
-        drawCircle(Color.White.copy(alpha = 0.85f), 0.004f * s, p(0.496f, 0.658f))
-
-        drawHead(m, s)
-
-        // Her arms in the cardigan's sleeves, what she holds, and her hands.
-        val (lh, rh) = hands(m, Poses(
-            rest = Offset(0.355f, 0.86f) to Offset(0.645f, 0.86f),
-            sad = Offset(0.46f, 0.835f) to Offset(0.54f, 0.835f),
-            book = Offset(0.385f, 0.775f) to Offset(0.615f, 0.775f),
-            note = Offset(0.41f, 0.83f) to (pencilTip(Offset(0.47f, 0.82f), 0.2f, m.t) + GRIP),
-            chin = Offset(0.545f, 0.585f),
-            wave = Offset(0.775f + 0.025f * sin(m.t * 12f), 0.48f),
-            cheer = Offset(0.255f, 0.44f + 0.015f * sin(m.t * 9f)) to Offset(0.745f, 0.44f + 0.015f * sin(m.t * 9f + 1.4f)),
-            dangle = Offset(0.28f + 0.03f * sin(m.t * 10f), 0.42f) to Offset(0.72f + 0.03f * sin(m.t * 10f + 1f), 0.42f),
-            special = Offset(0.672f + 0.018f * cos(m.t * 8f), 0.68f + 0.018f * sin(m.t * 8f)),
-        ), s)
-        limb(p(0.35f, 0.68f), lh, -1, s, cardigan, line, 0.05f * s)
-        limb(p(0.65f, 0.68f), rh, 1, s, cardigan, line, 0.05f * s)
-        held(m, s, Offset(0.5f, 0.775f), 0.28f, Offset(0.47f, 0.82f), 0.2f, Color(0xFF6A4FC2), line)
-        for (h in listOf(lh, rh)) {
-            drawCircle(skin, 0.023f * s, h)
-            drawCircle(line, 0.023f * s, h, style = Stroke(o * 0.8f))
+        shape(body, Brush.verticalGradient(listOf(dress, dress, dressShade), 0.59f * s, 0.96f * s), line, o)
+        // Light along her side, the shape of her waist.
+        drawPath(Path().apply {
+            moveTo(p(0.395f, 0.64f))
+            quadTo(p(0.42f, 0.69f), p(0.43f + hp, 0.72f))
+        }, Color.White.copy(alpha = 0.18f), style = Stroke(0.012f * s, cap = StrokeCap.Round))
+        val slit = Path().apply {
+            moveTo(p(0.604f + hp, 0.83f))
+            lineTo(p(0.632f + hp, 0.951f))
+            lineTo(p(0.59f + hp, 0.954f))
+            close()
         }
+        drawPath(slit, skin)
+        drawPath(Path().apply {
+            moveTo(p(0.59f + hp, 0.954f))
+            lineTo(p(0.604f + hp, 0.83f))
+            lineTo(p(0.632f + hp, 0.951f))
+        }, line, style = Stroke(o * 0.8f, join = StrokeJoin.Round))
+
+        withTransform({ scale(HEAD, HEAD, pivot = neck) }) { drawHead(m, s) }
+
+        // Her arms, a hand on her hip as she waits; what she holds; her hands.
+        val (lh, rh0) = hands(m, Poses(
+            rest = Offset(0.418f + hp, 0.715f) to Offset(0.655f + hp, 0.83f),
+            sad = Offset(0.47f, 0.8f) to Offset(0.53f, 0.8f),
+            book = Offset(0.39f, 0.74f) to Offset(0.61f, 0.74f),
+            note = Offset(0.41f, 0.8f) to (pencilTip(Offset(0.47f, 0.78f), 0.2f, m.t) + GRIP),
+            chin = Offset(0.53f, 0.41f),
+            wave = Offset(0.74f + 0.022f * sin(m.t * 12f), 0.4f),
+            cheer = Offset(0.3f, 0.36f + 0.012f * sin(m.t * 9f)) to Offset(0.7f, 0.36f + 0.012f * sin(m.t * 9f + 1.4f)),
+            dangle = Offset(0.31f + 0.03f * sin(m.t * 10f), 0.35f) to Offset(0.69f + 0.03f * sin(m.t * 10f + 1f), 0.35f),
+            special = Offset(0.655f + 0.012f * cos(m.t * 7f), 0.23f + 0.04f * (m.special - 0.5f)),
+        ), s)
+        // A kiss blown: her fingers to her lips, then away.
+        val kiss = max(m.wink, if (m.act == Act.HAPPY && m.actT < 1.4f) sin(PI.toFloat() * m.actT / 1.4f) else 0f)
+        val rh = mix(rh0, p(0.54f + 0.06f * (1f - kiss), 0.382f - 0.01f * (1f - kiss)), kiss)
+        val akimbo = 0.075f * (1f - max(max(m.book, m.note), max(m.cheer, m.dangle))) * (1f - m.sad)
+        limb(p(0.372f, 0.6f), lh, -1, s, skin, line, 0.03f * s, bend = 0.035f + akimbo)
+        limb(p(0.628f, 0.6f), rh, 1, s, skin, line, 0.03f * s)
+        // The off-the-shoulder sleeves, over her arms' tops.
+        for (side in intArrayOf(-1, 1)) {
+            val c = p(0.5f + side * 0.142f, 0.607f)
+            val puff = Path().apply { addOval(Rect(c.x - 0.035f * s, c.y - 0.022f * s, c.x + 0.035f * s, c.y + 0.022f * s)) }
+            shape(puff, dress, line, o * 0.9f)
+        }
+        held(m, s, Offset(0.5f, 0.74f), 0.26f, Offset(0.47f, 0.78f), 0.2f, Color(0xFF2B2B3A), line)
+        for (h in listOf(lh, rh)) {
+            drawCircle(skin, 0.019f * s, h)
+            drawCircle(line, 0.019f * s, h, style = Stroke(o * 0.8f))
+        }
+        // Red nails, a touch of glamour.
+        drawCircle(lips, 0.006f * s, rh + Offset(-0.008f * s, -0.012f * s))
     }
 
     private fun DrawScope.backHair(m: MascotMotion, s: Float) {
         fun p(x: Float, y: Float) = Offset(x * s, y * s)
         val sw = sway(m)
         val back = Path().apply {
-            moveTo(p(0.27f, 0.4f))
-            cubicTo(p(0.21f, 0.02f), p(0.79f, 0.02f), p(0.73f, 0.4f))
-            cubicTo(p(0.765f, 0.5f), p(0.775f + sw, 0.64f), p(0.755f + sw, 0.815f))
-            quadTo(p(0.72f + sw, 0.85f), p(0.69f + sw, 0.805f))
-            quadTo(p(0.655f + sw, 0.85f), p(0.625f + sw, 0.81f))
-            lineTo(p(0.375f + sw, 0.81f))
-            quadTo(p(0.345f + sw, 0.85f), p(0.31f + sw, 0.805f))
-            quadTo(p(0.28f + sw, 0.85f), p(0.245f + sw, 0.815f))
-            cubicTo(p(0.225f + sw, 0.64f), p(0.235f, 0.5f), p(0.27f, 0.4f))
+            moveTo(p(0.37f, 0.3f))
+            cubicTo(p(0.31f, 0.06f), p(0.69f, 0.06f), p(0.63f, 0.3f))
+            cubicTo(p(0.71f, 0.4f), p(0.73f + sw, 0.5f), p(0.7f + sw, 0.6f))
+            cubicTo(p(0.685f + sw, 0.66f), p(0.74f + sw, 0.7f), p(0.7f + sw, 0.76f))
+            quadTo(p(0.665f + sw, 0.79f), p(0.64f + sw, 0.75f))
+            lineTo(p(0.36f + sw, 0.75f))
+            quadTo(p(0.335f + sw, 0.79f), p(0.3f + sw, 0.76f))
+            cubicTo(p(0.26f + sw, 0.7f), p(0.315f + sw, 0.66f), p(0.3f + sw, 0.6f))
+            cubicTo(p(0.27f + sw, 0.5f), p(0.29f, 0.4f), p(0.37f, 0.3f))
             close()
         }
-        shape(back, Brush.verticalGradient(listOf(hair, hairDark), 0.12f * s, 0.9f * s), line, 0.013f * s)
+        shape(back, Brush.verticalGradient(listOf(hair, hairShade, hairDeep), 0.1f * s, 0.78f * s), line, 0.011f * s)
+        // Waves in it.
+        for (side in intArrayOf(-1, 1)) {
+            drawPath(Path().apply {
+                moveTo(p(0.5f + side * 0.17f, 0.42f))
+                cubicTo(p(0.5f + side * 0.2f + sw, 0.52f), p(0.5f + side * 0.15f + sw, 0.6f), p(0.5f + side * 0.18f + sw, 0.7f))
+            }, hairDeep.copy(alpha = 0.5f), style = Stroke(0.006f * s, cap = StrokeCap.Round))
+        }
     }
 
     private fun DrawScope.drawHead(m: MascotMotion, s: Float) {
         fun p(x: Float, y: Float) = Offset(x * s, y * s)
-        val o = 0.013f * s
+        val o = 0.011f * s
         val faceShape = Path().apply {
-            moveTo(p(0.5f, 0.19f))
-            cubicTo(p(0.61f, 0.19f), p(0.69f, 0.26f), p(0.688f, 0.39f))
-            cubicTo(p(0.685f, 0.47f), p(0.57f, 0.555f), p(0.5f, 0.578f))
-            cubicTo(p(0.43f, 0.555f), p(0.315f, 0.47f), p(0.312f, 0.39f))
-            cubicTo(p(0.31f, 0.26f), p(0.39f, 0.19f), p(0.5f, 0.19f))
+            moveTo(p(0.5f, 0.115f))
+            cubicTo(p(0.585f, 0.115f), p(0.638f, 0.17f), p(0.636f, 0.27f))
+            cubicTo(p(0.634f, 0.36f), p(0.56f, 0.425f), p(0.5f, 0.445f))
+            cubicTo(p(0.44f, 0.425f), p(0.366f, 0.36f), p(0.364f, 0.27f))
+            cubicTo(p(0.362f, 0.17f), p(0.415f, 0.115f), p(0.5f, 0.115f))
             close()
         }
         shape(faceShape, skin, line, o)
         clipPath(faceShape) {
             drawPath(Path().apply {
-                moveTo(p(0.3f, 0.355f))
-                quadTo(p(0.5f, 0.405f), p(0.7f, 0.355f))
-                lineTo(p(0.7f, 0.3f))
-                lineTo(p(0.3f, 0.3f))
+                moveTo(p(0.36f, 0.215f))
+                quadTo(p(0.5f, 0.255f), p(0.64f, 0.215f))
+                lineTo(p(0.64f, 0.17f))
+                lineTo(p(0.36f, 0.17f))
                 close()
-            }, skinShade.copy(alpha = 0.5f))
+            }, skinShade.copy(alpha = 0.45f))
         }
         face(m, s)
         brows(m, s)
         fringe(m, s)
         sideLocks(m, s)
         earrings(m, s)
-        ahoge(m, s)
-        moon(m, s)
+        rose(m, s)
     }
 
-    /** Her fringe, swept from a parting on her right across to the left. */
+    /** Her fringe, swept from a parting on her left across her brow to the right. */
     private fun DrawScope.fringe(m: MascotMotion, s: Float) {
         fun p(x: Float, y: Float) = Offset(x * s, y * s)
-        val o = 0.013f * s
-        // From her right temple to her left: roots and the tips of the locks between them.
-        val edge = listOf(
-            0.712f to 0.44f, 0.7f to 0.36f, 0.678f to 0.41f, 0.655f to 0.29f, 0.622f to 0.335f, 0.585f to 0.265f,
-            0.53f to 0.335f, 0.505f to 0.275f, 0.44f to 0.345f, 0.415f to 0.285f, 0.355f to 0.375f, 0.33f to 0.31f,
-            0.3f to 0.42f, 0.288f to 0.44f,
-        )
-        val path = Path().apply {
-            moveTo(p(0.288f, 0.44f))
-            cubicTo(p(0.24f, 0.04f), p(0.76f, 0.04f), p(0.712f, 0.44f))
-            for (i in 1 until edge.size) {
-                val a = edge[i - 1]
-                val b = edge[i]
-                val mid = Offset((a.first + b.first) / 2f, (a.second + b.second) / 2f)
-                // A lock's edge bows down and out as it sweeps left; back up to the next root, a little in.
-                val bow = if (b.second > a.second) Offset(0.014f, 0.01f) else Offset(-0.004f, -0.01f)
-                quadTo(p(mid.x + bow.x, mid.y + bow.y), p(b.first, b.second))
-            }
+        val o = 0.011f * s
+        val sw = sway(m) * 0.4f
+        val top = Path().apply {
+            moveTo(p(0.36f, 0.31f))
+            cubicTo(p(0.315f, 0.03f), p(0.685f, 0.03f), p(0.64f, 0.31f))
+            lineTo(p(0.646f + sw, 0.345f))
+            // The long lock, curving down past her right eye.
+            cubicTo(p(0.6f + sw, 0.31f), p(0.59f, 0.235f), p(0.545f, 0.212f))
+            quadTo(p(0.53f, 0.232f), p(0.5f, 0.2f))
+            quadTo(p(0.472f, 0.21f), p(0.45f, 0.165f))
+            // To her left, the short side, back down to her temple.
+            cubicTo(p(0.42f, 0.2f), p(0.385f, 0.24f), p(0.372f, 0.29f))
+            lineTo(p(0.36f, 0.31f))
             close()
         }
-        shape(path, Brush.verticalGradient(listOf(hair, hair, hairDark), 0.12f * s, 0.44f * s), line, o)
-        // The parting, and the shine round her crown.
+        shape(top, Brush.verticalGradient(listOf(sheen, hair, hairShade), 0.08f * s, 0.34f * s), line, o)
+        // Strands, and the shine on her crown.
         drawPath(Path().apply {
-            moveTo(p(0.565f, 0.155f))
-            quadTo(p(0.585f, 0.21f), p(0.585f, 0.262f))
-        }, hairDark, style = Stroke(0.008f * s, cap = StrokeCap.Round))
-        for (i in 0..3) {
-            val a = 0.33f + i * 0.09f
-            val y = 0.205f - 0.025f * sin(PI.toFloat() * (a + 0.04f - 0.3f) / 0.4f)
-            drawPath(Path().apply {
-                moveTo(p(a, y + 0.008f))
-                quadTo(p(a + 0.03f, y - 0.008f), p(a + 0.06f, y + 0.004f))
-            }, sheen.copy(alpha = 0.7f), style = Stroke(0.016f * s, cap = StrokeCap.Round))
-        }
+            moveTo(p(0.47f, 0.1f))
+            cubicTo(p(0.52f, 0.13f), p(0.58f, 0.2f), p(0.615f, 0.29f))
+        }, hairDeep.copy(alpha = 0.55f), style = Stroke(0.005f * s, cap = StrokeCap.Round))
+        drawPath(Path().apply {
+            moveTo(p(0.455f, 0.12f))
+            quadTo(p(0.41f, 0.17f), p(0.39f, 0.24f))
+        }, hairDeep.copy(alpha = 0.5f), style = Stroke(0.005f * s, cap = StrokeCap.Round))
+        drawPath(Path().apply {
+            moveTo(p(0.4f, 0.12f))
+            quadTo(p(0.47f, 0.085f), p(0.56f, 0.1f))
+        }, Color.White.copy(alpha = 0.55f), style = Stroke(0.012f * s, cap = StrokeCap.Round))
     }
 
-    /** The long locks either side of her face, falling over her shoulders; she twirls the right one. */
+    /** The long locks either side of her face, in waves over her shoulders; she flips the right one back. */
     private fun DrawScope.sideLocks(m: MascotMotion, s: Float) {
         fun p(x: Float, y: Float) = Offset(x * s, y * s)
-        val o = 0.013f * s
-        val twirl = if (m.special > 0.05f && m.special < 0.95f) sin(PI.toFloat() * m.special) else 0f
+        val o = 0.011f * s
+        val flip = if (m.special > 0.05f && m.special < 0.95f) sin(PI.toFloat() * m.special) else 0f
         for (side in intArrayOf(-1, 1)) {
             val sw = sway(m, if (side < 0) 0f else 1.3f)
             fun q(x: Float, y: Float) = p(0.5f + side * (x - 0.5f), y)
-            val tipShift = if (side == 1) Offset(0.016f * cos(m.t * 8f) * twirl * s, 0.016f * sin(m.t * 8f) * twirl * s) else Offset.Zero
-            val tip = q(0.28f, 0.71f) + Offset(sw * s, 0f) + tipShift
+            val tossed = if (side == 1) Offset(0.06f * flip * s, -0.12f * flip * s) else Offset.Zero
+            val tip = q(0.37f, 0.67f) + Offset(sw * s, 0f) + tossed
             val lock = Path().apply {
-                moveTo(q(0.29f, 0.35f))
-                cubicTo(q(0.25f, 0.47f), q(0.24f, 0.62f) + Offset(sw * 0.5f * s, 0f), tip)
-                cubicTo(q(0.3f, 0.66f) + Offset(sw * s, 0f), q(0.33f, 0.52f), q(0.338f, 0.4f))
+                moveTo(q(0.368f, 0.25f))
+                cubicTo(q(0.33f, 0.36f), q(0.325f, 0.47f) + Offset(sw * 0.5f * s, 0f) + tossed * 0.4f, q(0.35f, 0.56f) + Offset(sw * s, 0f) + tossed * 0.7f)
+                cubicTo(q(0.37f, 0.6f) + Offset(sw * s, 0f) + tossed * 0.8f, q(0.335f, 0.63f) + Offset(sw * s, 0f) + tossed, tip)
+                cubicTo(q(0.4f, 0.62f) + Offset(sw * s, 0f) + tossed, q(0.38f, 0.5f) + tossed * 0.5f, q(0.392f, 0.33f))
                 close()
             }
-            shape(lock, hair, line, o)
+            shape(lock, Brush.verticalGradient(listOf(hair, hairShade), 0.25f * s, 0.67f * s), line, o)
             drawPath(Path().apply {
-                moveTo(q(0.285f, 0.45f))
-                quadTo(q(0.27f, 0.58f), mix(q(0.285f, 0.62f), tip, 0.5f))
-            }, sheen.copy(alpha = 0.45f), style = Stroke(0.009f * s, cap = StrokeCap.Round))
+                moveTo(q(0.36f, 0.32f))
+                quadTo(q(0.34f, 0.44f) + tossed * 0.4f, mix(q(0.355f, 0.55f), tip, 0.3f))
+            }, sheen.copy(alpha = 0.7f), style = Stroke(0.008f * s, cap = StrokeCap.Round))
         }
     }
 
     private fun DrawScope.earrings(m: MascotMotion, s: Float) {
         for (side in intArrayOf(-1, 1)) {
-            val at = Offset((0.5f + side * 0.177f) * s, 0.478f * s)
-            drawCircle(gold, 0.0065f * s, at)
-            rotate(-m.lean * 25f + 6f * sin(m.t * 2.2f + side), at) {
-                val drop = dropPath(at + Offset(0f, 0.022f * s), 0.009f * s)
-                drawPath(drop, gold)
-                drawPath(drop, line, style = Stroke(0.004f * s))
+            val at = Offset((0.5f + side * 0.128f) * s, 0.352f * s)
+            rotate(-m.lean * 25f + 7f * sin(m.t * 2f + side), Offset(at.x, at.y - 0.012f * s)) {
+                drawCircle(gold, 0.013f * s, at, style = Stroke(0.004f * s))
             }
         }
     }
 
-    /** A crescent moon clip in her hair. */
-    private fun DrawScope.moon(m: MascotMotion, s: Float) {
-        val c = Offset(0.668f * s, 0.255f * s)
-        val r = 0.028f * s
-        val crescent = Path().apply {
-            op(
-                Path().apply { addOval(Rect(c, r)) },
-                Path().apply { addOval(Rect(c + Offset(0.013f * s, -0.009f * s), r * 0.82f)) },
-                androidx.compose.ui.graphics.PathOperation.Difference,
-            )
+    /** A red rose in her hair. */
+    private fun DrawScope.rose(m: MascotMotion, s: Float) {
+        val c = Offset(0.618f * s, 0.16f * s)
+        val r = 0.024f * s
+        for (side in intArrayOf(-1, 1)) {
+            val leafPath = Path().apply {
+                moveTo(c)
+                quadTo(c + Offset(side * 0.03f * s, 0.005f * s), c + Offset(side * 0.042f * s, 0.024f * s))
+                quadTo(c + Offset(side * 0.012f * s, 0.03f * s), c)
+                close()
+            }
+            shape(leafPath, leaf, line, 0.004f * s)
         }
-        rotate(-20f + 8f * sin(m.t * 1.3f) + m.joy * 10f * sin(m.t * 8f), c) {
-            shape(crescent, gold, line, 0.008f * s)
-            drawCircle(Color.White.copy(alpha = 0.8f), 0.005f * s, c + Offset(-0.014f * s, 0.004f * s))
-        }
-        sparkle(c + Offset(0.035f * s, -0.03f * s), (0.012f + 0.006f * sin(m.t * 3f)) * s, m.t, gold)
-    }
-
-    /** The one springy strand on her crown; a question mark while she thinks. */
-    private fun DrawScope.ahoge(m: MascotMotion, s: Float) {
-        fun p(x: Float, y: Float) = Offset(x * s, y * s)
-        val q = m.chin
-        val root = p(0.52f, 0.145f)
-        val a1 = mix(p(0.517f, 0.115f), p(0.52f, 0.12f), q)
-        val a2 = mix(p(0.5f, 0.08f), p(0.483f, 0.083f), q)
-        val a3 = mix(p(0.532f, 0.07f), p(0.518f, 0.058f), q)
-        val b1 = mix(p(0.562f, 0.062f), p(0.562f, 0.04f), q)
-        val b2 = mix(p(0.575f, 0.09f), p(0.58f, 0.086f), q)
-        val b3 = mix(p(0.562f, 0.108f), p(0.535f, 0.104f), q)
-        val strand = Path().apply {
-            moveTo(root)
-            cubicTo(a1, a2, a3)
-            cubicTo(b1, b2, b3)
-        }
-        rotate(9f * sin(m.t * 2.2f) + m.lean * 25f + m.hop * 18f, root) {
-            drawPath(strand, line, style = Stroke(0.024f * s, cap = StrokeCap.Round))
-            drawPath(strand, hair, style = Stroke(0.013f * s, cap = StrokeCap.Round))
-        }
+        drawCircle(rose, r, c)
+        drawCircle(line, r, c, style = Stroke(0.005f * s))
+        spiral(c, r * 0.8f, 0.6f + 0.15f * sin(m.t), lipsDark, 0.005f * s)
+        drawCircle(Color.White.copy(alpha = 0.45f), r * 0.25f, c + Offset(-r * 0.4f, -r * 0.45f))
     }
 
     private fun DrawScope.face(m: MascotMotion, s: Float) {
         fun p(x: Float, y: Float) = Offset(x * s, y * s)
-        for (side in intArrayOf(-1, 1)) eye(m, s, p(0.5f + side * 0.083f, 0.418f), side)
-        // A beauty mark under her left eye.
-        drawCircle(line.copy(alpha = 0.85f), 0.0045f * s, p(0.398f, 0.462f))
-        // Reading glasses, as she reads.
+        for (side in intArrayOf(-1, 1)) eye(m, s, p(0.5f + side * 0.06f, 0.287f), side)
+        // A beauty mark by her lips.
+        drawCircle(line.copy(alpha = 0.85f), 0.0042f * s, p(0.538f, 0.405f))
+        // Cat-eye glasses, as she reads.
         if (m.book > 0.3f && !m.library) {
-            val g = Color(0xFFC9A227).copy(alpha = ((m.book - 0.3f) / 0.5f).coerceIn(0f, 1f))
+            val g = Color(0xFF2B1A12).copy(alpha = ((m.book - 0.3f) / 0.5f).coerceIn(0f, 1f))
             for (side in intArrayOf(-1, 1)) {
-                val c = p(0.5f + side * 0.083f, 0.42f)
-                drawOval(g, Offset(c.x - 0.06f * s, c.y - 0.045f * s), Size(0.12f * s, 0.09f * s), style = Stroke(0.007f * s))
-                drawLine(g, Offset(c.x + side * 0.06f * s, c.y - 0.01f * s), p(0.5f + side * 0.19f, 0.405f), strokeWidth = 0.006f * s)
+                val c = p(0.5f + side * 0.058f, 0.29f)
+                val frame = Path().apply {
+                    moveTo(c.x - side * 0.04f * s, c.y - 0.012f * s)
+                    quadraticTo(c.x, c.y - 0.03f * s, c.x + side * 0.05f * s, c.y - 0.03f * s)
+                    quadraticTo(c.x + side * 0.044f * s, c.y + 0.03f * s, c.x, c.y + 0.026f * s)
+                    quadraticTo(c.x - side * 0.042f * s, c.y + 0.022f * s, c.x - side * 0.04f * s, c.y - 0.012f * s)
+                    close()
+                }
+                drawPath(frame, g, style = Stroke(0.006f * s, join = StrokeJoin.Round))
             }
-            drawLine(g, p(0.477f, 0.41f), p(0.523f, 0.41f), strokeWidth = 0.006f * s)
+            drawLine(g, p(0.482f, 0.282f), p(0.518f, 0.282f), strokeWidth = 0.005f * s)
         }
-        for (side in intArrayOf(-1, 1)) blush(p(0.5f + side * 0.112f, 0.476f), s, 0.055f * s, 0.22f + 0.45f * max(max(m.joy, m.dangle * 0.8f), m.wink), m.dangle > 0.5f)
-        drawLine(skinShade, p(0.498f, 0.468f), p(0.503f, 0.476f), strokeWidth = 0.007f * s, cap = StrokeCap.Round)
-        mouth(m, s, p(0.5f, 0.512f))
-        if (m.sad > 0.3f) tear(p(0.41f, 0.47f), s, m.t)
-        // A bubble at her nose as she sleeps, growing and shrinking with her breath.
-        if (m.sleepy > 0.7f) {
-            val r = (0.012f + 0.018f * (0.5f + 0.5f * sin(m.t * 1.8f))) * s
-            val c = p(0.53f, 0.484f) + Offset(r * 0.6f, 0f)
-            drawCircle(Color(0xFF9BD7FF).copy(alpha = 0.45f), r, c)
-            drawCircle(Color.White.copy(alpha = 0.8f), r, c, style = Stroke(0.005f * s))
-            drawCircle(Color.White.copy(alpha = 0.9f), r * 0.25f, c + Offset(-r * 0.35f, -r * 0.35f))
-        }
+        for (side in intArrayOf(-1, 1)) blush(p(0.5f + side * 0.085f, 0.345f), s, 0.045f * s, 0.18f + 0.45f * max(max(m.joy, m.dangle * 0.8f), m.wink), m.dangle > 0.5f)
+        drawLine(skinShade, p(0.499f, 0.34f), p(0.503f, 0.35f), strokeWidth = 0.006f * s, cap = StrokeCap.Round)
+        mouth(m, s, p(0.5f, 0.388f))
+        if (m.sad > 0.3f) tear(p(0.445f, 0.325f), s, m.t)
     }
 
     private fun DrawScope.brows(m: MascotMotion, s: Float) {
         for (side in intArrayOf(-1, 1)) {
-            val up = 0.012f * m.wide + (if (side == 1) 0.016f * m.chin else 0f) + 0.008f * m.dangle
-            val y = 0.358f - up
-            val inner = Offset((0.5f + side * 0.038f) * s, (y + 0.006f - 0.018f * m.sad) * s)
-            val outer = Offset((0.5f + side * 0.128f) * s, (y + 0.012f + 0.008f * m.sad) * s)
-            val mid = Offset((0.5f + side * 0.085f) * s, (y - 0.008f) * s)
+            val up = 0.01f * m.wide + (if (side == -1) 0.012f * m.chin else 0f) + 0.006f * m.dangle
+            val y = 0.247f - up
+            val inner = Offset((0.5f + side * 0.026f) * s, (y + 0.006f - 0.014f * m.sad) * s)
+            val outer = Offset((0.5f + side * 0.098f) * s, (y + 0.01f + 0.006f * m.sad) * s)
+            val arch = Offset((0.5f + side * 0.072f) * s, (y - 0.01f) * s)
             drawPath(Path().apply {
                 moveTo(inner)
-                quadTo(mid, outer)
-            }, hairDark, style = Stroke(0.0065f * s, cap = StrokeCap.Round))
+                quadTo(arch, outer)
+            }, hairDeep, style = Stroke(0.0055f * s, cap = StrokeCap.Round))
         }
     }
 
     private fun DrawScope.eye(m: MascotMotion, s: Float, c: Offset, side: Int) {
-        val ew = 0.1f * s
+        val ew = 0.084f * s
+        // Heavy-lidded as she waits: wide open when something's done to her.
+        val sultry = (0.32f * (1f - m.wide) * (1f - m.dangle) * (1f - m.sad * 0.6f)).coerceIn(0f, 0.32f)
         when (eyeLook(m, side == 1)) {
-            EyeLook.HAPPY -> closedEye(c, ew * 0.9f, s, true, line, 0.014f * s)
-            EyeLook.SHUT -> {
-                // Asleep: lids down, lashes along them.
-                closedEye(c + Offset(0f, 0.006f * s), ew * 0.95f, s, false, line, 0.013f * s)
-                drawLine(line, c + Offset(side * ew * 0.42f, 0.004f * s), c + Offset(side * ew * 0.55f, 0.016f * s), strokeWidth = 0.007f * s, cap = StrokeCap.Round)
+            EyeLook.HAPPY -> {
+                closedEye(c, ew * 0.9f, s, true, line, 0.012f * s)
+                drawLine(line, c + Offset(side * ew * 0.44f, -0.002f * s), c + Offset(side * ew * 0.62f, -0.014f * s), strokeWidth = 0.007f * s, cap = StrokeCap.Round)
             }
-            EyeLook.SPIRAL -> spiral(c, 0.042f * s, m.t * 6f * side, line, 0.009f * s)
-            EyeLook.SQUEEZED -> squeezed(c, 0.055f * s, side, line, 0.013f * s)
+            EyeLook.SHUT -> {
+                // Asleep, or a long slow blink: lids down, lashes along them.
+                closedEye(c + Offset(0f, 0.004f * s), ew * 0.95f, s, false, line, 0.011f * s)
+                for (k in 0..2) {
+                    val x = c.x + side * ew * (0.18f + k * 0.14f)
+                    drawLine(line, Offset(x, c.y + 0.008f * s), Offset(x + side * 0.004f * s, c.y + 0.016f * s), strokeWidth = 0.004f * s, cap = StrokeCap.Round)
+                }
+            }
+            EyeLook.SPIRAL -> spiral(c, 0.034f * s, m.t * 6f * side, line, 0.008f * s)
+            EyeLook.SQUEEZED -> squeezed(c, 0.045f * s, side, line, 0.011f * s)
             EyeLook.OPEN -> {
-                val eh = 0.086f * s * (1f + 0.22f * m.wide) * m.open
-                // Almond-shaped: the inner corner low, the outer one lifted.
+                val eh = 0.062f * s * (1f + 0.3f * m.wide) * m.open
                 val inner = Offset(c.x - side * ew * 0.5f, c.y + 0.004f * s)
-                val outer = Offset(c.x + side * ew * 0.5f, c.y - 0.008f * s)
-                val topA = Offset(c.x - side * ew * 0.25f, c.y - eh * 0.78f)
-                val topB = Offset(c.x + side * ew * 0.3f, c.y - eh * 0.82f)
+                val outer = Offset(c.x + side * ew * 0.52f, c.y - 0.009f * s)
+                val lid = eh * sultry
+                val topA = Offset(c.x - side * ew * 0.25f, c.y - eh * 0.8f + lid * 1.6f)
+                val topB = Offset(c.x + side * ew * 0.3f, c.y - eh * 0.85f + lid * 1.6f)
+                // Shadow over the lid.
+                drawPath(Path().apply {
+                    moveTo(inner + Offset(0f, -0.004f * s))
+                    cubicTo(topA + Offset(0f, -0.018f * s), topB + Offset(0f, -0.02f * s), outer + Offset(side * 0.01f * s, -0.01f * s))
+                    cubicTo(topB, topA, inner)
+                    close()
+                }, shadow.copy(alpha = 0.55f))
                 val almond = Path().apply {
                     moveTo(inner)
                     cubicTo(topA, topB, outer)
-                    cubicTo(Offset(c.x + side * ew * 0.3f, c.y + eh * 0.72f), Offset(c.x - side * ew * 0.25f, c.y + eh * 0.68f), inner)
+                    cubicTo(Offset(c.x + side * ew * 0.3f, c.y + eh * 0.7f), Offset(c.x - side * ew * 0.25f, c.y + eh * 0.65f), inner)
                     close()
                 }
                 clipPath(almond) {
                     drawPath(almond, Color.White)
-                    val ic = Offset(c.x + m.lookX * 0.013f * s, c.y + 0.003f * s + m.lookY * 0.01f * s)
-                    val iris = Rect(ic.x - 0.033f * s, ic.y - 0.042f * s, ic.x + 0.033f * s, ic.y + 0.042f * s)
+                    val ic = Offset(c.x + m.lookX * 0.01f * s, c.y + 0.004f * s + m.lookY * 0.008f * s)
+                    val iris = Rect(ic.x - 0.027f * s, ic.y - 0.033f * s, ic.x + 0.027f * s, ic.y + 0.033f * s)
                     drawOval(Brush.verticalGradient(listOf(irisTop, irisLow), iris.top, iris.bottom), iris.topLeft, iris.size)
-                    drawOval(line.copy(alpha = 0.55f), iris.topLeft, iris.size, style = Stroke(0.005f * s))
-                    val pw = mix(0.024f, 0.016f, m.wide) * s
-                    val ph = mix(0.036f, 0.026f, m.wide) * s
+                    drawOval(line.copy(alpha = 0.5f), iris.topLeft, iris.size, style = Stroke(0.004f * s))
+                    val pw = mix(0.016f, 0.011f, m.wide) * s
+                    val ph = mix(0.026f, 0.019f, m.wide) * s
                     drawOval(pupil, Offset(ic.x - pw / 2, ic.y - ph / 2), Size(pw, ph))
-                    drawCircle(Color.White, (0.014f + 0.004f * m.sad) * s, ic + Offset(-0.012f * s, -0.016f * s))
-                    drawCircle(Color.White.copy(alpha = 0.9f), 0.006f * s, ic + Offset(0.013f * s, 0.016f * s))
+                    drawCircle(Color.White, (0.01f + 0.003f * m.sad) * s, ic + Offset(-0.009f * s, -0.012f * s))
+                    drawCircle(Color.White.copy(alpha = 0.9f), 0.0045f * s, ic + Offset(0.01f * s, 0.012f * s))
                     if (m.sad > 0.3f) drawOval(Color.White.copy(alpha = 0.45f * m.sad), Offset(c.x - ew / 2, c.y + eh * 0.1f), Size(ew, eh * 0.4f))
-                    // The lid's shadow across the top.
-                    drawRect(line.copy(alpha = 0.14f), Offset(c.x - ew, c.y - eh), Size(2f * ew, eh * 0.42f))
                 }
-                // Lashes: a heavy line along the lid, flicked out at the corner; a light one under.
+                // Winged liner along the lid, long lashes at its corner; a light line under.
                 val top = Path().apply {
                     moveTo(inner)
                     cubicTo(topA, topB, outer)
-                    lineTo(outer + Offset(side * 0.017f * s, -0.011f * s))
+                    lineTo(outer + Offset(side * 0.02f * s, -0.014f * s))
                 }
-                drawPath(top, line, style = Stroke(0.015f * s, cap = StrokeCap.Round, join = StrokeJoin.Round))
-                drawLine(line, outer + Offset(-side * 0.012f * s, -0.007f * s), outer + Offset(side * 0.003f * s, -0.022f * s), strokeWidth = 0.007f * s, cap = StrokeCap.Round)
-                drawLine(line, Offset(c.x + side * ew * 0.12f, c.y + eh * 0.5f), Offset(c.x + side * ew * 0.44f, c.y + eh * 0.2f), strokeWidth = 0.006f * s, cap = StrokeCap.Round)
+                drawPath(top, line, style = Stroke(0.012f * s, cap = StrokeCap.Round, join = StrokeJoin.Round))
+                for (k in 0..1) {
+                    val from = mix(topB, outer, 0.4f + k * 0.4f)
+                    drawLine(line, from, from + Offset(side * (0.006f + k * 0.004f) * s, -(0.012f + k * 0.003f) * s), strokeWidth = 0.004f * s, cap = StrokeCap.Round)
+                }
+                drawLine(line, Offset(c.x + side * ew * 0.1f, c.y + eh * 0.48f), Offset(c.x + side * ew * 0.45f, c.y + eh * 0.22f), strokeWidth = 0.004f * s, cap = StrokeCap.Round)
             }
         }
     }
 
     private fun DrawScope.mouth(m: MascotMotion, s: Float, c: Offset) {
-        val open = max(max(m.talk, m.yawn), max(m.wide * 0.6f, m.joy * 0.55f))
+        val open = max(max(m.talk, m.yawn), max(m.wide * 0.6f, m.joy * 0.5f))
+        val kiss = max(m.wink, if (m.act == Act.HAPPY && m.actT < 1.4f) sin(PI.toFloat() * m.actT / 1.4f) else 0f)
         when {
+            kiss > 0.4f -> {
+                // A kiss: lips pursed.
+                val k = Rect(c.x - 0.012f * s, c.y - 0.01f * s, c.x + 0.012f * s, c.y + 0.012f * s)
+                drawOval(lips, k.topLeft, k.size)
+                drawOval(lipsDark, k.topLeft, k.size, style = Stroke(0.004f * s))
+                drawLine(lipsDark, Offset(k.left + 0.004f * s, c.y + 0.001f * s), Offset(k.right - 0.004f * s, c.y + 0.001f * s), strokeWidth = 0.003f * s)
+            }
             open > 0.12f -> {
-                val w = (0.03f + 0.024f * m.joy) * s
-                val h = (0.01f + 0.034f * open) * s
+                val w = (0.03f + 0.018f * m.joy) * s
+                val h = (0.01f + 0.026f * open) * s
                 val shapeOf = Path().apply {
                     if (m.joy > 0.5f) {
                         moveTo(c.x - w / 2, c.y - h * 0.3f)
                         lineTo(c.x + w / 2, c.y - h * 0.3f)
                         quadraticTo(c.x + w / 2, c.y + h * 0.9f, c.x, c.y + h * 0.9f)
                         quadraticTo(c.x - w / 2, c.y + h * 0.9f, c.x - w / 2, c.y - h * 0.3f)
-                    } else addOval(Rect(c.x - w * 0.4f, c.y - h / 2, c.x + w * 0.4f, c.y + h / 2))
+                    } else addOval(Rect(c.x - w * 0.36f, c.y - h / 2, c.x + w * 0.36f, c.y + h / 2))
                     close()
                 }
-                drawPath(shapeOf, mouthIn)
-                clipPath(shapeOf) { drawOval(tongue, Offset(c.x - w * 0.3f, c.y + h * 0.1f), Size(w * 0.6f, h * 0.8f)) }
+                drawPath(shapeOf, lipsDark)
+                clipPath(shapeOf) { drawOval(Color(0xFFFF8FA0), Offset(c.x - w * 0.3f, c.y + h * 0.15f), Size(w * 0.6f, h * 0.8f)) }
                 drawPath(shapeOf, lips, style = Stroke(0.006f * s, join = StrokeJoin.Round))
             }
-            m.sad > 0.3f -> drawPath(Path().apply {
-                moveTo(c.x - 0.02f * s, c.y + 0.008f * s)
-                quadraticTo(c.x - 0.01f * s, c.y - 0.005f * s, c.x, c.y + 0.002f * s)
-                quadraticTo(c.x + 0.01f * s, c.y - 0.005f * s, c.x + 0.02f * s, c.y + 0.008f * s)
-            }, lips, style = Stroke(0.0075f * s, cap = StrokeCap.Round))
-            m.hum > 0.4f -> drawPath(Path().apply {
-                moveTo(c.x - 0.02f * s, c.y - 0.003f * s)
-                quadraticTo(c.x - 0.01f * s, c.y + 0.014f * s, c.x, c.y - 0.001f * s)
-                quadraticTo(c.x + 0.01f * s, c.y + 0.014f * s, c.x + 0.02f * s, c.y - 0.003f * s)
-            }, lips, style = Stroke(0.0075f * s, cap = StrokeCap.Round))
-            else -> {
-                // A small smile, her lips just coloured.
+            m.sad > 0.3f -> {
+                // A pout.
+                drawOval(lips, Offset(c.x - 0.016f * s, c.y - 0.004f * s), Size(0.032f * s, 0.012f * s))
                 drawPath(Path().apply {
-                    moveTo(c.x - 0.021f * s, c.y - 0.003f * s)
-                    quadraticTo(c.x, c.y + 0.013f * s, c.x + 0.021f * s, c.y - 0.003f * s)
-                }, lips, style = Stroke(0.0075f * s, cap = StrokeCap.Round))
-                drawOval(lips.copy(alpha = 0.3f), Offset(c.x - 0.01f * s, c.y + 0.008f * s), Size(0.02f * s, 0.008f * s))
+                    moveTo(c.x - 0.016f * s, c.y + 0.004f * s)
+                    quadraticTo(c.x, c.y - 0.006f * s, c.x + 0.016f * s, c.y + 0.004f * s)
+                }, lipsDark, style = Stroke(0.004f * s, cap = StrokeCap.Round))
+            }
+            else -> {
+                // Full red lips, the corner of her mouth turned up in a knowing smile.
+                val w = 0.022f * s
+                val smirk = 0.005f * s * (1f + m.joy)
+                val upper = Path().apply {
+                    moveTo(c.x - w, c.y)
+                    quadraticTo(c.x - w * 0.5f, c.y - 0.009f * s, c.x - w * 0.12f, c.y - 0.005f * s)
+                    lineTo(c.x, c.y - 0.003f * s)
+                    lineTo(c.x + w * 0.12f, c.y - 0.005f * s)
+                    quadraticTo(c.x + w * 0.5f, c.y - 0.009f * s, c.x + w, c.y - smirk)
+                    quadraticTo(c.x, c.y + 0.002f * s, c.x - w, c.y)
+                    close()
+                }
+                val lower = Path().apply {
+                    moveTo(c.x - w * 0.9f, c.y + 0.001f * s)
+                    quadraticTo(c.x, c.y + 0.003f * s, c.x + w * 0.9f, c.y - smirk + 0.001f * s)
+                    quadraticTo(c.x + w * 0.4f, c.y + 0.016f * s, c.x, c.y + 0.016f * s)
+                    quadraticTo(c.x - w * 0.5f, c.y + 0.015f * s, c.x - w * 0.9f, c.y + 0.001f * s)
+                    close()
+                }
+                drawPath(lower, lips)
+                drawPath(upper, lipsDark)
+                drawLine(lipsDark, Offset(c.x - w, c.y), Offset(c.x + w, c.y - smirk), strokeWidth = 0.003f * s, cap = StrokeCap.Round)
+                drawCircle(Color.White.copy(alpha = 0.75f), 0.0035f * s, Offset(c.x - 0.004f * s, c.y + 0.009f * s))
             }
         }
     }
 
-    override fun DrawScope.icon(m: MascotMotion, s: Float) = fit(s, Rect(0.2f, 0.08f, 0.8f, 0.64f)) {
-        clipPath(Path().apply { addRect(Rect(0f, 0f, s, 0.64f * s)) }) {
+    override fun DrawScope.icon(m: MascotMotion, s: Float) = fit(s, Rect(0.28f, 0.04f, 0.72f, 0.48f)) {
+        clipPath(Path().apply { addRect(Rect(0f, 0f, s, 0.48f * s)) }) {
             backHair(m, s)
             drawHead(m, s)
         }

@@ -544,7 +544,13 @@ fun ColumnScope.ChatPane(session: ChatSession, place: ChatPlace, hub: AiHub, onS
         }
     }
     if (place is ChatPlace.Book) BookSwitches(session, place, hub, asking)
-    Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 4.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(Modifier.fillMaxWidth().padding(start = 4.dp, end = 8.dp, top = 4.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        // The AI's character, by the box: it watches what's typed, and shows what it's doing with it.
+        val motion = rememberMascotMotion(seed = 7)
+        motion.mood = aiMood(place)
+        motion.library = !inBook
+        motion.listening = question.isNotBlank() && !asking
+        MascotView(chosenMascot(), motion, Modifier.size(56.dp).testTag("chat-mascot"))
         OutlinedTextField(
             value = question, onValueChange = { question = it },
             placeholder = { Text(if (inBook) tr("Ask about the book") else tr("Ask about your books")) },

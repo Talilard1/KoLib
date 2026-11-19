@@ -129,6 +129,12 @@ class MascotMotion(private val calm: Boolean = false, seed: Int = 0) {
     /** Held over the ✕ that would close it. */
     var scared = false
 
+    /** Someone's typing to it: it watches what's written. */
+    var listening = false
+
+    /** How far, in pixels, it has to be moved one way before going back the other counts as a shake. */
+    var shakeReach = 60f
+
     /** Showing itself off (in the settings): it goes through its acts in turn, starting [demoShift] seconds in. */
     var demo = false
     var demoShift = 0f
@@ -229,6 +235,25 @@ class MascotMotion(private val calm: Boolean = false, seed: Int = 0) {
         squashV -= min(impact / 2500f, 2.5f) * 7f
     }
 
+    private val runs = FloatArray(2)
+    private val shakes = ArrayDeque<Float>()
+
+    /** Moved [delta] pixels while held: shaken back and forth hard enough, it gets dizzy. */
+    fun dragged(delta: Offset) {
+        for (axis in 0..1) {
+            val d = if (axis == 0) delta.x else delta.y
+            if (d == 0f) continue
+            val run = runs[axis]
+            if (run != 0f && sign(d) != sign(run)) {
+                // Back the other way: a shake, if it had gone far enough.
+                if (abs(run) > shakeReach) shakes.addLast(t)
+                runs[axis] = d
+            } else runs[axis] = run + d
+        }
+        while (shakes.isNotEmpty() && t - shakes.first() > 1.2f) shakes.removeFirst()
+        if (shakes.size >= 4) dizzyUntil = maxOf(dizzyUntil, t + 1.8f)
+    }
+
     /** Thrown, at most [peak] pixels a second, bouncing [bounces] times: dizzy, if it was hard. */
     fun thrown(peak: Float, bounces: Int) {
         if (peak > 4200f || bounces >= 2) dizzyUntil = t + 1.3f + 0.45f * bounces.coerceAtMost(4)
@@ -245,7 +270,11 @@ class MascotMotion(private val calm: Boolean = false, seed: Int = 0) {
         lastMood = mood
         val next = forced ?: when {
             demo -> demoAct()
-            held -> if (scared) Act.SCARED else Act.HELD
+            held -> when {
+                scared -> Act.SCARED
+                t < dizzyUntil -> Act.DIZZY
+                else -> Act.HELD
+            }
             speed > 900f -> Act.FLYING
             t - bumpAt < 0.4f -> Act.BUMPED
             t < dizzyUntil -> Act.DIZZY
@@ -373,7 +402,12 @@ class MascotMotion(private val calm: Boolean = false, seed: Int = 0) {
         }
         val sweep = (actT % 1.25f) / 1.25f
         val (lx, ly) = when (a) {
-            Act.IDLE -> if (f == Fidget.LOOK) (if (ft < 1.2f) -0.9f else 0.9f) to -0.1f else glanceX to glanceY
+            Act.IDLE -> when {
+                // Watching what's typed, in the box beside it.
+                listening -> (0.85f + 0.08f * sin(t * 3f)) to 0.35f
+                f == Fidget.LOOK -> (if (ft < 1.2f) -0.9f else 0.9f) to -0.1f
+                else -> glanceX to glanceY
+            }
             Act.HELLO -> 0.15f to 0f
             Act.READING -> (if (sweep < 0.86f) -0.75f + 1.5f * sweep / 0.86f else 0.75f - 1.5f * (sweep - 0.86f) / 0.14f) to 0.55f
             Act.THINKING -> (0.55f + 0.15f * sin(t * 0.9f)) to -0.75f

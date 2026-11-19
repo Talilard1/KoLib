@@ -514,6 +514,23 @@ data class ReaderSettings(
     /** The same with a cutout [cutoutTop] dp deep at the top of the screen, and nothing known of where along it. */
     fun marginRoom(cutoutTop: Int = 0): MarginRoom = marginRoom(Cutouts.top(cutoutTop))
 
+    /**
+     * The room a page that's only a picture (a cover, a plate, a map) leaves for the margins: the rows of what's shown
+     * in them, but not the page headings, which aren't shown over a picture. Unlike [marginRoom], it doesn't change
+     * with the text size, so neither does the picture.
+     */
+    fun pictureRoom(cut: Cutouts): MarginRoom {
+        if (scrolling) return MarginRoom()
+        val row = MarginRoom.ROW_HEIGHT + MarginRoom.GAP
+        val atTop = MarginItem.entries.any { shownSpotOf(it).top }
+        val atBottom = MarginItem.entries.any { shownSpotOf(it).let { s -> s != MarginSpot.OFF && !s.top } }
+        val top = if (atTop) topRowAt(cut) + row else 0
+        val bottom = if (atBottom) bottomRowAt(cut) + row else 0
+        val under = cut.top?.takeIf { overText(it, cut.width, cut.height) }?.let { Math.round(it.depth) + UNDER } ?: 0
+        val over = cut.bottom?.takeIf { overText(it, cut.width, cut.height) }?.let { Math.round(it.depth) + UNDER } ?: 0
+        return MarginRoom(top = maxOf(top, under), bottom = maxOf(bottom, over))
+    }
+
     /** How far down the top row of the margins sits: where it always has, or below a camera that would be over it. */
     fun topRowAt(cut: Cutouts): Int = if (cameraInTheWay(cut)) maxOf(MarginRoom.ROW_TOP, Math.round(cut.top!!.depth) + 2) else MarginRoom.ROW_TOP
 
@@ -665,6 +682,10 @@ data class ReaderSettings(
         marginRoom(cut).let { room ->
             put("minTop", room.top)
             put("minBottom", room.bottom)
+        }
+        pictureRoom(cut).let { room ->
+            put("picTop", room.top)
+            put("picBottom", room.bottom)
         }
         put("animate", pageTurn == PageTurn.SLIDE)
         put("turn", if (scrolling) PageTurn.SLIDE.js else pageTurn.js)

@@ -27,7 +27,7 @@ object Prompts {
             "From ${book(title, author)}:\n\"$sentence\"\n\n" +
                 "Define \"$word\", then say what it means in this sentence. Do not use the word itself to explain it. " +
                 "Reply in exactly this form, two lines and nothing else:\n" +
-                "$MEANING <its part of speech>, <its general dictionary meaning in a few words>\n" +
+                "$MEANING <its part of speech>, <its general dictionary meaning in a few words, as a dictionary gives it, not about this book>\n" +
                 "$HERE <one sentence saying what it means in this sentence>"
         ),
     )
@@ -35,37 +35,58 @@ object Prompts {
     const val MEANING = "Meaning:"
     const val HERE = "Here:"
 
-    /** What an older answer, or a model that changed the label, calls the meaning. */
-    private const val USUALLY = "Usually:"
-
     /** A look-up's answer in its two parts: what the word means, and what it means here. */
     data class LookedUp(val meaning: String, val here: String)
 
-    /** A look-up's answer, read in its two parts (either may be empty, or still being written). */
+    /** A line's label, if it has one (“Meaning:”, “**Here:**” and the like), and which part it says the line is. */
+    private val LABEL = Regex(
+        "^\\s*[*_]*\\s*(meaning|usually|definition|defined|dictionary|general|here|in this sentence|in context|in the sentence|context|sentence)\\s*[*_]*\\s*[:：]\\s*[*_]*\\s*",
+        RegexOption.IGNORE_CASE,
+    )
+    private val HERE_LABELS = setOf("here", "in this sentence", "in context", "in the sentence", "context", "sentence")
+    private val ALL_LABELS = listOf("meaning", "usually", "definition", "here", "in this sentence", "in context", "context")
+
+    /**
+     * A look-up's answer, read in its two parts, a line each (either may be empty, or still being written). Models
+     * don't always keep to the form: a line labelled for what it means here is that, whatever order it comes in; the
+     * first line without a label is the meaning, and the next is what it means here.
+     */
     fun readLookUp(answer: String): LookedUp {
-        val text = cleanAnswer(answer)
-        // Just the start of a label so far: nothing to show yet.
-        if (text.isNotEmpty() && (MEANING.startsWith(text) || HERE.startsWith(text))) return LookedUp("", "")
-        val m = text.indexOf(MEANING).takeIf { it >= 0 }
-        val u = if (m == null) text.indexOf(USUALLY).takeIf { it >= 0 } else null
-        val mean = m ?: u
-        val meanLabel = if (m != null) MEANING else USUALLY
-        val h = text.indexOf(HERE).takeIf { it >= 0 }
-        // No labels: the whole of it is the meaning.
-        if (mean == null && h == null) return LookedUp(text.trim(), "")
-        fun part(from: Int?, label: String, next: Int?): String {
-            if (from == null) return ""
-            val end = if (next != null && next > from) next else text.length
-            return text.substring(from + label.length, end).trim()
+        // Both on one line: split where the second part starts.
+        val text = cleanAnswer(answer).replace(Regex("\\s+[*_]*Here\\s*[*_]*:"), "\n$HERE")
+        val lines = text.lines().map { it.trim() }.filter { it.isNotEmpty() }.toMutableList()
+        // A label still being written, at the end of what's come so far (“Her”, “**Mean”), isn't a line yet.
+        lines.lastOrNull()?.let { last ->
+            val bare = last.trim('*', '_', ' ').lowercase()
+            if (bare.isNotEmpty() && !last.contains(':') && ALL_LABELS.any { it.startsWith(bare) }) lines.removeAt(lines.size - 1)
         }
-        // A label part-written at the end of what's come so far isn't part of the meaning.
-        val meaning = part(mean, meanLabel, h).replace(Regex("\\n\\s*H(e(r(e)?)?)?\\s*$"), "").trim()
-        val here = part(h, HERE, mean)
-        // Words before the first label (a model that left it off): its meaning, unless there is one.
-        val first = listOfNotNull(mean, h).min()
-        val before = text.substring(0, first).trim()
-        return LookedUp(meaning.ifEmpty { if (mean == null) before else "" }, here)
+        var meaning = ""
+        var here = ""
+        for (line in lines) {
+            val label = LABEL.find(line)
+            val text = if (label != null) line.substring(label.range.last + 1).trim() else line
+            if (text.isEmpty()) continue
+            val isHere = label != null && label.groupValues[1].lowercase() in HERE_LABELS
+            when {
+                isHere -> here = if (here.isEmpty()) text else "$here $text"
+                label != null && meaning.isEmpty() -> meaning = text
+                meaning.isEmpty() -> meaning = text
+                else -> here = if (here.isEmpty()) text else "$here $text"
+            }
+        }
+        return LookedUp(meaning, here)
     }
+
+    /** What [word] means where it's used, in [sentence], alone: when an answer to [lookUp] left that out. */
+    fun inSentence(word: String, sentence: String, title: String, author: String?, answerIn: String): List<AiMessage> = listOf(
+        AiMessage.system(
+            "You are the dictionary inside an e-book reader. Answer in $answerIn. Be accurate, plain and brief. No preamble, no markdown."
+        ),
+        AiMessage.user(
+            "From ${book(title, author)}:\n\"$sentence\"\n\n" +
+                "In one sentence, say what \"$word\" means in this sentence. Do not use the word itself to explain it."
+        ),
+    )
 
     /** A passage put in plain words. */
     fun passage(passage: String, title: String, author: String?, answerIn: String): List<AiMessage> = listOf(

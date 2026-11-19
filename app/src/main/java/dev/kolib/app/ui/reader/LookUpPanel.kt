@@ -185,6 +185,30 @@ fun LookUpSheet(controller: ReaderController, settings: ReaderSettings, onSettin
     var dictOpen by remember(word) { mutableStateOf(false) }
     // What it means in the sentence it's in: written along with its meaning, shown when asked for.
     var hereOpen by remember(word) { mutableStateOf(false) }
+    // Asked for on its own when the answer left it out.
+    val hereSaid = remember(word, ai.source) { MutableStateFlow("") }
+    val hereSaidNow by hereSaid.collectAsState()
+    var hereWorking by remember(word, ai.source) { mutableStateOf(false) }
+    var hereAsked by remember(word, ai.source) { mutableStateOf(false) }
+    LaunchedEffect(hereOpen, working) {
+        if (!hereOpen || working || hereAsked || !ready || !phrase || failed != null) return@LaunchedEffect
+        if (Prompts.readLookUp(said.value).here.isNotEmpty()) return@LaunchedEffect
+        hereAsked = true
+        hereWorking = true
+        try {
+            val sentence = BookText.sentenceWith(controller.lookUpParagraph, word)
+            hub.use { engine ->
+                engine.generate(
+                    Prompts.inSentence(word, sentence.ifBlank { word }, controller.bookTitle, controller.bookAuthor, Prompts.languageName(L10n.language)),
+                    120, 0.2f, {},
+                ) { piece -> hereSaid.update { it + piece } }
+            }
+        } catch (e: AiException) {
+            hereSaid.value = e.message.orEmpty()
+        } finally {
+            hereWorking = false
+        }
+    }
 
     // A small card by the words looked up, pointing at them: as big as what's in it, growing as the answer is written.
     val screen = LocalConfiguration.current
@@ -225,9 +249,10 @@ fun LookUpSheet(controller: ReaderController, settings: ReaderSettings, onSettin
                         Text(tr("What it means in this sentence"), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary, modifier = Modifier.weight(1f))
                         Icon(if (hereOpen) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                     }
+                    val here = looked.here.ifEmpty { cleanAnswer(hereSaidNow) }
                     if (hereOpen) when {
-                        looked.here.isNotEmpty() -> StreamingText(looked.here, working, Modifier.testTag("look-up-here"), style = MaterialTheme.typography.bodyMedium)
-                        working -> StreamingText(tr("Thinking…"), true, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        here.isNotEmpty() -> StreamingText(here, working || hereWorking, Modifier.testTag("look-up-here"), style = MaterialTheme.typography.bodyMedium)
+                        working || hereWorking || !hereAsked -> StreamingText(tr("Thinking…"), true, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
                 failed?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error) }

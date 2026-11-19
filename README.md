@@ -32,58 +32,72 @@ Get the latest APK from [Releases](https://github.com/Talilard1/KoLib/releases/l
 | KoLib-…-x86.apk | Older emulators |
 | KoLib-…-universal.apk | If you are uncertain |
 
-*Requires Android 10 or higher. Sending over USB needs a USB-C data cable.*
+*Requires Android 10 or higher. Sending over USB needs a USB-C data cable. The AI runs on 64-bit devices
+(arm64-v8a and x86_64); on others, you can use a server of your own.*
 
 ## Features
 
-- A library for EPUB, kepub, PDF, MOBI, AZW3, FB2, Word, OpenDocument, RTF, text, Markdown and HTML
-  books, and CBZ, CBR and CB7 comics.
-- Send books to a Kobo over USB as kepub or EPUB, straight into your Kobo collections, with covers
-  sized for its screen.
-- Send over Wi-Fi through the Kobo's web browser when there's no cable to hand.
-- More than one Kobo? Each keeps its own books and collections, and you can switch between them.
-- A configurable reader: fonts (and your own), page colours, paged or scrolling, two-page view, print-style
-  layout, highlights, notes, bookmarks, dictionary lookup and autoscroll.
-- Settings of its own for each book, and for portrait and landscape: turn the device and the reader
-  switches. The header, clock and battery keep clear of the camera hole.
-- Look a word up without leaving the book: a small card by the word says what it means, with what it
-  means in the sentence you're reading, and its dictionary entry, a tap away.
-- Optional AI that runs on your device, with no account: chapter summaries, and questions about the
-  book answered from what you've read so far. It sees the page you're on, so you can ask about "this
-  page", or select some words and choose Ask AI. It starts reading while you type, so answers come
-  sooner. KoLib picks three models to suit your device's memory and processor; you can also add your
-  own, or use your own server. It can get the model ready as KoLib opens, so the first answer comes
-  quicker.
-- The AI opens in a window you can drag anywhere or make full screen, or shrinks into a bubble. Pick who it is: a robot,
-  an anime woman, a cat, an owl or a ghost, or make your own from a character sheet you draw on.
-  Each has its own way of talking, a name you can change, and keeps the instructions you last gave
-  it, so switching characters (right from the chat) switches those too. Each shows what the AI is
-  doing (reading, thinking, writing), cheers when an answer's ready, and reacts when you pick it up,
-  shake it, fling it or bump it into the edge of the screen. Leave it alone and it nods off. It can
-  show its face on the AI button too.
-  Close the bubble and the AI keeps working; if you've left KoLib, a notification tells you when it's
-  done.
-- Book notes, if you want them: the AI writes a short note on each chapter you finish, so it remembers
-  the whole book so far, not just the last few pages. You can keep this to when your device is charging.
-- An AI chat on the main page too. It knows what's in your library and what's on your screen, and
-  saves your chats so you can come back to them. Hold a message to copy it, or edit it and ask again.
-  Change the instructions it's given, save them as presets, and switch between them in the chat.
-- Find more models from inside the app: search Hugging Face, see which ones suit your device, and
-  download any of them. A storage bar shows how much room each model takes, and downloads that
-  stopped part-way can be deleted.
-- A comic reader modelled on [Mihon](https://github.com/mihonapp/mihon)'s.
-- Reading stats, including the reading time recorded by your Kobo.
-- Edit titles, authors, series, tags and covers. Find covers online, or generate one from 123
-  designs in 43 colour schemes.
+### Your library
+
+- Keep all your books in one place: EPUB, kepub, PDF, MOBI, AZW3, FB2, Word, OpenDocument, RTF, plain
+  text, Markdown and HTML, plus CBZ, CBR and CB7 comics.
+- Edit titles, authors, series, tags and covers. Find a cover online, or make one from 123 designs in
+  43 colour schemes.
+- Convert Word, PDF, MOBI, FB2, text and comic files to EPUB, and turn scanned PDFs into text, all on
+  your device.
 - Edit a book's text: find and replace, chapter tools, clean-ups, and splitting or combining books.
-- An AI assistant in the editor: it fixes spelling, tidies formatting, rewrites what you select or
-  carries on writing, and asks before it changes your text.
-- A guided setup for the reader and a tour of the text editor, the first time you open them.
-- Updates from inside the app: KoLib tells you when there's a new version, shows what's new, and
-  downloads and installs it.
-- Convert Word, PDF, MOBI, FB2, text and comic files to EPUB, and scanned PDFs to text with
-  on-device OCR.
-- Sync books and reading position between your phone and tablet over Wi-Fi. Pair them with a QR code.
+- Keep your phone and tablet in sync over Wi-Fi, including where you're up to in each book. Pair them
+  by scanning a QR code, and send what you've copied from one to the other.
+- Reading stats, including the reading time your Kobo has recorded.
+
+### Your Kobo
+
+- Send books over USB as kepub or EPUB, straight into your Kobo collections, with covers sized for its
+  screen.
+- No cable to hand? Send them over Wi-Fi through the Kobo's web browser.
+- Got more than one Kobo? Each keeps its own books and collections, and you can switch between them.
+
+### Reading
+
+- Set the reader up your way: fonts (including your own), page colours, paged or scrolling, two pages
+  side by side, a print-style layout, highlights, notes, bookmarks and autoscroll.
+- Give a book its own settings, and keep different ones for portrait and landscape. Turn your device
+  and the reader switches over. The clock, battery and page headings stay clear of the camera hole.
+- Look up a word without leaving the page: a small card shows its dictionary entry, with Google,
+  Wikipedia and your dictionary apps a tap away.
+- A comic reader based on [Mihon](https://github.com/mihonapp/mihon)'s.
+
+### An AI reading companion (optional)
+
+- It runs on your phone or tablet, with no account. Nothing you read leaves your device unless you choose
+  to use a server of your own.
+- Get a summary of the chapter, or ask questions about the book. It only uses what you've read so far,
+  so it won't spoil what's coming.
+- Ask about the page you're on, or select some words and tap **Ask AI**. When you look up a word, it
+  tells you what it means, and what it means in the sentence you're reading.
+- Chat with it from the main page too. It knows what's in your library, and your chats are saved so
+  you can come back to them. Hold a message to copy it, or to edit it and ask again.
+- Book notes, if you want them: it writes a short note on each chapter you finish, so it remembers the
+  whole book, not just the last few pages. You can have it do this only while your device is charging.
+- The chat opens in its own window. Drag it anywhere, make it full screen, or shrink it into a bubble.
+  It keeps working while it's closed and lets you know when an answer's ready.
+- Choose who your AI is: a robot, an anime woman, a cat, an owl or a ghost. Or draw your own character
+  on a character sheet. Each has its own personality and a name you can change.
+- Your character shows what the AI is doing: reading, thinking, writing, and cheering when an answer's
+  ready. Pick it up, shake it, fling it or bump it into the edge of the screen and it reacts. Leave it
+  alone and it nods off.
+- Change what the AI is told, save it as a preset, and switch presets from the chat. Each character
+  remembers the instructions you last gave it.
+- KoLib suggests the models that suit your device best, and can have one ready as soon as it opens. You
+  can also search Hugging Face for other models, add your own, or use a server of your own.
+- In the text editor, it can fix spelling, tidy formatting, rewrite what you select or carry on writing.
+  It shows you its changes first.
+
+### And also
+
+- Updates from inside the app: KoLib tells you when there's a new version, shows you what's new, and
+  downloads and installs it for you.
+- A guided setup for the reader, and a tour of the text editor, the first time you open them.
 - 14 themes: warm paper, dark, OLED black, two bookcases, clean light and dark, a manuscript, romance,
   cinema, a terminal, and three for science fiction.
 - English, Français, Deutsch, Español, Italiano, Nederlands, Português (Brasil), Русский and 日本語.

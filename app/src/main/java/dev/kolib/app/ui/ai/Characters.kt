@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -93,8 +94,16 @@ class OwnCharacter(
 
 /** A character drawn from its pictures: the one for what it's doing, moved about as any character is. */
 internal class OwnArt(private val frames: Map<SheetFrame, ImageBitmap>) : MascotArt {
-    override val head = Offset(0.5f, 0.3f)
-    override val headR = 0.2f
+    private val place = (frames[SheetFrame.IDLE] ?: frames.values.firstOrNull())?.let { headOf(it) } ?: (Offset(0.5f, 0.3f) to 0.2f)
+    override val head = place.first
+    override val headR = place.second
+
+    /** Its thoughts: a cloud up and to the right of its head (kept in the picture), the bubbles rising from the head's top. */
+    override fun DrawScope.thinking(m: MascotMotion, s: Float) {
+        val at = Offset(min(0.8f, head.x + headR + 0.13f), max(0.11f, head.y - headR * 0.6f))
+        val from = Offset(head.x + headR * 0.55f, head.y - headR * 0.75f)
+        thoughtCloud(at * s, s, m.t, Color.White, Color(0xFF4A4458), from = from * s)
+    }
 
     private fun pick(vararg wanted: SheetFrame): ImageBitmap? = wanted.firstNotNullOfOrNull { frames[it] } ?: frames[SheetFrame.IDLE] ?: frames.values.firstOrNull()
 
@@ -133,6 +142,35 @@ internal class OwnArt(private val frames: Map<SheetFrame, ImageBitmap>) : Mascot
     override fun DrawScope.icon(m: MascotMotion, s: Float) {
         (frames[SheetFrame.FACE] ?: frames[SheetFrame.IDLE])?.let { whole(it, s) }
     }
+}
+
+/**
+ * Where a character's head is in its picture, and how big, as fractions of the picture: at the top of what's drawn,
+ * about as wide as the drawing is in its top quarter.
+ */
+internal fun headOf(picture: ImageBitmap): Pair<Offset, Float> {
+    val w = picture.width
+    val h = picture.height
+    val px = IntArray(w * h)
+    picture.readPixels(px)
+    val left = IntArray(h) { -1 }
+    val right = IntArray(h) { -1 }
+    for (y in 0 until h) {
+        for (x in 0 until w) {
+            if ((px[y * w + x] ushr 24) > 128) {
+                if (left[y] < 0) left[y] = x
+                right[y] = x
+            }
+        }
+    }
+    val rows = (0 until h).filter { left[it] >= 0 }
+    if (rows.isEmpty()) return Offset(0.5f, 0.3f) to 0.2f
+    val top = rows.first()
+    val upper = rows.filter { it <= top + (rows.last() - top) / 4 }
+    val widths = upper.map { right[it] - left[it] + 1 }.sorted()
+    val middles = upper.map { (left[it] + right[it]) / 2f }.sorted()
+    val r = (widths[(widths.size * 0.8f).toInt().coerceAtMost(widths.size - 1)] / 2f / w).coerceIn(0.1f, 0.25f)
+    return Offset(middles[middles.size / 2] / w, (top.toFloat() / h + r).coerceAtMost(0.5f)) to r
 }
 
 /** The user's characters, kept in the app's files: each a folder with its pictures and what it's called. */
@@ -196,7 +234,7 @@ object Characters {
 
 /**
  * The character sheet: a grid of green squares, one for each picture of the character, with what goes in it written
- * under it. Filled in (by hand, or by an AI that makes pictures), it's cut back into the pictures here.
+ * under it. Drawn on, it's cut back into the pictures here.
  */
 object CharacterSheet {
     const val ASSET = "characters/sheet.png"
@@ -210,17 +248,6 @@ object CharacterSheet {
 
     /** Each picture, cut from the sheet, is this many pixels square. */
     const val FRAME = 256
-
-    /** What to tell an AI that makes pictures, along with the sheet, for it to fill it in. */
-    const val INSTRUCTIONS = "This is a character sheet for KoLib, an e-book app. Fill it in with one character.\n" +
-        "- Draw the same character in all 16 green squares, in the pose written under each square. Keep the character the " +
-        "same size and in the same place in every square: whole body, standing, facing the viewer, feet near the bottom. " +
-        "Square 16 is the face alone, close up.\n" +
-        "- Keep the background of every square plain, flat green (#00FF00): no shadows, scenery or writing in the squares, " +
-        "and nothing green on the character.\n" +
-        "- Keep the sheet as it is: 1280 by 1440 pixels, with the squares and the words under them where they are.\n" +
-        "- A bold, simple cartoon style with clear outlines works best, as it's shown small.\n" +
-        "The character: (describe your character here)"
 
     /** The frames cut from a filled-in [sheet], with their backgrounds taken out; null if there's no character on it. */
     fun cut(sheet: Bitmap): Map<SheetFrame, Bitmap>? {
@@ -266,8 +293,9 @@ object CharacterSheet {
 
     /**
      * Makes the square's background see-through: the colour round its edge, and all of it that's joined to the edge
-     * (so the same colour inside the character, the whites of its eyes on a white sheet, stays). A sheet that's see-
-     * through already is left as it is. Edges are softened, and a green background's tint taken off them.
+     * (so the same colour inside the character, the whites of its eyes on a white sheet, stays). On a green sheet, the
+     * green showing through a gap in the character (between an arm and its side) goes too. A sheet that's see-through
+     * already is left as it is. Edges are softened, and a green background's tint taken off them.
      */
     internal fun clearBackground(bm: Bitmap) {
         val w = bm.width
@@ -318,6 +346,7 @@ object CharacterSheet {
             if (y < h - 1) push(i + w)
         }
         val greenBack = g0 > max(r0, b0) + 60
+        if (greenBack) clearGaps(px, w, h, gone, r0, g0, b0, near)
         for (i in px.indices) {
             if (gone[i]) {
                 px[i] = 0
@@ -338,5 +367,33 @@ object CharacterSheet {
             px[i] = (a shl 24) or (r(c) shl 16) or (gg shl 8) or b(c)
         }
         bm.setPixels(px, 0, w, 0, 0, w, h)
+    }
+
+    /**
+     * The background green inside the character, cut off from the edge: each patch of it that's the green itself
+     * somewhere (not just greenish), and more than a speck, is [gone] too.
+     */
+    private fun clearGaps(px: IntArray, w: Int, h: Int, gone: BooleanArray, r0: Int, g0: Int, b0: Int, near: Float) {
+        val seen = BooleanArray(w * h)
+        val patch = IntArray(w * h)
+        for (s in px.indices) {
+            if (gone[s] || seen[s] || dist(px[s], r0, g0, b0) >= 45f) continue
+            var a = 0
+            var b = 0
+            seen[s] = true
+            patch[b++] = s
+            while (a < b) {
+                val i = patch[a++]
+                val x = i % w
+                val y = i / w
+                for (j in intArrayOf(if (x > 0) i - 1 else -1, if (x < w - 1) i + 1 else -1, if (y > 0) i - w else -1, if (y < h - 1) i + w else -1)) {
+                    if (j >= 0 && !gone[j] && !seen[j] && dist(px[j], r0, g0, b0) < near) {
+                        seen[j] = true
+                        patch[b++] = j
+                    }
+                }
+            }
+            if (b >= 16) for (k in 0 until b) gone[patch[k]] = true
+        }
     }
 }

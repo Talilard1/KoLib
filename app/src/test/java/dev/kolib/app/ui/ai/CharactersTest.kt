@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.test.core.app.ApplicationProvider
 import dev.kolib.app.ai.AiSettings
 import dev.kolib.app.ai.AiSettingsStore
@@ -85,6 +86,43 @@ class CharactersTest {
         assertEquals(Color.WHITE, idle.getPixel(idle.width / 2, (idle.height * 0.45f).toInt()))
         // Only the squares drawn in.
         assertEquals(setOf(SheetFrame.IDLE), frames.keys)
+    }
+
+    @Test
+    fun theGreenShowingThroughAGapGoesToo() {
+        // A ring, as an arm on a hip makes: the green inside it is cut off from the edge, but it's the background all the same.
+        val b = sheet(emptyList())
+        val c = Canvas(b)
+        val p = Paint().apply { isAntiAlias = true }
+        p.color = Color.rgb(200, 30, 40)
+        c.drawCircle(160f, 168f, 90f, p)
+        p.color = Color.rgb(0, 255, 0)
+        c.drawCircle(160f, 168f, 40f, p)
+        // A green eye of its own, darker than the sheet's, stays.
+        p.color = Color.rgb(40, 140, 60)
+        c.drawCircle(160f, 103f, 12f, p)
+        val idle = CharacterSheet.cut(b)!!.getValue(SheetFrame.IDLE)
+        assertEquals(0, Color.alpha(idle.getPixel(128, 135)))
+        assertEquals(255, Color.alpha(idle.getPixel(128, 190)))
+        val eye = idle.getPixel(128, 79)
+        assertEquals(255, Color.alpha(eye))
+        assertTrue(Color.green(eye) in 120..160 && Color.red(eye) < 70)
+    }
+
+    @Test
+    fun itsHeadIsFoundWhereItsDrawn() {
+        // A round head at the top, a body under it: its thoughts, its sleep and the like go round that head.
+        val b = Bitmap.createBitmap(256, 256, Bitmap.Config.ARGB_8888)
+        val c = Canvas(b)
+        val p = Paint().apply { isAntiAlias = true; color = Color.rgb(200, 30, 40) }
+        c.drawCircle(128f, 60f, 36f, p)
+        c.drawRect(98f, 96f, 158f, 240f, p)
+        val (at, r) = headOf(b.asImageBitmap())
+        assertEquals(0.5f, at.x, 0.02f)
+        assertEquals(60 / 256f, at.y, 0.02f)
+        assertEquals(36 / 256f, r, 0.02f)
+        // Nothing drawn: where a head would usually be.
+        assertEquals(0.2f, headOf(Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888).asImageBitmap()).second)
     }
 
     @Test

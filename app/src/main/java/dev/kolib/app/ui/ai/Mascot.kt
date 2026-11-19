@@ -686,12 +686,16 @@ private fun DrawScope.speedLines(m: MascotMotion, s: Float) {
     }
 }
 
-/** A thought cloud above [at], with dots that come one after another. */
-internal fun DrawScope.thoughtCloud(at: Offset, s: Float, t: Float, fill: Color, line: Color) {
+/**
+ * A thought cloud at [at], with dots that come one after another. Bubbles rise to it from [from], the thinker's head
+ * (or, if that's not given, from below it to the left).
+ */
+internal fun DrawScope.thoughtCloud(at: Offset, s: Float, t: Float, fill: Color, line: Color, from: Offset? = null) {
     val w = 0.012f * s
     // Bubbles rising to it.
     for (k in 0..1) {
-        val c = at + Offset(-0.12f * s + k * 0.05f * s, 0.13f * s - k * 0.06f * s)
+        val c = if (from == null) at + Offset(-0.12f * s + k * 0.05f * s, 0.13f * s - k * 0.06f * s)
+        else mix(from, at + Offset(-0.1f * s, 0.02f * s), 0.25f + k * 0.37f)
         val rr = (0.018f + k * 0.012f) * s
         drawCircle(fill, rr, c)
         drawCircle(line, rr, c, style = Stroke(w))

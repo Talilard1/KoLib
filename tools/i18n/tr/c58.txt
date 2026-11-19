@@ -1,0 +1,16 @@
+@fr
+3053|Dessinez votre personnage dans chaque carré de la fiche, dans la pose écrite en dessous. Laissez le vert autour uni, et n’utilisez pas ce vert sur le personnage. Puis choisissez ici la fiche terminée.
+@de
+3053|Zeichne deine Figur in jedes Quadrat des Figurenbogens, in der Pose, die darunter steht. Lass das Grün um sie herum einfarbig und verwende dieses Grün nicht für die Figur. Wähle dann hier den fertigen Bogen.
+@es
+3053|Dibuja tu personaje en cada cuadro de la hoja, en la pose escrita debajo. Deja liso el verde que lo rodea y no uses ese verde en el personaje. Luego elige aquí la hoja terminada.
+@it
+3053|Disegna il tuo personaggio in ogni quadrato del foglio, nella posa scritta sotto. Lascia uniforme il verde intorno e non usare quel verde sul personaggio. Poi scegli qui il foglio finito.
+@nl
+3053|Teken je personage in elk vak van het personageblad, in de houding die eronder staat. Laat het groen eromheen effen en gebruik dat groen niet op het personage. Kies daarna hier het afgemaakte blad.
+@pt
+3053|Desenhe seu personagem em cada quadrado da folha, na pose escrita embaixo. Deixe liso o verde ao redor e não use esse verde no personagem. Depois escolha aqui a folha pronta.
+@ru
+3053|Нарисуйте персонажа в каждом квадрате листа, в позе, подписанной под ним. Оставьте зелёный фон вокруг однотонным и не используйте этот зелёный на самом персонаже. Затем выберите здесь готовый лист.
+@ja
+3053|キャラクターシートの各マスに、下に書かれたポーズでキャラクターを描いてください。周りの緑は無地のままにし、キャラクターにはその緑を使わないでください。完成したシートをここで選びます。

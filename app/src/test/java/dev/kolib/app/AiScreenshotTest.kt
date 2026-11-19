@@ -866,13 +866,12 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
         compose.waitForIdle()
         assertEquals("Professor", hub.settings.value.nameOf("owl", "Sage"))
         assertTrue(hub.settings.value.copy(chatPrompt = "").instructionsNow().startsWith("You are Professor,"))
-        // Making one's own: the sheet to fill in, and what to tell an AI.
+        // Making one's own: the sheet to draw on.
         compose.onNodeWithTag("ai-mascot-make").performScrollTo().performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick)
         compose.waitForIdle()
         compose.onNodeWithTag("ai-maker").assertExists()
-        compose.onNodeWithTag("ai-sheet-copy").performClick()
-        val clip = context.getSystemService(android.content.ClipboardManager::class.java).primaryClip!!.getItemAt(0).text.toString()
-        assertEquals(dev.kolib.app.ui.ai.CharacterSheet.INSTRUCTIONS, clip)
+        compose.onNodeWithTag("ai-sheet-save").assertExists()
+        compose.onNodeWithTag("ai-sheet-copy").assertDoesNotExist()
         compose.onNodeWithTag("ai-maker-make").assertIsNotEnabled()
         captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/${name}_maker.png")
     }

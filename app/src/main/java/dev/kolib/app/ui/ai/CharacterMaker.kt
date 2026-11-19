@@ -1,7 +1,5 @@
 package dev.kolib.app.ui.ai
 
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -52,8 +50,8 @@ import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
- * Making a character of one's own: the character sheet to fill in (drawn on, or given to an AI that makes pictures,
- * with what to tell it), then the finished sheet chosen, its pictures shown, and a name and a way of talking given.
+ * Making a character of one's own: the character sheet to draw on, then the finished sheet chosen, its pictures shown,
+ * and a name and a way of talking given.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -88,13 +86,12 @@ fun CharacterMakerDialog(onDismiss: () -> Unit, onMade: (OwnCharacter) -> Unit) 
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()).testTag("ai-maker")) {
                 Text(
-                    tr("Draw your character in each square of the character sheet, or give the sheet to an AI that makes pictures, with the instructions to go with it. Then choose the finished sheet here."),
+                    tr("Draw your character in each square of the character sheet, in the pose written under it. Leave the green round them plain, and keep that green off the character. Then choose the finished sheet here."),
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 10.dp)) {
                     OutlinedButton(onClick = { scope.launch { saveSheet(context) } }, modifier = Modifier.testTag("ai-sheet-save")) { Text(tr("Save the sheet")) }
                     OutlinedButton(onClick = { scope.launch { shareSheet(context) } }) { Text(tr("Share the sheet")) }
-                    OutlinedButton(onClick = { copyInstructions(context) }, modifier = Modifier.testTag("ai-sheet-copy")) { Text(tr("Copy the instructions")) }
                 }
                 Button(
                     onClick = { runCatching { choose.launch("image/*") }.onFailure { problem = tr("This device has no picture picker.") } },
@@ -161,7 +158,7 @@ private suspend fun saveSheet(context: Context) {
     Toast.makeText(context, if (ok) tr("Saved to Pictures/KoLib.") else tr("The sheet couldn't be saved."), Toast.LENGTH_SHORT).show()
 }
 
-/** Offers the empty sheet, with the instructions for an AI, to another app. */
+/** Offers the empty sheet to another app. */
 private suspend fun shareSheet(context: Context) {
     val file = withContext(Dispatchers.IO) {
         val dir = File(context.cacheDir, "share").apply { mkdirs() }
@@ -170,14 +167,6 @@ private suspend fun shareSheet(context: Context) {
     val uri = FileProvider.getUriForFile(context, context.packageName + ".files", file)
     val send = Intent(Intent.ACTION_SEND).setType("image/png")
         .putExtra(Intent.EXTRA_STREAM, uri)
-        .putExtra(Intent.EXTRA_TEXT, CharacterSheet.INSTRUCTIONS)
         .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     runCatching { context.startActivity(Intent.createChooser(send, tr("Share")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
-}
-
-private fun copyInstructions(context: Context) {
-    runCatching {
-        context.getSystemService(ClipboardManager::class.java)?.setPrimaryClip(ClipData.newPlainText("KoLib", CharacterSheet.INSTRUCTIONS))
-    }
-    Toast.makeText(context, tr("Copied the instructions."), Toast.LENGTH_SHORT).show()
 }

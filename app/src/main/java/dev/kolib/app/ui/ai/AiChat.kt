@@ -1,5 +1,6 @@
 package dev.kolib.app.ui.ai
 
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.alpha
 import androidx.compose.material.icons.outlined.TheaterComedy
 import androidx.compose.ui.text.AnnotatedString
@@ -313,7 +314,7 @@ class ChatSession(
             var answered: String? = null
             try {
                 val answerIn = Prompts.languageName(L10n.language)
-                val instructions = hub.settings.value.chatPrompt
+                val instructions = hub.settings.value.instructionsNow()
                 val onText = { piece: String ->
                     reading.value = null
                     turn.answer.update { it + piece }
@@ -364,7 +365,7 @@ class ChatSession(
         if (asking || !hub.ready()) return
         scope.launch {
             val answerIn = Prompts.languageName(L10n.language)
-            val instructions = hub.settings.value.chatPrompt
+            val instructions = hub.settings.value.instructionsNow()
             val history = history(place.where, null)
             when (place) {
                 is ChatPlace.Book -> if (!readBook) {
@@ -545,12 +546,20 @@ fun ColumnScope.ChatPane(session: ChatSession, place: ChatPlace, hub: AiHub, onS
     }
     if (place is ChatPlace.Book) BookSwitches(session, place, hub, asking)
     Row(Modifier.fillMaxWidth().padding(start = 4.dp, end = 8.dp, top = 4.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-        // The AI's character, by the box: it watches what's typed, and shows what it's doing with it.
+        // The AI's character, by the box: it watches what's typed, and shows what it's doing with it. A tap: the
+        // characters to switch to.
         val motion = rememberMascotMotion(seed = 7)
         motion.mood = aiMood(place)
         motion.library = !inBook
         motion.listening = question.isNotBlank() && !asking
-        MascotView(chosenMascot(), motion, Modifier.size(56.dp).testTag("chat-mascot"))
+        var switching by remember { mutableStateOf(false) }
+        Box {
+            MascotView(
+                chosenCharacter(), motion,
+                Modifier.size(56.dp).clip(CircleShape).clickable(onClickLabel = tr("Change the AI's character")) { switching = true }.testTag("chat-mascot"),
+            )
+            CharacterMenu(switching) { switching = false }
+        }
         OutlinedTextField(
             value = question, onValueChange = { question = it },
             placeholder = { Text(if (inBook) tr("Ask about the book") else tr("Ask about your books")) },
@@ -636,6 +645,8 @@ private fun InstructionsMenu(session: ChatSession, place: ChatPlace, hub: AiHub,
     var open by remember { mutableStateOf(false) }
     var naming by remember { mutableStateOf(false) }
     val now = settings.preset
+    val character = chosenCharacter()
+    val everyone = allCharacters().map { it.id }
     fun use(preset: dev.kolib.app.ai.PromptPreset?) {
         hub.settingsStore.set(settings.using(preset))
         open = false
@@ -655,14 +666,17 @@ private fun InstructionsMenu(session: ChatSession, place: ChatPlace, hub: AiHub,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
             )
             DropdownMenuItem(
-                text = { Text(tr("Usual")) }, onClick = { use(null) },
+                text = { Text(tr("{0}'s own", character.nameIn(settings))) }, onClick = { use(null) },
                 leadingIcon = { Icon(Icons.Filled.Check, null, Modifier.size(18.dp).alpha(if (settings.chatPrompt.isEmpty()) 1f else 0f)) },
+                trailingIcon = { MascotIcon(character, BotMood.IDLE, Modifier.size(20.dp)) },
                 modifier = Modifier.testTag("chat-preset-usual"),
             )
             settings.presets.forEach { p ->
                 DropdownMenuItem(
                     text = { Text(p.name, maxLines = 1, overflow = TextOverflow.Ellipsis) }, onClick = { use(p) },
                     leadingIcon = { Icon(Icons.Filled.Check, null, Modifier.size(18.dp).alpha(if (p == now) 1f else 0f)) },
+                    // Who's using it: the characters take their instructions with them.
+                    trailingIcon = { Heads(settings.usersOf(p, everyone)) },
                     modifier = Modifier.testTag("chat-preset-${p.name}"),
                 )
             }
@@ -679,7 +693,7 @@ private fun InstructionsMenu(session: ChatSession, place: ChatPlace, hub: AiHub,
         }
     }
     if (naming) PresetNameDialog(now?.name.orEmpty(), onDismiss = { naming = false }) { name ->
-        hub.settingsStore.set(settings.withPreset(name, settings.chatPrompt.ifEmpty { dev.kolib.app.ai.Prompts.CHAT_DEFAULT }))
+        hub.settingsStore.set(settings.withPreset(name, settings.chatPrompt.ifEmpty { character.ownInstructions(settings) }))
         naming = false
     }
 }

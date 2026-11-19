@@ -222,7 +222,7 @@ fun AiButtonIcon(description: String, place: ChatPlace? = null) {
     ) {
         val settings by app.ai.settings.collectAsState()
         val mood = aiMood(place)
-        if (settings.mascotButton) MascotIcon(chosenMascot(), mood, Modifier.fillMaxSize().testTag("ai-button-face"))
+        if (settings.mascotButton) MascotIcon(chosenCharacter(), mood, Modifier.fillMaxSize().testTag("ai-button-face"))
         else {
             // The plain icon: in the theme's colour while the AI is at work.
             val working = mood == BotMood.READING || mood == BotMood.THINKING || mood == BotMood.WRITING || mood == BotMood.NOTING
@@ -445,7 +445,8 @@ private fun BoxWithConstraintsScope.AiWindow(panel: AiPanel, place: ChatPlace, o
                                 Tab(selected = panel.tab == 1, onClick = { panel.showTab(1) }, text = { Text(tr("Ask")) }, modifier = Modifier.testTag("ai-tab-ask"))
                             }
                         } else {
-                            Text(tr("AI"), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+                            // Who the AI is: tapped, the characters to switch to.
+                            CharacterTitle(Modifier.weight(1f))
                         }
                         IconButton(onClick = { setup = true }) { Icon(Icons.Outlined.Settings, tr("AI and dictionary settings")) }
                         IconButton(onClick = { panel.fill(!full) }, modifier = Modifier.testTag("ai-full")) {
@@ -514,11 +515,11 @@ private fun NotReady(inBook: Boolean, onSetup: () -> Unit) {
 private fun AiBubble(panel: AiPanel, room: BubbleRoom, mood: BotMood, library: Boolean) {
     val scope = rememberCoroutineScope()
     val bubble = room.bubble
-    val mascot = chosenMascot()
+    val mascot = chosenCharacter()
     val motion = rememberMascotMotion()
     motion.mood = mood
     motion.library = library
-    motion.shakeReach = px(18f)
+    motion.shakeReach = px(40f)
     LaunchedEffect(Unit) { motion.appear() }
     val reach = px(64f)
     val gap = px(8f)

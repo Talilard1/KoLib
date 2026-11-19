@@ -1,5 +1,8 @@
 package dev.kolib.app
 
+import dev.kolib.app.ui.ai.instructionsNow
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.performSemanticsAction
 import dev.kolib.app.ui.ai.Fidget
 import dev.kolib.app.ui.ai.Act
@@ -532,6 +535,19 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
         compose.waitForIdle()
         assertEquals("Brief", app.ai.settings.value.preset?.name)
         compose.onNodeWithText(tr("It's using your “{0}” instructions.", "Brief"), substring = true).assertExists()
+        // Another character, named at the top, with instructions of its own; switched back, Bolt has the ones it had.
+        compose.onNodeWithTag("ai-character").assertTextContains("Bolt")
+        compose.onNodeWithTag("ai-character").performClick()
+        compose.onNodeWithTag("ai-character-cat").performClick()
+        compose.waitForIdle()
+        assertEquals("cat", app.ai.settings.value.mascot)
+        assertEquals("", app.ai.settings.value.chatPrompt)
+        compose.onNodeWithTag("ai-character").assertTextContains("Mochi")
+        shoot("98_chat_character_phone")
+        compose.onNodeWithTag("ai-character").performClick()
+        compose.onNodeWithTag("ai-character-robot").performClick()
+        compose.waitForIdle()
+        assertEquals("Answer in one sentence.", app.ai.settings.value.chatPrompt)
         // A new chat: the first is kept, and can be opened again or deleted.
         compose.onNodeWithTag("chat-new").performClick()
         assertTrue(app.chat.turns.isEmpty())
@@ -843,6 +859,22 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
         compose.onNodeWithTag("ai-mascot-owl").performScrollTo().performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick)
         compose.waitForIdle()
         assertEquals("owl", hub.settings.value.mascot)
+        // Renamed: called that wherever it's named, and in its own instructions.
+        compose.onNodeWithTag("ai-rename").performScrollTo().performClick()
+        compose.onNodeWithTag("ai-name").performTextReplacement("Professor")
+        compose.onNodeWithTag("ai-name-save").performClick()
+        compose.waitForIdle()
+        assertEquals("Professor", hub.settings.value.nameOf("owl", "Sage"))
+        assertTrue(hub.settings.value.copy(chatPrompt = "").instructionsNow().startsWith("You are Professor,"))
+        // Making one's own: the sheet to fill in, and what to tell an AI.
+        compose.onNodeWithTag("ai-mascot-make").performScrollTo().performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick)
+        compose.waitForIdle()
+        compose.onNodeWithTag("ai-maker").assertExists()
+        compose.onNodeWithTag("ai-sheet-copy").performClick()
+        val clip = context.getSystemService(android.content.ClipboardManager::class.java).primaryClip!!.getItemAt(0).text.toString()
+        assertEquals(dev.kolib.app.ui.ai.CharacterSheet.INSTRUCTIONS, clip)
+        compose.onNodeWithTag("ai-maker-make").assertIsNotEnabled()
+        captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/${name}_maker.png")
     }
 
     @Test

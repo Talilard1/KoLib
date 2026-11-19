@@ -1,5 +1,6 @@
 package dev.kolib.app.ui.ai
 
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import android.net.Uri
@@ -115,7 +116,7 @@ fun AiSetupDialog(onDismiss: () -> Unit, hub: AiHub = (LocalContext.current.appl
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        icon = { MascotIcon(chosenMascot(), BotMood.IDLE, Modifier.size(32.dp)) },
+        icon = { MascotIcon(chosenCharacter(), BotMood.IDLE, Modifier.size(32.dp)) },
         title = { Text(tr("AI")) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()).testTag("ai-setup")) {
@@ -124,8 +125,31 @@ fun AiSetupDialog(onDismiss: () -> Unit, hub: AiHub = (LocalContext.current.appl
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Section(tr("Look"))
-                Note(tr("Who the AI is on your screen. Each has its own ways of showing what it's up to."))
-                MascotPicker(Mascot.of(settings.mascot)) { hub.settingsStore.set(settings.copy(mascot = it.id)) }
+                Note(tr("Who the AI is on your screen. Each has its own ways of showing what it's up to, its own way of talking, and keeps the instructions you last gave it."))
+                val character = chosenCharacter()
+                var making by remember { mutableStateOf(false) }
+                var renaming by remember { mutableStateOf(false) }
+                MascotPicker(character, allCharacters(), settings, onMake = { making = true }) { hub.settingsStore.set(hub.settings.value.switchedTo(it.id)) }
+                androidx.compose.foundation.layout.FlowRow {
+                    TextButton(onClick = { renaming = true }, modifier = Modifier.testTag("ai-rename")) { Text(tr("Rename {0}", character.nameIn(settings))) }
+                    if (character.own) TextButton(onClick = {
+                        val id = character.id
+                        hub.settingsStore.set(hub.settings.value.switchedTo(Mascot.ROBOT.id).without(id))
+                        Characters.delete(id)
+                    }, modifier = Modifier.testTag("ai-delete-character")) { Text(tr("Delete {0}", character.nameIn(settings))) }
+                }
+                if (renaming) NameDialog(
+                    title = tr("Rename {0}", character.nameIn(settings)), about = tr("Leave it empty for its own name again."),
+                    start = settings.mascotNames[character.id].orEmpty(), placeholder = character.defaultName,
+                    onDismiss = { renaming = false },
+                ) { name ->
+                    hub.settingsStore.set(hub.settings.value.naming(character.id, name))
+                    renaming = false
+                }
+                if (making) CharacterMakerDialog(onDismiss = { making = false }) { made ->
+                    hub.settingsStore.set(hub.settings.value.switchedTo(made.id))
+                    making = false
+                }
                 Row(
                     Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).clickable { hub.settingsStore.set(settings.copy(mascotButton = !settings.mascotButton)) },
                     verticalAlignment = Alignment.CenterVertically,
@@ -229,10 +253,12 @@ fun AiSetupDialog(onDismiss: () -> Unit, hub: AiHub = (LocalContext.current.appl
 
                 Section(tr("Chat instructions"))
                 Note(tr("What the chat is told before each question. Change it to change how it answers. Keep the ones you like as presets, and switch between them in the chat."))
-                PresetChips(settings) { hub.settingsStore.set(settings.using(it)) }
+                val talker = chosenCharacter()
+                val own = talker.ownInstructions(settings)
+                PresetChips(settings, talker, allCharacters().map { it.id }) { hub.settingsStore.set(settings.using(it)) }
                 OutlinedTextField(
-                    value = settings.chatPrompt.ifEmpty { dev.kolib.app.ai.Prompts.CHAT_DEFAULT },
-                    onValueChange = { hub.settingsStore.set(settings.copy(chatPrompt = if (it == dev.kolib.app.ai.Prompts.CHAT_DEFAULT) "" else it)) },
+                    value = settings.chatPrompt.ifEmpty { own },
+                    onValueChange = { hub.settingsStore.set(settings.copy(chatPrompt = if (it == own) "" else it)) },
                     minLines = 3, maxLines = 9, textStyle = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.fillMaxWidth().testTag("ai-chat-prompt"),
                 )
@@ -242,10 +268,10 @@ fun AiSetupDialog(onDismiss: () -> Unit, hub: AiHub = (LocalContext.current.appl
                     settings.preset?.let { p ->
                         TextButton(onClick = { hub.settingsStore.set(settings.withoutPreset(p.name)) }, modifier = Modifier.testTag("ai-preset-delete")) { Text(tr("Delete “{0}”", p.name)) }
                     }
-                    TextButton(onClick = { hub.settingsStore.set(settings.copy(chatPrompt = "")) }, enabled = settings.chatPrompt.isNotEmpty()) { Text(tr("Use the usual instructions")) }
+                    TextButton(onClick = { hub.settingsStore.set(settings.copy(chatPrompt = "")) }, enabled = settings.chatPrompt.isNotEmpty()) { Text(tr("Use {0}'s own instructions", talker.nameIn(settings))) }
                 }
                 if (naming) PresetNameDialog(settings.preset?.name.orEmpty(), onDismiss = { naming = false }) { name ->
-                    hub.settingsStore.set(settings.withPreset(name, settings.chatPrompt.ifEmpty { dev.kolib.app.ai.Prompts.CHAT_DEFAULT }))
+                    hub.settingsStore.set(settings.withPreset(name, settings.chatPrompt.ifEmpty { own }))
                     naming = false
                 }
 
@@ -322,17 +348,24 @@ internal class StorageShare(val name: String, val bytes: Long, val colour: andro
 /** The usual instructions and each preset, to switch between: the one in use picked out. */
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
-internal fun PresetChips(settings: dev.kolib.app.ai.AiSettings, onUse: (dev.kolib.app.ai.PromptPreset?) -> Unit) {
+internal fun PresetChips(settings: dev.kolib.app.ai.AiSettings, character: Character, everyone: List<String>, onUse: (dev.kolib.app.ai.PromptPreset?) -> Unit) {
     if (settings.presets.isEmpty()) return
     val now = settings.preset
     androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(bottom = 6.dp)) {
         androidx.compose.material3.FilterChip(
-            selected = settings.chatPrompt.isEmpty(), onClick = { onUse(null) }, label = { Text(tr("Usual")) },
+            selected = settings.chatPrompt.isEmpty(), onClick = { onUse(null) }, label = { Text(tr("{0}'s own", character.nameIn(settings))) },
             modifier = Modifier.testTag("ai-preset-usual"),
         )
         settings.presets.forEach { p ->
+            // With the faces of the characters using it.
             androidx.compose.material3.FilterChip(
-                selected = p == now, onClick = { onUse(p) }, label = { Text(p.name, maxLines = 1) },
+                selected = p == now, onClick = { onUse(p) },
+                label = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(p.name, maxLines = 1)
+                        Heads(settings.usersOf(p, everyone), Modifier.padding(start = 6.dp), size = 18.dp)
+                    }
+                },
                 modifier = Modifier.testTag("ai-preset-${p.name}"),
             )
         }
@@ -360,18 +393,18 @@ internal fun PresetNameDialog(start: String, onDismiss: () -> Unit, onSave: (Str
     )
 }
 
-/** The characters to choose from, each showing itself off in turn. */
+/** The characters to choose from, each showing itself off in turn; and a card to make one's own. */
 @Composable
-private fun MascotPicker(chosen: Mascot, onPick: (Mascot) -> Unit) {
+private fun MascotPicker(chosen: Character, all: List<Character>, settings: dev.kolib.app.ai.AiSettings, onMake: () -> Unit, onPick: (Character) -> Unit) {
     Row(
         Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(top = 8.dp, bottom = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Mascot.entries.forEachIndexed { i, mascot ->
+        all.forEachIndexed { i, mascot ->
             val motion = rememberMascotMotion(seed = i)
             motion.demo = true
             motion.demoShift = i * 1.1f
-            val picked = mascot == chosen
+            val picked = mascot.id == chosen.id
             Column(
                 Modifier
                     .width(96.dp)
@@ -384,9 +417,26 @@ private fun MascotPicker(chosen: Mascot, onPick: (Mascot) -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 MascotView(mascot, motion, Modifier.size(72.dp))
-                Text(mascot.title, style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(top = 4.dp))
+                Text(mascot.nameIn(settings), style = MaterialTheme.typography.titleSmall, maxLines = 1, modifier = Modifier.padding(top = 4.dp))
                 Text(mascot.kind, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
+        }
+        // One of your own, from a character sheet.
+        Column(
+            Modifier
+                .width(96.dp)
+                .clip(RoundedCornerShape(18.dp))
+                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(18.dp))
+                .clickable(onClick = onMake)
+                .padding(top = 10.dp, bottom = 8.dp)
+                .testTag("ai-mascot-make"),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Box(Modifier.size(72.dp), contentAlignment = Alignment.Center) {
+                Icon(Icons.Filled.Add, null, Modifier.size(36.dp), tint = MaterialTheme.colorScheme.primary)
+            }
+            Text(tr("Your own"), style = MaterialTheme.typography.titleSmall, maxLines = 1, modifier = Modifier.padding(top = 4.dp))
+            Text(tr("From a sheet"), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

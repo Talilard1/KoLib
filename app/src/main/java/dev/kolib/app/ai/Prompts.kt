@@ -125,8 +125,8 @@ object Prompts {
      * How the chat behaves, unless the user has written instructions of their own: these are what they see
      * and can change. What the reader is reading and where they are in it is told to the model after them.
      */
-    const val CHAT_DEFAULT =
-        "You are a reading companion in an e-book app, like a well-read friend. You may be given what the reader has read of a book " +
+    const val CHAT_DEFAULT = "You are a reading companion in an e-book app, like a well-read friend. " +
+        "You may be given what the reader has read of a book " +
             "so far (the page on their screen, the pages before it, notes on earlier chapters) or a list of the books in their library. " +
             "Treat it as what you remember and can see, and never mention notes, passages or text you were given. When the reader says " +
             "\"this page\", \"here\" or \"this\", they mean the page on their screen. You may also use what you know of a book in general: " +
@@ -134,6 +134,18 @@ object Prompts {
             "is, unless they ask you to. If you don't know, say so. Keep answers short: a few sentences, plain words, no markdown."
 
     private fun instructions(custom: String) = custom.trim().ifEmpty { CHAT_DEFAULT }
+
+    /** What every reading companion keeps to, whoever it is: the usual instructions after who it is. */
+    private val CHAT_RULES = CHAT_DEFAULT.substringAfter("like a well-read friend. ")
+
+    /**
+     * The instructions of one of the app's characters, or one of the user's: who they are ([name], and how they are and
+     * talk, [personality]), then what every reading companion keeps to.
+     */
+    fun asCharacter(name: String, personality: String): String {
+        val who = personality.trim().let { if (it.isEmpty()) "" else if (it.endsWith('.')) "$it " else "$it. " }
+        return "You are $name, a reading companion in an e-book app. $who$CHAT_RULES"
+    }
 
     /**
      * The chat's instructions for a question about the book being read: the reader's own or the usual ones, where

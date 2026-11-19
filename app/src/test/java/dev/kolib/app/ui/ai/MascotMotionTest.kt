@@ -92,8 +92,16 @@ class MascotMotionTest {
             m.step(1 / 60f)
         }
         assertEquals(Act.HELD, m.act)
-        // Back and forth, hard: dizzy, even as it's held.
-        repeat(6) { i ->
+        // A little to and fro: not enough.
+        repeat(4) { i ->
+            repeat(3) {
+                m.dragged(Offset(if (i % 2 == 0) 15f else -15f, 0f))
+                m.step(1 / 60f)
+            }
+        }
+        assertEquals(Act.HELD, m.act)
+        // Back and forth, hard, again and again: dizzy, even as it's held.
+        repeat(8) { i ->
             repeat(3) {
                 m.dragged(Offset(if (i % 2 == 0) 15f else -15f, 0f))
                 m.step(1 / 60f)

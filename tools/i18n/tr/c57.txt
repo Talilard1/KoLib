@@ -1,0 +1,224 @@
+@fr
+3026|Changer le personnage de l’IA
+3027|Celles de {0}
+3028|Qui représente l’IA à l’écran. Chacun a sa façon de montrer ce qu’il fait, sa façon de parler, et garde les instructions que vous lui avez données en dernier.
+3029|Renommer {0}
+3030|Supprimer {0}
+3031|Laissez vide pour retrouver son nom d’origine.
+3032|Utiliser les instructions de {0}
+3033|Le vôtre
+3034|Depuis une fiche
+3035|Aucun personnage n’a été trouvé sur cette image. Dessinez-le dans les carrés verts, au moins dans le carré 1, et gardez un fond uni.
+3036|Créer votre propre personnage
+3037|Dessinez votre personnage dans chaque carré de la fiche, ou donnez la fiche à une IA qui crée des images, avec les instructions qui l’accompagnent. Puis choisissez ici la fiche terminée.
+3038|Enregistrer la fiche
+3039|Partager la fiche
+3040|Copier les instructions
+3041|Cet appareil n’a pas de sélecteur d’images.
+3042|Choisir la fiche terminée
+3043|Choisir une autre fiche
+3044|Son caractère et sa façon de parler
+3045|Par exemple : un vieux pirate grincheux au grand cœur, qui adore la poésie
+3046|Le personnage n’a pas pu être enregistré.
+3047|Créer
+3048|La fiche n’a pas pu être enregistrée.
+3049|Instructions copiées.
+3050|Ses propres instructions
+3051|Instructions « {0} »
+3052|Les siennes, modifiées
+@de
+3026|Figur der KI wechseln
+3027|{0}s eigene
+3028|Wer die KI auf deinem Bildschirm ist. Jede Figur zeigt auf ihre Weise, was sie tut, hat ihre eigene Art zu reden und behält die Anweisungen, die du ihr zuletzt gegeben hast.
+3029|{0} umbenennen
+3030|{0} löschen
+3031|Leer lassen für den ursprünglichen Namen.
+3032|{0}s eigene Anweisungen verwenden
+3033|Eigene
+3034|Aus einem Bogen
+3035|Auf diesem Bild wurde keine Figur gefunden. Zeichne sie in die grünen Quadrate, mindestens in Quadrat 1, und lass den Hintergrund einfarbig.
+3036|Eigene Figur erstellen
+3037|Zeichne deine Figur in jedes Quadrat des Figurenbogens oder gib den Bogen mit den passenden Anweisungen einer KI, die Bilder macht. Wähle dann hier den fertigen Bogen.
+3038|Bogen speichern
+3039|Bogen teilen
+3040|Anweisungen kopieren
+3041|Dieses Gerät hat keine Bildauswahl.
+3042|Fertigen Bogen wählen
+3043|Anderen Bogen wählen
+3044|Wie die Figur ist und redet
+3045|Zum Beispiel: ein grummeliger alter Pirat mit weichem Herzen, der Gedichte liebt
+3046|Die Figur konnte nicht gespeichert werden.
+3047|Erstellen
+3048|Der Bogen konnte nicht gespeichert werden.
+3049|Anweisungen kopiert.
+3050|Eigene Anweisungen
+3051|Anweisungen „{0}“
+3052|Eigene, geändert
+@es
+3026|Cambiar el personaje de la IA
+3027|Las de {0}
+3028|Quién es la IA en tu pantalla. Cada uno muestra a su manera lo que hace, tiene su propia forma de hablar y conserva las últimas instrucciones que le diste.
+3029|Renombrar a {0}
+3030|Eliminar a {0}
+3031|Déjalo vacío para volver a su nombre original.
+3032|Usar las instrucciones de {0}
+3033|El tuyo
+3034|Desde una hoja
+3035|No se encontró ningún personaje en esa imagen. Dibújalo en los cuadros verdes, al menos en el cuadro 1, y deja el fondo liso.
+3036|Crear tu propio personaje
+3037|Dibuja tu personaje en cada cuadro de la hoja, o dale la hoja a una IA que crea imágenes, junto con las instrucciones. Luego elige aquí la hoja terminada.
+3038|Guardar la hoja
+3039|Compartir la hoja
+3040|Copiar las instrucciones
+3041|Este dispositivo no tiene selector de imágenes.
+3042|Elegir la hoja terminada
+3043|Elegir otra hoja
+3044|Cómo es y cómo habla
+3045|Por ejemplo: un viejo pirata gruñón de buen corazón al que le encanta la poesía
+3046|No se pudo guardar el personaje.
+3047|Crear
+3048|No se pudo guardar la hoja.
+3049|Instrucciones copiadas.
+3050|Sus propias instrucciones
+3051|Instrucciones «{0}»
+3052|Las suyas, cambiadas
+@it
+3026|Cambia il personaggio dell’IA
+3027|Quelle di {0}
+3028|Chi è l’IA sul tuo schermo. Ognuno ha il suo modo di mostrare cosa sta facendo, il suo modo di parlare, e tiene le ultime istruzioni che gli hai dato.
+3029|Rinomina {0}
+3030|Elimina {0}
+3031|Lascia vuoto per tornare al suo nome originale.
+3032|Usa le istruzioni di {0}
+3033|Il tuo
+3034|Da un foglio
+3035|In quell’immagine non è stato trovato nessun personaggio. Disegnalo nei quadrati verdi, almeno nel quadrato 1, e lascia lo sfondo uniforme.
+3036|Crea il tuo personaggio
+3037|Disegna il tuo personaggio in ogni quadrato del foglio, oppure dai il foglio a un’IA che crea immagini, insieme alle istruzioni. Poi scegli qui il foglio finito.
+3038|Salva il foglio
+3039|Condividi il foglio
+3040|Copia le istruzioni
+3041|Questo dispositivo non ha un selettore di immagini.
+3042|Scegli il foglio finito
+3043|Scegli un altro foglio
+3044|Com’è e come parla
+3045|Per esempio: un vecchio pirata brontolone dal cuore tenero, che ama la poesia
+3046|Non è stato possibile salvare il personaggio.
+3047|Crea
+3048|Non è stato possibile salvare il foglio.
+3049|Istruzioni copiate.
+3050|Le sue istruzioni
+3051|Istruzioni «{0}»
+3052|Le sue, modificate
+@nl
+3026|Personage van de AI wijzigen
+3027|Van {0} zelf
+3028|Wie de AI op je scherm is. Elk laat op een eigen manier zien waar het mee bezig is, praat op een eigen manier en houdt de instructies die je het laatst gaf.
+3029|{0} hernoemen
+3030|{0} verwijderen
+3031|Laat leeg voor de oorspronkelijke naam.
+3032|De eigen instructies van {0} gebruiken
+3033|Je eigen
+3034|Van een blad
+3035|Op die afbeelding is geen personage gevonden. Teken het in de groene vakken, in elk geval vak 1, en houd de achtergrond effen.
+3036|Je eigen personage maken
+3037|Teken je personage in elk vak van het personageblad, of geef het blad met de bijbehorende instructies aan een AI die afbeeldingen maakt. Kies daarna hier het afgemaakte blad.
+3038|Blad opslaan
+3039|Blad delen
+3040|Instructies kopiëren
+3041|Dit apparaat heeft geen afbeeldingskiezer.
+3042|Afgemaakt blad kiezen
+3043|Ander blad kiezen
+3044|Hoe het is en hoe het praat
+3045|Bijvoorbeeld: een mopperige oude piraat met een zacht hart, die van poëzie houdt
+3046|Het personage kon niet worden opgeslagen.
+3047|Maken
+3048|Het blad kon niet worden opgeslagen.
+3049|Instructies gekopieerd.
+3050|Eigen instructies
+3051|Instructies ‘{0}’
+3052|Eigen, gewijzigd
+@pt
+3026|Trocar o personagem da IA
+3027|As de {0}
+3028|Quem é a IA na sua tela. Cada um mostra do seu jeito o que está fazendo, tem seu próprio jeito de falar e guarda as últimas instruções que você deu a ele.
+3029|Renomear {0}
+3030|Excluir {0}
+3031|Deixe vazio para voltar ao nome original.
+3032|Usar as instruções de {0}
+3033|O seu
+3034|De uma folha
+3035|Nenhum personagem foi encontrado nessa imagem. Desenhe-o nos quadrados verdes, pelo menos no quadrado 1, e mantenha o fundo liso.
+3036|Criar seu próprio personagem
+3037|Desenhe seu personagem em cada quadrado da folha, ou dê a folha a uma IA que cria imagens, com as instruções que a acompanham. Depois escolha aqui a folha pronta.
+3038|Salvar a folha
+3039|Compartilhar a folha
+3040|Copiar as instruções
+3041|Este dispositivo não tem seletor de imagens.
+3042|Escolher a folha pronta
+3043|Escolher outra folha
+3044|Como é e como fala
+3045|Por exemplo: um velho pirata rabugento de coração mole, que adora poesia
+3046|Não foi possível salvar o personagem.
+3047|Criar
+3048|Não foi possível salvar a folha.
+3049|Instruções copiadas.
+3050|Instruções próprias
+3051|Instruções “{0}”
+3052|As próprias, alteradas
+@ru
+3026|Сменить персонажа ИИ
+3027|Свои ({0})
+3028|Кем ИИ будет на экране. Каждый по-своему показывает, чем занят, говорит по-своему и помнит инструкции, которые вы дали ему последними.
+3029|Переименовать {0}
+3030|Удалить {0}
+3031|Оставьте пустым, чтобы вернуть исходное имя.
+3032|Использовать собственные инструкции ({0})
+3033|Свой
+3034|С листа
+3035|На этом изображении персонаж не найден. Нарисуйте его в зелёных квадратах, хотя бы в квадрате 1, и оставьте фон однотонным.
+3036|Создать своего персонажа
+3037|Нарисуйте персонажа в каждом квадрате листа или отдайте лист вместе с инструкциями ИИ, который создаёт изображения. Затем выберите здесь готовый лист.
+3038|Сохранить лист
+3039|Поделиться листом
+3040|Скопировать инструкции
+3041|На этом устройстве нет выбора изображений.
+3042|Выбрать готовый лист
+3043|Выбрать другой лист
+3044|Характер и манера речи
+3045|Например: ворчливый старый пират с добрым сердцем, который любит поэзию
+3046|Не удалось сохранить персонажа.
+3047|Создать
+3048|Не удалось сохранить лист.
+3049|Инструкции скопированы.
+3050|Собственные инструкции
+3051|Инструкции «{0}»
+3052|Собственные, изменённые
+@ja
+3026|AIのキャラクターを変更
+3027|{0}の標準
+3028|画面上のAIの姿です。それぞれ自分なりのやり方で今していることを見せ、独自の話し方をし、最後に与えた指示を覚えています。
+3029|{0}の名前を変更
+3030|{0}を削除
+3031|空欄にすると元の名前に戻ります。
+3032|{0}の標準の指示を使う
+3033|オリジナル
+3034|シートから
+3035|その画像にキャラクターが見つかりませんでした。緑の四角（少なくとも1番）に描き、背景は無地のままにしてください。
+3036|オリジナルキャラクターを作る
+3037|キャラクターシートの各マスにキャラクターを描くか、画像を作るAIに指示と一緒にシートを渡してください。完成したシートをここで選びます。
+3038|シートを保存
+3039|シートを共有
+3040|指示をコピー
+3041|この端末には画像の選択機能がありません。
+3042|完成したシートを選ぶ
+3043|別のシートを選ぶ
+3044|性格と話し方
+3045|例：詩が大好きな、心優しい気難しい老海賊
+3046|キャラクターを保存できませんでした。
+3047|作成
+3048|シートを保存できませんでした。
+3049|指示をコピーしました。
+3050|標準の指示
+3051|「{0}」の指示
+3052|標準（変更あり）

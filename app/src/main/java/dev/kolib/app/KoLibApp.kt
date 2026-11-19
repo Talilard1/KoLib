@@ -69,6 +69,8 @@ class KoLibApp : Application() {
 
     /** The chat with the model: the same conversation wherever it's opened from, and the ones kept before it. */
     val chat: dev.kolib.app.ui.ai.ChatSession by lazy {
+        // The user's characters, for whichever the chat is to answer as.
+        dev.kolib.app.ui.ai.Characters.load(this)
         dev.kolib.app.ui.ai.ChatSession(
             dev.kolib.app.ai.ChatStore(java.io.File(filesDir, "ai/chats")), prefs = getSharedPreferences("ai", MODE_PRIVATE),
             onStarted = ::aiStarted, onFinished = ::aiFinished,

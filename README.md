@@ -55,9 +55,12 @@ Get the latest APK from [Releases](https://github.com/Talilard1/KoLib/releases/l
   own, or use your own server. It can get the model ready as KoLib opens, so the first answer comes
   quicker.
 - The AI opens in a window you can drag anywhere or make full screen, or shrinks into a bubble. Pick who it is: a robot,
-  an anime woman, a cat, an owl or a ghost. Each one shows what the AI is doing (reading, thinking,
-  writing), cheers when an answer's ready, and reacts when you pick it up, fling it or bump it into
-  the edge of the screen. Leave it alone and it nods off. It can show its face on the AI button too.
+  an anime woman, a cat, an owl or a ghost, or make your own from a character sheet you draw on or
+  give to an AI that makes pictures. Each has its own way of talking, a name you can change, and
+  keeps the instructions you last gave it, so switching characters (right from the chat) switches
+  those too. Each shows what the AI is doing (reading, thinking, writing), cheers when an answer's
+  ready, and reacts when you pick it up, shake it, fling it or bump it into the edge of the screen.
+  Leave it alone and it nods off. It can show its face on the AI button too.
   Close the bubble and the AI keeps working; if you've left KoLib, a notification tells you when it's
   done.
 - Book notes, if you want them: the AI writes a short note on each chapter you finish, so it remembers

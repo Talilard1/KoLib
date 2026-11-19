@@ -16,12 +16,22 @@ data class AiSettings(
     val serverModel: String = "",
     /** The dictionary (Wiktionary) is asked when a word is looked up. */
     val dictionary: Boolean = true,
-    /** The user's own instructions for the chat, in place of the usual ones ([Prompts.CHAT_DEFAULT]); empty for those. */
+    /**
+     * The instructions the chat has now, for the character it is ([mascot]); empty for the character's own (see
+     * Prompts.asCharacter).
+     */
     val chatPrompt: String = "",
     /** Notes on books (see BookNotes) are only written while the device is charging. */
     val notesOnCharge: Boolean = false,
-    /** Who the AI is on the screen: see Mascot. */
+    /** Who the AI is on the screen: see Mascot (and the user's own characters). */
     val mascot: String = "robot",
+    /** Names the user has given characters, by their ids. */
+    val mascotNames: Map<String, String> = emptyMap(),
+    /**
+     * The instructions each of the other characters had when it was last the AI ([chatPrompt]'s, for it), by their ids:
+     * switched back to, it has them again.
+     */
+    val mascotPrompts: Map<String, String> = emptyMap(),
     /** The AI button at the top shows the character's face; otherwise (as it starts) the plain AI icon. */
     val mascotButton: Boolean = false,
     /** The model is opened as KoLib opens, and reads ahead what's showing, so the first answer comes quicker. */
@@ -42,8 +52,31 @@ data class AiSettings(
     /** Without the preset called [name]. */
     fun withoutPreset(name: String): AiSettings = copy(presets = presets.filterNot { it.name == name })
 
-    /** With [preset]'s instructions in use; null for the usual ones. */
+    /** With [preset]'s instructions in use; null for the character's own. */
     fun using(preset: PromptPreset?): AiSettings = copy(chatPrompt = preset?.text.orEmpty())
+
+    /** The character [id] is called: what the user called it, or [default]. */
+    fun nameOf(id: String, default: String): String = mascotNames[id]?.trim()?.takeIf { it.isNotEmpty() } ?: default
+
+    /** With the character [id] called [name] (blank: its own name again). */
+    fun naming(id: String, name: String): AiSettings =
+        copy(mascotNames = if (name.isBlank()) mascotNames - id else mascotNames + (id to name.trim().take(30)))
+
+    /** The instructions the character [id] has: [chatPrompt] for the one that's the AI now. Empty: its own. */
+    fun instructionsOf(id: String): String = if (id == mascot) chatPrompt else mascotPrompts[id].orEmpty()
+
+    /** With the character [id] as the AI, and the instructions it had last time; this one's kept for it. */
+    fun switchedTo(id: String): AiSettings = if (id == mascot) this else copy(
+        mascotPrompts = mascotPrompts + (mascot to chatPrompt) - id,
+        chatPrompt = mascotPrompts[id].orEmpty(),
+        mascot = id,
+    )
+
+    /** Of the characters [ids], those using [preset] now. */
+    fun usersOf(preset: PromptPreset, ids: List<String>): List<String> = ids.filter { instructionsOf(it) == preset.text }
+
+    /** Without the character [id] (deleted): what it had is let go of. */
+    fun without(id: String): AiSettings = copy(mascotNames = mascotNames - id, mascotPrompts = mascotPrompts - id)
 
     val modelId: String? get() = source.removePrefix("model:").takeIf { source.startsWith("model:") }
     val ownName: String? get() = source.removePrefix("own:").takeIf { source.startsWith("own:") }
@@ -66,6 +99,8 @@ class AiSettingsStore(context: Context) {
         mascot = prefs.getString("mascot", "robot").orEmpty(),
         mascotButton = prefs.getBoolean("mascot_button", false),
         preload = prefs.getBoolean("preload", false),
+        mascotNames = readMap(prefs.getString("mascot_names", null)),
+        mascotPrompts = readMap(prefs.getString("mascot_prompts", null)),
         presets = runCatching {
             val all = org.json.JSONArray(prefs.getString("prompt_presets", "[]"))
             (0 until all.length()).map { i -> all.getJSONObject(i).let { PromptPreset(it.getString("name"), it.getString("text")) } }
@@ -85,7 +120,14 @@ class AiSettingsStore(context: Context) {
             .putBoolean("mascot_button", s.mascotButton)
             .putBoolean("preload", s.preload)
             .putString("prompt_presets", org.json.JSONArray().apply { s.presets.forEach { put(org.json.JSONObject().put("name", it.name).put("text", it.text)) } }.toString())
+            .putString("mascot_names", org.json.JSONObject(s.mascotNames).toString())
+            .putString("mascot_prompts", org.json.JSONObject(s.mascotPrompts).toString())
             .apply()
         state.value = s
     }
 }
+
+private fun readMap(json: String?): Map<String, String> = runCatching {
+    val o = org.json.JSONObject(json ?: "{}")
+    o.keys().asSequence().associateWith { o.getString(it) }
+}.getOrDefault(emptyMap())

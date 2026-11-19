@@ -43,15 +43,32 @@ import kotlin.random.Random
  * The AI's character on the screen, chosen in the AI settings: each a little creature of its own, which shows what
  * the AI is up to (reading, thinking, writing) and reacts to what's done to it (picked up, thrown, left alone).
  */
-enum class Mascot(val id: String, val title: String) {
+enum class Mascot(override val id: String, val title: String) : Character {
     ROBOT("robot", "Bolt"),
     ANIME("anime", "Yume"),
     CAT("cat", "Mochi"),
     OWL("owl", "Sage"),
     GHOST("ghost", "Boo");
 
+    override val defaultName: String get() = title
+
+    /** How each talks: what its own instructions to the chat say about it (in English, as all the instructions are). */
+    override val personality: String
+        get() = when (this) {
+            ROBOT -> "You're a cheerful little robot: curious, precise and eager to help. You like getting the facts exactly " +
+                "right, and now and then make a small, dry robot joke"
+            ANIME -> "You're glamorous, warm and quick-witted, with a playful, teasing charm. You talk like a confident friend " +
+                "who adores a good story, and now and then call the reader darling"
+            CAT -> "You're a curious, playful cat who loves curling up with a good book. You're friendly and a little " +
+                "mischievous, and now and then see things the way a cat would"
+            OWL -> "You're a wise old owl and a lifelong scholar: calm, thoughtful and kind, with a dry sense of humour. You " +
+                "enjoy pointing out how a story is put together"
+            GHOST -> "You're a friendly little ghost who loves mysteries, suspense and a good twist. You're playful and " +
+                "enthusiastic, and now and then make a gentle spooky joke"
+        }
+
     /** What it is, in a word. */
-    val kind: String
+    override val kind: String
         get() = when (this) {
             ROBOT -> tr("Robot")
             ANIME -> tr("Anime")
@@ -60,7 +77,7 @@ enum class Mascot(val id: String, val title: String) {
             GHOST -> tr("Ghost")
         }
 
-    internal val art: MascotArt
+    override val art: MascotArt
         get() = when (this) {
             ROBOT -> RobotArt
             ANIME -> AnimeArt
@@ -250,8 +267,9 @@ class MascotMotion(private val calm: Boolean = false, seed: Int = 0) {
                 runs[axis] = d
             } else runs[axis] = run + d
         }
-        while (shakes.isNotEmpty() && t - shakes.first() > 1.2f) shakes.removeFirst()
-        if (shakes.size >= 4) dizzyUntil = maxOf(dizzyUntil, t + 1.8f)
+        // Only a good, long shake: three times back and forth, hard, in a second and a half.
+        while (shakes.isNotEmpty() && t - shakes.first() > 1.5f) shakes.removeFirst()
+        if (shakes.size >= 6) dizzyUntil = maxOf(dizzyUntil, t + 1.8f)
     }
 
     /** Thrown, at most [peak] pixels a second, bouncing [bounces] times: dizzy, if it was hard. */
@@ -553,7 +571,7 @@ private fun said(act: Act): String = when (act) {
 
 /** The character, whole: for the bubble and the settings. */
 @Composable
-fun MascotView(mascot: Mascot, motion: MascotMotion, modifier: Modifier = Modifier) {
+fun MascotView(mascot: Character, motion: MascotMotion, modifier: Modifier = Modifier) {
     Canvas(modifier.semantics { said(motion.act).takeIf { it.isNotEmpty() }?.let { stateDescription = it } }) {
         motion.frame
         drawMascot(mascot.art, motion, size.minDimension)
@@ -562,7 +580,7 @@ fun MascotView(mascot: Mascot, motion: MascotMotion, modifier: Modifier = Modifi
 
 /** Its head alone, as an icon: in the bar at the top, and the like. */
 @Composable
-fun MascotIcon(mascot: Mascot, mood: BotMood, modifier: Modifier = Modifier) {
+fun MascotIcon(mascot: Character, mood: BotMood, modifier: Modifier = Modifier) {
     val motion = rememberMascotMotion(calm = true, key = mood)
     motion.mood = mood
     MascotHead(mascot, motion, modifier)
@@ -570,23 +588,16 @@ fun MascotIcon(mascot: Mascot, mood: BotMood, modifier: Modifier = Modifier) {
 
 /** Its head alone, moving as [motion] says. */
 @Composable
-internal fun MascotHead(mascot: Mascot, motion: MascotMotion, modifier: Modifier = Modifier) {
+internal fun MascotHead(mascot: Character, motion: MascotMotion, modifier: Modifier = Modifier) {
     Canvas(modifier) {
         motion.frame
         with(mascot.art) { icon(motion, size.minDimension) }
     }
 }
 
-/** The mascot chosen in the settings. */
-@Composable
-fun chosenMascot(): Mascot {
-    val app = LocalContext.current.applicationContext as KoLibApp
-    val settings by app.ai.settings.collectAsState()
-    return Mascot.of(settings.mascot)
-}
 
 /** How a character is drawn. Its box is [s] across; its parts are placed as fractions of that. */
-internal interface MascotArt {
+interface MascotArt {
     /** Where its head is, and how big, as fractions of its box: for its thoughts, its sleep and the like. */
     val head: Offset
     val headR: Float

@@ -426,7 +426,7 @@ private fun comicShelfActions(
 ): List<BarAction> {
     val any = count > 0
     return listOfNotNull(
-        BarAction(Icons.AutoMirrored.Filled.Send, tr("Send"), onSend, enabled = any, main = true, tag = "comics-send", longLabel = tr("Send to Kobo")),
+        BarAction(Icons.AutoMirrored.Filled.Send, tr("To Kobo"), onSend, enabled = any, main = true, tag = "comics-send", longLabel = tr("Send to Kobo")),
         BarAction(Icons.Outlined.DoneAll, dev.kolib.app.trc("mark", "Read"), onRead, enabled = any, tag = "comics-mark-read", longLabel = tr("Mark as read")),
         BarAction(Icons.Outlined.RemoveDone, dev.kolib.app.trc("mark", "Unread"), onUnread, enabled = any, tag = "comics-mark-unread", longLabel = tr("Mark as unread")),
         BarAction(Icons.AutoMirrored.Outlined.PlaylistAdd, tr("Add to series"), onAddTo, enabled = any, tag = "comics-add-to-series", canWait = true),
@@ -449,7 +449,7 @@ private fun comicIssueActions(
 ): List<BarAction> {
     val any = count > 0
     return listOfNotNull(
-        BarAction(Icons.AutoMirrored.Filled.Send, tr("Send"), onSend, enabled = any, main = true, tag = "comic-issues-send", longLabel = tr("Send to Kobo")),
+        BarAction(Icons.AutoMirrored.Filled.Send, tr("To Kobo"), onSend, enabled = any, main = true, tag = "comic-issues-send", longLabel = tr("Send to Kobo")),
         BarAction(Icons.Outlined.DoneAll, dev.kolib.app.trc("mark", "Read"), onRead, enabled = any, tag = "comics-mark-read", longLabel = tr("Mark as read")),
         BarAction(Icons.Outlined.RemoveDone, dev.kolib.app.trc("mark", "Unread"), onUnread, enabled = any, tag = "comic-issues-mark-unread", longLabel = tr("Mark as unread")),
         if (inSeries) BarAction(Icons.Outlined.LayersClear, tr("Take out"), onTakeOut, enabled = any, tag = "comic-issues-take-out", canWait = true, longLabel = tr("Take out of the series")) else null,
@@ -547,7 +547,7 @@ private fun ComicSortButton(browse: LibraryBrowseState, series: Int?, comics: In
                 onClick = {
                     open = false
                     browse.comicsTab = false
-                    android.widget.Toast.makeText(context, tr("Comics are with the books now. The tab can be shown again in Settings."), android.widget.Toast.LENGTH_LONG).show()
+                    android.widget.Toast.makeText(context, tr("Comics are with your books now. You can bring the tab back in Settings."), android.widget.Toast.LENGTH_LONG).show()
                 },
                 modifier = Modifier.testTag("comics-hide-tab"),
             )

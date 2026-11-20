@@ -1,5 +1,11 @@
 package dev.kolib.app.ui.reader
 
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.CompositionLocalProvider
+import dev.kolib.app.ui.tour.tourPlace
+import dev.kolib.app.ui.tour.TourPlaces
+import dev.kolib.app.ui.tour.Tour
+import dev.kolib.app.ui.tour.LocalTourPlaces
 import dev.kolib.app.ui.components.FittedText
 import dev.kolib.app.tr
 import androidx.compose.material3.ListItem
@@ -283,6 +289,9 @@ internal fun ReaderScreen(
     guide: ReaderGuide? = null,
     /** Where the camera's cutouts are taken to be, for pictures and tests (the window says otherwise). */
     cutouts: Cutouts? = null,
+    /** The reader's tour is given: it's the first time a book is read. */
+    tour: Boolean = false,
+    onTourDone: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val view = LocalView.current
@@ -427,6 +436,16 @@ internal fun ReaderScreen(
         }
     }
     BackHandler { goBack() }
+    // The tour: over the page with the bars showing and no panel open, lighting each part where it is.
+    var touring by rememberSaveable { mutableStateOf(tour) }
+    LaunchedEffect(tour) { if (tour) touring = true }
+    val tourPlaces = remember { TourPlaces() }
+    LaunchedEffect(touring, controller.controlsVisible) {
+        if (touring) {
+            panel = Panel.NONE
+            controller.controlsVisible = true
+        }
+    }
     val edgeBack = remember { EdgeBackState() }
     val backSwipe = s.edgeBack && !s.edgePanels && !controller.selecting
 
@@ -438,10 +457,11 @@ internal fun ReaderScreen(
         controller.lookUpText == null
     // The screen round the page: the page's colour, or black where a camera is hidden in a strip of its own.
     val stripColor = if (below && camera) Color.Black else pageColor
+    CompositionLocalProvider(LocalTourPlaces provides tourPlaces.takeIf { touring }) {
     BoxWithConstraints(Modifier.fillMaxSize().background(stripColor).edgeBackSwipe(edgeBack, backSwipe) { goBack() }.padding(horizontal = cutSide.dp)) {
         val wide = maxWidth >= 720.dp
       // The page itself, inside the strips.
-      BoxWithConstraints(Modifier.fillMaxSize().padding(top = stripTop, bottom = stripBottom).background(pageColor)) {
+      BoxWithConstraints(Modifier.fillMaxSize().padding(top = stripTop, bottom = stripBottom).background(pageColor).tourPlace("reader-page")) {
         // Inside a strip, the camera isn't over the page.
         val topInPage = stripTop == 0.dp
         val bottomInPage = stripBottom == 0.dp
@@ -713,6 +733,14 @@ internal fun ReaderScreen(
             Box(Modifier.align(Alignment.CenterEnd).width(48.dp).fillMaxHeight().systemGestureExclusion().testTag("edge-kept-right"))
         }
         EdgeBackIndicator(edgeBack)
+        if (touring) {
+            val stops = remember { dev.kolib.app.ui.tour.Tours.bookReader() }
+            Tour(stops, tourPlaces, onDone = {
+                touring = false
+                onTourDone()
+            })
+        }
+    }
     }
 }
 

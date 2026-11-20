@@ -60,6 +60,7 @@ class MainActivity : ComponentActivity() {
             val openingLight by themes.openingLight.collectAsStateWithLifecycle()
             val introSeen by themes.introSeen.collectAsStateWithLifecycle()
             val editorTourSeen by themes.editorTourSeen.collectAsStateWithLifecycle()
+            val toursSeen by themes.toursSeen.collectAsStateWithLifecycle()
             var showOpening by remember { mutableStateOf(playOpening) }
             val clock = remember { OpeningClock() }
             Box(Modifier.fillMaxSize()) {
@@ -81,10 +82,13 @@ class MainActivity : ComponentActivity() {
                         onIntroSeen = themes::setIntroSeen,
                         editorTourSeen = editorTourSeen,
                         onEditorTourSeen = { themes.setEditorTourSeen(true) },
+                        toursSeen = toursSeen,
+                        onTourSeen = themes::setTourSeen,
+                        onShowToursAgain = themes::showToursAgain,
                     )
                 }
                 }
-                if (showOpening) OpeningAnimation(sound = openingSound, light = openingLight, clock = clock) { showOpening = false }
+                if (showOpening) OpeningAnimation(sound = openingSound, light = openingLight, clock = clock, look = theme) { showOpening = false }
             }
         }
     }

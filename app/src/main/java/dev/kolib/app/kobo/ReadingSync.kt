@@ -184,6 +184,8 @@ class ReadingSync(
     private val koboKey: String,
     private val style: KoboMarkStyle,
     private val now: Long = System.currentTimeMillis(),
+    /** Which way each part goes, as chosen. */
+    private val choices: SyncChoices = SyncChoices(),
 ) {
     /** A book in the library and on the Kobo. */
     class Book(val id: String, val title: String, val dir: File, val epub: File, val kobo: KoboBook, val reading: KoboReading)
@@ -288,8 +290,8 @@ class ReadingSync(
         fun chapterIndex(path: String): Int = chapters.indexOfFirst { it.path == path }.let { if (it < 0) Int.MAX_VALUE else it }
 
         fun run(): Plan {
-            syncPlace()
-            if (style.hasMarks) syncMarks()
+            if (choices.place != PlaceWay.OFF) syncPlace()
+            if (style.hasMarks && choices.marks != MarksWay.OFF) syncMarks()
             if (changed) {
                 o.put("bookmarks", JSONArray(bookmarks.sortedWith(compareBy({ chapterIndex(it.optString("path")) }, { it.optDouble("progress", 0.0) }))))
                 o.put("annotations", JSONArray(annotations))
@@ -311,9 +313,17 @@ class ReadingSync(
             }
             val koboAt = r.lastRead ?: 0L
             val koboStarted = r.readStatus != 0
-            when {
-                koboStarted && koboAt > hereAt + 1000 -> takeKobosPlace(koboAt)
-                (finished || position != null) && hereAt > koboAt + 1000 -> sendPlace(position, finished, hereAt)
+            val hereStarted = finished || position != null
+            // Read at the same moment on both: they're in step already (each was set from the other).
+            val same = kotlin.math.abs(koboAt - hereAt) <= 1000
+            when (choices.place) {
+                PlaceWay.LATEST -> when {
+                    koboStarted && koboAt > hereAt + 1000 -> takeKobosPlace(koboAt)
+                    hereStarted && hereAt > koboAt + 1000 -> sendPlace(position, finished, hereAt)
+                }
+                PlaceWay.FROM_KOBO -> if (koboStarted && !same) takeKobosPlace(koboAt)
+                PlaceWay.TO_KOBO -> if (hereStarted && !same) sendPlace(position, finished, hereAt)
+                PlaceWay.OFF -> Unit
             }
         }
 
@@ -410,12 +420,18 @@ class ReadingSync(
                 val onThisKobo = link != null && link.optString("added") == r.added
                 when {
                     item != null && row != null -> both(id, item, row)
-                    item != null -> if (onThisKobo) removeHere(id, item) else send(id, item)
-                    row != null -> if (deleted.has(id) || onThisKobo) removeThere(id) else take(row)
+                    // Here only: gone from the Kobo since they were together, or new here.
+                    item != null -> if (onThisKobo) { if (marksIn) removeHere(id, item) } else { if (marksOut) send(id, item) }
+                    // On the Kobo only: deleted here, or new on the Kobo.
+                    row != null -> if (deleted.has(id) || onThisKobo) { if (marksOut) removeThere(id) } else { if (marksIn) take(row) }
                     else -> unlink(id)
                 }
             }
         }
+
+        /** Changes on the Kobo come into KoLib; changes in KoLib go out to the Kobo. */
+        private val marksIn = choices.marks == MarksWay.BOTH || choices.marks == MarksWay.FROM_KOBO
+        private val marksOut = choices.marks == MarksWay.BOTH || choices.marks == MarksWay.TO_KOBO
 
         private fun isBookmark(item: JSONObject) = !item.has("start")
 
@@ -473,10 +489,14 @@ class ReadingSync(
                 return
             }
             val seen = links.optJSONObject(id)?.optJSONObject(koboKey)?.takeIf { it.optString("added") == r.added }?.optString("seen")
-            val koboChanged = when {
-                seen == mine -> true
-                seen == theirs -> false
-                else -> row.changedMillis > item.optLong("modified")
+            val koboChanged = when (choices.marks) {
+                MarksWay.FROM_KOBO -> true
+                MarksWay.TO_KOBO -> false
+                else -> when {
+                    seen == mine -> true
+                    seen == theirs -> false
+                    else -> row.changedMillis > item.optLong("modified")
+                }
             }
             if (koboChanged) {
                 item.put("note", row.note.orEmpty().trim())

@@ -72,6 +72,24 @@ class ThemeSettings(context: Context) {
         _editorTourSeen.value = seen
     }
 
+    private val _toursSeen = MutableStateFlow(prefs.getStringSet(TOURS_SEEN, emptySet()).orEmpty().toSet())
+    /** The tours given already (see dev.kolib.app.ui.tour.Tours): each is given the first time its screen is opened. */
+    val toursSeen: StateFlow<Set<String>> = _toursSeen.asStateFlow()
+
+    fun setTourSeen(name: String) {
+        val now = _toursSeen.value + name
+        prefs.edit().putStringSet(TOURS_SEEN, now).apply()
+        _toursSeen.value = now
+    }
+
+    /** Every tour is given again, the editor's too, the next time its screen is opened. The sample books aren't added again. */
+    fun showToursAgain() {
+        val now = _toursSeen.value.filter { it == dev.kolib.app.ui.tour.Tours.SAMPLES }.toSet()
+        prefs.edit().putStringSet(TOURS_SEEN, now).putBoolean(EDITOR_TOUR_SEEN, false).apply()
+        _toursSeen.value = now
+        _editorTourSeen.value = false
+    }
+
     fun set(choice: ThemeChoice) {
         prefs.edit().putString(KEY, choice.name).apply()
         _choice.value = choice
@@ -99,5 +117,6 @@ class ThemeSettings(context: Context) {
         const val OPENING_LIGHT = "openingLight"
         const val INTRO_SEEN = "introSeen"
         const val EDITOR_TOUR_SEEN = "editorTourSeen"
+        const val TOURS_SEEN = "toursSeen"
     }
 }

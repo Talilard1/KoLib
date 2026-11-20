@@ -20,17 +20,30 @@ object Updates {
     /** A version as numbers: "v1.30" is 1, 30; "2.0" is 2, 0. */
     fun numbers(version: String): List<Int> = Regex("\\d+").findAll(version).map { it.value.take(9).toInt() }.toList()
 
-    /** Whether [candidate] is a later version than [installed]: 2.0 is later than 1.30, and 1.30 than 1.4. */
+    /**
+     * Whether [candidate] is a later version than [installed]: 2.0 is later than 1.30, and 1.30 than 1.4. A version is
+     * later than its previews ("3.0" than "3.0 preview"), and a preview than the ones before it ("3.0 preview 2" than "3.0 preview").
+     */
     fun isNewer(candidate: String, installed: String): Boolean {
-        val a = numbers(candidate)
-        val b = numbers(installed)
+        val (a, aPreview) = parts(candidate)
+        val (b, bPreview) = parts(installed)
         if (a.isEmpty()) return false
         for (i in 0 until maxOf(a.size, b.size)) {
             val x = a.getOrElse(i) { 0 }
             val y = b.getOrElse(i) { 0 }
             if (x != y) return x > y
         }
-        return false
+        return when {
+            aPreview == null -> bPreview != null
+            bPreview == null -> false
+            else -> aPreview > bPreview
+        }
+    }
+
+    /** A version's numbers and, for a preview of it, which preview it is (1 for the first): "3.0 preview 2" is 3, 0 and 2. */
+    private fun parts(version: String): Pair<List<Int>, Int?> {
+        val at = Regex("preview", RegexOption.IGNORE_CASE).find(version) ?: return numbers(version) to null
+        return numbers(version.substring(0, at.range.first)) to (numbers(version.substring(at.range.last + 1)).firstOrNull() ?: 1)
     }
 
     /**

@@ -44,6 +44,14 @@ class UpdatesTest {
         assertFalse(Updates.isNewer("2.0", "2.0.0"))
         assertFalse(Updates.isNewer("1.30", "2.0"))
         assertFalse(Updates.isNewer("nightly", "2.0"))
+        // A release is later than its previews, and a later preview than an earlier one.
+        assertTrue(Updates.isNewer("3.0", "3.0 preview"))
+        assertTrue(Updates.isNewer("v3.0", "3.0-preview-2"))
+        assertTrue(Updates.isNewer("3.0 preview 2", "3.0 preview"))
+        assertFalse(Updates.isNewer("3.0 preview", "3.0"))
+        assertFalse(Updates.isNewer("3.0 preview", "3.0 preview"))
+        assertFalse(Updates.isNewer("2.9", "3.0 preview"))
+        assertTrue(Updates.isNewer("3.1", "3.0"))
     }
 
     @Test

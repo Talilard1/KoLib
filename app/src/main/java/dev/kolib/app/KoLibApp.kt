@@ -263,6 +263,14 @@ class KoLibApp : Application() {
         L10n.load(this)
         dev.kolib.app.kobo.CoverScreen.load(this)
         AppLog.init(this)
+        // The log hides the names of the library's books (see LogPrivacy).
+        appScope.launch {
+            library.books.collect { list ->
+                dev.kolib.app.log.LogPrivacy.know("library", list.flatMap { b ->
+                    listOfNotNull(b.title, b.originalName?.substringBeforeLast('.')?.removeSuffix(".kepub")) + b.meta.authors + listOfNotNull(b.meta.series)
+                })
+            }
+        }
         lastExit()
         fonts
         val previous = Thread.getDefaultUncaughtExceptionHandler()

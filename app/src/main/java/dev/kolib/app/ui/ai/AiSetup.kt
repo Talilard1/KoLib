@@ -248,14 +248,14 @@ fun AiSetupDialog(onDismiss: () -> Unit, hub: AiHub = (LocalContext.current.appl
                         val held by hub.held.collectAsState()
                         Row(Modifier.fillMaxWidth().padding(top = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                             Column(Modifier.weight(1f).padding(start = 12.dp, end = 8.dp)) {
-                                Text(if (held) tr("Loaded in memory") else tr("Not loaded"), style = MaterialTheme.typography.titleSmall)
+                                Text(if (held) tr("Ready, using memory") else tr("Not using memory"), style = MaterialTheme.typography.titleSmall)
                                 Text(
-                                    if (held) tr("Unload it to free the memory and save battery. It loads again when you next ask it something.")
-                                    else tr("It loads when you next ask it something, and unloads after a few minutes unused."),
+                                    if (held) tr("Free its memory to save battery. It gets ready again the next time you ask it something.")
+                                    else tr("It gets ready when you next ask it something, and frees its memory after a few minutes unused."),
                                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
-                            OutlinedButton(onClick = { hub.unload() }, enabled = held, modifier = Modifier.testTag("ai-unload")) { Text(tr("Unload")) }
+                            OutlinedButton(onClick = { hub.unload() }, enabled = held, modifier = Modifier.testTag("ai-unload")) { Text(tr("Free memory")) }
                         }
                     }
                     ModelStorage(hub, own, changed)

@@ -1,5 +1,10 @@
 package dev.kolib.app.ui.reader
 
+import androidx.compose.runtime.saveable.rememberSaveable
+import dev.kolib.app.ui.tour.tourPlace
+import dev.kolib.app.ui.tour.TourPlaces
+import dev.kolib.app.ui.tour.Tour
+import dev.kolib.app.ui.tour.LocalTourPlaces
 import android.app.Activity
 import android.content.ContentValues
 import android.content.Intent
@@ -347,6 +352,9 @@ fun ComicBookReader(
     series: ComicEntry? = null,
     /** The comic being read is now another in the series (read on into, or chosen with the buttons). */
     onOpen: ((String) -> Unit)? = null,
+    /** The comic reader's tour is given: it's the first time a comic is read. */
+    tour: Boolean = false,
+    onTourDone: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val view = LocalView.current
@@ -441,7 +449,14 @@ fun ComicBookReader(
         onDispose { window?.let { w -> w.attributes = w.attributes.apply { screenBrightness = before ?: WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE } } }
     }
 
+    // The tour: over the comic with its bars showing, lighting each part where it is.
+    var touring by rememberSaveable { mutableStateOf(tour) }
+    LaunchedEffect(tour) { if (tour) touring = true }
+    val tourPlaces = remember { TourPlaces() }
+    LaunchedEffect(touring, current != null, menu) { if (touring && current != null) menu = true }
+
     val error = failed[currentId]
+    CompositionLocalProvider(LocalTourPlaces provides tourPlaces.takeIf { touring }) { Box(Modifier.fillMaxSize()) {
     when {
         current != null -> ComicView(
             comic = current,
@@ -499,6 +514,14 @@ fun ComicBookReader(
         }
         else -> Box(Modifier.fillMaxSize().background(Color.Black), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
     }
+    if (touring && current != null) {
+        val stops = remember { dev.kolib.app.ui.tour.Tours.comicReader() }
+        Tour(stops, tourPlaces, onDone = {
+            touring = false
+            onTourDone()
+        })
+    }
+    } }
 }
 
 /** For tests and pictures of the screen: one comic on its own, its reading mode kept here. */
@@ -693,7 +716,7 @@ internal fun ComicView(
         val longPress = { c: OpenComic, i: Int -> if (s.longTap) actionsFor = c to i }
         // The pages, and the colour filter over them (mixed with them alone, where it's blended).
         Box(
-            Modifier.fillMaxSize().windowInsetsPadding(insets)
+            Modifier.fillMaxSize().windowInsetsPadding(insets).tourPlace("comic-page")
                 .then(if (s.colourFilter && s.blend != ComicBlend.DEFAULT) Modifier.graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen) else Modifier),
         ) {
             key(generation) {

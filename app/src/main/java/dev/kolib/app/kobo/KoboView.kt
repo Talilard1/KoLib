@@ -129,7 +129,21 @@ class LastSeenStore(private val dir: File) {
         } catch (e: Exception) {
             AppLog.w("Kobo", "Couldn't save what's on the Kobo for later", e)
         }
+        // The reading done on it since its last copy, day by day.
+        KoboReadingDays.update(folder(key), seen.snapshot)
+        hideNames(seen.snapshot)
     }
+
+    /** The log hides the names of the Kobo's books (see LogPrivacy). */
+    private fun hideNames(snapshot: KoboSnapshot) {
+        dev.kolib.app.log.LogPrivacy.know("kobo", snapshot.allBooks.flatMap { b ->
+            listOfNotNull(b.title, b.author, b.series, b.relativePath?.substringAfterLast('/')?.substringBefore('.'))
+        })
+    }
+
+    /** The reading done on the Kobo kept under [key], day by day. */
+    @Synchronized
+    fun readingDays(key: String): Map<String, Int> = KoboReadingDays.load(folder(key))
 
     /** The copy kept for [key]; for the Kobo shown, without one. */
     @Synchronized
@@ -138,7 +152,7 @@ class LastSeenStore(private val dir: File) {
         val file = file(key ?: selected ?: return null)
         if (!file.exists()) return null
         return try {
-            fromJson(JSONObject(file.readText()))
+            fromJson(JSONObject(file.readText())).also { hideNames(it.snapshot) }
         } catch (e: Exception) {
             AppLog.w("Kobo", "The saved copy of what's on the Kobo couldn't be read", e)
             null

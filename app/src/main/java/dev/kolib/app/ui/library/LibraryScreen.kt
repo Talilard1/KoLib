@@ -2,6 +2,7 @@
 
 package dev.kolib.app.ui.library
 
+import dev.kolib.app.ui.tour.tourPlace
 import androidx.compose.foundation.layout.RowScope
 import dev.kolib.app.ui.components.BarAction
 import dev.kolib.app.ui.components.AtFoot
@@ -133,6 +134,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.outlined.EditNote
+import androidx.compose.material.icons.outlined.Eject
 import kotlin.math.roundToInt
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -213,6 +215,10 @@ fun LibraryScreen(
     onAbout: () -> Unit = {},
     /** Opens the reading stats. */
     onStats: () -> Unit = {},
+    /** Shows how to eject the Kobo; null when no Kobo is plugged in. */
+    onEject: (() -> Unit)? = null,
+    /** Adds the sample books that come with KoLib, offered when the library is empty. */
+    onAddSamples: (() -> Unit)? = null,
     /** Choosing how the app looks (on phones it's in the library's menu; tablets have it beside the sections). */
     onTheme: (() -> Unit)? = null,
     /** Marking books as finished, or as unread, in the app's reader. */
@@ -245,6 +251,26 @@ fun LibraryScreen(
         LibrarySorting.filter(notComics, browse.query, browse.filter, browse.collection, browse.sort, browse.descending, browse.tags, browse.tagsMatchAll, reading, here)
     }
     val selected = browse.selectedId?.let { id -> books.firstOrNull { it.id == id } }
+    // Every way to sync reading with the Kobo asks first, in the one window where the ways it goes are chosen.
+    var syncAsk by remember { mutableStateOf<List<String>?>(null) }
+    var syncAll by remember { mutableStateOf(false) }
+    val realSync = onSyncReading
+    val askSync: ((List<String>) -> Unit)? = realSync?.let { { ids: List<String> -> syncAll = false; syncAsk = ids } }
+    val askSyncAll: (() -> Unit)? = realSync?.let {
+        {
+            syncAll = true
+            syncAsk = books.filter { b -> b.koboPath != null && b.canReadFromKoboPlace }.map { b -> b.id }
+        }
+    }
+    syncAsk?.let { ids ->
+        if (realSync != null) SyncReadingDialog(
+            count = ids.size,
+            all = syncAll,
+            onSync = { syncAsk = null; realSync(ids) },
+            onChoose = if (syncAll) ({ syncAsk = null; browse.selectedId = null; browse.selecting = true }) else null,
+            onDismiss = { syncAsk = null },
+        )
+    }
     // What's showing, for the AI to know when it's asked about "these books".
     dev.kolib.app.ui.ai.LocalAiHost.current?.let { host ->
         SideEffect { host.library = libraryOnScreen(browse, visible, selected?.id) }
@@ -257,8 +283,8 @@ fun LibraryScreen(
             onAddFiles = onAddFiles, onAddFromKobo = onAddFromKobo, onAddFolder = onAddFolder, onShowJob = onShowJob, onEditDetails = onEditDetails,
             onChangeCover = onChangeCover, onDelete = onDelete, onSend = onSend, onRead = onRead, onEditText = onEditText,
             onNewBook = onNewBook, onMerge = onMerge, onSplit = onSplit, onExport = onExport, onDuplicate = onDuplicate,
-            onAbout = onAbout, onStats = onStats, onTheme = onTheme, onMarkFinished = onMarkFinished, onMarkUnread = onMarkUnread,
-            onContinueFromKobo = onContinueFromKobo, onSyncReading = onSyncReading, koboNotice = koboNotice, transfers = transfers,
+            onAbout = onAbout, onStats = onStats, onEject = onEject, onAddSamples = onAddSamples, onTheme = onTheme, onMarkFinished = onMarkFinished, onMarkUnread = onMarkUnread,
+            onContinueFromKobo = onContinueFromKobo, onSyncReading = askSync, onSyncAll = askSyncAll, koboNotice = koboNotice, transfers = transfers,
             comics = comics, comicActions = comicActions,
         )
         return
@@ -280,24 +306,24 @@ fun LibraryScreen(
                     }
                 },
                 actions = {
+                    onEject?.let { eject ->
+                        TextButton(onClick = eject, modifier = Modifier.testTag("library-eject")) {
+                            Icon(Icons.Outlined.Eject, null)
+                            Spacer(Modifier.width(6.dp))
+                            Text(tr("Eject"))
+                        }
+                    }
                     dev.kolib.app.ui.ai.LocalOpenAiChat.current?.takeIf { dev.kolib.app.ui.ai.aiButtonShown() }?.let { open ->
                         IconButton(onClick = open, modifier = Modifier.testTag("library-ai")) { dev.kolib.app.ui.ai.AiButtonIcon(tr("AI chat")) }
                     }
                     val onBoth = books.filter { it.koboPath != null && it.canReadFromKoboPlace }
-                    if (onSyncReading != null && onBoth.isNotEmpty()) {
-                        var ask by remember { mutableStateOf(false) }
-                        IconButton(onClick = { ask = true }, modifier = Modifier.testTag("library-sync-reading")) { Icon(Icons.Outlined.Sync, tr("Sync reading with the Kobo")) }
-                        if (ask) SyncReadingDialog(
-                            count = onBoth.size,
-                            onAll = { ask = false; onSyncReading(onBoth.map { it.id }) },
-                            onChoose = { ask = false; browse.selectedId = null; browse.selecting = true },
-                            onDismiss = { ask = false },
-                        )
+                    if (askSyncAll != null && onBoth.isNotEmpty()) {
+                        IconButton(onClick = askSyncAll, modifier = Modifier.testTag("library-sync-reading").tourPlace("library-sync")) { Icon(Icons.Outlined.Sync, tr("Sync reading with the Kobo")) }
                     }
-                    IconButton(onClick = onStats) { Icon(Icons.Outlined.BarChart, tr("Reading stats")) }
+                    IconButton(onClick = onStats, modifier = Modifier.tourPlace("library-stats")) { Icon(Icons.Outlined.BarChart, tr("Reading stats")) }
                     IconButton(onClick = onAbout) { Icon(Icons.Outlined.Info, tr("About and licences")) }
                     Box {
-                        GoldButton(onClick = { addMenu = true }) {
+                        GoldButton(onClick = { addMenu = true }, modifier = Modifier.tourPlace("library-add")) {
                             Icon(Icons.Filled.Add, null, Modifier.size(18.dp))
                             Spacer(Modifier.width(8.dp))
                             Text(tr("Add books"))
@@ -338,7 +364,7 @@ fun LibraryScreen(
             if (job != null && !job.finished) JobStrip(job, onShowJob)
             dev.kolib.app.ui.ocr.OcrStrip(onShow = { id -> browse.selectedId = id })
             if (books.isEmpty()) {
-                EmptyLibrary(koboConnected, onAddFiles, onAddFromKobo, onNewBook)
+                EmptyLibrary(koboConnected, onAddFiles, onAddFromKobo, onNewBook, onAddSamples)
                 return@Column
             }
             val collectionCount = remember(books) { libraryCollectionCount(books) }
@@ -356,7 +382,7 @@ fun LibraryScreen(
             }
             LaunchedEffect(browse.selecting) { if (browse.selecting) browse.tab = 0 }
             val goTo = rememberTabTap(pager)
-            PrimaryTabRow(selectedTabIndex = pager.currentPage.coerceAtMost(tabCount - 1), containerColor = Color.Transparent) {
+            PrimaryTabRow(selectedTabIndex = pager.currentPage.coerceAtMost(tabCount - 1), containerColor = Color.Transparent, modifier = Modifier.tourPlace("library-tabs")) {
                 Tab(selected = pager.currentPage == 0, onClick = { goTo(0) }, text = { Text(tr("Books ({0})", notComics.size)) })
                 Tab(selected = pager.currentPage == 1, onClick = { goTo(1) }, text = { Text(tr("Collections ({0})", collectionCount)) })
                 if (tabCount == 3) Tab(selected = pager.currentPage == 2, onClick = { goTo(2) }, text = { Text(tr("Comics ({0})", seriesCount)) }, modifier = Modifier.testTag("tab-comics"))
@@ -390,7 +416,7 @@ fun LibraryScreen(
                         reading = reading(book),
                         readingLive = koboLive,
                         onContinueFromKobo = onContinueFromKobo?.let { f -> { k: KoboBook -> f(book.id, k) } },
-                        onSyncReading = onSyncReading?.let { f -> { f(listOf(book.id)) } },
+                        onSyncReading = askSync?.let { f -> { f(listOf(book.id)) } },
                         onCollection = { name ->
                             if (inCollection != null) {
                                 // Another of its collections opens, the book still beside it.
@@ -419,7 +445,7 @@ fun LibraryScreen(
                         LibraryCollectionsTab(books, covers, browse, koboConnected, reading, here, onSend) { book, collection, onBack -> detail(book, onBack, collection) }
                     } else if (twoPanes) {
                         Row(Modifier.fillMaxSize()) {
-                            LibraryBrowser(notComics, visible, covers, browse, selected?.id, onSend, onDelete, Modifier.weight(1.45f), reading, here, onMerge, onExport, onDuplicate, onSyncReading, onMarkFinished, onMarkUnread)
+                            LibraryBrowser(notComics, visible, covers, browse, selected?.id, onSend, onDelete, Modifier.weight(1.45f), reading, here, onMerge, onExport, onDuplicate, askSync, onMarkFinished, onMarkUnread)
                             VerticalDivider()
                             // As the Kobo's and the comics' side panels: the book shown, while books are chosen too (the
                             // bar along the foot says how many are).
@@ -432,7 +458,7 @@ fun LibraryScreen(
                         TabBackHandler { browse.selectedId = null }
                         detail(selected, { browse.selectedId = null }, null)
                     } else {
-                        LibraryBrowser(notComics, visible, covers, browse, null, onSend, onDelete, Modifier.fillMaxSize(), reading, here, onMerge, onExport, onDuplicate, onSyncReading, onMarkFinished, onMarkUnread)
+                        LibraryBrowser(notComics, visible, covers, browse, null, onSend, onDelete, Modifier.fillMaxSize(), reading, here, onMerge, onExport, onDuplicate, askSync, onMarkFinished, onMarkUnread)
                     }
                 }
             } }
@@ -461,7 +487,7 @@ internal fun JobStrip(p: JobProgress, onShow: () -> Unit) {
 }
 
 @Composable
-internal fun EmptyLibrary(koboConnected: Boolean, onAddFiles: () -> Unit, onAddFromKobo: () -> Unit, onNewBook: () -> Unit) {
+internal fun EmptyLibrary(koboConnected: Boolean, onAddFiles: () -> Unit, onAddFromKobo: () -> Unit, onNewBook: () -> Unit, onAddSamples: (() -> Unit)? = null) {
     Box(Modifier.fillMaxSize().padding(32.dp), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.widthIn(max = 520.dp)) {
             KoLibMark(Modifier.size(84.dp), glow = true)
@@ -507,6 +533,19 @@ internal fun EmptyLibrary(koboConnected: Boolean, onAddFiles: () -> Unit, onAddF
                 Spacer(Modifier.width(8.dp))
                 Text(tr("Write a new book"))
             }
+            if (onAddSamples != null) {
+                TextButton(onClick = onAddSamples, modifier = Modifier.testTag("library-add-samples")) {
+                    Icon(Icons.Outlined.AutoStories, null, Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text(tr("Add the sample books"))
+                }
+                Text(
+                    tr("Three classics and a short comic, free to read, to try KoLib with."),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                )
+            }
         }
     }
 }
@@ -536,9 +575,9 @@ private fun LibraryBrowser(
     // Holding a book chooses it, and every book from the one chosen last to it.
     val onHold: (LibraryBook) -> Unit = { b -> browse.holdPick(b.id, books.map { it.id }) }
     Column(modifier.fillMaxHeight()) {
-        LibraryControls(all, browse, books.size)
+        Box(Modifier.tourPlace("library-search")) { LibraryControls(all, browse, books.size) }
         // The books, and while some are being chosen, the bar for them along the foot of the screen, its whole width.
-        Column(Modifier.weight(1f).fillMaxWidth()) {
+        Column(Modifier.weight(1f).fillMaxWidth().tourPlace("library-shelf")) {
             if (books.isEmpty()) {
                 EmptyState(Icons.Outlined.SearchOff, tr("No matching books"), tr("Try a different search, or clear the filters."))
                 return@Column
@@ -622,7 +661,7 @@ internal fun librarySelectionActions(
     val any = count > 0
     val link = dev.kolib.app.ui.link.LocalLinkActions.current
     return listOfNotNull(
-        BarAction(Icons.AutoMirrored.Filled.Send, tr("Send"), { onSend(chosen()) }, enabled = any, main = true, tag = "selection-send", longLabel = tr("Send to Kobo")),
+        BarAction(Icons.AutoMirrored.Filled.Send, tr("To Kobo"), { onSend(chosen()) }, enabled = any, main = true, tag = "selection-send", longLabel = tr("Send to Kobo")),
         BarAction(Icons.Outlined.DoneAll, dev.kolib.app.trc("mark", "Read"), { onMarkFinished(chosen()); stop() }, enabled = any, tag = "selection-mark-read", longLabel = tr("Mark as read")),
         BarAction(Icons.Outlined.RemoveDone, dev.kolib.app.trc("mark", "Unread"), { onMarkUnread(chosen()); stop() }, enabled = any, tag = "selection-mark-unread", longLabel = tr("Mark as unread")),
         onSyncReading?.let { sync ->
@@ -1324,7 +1363,7 @@ internal fun ReadingLine(
                 Text(tr("Sync with the Kobo"))
             }
             Text(
-                tr("Where you're up to (wherever you read last), and bookmarks, highlights and notes, both ways."),
+                tr("Your place, bookmarks, highlights and notes. You choose which way each goes."),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 4.dp),
@@ -1354,23 +1393,59 @@ internal fun ReadingLine(
 }
 
 /** Syncing reading with the Kobo: every book that's in both, or ones picked from the library. */
+/**
+ * Syncing reading with the Kobo: which way where you're up to goes, and which way bookmarks, highlights and notes go
+ * (each can be off), kept for next time. [all]: every book in both (with Choose books to pick some); otherwise [count]
+ * books chosen.
+ */
 @Composable
-internal fun SyncReadingDialog(count: Int, onAll: () -> Unit, onChoose: () -> Unit, onDismiss: () -> Unit) {
+internal fun SyncReadingDialog(count: Int, all: Boolean, onSync: () -> Unit, onChoose: (() -> Unit)?, onDismiss: () -> Unit) {
+    val context = LocalContext.current
+    var choices by remember { mutableStateOf(dev.kolib.app.kobo.SyncChoices.load(context)) }
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Outlined.Sync, null) },
         title = { Text(tr("Sync reading with the Kobo")) },
         text = {
-            Text(
-                tr("Where you're up to in each book goes to wherever you read it last. Bookmarks, highlights and notes are copied both ways, and ones you've deleted are deleted on the other side too.") +
-                    "\n\n" + if (count == 1) tr("1 book is in your library and on the Kobo.") else tr("{0} books are in your library and on the Kobo.", count),
-            )
+            Column(Modifier.verticalScroll(rememberScrollState())) {
+                Text(
+                    when {
+                        all && count == 1 -> tr("1 book is in your library and on the Kobo.")
+                        all -> tr("{0} books are in your library and on the Kobo.", count)
+                        count == 1 -> tr("1 book selected")
+                        else -> tr("{0} books selected", count)
+                    },
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Spacer(Modifier.height(16.dp))
+                Text(tr("Where you're up to"), style = MaterialTheme.typography.titleSmall)
+                RadioChoices(dev.kolib.app.kobo.PlaceWay.entries, choices.place, { it.label() }) { choices = choices.copy(place = it) }
+                Text(choices.place.explanation(), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(Modifier.height(16.dp))
+                Text(tr("Bookmarks, highlights and notes"), style = MaterialTheme.typography.titleSmall)
+                RadioChoices(dev.kolib.app.kobo.MarksWay.entries, choices.marks, { it.label() }) { choices = choices.copy(marks = it) }
+                Text(choices.marks.explanation(), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    tr("Reading stats stay apart. KoLib's and the Kobo's each have their own tab in Reading stats."),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         },
-        confirmButton = { TextButton(onClick = onAll, modifier = Modifier.testTag("sync-reading-all")) { Text(tr("Sync all")) } },
+        confirmButton = {
+            TextButton(
+                onClick = { dev.kolib.app.kobo.SyncChoices.save(context, choices); onSync() },
+                enabled = !choices.nothing,
+                modifier = Modifier.testTag("sync-reading-all"),
+            ) { Text(if (all) tr("Sync all") else tr("Sync")) }
+        },
         dismissButton = {
             Row {
                 TextButton(onClick = onDismiss) { Text(tr("Cancel")) }
-                TextButton(onClick = onChoose) { Text(tr("Choose books")) }
+                onChoose?.let { choose ->
+                    TextButton(onClick = { dev.kolib.app.kobo.SyncChoices.save(context, choices); choose() }) { Text(tr("Choose books")) }
+                }
             }
         },
     )

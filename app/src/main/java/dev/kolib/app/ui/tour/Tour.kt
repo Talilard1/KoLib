@@ -1,5 +1,7 @@
 package dev.kolib.app.ui.tour
 
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
@@ -61,7 +63,7 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.heading
@@ -81,15 +83,28 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 
 /**
- * Where the parts of a screen that a tour stops at are, in the window: each part tells its place here as
- * it's laid out (see [tourPlace]), so the tour lights it where it really is, however the screen is arranged.
+ * Where the parts of a screen that a tour stops at are, on the screen: each part tells its place here as it's
+ * laid out (see [tourPlace]), so the tour lights it where it really is, however the screen is arranged. (On the
+ * screen rather than in its window, so a tour can light the parts of a window shown over the app, as Settings is.)
  */
 class TourPlaces {
     internal val rects = mutableStateMapOf<String, Rect>()
+    internal val requesters = HashMap<String, BringIntoViewRequester>()
 
     /** The space [names] take up together; null when none of them is on screen. */
     fun rectOf(names: List<String>): Rect? = names.mapNotNull { rects[it] }
         .reduceOrNull { a, b -> Rect(min(a.left, b.left), min(a.top, b.top), max(a.right, b.right), max(a.bottom, b.bottom)) }
+
+    /** Scrolls what [names] are in (a screen that scrolls, say) as far as it takes to show the first of them. */
+    suspend fun bringIntoView(names: List<String>) {
+        val requester = names.firstNotNullOfOrNull { requesters[it] } ?: return
+        try {
+            requester.bringIntoView()
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (_: Exception) {
+        }
+    }
 }
 
 /** The places of the tour being given on this screen, if one is. */
@@ -98,8 +113,15 @@ val LocalTourPlaces = staticCompositionLocalOf<TourPlaces?> { null }
 /** Marks this as a place a tour can stop at, called [name]. It does nothing while no tour is being given. */
 fun Modifier.tourPlace(name: String): Modifier = composed {
     val places = LocalTourPlaces.current ?: return@composed this
-    DisposableEffect(places, name) { onDispose { places.rects.remove(name) } }
-    onGloballyPositioned { c -> if (c.isAttached) places.rects[name] = Rect(c.positionInWindow(), c.size.toSize()) }
+    val requester = remember { BringIntoViewRequester() }
+    DisposableEffect(places, name) {
+        places.requesters[name] = requester
+        onDispose {
+            places.rects.remove(name)
+            if (places.requesters[name] === requester) places.requesters.remove(name)
+        }
+    }
+    bringIntoViewRequester(requester).onGloballyPositioned { c -> if (c.isAttached) places.rects[name] = Rect(c.positionOnScreen(), c.size.toSize()) }
 }
 
 /** One stop of a tour: some places lit together, and what's said about them. */
@@ -108,7 +130,10 @@ class TourStop(
     val places: List<String>,
     val title: String,
     val text: String,
-    /** Brings its places into view before they're lit (scrolling a row of buttons along to them, say). */
+    /**
+     * Brings its places into view before they're lit (scrolling a row of buttons along to them, say). Without it,
+     * whatever its first place is in is scrolled as far as it takes to show it.
+     */
     val reveal: (suspend () -> Unit)? = null,
 )
 
@@ -144,7 +169,10 @@ fun Tour(stops: List<TourStop>, places: TourPlaces, onDone: () -> Unit, modifier
             if (stop == null) onDone() else if (places.rectOf(stop.places) == null) step(1)
         }
     }
-    LaunchedEffect(at) { stop?.reveal?.invoke() }
+    LaunchedEffect(at) {
+        val s = stop ?: return@LaunchedEffect
+        s.reveal?.invoke() ?: places.bringIntoView(s.places)
+    }
 
     val dark = MaterialTheme.colorScheme.surface.luminance() < 0.4f
     val c = if (dark) SetupColours.Dark else SetupColours.Light
@@ -153,7 +181,7 @@ fun Tour(stops: List<TourStop>, places: TourPlaces, onDone: () -> Unit, modifier
     BoxWithConstraints(
         modifier
             .fillMaxSize()
-            .onGloballyPositioned { origin = it.positionInWindow() }
+            .onGloballyPositioned { origin = it.positionOnScreen() }
             .testTag("tour"),
     ) {
         // Nothing under the tour can be touched: touches stop at this layer, which lies under the card and

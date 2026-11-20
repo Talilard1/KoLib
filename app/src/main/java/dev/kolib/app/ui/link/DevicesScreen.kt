@@ -1,5 +1,8 @@
 package dev.kolib.app.ui.link
 
+import dev.kolib.app.ui.tour.tourPlace
+import androidx.compose.material.icons.outlined.Eject
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -124,7 +127,7 @@ class DevicesActions(
 
 /** The Devices section: this device, the ones paired with it, the ones nearby to pair with, and how the link behaves. */
 @Composable
-fun DevicesScreen(link: LinkManager, actions: DevicesActions) {
+fun DevicesScreen(link: LinkManager, actions: DevicesActions, onEject: (() -> Unit)? = null) {
     val paired by link.paired.collectAsStateWithLifecycle()
     val nearby by link.nearby.collectAsStateWithLifecycle()
     val live by link.transfers.collectAsStateWithLifecycle()
@@ -151,12 +154,12 @@ fun DevicesScreen(link: LinkManager, actions: DevicesActions) {
             delay(3_000)
         }
     }
-    DevicesContent(DevicesView(link.identity.name, addresses, port, paired, nearby, transfers, settings, looking), actions)
+    DevicesContent(DevicesView(link.identity.name, addresses, port, paired, nearby, transfers, settings, looking), actions, onEject)
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun DevicesContent(view: DevicesView, actions: DevicesActions) {
+fun DevicesContent(view: DevicesView, actions: DevicesActions, onEject: (() -> Unit)? = null) {
     var connecting by remember { mutableStateOf(false) }
     var showingQr by remember { mutableStateOf(false) }
     var scanningQr by remember { mutableStateOf(false) }
@@ -175,6 +178,16 @@ fun DevicesContent(view: DevicesView, actions: DevicesActions) {
                 .padding(horizontal = 20.dp, vertical = 28.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            // With a Kobo plugged in, it can be ejected from here too.
+            onEject?.let { eject ->
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    TextButton(onClick = eject, modifier = Modifier.testTag("devices-eject")) {
+                        Icon(Icons.Outlined.Eject, null)
+                        Spacer(Modifier.width(6.dp))
+                        Text(tr("Eject the Kobo"))
+                    }
+                }
+            }
             Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                 Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.size(76.dp)) {
                     Box(contentAlignment = Alignment.Center) {
@@ -193,7 +206,7 @@ fun DevicesContent(view: DevicesView, actions: DevicesActions) {
             }
 
             // This device.
-            SectionCard(tr("This device"), icon = if (tablet) Icons.Outlined.TabletAndroid else Icons.Outlined.PhoneAndroid) {
+            SectionCard(tr("This device"), Modifier.tourPlace("devices-me"), icon = if (tablet) Icons.Outlined.TabletAndroid else Icons.Outlined.PhoneAndroid) {
                 Text(view.me, style = MaterialTheme.typography.titleLarge)
                 Spacer(Modifier.height(4.dp))
                 if (view.addresses.isEmpty()) {
@@ -228,7 +241,7 @@ fun DevicesContent(view: DevicesView, actions: DevicesActions) {
             }
 
             // Paired devices.
-            SectionCard(tr("Paired"), icon = Icons.Outlined.Shield) {
+            SectionCard(tr("Paired"), Modifier.tourPlace("devices-paired"), icon = Icons.Outlined.Shield) {
                 if (view.paired.isEmpty()) {
                     Text(
                         tr("None yet. Open KoLib on your other device, on the same Wi-Fi or hotspot, then pair below."),
@@ -243,7 +256,7 @@ fun DevicesContent(view: DevicesView, actions: DevicesActions) {
             }
 
             // Devices to pair with.
-            SectionCard(tr("Nearby"), icon = Icons.Outlined.Devices) {
+            SectionCard(tr("Nearby"), Modifier.tourPlace("devices-nearby"), icon = Icons.Outlined.Devices) {
                 val unpaired = view.nearby.filter { n -> view.paired.none { it.id == n.id } }
                 if (unpaired.isEmpty()) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -287,9 +300,9 @@ fun DevicesContent(view: DevicesView, actions: DevicesActions) {
             }
 
             // The Kobo, with no cable: through its own web browser.
-            SectionCard(tr("Your Kobo, over Wi-Fi"), icon = Icons.Outlined.Wifi) {
+            SectionCard(tr("Your Kobo, over Wi-Fi"), Modifier.tourPlace("devices-kobo-wifi"), icon = Icons.Outlined.Wifi) {
                 Text(
-                    tr("Send books without the cable, through the Kobo's web browser. In your library, tap Send to Kobo → Over Wi-Fi."),
+                    tr("Send books without the cable, through the Kobo's web browser. Choose books in your library, then tap To Kobo and Over Wi-Fi."),
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Spacer(Modifier.height(6.dp))
@@ -302,7 +315,7 @@ fun DevicesContent(view: DevicesView, actions: DevicesActions) {
                 LinkButton(Icons.AutoMirrored.Outlined.SendToMobile, tr("Choose books")) { actions.koboOverWifi() }
             }
 
-            SectionCard(tr("Settings")) {
+            SectionCard(tr("Settings"), Modifier.tourPlace("devices-settings")) {
                 SwitchLine(
                     tr("Sync reading position"),
                     tr("Each book opens where you last read it on either device."),

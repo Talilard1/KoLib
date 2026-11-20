@@ -177,10 +177,10 @@ private fun ColumnScope.GeneralPage(
 ) {
     Chips(tr("Background colour"), ComicBackground.entries, s.background, { it.label() }) { v -> onSettings { it.copy(background = v) } }
     Check(tr("Show page number"), s.pageNumber) { v -> onSettings { it.copy(pageNumber = v) } }
-    ManyChips(tr("Page slider at the side in"), ComicMode.entries, s.verticalIn, { it.label() }) { v -> onSettings { it.copy(verticalIn = v) } }
+    ManyChips(tr("Show the page slider at the side in these modes"), ComicMode.entries, s.verticalIn, { it.label() }) { v -> onSettings { it.copy(verticalIn = v) } }
     if (s.verticalIn.isNotEmpty()) {
         Check(tr("On the left"), s.verticalLeft) { v -> onSettings { it.copy(verticalLeft = v) } }
-        Slide(tr("Its height"), "${s.verticalHeight}%", s.verticalHeight, 65..100, steps = 6) { v -> onSettings { it.copy(verticalHeight = v) } }
+        Slide(tr("Side slider height"), "${s.verticalHeight}%", s.verticalHeight, 65..100, steps = 6) { v -> onSettings { it.copy(verticalHeight = v) } }
     }
     Check(tr("Fullscreen"), s.fullscreen) { v -> onSettings { it.copy(fullscreen = v) } }
     if (hasCutout && s.fullscreen) Check(tr("Show pages round the camera"), s.cutout) { v -> onSettings { it.copy(cutout = v) } }
@@ -188,16 +188,16 @@ private fun ColumnScope.GeneralPage(
     Check(tr("Show actions on long tap"), s.longTap) { v -> onSettings { it.copy(longTap = v) } }
     Check(
         tr("Always show the page between comics"), s.alwaysTransition,
-        note = tr("Off: the next comic in the series follows straight on from the last page."),
+        note = tr("When this is off, the next comic in the series starts straight after the last page."),
     ) { v -> onSettings { it.copy(alwaysTransition = v) } }
     Check(tr("Animate page turns"), s.animate) { v -> onSettings { it.copy(animate = v) } }
     Check(tr("Flash on page change"), s.flash, note = tr("Clears ghosting on e-ink screens.")) { v -> onSettings { it.copy(flash = v) } }
     if (s.flash) {
-        Slide(tr("Flash for"), tr("{0} ms", s.flashMillis), s.flashMillis / 100, 1..15) { v -> onSettings { it.copy(flashMillis = v * 100) } }
-        Slide(tr("Flash every"), if (s.flashEvery == 1) tr("1 page") else tr("{0} pages", s.flashEvery), s.flashEvery, 1..10, steps = 8) { v ->
+        Slide(tr("Flash length"), tr("{0} ms", s.flashMillis), s.flashMillis / 100, 1..15) { v -> onSettings { it.copy(flashMillis = v * 100) } }
+        Slide(tr("Flash after every"), if (s.flashEvery == 1) tr("1 page") else tr("{0} pages", s.flashEvery), s.flashEvery, 1..10, steps = 8) { v ->
             onSettings { it.copy(flashEvery = v) }
         }
-        Chips(tr("Flash with"), ComicFlash.entries, s.flashWith, { it.label() }) { v -> onSettings { it.copy(flashWith = v) } }
+        Chips(tr("Flash colour"), ComicFlash.entries, s.flashWith, { it.label() }) { v -> onSettings { it.copy(flashWith = v) } }
     }
     Heading(tr("Taps and keys"))
     Check(tr("Show tap zones on opening"), s.showTapZones) { v -> onSettings { it.copy(showTapZones = v) } }

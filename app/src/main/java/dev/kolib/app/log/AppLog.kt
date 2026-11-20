@@ -68,7 +68,8 @@ object AppLog {
     fun e(tag: String, message: String, t: Throwable? = null) = log(Level.ERROR, tag, message, t)
 
     fun log(level: Level, tag: String, message: String, t: Throwable?) {
-        val full = if (t != null) "$message\n${stackTrace(t)}" else message
+        // The names of people's books are kept out of it (see LogPrivacy), so it can be shared.
+        val full = LogPrivacy.clean(if (t != null) "$message\n${stackTrace(t)}" else message)
         when (level) {
             Level.DEBUG -> Log.d("KoLib/$tag", full)
             Level.INFO -> Log.i("KoLib/$tag", full)

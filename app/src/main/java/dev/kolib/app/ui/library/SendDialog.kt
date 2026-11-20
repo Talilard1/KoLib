@@ -61,7 +61,7 @@ fun SendDialog(
     connected: Boolean,
     freeBytes: Long?,
     initialFormat: SendFormat,
-    initialCovers: CoverFitting = CoverFitting.BLUR,
+    initialCovers: CoverFitting = CoverFitting.AS_IS,
     /** Whether books added as PDFs go as the PDF, as chosen last time. */
     initialPdfs: Boolean = false,
     onSend: (SendFormat, CoverFitting, Boolean) -> Unit,
@@ -79,7 +79,8 @@ fun SendDialog(
 ) {
     val context = LocalContext.current
     var format by remember { mutableStateOf(initialFormat) }
-    var covers by remember { mutableStateOf(initialCovers) }
+    // Covers go as they are: the Kobo fits them to its screen itself.
+    val covers = CoverFitting.AS_IS
     var pdfs by remember { mutableStateOf(initialPdfs) }
     var syncReading by remember { mutableStateOf(initialSyncReading) }
     val onKobo = remember(books) { books.mapNotNull { b -> pathOnKobo(b)?.let { b to it } } }
@@ -168,37 +169,6 @@ fun SendDialog(
                         }
                     }
                 }
-                Spacer(Modifier.height(16.dp))
-                Text(tr("Covers that don't fit the Kobo's screen"), style = MaterialTheme.typography.titleSmall)
-                Spacer(Modifier.height(8.dp))
-                if (phone) {
-                    RadioChoices(CoverFitting.entries, covers, { it.label }) { covers = it }
-                } else {
-                    SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                        CoverFitting.entries.forEachIndexed { i, c ->
-                            SegmentedButton(
-                                selected = covers == c,
-                                onClick = { covers = c },
-                                shape = SegmentedButtonDefaults.itemShape(i, CoverFitting.entries.size),
-                            ) { FittedText(c.label, style = MaterialTheme.typography.labelLarge, smallest = 0.65f) }
-                        }
-                    }
-                }
-                Spacer(Modifier.height(8.dp))
-                Text(covers.explanation, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                val asIs = books.count { it.coverAsIs }
-                if (asIs > 0) {
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        when {
-                            books.size == 1 -> tr("This book's cover will be sent unchanged.")
-                            asIs == 1 -> tr("1 book's cover will be sent unchanged.")
-                            else -> tr("{0} books' covers will be sent unchanged.", asIs)
-                        },
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
                 if (onSyncReading != null && books.any { !it.isComic }) {
                     Spacer(Modifier.height(12.dp))
                     Row(
@@ -212,7 +182,7 @@ fun SendDialog(
                         Switch(checked = syncReading, onCheckedChange = null)
                     }
                     Text(
-                        tr("Where you're up to, and your bookmarks, highlights and notes, both ways. A new book syncs once the Kobo has added it."),
+                        tr("Syncs your place, bookmarks, highlights and notes as set in Sync reading with the Kobo. A new book syncs once the Kobo has added it."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

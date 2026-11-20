@@ -130,8 +130,8 @@ fun CoverEditorScreen(
     var shown by remember { mutableStateOf(original) }
     var loading by remember { mutableStateOf(initialPicture == null) }
     var problem by remember { mutableStateOf<String?>(null) }
-    // A cover left unchanged before opens that way again.
-    val startCrop = remember(book.id) { CoverCrop(fit = if (book.coverAsIs) CoverFit.AS_IS else CoverFit.FILL) }
+    // A cover is kept at its own size and shape: the Kobo fits it to its screen as its owner has it set.
+    val startCrop = remember(book.id) { CoverCrop(fit = CoverFit.AS_IS) }
     var crop by remember { mutableStateOf(startCrop) }
     var greyscale by remember { mutableStateOf(false) }
     var rendering by remember { mutableStateOf(false) }
@@ -241,7 +241,7 @@ fun CoverEditorScreen(
             currentCover = original?.picture?.full,
             onUse = { bitmap, design ->
                 shown = ShownPicture(CoverRendering.prepare(bitmap, tr("Generated: {0}", design.style.label)))
-                crop = CoverCrop()
+                crop = CoverCrop(fit = CoverFit.AS_IS)
                 problem = null
                 generating = false
             },
@@ -391,8 +391,10 @@ private fun CoverFrame(
 ) {
     val currentCrop by androidx.compose.runtime.rememberUpdatedState(crop)
     BoxWithConstraints(modifier.padding(24.dp), contentAlignment = Alignment.Center) {
-        val boxW = min(maxWidth, maxHeight * CoverCrop.ASPECT)
-        val boxH = boxW / CoverCrop.ASPECT
+        val pic = shown?.picture
+        val aspect = if (crop.fit == CoverFit.AS_IS && pic != null && pic.width > 0 && pic.height > 0) pic.width.toFloat() / pic.height else CoverCrop.ASPECT
+        val boxW = min(maxWidth, maxHeight * aspect)
+        val boxH = boxW / aspect
         Box(
             Modifier
                 .size(boxW, boxH)
@@ -401,6 +403,7 @@ private fun CoverFrame(
                 .background(Color.White)
                 .pointerInput(shown) {
                     val pic = shown?.picture ?: return@pointerInput
+                    if (currentCrop.fit == CoverFit.AS_IS) return@pointerInput
                     detectTransformGestures { centroid, pan, zoom, _ ->
                         onCrop(
                             currentCrop.transformed(
@@ -412,6 +415,7 @@ private fun CoverFrame(
                 }
                 .pointerInput(shown) {
                     val pic = shown?.picture ?: return@pointerInput
+                    if (currentCrop.fit == CoverFit.AS_IS) return@pointerInput
                     detectTapGestures(onDoubleTap = { pos ->
                         val c = currentCrop
                         val target = if (c.zoom < 1.9f) 2f else 1f
@@ -508,7 +512,7 @@ private fun CoverControls(
         }
         if (showingFirst && onRestoreFirst != null) {
             Text(
-                tr("The cover the book came with. Fit it to the Kobo's screen, or restore it unchanged."),
+                tr("The cover the book came with."),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -560,44 +564,6 @@ private fun CoverControls(
         }
         problem?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error) }
 
-        HorizontalDivider(Modifier.padding(vertical = 6.dp))
-        Text(tr("Fit"), style = MaterialTheme.typography.titleSmall)
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            CoverFit.entries.forEach { f ->
-                FilterChip(
-                    selected = crop.fit == f,
-                    onClick = { onCrop(CoverCrop(fit = f)) },
-                    enabled = shown != null,
-                    leadingIcon = if (crop.fit == f) ({ Icon(Icons.Filled.Check, null, Modifier.size(18.dp)) }) else null,
-                    label = { Text(f.label, maxLines = 1) },
-                )
-            }
-        }
-        Text(crop.fit.explanation, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-
-        HorizontalDivider(Modifier.padding(vertical = 6.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(tr("Zoom"), style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
-            TextButton(onClick = { onCrop(CoverCrop(fit = crop.fit)) }, enabled = shown != null && crop.fit != CoverFit.AS_IS && crop != CoverCrop(fit = crop.fit)) {
-                Icon(Icons.Outlined.RestartAlt, null, Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text(tr("Reset"))
-            }
-        }
-        Slider(
-            value = crop.zoom,
-            onValueChange = { z ->
-                shown?.let { onCrop(crop.zoomedTo(z, CoverCrop.OUT_WIDTH.toFloat(), CoverCrop.OUT_HEIGHT.toFloat(), it.width, it.height)) }
-            },
-            valueRange = CoverCrop.MIN_ZOOM..CoverCrop.MAX_ZOOM,
-            enabled = shown != null && crop.fit != CoverFit.AS_IS,
-        )
-        Text(
-            if (crop.fit == CoverFit.AS_IS) tr("Move and zoom are off at Original size.")
-            else tr("Drag the picture to move it, pinch to zoom, or double-tap to zoom in and out."),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
 
         HorizontalDivider(Modifier.padding(vertical = 6.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {

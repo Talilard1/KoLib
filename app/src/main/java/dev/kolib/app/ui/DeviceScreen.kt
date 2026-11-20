@@ -2,6 +2,7 @@
 
 package dev.kolib.app.ui
 
+import dev.kolib.app.ui.tour.tourPlace
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -205,7 +206,7 @@ fun DeviceScreen(
                 },
                 actions = {
                     if (live) {
-                        TextButton(onClick = { if (onEject != null) onEject() else showEject = true }) {
+                        TextButton(onClick = { if (onEject != null) onEject() else showEject = true }, modifier = Modifier.tourPlace("kobo-eject")) {
                             Icon(Icons.Outlined.Eject, null)
                             Spacer(Modifier.width(6.dp))
                             Text(tr("Eject"))
@@ -218,7 +219,7 @@ fun DeviceScreen(
                             Text(tr("Connect"))
                         }
                     }
-                    IconButton(onClick = { menuOpen = true }) { Icon(Icons.Filled.MoreVert, tr("More")) }
+                    IconButton(onClick = { menuOpen = true }, modifier = Modifier.tourPlace("kobo-menu")) { Icon(Icons.Filled.MoreVert, tr("More")) }
                     DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                         // On a phone, the book list's own options are here too, so the screen has one menu.
                         if (phone && tab == 0) {
@@ -300,14 +301,14 @@ fun DeviceScreen(
             val goTo = rememberTabTap(pager)
             if (!choosing) {
                 // A phone has the counts in the bar above, so the tabs fit on one line.
-                PrimaryTabRow(selectedTabIndex = pager.currentPage, containerColor = Color.Transparent) {
+                PrimaryTabRow(selectedTabIndex = pager.currentPage, containerColor = Color.Transparent, modifier = Modifier.tourPlace("kobo-tabs")) {
                     Tab(selected = pager.currentPage == 0, onClick = { goTo(0) }, text = { Text(if (phone) tr("Books") else tr("Books ({0})", snapshot.books.size)) })
                     Tab(selected = pager.currentPage == 1, onClick = { goTo(1) }, text = { Text(if (phone) tr("Collections") else tr("Collections ({0})", snapshot.collections.size)) })
                     Tab(selected = pager.currentPage == 2, onClick = { goTo(2) }, text = { Text(tr("Device")) })
                 }
             }
             // The bar for books being chosen goes along the foot, the screen's whole width, under a side panel too.
-            WithFoot(Modifier.fillMaxSize()) { TabPages(pager, Modifier.fillMaxSize(), swipe = !browse.selecting) { page ->
+            WithFoot(Modifier.fillMaxSize()) { TabPages(pager, Modifier.fillMaxSize().tourPlace("kobo-shelf"), swipe = !browse.selecting) { page ->
                 when (page) {
                     0 -> BooksTab(
                         view,

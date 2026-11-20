@@ -87,7 +87,7 @@ import kotlinx.coroutines.withContext
 internal fun LightOpening(time: () -> Float, alpha: () -> Float, modifier: Modifier) {
     val art = remember { LightArt() }
     val measurer = rememberTextMeasurer()
-    val family = remember { FontFamily(Font(R.font.eb_garamond_kolib)) }
+    val font = remember { nameFont(OpeningColours.look.lettering) }
     // The book's glow, blurred once, away from the screen's thread: it's needed from about two seconds in.
     var glows by remember { mutableStateOf<MarkGlow?>(null) }
     LaunchedEffect(Unit) { glows = withContext(Dispatchers.Default) { MarkGlow.make() } }
@@ -98,7 +98,7 @@ internal fun LightOpening(time: () -> Float, alpha: () -> Float, modifier: Modif
         val markW = (minSide * 0.36f).coerceAtMost(250.dp.toPx())
         val unit = markW / 52f
         val nameSize = markW * 0.40f
-        val name = art.name(measurer, family, nameSize.toSp())
+        val name = art.name(measurer, font, nameSize.toSp())
         // The mark and the name under it, centred together.
         val markH = 43.3f * unit
         val gap = markW * 0.16f
@@ -176,7 +176,7 @@ private class LightArt {
     }
     /** One gold for the whole mark, light at the top left to deep at the foot. */
     val gold = Brush.linearGradient(
-        0f to Color(0xFFFBE6BF), 0.5f to Color(0xFFEBC07E), 1f to GoldDeep,
+        0f to MarkLight, 0.5f to MarkMid, 1f to GoldDeep,
         start = Offset(14f, 8f), end = Offset(48f, 60f),
     )
     private val measure = PathMeasure()
@@ -343,9 +343,9 @@ private class LightArt {
     private var nameSize = 0f
     private var nameLayout: NameLayout? = null
 
-    fun name(measurer: TextMeasurer, family: FontFamily, size: androidx.compose.ui.unit.TextUnit): NameLayout {
+    fun name(measurer: TextMeasurer, font: NameFont, size: androidx.compose.ui.unit.TextUnit): NameLayout {
         nameLayout?.let { if (size.value == nameSize) return it }
-        val style = TextStyle(fontFamily = family, fontSize = size, letterSpacing = 0.02.em)
+        val style = TextStyle(fontFamily = font.family, fontWeight = font.weight, fontSize = size * font.scale, letterSpacing = font.spacing.em)
         val text = tr("KoLib")
         val whole = measurer.measure(text, style)
         val letters = text.indices.map { i -> measurer.measure(text[i].toString(), style) to whole.getBoundingBox(i).left }

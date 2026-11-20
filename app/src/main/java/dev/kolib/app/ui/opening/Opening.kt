@@ -114,22 +114,35 @@ class OpeningClock {
     val showingApp: Boolean get() = skipping || time >= Opening.REVEAL - 0.05f
 }
 
-/** The same dark brown the system shows while the app starts, so the two meet without a seam. */
-internal val OpeningNight = Color(0xFF1E120B)
-internal val Glow = Color(0xFF46291A)
-internal val Ember = Color(0xFF7A4A22)
-internal val GoldLight = Color(0xFFF6CF95)
-internal val Gold = Color(0xFFE2B76A)
-internal val GoldDeep = Color(0xFFC98A45)
-internal val Spark = Color(0xFFFFF3D6)
-internal val Cream = Color(0xFFF6EFE4)
+/** The same dark brown the system shows while the app starts: the opening starts from it, so the two meet without a seam. */
+internal val StartingNight = Color(0xFF1E120B)
+
+// The colours of the look the opening is drawn in (see OpeningLook): gold on dark brown, unless another look is chosen.
+internal val OpeningNight: Color get() = OpeningColours.look.night
+internal val Glow: Color get() = OpeningColours.look.glow
+internal val Ember: Color get() = OpeningColours.look.ember
+internal val GoldLight: Color get() = OpeningColours.look.goldLight
+internal val Gold: Color get() = OpeningColours.look.gold
+internal val GoldDeep: Color get() = OpeningColours.look.goldDeep
+internal val Spark: Color get() = OpeningColours.look.spark
+internal val Cream: Color get() = OpeningColours.look.cream
+internal val MarkLight: Color get() = OpeningColours.look.markLight
+internal val MarkMid: Color get() = OpeningColours.look.markMid
 
 /**
  * The opening over the app: plays once, [sound] or not, then calls [onDone]; a tap skips it. [light] is the
- * lighter version, for phones and slower devices.
+ * lighter version, for phones and slower devices. It's drawn in the colours of [look], the app's look.
  */
 @Composable
-fun OpeningAnimation(sound: Boolean, light: Boolean = false, clock: OpeningClock = remember { OpeningClock() }, onDone: () -> Unit) {
+fun OpeningAnimation(
+    sound: Boolean,
+    light: Boolean = false,
+    clock: OpeningClock = remember { OpeningClock() },
+    look: dev.kolib.app.ui.theme.ThemeChoice = dev.kolib.app.ui.theme.ThemeChoice.SYSTEM,
+    onDone: () -> Unit,
+) {
+    // Set before any of it is made: what's drawn once and kept is drawn in these colours.
+    remember(look) { OpeningLook.of(look).also { OpeningColours.look = it } }
     val context = LocalContext.current
     val done by rememberUpdatedState(onDone)
     var fade by remember { mutableFloatStateOf(1f) }
@@ -233,8 +246,18 @@ fun OpeningAnimation(sound: Boolean, light: Boolean = false, clock: OpeningClock
  */
 @Composable
 fun OpeningScene(time: () -> Float, alpha: () -> Float = { 1f }, light: Boolean = false, modifier: Modifier = Modifier) {
-    if (light) LightOpening(time, alpha, modifier) else FullOpening(time, alpha, modifier)
+    Box(modifier.fillMaxSize()) {
+        if (light) LightOpening(time, alpha, Modifier) else FullOpening(time, alpha, Modifier)
+        // In another look, its dark comes in from the brown the system starts the app on, before the threads do.
+        if (OpeningColours.look.night != StartingNight) Canvas(Modifier.fillMaxSize()) {
+            val t = time()
+            if (t < START_BLEND) drawRect(StartingNight, alpha = alpha() * (1f - (t / START_BLEND).let { it * it * (3f - 2f * it) }))
+        }
+    }
 }
+
+/** How long the dark of another look takes to come in from the system's, in seconds. */
+private const val START_BLEND = 0.4f
 
 /** The KoLib name laid out once: the whole word, and each letter on its own where the word puts it. */
 internal class NameLayout(val whole: TextLayoutResult, val letters: List<Pair<TextLayoutResult, Float>>)

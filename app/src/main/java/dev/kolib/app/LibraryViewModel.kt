@@ -120,10 +120,10 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         get() = runCatching { SendFormat.valueOf(prefs.getString("send_format", null) ?: "") }.getOrDefault(SendFormat.KEPUB)
         set(value) = prefs.edit().putString("send_format", value.name).apply()
 
-    /** What was chosen last time for covers that aren't the Kobo screen's shape. */
+    /** Covers always go as they are: the Kobo fits a cover to its screen itself, as its owner has it set. */
     var coverFitting: CoverFitting
-        get() = runCatching { CoverFitting.valueOf(prefs.getString("send_covers", null) ?: "") }.getOrDefault(CoverFitting.BLUR)
-        set(value) = prefs.edit().putString("send_covers", value.name).apply()
+        get() = CoverFitting.AS_IS
+        @Suppress("UNUSED_PARAMETER") set(value) {}
 
     /** Whether books added as PDFs go to the Kobo as the PDF, as chosen last time. */
     var sendPdfs: Boolean
@@ -203,6 +203,58 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
                 }
             }
             seriesForAdded(comics)
+        }
+    }
+
+    // ---- the sample books ------------------------------------------------------------------------
+
+    private var addingSamples: Job? = null
+
+    /**
+     * Adds the books that come with KoLib, to try it with: three classics and a short comic, in a collection of their
+     * own. With [onlyIfEmpty] (the first time KoLib starts) they're only added to a library with no books, once any
+     * being added already are in. [onDone] is told how many were added. A sample the library has already isn't added again.
+     */
+    fun addSamples(onlyIfEmpty: Boolean = false, onDone: (Int) -> Unit = {}) {
+        if (addingSamples?.isActive == true) return
+        addingSamples = viewModelScope.launch {
+            while (!library.loaded) kotlinx.coroutines.delay(100)
+            // Books being added from the introduction come first.
+            while (_job.value?.finished == false) kotlinx.coroutines.delay(250)
+            if (onlyIfEmpty && library.books.value.isNotEmpty()) {
+                onDone(0)
+                return@launch
+            }
+            val assets = getApplication<Application>().assets
+            val collection = tr("Sample books")
+            val comics = ArrayList<Pair<String, String?>>()
+            var added = 0
+            for (name in SAMPLE_BOOKS) {
+                val outcome = try {
+                    library.import(name = name, open = { assets.open("samples/$name") }, source = BookSource.FILE, collections = listOf(collection))
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    AppLog.e("Library", "Couldn't add the sample $name", e)
+                    null
+                }
+                when (outcome) {
+                    is ImportOutcome.Added -> {
+                        added++
+                        if (outcome.book.isComic) comics += outcome.book.id to null
+                    }
+                    is ImportOutcome.Failed -> AppLog.w("Library", "Couldn't add the sample $name: ${outcome.reason}")
+                    else -> {}
+                }
+            }
+            runCatching { seriesForAdded(comics) }.onFailure { AppLog.e("Library", "Couldn't put the sample comic in its series", it) }
+            AppLog.i("Library", "Added $added sample book(s).")
+            if (!onlyIfEmpty) _message.value = when (added) {
+                0 -> tr("The sample books are in your library already.")
+                1 -> tr("Added 1 sample book.")
+                else -> tr("Added {0} sample books. Remove them whenever you like.", added)
+            }
+            onDone(added)
         }
     }
 
@@ -1081,3 +1133,6 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         }
     }.getOrNull()
 }
+
+/** The sample books in the app's assets (samples/), in the order they're added: the last added shows first. */
+private val SAMPLE_BOOKS = listOf("brown.epub", "persuasion.epub", "alice.epub", "lighthouse-cat.cbz")

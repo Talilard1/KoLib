@@ -95,6 +95,7 @@ object Notices {
         Notice("libpng", tr("PNG support for Tesseract."), tr("PNG Reference Library License 2"), tr("© 1995–2025 The PNG Reference Library Authors"), "libpng-LICENSE.txt"),
         Notice("ZXing", tr("QR codes for pairing devices."), APACHE, tr("© ZXing authors"), "apache-2.0.txt"),
         Notice("CameraX", tr("The camera, for scanning a pairing QR code."), APACHE, tr("© The Android Open Source Project"), "apache-2.0.txt"),
+        Notice(tr("Sample books"), tr("The three classics and the comic you can add to try KoLib with."), tr("Public domain texts"), tr("Lewis Carroll, Jane Austen, G. K. Chesterton"), "sample-books.txt"),
     )
 
     /** KoLib itself: free software, to share and change under the GPL. */

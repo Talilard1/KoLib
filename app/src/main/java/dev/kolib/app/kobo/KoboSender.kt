@@ -164,7 +164,7 @@ class KoboSender(private val context: Context) {
         koboPath: String?,
         file: File,
         format: SendFormat,
-        covers: CoverFitting = CoverFitting.BLUR,
+        covers: CoverFitting = CoverFitting.AS_IS,
         /** A place no other book has, for a book that has to go to the Kobo as a new one. */
         freshPlace: ((SendFormat) -> String)? = null,
         /** A PDF or a comic (CBZ, CBR, CB7) to send as it is, in place of [file]. */

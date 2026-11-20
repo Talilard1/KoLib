@@ -101,6 +101,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     val booksForDevice = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
 
     private val repo = KoboRepository(app)
+
+    /** The reading done on the Kobo described by [info], day by day (from its saved copies; read off the main thread). */
+    fun koboReadingDays(info: dev.kolib.app.kobo.KoboDeviceInfo): Map<String, Int> = repo.koboReadingDays(info)
     private val library = (app as KoLibApp).library
     private val sender = KoboSender(app)
     private val syncRunner = KoboSyncRunner(repo, library, (app as KoLibApp).pendingKoboRecords)
@@ -591,7 +594,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         }
         _state.update { it.copy(syncing = true) }
         try {
-            val outcome = readingRunner.run(session, ids) { _state.update { it.copy(syncing = false) } }
+            val outcome = readingRunner.run(session, ids, dev.kolib.app.kobo.SyncChoices.load(getApplication())) { _state.update { it.copy(syncing = false) } }
             readingQueue.remove(ids - outcome.waiting)
             readingQueue.add(outcome.waiting)
             if (outcome.session !== session) {

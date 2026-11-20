@@ -1,5 +1,6 @@
 package dev.kolib.app.ui
 
+import dev.kolib.app.ui.tour.tourPlace
 import androidx.compose.material.icons.outlined.CheckCircle
 import dev.kolib.app.UsbKobo
 import dev.kolib.app.tr
@@ -90,7 +91,7 @@ fun ConnectScreen(
             Spacer(Modifier.height(28.dp))
 
             Card(
-                Modifier.fillMaxWidth(),
+                Modifier.fillMaxWidth().tourPlace("kobo-connect"),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
             ) {
                 Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -111,7 +112,7 @@ fun ConnectScreen(
                     Text(tr("Choose the Kobo's drive manually"))
                 }
             }
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally), modifier = Modifier.tourPlace("kobo-help")) {
                 TextButton(onClick = onOpenBackups) {
                     Icon(Icons.Outlined.Restore, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))

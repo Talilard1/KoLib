@@ -1,0 +1,695 @@
+@fr
+3288|Livres d’exemple
+3289|Les livres d’exemple sont déjà dans votre bibliothèque.
+3290|1 livre d’exemple ajouté.
+3291|{0} livres d’exemple ajoutés. Retirez-les quand vous voulez.
+3292|Les trois classiques et la BD que vous pouvez ajouter pour essayer KoLib.
+3293|Textes du domaine public
+3294|=
+3295|Choisissez des livres, puis touchez Vers la Kobo et Par Wi-Fi.
+3296|Les BD ont leur propre onglet, avec une entrée par série. Quand c’est désactivé, elles sont avec vos livres.
+3297|La série occupe tout l’écran, avec ses BD en couvertures ou en liste.
+3298|Ses BD sont listées à côté de l’étagère.
+3299|Revoir les visites
+3300|La visite de chaque écran s’affiche la prochaine fois que vous l’ouvrez.
+3301|À chaque connexion de votre Kobo, KoLib note combien de temps vous avez lu dessus depuis la dernière fois.
+3302|Mémoire libérée. L’IA se prépare de nouveau la prochaine fois que vous lui demandez quelque chose.
+3303|Libérer la mémoire de l’IA
+3304|Notes sur {0} des {1} chapitres lus. Les autres sont écrites la prochaine fois que vous posez une question à l’IA.
+3305|Prête, en mémoire
+3306|Pas en mémoire
+3307|Libérez sa mémoire pour économiser la batterie. Elle se prépare de nouveau la prochaine fois que vous lui demandez quelque chose.
+3308|Elle se prépare quand vous lui posez une question, et libère sa mémoire après quelques minutes sans servir.
+3309|Libérer
+3310|Vers la Kobo
+3311|Ajouter les livres d’exemple
+3312|Trois classiques et une courte BD, libres de droits, pour essayer KoLib.
+3313|Votre position, vos signets, surlignages et notes. Vous choisissez dans quel sens chacun va.
+3314|Votre position
+3315|Signets, surlignages et notes
+3318|Afficher le curseur des pages sur le côté dans ces modes
+3319|Hauteur du curseur latéral
+3320|Si c’est désactivé, la BD suivante de la série commence juste après la dernière page.
+3321|Durée du flash
+3322|Flash toutes les
+3323|Couleur du flash
+3324|La couverture d’origine du livre.
+3325|Envoyez des livres sans câble, via le navigateur web de la Kobo. Choisissez des livres dans votre bibliothèque, puis touchez Vers la Kobo et Par Wi-Fi.
+3326|Votre bibliothèque
+3327|Touchez un livre pour le voir, le lire ou l’envoyer sur votre Kobo. Maintenez-en un pour en choisir plusieurs à la fois.
+3328|Livres, collections et BD
+3329|Passez de vos livres à vos collections et à vos BD. Vous pouvez aussi balayer de l’un à l’autre.
+3330|Trouver un livre
+3331|Cherchez par titre, auteur, série ou étiquette. Touchez ? pour voir toutes les façons de chercher.
+3332|Choisissez des livres, passez des couvertures à la liste, ou ouvrez Réglages et Statistiques de lecture.
+3333|Ajoutez des livres et des BD depuis cet appareil, un dossier ou votre Kobo. Vous pouvez aussi écrire un nouveau livre ici.
+3334|Votre position, vos signets, surlignages et notes, entre KoLib et votre Kobo. Vous choisissez dans quel sens chacun va.
+3335|Voyez combien vous lisez, dans KoLib et sur votre Kobo.
+3336|Votre Kobo
+3337|Branchez votre Kobo pour voir ce qu’elle contient, lui envoyer des livres et la sauvegarder.
+3338|Envoyez des livres à KoLib sur vos autres téléphones et tablettes par Wi-Fi, ou à votre Kobo sans câble.
+3339|Changez l’apparence de KoLib, sa langue et la façon de lire les livres.
+3340|Branchez-la avec un câble USB-C et touchez Connecter sur son écran. KoLib l’ouvre ici.
+3341|Sauvegardes et journal
+3342|KoLib sauvegarde la base de données de votre Kobo quand elle se connecte. Les sauvegardes et le journal sont ici, même quand la Kobo n’est pas branchée.
+3343|Ce qu’il y a sur votre Kobo
+3344|Tous les livres de votre Kobo. Touchez-en un pour le voir, ou maintenez-en un pour en choisir plusieurs à ajouter à votre bibliothèque ou à supprimer.
+3345|Livres, collections et appareil
+3346|L’onglet Appareil montre les détails de la Kobo, son espace libre et les sauvegardes de sa base de données.
+3347|Touchez ici avant de débrancher la Kobo, pour qu’elle puisse ajouter les livres envoyés.
+3348|Sauvegardez la base de données de la Kobo, consultez le journal, ouvrez les Réglages ou oubliez cette Kobo.
+3349|Vos autres appareils trouvent celui-ci sur le même Wi-Fi, ou quand l’un est connecté au point d’accès de l’autre.
+3350|Les appareils associés. Choisissez des livres dans votre bibliothèque et touchez Appareil pour les envoyer.
+3351|Vos autres téléphones et tablettes où KoLib est ouvert sur le même réseau s’affichent ici. Touchez Associer pour en lier un.
+3352|Envoyez des livres à votre Kobo sans câble, via son navigateur web.
+3353|Choisissez si votre position dans un livre est partagée avec vos autres appareils, et s’ils peuvent envoyer quand KoLib est fermé.
+3354|Choisissez la langue de KoLib.
+3355|Un dossier d’où KoLib ajoute des livres. Parcourez-le de nouveau pour ajouter les nouveaux.
+3356|Réglez la couleur de la page, la police, la taille du texte et la façon de tourner les pages, sur un livre d’exemple.
+3357|Cherchez le sens des mots, et obtenez des résumés de chapitres et des réponses sur le livre que vous lisez.
+3358|Donnez aux BD leur propre onglet dans la bibliothèque, avec une entrée par série.
+3359|Choisissez l’apparence de KoLib. L’animation d’ouverture s’accorde au thème choisi.
+3360|Activez ou désactivez l’animation et son son, ou utilisez-en une plus légère sur un appareil plus lent.
+3361|Visites
+3362|Revoyez ces visites, chacune la prochaine fois que vous ouvrez son écran.
+3363|Tourner la page
+3364|Touchez les bords de la page ou balayez pour la tourner. Touchez le milieu pour afficher ou masquer ces barres.
+3365|Surlignages et notes
+3366|Maintenez un mot et faites glisser pour en sélectionner davantage, puis touchez Surligner, Note ou Rechercher.
+3367|Rechercher et marquer
+3368|Cherchez dans tout le livre, ou mettez un signet sur la page où vous êtes.
+3369|Se déplacer dans le livre
+3370|Faites glisser pour aller n’importe où dans le livre. Les flèches mènent au chapitre précédent ou suivant.
+3371|Les chapitres, ainsi que vos signets, surlignages et notes.
+3372|Le texte avance tout seul. Touchez le milieu de la page pour le mettre en pause.
+3373|Gardez l’écran à la verticale ou à l’horizontale pendant la lecture, ou laissez-le tourner.
+3374|La police, la taille du texte, les marges, la couleur de la page et la façon de tourner les pages.
+3375|Touchez les bords de la page ou balayez pour la tourner. Touchez le milieu pour afficher ou masquer ces barres. Pincez ou touchez deux fois pour zoomer.
+3376|Maintenir une page
+3377|Maintenez une page pour l’enregistrer, la partager ou en faire la couverture de la BD.
+3378|Se déplacer dans la BD
+3379|Faites glisser vers n’importe quelle page. Les boutons aux extrémités mènent à la BD précédente ou suivante de la série.
+3380|De gauche à droite, de droite à gauche comme pour les mangas, ou une longue bande. Le choix est gardé pour chaque série.
+3381|Gardez l’écran à la verticale ou à l’horizontale pour cette série, ou laissez-le tourner.
+3382|Rogne les marges blanches des pages, pour que les dessins occupent plus d’écran.
+3383|Le fonctionnement des touchers, les couleurs et la luminosité des pages, et plus encore.
+3384|Là où vous avez lu en dernier
+3385|Chaque livre s’ouvre là où vous l’avez lu en dernier, dans KoLib ou sur la Kobo.
+3386|De la Kobo vers KoLib
+3387|KoLib ouvre chaque livre là où vous en êtes sur la Kobo.
+3388|De KoLib vers la Kobo
+3389|La Kobo ouvre chaque livre là où vous en êtes dans KoLib.
+3390|Ne pas synchroniser
+3391|KoLib et la Kobo gardent chacun leur propre position.
+3392|Dans les deux sens
+3393|Les nouveaux sont copiés dans les deux sens. Ce que vous supprimez disparaît des deux côtés.
+3394|Ceux de la Kobo sont copiés dans KoLib. Ce qui est supprimé sur la Kobo disparaît aussi de KoLib. Rien dans KoLib ne modifie la Kobo.
+3395|Ceux de KoLib sont copiés sur la Kobo. Ce qui est supprimé dans KoLib disparaît aussi de la Kobo. Rien sur la Kobo ne modifie KoLib.
+3396|KoLib et la Kobo gardent chacun les leurs.
+3397|Les BD sont maintenant avec vos livres. Vous pouvez remettre l’onglet dans les Réglages.
+3398|Les statistiques de lecture restent séparées. Celles de KoLib et celles de la Kobo ont chacune leur onglet dans Statistiques de lecture.
+3399|Synchronise votre position, vos signets, surlignages et notes comme réglé dans Synchroniser la lecture avec la Kobo. Un nouveau livre est synchronisé une fois que la Kobo l’a ajouté.
+3400|1 signet ou surlignage reste uniquement dans KoLib. La Kobo ne les accepte que dans les livres envoyés en Kepub.
+3401|{0} signets et surlignages restent uniquement dans KoLib. La Kobo ne les accepte que dans les livres envoyés en Kepub.
+3402|1 livre sera synchronisé une fois que la Kobo l’aura ajouté. Éjectez la Kobo, puis reconnectez-la.
+3403|{0} livres seront synchronisés une fois que la Kobo les aura ajoutés. Éjectez la Kobo, puis reconnectez-la.
+
+@de
+3288|Beispielbücher
+3289|Die Beispielbücher sind schon in deiner Bibliothek.
+3290|1 Beispielbuch hinzugefügt.
+3291|{0} Beispielbücher hinzugefügt. Du kannst sie jederzeit entfernen.
+3292|Die drei Klassiker und der Comic, die du hinzufügen kannst, um KoLib auszuprobieren.
+3293|Gemeinfreie Texte
+3294|=
+3295|Wähle Bücher und tippe dann auf An den Kobo und Über WLAN.
+3296|Comics bekommen einen eigenen Tab, mit einem Eintrag pro Reihe. Ist das aus, stehen sie bei deinen Büchern.
+3297|Die Reihe füllt den ganzen Bildschirm, mit ihren Comics als Cover oder als Liste.
+3298|Die Comics stehen als Liste neben dem Regal.
+3299|Touren noch einmal zeigen
+3300|Die Tour jedes Bildschirms erscheint, wenn du ihn das nächste Mal öffnest.
+3301|Jedes Mal, wenn du deinen Kobo verbindest, merkt sich KoLib, wie lange du seit dem letzten Mal darauf gelesen hast.
+3302|Speicher freigegeben. Die KI macht sich wieder bereit, wenn du sie das nächste Mal etwas fragst.
+3303|Speicher der KI freigeben
+3304|Notizen zu {0} von {1} gelesenen Kapiteln. Der Rest wird geschrieben, wenn du die KI das nächste Mal etwas fragst.
+3305|Bereit, belegt Speicher
+3306|Belegt keinen Speicher
+3307|Gib den Speicher frei, um Akku zu sparen. Die KI macht sich wieder bereit, wenn du sie das nächste Mal etwas fragst.
+3308|Sie macht sich bereit, wenn du sie etwas fragst, und gibt den Speicher nach ein paar Minuten ohne Nutzung frei.
+3309|Freigeben
+3310|An den Kobo
+3311|Beispielbücher hinzufügen
+3312|Drei Klassiker und ein kurzer Comic, frei lesbar, zum Ausprobieren von KoLib.
+3313|Deine Leseposition, Lesezeichen, Markierungen und Notizen. Du wählst, in welche Richtung jedes geht.
+3314|Deine Leseposition
+3315|Lesezeichen, Markierungen und Notizen
+3318|Seitenregler in diesen Modi am Rand zeigen
+3319|Höhe des seitlichen Reglers
+3320|Ist das aus, beginnt der nächste Comic der Reihe direkt nach der letzten Seite.
+3321|Blitzdauer
+3322|Blitz alle
+3323|Blitzfarbe
+3324|Das Cover, mit dem das Buch kam.
+3325|Sende Bücher ohne Kabel über den Webbrowser des Kobo. Wähle Bücher in deiner Bibliothek und tippe dann auf An den Kobo und Über WLAN.
+3326|Deine Bibliothek
+3327|Tippe auf ein Buch, um es anzusehen, zu lesen oder an deinen Kobo zu senden. Halte eines gedrückt, um mehrere auf einmal zu wählen.
+3328|Bücher, Sammlungen und Comics
+3329|Wechsle zwischen deinen Büchern, Sammlungen und Comics. Du kannst auch zwischen ihnen wischen.
+3330|Ein Buch finden
+3331|Suche nach Titeln, Autoren, Reihen und Schlagwörtern. Tippe auf ?, um alle Suchmöglichkeiten zu sehen.
+3332|Wähle Bücher, wechsle zwischen Covern und Liste oder öffne Einstellungen und Lesestatistik.
+3333|Füge Bücher und Comics von diesem Gerät, aus einem Ordner oder von deinem Kobo hinzu. Hier kannst du auch ein neues Buch schreiben.
+3334|Deine Leseposition, Lesezeichen, Markierungen und Notizen zwischen KoLib und deinem Kobo. Du wählst, in welche Richtung jedes geht.
+3335|Sieh, wie viel du liest, in KoLib und auf deinem Kobo.
+3336|Dein Kobo
+3337|Schließe deinen Kobo an, um zu sehen, was darauf ist, ihm Bücher zu senden und ihn zu sichern.
+3338|Sende Bücher per WLAN an KoLib auf deinen anderen Handys und Tablets oder ohne Kabel an deinen Kobo.
+3339|Ändere das Aussehen von KoLib, die Sprache und wie Bücher gelesen werden.
+3340|Schließe ihn mit einem USB-C-Kabel an und tippe auf seinem Bildschirm auf „Verbinden“. KoLib öffnet ihn hier.
+3341|Sicherungen und Protokoll
+3342|KoLib sichert die Datenbank deines Kobo, wenn er sich verbindet. Die Sicherungen und das Protokoll findest du hier, auch wenn der Kobo nicht angeschlossen ist.
+3343|Was auf deinem Kobo ist
+3344|Alle Bücher auf deinem Kobo. Tippe auf eines, um es anzusehen, oder halte eines gedrückt, um mehrere zu wählen, die du deiner Bibliothek hinzufügen oder löschen willst.
+3345|Bücher, Sammlungen und Gerät
+3346|Der Tab „Gerät“ zeigt die Details des Kobo, seinen freien Speicher und die Datenbanksicherungen.
+3347|Tippe hierauf, bevor du den Kobo absteckst, damit er die gesendeten Bücher hinzufügen kann.
+3348|Sichere die Datenbank des Kobo, sieh dir das Protokoll an, öffne die Einstellungen oder vergiss diesen Kobo.
+3349|Deine anderen Geräte finden dieses im selben WLAN oder wenn eines am Hotspot des anderen hängt.
+3350|Geräte, mit denen du gekoppelt hast. Wähle Bücher in deiner Bibliothek und tippe auf An Gerät, um sie zu senden.
+3351|Deine anderen Handys und Tablets mit geöffnetem KoLib im selben Netzwerk erscheinen hier. Tippe auf Koppeln, um eines zu verbinden.
+3352|Sende Bücher ohne Kabel an deinen Kobo, über seinen Webbrowser.
+3353|Wähle, ob deine Leseposition mit deinen anderen Geräten geteilt wird und ob sie senden können, während KoLib geschlossen ist.
+3354|Wähle die Sprache von KoLib.
+3355|Ein Ordner, aus dem KoLib Bücher hinzufügt. Durchsuche ihn erneut, um die neuen hinzuzufügen.
+3356|Stelle an einem Beispielbuch Seitenfarbe, Schrift, Textgröße und das Umblättern ein.
+3357|Schlage Wörter nach und erhalte Kapitelzusammenfassungen und Antworten zu dem Buch, das du liest.
+3358|Gib Comics einen eigenen Tab in der Bibliothek, mit einem Eintrag pro Reihe.
+3359|Wähle, wie KoLib aussieht. Die Startanimation passt sich dem gewählten Aussehen an.
+3360|Schalte die Animation und ihren Ton ein oder aus oder nutze auf einem langsameren Gerät eine leichtere.
+3361|Touren
+3362|Sieh dir diese Touren noch einmal an, jede beim nächsten Öffnen ihres Bildschirms.
+3363|Umblättern
+3364|Tippe auf die Ränder der Seite oder wische, um umzublättern. Tippe in die Mitte, um diese Leisten ein- oder auszublenden.
+3365|Markierungen und Notizen
+3366|Halte ein Wort gedrückt und ziehe, um mehr auszuwählen. Tippe dann auf Markieren, Notiz oder Nachschlagen.
+3367|Suchen und Lesezeichen
+3368|Durchsuche das ganze Buch oder setze ein Lesezeichen auf die Seite, auf der du bist.
+3369|Durch das Buch springen
+3370|Ziehe, um an jede Stelle im Buch zu springen. Die Pfeile führen zum vorigen oder nächsten Kapitel.
+3371|Die Kapitel sowie deine Lesezeichen, Markierungen und Notizen.
+3372|Der Text läuft von allein weiter. Tippe in die Mitte der Seite, um ihn anzuhalten.
+3373|Halte den Bildschirm beim Lesen hochkant oder quer, oder lass ihn sich drehen.
+3374|Schrift, Textgröße, Ränder, Seitenfarbe und wie umgeblättert wird.
+3375|Tippe auf die Ränder der Seite oder wische, um umzublättern. Tippe in die Mitte, um diese Leisten ein- oder auszublenden. Ziehe mit zwei Fingern auf oder tippe doppelt, um zu zoomen.
+3376|Seite gedrückt halten
+3377|Halte eine Seite gedrückt, um sie zu speichern, zu teilen oder als Cover des Comics zu verwenden.
+3378|Durch den Comic springen
+3379|Ziehe zu einer beliebigen Seite. Die Tasten an den Enden führen zum vorigen oder nächsten Comic der Reihe.
+3380|Von links nach rechts, von rechts nach links wie bei Manga oder ein langer Streifen. Die Wahl gilt für die ganze Reihe.
+3381|Halte den Bildschirm für diese Reihe hochkant oder quer, oder lass ihn sich drehen.
+3382|Schneidet die leeren Ränder der Seiten ab, damit die Bilder mehr vom Bildschirm füllen.
+3383|Wie Tippen funktioniert, Seitenfarben und Helligkeit und mehr.
+3384|Wo du zuletzt gelesen hast
+3385|Jedes Buch öffnet dort, wo du es zuletzt gelesen hast, in KoLib oder auf dem Kobo.
+3386|Vom Kobo zu KoLib
+3387|KoLib öffnet jedes Buch dort, wo du auf dem Kobo bist.
+3388|Von KoLib zum Kobo
+3389|Der Kobo öffnet jedes Buch dort, wo du in KoLib bist.
+3390|Nicht abgleichen
+3391|KoLib und der Kobo behalten jeweils ihre eigene Leseposition.
+3392|In beide Richtungen
+3393|Neue werden in beide Richtungen kopiert. Was du löschst, verschwindet auf beiden Seiten.
+3394|Die vom Kobo werden in KoLib kopiert. Was auf dem Kobo gelöscht wird, verschwindet auch aus KoLib. Nichts in KoLib verändert den Kobo.
+3395|Die aus KoLib werden auf den Kobo kopiert. Was in KoLib gelöscht wird, verschwindet auch vom Kobo. Nichts auf dem Kobo verändert KoLib.
+3396|KoLib und der Kobo behalten jeweils ihre eigenen.
+3397|Comics stehen jetzt bei deinen Büchern. Den Tab kannst du in den Einstellungen zurückholen.
+3398|Die Lesestatistik bleibt getrennt. KoLib und der Kobo haben in der Lesestatistik jeweils einen eigenen Tab.
+3399|Gleicht deine Leseposition, Lesezeichen, Markierungen und Notizen so ab, wie unter „Lesestand mit dem Kobo abgleichen“ eingestellt. Ein neues Buch wird abgeglichen, sobald der Kobo es hinzugefügt hat.
+3400|1 Lesezeichen oder Markierung bleibt nur in KoLib. Der Kobo nimmt sie nur bei Büchern an, die als Kepub gesendet wurden.
+3401|{0} Lesezeichen und Markierungen bleiben nur in KoLib. Der Kobo nimmt sie nur bei Büchern an, die als Kepub gesendet wurden.
+3402|1 Buch wird abgeglichen, sobald der Kobo es hinzugefügt hat. Wirf den Kobo aus und verbinde ihn dann wieder.
+3403|{0} Bücher werden abgeglichen, sobald der Kobo sie hinzugefügt hat. Wirf den Kobo aus und verbinde ihn dann wieder.
+
+@es
+3288|Libros de muestra
+3289|Los libros de muestra ya están en tu biblioteca.
+3290|Se añadió 1 libro de muestra.
+3291|Se añadieron {0} libros de muestra. Quítalos cuando quieras.
+3292|Los tres clásicos y el cómic que puedes añadir para probar KoLib.
+3293|Textos de dominio público
+3294|=
+3295|Elige libros y toca Al Kobo y luego Por wifi.
+3296|Los cómics tienen su propia pestaña, con una entrada por serie. Si está desactivado, están con tus libros.
+3297|La serie ocupa toda la pantalla, con sus cómics como portadas o como lista.
+3298|Sus cómics aparecen en una lista junto a la estantería.
+3299|Volver a ver los recorridos
+3300|El recorrido de cada pantalla aparece la próxima vez que la abras.
+3301|Cada vez que conectas tu Kobo, KoLib anota cuánto has leído en él desde la última vez.
+3302|Memoria liberada. La IA se vuelve a preparar la próxima vez que le preguntes algo.
+3303|Liberar la memoria de la IA
+3304|Notas de {0} de {1} capítulos leídos. El resto se escribe la próxima vez que le preguntes algo a la IA.
+3305|Lista, usando memoria
+3306|Sin usar memoria
+3307|Libera su memoria para ahorrar batería. Se vuelve a preparar la próxima vez que le preguntes algo.
+3308|Se prepara cuando le preguntas algo y libera su memoria tras unos minutos sin usarse.
+3309|Liberar
+3310|Al Kobo
+3311|Añadir los libros de muestra
+3312|Tres clásicos y un cómic corto, de lectura libre, para probar KoLib.
+3313|Por dónde vas, tus marcadores, subrayados y notas. Tú eliges en qué sentido va cada uno.
+3314|Por dónde vas
+3315|Marcadores, subrayados y notas
+3318|Mostrar la barra de páginas al lado en estos modos
+3319|Altura de la barra lateral
+3320|Si está desactivado, el siguiente cómic de la serie empieza justo después de la última página.
+3321|Duración del destello
+3322|Destello cada
+3323|Color del destello
+3324|La portada con la que vino el libro.
+3325|Envía libros sin cable, con el navegador web del Kobo. Elige libros en tu biblioteca y toca Al Kobo y luego Por wifi.
+3326|Tu biblioteca
+3327|Toca un libro para verlo, leerlo o enviarlo a tu Kobo. Mantén pulsado uno para elegir varios a la vez.
+3328|Libros, colecciones y cómics
+3329|Cambia entre tus libros, tus colecciones y tus cómics. También puedes deslizar entre ellos.
+3330|Buscar un libro
+3331|Busca títulos, autores, series y etiquetas. Toca ? para ver todas las formas de buscar.
+3332|Elige libros, cambia entre portadas y lista, o abre Ajustes y Estadísticas de lectura.
+3333|Añade libros y cómics desde este dispositivo, una carpeta o tu Kobo. Aquí también puedes escribir un libro nuevo.
+3334|Por dónde vas, tus marcadores, subrayados y notas, entre KoLib y tu Kobo. Tú eliges en qué sentido va cada uno.
+3335|Mira cuánto lees, en KoLib y en tu Kobo.
+3336|Tu Kobo
+3337|Conecta tu Kobo para ver qué tiene, enviarle libros y hacer una copia de seguridad.
+3338|Envía libros por wifi a KoLib en tus otros móviles y tabletas, o a tu Kobo sin cable.
+3339|Cambia el aspecto de KoLib, su idioma y cómo se leen los libros.
+3340|Conéctalo con un cable USB-C y toca Conectar en su pantalla. KoLib lo abre aquí.
+3341|Copias de seguridad y registro
+3342|KoLib hace una copia de la base de datos de tu Kobo cuando se conecta. Las copias y el registro están aquí, aunque el Kobo no esté conectado.
+3343|Lo que hay en tu Kobo
+3344|Todos los libros de tu Kobo. Toca uno para verlo, o mantén pulsado uno para elegir varios y añadirlos a tu biblioteca o borrarlos.
+3345|Libros, colecciones y dispositivo
+3346|La pestaña Dispositivo tiene los datos del Kobo, su espacio libre y las copias de su base de datos.
+3347|Tócalo antes de desconectar el Kobo, para que pueda añadir los libros que enviaste.
+3348|Haz una copia de la base de datos del Kobo, mira el registro, abre Ajustes u olvida este Kobo.
+3349|Tus otros dispositivos encuentran este en la misma wifi, o cuando uno está en el punto de acceso del otro.
+3350|Los dispositivos que has vinculado. Elige libros en tu biblioteca y toca Dispositivo para enviarlos.
+3351|Tus otros móviles y tabletas con KoLib abierto en la misma red aparecen aquí. Toca Vincular para enlazar uno.
+3352|Envía libros a tu Kobo sin cable, con su navegador web.
+3353|Elige si tu posición en un libro se comparte con tus otros dispositivos, y si pueden enviar con KoLib cerrado.
+3354|Elige el idioma de KoLib.
+3355|Una carpeta de la que KoLib añade libros. Vuelve a revisarla para añadir los nuevos.
+3356|Ajusta el color de la página, la fuente, el tamaño del texto y cómo pasan las páginas, en un libro de ejemplo.
+3357|Consulta palabras y obtén resúmenes de capítulos y respuestas sobre el libro que lees.
+3358|Da a los cómics su propia pestaña en la biblioteca, con una entrada por serie.
+3359|Elige el aspecto de KoLib. La animación de inicio combina con el aspecto que elijas.
+3360|Activa o desactiva la animación y su sonido, o usa una más ligera en un dispositivo más lento.
+3361|Recorridos
+3362|Vuelve a ver estos recorridos, cada uno la próxima vez que abras su pantalla.
+3363|Pasar la página
+3364|Toca los bordes de la página o desliza para pasarla. Toca el centro para mostrar u ocultar estas barras.
+3365|Subrayados y notas
+3366|Mantén pulsada una palabra y arrastra para seleccionar más; luego toca Subrayar, Nota o Consultar.
+3367|Buscar y marcar
+3368|Busca en todo el libro, o pon un marcador en la página en la que estás.
+3369|Moverte por el libro
+3370|Arrastra para ir a cualquier parte del libro. Las flechas llevan al capítulo anterior o siguiente.
+3371|Los capítulos, y tus marcadores, subrayados y notas.
+3372|El texto avanza solo. Toca el centro de la página para pausarlo.
+3373|Mantén la pantalla en vertical u horizontal mientras lees, o deja que gire.
+3374|La fuente, el tamaño del texto, los márgenes, el color de la página y cómo pasan las páginas.
+3375|Toca los bordes de la página o desliza para pasarla. Toca el centro para mostrar u ocultar estas barras. Pellizca o toca dos veces para hacer zoom.
+3376|Mantener pulsada una página
+3377|Mantén pulsada una página para guardarla, compartirla o usarla como portada del cómic.
+3378|Moverte por el cómic
+3379|Arrastra a cualquier página. Los botones de los extremos llevan al cómic anterior o siguiente de la serie.
+3380|De izquierda a derecha, de derecha a izquierda como en el manga, o una tira larga. Se guarda para cada serie.
+3381|Mantén la pantalla en vertical u horizontal para esta serie, o deja que gire.
+3382|Recorta los bordes en blanco de las páginas para que el dibujo ocupe más pantalla.
+3383|Cómo funcionan los toques, los colores y el brillo de las páginas, y más.
+3384|Donde leíste por última vez
+3385|Cada libro se abre donde lo leíste por última vez, en KoLib o en el Kobo.
+3386|Del Kobo a KoLib
+3387|KoLib abre cada libro por donde vas en el Kobo.
+3388|De KoLib al Kobo
+3389|El Kobo abre cada libro por donde vas en KoLib.
+3390|No sincronizar
+3391|KoLib y el Kobo guardan cada uno su propia posición.
+3392|En ambos sentidos
+3393|Los nuevos se copian en ambos sentidos. Lo que borres desaparece de los dos.
+3394|Los del Kobo se copian a KoLib. Lo que se borre en el Kobo desaparece también de KoLib. Nada de KoLib cambia el Kobo.
+3395|Los de KoLib se copian al Kobo. Lo que se borre en KoLib desaparece también del Kobo. Nada del Kobo cambia KoLib.
+3396|KoLib y el Kobo guardan cada uno los suyos.
+3397|Ahora los cómics están con tus libros. Puedes recuperar la pestaña en Ajustes.
+3398|Las estadísticas de lectura se mantienen aparte. Las de KoLib y las del Kobo tienen cada una su pestaña en Estadísticas de lectura.
+3399|Sincroniza por dónde vas, tus marcadores, subrayados y notas como se haya elegido en Sincronizar la lectura con el Kobo. Un libro nuevo se sincroniza cuando el Kobo lo haya añadido.
+3400|1 marcador o subrayado se queda solo en KoLib. El Kobo solo los acepta en libros enviados como Kepub.
+3401|{0} marcadores y subrayados se quedan solo en KoLib. El Kobo solo los acepta en libros enviados como Kepub.
+3402|1 libro se sincronizará cuando el Kobo lo haya añadido. Expulsa el Kobo y vuelve a conectarlo.
+3403|{0} libros se sincronizarán cuando el Kobo los haya añadido. Expulsa el Kobo y vuelve a conectarlo.
+
+@it
+3288|Libri di esempio
+3289|I libri di esempio sono già nella tua libreria.
+3290|Aggiunto 1 libro di esempio.
+3291|Aggiunti {0} libri di esempio. Toglili quando vuoi.
+3292|I tre classici e il fumetto che puoi aggiungere per provare KoLib.
+3293|Testi di pubblico dominio
+3294|=
+3295|Scegli i libri, poi tocca Al Kobo e Via Wi-Fi.
+3296|I fumetti hanno una scheda tutta loro, con una voce per serie. Se è disattivato, sono insieme ai tuoi libri.
+3297|La serie occupa tutto lo schermo, con i suoi fumetti come copertine o come elenco.
+3298|I suoi fumetti sono elencati accanto allo scaffale.
+3299|Rivedi le guide
+3300|La guida di ogni schermata compare la prossima volta che la apri.
+3301|Ogni volta che colleghi il tuo Kobo, KoLib annota quanto hai letto su di esso dall’ultima volta.
+3302|Memoria liberata. L’IA si prepara di nuovo la prossima volta che le chiedi qualcosa.
+3303|Libera la memoria dell’IA
+3304|Note su {0} dei {1} capitoli letti. Le altre vengono scritte la prossima volta che chiedi qualcosa all’IA.
+3305|Pronta, usa memoria
+3306|Non usa memoria
+3307|Libera la sua memoria per risparmiare batteria. Si prepara di nuovo la prossima volta che le chiedi qualcosa.
+3308|Si prepara quando le chiedi qualcosa e libera la memoria dopo qualche minuto inutilizzata.
+3309|Libera
+3310|Al Kobo
+3311|Aggiungi i libri di esempio
+3312|Tre classici e un breve fumetto, liberi da leggere, per provare KoLib.
+3313|Il punto in cui sei, i segnalibri, le evidenziazioni e le note. Scegli tu in che direzione va ciascuno.
+3314|Il punto in cui sei
+3315|Segnalibri, evidenziazioni e note
+3318|Mostra il cursore delle pagine di lato in queste modalità
+3319|Altezza del cursore laterale
+3320|Se è disattivato, il fumetto successivo della serie inizia subito dopo l’ultima pagina.
+3321|Durata del lampeggio
+3322|Lampeggio ogni
+3323|Colore del lampeggio
+3324|La copertina con cui è arrivato il libro.
+3325|Invia libri senza cavo, con il browser web del Kobo. Scegli i libri nella libreria, poi tocca Al Kobo e Via Wi-Fi.
+3326|La tua libreria
+3327|Tocca un libro per vederlo, leggerlo o inviarlo al tuo Kobo. Tienine premuto uno per sceglierne diversi insieme.
+3328|Libri, raccolte e fumetti
+3329|Passa tra i tuoi libri, le tue raccolte e i tuoi fumetti. Puoi anche scorrere dall’uno all’altro.
+3330|Trova un libro
+3331|Cerca titoli, autori, serie e tag. Tocca ? per vedere tutti i modi di cercare.
+3332|Scegli i libri, passa tra copertine ed elenco, oppure apri Impostazioni e Statistiche di lettura.
+3333|Aggiungi libri e fumetti da questo dispositivo, da una cartella o dal tuo Kobo. Qui puoi anche scrivere un nuovo libro.
+3334|Il punto in cui sei, i segnalibri, le evidenziazioni e le note, tra KoLib e il tuo Kobo. Scegli tu in che direzione va ciascuno.
+3335|Guarda quanto leggi, in KoLib e sul tuo Kobo.
+3336|Il tuo Kobo
+3337|Collega il tuo Kobo per vedere cosa contiene, inviargli libri e farne un backup.
+3338|Invia libri a KoLib sugli altri tuoi telefoni e tablet via Wi-Fi, o al tuo Kobo senza cavo.
+3339|Cambia l’aspetto di KoLib, la lingua e il modo in cui si leggono i libri.
+3340|Collegalo con un cavo USB-C e tocca Connetti sul suo schermo. KoLib lo apre qui.
+3341|Backup e registro
+3342|KoLib fa un backup del database del tuo Kobo quando si collega. I backup e il registro sono qui, anche quando il Kobo non è collegato.
+3343|Cosa c’è sul tuo Kobo
+3344|Tutti i libri del tuo Kobo. Toccane uno per vederlo, o tienine premuto uno per sceglierne diversi da aggiungere alla libreria o da eliminare.
+3345|Libri, raccolte e dispositivo
+3346|La scheda Dispositivo mostra i dettagli del Kobo, lo spazio libero e i backup del database.
+3347|Toccalo prima di scollegare il Kobo, così può aggiungere i libri che hai inviato.
+3348|Fai un backup del database del Kobo, guarda il registro, apri Impostazioni o dimentica questo Kobo.
+3349|Gli altri tuoi dispositivi trovano questo sulla stessa Wi-Fi, o quando uno è collegato all’hotspot dell’altro.
+3350|I dispositivi che hai associato. Scegli i libri nella libreria e tocca Dispositivo per inviarli.
+3351|Gli altri tuoi telefoni e tablet con KoLib aperto sulla stessa rete compaiono qui. Tocca Associa per collegarne uno.
+3352|Invia libri al tuo Kobo senza cavo, con il suo browser web.
+3353|Scegli se il punto in cui sei in un libro viene condiviso con gli altri dispositivi, e se possono inviare quando KoLib è chiuso.
+3354|Scegli la lingua di KoLib.
+3355|Una cartella da cui KoLib aggiunge libri. Controllala di nuovo per aggiungere quelli nuovi.
+3356|Imposta il colore della pagina, il carattere, la dimensione del testo e come si girano le pagine, su un libro di esempio.
+3357|Cerca il significato delle parole e ottieni riassunti dei capitoli e risposte sul libro che stai leggendo.
+3358|Dai ai fumetti una scheda tutta loro nella libreria, con una voce per serie.
+3359|Scegli l’aspetto di KoLib. L’animazione di apertura si abbina all’aspetto scelto.
+3360|Attiva o disattiva l’animazione e il suo suono, oppure usane una più leggera su un dispositivo più lento.
+3361|Guide
+3362|Rivedi queste guide, ognuna la prossima volta che apri la sua schermata.
+3363|Girare pagina
+3364|Tocca i bordi della pagina o scorri per girarla. Tocca il centro per mostrare o nascondere queste barre.
+3365|Evidenziazioni e note
+3366|Tieni premuta una parola e trascina per selezionarne altre, poi tocca Evidenzia, Nota o Cerca.
+3367|Cerca e segnalibro
+3368|Cerca in tutto il libro, o aggiungi un segnalibro alla pagina in cui sei.
+3369|Muoversi nel libro
+3370|Trascina per andare in qualsiasi punto del libro. Le frecce portano al capitolo precedente o successivo.
+3371|I capitoli, e i tuoi segnalibri, evidenziazioni e note.
+3372|Il testo scorre da solo. Tocca il centro della pagina per metterlo in pausa.
+3373|Tieni lo schermo in verticale o in orizzontale mentre leggi, oppure lascialo ruotare.
+3374|Il carattere, la dimensione del testo, i margini, il colore della pagina e come si girano le pagine.
+3375|Tocca i bordi della pagina o scorri per girarla. Tocca il centro per mostrare o nascondere queste barre. Pizzica o tocca due volte per ingrandire.
+3376|Tenere premuta una pagina
+3377|Tieni premuta una pagina per salvarla, condividerla o usarla come copertina del fumetto.
+3378|Muoversi nel fumetto
+3379|Trascina su qualsiasi pagina. I pulsanti alle estremità portano al fumetto precedente o successivo della serie.
+3380|Da sinistra a destra, da destra a sinistra come nei manga, o una striscia lunga. La scelta resta per ogni serie.
+3381|Tieni lo schermo in verticale o in orizzontale per questa serie, oppure lascialo ruotare.
+3382|Taglia i bordi vuoti delle pagine, così i disegni occupano più schermo.
+3383|Come funzionano i tocchi, i colori e la luminosità delle pagine, e altro.
+3384|Dove hai letto per ultimo
+3385|Ogni libro si apre dove l’hai letto per ultimo, in KoLib o sul Kobo.
+3386|Dal Kobo a KoLib
+3387|KoLib apre ogni libro dove sei arrivato sul Kobo.
+3388|Da KoLib al Kobo
+3389|Il Kobo apre ogni libro dove sei arrivato in KoLib.
+3390|Non sincronizzare
+3391|KoLib e il Kobo tengono ciascuno il proprio punto.
+3392|In entrambe le direzioni
+3393|I nuovi vengono copiati in entrambe le direzioni. Quello che elimini sparisce da entrambi.
+3394|Quelli del Kobo vengono copiati in KoLib. Quello eliminato sul Kobo sparisce anche da KoLib. Niente in KoLib cambia il Kobo.
+3395|Quelli di KoLib vengono copiati sul Kobo. Quello eliminato in KoLib sparisce anche dal Kobo. Niente sul Kobo cambia KoLib.
+3396|KoLib e il Kobo tengono ciascuno i propri.
+3397|Ora i fumetti sono insieme ai tuoi libri. Puoi rimettere la scheda nelle Impostazioni.
+3398|Le statistiche di lettura restano separate. Quelle di KoLib e del Kobo hanno ciascuna la propria scheda in Statistiche di lettura.
+3399|Sincronizza il punto in cui sei, i segnalibri, le evidenziazioni e le note come impostato in Sincronizza la lettura con il Kobo. Un libro nuovo viene sincronizzato quando il Kobo l’ha aggiunto.
+3400|1 segnalibro o evidenziazione resta solo in KoLib. Il Kobo li accetta solo nei libri inviati come Kepub.
+3401|{0} segnalibri ed evidenziazioni restano solo in KoLib. Il Kobo li accetta solo nei libri inviati come Kepub.
+3402|1 libro verrà sincronizzato quando il Kobo l’avrà aggiunto. Espelli il Kobo, poi ricollegalo.
+3403|{0} libri verranno sincronizzati quando il Kobo li avrà aggiunti. Espelli il Kobo, poi ricollegalo.
+
+@nl
+3288|Voorbeeldboeken
+3289|De voorbeeldboeken staan al in je bibliotheek.
+3290|1 voorbeeldboek toegevoegd.
+3291|{0} voorbeeldboeken toegevoegd. Verwijder ze wanneer je wilt.
+3292|De drie klassiekers en de strip die je kunt toevoegen om KoLib uit te proberen.
+3293|Teksten uit het publieke domein
+3294|=
+3295|Kies boeken en tik dan op Naar de Kobo en Via wifi.
+3296|Strips krijgen een eigen tabblad, met één item per reeks. Staat dit uit, dan staan ze bij je boeken.
+3297|De reeks vult het hele scherm, met de strips als omslagen of als lijst.
+3298|De strips staan in een lijst naast de plank.
+3299|Rondleidingen opnieuw tonen
+3300|De rondleiding van elk scherm verschijnt de volgende keer dat je het opent.
+3301|Telkens als je je Kobo aansluit, noteert KoLib hoelang je er sinds de vorige keer op hebt gelezen.
+3302|Geheugen vrijgemaakt. De AI maakt zich weer klaar als je hem iets vraagt.
+3303|Geheugen van de AI vrijmaken
+3304|Notities bij {0} van {1} gelezen hoofdstukken. De rest wordt geschreven als je de AI weer iets vraagt.
+3305|Klaar, gebruikt geheugen
+3306|Gebruikt geen geheugen
+3307|Maak het geheugen vrij om batterij te sparen. De AI maakt zich weer klaar als je hem iets vraagt.
+3308|Hij maakt zich klaar als je iets vraagt, en maakt na een paar minuten zonder gebruik het geheugen weer vrij.
+3309|Vrijmaken
+3310|Naar de Kobo
+3311|De voorbeeldboeken toevoegen
+3312|Drie klassiekers en een korte strip, vrij te lezen, om KoLib mee uit te proberen.
+3313|Waar je bent, je bladwijzers, markeringen en notities. Jij kiest welke kant elk op gaat.
+3314|Waar je bent
+3315|Bladwijzers, markeringen en notities
+3318|Paginaschuif aan de zijkant tonen in deze modi
+3319|Hoogte van de zijschuif
+3320|Staat dit uit, dan begint de volgende strip in de reeks direct na de laatste pagina.
+3321|Flitsduur
+3322|Flitsen elke
+3323|Flitskleur
+3324|De omslag waarmee het boek kwam.
+3325|Stuur boeken zonder kabel, via de webbrowser van de Kobo. Kies boeken in je bibliotheek en tik dan op Naar de Kobo en Via wifi.
+3326|Je bibliotheek
+3327|Tik op een boek om het te bekijken, te lezen of naar je Kobo te sturen. Houd er een vast om er meerdere tegelijk te kiezen.
+3328|Boeken, collecties en strips
+3329|Wissel tussen je boeken, je collecties en je strips. Je kunt er ook tussen vegen.
+3330|Een boek vinden
+3331|Zoek op titels, auteurs, reeksen en labels. Tik op ? om alle manieren van zoeken te zien.
+3332|Kies boeken, wissel tussen omslagen en een lijst, of open Instellingen en Leesstatistieken.
+3333|Voeg boeken en strips toe vanaf dit apparaat, uit een map of van je Kobo. Hier kun je ook een nieuw boek schrijven.
+3334|Waar je bent, je bladwijzers, markeringen en notities, tussen KoLib en je Kobo. Jij kiest welke kant elk op gaat.
+3335|Zie hoeveel je leest, in KoLib en op je Kobo.
+3336|Je Kobo
+3337|Sluit je Kobo aan om te zien wat erop staat, er boeken naartoe te sturen en een back-up te maken.
+3338|Stuur boeken via wifi naar KoLib op je andere telefoons en tablets, of zonder kabel naar je Kobo.
+3339|Verander hoe KoLib eruitziet, de taal en hoe boeken worden gelezen.
+3340|Sluit hem aan met een USB-C-kabel en tik op Verbinden op het scherm. KoLib opent hem hier.
+3341|Back-ups en logboek
+3342|KoLib maakt een back-up van de database van je Kobo als die verbinding maakt. De back-ups en het logboek staan hier, ook als de Kobo niet is aangesloten.
+3343|Wat er op je Kobo staat
+3344|Alle boeken op je Kobo. Tik op een boek om het te bekijken, of houd er een vast om er meerdere te kiezen om aan je bibliotheek toe te voegen of te verwijderen.
+3345|Boeken, collecties en apparaat
+3346|Het tabblad Apparaat toont de gegevens van de Kobo, de vrije ruimte en de databaseback-ups.
+3347|Tik hierop voordat je de Kobo loskoppelt, zodat hij de verstuurde boeken kan toevoegen.
+3348|Maak een back-up van de database van de Kobo, bekijk het logboek, open Instellingen of vergeet deze Kobo.
+3349|Je andere apparaten vinden dit apparaat op dezelfde wifi, of als het ene op de hotspot van het andere zit.
+3350|Apparaten waarmee je hebt gekoppeld. Kies boeken in je bibliotheek en tik op Naar apparaat om ze te sturen.
+3351|Je andere telefoons en tablets met KoLib open op hetzelfde netwerk verschijnen hier. Tik op Koppelen om er een te verbinden.
+3352|Stuur boeken zonder kabel naar je Kobo, via de webbrowser.
+3353|Kies of je plek in een boek wordt gedeeld met je andere apparaten, en of ze kunnen sturen terwijl KoLib dicht is.
+3354|Kies de taal van KoLib.
+3355|Een map waaruit KoLib boeken toevoegt. Doorzoek hem opnieuw om de nieuwe toe te voegen.
+3356|Stel de paginakleur, het lettertype, de tekstgrootte en het omslaan van pagina’s in, met een voorbeeldboek.
+3357|Zoek woorden op en krijg samenvattingen van hoofdstukken en antwoorden over het boek dat je leest.
+3358|Geef strips een eigen tabblad in de bibliotheek, met één item per reeks.
+3359|Kies hoe KoLib eruitziet. De openingsanimatie past bij het uiterlijk dat je kiest.
+3360|Zet de animatie en het geluid aan of uit, of gebruik een lichtere op een trager apparaat.
+3361|Rondleidingen
+3362|Bekijk deze rondleidingen opnieuw, elk de volgende keer dat je het scherm opent.
+3363|De pagina omslaan
+3364|Tik op de randen van de pagina of veeg om om te slaan. Tik in het midden om deze balken te tonen of te verbergen.
+3365|Markeringen en notities
+3366|Houd een woord vast en sleep om meer te selecteren. Tik dan op Markeren, Notitie of Opzoeken.
+3367|Zoeken en bladwijzer
+3368|Doorzoek het hele boek, of zet een bladwijzer op de pagina waar je bent.
+3369|Door het boek gaan
+3370|Sleep om overal in het boek te komen. De pijlen gaan naar het vorige of volgende hoofdstuk.
+3371|De hoofdstukken, en je bladwijzers, markeringen en notities.
+3372|De tekst schuift vanzelf door. Tik in het midden van de pagina om te pauzeren.
+3373|Houd het scherm staand of liggend tijdens het lezen, of laat het draaien.
+3374|Het lettertype, de tekstgrootte, de marges, de paginakleur en hoe pagina’s omslaan.
+3375|Tik op de randen van de pagina of veeg om om te slaan. Tik in het midden om deze balken te tonen of te verbergen. Knijp of tik twee keer om te zoomen.
+3376|Een pagina vasthouden
+3377|Houd een pagina vast om hem op te slaan, te delen of als omslag van de strip te gebruiken.
+3378|Door de strip gaan
+3379|Sleep naar elke pagina. De knoppen aan de uiteinden gaan naar de vorige of volgende strip in de reeks.
+3380|Van links naar rechts, van rechts naar links zoals bij manga, of één lange strip. Dit wordt per reeks onthouden.
+3381|Houd het scherm staand of liggend voor deze reeks, of laat het draaien.
+3382|Snijdt de lege randen van de pagina’s af, zodat de tekeningen meer van het scherm vullen.
+3383|Hoe tikken werkt, de paginakleuren en helderheid, en meer.
+3384|Waar je het laatst las
+3385|Elk boek opent waar je het het laatst las, in KoLib of op de Kobo.
+3386|Van de Kobo naar KoLib
+3387|KoLib opent elk boek waar je op de Kobo bent.
+3388|Van KoLib naar de Kobo
+3389|De Kobo opent elk boek waar je in KoLib bent.
+3390|Niet synchroniseren
+3391|KoLib en de Kobo houden elk hun eigen plek.
+3392|In beide richtingen
+3393|Nieuwe worden in beide richtingen gekopieerd. Wat je verwijdert, verdwijnt van beide.
+3394|Die van de Kobo worden naar KoLib gekopieerd. Wat op de Kobo wordt verwijderd, verdwijnt ook uit KoLib. Niets in KoLib verandert de Kobo.
+3395|Die van KoLib worden naar de Kobo gekopieerd. Wat in KoLib wordt verwijderd, verdwijnt ook van de Kobo. Niets op de Kobo verandert KoLib.
+3396|KoLib en de Kobo houden elk hun eigen.
+3397|Strips staan nu bij je boeken. Je kunt het tabblad terugzetten in Instellingen.
+3398|Leesstatistieken blijven gescheiden. Die van KoLib en van de Kobo hebben elk een eigen tabblad in Leesstatistieken.
+3399|Synchroniseert waar je bent, je bladwijzers, markeringen en notities zoals ingesteld bij Lezen synchroniseren met de Kobo. Een nieuw boek wordt gesynchroniseerd zodra de Kobo het heeft toegevoegd.
+3400|1 bladwijzer of markering blijft alleen in KoLib. De Kobo neemt ze alleen over in boeken die als Kepub zijn verzonden.
+3401|{0} bladwijzers en markeringen blijven alleen in KoLib. De Kobo neemt ze alleen over in boeken die als Kepub zijn verzonden.
+3402|1 boek wordt gesynchroniseerd zodra de Kobo het heeft toegevoegd. Werp de Kobo uit en verbind hem daarna opnieuw.
+3403|{0} boeken worden gesynchroniseerd zodra de Kobo ze heeft toegevoegd. Werp de Kobo uit en verbind hem daarna opnieuw.
+
+@pt
+3288|Livros de exemplo
+3289|Os livros de exemplo já estão na sua biblioteca.
+3290|1 livro de exemplo adicionado.
+3291|{0} livros de exemplo adicionados. Remova quando quiser.
+3292|Os três clássicos e o quadrinho que você pode adicionar para experimentar o KoLib.
+3293|Textos em domínio público
+3294|=
+3295|Escolha livros e toque em Para o Kobo e depois em Por Wi-Fi.
+3296|Os quadrinhos ganham uma aba própria, com uma entrada por série. Se estiver desativado, ficam com seus livros.
+3297|A série ocupa a tela inteira, com os quadrinhos como capas ou em lista.
+3298|Os quadrinhos aparecem em lista ao lado da estante.
+3299|Ver os tours de novo
+3300|O tour de cada tela aparece na próxima vez que você a abrir.
+3301|Sempre que você conecta o Kobo, o KoLib anota quanto tempo você leu nele desde a última vez.
+3302|Memória liberada. A IA se prepara de novo na próxima vez que você perguntar algo.
+3303|Liberar a memória da IA
+3304|Notas de {0} dos {1} capítulos lidos. O resto é escrito na próxima vez que você perguntar algo à IA.
+3305|Pronta, usando memória
+3306|Sem usar memória
+3307|Libere a memória para poupar bateria. Ela se prepara de novo na próxima vez que você perguntar algo.
+3308|Ela se prepara quando você pergunta algo e libera a memória depois de alguns minutos sem uso.
+3309|Liberar
+3310|Para o Kobo
+3311|Adicionar os livros de exemplo
+3312|Três clássicos e um quadrinho curto, de leitura livre, para experimentar o KoLib.
+3313|Onde você parou, seus marcadores, destaques e notas. Você escolhe para que lado cada um vai.
+3314|Onde você parou
+3315|Marcadores, destaques e notas
+3318|Mostrar a barra de páginas na lateral nestes modos
+3319|Altura da barra lateral
+3320|Se estiver desativado, o próximo quadrinho da série começa logo depois da última página.
+3321|Duração da piscada
+3322|Piscar a cada
+3323|Cor da piscada
+3324|A capa que veio com o livro.
+3325|Envie livros sem cabo, pelo navegador da web do Kobo. Escolha livros na biblioteca e toque em Para o Kobo e depois em Por Wi-Fi.
+3326|Sua biblioteca
+3327|Toque num livro para vê-lo, lê-lo ou enviá-lo ao seu Kobo. Toque e segure um para escolher vários de uma vez.
+3328|Livros, coleções e quadrinhos
+3329|Alterne entre seus livros, suas coleções e seus quadrinhos. Você também pode deslizar entre eles.
+3330|Encontrar um livro
+3331|Pesquise títulos, autores, séries e tags. Toque em ? para ver todas as formas de pesquisar.
+3332|Escolha livros, alterne entre capas e lista, ou abra Configurações e Estatísticas de leitura.
+3333|Adicione livros e quadrinhos deste dispositivo, de uma pasta ou do seu Kobo. Aqui você também pode escrever um livro novo.
+3334|Onde você parou, seus marcadores, destaques e notas, entre o KoLib e o seu Kobo. Você escolhe para que lado cada um vai.
+3335|Veja quanto você lê, no KoLib e no seu Kobo.
+3336|Seu Kobo
+3337|Conecte seu Kobo para ver o que há nele, enviar livros e fazer backup.
+3338|Envie livros por Wi-Fi para o KoLib nos seus outros celulares e tablets, ou para o seu Kobo sem cabo.
+3339|Mude a aparência do KoLib, o idioma e como os livros são lidos.
+3340|Conecte com um cabo USB-C e toque em Conectar na tela dele. O KoLib o abre aqui.
+3341|Backups e registro
+3342|O KoLib faz backup do banco de dados do seu Kobo quando ele se conecta. Os backups e o registro ficam aqui, mesmo com o Kobo desconectado.
+3343|O que há no seu Kobo
+3344|Todos os livros do seu Kobo. Toque em um para vê-lo, ou toque e segure um para escolher vários para adicionar à biblioteca ou apagar.
+3345|Livros, coleções e dispositivo
+3346|A aba Dispositivo mostra os detalhes do Kobo, o espaço livre e os backups do banco de dados.
+3347|Toque aqui antes de desconectar o Kobo, para que ele possa adicionar os livros enviados.
+3348|Faça backup do banco de dados do Kobo, veja o registro, abra Configurações ou esqueça este Kobo.
+3349|Seus outros dispositivos encontram este na mesma rede Wi-Fi, ou quando um está no ponto de acesso do outro.
+3350|Dispositivos que você pareou. Escolha livros na biblioteca e toque em Dispositivo para enviá-los.
+3351|Seus outros celulares e tablets com o KoLib aberto na mesma rede aparecem aqui. Toque em Parear para conectar um.
+3352|Envie livros ao seu Kobo sem cabo, pelo navegador da web dele.
+3353|Escolha se o ponto onde você parou num livro é compartilhado com seus outros dispositivos e se eles podem enviar com o KoLib fechado.
+3354|Escolha o idioma do KoLib.
+3355|Uma pasta de onde o KoLib adiciona livros. Procure nela de novo para adicionar os novos.
+3356|Ajuste a cor da página, a fonte, o tamanho do texto e como as páginas viram, num livro de exemplo.
+3357|Consulte palavras e receba resumos de capítulos e respostas sobre o livro que você está lendo.
+3358|Dê aos quadrinhos uma aba própria na biblioteca, com uma entrada por série.
+3359|Escolha a aparência do KoLib. A animação de abertura combina com a aparência escolhida.
+3360|Ative ou desative a animação e o som dela, ou use uma mais leve num dispositivo mais lento.
+3361|Tours
+3362|Veja estes tours de novo, cada um na próxima vez que você abrir a tela dele.
+3363|Virar a página
+3364|Toque nas bordas da página ou deslize para virá-la. Toque no meio para mostrar ou esconder estas barras.
+3365|Destaques e notas
+3366|Toque e segure uma palavra e arraste para selecionar mais; depois toque em Destacar, Nota ou Consultar.
+3367|Pesquisar e marcar
+3368|Pesquise no livro inteiro ou marque a página em que você está.
+3369|Navegar pelo livro
+3370|Arraste para ir a qualquer parte do livro. As setas vão para o capítulo anterior ou o seguinte.
+3371|Os capítulos e seus marcadores, destaques e notas.
+3372|O texto avança sozinho. Toque no meio da página para pausar.
+3373|Mantenha a tela na vertical ou na horizontal enquanto lê, ou deixe-a girar.
+3374|A fonte, o tamanho do texto, as margens, a cor da página e como as páginas viram.
+3375|Toque nas bordas da página ou deslize para virá-la. Toque no meio para mostrar ou esconder estas barras. Faça pinça ou toque duas vezes para dar zoom.
+3376|Segurar uma página
+3377|Toque e segure uma página para salvá-la, compartilhá-la ou usá-la como capa do quadrinho.
+3378|Navegar pelo quadrinho
+3379|Arraste para qualquer página. Os botões nas pontas vão para o quadrinho anterior ou o seguinte da série.
+3380|Da esquerda para a direita, da direita para a esquerda como nos mangás, ou uma tira longa. A escolha fica salva para cada série.
+3381|Mantenha a tela na vertical ou na horizontal para esta série, ou deixe-a girar.
+3382|Corta as bordas vazias das páginas, para a arte ocupar mais da tela.
+3383|Como os toques funcionam, as cores e o brilho das páginas, e mais.
+3384|Onde você leu por último
+3385|Cada livro abre onde você leu por último, no KoLib ou no Kobo.
+3386|Do Kobo para o KoLib
+3387|O KoLib abre cada livro onde você parou no Kobo.
+3388|Do KoLib para o Kobo
+3389|O Kobo abre cada livro onde você parou no KoLib.
+3390|Não sincronizar
+3391|O KoLib e o Kobo guardam cada um a sua própria posição.
+3392|Nos dois sentidos
+3393|Os novos são copiados nos dois sentidos. O que você apagar some dos dois.
+3394|Os do Kobo são copiados para o KoLib. O que for apagado no Kobo some também do KoLib. Nada no KoLib muda o Kobo.
+3395|Os do KoLib são copiados para o Kobo. O que for apagado no KoLib some também do Kobo. Nada no Kobo muda o KoLib.
+3396|O KoLib e o Kobo guardam cada um os seus.
+3397|Agora os quadrinhos ficam com seus livros. Você pode trazer a aba de volta em Configurações.
+3398|As estatísticas de leitura ficam separadas. As do KoLib e as do Kobo têm cada uma sua aba em Estatísticas de leitura.
+3399|Sincroniza onde você parou, seus marcadores, destaques e notas como definido em Sincronizar a leitura com o Kobo. Um livro novo é sincronizado depois que o Kobo o adicionar.
+3400|1 marcador ou destaque fica só no KoLib. O Kobo só os aceita em livros enviados como Kepub.
+3401|{0} marcadores e destaques ficam só no KoLib. O Kobo só os aceita em livros enviados como Kepub.
+3402|1 livro será sincronizado depois que o Kobo o adicionar. Ejete o Kobo e conecte-o de novo.
+3403|{0} livros serão sincronizados depois que o Kobo os adicionar. Ejete o Kobo e conecte-o de novo.

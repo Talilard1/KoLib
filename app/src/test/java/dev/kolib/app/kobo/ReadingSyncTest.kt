@@ -96,11 +96,11 @@ class ReadingSyncTest {
         rawQuery(sql, args).use { c -> if (c.moveToFirst()) c.getString(0) else null }
 
     /** Syncs, as the app does: the Kobo's side in one transaction, then KoLib's. */
-    private fun sync(now: Long = t1 + 60_000L): ReadingSync.Plan = onKobo { db ->
+    private fun sync(now: Long = t1 + 60_000L, choices: SyncChoices = SyncChoices()): ReadingSync.Plan = onKobo { db ->
         val src = AndroidSqlSource(db)
         val style = KoboMarkStyle.read(src)
         val reading = KoboReadingDb.read(src, book, style)!!
-        val plan = ReadingSync("kobo-1", style, now).plan(ReadingSync.Book("b", "The Sea", dir, epub, koboBook(reading), reading))
+        val plan = ReadingSync("kobo-1", style, now, choices).plan(ReadingSync.Book("b", "The Sea", dir, epub, koboBook(reading), reading))
         db.beginTransaction()
         try {
             plan.applyTo(KoboDbEditor(db))
@@ -216,6 +216,102 @@ class ReadingSyncTest {
         val again = sync()
         assertFalse(again.touchesKobo)
         assertNull(again.reader)
+    }
+
+    /** A highlight with a note made on the Kobo, in ch2. */
+    private fun koboHighlight() {
+        val tide = spanOf(CH2, "The tide came in again.")
+        onKobo { db ->
+            db.execSQL(
+                """INSERT INTO Bookmark (BookmarkID, VolumeID, ContentID, StartContainerPath, StartContainerChildIndex, StartOffset,
+                   EndContainerPath, EndContainerChildIndex, EndOffset, Text, Annotation, DateCreated, ChapterProgress, Hidden, Type, Color)
+                   VALUES ('kobo-hl', ?, ?, ?, -99, 4, ?, -99, 13, 'tide came', 'note!', '2026-02-01T10:00:00.000', 0.5, 'false', 'note', 2)""",
+                arrayOf<Any?>(book, "$book!!OEBPS/Text/ch2.xhtml", "span#" + tide.replace(".", "\\."), "span#" + tide.replace(".", "\\.")),
+            )
+        }
+    }
+
+    /** KoLib's note in ch2 and bookmark in ch3, made at t0. */
+    private fun koLibMarks() {
+        val note = Annotation(
+            id = "aaaaaaaa-0000-4000-8000-000000000001", path = "OEBPS/Text/ch2.xhtml", start = "3/1:0", end = "3/1:20",
+            text = "Gulls cried over it.", occurrence = 0, color = HighlightColor.GREEN, note = "birds", created = t0, modified = t0,
+        )
+        val mark = ReaderPosition("OEBPS/Text/ch3.xhtml", "chars=5", 0.3f, 0.8f, "there.", "Three", at = t0, id = "bbbbbbbb-0000-4000-8000-000000000002")
+        val place = ReaderPosition("OEBPS/Text/ch2.xhtml", "3/1:0", 0.5f, 0.5f, "The tide came in again. It always did.", "Two", at = t1)
+        ReaderStore(dir).save(ReaderState(place, listOf(mark), listOf(note)))
+    }
+
+    @Test
+    fun aPlaceChosenToComeFromTheKoboComesEvenWhenKoLibWasReadLater() {
+        // Read on the Kobo first (ch3), then later in KoLib (ch2): KoLib's would win, but the Kobo's is chosen.
+        koboDb(status = 1, lastRead = t0, bookmark = "OEBPS/Text/ch3.xhtml#" + spanOf(CH3, "Second one here."))
+        koLibMarks()
+        val plan = sync(choices = SyncChoices(place = PlaceWay.FROM_KOBO, marks = MarksWay.OFF))
+        assertTrue(plan.counts.placeFromKobo)
+        assertFalse(plan.counts.placeToKobo)
+        assertTrue(plan.add.isEmpty())
+        assertEquals("OEBPS/Text/ch3.xhtml", ReaderPosition.from(reader().getJSONObject("position"))!!.path)
+        // In step now: nothing next time.
+        assertNull(sync(choices = SyncChoices(place = PlaceWay.FROM_KOBO, marks = MarksWay.OFF)).reader)
+    }
+
+    @Test
+    fun aPlaceChosenToGoToTheKoboGoesEvenWhenTheKoboWasReadLater() {
+        // Read in KoLib first (ch2), then later on the Kobo (ch3): the Kobo's would win, but KoLib's is chosen.
+        koboDb(status = 1, lastRead = t1 + 30_000L, bookmark = "OEBPS/Text/ch3.xhtml#" + spanOf(CH3, "Second one here."))
+        koLibMarks()
+        val plan = sync(choices = SyncChoices(place = PlaceWay.TO_KOBO, marks = MarksWay.OFF))
+        assertTrue(plan.counts.placeToKobo)
+        assertFalse(plan.counts.placeFromKobo)
+        onKobo { db ->
+            assertEquals("OEBPS/Text/ch2.xhtml#" + spanOf(CH2, "The tide came in again."), db.one("SELECT ChapterIDBookmarked FROM content WHERE ContentID = ?", book))
+        }
+        assertFalse(sync(choices = SyncChoices(place = PlaceWay.TO_KOBO, marks = MarksWay.OFF)).touchesKobo)
+    }
+
+    @Test
+    fun marksFromTheKoboOnlyComeInAndChangeNothingOnTheKobo() {
+        koboDb(lastRead = t0)
+        koLibMarks()
+        koboHighlight()
+        val plan = sync(choices = SyncChoices(place = PlaceWay.OFF, marks = MarksWay.FROM_KOBO))
+        assertEquals(1, plan.counts.fromKobo)
+        assertEquals(0, plan.counts.toKobo)
+        assertFalse(plan.touchesKobo)
+        val r = reader()
+        val ids = (0 until r.getJSONArray("annotations").length()).map { r.getJSONArray("annotations").getJSONObject(it).getString("id") }
+        assertTrue("kobo-hl" in ids)
+        assertTrue("aaaaaaaa-0000-4000-8000-000000000001" in ids)
+        onKobo { db -> assertNull(db.one("SELECT BookmarkID FROM Bookmark WHERE BookmarkID = ?", "aaaaaaaa-0000-4000-8000-000000000001")) }
+    }
+
+    @Test
+    fun marksToTheKoboOnlyGoOutAndChangeNothingInKoLib() {
+        koboDb(lastRead = t0)
+        koLibMarks()
+        koboHighlight()
+        val plan = sync(choices = SyncChoices(place = PlaceWay.OFF, marks = MarksWay.TO_KOBO))
+        assertEquals(2, plan.counts.toKobo)
+        assertEquals(0, plan.counts.fromKobo)
+        val state = ReaderStore(dir).load()
+        assertTrue(state.annotations.none { it.id == "kobo-hl" })
+        onKobo { db ->
+            assertEquals("note", db.one("SELECT Type FROM Bookmark WHERE BookmarkID = ?", "aaaaaaaa-0000-4000-8000-000000000001"))
+            // The Kobo's own highlight is left there.
+            assertEquals("note", db.one("SELECT Type FROM Bookmark WHERE BookmarkID = ?", "kobo-hl"))
+        }
+    }
+
+    @Test
+    fun nothingIsSyncedWithBothOff() {
+        koboDb(status = 1, lastRead = t0, bookmark = "OEBPS/Text/ch3.xhtml#" + spanOf(CH3, "Second one here."))
+        koLibMarks()
+        koboHighlight()
+        val plan = sync(choices = SyncChoices(place = PlaceWay.OFF, marks = MarksWay.OFF))
+        assertFalse(plan.touchesKobo)
+        assertNull(plan.reader)
+        assertFalse(plan.counts.anything)
     }
 
     @Test

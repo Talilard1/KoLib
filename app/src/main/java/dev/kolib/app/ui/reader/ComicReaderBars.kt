@@ -1,5 +1,6 @@
 package dev.kolib.app.ui.reader
 
+import dev.kolib.app.ui.tour.tourPlace
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -172,7 +173,7 @@ internal fun ComicBars(
                     exit = slideOutHorizontally(BarsSlide) { if (verticalLeft) -it else it } + fadeOut(BarsFade),
                 ) {
                     Box(Modifier.fillMaxHeight().padding(horizontal = 8.dp), contentAlignment = Alignment.BottomCenter) {
-                        UprightNavigator(nav, bg, Modifier.fillMaxHeight(verticalHeight).padding(vertical = if (wide) 24.dp else 8.dp))
+                        UprightNavigator(nav, bg, Modifier.fillMaxHeight(verticalHeight).padding(vertical = if (wide) 24.dp else 8.dp).tourPlace("comic-slider"))
                     }
                 }
             }
@@ -185,17 +186,17 @@ internal fun ComicBars(
             exit = slideOutVertically(BarsSlide) { it } + fadeOut(BarsFade),
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (!vertical) LevelNavigator(nav, bg, Modifier.padding(horizontal = if (wide) 24.dp else 8.dp))
+                if (!vertical) LevelNavigator(nav, bg, Modifier.padding(horizontal = if (wide) 24.dp else 8.dp).tourPlace("comic-slider"))
                 Row(
                     Modifier.fillMaxWidth().background(bg).pointerInput(Unit) {}.navigationBarsPadding().padding(horizontal = 8.dp)
                         .testTag("comic-bottom-bar"),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    IconButton(onClick = onMode, modifier = Modifier.testTag("comic-mode-button")) { Icon(modeIcon, tr("Reading mode")) }
-                    IconButton(onClick = onRotation, modifier = Modifier.testTag("comic-rotation-button")) { Icon(rotationIcon, tr("Rotation")) }
-                    IconButton(onClick = onCrop, modifier = Modifier.testTag("comic-crop-button")) { CropIcon(cropping) }
-                    IconButton(onClick = onSettings, modifier = Modifier.testTag("comic-settings-button")) { Icon(Icons.Rounded.Settings, tr("Settings")) }
+                    IconButton(onClick = onMode, modifier = Modifier.testTag("comic-mode-button").tourPlace("comic-mode")) { Icon(modeIcon, tr("Reading mode")) }
+                    IconButton(onClick = onRotation, modifier = Modifier.testTag("comic-rotation-button").tourPlace("comic-rotation")) { Icon(rotationIcon, tr("Rotation")) }
+                    IconButton(onClick = onCrop, modifier = Modifier.testTag("comic-crop-button").tourPlace("comic-crop")) { CropIcon(cropping) }
+                    IconButton(onClick = onSettings, modifier = Modifier.testTag("comic-settings-button").tourPlace("comic-settings")) { Icon(Icons.Rounded.Settings, tr("Settings")) }
                 }
             }
         }

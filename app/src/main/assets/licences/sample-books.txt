@@ -1,0 +1,15 @@
+Sample books
+
+KoLib comes with three classics to try it with:
+
+  Alice's Adventures in Wonderland, by Lewis Carroll (1865)
+  Persuasion, by Jane Austen (1817)
+  The Wisdom of Father Brown, by G. K. Chesterton (1914)
+
+Their texts are in the public domain. Their covers were made with
+KoLib's cover designer.
+
+It also comes with The Lighthouse Cat, a short comic made for KoLib.
+
+The covers and the comic are part of KoLib, under the same licence as
+the app: the GNU General Public License 3.0.

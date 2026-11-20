@@ -2,6 +2,7 @@
 
 package dev.kolib.app.ui.library
 
+import dev.kolib.app.ui.tour.tourPlace
 import dev.kolib.app.ui.components.seriesSearch
 import dev.kolib.app.ui.components.DetailText
 import dev.kolib.app.ui.components.titleSearch
@@ -54,6 +55,7 @@ import androidx.compose.material.icons.automirrored.outlined.NoteAdd
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Eject
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.CollectionsBookmark
 import androidx.compose.material.icons.outlined.ContentCopy
@@ -190,11 +192,15 @@ internal fun PhoneLibraryScreen(
     onDuplicate: (List<String>) -> Unit,
     onAbout: () -> Unit,
     onStats: () -> Unit = {},
+    onEject: (() -> Unit)? = null,
+    onAddSamples: (() -> Unit)? = null,
     onTheme: (() -> Unit)?,
     onMarkFinished: (List<String>) -> Unit = {},
     onMarkUnread: (List<String>) -> Unit = {},
     onContinueFromKobo: ((String, KoboBook) -> Unit)? = null,
     onSyncReading: ((List<String>) -> Unit)? = null,
+    /** Asks to sync the reading of every book in both the library and on the Kobo. */
+    onSyncAll: (() -> Unit)? = null,
     koboNotice: KoboNotice? = null,
     transfers: List<dev.kolib.app.link.Transfer> = emptyList(),
     /** The library's comics (in the Comics tab, not with the books), and what can be done with them. */
@@ -291,13 +297,6 @@ internal fun PhoneLibraryScreen(
     val chosen = { visible.filter { browse.picked.containsKey(it.id) }.map { it.id } }
     // Syncing reading with the Kobo: every book in both, or ones picked.
     val onBoth = remember(books) { books.filter { it.koboPath != null && it.canReadFromKoboPlace } }
-    var askSync by remember { mutableStateOf(false) }
-    if (askSync && onSyncReading != null) SyncReadingDialog(
-        count = onBoth.size,
-        onAll = { askSync = false; onSyncReading(onBoth.map { it.id }) },
-        onChoose = { askSync = false; browse.selecting = true },
-        onDismiss = { askSync = false },
-    )
     val onTap: (LibraryBook) -> Unit = { b -> if (browse.selecting) browse.togglePicked(b.id) else browse.selectedId = b.id }
     // Holding a book chooses it, and every book from the one chosen last to it.
     val onHold: (LibraryBook) -> Unit = { b -> browse.holdPick(b.id, visible.map { it.id }) }
@@ -328,6 +327,9 @@ internal fun PhoneLibraryScreen(
                     KoLibMark(Modifier.size(34.dp), glow = true)
                     Spacer(Modifier.width(10.dp))
                     Text(tr("Library"), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+                    onEject?.let { eject ->
+                        IconButton(onClick = eject, modifier = Modifier.testTag("library-eject")) { Icon(Icons.Outlined.Eject, tr("Eject the Kobo")) }
+                    }
                     dev.kolib.app.ui.ai.LocalOpenAiChat.current?.takeIf { dev.kolib.app.ui.ai.aiButtonShown() }?.let { open ->
                         IconButton(onClick = open, modifier = Modifier.testTag("library-ai")) { dev.kolib.app.ui.ai.AiButtonIcon(tr("AI chat")) }
                     }
@@ -363,22 +365,25 @@ internal fun PhoneLibraryScreen(
                             else -> tr("Search {0}", Fmt.plural(notComics.size, "book"))
                         },
                         onHelp = { showHelp = true },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f).tourPlace("library-search"),
                     )
+                    onEject?.let { eject ->
+                        IconButton(onClick = eject, modifier = Modifier.size(40.dp).testTag("library-eject")) { Icon(Icons.Outlined.Eject, tr("Eject the Kobo")) }
+                    }
                     dev.kolib.app.ui.ai.LocalOpenAiChat.current?.takeIf { dev.kolib.app.ui.ai.aiButtonShown() }?.let { open ->
                         IconButton(onClick = open, modifier = Modifier.size(40.dp).testTag("library-ai")) { dev.kolib.app.ui.ai.AiButtonIcon(tr("AI chat")) }
                     }
-                    PhoneListMenu(
+                    Box(Modifier.tourPlace("library-menu")) { PhoneListMenu(
                         grid = browse.grid,
                         onSelect = { browse.selecting = true },
                         onGrid = { browse.grid = it },
                         more = listOfNotNull(
-                            onSyncReading?.takeIf { onBoth.isNotEmpty() }?.let { MenuEntry(tr("Sync reading with the Kobo"), Icons.Outlined.Sync) { askSync = true } },
+                            onSyncAll?.takeIf { onBoth.isNotEmpty() }?.let { MenuEntry(tr("Sync reading with the Kobo"), Icons.Outlined.Sync, it) },
                             onTheme?.let { MenuEntry(tr("Settings"), Icons.Outlined.Settings, it) },
                             MenuEntry(tr("Reading stats"), Icons.Outlined.BarChart, onStats),
                             MenuEntry(tr("About KoLib"), Icons.Outlined.Info, onAbout),
                         ),
-                    )
+                    ) }
                 }
             }
             KoboNoticeBar(koboNotice)
@@ -386,7 +391,7 @@ internal fun PhoneLibraryScreen(
             if (job != null && !job.finished) JobStrip(job, onShowJob)
             dev.kolib.app.ui.ocr.OcrStrip(onShow = { id -> browse.selectedId = id })
             if (books.isEmpty()) {
-                EmptyLibrary(koboConnected, onAddFiles, onAddFromKobo, onNewBook)
+                EmptyLibrary(koboConnected, onAddFiles, onAddFromKobo, onNewBook, onAddSamples)
                 return@Column
             }
             // Swipe left or right for the other tab, or tap it. Choosing books (from anywhere) shows the Books tab.
@@ -401,13 +406,13 @@ internal fun PhoneLibraryScreen(
             LaunchedEffect(browse.selecting) { if (browse.selecting) browse.tab = 0 }
             val goTo = rememberTabTap(pager)
             if (!browse.selecting && browse.comicSelecting == null) {
-                PrimaryTabRow(selectedTabIndex = pager.currentPage.coerceAtMost(tabCount - 1), containerColor = Color.Transparent) {
+                PrimaryTabRow(selectedTabIndex = pager.currentPage.coerceAtMost(tabCount - 1), containerColor = Color.Transparent, modifier = Modifier.tourPlace("library-tabs")) {
                     Tab(selected = pager.currentPage == 0, onClick = { goTo(0) }, text = { Text(tr("Books")) })
                     Tab(selected = pager.currentPage == 1, onClick = { goTo(1) }, text = { Text(tr("Collections")) })
                     if (tabCount == 3) Tab(selected = pager.currentPage == 2, onClick = { goTo(2) }, text = { Text(tr("Comics")) }, modifier = Modifier.testTag("tab-comics"))
                 }
             }
-            TabPages(pager, Modifier.fillMaxSize(), swipe = !browse.selecting && browse.comicSelecting == null) { page ->
+            TabPages(pager, Modifier.fillMaxSize().tourPlace("library-shelf"), swipe = !browse.selecting && browse.comicSelecting == null) { page ->
                 when (page) {
                     2 -> LibraryComicsTab(comics, covers, browse, koboConnected, here, comicActions) { _, _, _ -> }
                     1 -> LibraryCollectionsTab(books, covers, browse, koboConnected, reading, here, onSend) { _, _, _ -> }
@@ -424,7 +429,8 @@ internal fun PhoneLibraryScreen(
                 onClick = { addSheet = true },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .tourPlace("library-add"),
             )
         }
         if (browse.selecting) {

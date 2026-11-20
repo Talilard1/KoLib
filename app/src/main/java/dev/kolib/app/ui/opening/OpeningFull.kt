@@ -83,15 +83,15 @@ import kotlinx.coroutines.withContext
 internal fun FullOpening(time: () -> Float, alpha: () -> Float, modifier: Modifier) {
     val art = remember { FullArt() }
     val measurer = rememberTextMeasurer()
-    val family = remember { FontFamily(Font(R.font.eb_garamond_kolib)) }
+    val font = remember { nameFont(OpeningColours.look.lettering) }
     Canvas(modifier.fillMaxSize()) {
         val t = time()
         val alpha = alpha()
         val minSide = min(size.width, size.height)
         val markW = (minSide * 0.36f).coerceAtMost(250.dp.toPx())
         val unit = markW / 52f
-        val nameSize = markW * 0.40f
-        val style = TextStyle(fontFamily = family, fontSize = nameSize.toSp(), letterSpacing = 0.02.em)
+        val nameSize = markW * 0.40f * font.scale
+        val style = TextStyle(fontFamily = font.family, fontWeight = font.weight, fontSize = nameSize.toSp(), letterSpacing = font.spacing.em)
         val name = art.name(measurer, style)
         // The mark and the name under it, centred together.
         val markH = 43.3f * unit
@@ -126,7 +126,7 @@ private class FullArt {
     }
     /** One gold for the whole mark, light at the top left to deep at the foot. */
     val gold = Brush.linearGradient(
-        0f to Color(0xFFFBE6BF), 0.5f to Color(0xFFEBC07E), 1f to GoldDeep,
+        0f to MarkLight, 0.5f to MarkMid, 1f to GoldDeep,
         start = Offset(14f, 8f), end = Offset(48f, 60f),
     )
     /** For the mark's glow: its line, blurred, added onto what's under it. */

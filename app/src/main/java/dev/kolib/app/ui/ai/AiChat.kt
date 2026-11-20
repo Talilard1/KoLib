@@ -436,10 +436,10 @@ fun ColumnScope.ChatPane(session: ChatSession, place: ChatPlace, hub: AiHub, onS
             IconButton(
                 onClick = {
                     hub.unload()
-                    android.widget.Toast.makeText(context, tr("Unloaded. It loads again when you next ask it something."), android.widget.Toast.LENGTH_SHORT).show()
+                    android.widget.Toast.makeText(context, tr("Memory freed. The AI gets ready again the next time you ask it something."), android.widget.Toast.LENGTH_SHORT).show()
                 },
                 modifier = Modifier.testTag("chat-unload"),
-            ) { Icon(Icons.Outlined.Eject, tr("Unload the AI"), tint = MaterialTheme.colorScheme.onSurfaceVariant) }
+            ) { Icon(Icons.Outlined.Eject, tr("Free the AI's memory"), tint = MaterialTheme.colorScheme.onSurfaceVariant) }
         }
         InstructionsMenu(session, place, hub, asking, onSettings)
     }
@@ -740,7 +740,7 @@ private fun BookSwitches(session: ChatSession, place: ChatPlace.Book, hub: AiHub
             is dev.kolib.app.ai.NotesWriter.Status.Writing -> (if (status.chapter.isBlank()) tr("Writing a note on a chapter…") else tr("Writing a note on “{0}”…", status.chapter))
             is dev.kolib.app.ai.NotesWriter.Status.Waiting -> when (status.why) {
                 dev.kolib.app.ai.NotesWriter.Wait.CHARGER -> tr("Notes on {0} of {1} chapters read. The rest wait for the charger.", done, of)
-                dev.kolib.app.ai.NotesWriter.Wait.UNLOADED -> tr("Notes on {0} of {1} chapters read. The rest wait till the AI is asked something.", done, of)
+                dev.kolib.app.ai.NotesWriter.Wait.UNLOADED -> tr("Notes on {0} of {1} chapters read. The rest are written the next time you ask the AI something.", done, of)
                 else -> tr("Notes on {0} of {1} chapters read. The rest are written while you read.", done, of)
             }
             else -> if (of == 0) tr("Notes are written on each chapter as you finish it.") else tr("Notes on {0} of {1} chapters read.", done, of)

@@ -1,5 +1,7 @@
 package dev.kolib.app.ui.library
 
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
@@ -66,7 +68,7 @@ class SyncReadingUiTest {
         var all = 0
         var choose = 0
         var cancelled = 0
-        compose.setContent { AppSurface { SyncReadingDialog(3, onAll = { all++ }, onChoose = { choose++ }, onDismiss = { cancelled++ }) } }
+        compose.setContent { AppSurface { SyncReadingDialog(3, all = true, onSync = { all++ }, onChoose = { choose++ }, onDismiss = { cancelled++ }) } }
         compose.onNodeWithText("3 books are in your library and on the Kobo.", substring = true).assertExists()
         compose.onNodeWithTag("sync-reading-all").performClick()
         compose.onNodeWithText("Choose books").performClick()
@@ -76,8 +78,37 @@ class SyncReadingUiTest {
 
     @Test
     fun oneBookIsSaidSo() {
-        compose.setContent { AppSurface { SyncReadingDialog(1, onAll = {}, onChoose = {}, onDismiss = {}) } }
+        compose.setContent { AppSurface { SyncReadingDialog(1, all = true, onSync = {}, onChoose = {}, onDismiss = {}) } }
         compose.onNodeWithText("1 book is in your library and on the Kobo.", substring = true).assertExists()
+    }
+
+    @Test
+    fun theWaysAreChosenAndKeptForNextTime() {
+        val context = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
+        dev.kolib.app.kobo.SyncChoices.save(context, dev.kolib.app.kobo.SyncChoices())
+        var synced = 0
+        compose.setContent { AppSurface { SyncReadingDialog(2, all = false, onSync = { synced++ }, onChoose = null, onDismiss = {}) } }
+        compose.onNodeWithText("2 books selected", substring = true).assertExists()
+        // Books chosen already: no Choose books.
+        compose.onAllNodesWithText("Choose books").assertCountEquals(0)
+        // Where you're up to from the Kobo; bookmarks and notes not at all.
+        compose.onAllNodesWithText("From the Kobo to KoLib")[0].performScrollTo().performClick()
+        compose.onAllNodesWithText("Don't sync")[1].performScrollTo().performClick()
+        compose.onNodeWithTag("sync-reading-all").performClick()
+        assertEquals(1, synced)
+        assertEquals(
+            dev.kolib.app.kobo.SyncChoices(dev.kolib.app.kobo.PlaceWay.FROM_KOBO, dev.kolib.app.kobo.MarksWay.OFF),
+            dev.kolib.app.kobo.SyncChoices.load(context),
+        )
+    }
+
+    @Test
+    fun withBothOffThereIsNothingToSync() {
+        val context = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
+        dev.kolib.app.kobo.SyncChoices.save(context, dev.kolib.app.kobo.SyncChoices(dev.kolib.app.kobo.PlaceWay.OFF, dev.kolib.app.kobo.MarksWay.OFF))
+        compose.setContent { AppSurface { SyncReadingDialog(2, all = true, onSync = {}, onChoose = {}, onDismiss = {}) } }
+        compose.onNodeWithTag("sync-reading-all").assertIsNotEnabled()
+        dev.kolib.app.kobo.SyncChoices.save(context, dev.kolib.app.kobo.SyncChoices())
     }
 
     @Test

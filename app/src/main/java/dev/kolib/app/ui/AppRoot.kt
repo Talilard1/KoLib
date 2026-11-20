@@ -1,5 +1,9 @@
 package dev.kolib.app.ui
 
+import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.material.icons.outlined.Explore
+import dev.kolib.app.ui.tour.Tours
+import dev.kolib.app.ui.tour.tourPlace
 import dev.kolib.app.UsbKobo
 import dev.kolib.app.tr
 import android.content.ActivityNotFoundException
@@ -144,6 +148,11 @@ fun AppRoot(
     /** The text editor's tour has been given: it is the first time the editor is opened. */
     editorTourSeen: Boolean = true,
     onEditorTourSeen: () -> Unit = {},
+    /** The tours of the screens given already (see Tours): each is given the first time its screen opens. Null gives none. */
+    toursSeen: Set<String>? = null,
+    onTourSeen: (String) -> Unit = {},
+    /** Every tour is to be given again, from Settings. */
+    onShowToursAgain: (() -> Unit)? = null,
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
     val folderScan by libraryVm.folderScan.collectAsStateWithLifecycle()
@@ -358,7 +367,7 @@ fun AppRoot(
                 section = Section.LIBRARY
                 libraryBrowse.selectedId = null
                 libraryBrowse.selecting = true
-                localMessage = tr("Select books, then tap Send to Kobo → Over Wi-Fi.")
+                localMessage = tr("Choose books, then tap To Kobo and Over Wi-Fi.")
             },
         )
     }
@@ -490,6 +499,20 @@ fun AppRoot(
     val linkTransfers by link.transfers.collectAsStateWithLifecycle()
     val noticeForLibrary = libraryNotice(connection, state.usbKobo, state.syncing, state.afterConnectRunning, justUnplugged)
 
+    // The first time KoLib starts, once the introduction is done: the sample books, if the library has none.
+    LaunchedEffect(introSeen, toursSeen?.contains(Tours.SAMPLES)) {
+        if (introSeen && toursSeen != null && Tours.SAMPLES !in toursSeen) libraryVm.addSamples(onlyIfEmpty = true) { onTourSeen(Tours.SAMPLES) }
+    }
+    // The tour of the section showing, the first time it's opened, with nothing over it. The library's waits for its books.
+    val tourPlaces = remember { dev.kolib.app.ui.tour.TourPlaces() }
+    val seenTours = toursSeen
+    val koboShowing = koboView != null && (connection is Connection.Connected || connection is Connection.Waiting)
+    val sectionTour = if (seenTours == null || !introSeen || readingSetup || overlay != null || showLook) null else when (section) {
+        Section.LIBRARY -> Tours.LIBRARY.takeIf { books.isNotEmpty() && Tours.SAMPLES in seenTours }
+        Section.KOBO -> if (koboShowing) Tours.KOBO else Tours.KOBO_CONNECT
+        Section.DEVICES -> Tours.DEVICES
+    }?.takeIf { it !in seenTours }
+
     CompositionLocalProvider(dev.kolib.app.ui.ai.LocalAiHost provides aiHost) {
     Box(
         Modifier
@@ -535,6 +558,10 @@ fun AppRoot(
             )
             current == "stats" -> {
                 val log by libraryVm.readingLog.books.collectAsStateWithLifecycle()
+                val koboInfo = koboView?.info
+                val koboDays by androidx.compose.runtime.produceState(emptyMap<String, Int>(), koboInfo, koboView?.readAtMillis) {
+                    value = koboInfo?.let { info -> kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { vm.koboReadingDays(info) } } ?: emptyMap()
+                }
                 ReadingStatsScreen(
                     books = books,
                     readingHere = readingHere,
@@ -542,6 +569,7 @@ fun AppRoot(
                     kobo = koboView?.snapshot,
                     koboLive = koboView?.live == true,
                     onBack = { overlay = null },
+                    koboDays = koboDays,
                 )
             }
             current == "backups" -> BackupsScreen(
@@ -635,7 +663,7 @@ fun AppRoot(
                     )
                 }
             }
-            else -> AppFrame(
+            else -> CompositionLocalProvider(dev.kolib.app.ui.tour.LocalTourPlaces provides tourPlaces.takeIf { sectionTour != null }) { AppFrame(
                 section = section,
                 onSection = { section = it },
                 koboConnected = liveSession != null,
@@ -645,8 +673,9 @@ fun AppRoot(
             ) {
                 CompositionLocalProvider(dev.kolib.app.ui.link.LocalLinkActions provides linkActions, dev.kolib.app.ui.ai.LocalOpenAiChat provides { aiPanel.toggle() }) {
                 when (section) {
-                    Section.DEVICES -> dev.kolib.app.ui.link.DevicesScreen(link, devicesActions)
+                    Section.DEVICES -> dev.kolib.app.ui.link.DevicesScreen(link, devicesActions, onEject = if (liveSession != null) ({ showEject = true }) else null)
                     Section.LIBRARY -> CompositionLocalProvider(dev.kolib.app.ui.ocr.LocalOcrActions provides ocrActions) { LibraryScreen(
+                        onAddSamples = { libraryVm.addSamples() },
                         books = books,
                         covers = libraryVm.covers,
                         browse = libraryBrowse,
@@ -674,6 +703,7 @@ fun AppRoot(
                         onNewBook = { showNewBook = true },
                         onAbout = { overlay = "about" },
                         onStats = { overlay = "stats" },
+                        onEject = if (liveSession != null) ({ showEject = true }) else null,
                         onMerge = { ids -> mergeIds = ids },
                         onSplit = { id -> splitId = id },
                         onExport = { ids -> exportIds = ids },
@@ -759,11 +789,24 @@ fun AppRoot(
                     } }
                 }
                 }
-            }
+            } }
         }
         // The AI's window (or its bubble), over whatever screen is showing: about the book open, or the library.
         val libraryPlace = remember(books, readingHere) { dev.kolib.app.ui.ai.ChatPlace.Library(books, readingHere) { aiHost.library } }
         dev.kolib.app.ui.ai.AiLayer(aiHost.book ?: libraryPlace)
+        sectionTour?.let { name ->
+            androidx.compose.runtime.key(name) {
+                val stops = remember(name) {
+                    when (name) {
+                        Tours.LIBRARY -> Tours.library()
+                        Tours.KOBO -> Tours.kobo()
+                        Tours.KOBO_CONNECT -> Tours.koboConnect()
+                        else -> Tours.devices()
+                    }
+                }
+                dev.kolib.app.ui.tour.Tour(stops, tourPlaces, onDone = { onTourSeen(name) })
+            }
+        }
         // Got ready as KoLib opens, if asked to be: the model opened and the library read ahead, in the background.
         val aiApp = androidx.compose.ui.platform.LocalContext.current.applicationContext as dev.kolib.app.KoLibApp
         val aiSettings by aiApp.ai.settings.collectAsStateWithLifecycle()
@@ -1040,6 +1083,9 @@ fun AppRoot(
             onComicsTab = { libraryBrowse.comicsTab = it },
             seriesInPlace = libraryBrowse.seriesInPlace,
             onSeriesInPlace = { libraryBrowse.openSeriesInPlace(it) },
+            tour = toursSeen?.let { Tours.SETTINGS !in it } == true,
+            onTourDone = { onTourSeen(Tours.SETTINGS) },
+            onShowTours = onShowToursAgain?.let { again -> { showLook = false; again() } },
         )
         if (showAi) dev.kolib.app.ui.ai.AiSetupDialog(onDismiss = { showAi = false })
         // A newer KoLib, when there is one (or what a look for one found, when it was asked for). It's looked for
@@ -1174,6 +1220,7 @@ internal fun AppFrame(
                     NavigationRailItem(
                         selected = section == Section.LIBRARY,
                         onClick = { onSection(Section.LIBRARY) },
+                        modifier = Modifier.tourPlace("nav-library"),
                         icon = libraryIcon,
                         label = { Text(tr("Library")) },
                         colors = itemColors,
@@ -1181,6 +1228,7 @@ internal fun AppFrame(
                     NavigationRailItem(
                         selected = section == Section.KOBO,
                         onClick = { onSection(Section.KOBO) },
+                        modifier = Modifier.tourPlace("nav-kobo"),
                         icon = koboIcon,
                         label = { Text(tr("Kobo")) },
                         colors = itemColors,
@@ -1188,6 +1236,7 @@ internal fun AppFrame(
                     NavigationRailItem(
                         selected = section == Section.DEVICES,
                         onClick = { onSection(Section.DEVICES) },
+                        modifier = Modifier.tourPlace("nav-devices"),
                         icon = devicesIcon,
                         label = { Text(tr("Devices")) },
                         colors = itemColors,
@@ -1197,6 +1246,7 @@ internal fun AppFrame(
                         NavigationRailItem(
                             selected = false,
                             onClick = onLook,
+                            modifier = Modifier.tourPlace("nav-settings"),
                             icon = { Icon(Icons.Outlined.Settings, null) },
                             label = { dev.kolib.app.ui.components.FittedText(tr("Settings"), style = MaterialTheme.typography.labelMedium, smallest = 0.7f) },
                             colors = itemColors,
@@ -1242,6 +1292,7 @@ internal fun AppFrame(
                             NavigationBarItem(
                                 selected = section == Section.LIBRARY,
                                 onClick = { onSection(Section.LIBRARY) },
+                                modifier = Modifier.tourPlace("nav-library"),
                                 icon = libraryIcon,
                                 label = { Text(tr("Library")) },
                                 colors = itemColors,
@@ -1249,6 +1300,7 @@ internal fun AppFrame(
                             NavigationBarItem(
                                 selected = section == Section.KOBO,
                                 onClick = { onSection(Section.KOBO) },
+                                modifier = Modifier.tourPlace("nav-kobo"),
                                 icon = koboIcon,
                                 label = { Text(tr("Kobo")) },
                                 colors = itemColors,
@@ -1256,6 +1308,7 @@ internal fun AppFrame(
                             NavigationBarItem(
                                 selected = section == Section.DEVICES,
                                 onClick = { onSection(Section.DEVICES) },
+                                modifier = Modifier.tourPlace("nav-devices"),
                                 icon = devicesIcon,
                                 label = { Text(tr("Devices")) },
                                 colors = itemColors,
@@ -1298,13 +1351,22 @@ fun LookDialog(
     /** On a wide screen, a series opens in place of the comics' shelf rather than beside it. */
     seriesInPlace: Boolean = false,
     onSeriesInPlace: (Boolean) -> Unit = {},
+    /** The tour of Settings is given: it's the first time they're opened. */
+    tour: Boolean = false,
+    onTourDone: () -> Unit = {},
+    /** Gives every tour again, each the next time its screen opens (null: not offered here). */
+    onShowTours: (() -> Unit)? = null,
 ) {
+    val scroll = rememberScrollState()
+    val places = remember { dev.kolib.app.ui.tour.TourPlaces() }
+    var touring by remember { mutableStateOf(tour) }
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Outlined.Settings, null) },
         title = { Text(tr("Settings")) },
         text = {
-            Column(Modifier.verticalScroll(rememberScrollState())) {
+            CompositionLocalProvider(dev.kolib.app.ui.tour.LocalTourPlaces provides places.takeIf { touring }) {
+            Column(Modifier.tourPlace("settings-view").verticalScroll(scroll)) {
                 if (onLanguage != null) {
                     val context = androidx.compose.ui.platform.LocalContext.current
                     val language = remember { dev.kolib.app.AppLanguage.nativeName(dev.kolib.app.AppLanguage.current(context)) }
@@ -1313,7 +1375,8 @@ fun LookDialog(
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(12.dp))
                             .clickable(onClick = onLanguage)
-                            .padding(vertical = 10.dp, horizontal = 4.dp),
+                            .padding(vertical = 10.dp, horizontal = 4.dp)
+                            .tourPlace("settings-language"),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Icon(Icons.Outlined.Language, null, Modifier.padding(horizontal = 10.dp))
@@ -1326,17 +1389,19 @@ fun LookDialog(
                     HorizontalDivider(Modifier.padding(vertical = 10.dp))
                 }
                 if (onChangeFolder != null) {
-                    Row(Modifier.fillMaxWidth().padding(vertical = 4.dp, horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Outlined.Folder, null, Modifier.padding(horizontal = 10.dp))
-                        Spacer(Modifier.width(4.dp))
-                        Column(Modifier.weight(1f)) {
-                            Text(tr("Books folder"), style = MaterialTheme.typography.titleSmall)
-                            Text(booksFolder ?: tr("None chosen yet"), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Column(Modifier.tourPlace("settings-folder")) {
+                        Row(Modifier.fillMaxWidth().padding(vertical = 4.dp, horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Outlined.Folder, null, Modifier.padding(horizontal = 10.dp))
+                            Spacer(Modifier.width(4.dp))
+                            Column(Modifier.weight(1f)) {
+                                Text(tr("Books folder"), style = MaterialTheme.typography.titleSmall)
+                                Text(booksFolder ?: tr("None chosen yet"), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
                         }
-                    }
-                    Row(Modifier.fillMaxWidth().padding(start = 44.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        TextButton(onClick = onChangeFolder) { Text(if (booksFolder == null) tr("Choose") else tr("Change")) }
-                        if (booksFolder != null && onRescanFolder != null) TextButton(onClick = onRescanFolder) { Text(tr("Look for new books")) }
+                        Row(Modifier.fillMaxWidth().padding(start = 44.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            TextButton(onClick = onChangeFolder) { Text(if (booksFolder == null) tr("Choose") else tr("Change")) }
+                            if (booksFolder != null && onRescanFolder != null) TextButton(onClick = onRescanFolder) { Text(tr("Look for new books")) }
+                        }
                     }
                     HorizontalDivider(Modifier.padding(vertical = 10.dp))
                 }
@@ -1346,7 +1411,8 @@ fun LookDialog(
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(12.dp))
                             .clickable(onClick = onReadingSetup)
-                            .padding(vertical = 10.dp, horizontal = 4.dp),
+                            .padding(vertical = 10.dp, horizontal = 4.dp)
+                            .tourPlace("settings-reading"),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Icon(Icons.AutoMirrored.Outlined.MenuBook, null, Modifier.padding(horizontal = 10.dp))
@@ -1365,7 +1431,8 @@ fun LookDialog(
                             .clip(RoundedCornerShape(12.dp))
                             .clickable(onClick = onAi)
                             .padding(vertical = 10.dp, horizontal = 4.dp)
-                            .testTag("settings-ai"),
+                            .testTag("settings-ai")
+                            .tourPlace("settings-ai"),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Icon(Icons.Outlined.AutoAwesome, null, Modifier.padding(horizontal = 10.dp))
@@ -1379,8 +1446,8 @@ fun LookDialog(
                 }
                 FileManagerLine()
                 UpdateLines()
-                if (comicsTab != null) {
-                    SwitchLine(tr("Comics tab"), tr("Comics in a tab of their own, a series to an entry. Off: they're with the books."), comicsTab, onComicsTab)
+                if (comicsTab != null) Column(Modifier.tourPlace("settings-comics")) {
+                    SwitchLine(tr("Comics tab"), tr("Comics get a tab of their own, with each series as one entry. When this is off, they're with your books."), comicsTab, onComicsTab)
                     if (comicsTab && androidx.compose.ui.platform.LocalConfiguration.current.smallestScreenWidthDp >= 600) {
                         Text(
                             tr("On a wide screen, a series opens"),
@@ -1398,7 +1465,7 @@ fun LookDialog(
                                 Column(Modifier.weight(1f).padding(vertical = 6.dp)) {
                                     Text(if (inPlace) tr("In place of the shelf") else tr("Beside the shelf"), style = MaterialTheme.typography.bodyLarge)
                                     Text(
-                                        if (inPlace) tr("No side panel: its comics as covers or a list, as you choose in it.") else tr("Its comics listed beside the shelf."),
+                                        if (inPlace) tr("The series takes the whole screen, with its comics as covers or a list.") else tr("Its comics are listed beside the shelf."),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
@@ -1408,8 +1475,8 @@ fun LookDialog(
                     }
                     HorizontalDivider(Modifier.padding(vertical = 10.dp))
                 }
-                dev.kolib.app.ui.theme.ThemePicker(current, onPick)
-                if (onOpening != null) {
+                Box(Modifier.tourPlace("settings-look")) { dev.kolib.app.ui.theme.ThemePicker(current, onPick) }
+                if (onOpening != null) Column(Modifier.tourPlace("settings-opening")) {
                     HorizontalDivider(Modifier.padding(vertical = 10.dp))
                     SwitchLine(tr("Opening animation"), tr("Plays when KoLib starts. Tap it to skip."), opening, onOpening)
                     SwitchLine(
@@ -1423,10 +1490,64 @@ fun LookDialog(
                         )
                     }
                 }
+                if (onShowTours != null) {
+                    HorizontalDivider(Modifier.padding(vertical = 10.dp))
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable(onClick = onShowTours)
+                            .padding(vertical = 10.dp, horizontal = 4.dp)
+                            .testTag("settings-tours")
+                            .tourPlace("settings-tours"),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(Icons.Outlined.Explore, null, Modifier.padding(horizontal = 10.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(tr("Show the tours again"), style = MaterialTheme.typography.titleSmall)
+                            Text(tr("Each screen's tour shows the next time you open it."), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                }
+            }
             }
         },
         confirmButton = { TextButton(onClick = onDismiss) { Text(tr("Done")) } },
     )
+    // The tour, over the window: a window of its own, the whole screen, lighting the settings where they are.
+    if (touring) {
+        val density = androidx.compose.ui.platform.LocalDensity.current
+        val stops = remember {
+            dev.kolib.app.ui.tour.Tours.settings { name ->
+                {
+                    val view = places.rectOf(listOf("settings-view"))
+                    val item = places.rectOf(listOf(name))
+                    if (view != null && item != null) {
+                        val margin = with(density) { 12.dp.toPx() }
+                        when {
+                            item.top < view.top + margin -> scroll.animateScrollBy(item.top - view.top - margin)
+                            item.bottom > view.bottom - margin -> scroll.animateScrollBy(minOf(item.bottom - view.bottom + margin, item.top - view.top - margin))
+                        }
+                    }
+                }
+            }
+        }
+        androidx.compose.ui.window.Dialog(
+            onDismissRequest = {},
+            properties = androidx.compose.ui.window.DialogProperties(
+                dismissOnBackPress = false, dismissOnClickOutside = false, usePlatformDefaultWidth = false, decorFitsSystemWindows = false,
+            ),
+        ) {
+            // No dimming of its own: the tour darkens all but what it lights.
+            val window = (androidx.compose.ui.platform.LocalView.current.parent as? androidx.compose.ui.window.DialogWindowProvider)?.window
+            androidx.compose.runtime.SideEffect { window?.setDimAmount(0f) }
+            dev.kolib.app.ui.tour.Tour(stops, places, onDone = {
+                touring = false
+                onTourDone()
+            })
+        }
+    }
 }
 
 /** A setting that's on or off: its name and a line about it, and a switch. */

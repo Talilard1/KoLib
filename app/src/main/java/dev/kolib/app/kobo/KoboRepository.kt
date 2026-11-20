@@ -148,6 +148,9 @@ class KoboRepository(private val context: Context) {
         }
     }
 
+    /** The reading done on the Kobo described by [info], day by day, as worked out each time it's connected. */
+    fun koboReadingDays(info: KoboDeviceInfo): Map<String, Int> = lastSeen.readingDays(LastSeenStore.keyOf(info))
+
     fun saveLastSeen(session: KoboSession, snapshot: KoboSnapshot = session.snapshot) = lastSeen.save(
         LastSeenStore.LastSeen(session.info, snapshot, session.connectedAtMillis, session.databaseBytes, session.databaseHadWal)
     )

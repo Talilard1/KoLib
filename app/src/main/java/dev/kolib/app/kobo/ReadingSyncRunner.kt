@@ -70,18 +70,18 @@ class ReadingSyncRunner(
                 if (fromKobo > 0) parts += if (fromKobo == 1) tr("1 bookmark or highlight copied from the Kobo.") else tr("{0} bookmarks and highlights copied from the Kobo.", fromKobo)
                 if (removed > 0) parts += if (removed == 1) tr("1 deleted on one side was deleted on the other.") else tr("{0} deleted on one side were deleted on the other.", removed)
             }
-            if (notSent > 0) parts += if (notSent == 1) tr("1 bookmark or highlight stays in KoLib only: they go to the Kobo in books sent as Kepub.") else tr("{0} bookmarks and highlights stay in KoLib only: they go to the Kobo in books sent as Kepub.", notSent)
-            if (waiting.isNotEmpty()) parts += if (waiting.size == 1) tr("1 book syncs once the Kobo has added it: eject the Kobo, then connect it again.") else tr("{0} books sync once the Kobo has added them: eject the Kobo, then connect it again.", waiting.size)
+            if (notSent > 0) parts += if (notSent == 1) tr("1 bookmark or highlight stays in KoLib only. The Kobo takes them only in books sent as Kepub.") else tr("{0} bookmarks and highlights stay in KoLib only. The Kobo takes them only in books sent as Kepub.", notSent)
+            if (waiting.isNotEmpty()) parts += if (waiting.size == 1) tr("1 book syncs once the Kobo has added it. Eject the Kobo, then connect it again.") else tr("{0} books sync once the Kobo has added them. Eject the Kobo, then connect it again.", waiting.size)
             if (failed > 0) parts += if (failed == 1) tr("1 book couldn't be synced. The log has the details.") else tr("{0} books couldn't be synced. The log has the details.", failed)
             return parts.joinToString(" ")
         }
     }
 
     /** [onKoboDone] is called once nothing more is read from or written to the Kobo, so it can be ejected. */
-    suspend fun run(session: KoboSession, ids: Collection<String>, onKoboDone: () -> Unit = {}): Outcome = withContext(Dispatchers.IO) {
+    suspend fun run(session: KoboSession, ids: Collection<String>, choices: SyncChoices = SyncChoices(), onKoboDone: () -> Unit = {}): Outcome = withContext(Dispatchers.IO) {
         val books = ids.mapNotNull { library.book(it) }.filter { it.koboPath != null && !it.isPdf && !it.isComic }
         val style = repo.readLocal(session) { KoboMarkStyle.read(it) }
-        val sync = ReadingSync(koboKey(session.info), style)
+        val sync = ReadingSync(koboKey(session.info), style, choices = choices)
         val readings = repo.readLocal(session) { db ->
             books.associate { b -> b.id to runCatching { KoboReadingDb.read(db, KoboPaths.contentId(b.koboPath!!), style) }.getOrNull() }
         }

@@ -55,13 +55,14 @@ class ScrollSectionsTest {
             "cover" to ("OEBPS/cover.xhtml" to """<div><img src="images/cover.png" alt="Cover"/></div>"""),
             "title" to ("OEBPS/text/title.xhtml" to "<h1>The Sea</h1><p>A novel</p>"),
             "copyright" to ("OEBPS/text/copyright.xhtml" to "<p>Copyright 2026. All rights reserved.</p>"),
+            "contents" to ("OEBPS/text/contents.xhtml" to "<h1>Contents</h1><p><a href=\"ch1.xhtml\">Chapter One</a></p><p><a href=\"ch2.xhtml\">Chapter Two</a></p>"),
             "ch1" to ("OEBPS/text/ch1.xhtml" to "<h1>Chapter One</h1><p>$words</p>"),
             "ch2" to ("OEBPS/text/ch2.xhtml" to "<h1>Chapter Two</h1><p>$words</p>"),
             "thanks" to ("OEBPS/text/thanks.xhtml" to "<h1>Acknowledgements</h1><p>Thanks to everyone.</p>"),
             "about" to ("OEBPS/text/about.xhtml" to "<h1>About the Author</h1><p>The author lives by the sea.</p>"),
         )
         val titles = mapOf(
-            "cover" to "Cover", "title" to "Title Page", "copyright" to "Copyright", "ch1" to "Chapter One", "ch2" to "Chapter Two",
+            "cover" to "Cover", "title" to "Title Page", "copyright" to "Copyright", "contents" to "Contents", "ch1" to "Chapter One", "ch2" to "Chapter Two",
             "thanks" to "Acknowledgements", "about" to "About the Author",
         )
         val opf = """<?xml version="1.0" encoding="UTF-8"?>
@@ -95,8 +96,8 @@ ${pages.entries.joinToString("\n") { (id, p) -> """<item id="$id" href="${p.firs
 
             // Opened at the start: the front pages as one, shown as the last of them with the rest in front of it.
             c.open(at("cover"), JSONObject().put("type", "start"))
-            assertEquals(at("copyright"), c.chapterIndex)
-            val front = c.servedText(c.chapters[at("copyright")].path)!!
+            assertEquals(at("contents"), c.chapterIndex)
+            val front = c.servedText(c.chapters[at("contents")].path)!!
             val box = front.indexOf("id=\"${ChapterOpenings.SECTION_BOX}\"")
             assertTrue(front, box in 0 until front.indexOf("<body"))
             // The cover first, filling the first screen, its picture linked from this page's folder; then the title page.
@@ -106,7 +107,7 @@ ${pages.entries.joinToString("\n") { (id, p) -> """<item id="$id" href="${p.firs
 
             // A page of the section from the contents: the section, at that page.
             c.open(at("title"), JSONObject().put("type", "start"))
-            assertEquals(at("copyright"), c.chapterIndex)
+            assertEquals(at("contents"), c.chapterIndex)
             assertEquals(ChapterOpenings.SECTION_PART + at("title"), JSONObject(c.startState).getJSONObject("target").optString("value"))
 
             // On into the chapters, each as it is; then the back pages, as one.
@@ -126,7 +127,122 @@ ${pages.entries.joinToString("\n") { (id, p) -> """<item id="$id" href="${p.firs
             // Turning pages, the pages round the chapters stay each on their own.
             val paged = ReaderController(files, BookStructure(files), "The Sea", "en", null, ReaderSettings(), context.assets)
             settle { paged.lengthsCounted }
-            assertFalse(paged.servedText(paged.chapters[at("copyright")].path)!!.contains(ChapterOpenings.SECTION_BOX))
+            assertFalse(paged.servedText(paged.chapters[at("contents")].path)!!.contains(ChapterOpenings.SECTION_BOX))
+        }
+    }
+
+    private fun reported(c: ReaderController, anchor: String?, part: Int = -1) = c.readied(
+        JSONObject().put("pages", 1).put("progress", 0.1).put("anchor", anchor ?: JSONObject.NULL).put("snippet", "x").put("part", part).toString()
+    )
+
+    private fun ReaderController.target(): JSONObject = JSONObject(startState).getJSONObject("target")
+
+    @Test
+    fun aPlaceInAPageOfASectionIsKeptAsAPlaceInThatPage() {
+        EpubFile.open(book()).use { epub ->
+            val files = EpubFileFiles(epub)
+            val c = ReaderController(files, BookStructure(files), "The Sea", "en", null, ReaderSettings(flow = ReaderFlow.SCROLL), context.assets)
+            settle { c.lengthsCounted }
+            val at = { name: String -> c.index("$name.xhtml") }
+            c.open(at("cover"), JSONObject().put("type", "start"))
+            // At the cover, no words on screen: the place is the top.
+            reported(c, null, part = at("cover"))
+            assertEquals(c.chapters[at("contents")].path, c.position!!.path)
+            assertEquals(null, c.position!!.anchor)
+            // In the title page, joined in front of the contents: kept as a place in the title page.
+            reported(c, "@kl-part-${at("title")}/0/0:3", part = at("title"))
+            assertEquals(c.chapters[at("title")].path, c.position!!.path)
+            assertEquals("0/0:3", c.position!!.anchor)
+            // Opened there again: the section, at that place in its page.
+            c.open(at("title"), JSONObject().put("type", "anchor").put("value", "0/0:3").put("progress", 0.0))
+            assertEquals(at("contents"), c.chapterIndex)
+            assertEquals("@kl-part-${at("title")}/0/0:3", c.target().optString("value"))
+        }
+    }
+
+    @Test
+    fun theFrontPagesHaveNoHeadingsTillTheContents() {
+        EpubFile.open(book()).use { epub ->
+            val files = EpubFileFiles(epub)
+            val c = ReaderController(files, BookStructure(files), "The Sea", "en", null, ReaderSettings(flow = ReaderFlow.SCROLL), context.assets)
+            settle { c.lengthsCounted }
+            val at = { name: String -> c.index("$name.xhtml") }
+            c.open(at("cover"), JSONObject().put("type", "start"))
+            for (page in listOf("cover", "title", "copyright")) {
+                reported(c, null, part = at(page))
+                assertFalse(page, c.scrollHeaded)
+            }
+            // Past them, the contents (the page they're joined in front of) has its heading.
+            reported(c, "1/0:0", part = -1)
+            assertTrue(c.scrollHeaded)
+            assertEquals("contents", c.scrollHeadTitle.lowercase())
+            // The chapters have theirs; the pages after them, as one, theirs too.
+            c.nextChapter()
+            reported(c, "1/0:0")
+            assertTrue(c.scrollHeaded)
+            c.open(at("thanks"), JSONObject().put("type", "start"))
+            reported(c, null, part = at("thanks"))
+            assertTrue(c.scrollHeaded)
+            assertEquals("acknowledgements", c.scrollHeadTitle.lowercase())
+        }
+    }
+
+    @Test
+    fun switchingToScrollingAndBackInTheFrontPagesShowsThemTheNewWay() {
+        EpubFile.open(book()).use { epub ->
+            val files = EpubFileFiles(epub)
+            val c = ReaderController(files, BookStructure(files), "The Sea", "en", null, ReaderSettings(), context.assets)
+            settle { c.lengthsCounted }
+            val at = { name: String -> c.index("$name.xhtml") }
+            // Turning pages, in the title page (or what it's shown with).
+            c.open(at("title"), JSONObject().put("type", "start"))
+            val here = c.chapterIndex
+            assertTrue(here in at("title")..at("contents"))
+            reported(c, "0/0:4")
+            // Scrolling: the section opened, at the same place in that page.
+            c.applySettings(c.settings.copy(flow = ReaderFlow.SCROLL))
+            assertEquals(at("contents"), c.chapterIndex)
+            val inSection = if (here == at("contents")) "0/0:4" else "@kl-part-$here/0/0:4"
+            assertEquals(inSection, c.target().optString("value"))
+            // And back to pages: that page as it was, where it was.
+            reported(c, inSection, part = if (here == at("contents")) -1 else here)
+            c.applySettings(c.settings.copy(flow = ReaderFlow.PAGES))
+            assertEquals(here, c.chapterIndex)
+            assertEquals("0/0:4", c.target().optString("value"))
+            // Switching in a chapter opens nothing again.
+            c.open(at("ch1"), JSONObject().put("type", "start"))
+            reported(c, "1/0:9")
+            val before = c.startState
+            c.applySettings(c.settings.copy(flow = ReaderFlow.SCROLL))
+            assertEquals(at("ch1"), c.chapterIndex)
+            assertEquals(JSONObject(before).getJSONObject("target").toString(), c.target().toString())
+        }
+    }
+
+    @Test
+    fun aChapterFromTheContentsCanBeGoneBackFromWithTheControlsToo() {
+        EpubFile.open(book()).use { epub ->
+            val files = EpubFileFiles(epub)
+            val c = ReaderController(files, BookStructure(files), "The Sea", "en", null, ReaderSettings(), context.assets)
+            settle { c.lengthsCounted }
+            val at = { name: String -> c.index("$name.xhtml") }
+            c.open(at("ch1"), JSONObject().put("type", "start"))
+            reported(c, "1/0:30")
+            val was = c.position!!
+            c.goTo(dev.kolib.app.epub.TocNode("Chapter Two", c.chapters[at("ch2")].path, null))
+            assertEquals(was, c.jumpedFrom)
+            assertEquals(was, c.barReturn)
+            // Landing, then a page on: the way back over the page goes; the controls' button stays.
+            c.readied(JSONObject().put("pages", 3).put("page", 0).put("anchor", "1/0:0").put("snippet", "x").toString())
+            assertEquals(was, c.jumpedFrom)
+            c.reported(JSONObject().put("pages", 3).put("page", 1).put("anchor", "1/0:300").put("snippet", "x").toString())
+            assertEquals(null, c.jumpedFrom)
+            assertEquals(was, c.barReturn)
+            // Back with it, and the button offers to come back again.
+            val there = c.position!!
+            c.swapWithBarReturn()
+            assertEquals(at("ch1"), c.chapterIndex)
+            assertEquals(there, c.barReturn)
         }
     }
 

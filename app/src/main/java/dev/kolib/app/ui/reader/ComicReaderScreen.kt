@@ -125,7 +125,9 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.positionChanged
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
@@ -197,6 +199,10 @@ fun ComicBookReader(
     readingHere: ReadingHereIndex? = null,
     /** Opens the app's own settings: its look, language and books folder. */
     onAppSettings: (() -> Unit)? = null,
+    /** The series the comic is in, if it's in one: at its end, the next is offered. */
+    series: dev.kolib.app.library.ComicEntry? = null,
+    /** Opens another comic (the next in the series) in the reader. */
+    onOpen: ((String) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val view = LocalView.current
@@ -272,8 +278,15 @@ fun ComicBookReader(
         p != null -> {
             var bookMode by remember(book.id) { mutableStateOf(ComicSettingsStore.modeOf(dir)) }
             val mode = bookMode ?: if (rtlByBook) ComicMode.RIGHT_TO_LEFT else s.mode
-            ComicView(
+            val next = series?.after(book.id)
+            key(book.id) { ComicView(
                 book = book, pages = p, dir = dir, s = s, mode = mode, menu = menu, setMenu = { menu = it },
+                ending = ComicEnding(
+                    name = series?.let { dev.kolib.app.ui.library.issueName(it, book) } ?: book.title,
+                    series = series?.title,
+                    next = next?.let { n -> series?.let { dev.kolib.app.ui.library.issueName(it, n) } ?: n.title },
+                    onNext = if (next != null && onOpen != null) ({ onOpen(next.id) }) else null,
+                ),
                 onMode = { m ->
                     bookMode = m
                     ComicSettingsStore.saveMode(dir, m)
@@ -294,7 +307,7 @@ fun ComicBookReader(
                 },
                 readingHere = readingHere,
                 onAppSettings = onAppSettings,
-            )
+            ) }
         }
         error != null -> Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(24.dp)) {
@@ -307,6 +320,12 @@ fun ComicBookReader(
     }
 }
 
+/**
+ * What's shown past a comic's last page, as Mihon's page between chapters: the comic finished ([name]), and the next in
+ * its [series] to go on to ([next], opened by [onNext]), or that it's the last.
+ */
+internal class ComicEnding(val name: String, val series: String? = null, val next: String? = null, val onNext: (() -> Unit)? = null)
+
 /** A comic open in the reader: its pages in the reading mode chosen, the menu over them, the settings. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -318,6 +337,7 @@ internal fun ComicView(
     mode: ComicMode,
     menu: Boolean,
     setMenu: (Boolean) -> Unit,
+    ending: ComicEnding = ComicEnding(book.title),
     onMode: (ComicMode?) -> Unit,
     onSettings: ((ComicSettings) -> ComicSettings) -> Unit,
     onClose: () -> Unit,
@@ -354,6 +374,25 @@ internal fun ComicView(
         withContext(Dispatchers.IO) { ReaderStore.savePdfPlace(dir, place) }
         readingHere?.set(book.id, place.readHere)
     }
+    // Past the last page: the comic's finished, and the next in its series is offered. Going on again opens it.
+    var ended by remember { mutableStateOf(false) }
+    val endedNow by rememberUpdatedState(ended)
+    val endingNow by rememberUpdatedState(ending)
+    LaunchedEffect(page) { ended = false }
+    val showEnd = remember {
+        {
+            if (!endedNow) {
+                ended = true
+                setMenuNow(false)
+                scope.launch {
+                    val here = withContext(Dispatchers.IO) { ReaderStore.markFinished(dir) }
+                    readingHere?.set(book.id, here)
+                }
+            }
+        }
+    }
+    // A tap or key on past the end: the end shown, or (shown already) on to the next.
+    val pastEnd = remember { { if (endedNow) endingNow.onNext?.invoke() ?: Unit else showEnd() } }
     DisposableEffect(s.volumeKeys, s.invertVolume) {
         ReaderKeys.handler = if (!s.volumeKeys) null else { e ->
             val by = when (e.keyCode) {
@@ -361,13 +400,18 @@ internal fun ComicView(
                 KeyEvent.KEYCODE_VOLUME_UP -> -1
                 else -> 0
             }
-            if (by != 0 && e.action == KeyEvent.ACTION_DOWN) nudges.tryEmit(if (s.invertVolume) -by else by)
+            if (by != 0 && e.action == KeyEvent.ACTION_DOWN) {
+                val way = if (s.invertVolume) -by else by
+                // At the end, on goes to the next comic and back to the last page.
+                if (endedNow) { if (way > 0) pastEnd() else ended = false } else nudges.tryEmit(way)
+            }
             by != 0
         }
         onDispose { ReaderKeys.handler = null }
     }
     BackHandler {
         when {
+            ended -> ended = false
             showSettings -> showSettings = false
             actionsFor != null -> actionsFor = null
             menu -> setMenu(false)
@@ -385,9 +429,9 @@ internal fun ComicView(
     Box(Modifier.fillMaxSize().background(tone)) {
         val longPress = { i: Int -> if (s.longTap) actionsFor = i }
         if (mode.paged) {
-            PagedComic(pages, s, mode, page, onPage = { page = it }, onMenu = toggleMenu, onLongPress = longPress, nudges = nudges, jumps = jumps)
+            PagedComic(pages, s, mode, page, onPage = { page = it }, onMenu = toggleMenu, onLongPress = longPress, nudges = nudges, jumps = jumps, onPastEnd = pastEnd, onPulledPastEnd = showEnd)
         } else {
-            StripComic(pages, s, mode, page, onPage = { page = it }, onMenu = toggleMenu, onLongPress = longPress, onMoved = moved, nudges = nudges, jumps = jumps)
+            StripComic(pages, s, mode, page, onPage = { page = it }, onMenu = toggleMenu, onLongPress = longPress, onMoved = moved, nudges = nudges, jumps = jumps, onPastEnd = pastEnd, onPulledPastEnd = showEnd)
         }
         // Where the taps go, shown for a moment as the comic opens, if asked for.
         var zones by remember(mode) { mutableStateOf(s.showTapZones) }
@@ -463,6 +507,9 @@ internal fun ComicView(
                 }
             }
         }
+        AnimatedVisibility(ended, enter = fadeIn(), exit = fadeOut()) {
+            ComicEnd(ending, rtl = mode == ComicMode.RIGHT_TO_LEFT, vertical = !mode.horizontal || !mode.paged, onBack = { ended = false }, onClose = onClose)
+        }
         if (showSettings) {
             val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
             ModalBottomSheet(onDismissRequest = { showSettings = false }, sheetState = sheet) {
@@ -502,6 +549,69 @@ internal fun ComicView(
                 )
                 Spacer(Modifier.height(16.dp))
             }
+        }
+    }
+}
+
+/**
+ * Past a comic's last page: that it's finished, and the next in its series with a button to read it (or that it was
+ * the last). Swiped on (the way pages turn), the next opens; swiped back, the last page shows again.
+ */
+@Composable
+private fun ComicEnd(ending: ComicEnding, rtl: Boolean, vertical: Boolean, onBack: () -> Unit, onClose: () -> Unit) {
+    val density = LocalDensity.current
+    val far = with(density) { 96.dp.toPx() }
+    val nextNow by rememberUpdatedState(ending.onNext)
+    val backNow by rememberUpdatedState(onBack)
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.88f))
+            .testTag("comic-end")
+            .pointerInput(rtl, vertical) {
+                awaitEachGesture {
+                    val down = awaitFirstDown(requireUnconsumed = false)
+                    var moved = Offset.Zero
+                    while (true) {
+                        val e = awaitPointerEvent()
+                        val c = e.changes.firstOrNull { it.id == down.id } ?: break
+                        moved += c.positionChange()
+                        if (!c.pressed) break
+                    }
+                    // On: to the left (to the right, right to left), or up.
+                    val on = if (vertical) -moved.y else if (rtl) moved.x else -moved.x
+                    when {
+                        on > far -> nextNow?.invoke()
+                        on < -far -> backNow()
+                    }
+                }
+            },
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            Modifier.padding(32.dp).statusBarsPadding().navigationBarsPadding(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(tr("Finished"), style = MaterialTheme.typography.labelLarge, color = Color.White.copy(alpha = 0.7f))
+            Text(ending.name, style = MaterialTheme.typography.titleLarge, color = Color.White, textAlign = TextAlign.Center, maxLines = 3, overflow = TextOverflow.Ellipsis)
+            Spacer(Modifier.height(28.dp))
+            if (ending.next != null && ending.onNext != null) {
+                Text(tr("Next"), style = MaterialTheme.typography.labelLarge, color = Color.White.copy(alpha = 0.7f))
+                Text(ending.next, style = MaterialTheme.typography.titleLarge, color = Color.White, textAlign = TextAlign.Center, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                Spacer(Modifier.height(20.dp))
+                dev.kolib.app.ui.components.Button(onClick = ending.onNext, modifier = Modifier.testTag("comic-next")) { Text(tr("Read the next one")) }
+            } else {
+                Text(
+                    if (ending.series != null) tr("That's the last comic in {0}.", ending.series) else tr("That's the end of the comic."),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(Modifier.height(20.dp))
+                dev.kolib.app.ui.components.Button(onClick = onClose) { Text(tr("Close the comic")) }
+            }
+            Spacer(Modifier.height(4.dp))
+            TextButton(onClick = onBack) { Text(tr("Back to the last page"), color = Color.White) }
         }
     }
 }
@@ -666,10 +776,16 @@ private fun PagedComic(
     onLongPress: (Int) -> Unit,
     nudges: SharedFlow<Int>,
     jumps: SharedFlow<Int>,
+    /** A tap or key going on from the last page. */
+    onPastEnd: () -> Unit = {},
+    /** The last page swiped on from. */
+    onPulledPastEnd: () -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
     val rtl = mode == ComicMode.RIGHT_TO_LEFT
+    val pastEndNow by rememberUpdatedState(onPastEnd)
+    val pulledPastEndNow by rememberUpdatedState(onPulledPastEnd)
     // Which pages are known to be wide (as each is read): with "Split wide pages", each is two.
     val wide = remember { mutableStateMapOf<Int, Boolean>() }
     val count = pages.count
@@ -691,7 +807,10 @@ private fun PagedComic(
         }
         fun turn(by: Int) {
             val to = (pager.currentPage + by).coerceIn(0, pieces.size - 1)
-            if (to == pager.currentPage) return
+            if (to == pager.currentPage) {
+                if (by > 0 && pager.currentPage == pieces.size - 1) pastEndNow()
+                return
+            }
             scope.launch { if (s.animate) pager.animateScrollToPage(to) else pager.scrollToPage(to) }
         }
         LaunchedEffect(pager) {
@@ -723,10 +842,33 @@ private fun PagedComic(
                 nudges = if (pager.settledPage == sc) toPage else null,
             )
         }
+        // Swiped on from the last page, far enough: the end of the comic.
+        val farPastEnd = with(density) { 72.dp.toPx() }
+        val pastEnd = remember(pager, mode, rtl) {
+            object : NestedScrollConnection {
+                var pulled = 0f
+                override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+                    val on = if (mode.horizontal) (if (rtl) available.x else -available.x) else -available.y
+                    if (on > 0f && !pager.canScrollForward) {
+                        pulled += on
+                        if (pulled > farPastEnd) {
+                            pulled = Float.NEGATIVE_INFINITY
+                            pulledPastEndNow()
+                        }
+                    }
+                    return Offset.Zero
+                }
+
+                override suspend fun onPreFling(available: androidx.compose.ui.unit.Velocity): androidx.compose.ui.unit.Velocity {
+                    pulled = 0f
+                    return androidx.compose.ui.unit.Velocity.Zero
+                }
+            }
+        }
         if (mode.horizontal) {
-            HorizontalPager(pager, Modifier.fillMaxSize(), reverseLayout = rtl, userScrollEnabled = !locked, beyondViewportPageCount = 1, key = { pieces[it].key }) { content(it) }
+            HorizontalPager(pager, Modifier.fillMaxSize().nestedScroll(pastEnd), reverseLayout = rtl, userScrollEnabled = !locked, beyondViewportPageCount = 1, key = { pieces[it].key }) { content(it) }
         } else {
-            VerticalPager(pager, Modifier.fillMaxSize(), userScrollEnabled = !locked, beyondViewportPageCount = 1, key = { pieces[it].key }) { content(it) }
+            VerticalPager(pager, Modifier.fillMaxSize().nestedScroll(pastEnd), userScrollEnabled = !locked, beyondViewportPageCount = 1, key = { pieces[it].key }) { content(it) }
         }
     }
 }
@@ -1126,7 +1268,13 @@ private fun StripComic(
     onMoved: () -> Unit,
     nudges: SharedFlow<Int>,
     jumps: SharedFlow<Int>,
+    /** A tap or key going on from the very end. */
+    onPastEnd: () -> Unit = {},
+    /** The strip pulled on at its very end. */
+    onPulledPastEnd: () -> Unit = {},
 ) {
+    val pastEndNow by rememberUpdatedState(onPastEnd)
+    val pulledPastEndNow by rememberUpdatedState(onPulledPastEnd)
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
     val count = pages.count
@@ -1214,6 +1362,10 @@ private fun StripComic(
         /** On (1) or back (-1) by most of the screen; zoomed in at either end, the strip is moved to its very edge. */
         fun scrollStrip(by: Int) {
             if (by == 0) return
+            if (by > 0 && !list.canScrollForward && zoom <= 1.01f) {
+                pastEndNow()
+                return
+            }
             moving?.cancel()
             moving = scope.launch {
                 val atEnd = if (by > 0) !list.canScrollForward else !list.canScrollBackward
@@ -1240,11 +1392,34 @@ private fun StripComic(
                 }
             }
         }
+        // Pulled on at the very end, far enough (not zoomed in): the end of the comic.
+        val farPastEnd = with(density) { 72.dp.toPx() }
+        val pastEnd = remember(list) {
+            object : NestedScrollConnection {
+                var pulled = 0f
+                override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+                    if (available.y < 0f && !list.canScrollForward && zoom <= 1.001f) {
+                        pulled -= available.y
+                        if (pulled > farPastEnd) {
+                            pulled = Float.NEGATIVE_INFINITY
+                            pulledPastEndNow()
+                        }
+                    }
+                    return Offset.Zero
+                }
+
+                override suspend fun onPreFling(available: androidx.compose.ui.unit.Velocity): androidx.compose.ui.unit.Velocity {
+                    pulled = 0f
+                    return androidx.compose.ui.unit.Velocity.Zero
+                }
+            }
+        }
         val quickZoom = with(density) { QUICK_ZOOM_DISTANCE.toPx() }
         Box(
             Modifier
                 .fillMaxSize()
                 .nestedScroll(ends)
+                .nestedScroll(pastEnd)
                 // Seen before the list sees them, so two fingers zoom without the list scrolling too.
                 .pointerInput(w, h, column) {
                     val slop = viewConfiguration.touchSlop

@@ -210,6 +210,49 @@ fun LibraryCover(
     }
 }
 
+/**
+ * A comic series' cover in the Comics tab: its first comic's, with how many of its comics haven't been read yet at the
+ * top left (as Mihon shows it), and whether they're all on the Kobo.
+ */
+@Composable
+fun ComicSeriesCover(
+    book: LibraryBook,
+    covers: LibraryCovers,
+    unread: Int,
+    onKobo: Boolean,
+    modifier: Modifier = Modifier,
+    picked: Boolean? = null,
+) {
+    CoverImage(
+        title = book.title,
+        author = book.authorLine,
+        cacheKey = "${book.id}:${book.coverVersion}:false",
+        cached = { covers.cached(book, false) },
+        load = { w -> covers.load(book, false, w) },
+        large = false,
+        modifier = modifier,
+    ) {
+        if (onKobo) CornerBadge(tr("On Kobo"), BadgeDots.gold, Alignment.TopEnd)
+        if (picked != null) SelectionMark(picked)
+        else if (unread > 0) {
+            val small = phoneLayout()
+            Text(
+                if (unread > 999) "999+" else "$unread",
+                color = MaterialTheme.colorScheme.onPrimary,
+                fontSize = if (small) 10.sp else 11.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(if (small) 4.dp else 5.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(horizontal = if (small) 4.dp else 5.dp, vertical = 1.dp)
+                    .semantics { contentDescription = if (unread == 1) tr("1 not read yet") else tr("{0} not read yet", unread) },
+            )
+        }
+    }
+}
+
 /** How far the book has been read on this tablet, at the foot of its cover; or, with no [percent], that it's finished. */
 @Composable
 private fun BoxScope.ReadHereBadge(percent: Int?, aboveBar: Boolean) {

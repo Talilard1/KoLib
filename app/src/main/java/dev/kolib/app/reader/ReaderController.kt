@@ -145,15 +145,22 @@ class ReaderController(
     /** Which of [browsing]'s pictures is shown. */
     var browsedTo by mutableStateOf(0)
     var externalLink by mutableStateOf<String?>(null)
-    /** Where the reader was before following a link, to go back to. */
+    /**
+     * Where the reader was before following a link or going to a chapter from the contents (or a search's find), to go
+     * back to: offered over the page for a moment, and with the controls' button as after moving with the progress
+     * bar (see [barReturn]).
+     */
     var jumpedFrom by mutableStateOf<ReaderPosition?>(null)
-    /** Page turns since following the link: after a few, the way back is no longer offered. */
+    /** Page turns since the jump (landing is the first): with the next, the way back over the page goes. */
     private var movesSinceJump = 0
     private var reportedChapter = -1
 
     private fun jumpedFrom(p: ReaderPosition) {
         jumpedFrom = p
         movesSinceJump = 0
+        // The controls' button goes back there too, once the one over the page has gone.
+        barReturn = p
+        barReturnPage = bookPage?.let { layoutKey to it }
     }
     // Everything the saved state is loaded into is declared before the init block that loads it.
     var bookmarks by mutableStateOf<List<ReaderPosition>>(emptyList())
@@ -473,7 +480,7 @@ class ReaderController(
         var i = index
         while (i >= 0) {
             val c = chapters.getOrNull(i) ?: return ""
-            val fromToc = c.titleFromToc || inFront(i).any { chapters[it].titleFromToc }
+            val fromToc = c.titleFromToc || (sectionAt(i)?.last != i && inFront(i).any { chapters[it].titleFromToc })
             if (fromToc) return titleOf(i)
             if (toc.isEmpty()) return titleOf(i).takeUnless { it == c.path.substringAfterLast('/').substringBeforeLast('.') }.orEmpty()
             i--
@@ -829,27 +836,31 @@ class ReaderController(
             extra.forEach { (k, v) -> if (v != null) put(k, v) }
         }
 
-    fun open(index: Int, target: JSONObject) {
+    fun open(index: Int, target: JSONObject, again: Boolean = false) {
         // Scrolling, the pages before the book's chapters are one section, and those after them another: shown as the
-        // last page of the section, with the rest in front of it. A page of it opens there (its first, at the top).
+        // last page of the section, with the rest in front of it. A page of it opens there (its first, at the top), at
+        // a place kept in it (as in its own page) if there's one.
         sectionAt(index)?.takeIf { index != it.last }?.let { s ->
+            val place = target.optString("value").takeIf { target.optString("type") == "anchor" && it.isNotEmpty() && !it.startsWith("@") && !it.startsWith("chars=") }
             val t = when {
                 target.optString("type") in setOf("fragment", "picture") -> target
+                place != null -> target("anchor", "@" + ChapterOpenings.SECTION_PART + index + (if (place.startsWith(":")) "" else "/") + place)
                 index == s.first -> target("start")
                 else -> target("fragment", ChapterOpenings.SECTION_PART + index)
             }
-            open(s.last, t)
+            open(s.last, t, again)
             return
         }
         // A chapter's opening page is shown with the chapter's text, so it's never opened alone: its
         // text opens instead, at its start (a link into the opening still finds its place). The same
         // for a short page shown beside the next.
         if (isOpening(index) || isPairedLeft(index) || isPiece(index)) {
-            open(index + 1, if (target.optString("type") in setOf("fragment", "picture")) target else target("start"))
+            open(index + 1, if (target.optString("type") in setOf("fragment", "picture")) target else target("start"), again)
             return
         }
         val c = chapters.getOrNull(index) ?: return
         atEnd = false
+        scrollPart = -1
         startJson = JSONObject()
             .put("settings", JSONObject(settingsJs(settings)))
             .put("target", target)
@@ -862,7 +873,7 @@ class ReaderController(
             .put("turns", turnsJs())
             .apply { runCatching { pageKind(index).place }.getOrNull()?.let { put("place", it) } }
             .toString()
-        if (index == chapterIndex && !loading && webView?.url?.let { BookServer.pathOf(it)?.first } == c.path) {
+        if (!again && index == chapterIndex && !loading && webView?.url?.let { BookServer.pathOf(it)?.first } == c.path) {
             js("KLR.go(${quote(target.toString())}, false)")
             return
         }
@@ -1315,8 +1326,9 @@ class ReaderController(
 
     fun titleOf(index: Int): String {
         if (index > 0 && isOpening(index - 1)) return chapters[index - 1].title
-        // A page put together from pieces: the contents' name for it (a part's), as its first piece has it.
-        inFront(index).firstOrNull { chapters[it].titleFromToc }?.let { return chapters[it].title }
+        // A page put together from pieces: the contents' name for it (a part's), as its first piece has it. (Not the
+        // last page of a section of pages shown as one, scrolling: each of them keeps its own.)
+        if (sectionAt(index)?.last != index) inFront(index).firstOrNull { chapters[it].titleFromToc }?.let { return chapters[it].title }
         return chapters.getOrNull(index)?.title.orEmpty()
     }
 
@@ -1473,11 +1485,11 @@ class ReaderController(
         barReturn = p
     }
 
-    /** Goes back to where the reader was before following a link. */
+    /** Goes back to where the reader was before following a link (and the controls' button offers to come back again). */
     fun goBack() {
         val p = jumpedFrom ?: return
         jumpedFrom = null
-        goTo(p)
+        if (barReturn == p) swapWithBarReturn() else goTo(p)
     }
 
     private fun remember() {
@@ -1513,6 +1525,18 @@ class ReaderController(
                 startJson = JSONObject(startJson.ifEmpty { "{}" }).put("settings", JSONObject(settingsJs(s)))
                     .put("target", target("anchor", p.anchor, p.progress)).toString()
                 main.post { webView?.loadUrl(server.urlFor(p.path)) }
+                return
+            }
+        }
+        if (s.scrolling != old.scrolling && !loading) {
+            // Scrolling, the pages round the book's chapters are shown as one section each; turning pages, each on its
+            // own. In them, the place is opened again (with the new settings), so they're shown the new way.
+            val p = position
+            val at = p?.let { chapters.indexOfFirst { c -> c.path == it.path } }?.takeIf { it >= 0 } ?: chapterIndex
+            if (scrollSections.any { at in it || chapterIndex in it }) {
+                stopTurn()
+                startJson = JSONObject(startJson.ifEmpty { "{}" }).put("settings", JSONObject(settingsJs(s))).toString()
+                open(at, if (p != null) target("anchor", p.anchor, p.progress) else target("start"), again = true)
                 return
             }
         }
@@ -1878,8 +1902,8 @@ class ReaderController(
         if (o.has("display")) displayPage = o.optBoolean("display")
         val newPage = o.optInt("page", 0)
         if (jumpedFrom != null && (newPage != page || chapterIndex != reportedChapter)) {
-            // Landing is one move; three pages on from there, going back isn't offered any more.
-            if (++movesSinceJump > 3) jumpedFrom = null
+            // Landing is one move; a page on from there, the way back over the page goes (the controls' stays).
+            if (++movesSinceJump > 1) jumpedFrom = null
         }
         reportedChapter = chapterIndex
         page = newPage
@@ -1903,11 +1927,23 @@ class ReaderController(
         chapterProgress = if (o.has("progress")) o.optDouble("progress", 0.0).toFloat().coerceIn(0f, 1f)
         else if (pages > 1) page.toFloat() / (pages - 1) else 0f
         countReading()
+        scrollPart = if (settings.scrolling) o.optInt("part", -1) else -1
         val c = chapter ?: return
         if (o.has("anchor") || o.has("snippet")) {
-            position = ReaderPosition(
+            val anchor = o.optString("anchor").takeIf { it.isNotEmpty() && it != "null" }
+            // Scrolling a section of pages shown as one, a place in one of them is kept as a place in that page, so
+            // it's found turning pages too (and where the section's put together differently).
+            val inPart = anchor?.let { PART_PLACE.matchEntire(it) }?.let { m -> m.groupValues[1].toIntOrNull()?.takeIf { it in chapters.indices }?.let { it to m.groupValues[2] } }
+            position = if (inPart != null) ReaderPosition(
+                path = chapters[inPart.first].path,
+                anchor = inPart.second.removePrefix("/"),
+                progress = 0f,
+                bookProgress = bookProgress,
+                snippet = o.optString("snippet"),
+                chapterTitle = titleOf(inPart.first),
+            ) else ReaderPosition(
                 path = c.path,
-                anchor = o.optString("anchor").takeIf { it.isNotEmpty() && it != "null" },
+                anchor = anchor,
                 progress = chapterProgress,
                 bookProgress = bookProgress,
                 snippet = o.optString("snippet"),
@@ -1916,6 +1952,40 @@ class ReaderController(
             saveSoon()
         }
     }
+
+    /**
+     * Scrolling a section of pages shown as one: the one of them at the top of the screen, by its chapter's number;
+     * -1 elsewhere.
+     */
+    var scrollPart by mutableStateOf(-1)
+        private set
+
+    /** Scrolling: the chapter whose heading goes over what's at the top of the screen (in a section, its page at the top). */
+    val scrollHeadIndex: Int get() = scrollPart.takeIf { it >= 0 && settings.scrolling } ?: chapterIndex
+
+    /**
+     * Scrolling: whether what's at the top of the screen has a heading over it. Not a cover, a title page, a copyright
+     * page or another of the pages a printed book has no headings on (pictures, dedications, epigraphs); the
+     * contents, the chapters, a foreword and the rest have.
+     */
+    val scrollHeaded: Boolean get() = headed(scrollHeadIndex)
+
+    private fun headed(i: Int): Boolean {
+        val c = chapters.getOrNull(i) ?: return true
+        if (NO_HEAD_TITLE.matches(c.title.trim())) return false
+        val kind = kinds[i] ?: if (sectionAt(i) != null) runCatching { pageKind(i) }.getOrNull() else null
+        if (kind != null && kind != PageKind.TEXT && kind != PageKind.SHORT) return false
+        // The pages before the book's chapters have headings from its contents on.
+        val section = sectionAt(i)
+        if (section != null && section.first == firstLinear) {
+            val contents = section.firstOrNull { CONTENTS_TITLE.matches(chapters[it].title.trim()) } ?: return false
+            return i >= contents
+        }
+        return true
+    }
+
+    /** Scrolling: the heading's chapter title for what's at the top of the screen (see [headChapterTitle]). */
+    val scrollHeadTitle: String get() = HeadTitles.chapter(chapterNameOf(scrollHeadIndex))
 
     /** For tests: the chapter at [path] as the reader is given it (with what's shown in front of it). */
     internal fun servedText(path: String): String? = files.text(path)?.let { joined(path, it) ?: it }
@@ -1983,6 +2053,18 @@ class ReaderController(
         internal val CONTENT_TITLE = Regex(
             "(?i)^\\W*(chapter|chap\\.?|part|book|section|prologue|epilogue|foreword|introduction|preface|afterword|interlude|letter|" +
                 "\\d+|[ivxlcdm]+)\\b.*$"
+        )
+
+        /** A place in a page of a section shown as one (see reader.js): its page's box, then the place in that page. */
+        internal val PART_PLACE = Regex("^@" + ChapterOpenings.SECTION_PART + "(\\d+)(/?.*)$")
+
+        /** The name of a book's contents page. */
+        internal val CONTENTS_TITLE = Regex("(?i)^\\W*(table of )?contents\\W*$")
+
+        /** The names of the pages a printed book has no headings on: its cover, title page, copyright page and the like. */
+        internal val NO_HEAD_TITLE = Regex(
+            "(?i)^\\W*(cover|title(\\s*page)?|half[- ]?title|copyright( page)?|dedication|epigraph|frontispiece|imprint|" +
+                "also by.*|books by.*|other (books|titles) by.*|by the same author.*|praise( for.*)?)\\W*$"
         )
 
         /** The names of the pages round a book: before its chapters, and after them. */

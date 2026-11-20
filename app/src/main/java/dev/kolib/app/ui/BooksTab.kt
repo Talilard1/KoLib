@@ -344,6 +344,8 @@ fun SelectionBar(
     onSelectAll: () -> Unit,
     onCancel: () -> Unit,
     hint: String? = null,
+    /** What's chosen, where it isn't books. */
+    title: String? = null,
     actions: @Composable RowScope.() -> Unit,
 ) {
     Surface(color = MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.fillMaxWidth()) {
@@ -355,7 +357,7 @@ fun SelectionBar(
             IconButton(onClick = onCancel) { Icon(Icons.Filled.Close, tr("Cancel selection")) }
             Column(Modifier.padding(end = 8.dp)) {
                 Text(
-                    if (count == 0) tr("Tap books to select them") else if (count == 1) tr("1 book selected") else tr("{0} books selected", count),
+                    title ?: if (count == 0) tr("Tap books to select them") else if (count == 1) tr("1 book selected") else tr("{0} books selected", count),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                 )

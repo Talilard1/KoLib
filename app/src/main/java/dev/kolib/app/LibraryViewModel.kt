@@ -20,6 +20,7 @@ import dev.kolib.app.kobo.SendFormat
 import dev.kolib.app.kobo.SendOutcome
 import dev.kolib.app.ui.cover.SavedCover
 import dev.kolib.app.library.BookSource
+import dev.kolib.app.library.ComicSeries
 import dev.kolib.app.library.ImportOutcome
 import dev.kolib.app.library.Library
 import dev.kolib.app.library.LibraryBook
@@ -148,6 +149,17 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
             // How far each book has been read in the app's reader, for the covers.
             // (koboApp's, not the property below: init runs before that's set.)
             withContext(Dispatchers.IO) { koboApp.readingHere.load(library.books.value.map { it.id }) { library.bookDir(it) } }
+            // Comics added before there were series go in them, by the names they share: once.
+            if (!prefs.getBoolean("comic_series_given", false)) {
+                runCatching {
+                    withContext(Dispatchers.IO) {
+                        val given = ComicSeries.assignAll(library.books.value.filter { it.isComic })
+                        if (given.isNotEmpty()) AppLog.i("Library", "Put ${given.size} comic(s) added before there were series in series.")
+                        setComicSeries(given.keys) { given[it.id] }
+                    }
+                }.onFailure { AppLog.e("Library", "Putting comics in series failed", it) }
+                prefs.edit().putBoolean("comic_series_given", true).apply()
+            }
             // Page counts for books added before the app counted them.
             library.fillMissingWordCounts { isActive }
         }
@@ -160,6 +172,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         if (uris.isEmpty()) return
         val resolver = getApplication<Application>().contentResolver
         startJob(JobKind.ADD_FILES, tr("Adding books"), uris.size) { report ->
+            val comics = ArrayList<Pair<String, String?>>()
             for (uri in uris) {
                 if (!isActive) break
                 val name = displayName(uri) ?: uri.lastPathSegment ?: "book"
@@ -170,6 +183,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
                         source = BookSource.FILE,
                         hold = true,
                     )
+                    if (outcome is ImportOutcome.Added && outcome.book.isComic) comics += outcome.book.id to null
                     // Already there: kept aside, to ask whether it replaces that book or is added as well.
                     if (outcome is ImportOutcome.AlreadyThere) outcome.held?.let { file ->
                         _duplicates.update {
@@ -187,6 +201,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
                     outcome.toStep()
                 }
             }
+            seriesForAdded(comics)
         }
     }
 
@@ -243,17 +258,80 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         _folderScan.value = dev.kolib.app.library.FolderScan.Adding(scan.folder, scan.books.size)
         val resolver = getApplication<Application>().contentResolver
         startJob(JobKind.ADD_FILES, if (scan.books.size == 1) tr("Adding a book") else tr("Adding {0} books", scan.books.size), scan.books.size) { report ->
+            val comics = ArrayList<Pair<String, String?>>()
             for (b in scan.books) {
                 if (!isActive) break
                 report(b.name) { _ ->
-                    library.import(
+                    val outcome = library.import(
                         name = b.name,
                         open = { resolver.openInputStream(b.uri) ?: throw FileNotFoundException(tr("Can't open {0}", b.name)) },
                         source = BookSource.FILE,
-                    ).toStep()
+                    )
+                    if (outcome is ImportOutcome.Added && outcome.book.isComic) comics += outcome.book.id to b.folder
+                    outcome.toStep()
                 }
             }
+            seriesForAdded(comics, rootFolder = scan.folder)
         }
+    }
+
+    // ---- comics in series ------------------------------------------------------------------------
+
+    /**
+     * Comics just added go in series, as Mihon has them (see ComicSeries.assign): [added] by id, with the folder each
+     * was in inside [rootFolder], the folder chosen, if they came from one.
+     */
+    private suspend fun seriesForAdded(added: List<Pair<String, String?>>, rootFolder: String? = null) {
+        if (added.isEmpty()) return
+        withContext(Dispatchers.IO) {
+            val comics = library.books.value.filter { it.isComic }
+            val ids = added.map { it.first }.toSet()
+            val folders = added.mapNotNull { (id, folder) -> folder?.let { id to it } }.toMap()
+            val given = ComicSeries.assign(comics.filter { it.id in ids }, comics.filter { it.id !in ids }, folders, rootFolder)
+            setComicSeries(given.keys) { given[it.id] }
+        }
+    }
+
+    /** Puts the comics [ids] in one series called [name], each keeping its number in a series (or taking the one in its name). */
+    fun groupComics(ids: List<String>, name: String) {
+        val series = name.trim()
+        if (series.isEmpty() || ids.isEmpty()) return
+        viewModelScope.launch {
+            val done = withContext(Dispatchers.IO) {
+                setComicSeries(ids) { b -> ComicSeries.Given(series, b.meta.seriesIndex ?: ComicSeries.parse(ComicSeries.nameOf(b)).let { it.number ?: it.volume }) }
+            }
+            _message.value = if (done == 1) tr("1 comic is in “{0}” now.", series) else tr("{0} comics are in “{1}” now.", done, series)
+        }
+    }
+
+    /** Takes the comics [ids] out of their series: each is on its own in the Comics tab. */
+    fun takeComicsOutOfSeries(ids: List<String>) {
+        if (ids.isEmpty()) return
+        viewModelScope.launch {
+            val done = withContext(Dispatchers.IO) { setComicSeries(ids) { null } }
+            _message.value = if (done == 1) tr("Took 1 comic out of its series.") else tr("Took {0} comics out of their series.", done)
+        }
+    }
+
+    /** Gives each comic of [ids] the series [given] says (none, for null). How many have it now. */
+    private suspend fun setComicSeries(ids: Collection<String>, given: (LibraryBook) -> ComicSeries.Given?): Int {
+        var done = 0
+        for (id in ids) {
+            val b = library.book(id)?.takeIf { it.isComic } ?: continue
+            val g = given(b)
+            val meta = b.meta.copy(series = g?.series, seriesIndex = g?.index)
+            if (meta != b.meta) {
+                try {
+                    // The comic goes to the Kobo as its own file, so this isn't a change to it there.
+                    library.updateDetails(id, meta, b.collections, unchanged = true)
+                } catch (e: Exception) {
+                    AppLog.e("Library", "Couldn't change the series of “${b.title}”", e)
+                    continue
+                }
+            }
+            done++
+        }
+        return done
     }
 
     /** Done with the folder: what was found is let go. */

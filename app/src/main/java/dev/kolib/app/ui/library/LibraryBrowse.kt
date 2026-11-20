@@ -37,6 +37,16 @@ enum class LibrarySort(val label: String, val startsDescending: Boolean, val asc
     READ_HERE(tr("Last read on this device"), true, tr("least recent first"), tr("most recent first")),
 }
 
+/** How the Comics tab is sorted. */
+enum class ComicSort(val label: String) {
+    TITLE(tr("Title")),
+    READ(tr("Last read on this device")),
+    ADDED(tr("Date added")),
+}
+
+/** What's being chosen in the Comics tab: series, or comics of the series open. */
+enum class ComicSelecting { SERIES, ISSUES }
+
 /** Library list settings and scroll positions, kept while moving around the app. */
 class LibraryBrowseState {
     var query by mutableStateOf("")
@@ -49,7 +59,7 @@ class LibraryBrowseState {
     var descending by mutableStateOf(false)
     var grid by mutableStateOf(true)
     var selectedId by mutableStateOf<String?>(null)
-    /** Which tab is showing: the books (0) or the collections (1). */
+    /** Which tab is showing: the books (0), the collections (1) or the comics (2). */
     var tab by mutableIntStateOf(0)
     /** The Collections tab: the collection open in it (by its key, see libraryCollections), and the book of it open beside it. */
     var collectionKey by mutableStateOf<String?>(null)
@@ -57,6 +67,25 @@ class LibraryBrowseState {
     val collectionScroll = dev.kolib.app.ui.CollectionScroll()
     val gridState = LazyGridState()
     val listState = LazyListState()
+
+    /** The Comics tab: its search and order, the series open in it (by its key, see ComicSeries), and comics being chosen. */
+    var comicQuery by mutableStateOf("")
+    var comicSort by mutableStateOf(ComicSort.TITLE)
+    var comicKey by mutableStateOf<String?>(null)
+    /** A comic of the series open, shown with its details in the series' place. */
+    var comicBookId by mutableStateOf<String?>(null)
+    /** The series chosen in the Comics tab (by key), or the comics chosen in the series open (by id). */
+    val comicPicked = mutableStateMapOf<String, Boolean>()
+    var comicSelecting by mutableStateOf<ComicSelecting?>(null)
+    /** The series' comics newest first. */
+    var comicIssuesDescending by mutableStateOf(false)
+    val comicGrid = LazyGridState()
+    val comicIssues = LazyListState()
+
+    fun stopComicSelecting() {
+        comicSelecting = null
+        comicPicked.clear()
+    }
 
     /** Choosing several books (to send them, for instance). */
     var selecting by mutableStateOf(false)

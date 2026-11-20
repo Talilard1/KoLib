@@ -230,6 +230,12 @@ enum class MarginItem(val label: String, val example: String, val default: Margi
 
         fun write(map: Map<MarginItem, MarginSpot>): String = entries.joinToString(",") { "${it.name}=${(map[it] ?: it.default).name}" }
 
+        /** Some of them, as stored: "CLOCK,BATTERY". */
+        fun writeSet(items: Set<MarginItem>): String = entries.filter { it in items }.joinToString(",") { it.name }
+
+        fun parseSet(stored: String?): Set<MarginItem> =
+            stored?.split(',')?.mapNotNull { name -> entries.firstOrNull { it.name == name.trim() } }?.toSet().orEmpty()
+
         /** What the page headings show anyway: shown in the margins as well, they'd be there twice. */
         val IN_HEADINGS = listOf(BOOK, CHAPTER, PAGE, BOOK_PAGE)
     }
@@ -294,8 +300,15 @@ data class ReaderSettings(
     val edgePanels: Boolean = true,
     /** With [edgePanels] off: KoLib's own back swipe at the sides, rather than Android's. */
     val edgeBack: Boolean = false,
+    /**
+     * The text keeps out from under a camera in the screen (scrolling, it fades out going by behind it). Off, it has
+     * the whole screen; what's shown in the margins still keeps clear of the camera.
+     */
+    val clearOfCamera: Boolean = true,
     /** Where the chapter, page number, time and the rest show in the margins (or don't). */
     val marginItems: Map<MarginItem, MarginSpot> = MarginItem.DEFAULTS,
+    /** The margins' items shown in plain type, as they were before: the rest are in the page headings' type. */
+    val plainMargins: Set<MarginItem> = emptySet(),
     /** Page headings as a printed book has them: at the top of each page, the bottom, or none. */
     val runningHeads: RunningHeads = RunningHeads.TOP,
     /** Where the page headings' titles sit along the page. */
@@ -505,9 +518,9 @@ data class ReaderSettings(
             atBottom -> bottomRowAt(cut) + row
             else -> 0
         }
-        // The text itself keeps out from under a camera, whatever's in the margins.
-        val under = cut.top?.takeIf { overText(it, cut.width, cut.height) }?.let { Math.round(it.depth) + UNDER } ?: 0
-        val over = cut.bottom?.takeIf { overText(it, cut.width, cut.height) }?.let { Math.round(it.depth) + UNDER } ?: 0
+        // The text itself keeps out from under a camera, whatever's in the margins (unless it's to have the whole screen).
+        val under = cut.top?.takeIf { clearOfCamera && overText(it, cut.width, cut.height) }?.let { Math.round(it.depth) + UNDER } ?: 0
+        val over = cut.bottom?.takeIf { clearOfCamera && overText(it, cut.width, cut.height) }?.let { Math.round(it.depth) + UNDER } ?: 0
         return MarginRoom(top = maxOf(top, under), bottom = maxOf(bottom, over))
     }
 
@@ -526,8 +539,8 @@ data class ReaderSettings(
         val atBottom = MarginItem.entries.any { shownSpotOf(it).let { s -> s != MarginSpot.OFF && !s.top } }
         val top = if (atTop) topRowAt(cut) + row else 0
         val bottom = if (atBottom) bottomRowAt(cut) + row else 0
-        val under = cut.top?.takeIf { overText(it, cut.width, cut.height) }?.let { Math.round(it.depth) + UNDER } ?: 0
-        val over = cut.bottom?.takeIf { overText(it, cut.width, cut.height) }?.let { Math.round(it.depth) + UNDER } ?: 0
+        val under = cut.top?.takeIf { clearOfCamera && overText(it, cut.width, cut.height) }?.let { Math.round(it.depth) + UNDER } ?: 0
+        val over = cut.bottom?.takeIf { clearOfCamera && overText(it, cut.width, cut.height) }?.let { Math.round(it.depth) + UNDER } ?: 0
         return MarginRoom(top = maxOf(top, under), bottom = maxOf(bottom, over))
     }
 
@@ -594,7 +607,7 @@ data class ReaderSettings(
      */
     fun withLookOf(book: ReaderSettings): ReaderSettings = copy(
         font = book.font, userFont = book.userFont, fontScale = book.fontScale, lineSpacing = book.lineSpacing, margins = book.margins, align = book.align,
-        hyphens = book.hyphens, spread = book.spread, flow = book.flow, marginItems = book.marginItems, runningHeads = book.runningHeads,
+        hyphens = book.hyphens, spread = book.spread, flow = book.flow, marginItems = book.marginItems, plainMargins = book.plainMargins, runningHeads = book.runningHeads,
         headTitlePlace = book.headTitlePlace, headSize = book.headSize, headGap = book.headGap, collectionTitle = book.collectionTitle,
         pictures = book.pictures, colourLinks = book.colourLinks, joinOpenings = book.joinOpenings, rectoOpenings = book.rectoOpenings,
         printHeads = book.printHeads, dropCaps = book.dropCaps,
@@ -607,7 +620,7 @@ data class ReaderSettings(
     fun lookJson(): JSONObject = JSONObject()
         .put("font", font.name).put("userFont", userFont).put("fontScale", fontScale.toDouble()).put("line", lineSpacing.toDouble()).put("margins", margins.name)
         .put("align", align.name).put("hyphens", hyphens.name).put("spread", spread.name).put("flow", flow.name)
-        .put("marginItems", MarginItem.write(marginItems)).put("heads", runningHeads.name).put("headTitles", headTitlePlace.name)
+        .put("marginItems", MarginItem.write(marginItems)).put("plainMargins", MarginItem.writeSet(plainMargins)).put("heads", runningHeads.name).put("headTitles", headTitlePlace.name)
         .put("headSize", headSize.name).put("headGap", headGap.name).put("collectionTitle", collectionTitle.name)
         .put("pictures", pictures.name).put("linkColour", colourLinks).put("openings", joinOpenings).put("rectoOpenings", rectoOpenings)
         .put("printHeads", printHeads).put("dropCaps", dropCaps)
@@ -641,7 +654,7 @@ data class ReaderSettings(
         return when {
             used && cameraInTheWay(cut) -> topRowAt(cut) + MarginRoom.ROW_HEIGHT + 8
             used -> maxOf(BAND, depth + 4)
-            depth > 0 -> depth + 4
+            depth > 0 && clearOfCamera -> depth + 4
             else -> 0
         }
     }
@@ -652,7 +665,7 @@ data class ReaderSettings(
         val depth = cut.bottom?.let { Math.round(it.depth) } ?: 0
         return when {
             used -> maxOf(BAND, depth + MarginRoom.ROW_HEIGHT + 10)
-            depth > 0 -> depth + 4
+            depth > 0 && clearOfCamera -> depth + 4
             else -> 0
         }
     }
@@ -715,6 +728,7 @@ data class ReaderSettings(
                 spread = pick("spread", ReaderSpread.values(), base.spread),
                 flow = pick("flow", ReaderFlow.values(), base.flow),
                 marginItems = o.optString("marginItems").takeIf { it.isNotEmpty() }?.let { MarginItem.parse(it) } ?: base.marginItems,
+                plainMargins = if (o.has("plainMargins")) MarginItem.parseSet(o.optString("plainMargins")) else base.plainMargins,
                 runningHeads = pick("heads", RunningHeads.values(), base.runningHeads),
                 headTitlePlace = pick("headTitles", HeadTitlePlace.values(), base.headTitlePlace),
                 headSize = pick("headSize", HeadSize.values(), base.headSize),
@@ -853,7 +867,9 @@ class ReaderSettingsStore(context: Context) {
             .putBoolean("volume", next.volumeKeys)
             .putBoolean("edgePanels", next.edgePanels)
             .putBoolean("edgeBack", next.edgeBack)
+            .putBoolean("clearOfCamera", next.clearOfCamera)
             .putString("marginItems", MarginItem.write(next.marginItems))
+            .putString("plainMargins", MarginItem.writeSet(next.plainMargins))
             .putBoolean("awake", next.keepScreenOn)
             .putFloat("brightness", next.brightness)
             .putString("hlColor", next.highlightColor.name)
@@ -928,6 +944,7 @@ class ReaderSettingsStore(context: Context) {
             volumeKeys = prefs.getBoolean("volume", d.volumeKeys),
             edgePanels = prefs.getBoolean("edgePanels", d.edgePanels),
             edgeBack = prefs.getBoolean("edgeBack", d.edgeBack),
+            clearOfCamera = prefs.getBoolean("clearOfCamera", d.clearOfCamera),
             brightness = prefs.getFloat("brightness", d.brightness),
             highlightColor = enumOf("hlColor", d.highlightColor),
             highlightStyle = enumOf("hlStyle", d.highlightStyle),
@@ -946,6 +963,7 @@ class ReaderSettingsStore(context: Context) {
             progressLine = enumOf("progressBar", d.progressLine),
             barShade = enumOf("barShade", d.barShade),
             marginItems = prefs.getString("marginItems", null)?.let { MarginItem.parse(it) } ?: marginsBefore(),
+            plainMargins = MarginItem.parseSet(prefs.getString("plainMargins", null)),
             runningHeads = enumOf("heads", d.runningHeads),
             headTitlePlace = enumOf("headTitles", d.headTitlePlace),
             headSize = enumOf("headSize", d.headSize),

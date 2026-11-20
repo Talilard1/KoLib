@@ -895,9 +895,9 @@
         // Only shown, not counted: it's two pages either way.
         if (!countingOnly) placeHalves(halves);
         root.classList.add('kl-spread-pair');
-      } else if (picturePage && (wide || centred())) {
-        // A map or a picture made to go across two pages: across the screen, in the middle. A cover: in
-        // the middle, as big as fits.
+      } else if (picturePage && (wide || centred() || place !== 'left')) {
+        // A map or a picture made to go across two pages: across the screen, in the middle. A cover, or a
+        // plate on its own (a picture between chapters): in the middle, as big as fits.
         spreadPicture = true;
         columns = wide ? 2 : 1;
         displayPage = true;
@@ -910,16 +910,11 @@
         setVar('--kl-centre-shift', Math.round(W / 2 - padX - colW / 2) + 'px');
         root.classList.add('kl-centre');
       } else if (columns === 1 && place !== 'left') {
-        // A page on its own (an epigraph, a notice, a plate) goes on the right, as in print. (A
-        // dedication stays on the left.) A plate fills its page, into the margins. (With pieces of the page put in
-        // front of it by the app, a part's title and an ornament, the blank page goes before them too.)
+        // A page of words on its own (an epigraph, a notice) goes on the right, as in print. (A dedication
+        // stays on the left.) (With pieces of the page put in front of it by the app, a part's title and an
+        // ornament, the blank page goes before them too.)
         blankBefore = 1;
         root.classList.add(document.getElementById('kl-opening') ? 'kl-recto-open' : 'kl-recto');
-        var plate = picturePage && document.querySelector('.kl-full-page');
-        if (plate && !countingOnly) {
-          placePicture(plate, W / 2 + gutter, W - 12);
-          root.classList.add('kl-placed');
-        }
       }
     }
     // A chapter starts on a right-hand page, as in print, the left-hand one beside it blank. (Its pages of
@@ -1315,9 +1310,43 @@
 
   function textNodes() {
     var out = [];
+    // Scrolling, the pages round the book's chapters shown as one are in front of the page's own text (read as HTML,
+    // they're in it).
+    var section = sectionBox();
+    if (section && !document.body.contains(section)) {
+      var ws = document.createTreeWalker(section, NodeFilter.SHOW_TEXT, null);
+      for (var m = ws.nextNode(); m; m = ws.nextNode()) out.push(m);
+    }
     var w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
     for (var n = w.nextNode(); n; n = w.nextNode()) out.push(n);
     return out;
+  }
+
+  /** Scrolling, the box the pages round the book's chapters are joined in, in front of the last of them (see the app's ChapterOpenings). */
+  function sectionBox() { return document.getElementById('kl-section'); }
+
+  /** Whether [n] is in the page's text: its body, or the pages joined in front of it. */
+  function inText(n) {
+    var section = sectionBox();
+    return !!n && (document.body.contains(n) || (!!section && section.contains(n)));
+  }
+
+  /**
+   * Scrolling a section of pages shown as one: the page of it at the top of the screen, by the number of its chapter in
+   * the book; -1 when past them, in the page's own text (or there's no section).
+   */
+  function partAtTop() {
+    var section = sectionBox();
+    if (!section || !scrolled) return -1;
+    var line = bandTop + 2;
+    if (section.getBoundingClientRect().bottom <= line) return -1;
+    var at = -1;
+    for (var el = section.firstElementChild; el; el = el.nextElementSibling) {
+      if (!el.id || el.id.indexOf('kl-part-') !== 0) continue;
+      if (at < 0 || el.getBoundingClientRect().top <= line) at = parseInt(el.id.slice(8), 10);
+      else break;
+    }
+    return at;
   }
 
   function rectOf(node, offset) {
@@ -1356,7 +1385,7 @@
     if (document.caretRangeFromPoint) {
       for (var dy = 0; dy <= 30; dy += 10) {
         var r = document.caretRangeFromPoint(x, top + dy);
-        if (r && r.startContainer && r.startContainer.nodeType === 3 && document.body.contains(r.startContainer) && r.startContainer.data.trim()) {
+        if (r && r.startContainer && r.startContainer.nodeType === 3 && inText(r.startContainer) && r.startContainer.data.trim()) {
           var rc = rectOf(r.startContainer, r.startOffset);
           if (rc && rc.bottom > bandTop && rc.top < H - bandBottom) return { node: r.startContainer, offset: r.startOffset };
         }
@@ -1532,9 +1561,16 @@
     return lo;
   }
 
+  /**
+   * Where [node] is: the child numbers down to it from the page's body ("3/1/0"). In one of the pages joined in front
+   * of it (scrolling), from that page's box, named first ("@kl-part-4/3/1/0"): as from the body of its own page.
+   */
   function pathOf(node) {
     var parts = [];
     while (node && node !== document.body) {
+      if (node.nodeType === 1 && node.id && node.id.indexOf('kl-part-') === 0 && node.parentNode === sectionBox()) {
+        return '@' + node.id + (parts.length ? '/' + parts.join('/') : '');
+      }
       var i = 0;
       for (var s = node.previousSibling; s; s = s.previousSibling) i++;
       parts.unshift(i);
@@ -1548,9 +1584,17 @@
     var parts = String(path).split('/');
     for (var i = 0; i < parts.length && node; i++) {
       if (parts[i] === '') continue;
+      if (i === 0 && parts[i].charAt(0) === '@') { node = document.getElementById(parts[i].slice(1)); continue; }
       node = node.childNodes[parseInt(parts[i], 10)];
     }
     return node || null;
+  }
+
+  /** The box of the page joined in front that a place ("@kl-part-4/3:12") is in, if it's in one. */
+  function partOf(value) {
+    var s = String(value || '');
+    if (s.charAt(0) !== '@') return null;
+    return document.getElementById(s.slice(1).split(/[/:]/)[0]);
   }
 
   /**
@@ -1559,6 +1603,7 @@
    */
   function placeOf(value) {
     var s = String(value || '');
+    if (!s) return null;
     if (s.indexOf('chars=') === 0) return pointAtLetters(parseInt(s.slice(6), 10) || 0);
     var bits = s.split(':');
     var node = nodeAt(bits[0]);
@@ -1597,7 +1642,8 @@
 
   function snippetFrom(node, offset) {
     var out = '';
-    var w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+    var section = sectionBox();
+    var w = document.createTreeWalker(section && section.contains(node) ? section : document.body, NodeFilter.SHOW_TEXT, null);
     w.currentNode = node;
     var n = node, first = true;
     while (n && out.length < 160) {
@@ -1629,6 +1675,7 @@
       frame: { w: W, h: H, perScreen: perScreen, padX: padX, col: colW, padTop: padTop, padBottom: padBottom },
       picture: picturePage,
       spreadPicture: spreadPicture,
+      part: partAtTop(),
     };
   }
 
@@ -1760,6 +1807,9 @@
       case 'anchor': {
         var at = placeOf(t.value);
         var a = at ? nearTop(yOf(at.node, at.offset)) : null;
+        // In a page joined in front that's changed since: its top.
+        var pe = a == null ? partOf(t.value) : null;
+        if (pe) a = nearTop(pe.getBoundingClientRect().top + scroller.scrollTop);
         y = a != null ? a : (t.progress || 0) * max;
         break;
       }

@@ -31,6 +31,19 @@ class LibraryComicsTest {
     private fun library() = Library(context, root, "$name.db")
 
     @Test
+    fun aComicsSeriesIsKeptWithoutCountingAsAChangeToIt(): Unit = runBlocking {
+        val file = TestComics.comic(File(context.cacheDir, "$name/saga.cbz"))
+        val lib = library().apply { load() }
+        val book = (lib.import("Saga 001.cbz", { file.inputStream() }, BookSource.FILE) as ImportOutcome.Added).book
+        val saved = lib.updateDetails(book.id, book.meta.copy(series = "Saga", seriesIndex = 1.0), book.collections, unchanged = true)
+        assertEquals("Saga", saved.meta.series)
+        assertEquals(1.0, saved.meta.seriesIndex!!, 0.0)
+        // The comic goes to the Kobo as its own file: a copy there isn't out of date.
+        assertEquals(book.modifiedAt, saved.modifiedAt)
+        assertEquals("Saga", lib.book(book.id)!!.meta.series)
+    }
+
+    @Test
     fun aComicIsKeptAsItCameWithAStandInForItsDetailsAndCover(): Unit = runBlocking {
         val file = TestComics.comic(File(context.cacheDir, "$name/lantern.cbz"))
         val lib = library().apply { load() }

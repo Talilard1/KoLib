@@ -1,0 +1,488 @@
+@fr
+3084|1 BD est maintenant dans « {0} ».
+3085|{0} BD sont maintenant dans « {1} ».
+3086|1 BD a été retirée de sa série.
+3087|{0} BD ont été retirées de leur série.
+3088|1 pas encore lue
+3089|{0} pas encore lues
+3090|1 BD
+3091|{0} BD
+3092|Touchez une série
+3097|Aucune BD
+3099|Aucune BD ne correspond
+3100|Rien dans l’onglet BD ne contient « {0} » dans son nom.
+3101|Regrouper
+3102|Les mettre dans une même série
+3103|Marquer comme lu
+3104|Mettre dans une même série
+3105|Chercher dans les BD
+3106|Effacer la recherche
+3107|1 série
+3108|{0} séries
+3112|Retirer de la série
+3113|Retour aux BD
+3114| · tout est lu
+3115| · {0} pas encore lues
+3116|Commencer la lecture
+3117|Continuer : {0}
+3120|Retirer
+3121|Renommer la série
+3122|En faire une série
+3123|Tout marquer comme lu
+3124|Tout marquer comme non lu
+3125|Pas encore lue
+3126| · sur la Kobo
+3127|Elles s’affichent comme une seule série dans l’onglet BD, dans l’ordre.
+3128|BD ({0})
+3129|BD
+3130|Lire la suivante
+3131|C’est la dernière BD de {0}.
+3132|C’est la fin de la BD.
+3133|Fermer la BD
+3134|Retour à la dernière page
+3135|Ses BD s’affichent ici, dans l’ordre. Maintenez une série pour en sélectionner plusieurs.
+3136|Touchez des séries pour les sélectionner
+3137|1 série sélectionnée
+3138|{0} séries sélectionnées
+3139|Les BD que vous ajoutez s’affichent ici, une entrée par série.
+3140|Touchez des BD pour les sélectionner
+3141|1 BD sélectionnée
+3142|{0} BD sélectionnées
+3143|De la dernière à la première
+3144|De la première à la dernière
+3145|Garder le texte à l’écart de la caméra
+3146|Désactivé, le texte occupe tout l’écran et passe sous la caméra. Ce qui s’affiche dans les marges reste à l’écart.
+3147|Lu
+3148|Non lu
+3149|Les titres et les numéros de page sont dans les titres courants. Pour les mettre ici à la place, désactivez les titres courants.
+3150|Dans les titres courants
+3151|{0} · simple
+3152|Comme les titres courants
+3153|Simple
+@de
+3084|1 Comic ist jetzt in „{0}“.
+3085|{0} Comics sind jetzt in „{1}“.
+3086|1 Comic aus seiner Reihe genommen.
+3087|{0} Comics aus ihren Reihen genommen.
+3088|1 noch ungelesen
+3089|{0} noch ungelesen
+3090|1 Comic
+3091|{0} Comics
+3092|Tippe auf eine Reihe
+3097|Keine Comics
+3099|Keine passenden Comics
+3100|Nichts im Comics-Tab hat „{0}“ im Namen.
+3101|Gruppieren
+3102|In eine Reihe zusammenfassen
+3103|Als gelesen markieren
+3104|In eine Reihe
+3105|Comics durchsuchen
+3106|Suche löschen
+3107|1 Reihe
+3108|{0} Reihen
+3112|Aus der Reihe nehmen
+3113|Zurück zu den Comics
+3114| · alle gelesen
+3115| · {0} noch ungelesen
+3116|Lesen beginnen
+3117|Weiterlesen: {0}
+3120|Herausnehmen
+3121|Reihe umbenennen
+3122|Zur Reihe machen
+3123|Alle als gelesen markieren
+3124|Alle als ungelesen markieren
+3125|Noch ungelesen
+3126| · auf dem Kobo
+3127|Sie erscheinen als eine Reihe im Comics-Tab, in der richtigen Reihenfolge.
+3128|Comics ({0})
+3129|Comics
+3130|Den nächsten lesen
+3131|Das ist der letzte Comic in {0}.
+3132|Das ist das Ende des Comics.
+3133|Comic schließen
+3134|Zurück zur letzten Seite
+3135|Ihre Comics erscheinen hier, der Reihe nach. Halte eine Reihe gedrückt, um mehrere auszuwählen.
+3136|Tippe auf Reihen, um sie auszuwählen
+3137|1 Reihe ausgewählt
+3138|{0} Reihen ausgewählt
+3139|Comics, die du hinzufügst, erscheinen hier – ein Eintrag pro Reihe.
+3140|Tippe auf Comics, um sie auszuwählen
+3141|1 Comic ausgewählt
+3142|{0} Comics ausgewählt
+3143|Vom letzten zum ersten
+3144|Vom ersten zum letzten
+3145|Text von der Kamera fernhalten
+3146|Aus, nutzt der Text den ganzen Bildschirm und läuft unter der Kamera durch. Was in den Rändern steht, bleibt weiter frei davon.
+3147|Gelesen
+3148|Ungelesen
+3149|Die Titel und Seitenzahlen stehen in den Kolumnentiteln. Um sie stattdessen hier anzuzeigen, schalte die Kolumnentitel aus.
+3150|In den Kolumnentiteln
+3151|{0} · schlicht
+3152|Wie die Kolumnentitel
+3153|Schlicht
+@es
+3084|1 cómic está ahora en «{0}».
+3085|{0} cómics están ahora en «{1}».
+3086|Se sacó 1 cómic de su serie.
+3087|Se sacaron {0} cómics de sus series.
+3088|1 sin leer
+3089|{0} sin leer
+3090|1 cómic
+3091|{0} cómics
+3092|Toca una serie
+3097|No hay cómics
+3099|Ningún cómic coincide
+3100|Nada en la pestaña Cómics tiene «{0}» en su nombre.
+3101|Agrupar
+3102|Ponerlos en una misma serie
+3103|Marcar como leído
+3104|Poner en una serie
+3105|Buscar en los cómics
+3106|Borrar la búsqueda
+3107|1 serie
+3108|{0} series
+3112|Sacar de la serie
+3113|Volver a los cómics
+3114| · todos leídos
+3115| · {0} sin leer
+3116|Empezar a leer
+3117|Seguir: {0}
+3120|Sacar
+3121|Cambiar el nombre de la serie
+3122|Convertir en serie
+3123|Marcar todos como leídos
+3124|Marcar todos como no leídos
+3125|Sin leer
+3126| · en el Kobo
+3127|Aparecen como una sola serie en la pestaña Cómics, en orden.
+3128|Cómics ({0})
+3129|Cómics
+3130|Leer el siguiente
+3131|Es el último cómic de {0}.
+3132|Es el final del cómic.
+3133|Cerrar el cómic
+3134|Volver a la última página
+3135|Sus cómics aparecen aquí, en orden. Mantén pulsada una serie para seleccionar varias.
+3136|Toca series para seleccionarlas
+3137|1 serie seleccionada
+3138|{0} series seleccionadas
+3139|Los cómics que añadas aparecen aquí, una entrada por serie.
+3140|Toca cómics para seleccionarlos
+3141|1 cómic seleccionado
+3142|{0} cómics seleccionados
+3143|Del último al primero
+3144|Del primero al último
+3145|Mantener el texto lejos de la cámara
+3146|Desactivado, el texto usa toda la pantalla y pasa por debajo de la cámara. Lo que se muestra en los márgenes sigue apartado de ella.
+3147|Leído
+3148|Sin leer
+3149|Los títulos y los números de página están en los encabezados. Para ponerlos aquí, desactiva los encabezados.
+3150|En los encabezados
+3151|{0} · sencillo
+3152|Como los encabezados de página
+3153|Sencillo
+@it
+3084|1 fumetto ora è in «{0}».
+3085|{0} fumetti ora sono in «{1}».
+3086|1 fumetto tolto dalla sua serie.
+3087|{0} fumetti tolti dalle loro serie.
+3088|1 ancora da leggere
+3089|{0} ancora da leggere
+3090|1 fumetto
+3091|{0} fumetti
+3092|Tocca una serie
+3097|Nessun fumetto
+3099|Nessun fumetto corrisponde
+3100|Niente nella scheda Fumetti ha «{0}» nel nome.
+3101|Raggruppa
+3102|Mettili in una sola serie
+3103|Segna come letto
+3104|Metti in una serie
+3105|Cerca nei fumetti
+3106|Cancella la ricerca
+3107|1 serie
+3108|{0} serie
+3112|Togli dalla serie
+3113|Torna ai fumetti
+3114| · tutti letti
+3115| · {0} ancora da leggere
+3116|Inizia a leggere
+3117|Continua: {0}
+3120|Togli
+3121|Rinomina la serie
+3122|Rendilo una serie
+3123|Segna tutti come letti
+3124|Segna tutti come non letti
+3125|Ancora da leggere
+3126| · sul Kobo
+3127|Compaiono come una sola serie nella scheda Fumetti, in ordine.
+3128|Fumetti ({0})
+3129|Fumetti
+3130|Leggi il prossimo
+3131|È l’ultimo fumetto di {0}.
+3132|È la fine del fumetto.
+3133|Chiudi il fumetto
+3134|Torna all’ultima pagina
+3135|I suoi fumetti compaiono qui, in ordine. Tieni premuta una serie per selezionarne diverse.
+3136|Tocca le serie per selezionarle
+3137|1 serie selezionata
+3138|{0} serie selezionate
+3139|I fumetti che aggiungi compaiono qui, una voce per ogni serie.
+3140|Tocca i fumetti per selezionarli
+3141|1 fumetto selezionato
+3142|{0} fumetti selezionati
+3143|Dall’ultimo al primo
+3144|Dal primo all’ultimo
+3145|Tieni il testo lontano dalla fotocamera
+3146|Disattivato, il testo usa tutto lo schermo e passa sotto la fotocamera. Ciò che è nei margini resta comunque lontano.
+3147|Letto
+3148|Non letto
+3149|I titoli e i numeri di pagina sono nei titoli correnti. Per metterli qui, disattiva i titoli correnti.
+3150|Nei titoli correnti
+3151|{0} · semplice
+3152|Come i titoli correnti
+3153|Semplice
+@nl
+3084|1 strip staat nu in ‘{0}’.
+3085|{0} strips staan nu in ‘{1}’.
+3086|1 strip uit zijn reeks gehaald.
+3087|{0} strips uit hun reeks gehaald.
+3088|1 nog niet gelezen
+3089|{0} nog niet gelezen
+3090|1 strip
+3091|{0} strips
+3092|Tik op een reeks
+3097|Geen strips
+3099|Geen strips gevonden
+3100|Niets in het tabblad Strips heeft ‘{0}’ in de naam.
+3101|Groeperen
+3102|In één reeks zetten
+3103|Markeren als gelezen
+3104|In één reeks zetten
+3105|Strips doorzoeken
+3106|Zoekopdracht wissen
+3107|1 reeks
+3108|{0} reeksen
+3112|Uit de reeks halen
+3113|Terug naar de strips
+3114| · alles gelezen
+3115| · {0} nog niet gelezen
+3116|Beginnen met lezen
+3117|Verder: {0}
+3120|Eruit halen
+3121|Reeks hernoemen
+3122|Er een reeks van maken
+3123|Alles markeren als gelezen
+3124|Alles markeren als ongelezen
+3125|Nog niet gelezen
+3126| · op de Kobo
+3127|Ze staan als één reeks in het tabblad Strips, op volgorde.
+3128|Strips ({0})
+3129|Strips
+3130|De volgende lezen
+3131|Dat is de laatste strip van {0}.
+3132|Dat is het einde van de strip.
+3133|Strip sluiten
+3134|Terug naar de laatste pagina
+3135|De strips verschijnen hier, op volgorde. Houd een reeks ingedrukt om er meerdere te selecteren.
+3136|Tik op reeksen om ze te selecteren
+3137|1 reeks geselecteerd
+3138|{0} reeksen geselecteerd
+3139|Strips die je toevoegt verschijnen hier, één item per reeks.
+3140|Tik op strips om ze te selecteren
+3141|1 strip geselecteerd
+3142|{0} strips geselecteerd
+3143|Van laatste naar eerste
+3144|Van eerste naar laatste
+3145|Tekst weghouden van de camera
+3146|Uit gebruikt de tekst het hele scherm en loopt hij onder de camera door. Wat in de marges staat, blijft er wel vrij van.
+3147|Gelezen
+3148|Ongelezen
+3149|De titels en paginanummers staan in de paginakoppen. Zet de paginakoppen uit om ze hier te zetten.
+3150|In de paginakoppen
+3151|{0} · eenvoudig
+3152|Zoals de paginakoppen
+3153|Eenvoudig
+@pt
+3084|1 quadrinho agora está em “{0}”.
+3085|{0} quadrinhos agora estão em “{1}”.
+3086|1 quadrinho saiu da sua série.
+3087|{0} quadrinhos saíram das suas séries.
+3088|1 ainda não lido
+3089|{0} ainda não lidos
+3090|1 quadrinho
+3091|{0} quadrinhos
+3092|Toque em uma série
+3097|Nenhum quadrinho
+3099|Nenhum quadrinho encontrado
+3100|Nada na aba Quadrinhos tem “{0}” no nome.
+3101|Agrupar
+3102|Colocar em uma mesma série
+3103|Marcar como lido
+3104|Colocar em uma série
+3105|Pesquisar nos quadrinhos
+3106|Limpar a pesquisa
+3107|1 série
+3108|{0} séries
+3112|Tirar da série
+3113|Voltar aos quadrinhos
+3114| · todos lidos
+3115| · {0} ainda não lidos
+3116|Começar a ler
+3117|Continuar: {0}
+3120|Tirar
+3121|Renomear a série
+3122|Transformar em série
+3123|Marcar todos como lidos
+3124|Marcar todos como não lidos
+3125|Ainda não lido
+3126| · no Kobo
+3127|Eles aparecem como uma única série na aba Quadrinhos, em ordem.
+3128|Quadrinhos ({0})
+3129|Quadrinhos
+3130|Ler o próximo
+3131|Esse é o último quadrinho de {0}.
+3132|Esse é o fim do quadrinho.
+3133|Fechar o quadrinho
+3134|Voltar à última página
+3135|Os quadrinhos dela aparecem aqui, em ordem. Segure uma série para selecionar várias.
+3136|Toque nas séries para selecioná-las
+3137|1 série selecionada
+3138|{0} séries selecionadas
+3139|Os quadrinhos que você adicionar aparecem aqui, um item por série.
+3140|Toque nos quadrinhos para selecioná-los
+3141|1 quadrinho selecionado
+3142|{0} quadrinhos selecionados
+3143|Do último ao primeiro
+3144|Do primeiro ao último
+3145|Manter o texto longe da câmera
+3146|Desativado, o texto usa a tela toda e passa por baixo da câmera. O que aparece nas margens continua longe dela.
+3147|Lido
+3148|Não lido
+3149|Os títulos e os números de página estão nos cabeçalhos. Para colocá-los aqui, desative os cabeçalhos.
+3150|Nos cabeçalhos
+3151|{0} · simples
+3152|Como os cabeçalhos de página
+3153|Simples
+@ru
+3084|Теперь 1 комикс в серии «{0}».
+3085|Теперь {0} {0:комикс|комикса|комиксов} в серии «{1}».
+3086|1 комикс убран из серии.
+3087|{0} {0:комикс убран|комикса убраны|комиксов убраны} из своих серий.
+3088|Не прочитано: 1
+3089|Не прочитано: {0}
+3090|1 комикс
+3091|{0} {0:комикс|комикса|комиксов}
+3092|Выберите серию
+3097|Нет комиксов
+3099|Ничего не найдено
+3100|Во вкладке «Комиксы» нет ничего с «{0}» в названии.
+3101|Объединить
+3102|Объединить в одну серию
+3103|Отметить как прочитанное
+3104|Объединить в серию
+3105|Поиск по комиксам
+3106|Очистить поиск
+3107|1 серия
+3108|{0} {0:серия|серии|серий}
+3112|Убрать из серии
+3113|Назад к комиксам
+3114| · всё прочитано
+3115| · не прочитано: {0}
+3116|Начать читать
+3117|Продолжить: {0}
+3120|Убрать
+3121|Переименовать серию
+3122|Сделать серией
+3123|Отметить все как прочитанные
+3124|Отметить все как непрочитанные
+3125|Не прочитано
+3126| · на Kobo
+3127|Они будут показаны одной серией во вкладке «Комиксы», по порядку.
+3128|Комиксы ({0})
+3129|Комиксы
+3130|Читать следующий
+3131|Это последний комикс в серии «{0}».
+3132|Это конец комикса.
+3133|Закрыть комикс
+3134|Вернуться к последней странице
+3135|Здесь по порядку будут показаны её комиксы. Удерживайте серию, чтобы выбрать несколько.
+3136|Нажимайте на серии, чтобы выбрать их
+3137|Выбрана 1 серия
+3138|{0:Выбрана|Выбрано|Выбрано} {0} {0:серия|серии|серий}
+3139|Здесь будут показаны добавленные вами комиксы, по одной записи на серию.
+3140|Нажимайте на комиксы, чтобы выбрать их
+3141|Выбран 1 комикс
+3142|{0:Выбран|Выбрано|Выбрано} {0} {0:комикс|комикса|комиксов}
+3143|С последнего к первому
+3144|С первого к последнему
+3145|Не заводить текст под камеру
+3146|Если выключено, текст занимает весь экран и проходит под камерой. То, что показано на полях, всё равно не заходит под неё.
+3147|Прочитано
+3148|Не прочитано
+3149|Названия и номера страниц показаны в колонтитулах. Чтобы показывать их здесь, выключите колонтитулы.
+3150|В колонтитулах
+3151|{0} · простой
+3152|Как колонтитулы
+3153|Простой
+@ja
+3084|1 冊が「{0}」に入りました。
+3085|{0} 冊が「{1}」に入りました。
+3086|1 冊をシリーズから外しました。
+3087|{0} 冊をシリーズから外しました。
+3088|未読 1 冊
+3089|未読 {0} 冊
+3090|1 冊
+3091|{0} 冊
+3092|シリーズをタップしてください
+3097|コミックはありません
+3099|一致するコミックはありません
+3100|コミックタブに「{0}」を名前に含むものはありません。
+3101|まとめる
+3102|1 つのシリーズにまとめる
+3103|既読にする
+3104|シリーズにまとめる
+3105|コミックを検索
+3106|検索をクリア
+3107|1 シリーズ
+3108|{0} シリーズ
+3112|シリーズから外す
+3113|コミックに戻る
+3114| · すべて既読
+3115| · 未読 {0} 冊
+3116|読み始める
+3117|続きから: {0}
+3120|外す
+3121|シリーズ名を変更
+3122|シリーズにする
+3123|すべて既読にする
+3124|すべて未読にする
+3125|未読
+3126| · Kobo にあり
+3127|コミックタブで 1 つのシリーズとして順番に表示されます。
+3128|コミック ({0})
+3129|コミック
+3130|次を読む
+3131|{0} の最後のコミックです。
+3132|コミックの終わりです。
+3133|コミックを閉じる
+3134|最後のページに戻る
+3135|シリーズのコミックが順番にここに表示されます。シリーズを長押しすると複数選べます。
+3136|シリーズをタップして選択
+3137|1 シリーズを選択中
+3138|{0} シリーズを選択中
+3139|追加したコミックがここに表示されます。シリーズごとに 1 つです。
+3140|コミックをタップして選択
+3141|1 冊を選択中
+3142|{0} 冊を選択中
+3143|最後から最初へ
+3144|最初から最後へ
+3145|カメラの部分に文字を重ねない
+3146|オフにすると、文字が画面全体を使い、カメラの下にも表示されます。余白に表示するものはカメラを避けたままです。
+3147|既読
+3148|未読
+3149|タイトルとページ番号はページの柱に表示されます。ここに表示するには、柱をオフにしてください。
+3150|柱に表示
+3151|{0}・シンプル
+3152|ページの柱と同じ
+3153|シンプル

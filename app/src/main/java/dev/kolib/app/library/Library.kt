@@ -502,8 +502,11 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
         }
     }
 
-    /** Saves new details into the EPUB and the library. */
-    suspend fun updateDetails(id: String, meta: BookMetadata, collections: List<String>): LibraryBook = withContext(Dispatchers.IO) {
+    /**
+     * Saves new details into the EPUB and the library. [unchanged]: it doesn't count as a change to the book, for
+     * whether a copy on the Kobo is out of date (a comic's series: the comic goes to the Kobo as its own file).
+     */
+    suspend fun updateDetails(id: String, meta: BookMetadata, collections: List<String>, unchanged: Boolean = false): LibraryBook = withContext(Dispatchers.IO) {
         lock.withLock {
             val book = book(id) ?: throw IOException(tr("That book is no longer in the library."))
             val cleanCollections = collections.map { it.trim() }.filter { it.isNotEmpty() }.distinctBy { it.lowercase() }
@@ -524,7 +527,7 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
                 meta = saved,
                 collections = cleanCollections,
                 fileSize = file.length(),
-                modifiedAt = System.currentTimeMillis(),
+                modifiedAt = if (unchanged) book.modifiedAt else System.currentTimeMillis(),
             )
             db.upsert(updated)
             _books.update { list -> list.map { if (it.id == id) updated else it } }

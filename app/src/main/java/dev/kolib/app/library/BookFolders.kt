@@ -7,7 +7,8 @@ import dev.kolib.app.convert.BookFormats
 import dev.kolib.app.saf.SafTree
 
 /** A book file found in a folder, to add to the library. */
-data class FoundBook(val uri: Uri, val name: String, val size: Long)
+/** A book file found in a folder: [folder] is where it was inside the one chosen ("Saga/Volume 1"), if it wasn't straight in it. */
+data class FoundBook(val uri: Uri, val name: String, val size: Long, val folder: String? = null)
 
 /** Looking through a folder for books to add: while it's looked through, what was found, and adding them. */
 sealed interface FolderScan {
@@ -52,20 +53,21 @@ object BookFolders {
     fun find(resolver: ContentResolver, tree: Uri, onCount: (Int) -> Unit = {}): List<FoundBook> {
         val saf = SafTree(resolver, tree)
         val out = ArrayList<FoundBook>()
-        val folders = ArrayDeque<Pair<String, Int>>()
-        folders.add(saf.rootDocId to 0)
+        // Each folder to look in, how deep it is, and where it is inside the one chosen.
+        val folders = ArrayDeque<Triple<String, Int, String?>>()
+        folders.add(Triple(saf.rootDocId, 0, null))
         var first = true
         while (folders.isNotEmpty()) {
-            val (id, depth) = folders.removeFirst()
+            val (id, depth, path) = folders.removeFirst()
             // The chosen folder must be readable; one inside it that isn't is passed over.
             val inside = if (first) saf.children(id) else runCatching { saf.children(id) }.getOrDefault(emptyList())
             first = false
             for (e in inside.sortedBy { it.name.lowercase() }) {
                 when {
                     e.name.startsWith(".") -> Unit
-                    e.isDirectory -> if (depth < 12) folders.add(e.docId to depth + 1)
+                    e.isDirectory -> if (depth < 12) folders.add(Triple(e.docId, depth + 1, if (path == null) e.name else "$path/${e.name}"))
                     looksLikeABook(e.name) && e.size != 0L -> {
-                        out += FoundBook(saf.uriOf(e.docId), e.name, e.size)
+                        out += FoundBook(saf.uriOf(e.docId), e.name, e.size, path)
                         onCount(out.size)
                     }
                 }

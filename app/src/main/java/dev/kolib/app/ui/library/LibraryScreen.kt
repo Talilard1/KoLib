@@ -219,13 +219,24 @@ fun LibraryScreen(
     koboNotice: KoboNotice? = null,
     /** What's being sent to or taken in from the user's other devices, for its progress bars. */
     transfers: List<dev.kolib.app.link.Transfer> = emptyList(),
+    /** Putting comics in one series, of the name given; and taking them out of theirs. */
+    onGroupComics: (List<String>, String) -> Unit = { _, _ -> },
+    onTakeOutOfSeries: (List<String>) -> Unit = {},
 ) {
+    // Comics have a tab of their own, a series to an entry; the Books tab has the rest.
+    val comics = remember(books) { libraryComics(books) }
+    val notComics = remember(books, comics) { if (comics.isEmpty()) books else books.filterNot { it.isComic } }
+    val comicActions = remember(onRead, onSend, onDelete, onMarkFinished, onMarkUnread, onGroupComics, onTakeOutOfSeries) {
+        ComicActions(onRead, onSend, onDelete, onMarkFinished, onMarkUnread, onGroupComics, onTakeOutOfSeries)
+    }
+    // The last comic gone, the tab goes too.
+    LaunchedEffect(comics.isEmpty()) { if (comics.isEmpty() && browse.tab == 2) browse.tab = 0 }
     val reading: (LibraryBook) -> KoboBook? = remember(onKobo) {
         { b -> b.koboPath?.let { onKobo[KoboPaths.contentId(it)] } }
     }
     val here: (LibraryBook) -> ReadHere? = remember(readingHere) { { b -> readingHere[b.id] } }
-    val visible = remember(books, onKobo, readingHere, browse.query, browse.filter, browse.collection, browse.sort, browse.descending, browse.tags, browse.tagsMatchAll) {
-        LibrarySorting.filter(books, browse.query, browse.filter, browse.collection, browse.sort, browse.descending, browse.tags, browse.tagsMatchAll, reading, here)
+    val visible = remember(notComics, onKobo, readingHere, browse.query, browse.filter, browse.collection, browse.sort, browse.descending, browse.tags, browse.tagsMatchAll) {
+        LibrarySorting.filter(notComics, browse.query, browse.filter, browse.collection, browse.sort, browse.descending, browse.tags, browse.tagsMatchAll, reading, here)
     }
     val selected = browse.selectedId?.let { id -> books.firstOrNull { it.id == id } }
     // What's showing, for the AI to know when it's asked about "these books".
@@ -242,6 +253,7 @@ fun LibraryScreen(
             onNewBook = onNewBook, onMerge = onMerge, onSplit = onSplit, onExport = onExport, onDuplicate = onDuplicate,
             onAbout = onAbout, onStats = onStats, onTheme = onTheme, onMarkFinished = onMarkFinished, onMarkUnread = onMarkUnread,
             onContinueFromKobo = onContinueFromKobo, onSyncReading = onSyncReading, koboNotice = koboNotice, transfers = transfers,
+            comics = comics, comicActions = comicActions,
         )
         return
     }
@@ -324,17 +336,22 @@ fun LibraryScreen(
                 return@Column
             }
             val collectionCount = remember(books) { libraryCollectionCount(books) }
-            // Swipe left or right for the other tab, or tap it. Books being chosen are let go of on the Collections tab,
+            val seriesCount = remember(comics) { dev.kolib.app.library.ComicSeries.entries(comics).size }
+            // Swipe left or right for the other tab, or tap it. Books being chosen are let go of on the other tabs,
             // and choosing books (from anywhere) shows the Books tab.
-            val pager = rememberTabPager(browse.tab, 2) { t ->
-                if (t == 1) browse.stopSelecting()
+            // (Kept while it's showing, till the library's moved on from it, when the last comic goes.)
+            val tabCount = if (comics.isEmpty() && browse.tab != 2) 2 else 3
+            val pager = rememberTabPager(browse.tab.coerceAtMost(tabCount - 1), tabCount) { t ->
+                if (t != 0) browse.stopSelecting()
+                if (t != 2) browse.stopComicSelecting()
                 browse.tab = t
             }
             LaunchedEffect(browse.selecting) { if (browse.selecting) browse.tab = 0 }
             val goTo = rememberTabTap(pager)
-            PrimaryTabRow(selectedTabIndex = pager.currentPage, containerColor = Color.Transparent) {
-                Tab(selected = pager.currentPage == 0, onClick = { goTo(0) }, text = { Text(tr("Books ({0})", books.size)) })
+            PrimaryTabRow(selectedTabIndex = pager.currentPage.coerceAtMost(tabCount - 1), containerColor = Color.Transparent) {
+                Tab(selected = pager.currentPage == 0, onClick = { goTo(0) }, text = { Text(tr("Books ({0})", notComics.size)) })
                 Tab(selected = pager.currentPage == 1, onClick = { goTo(1) }, text = { Text(tr("Collections ({0})", collectionCount)) })
+                if (tabCount == 3) Tab(selected = pager.currentPage == 2, onClick = { goTo(2) }, text = { Text(tr("Comics ({0})", seriesCount)) }, modifier = Modifier.testTag("tab-comics"))
             }
             BoxWithConstraints(Modifier.fillMaxSize()) {
                 val twoPanes = maxWidth >= TwoPaneWidth
@@ -386,12 +403,14 @@ fun LibraryScreen(
                         },
                     )
                 }
-                TabPages(pager, Modifier.fillMaxSize(), swipe = !browse.selecting) { page ->
-                    if (page == 1) {
+                TabPages(pager, Modifier.fillMaxSize(), swipe = !browse.selecting && browse.comicSelecting == null) { page ->
+                    if (page == 2) {
+                        LibraryComicsTab(comics, covers, browse, koboConnected, here, comicActions) { book, series, onBack -> detail(book, onBack, series) }
+                    } else if (page == 1) {
                         LibraryCollectionsTab(books, covers, browse, koboConnected, reading, here, onSend) { book, collection, onBack -> detail(book, onBack, collection) }
                     } else if (twoPanes) {
                         Row(Modifier.fillMaxSize()) {
-                            LibraryBrowser(books, visible, covers, browse, selected?.id, onSend, onDelete, Modifier.weight(1.45f), reading, here, onMerge, onExport, onDuplicate, onSyncReading)
+                            LibraryBrowser(notComics, visible, covers, browse, selected?.id, onSend, onDelete, Modifier.weight(1.45f), reading, here, onMerge, onExport, onDuplicate, onSyncReading)
                             VerticalDivider()
                             Box(Modifier.weight(1f).fillMaxHeight()) {
                                 if (selected != null && !browse.selecting) detail(selected, null, null)
@@ -403,7 +422,7 @@ fun LibraryScreen(
                         TabBackHandler { browse.selectedId = null }
                         detail(selected, { browse.selectedId = null }, null)
                     } else {
-                        LibraryBrowser(books, visible, covers, browse, null, onSend, onDelete, Modifier.fillMaxSize(), reading, here, onMerge, onExport, onDuplicate, onSyncReading)
+                        LibraryBrowser(notComics, visible, covers, browse, null, onSend, onDelete, Modifier.fillMaxSize(), reading, here, onMerge, onExport, onDuplicate, onSyncReading)
                     }
                 }
             }

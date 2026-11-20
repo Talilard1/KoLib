@@ -82,6 +82,20 @@ class CutoutsTest {
         val bare = scroll.copy(runningHeads = RunningHeads.OFF, marginItems = MarginItem.entries.associateWith { MarginSpot.OFF })
         assertEquals(36, bare.bandTop(middle))
         assertEquals(0, bare.bandTop(Cutouts.NONE))
+        // Unless the text's to have the whole screen: no band at all then.
+        assertEquals(0, bare.copy(clearOfCamera = false).bandTop(middle))
+        // With something shown at the top, its band stays, below the camera.
+        assertEquals(34 + MarginRoom.ROW_HEIGHT + 8, scroll.copy(clearOfCamera = false).bandTop(middle))
+    }
+
+    @Test
+    fun turningPagesTheTextCanHaveTheWholeScreen() {
+        // One page at a time with nothing at the top: the text keeps out from under the camera...
+        val one = phone.copy(runningHeads = RunningHeads.BOTTOM, marginItems = MarginItem.entries.associateWith { MarginSpot.OFF })
+        assertTrue(one.marginRoom(middle).top > 0)
+        // ...unless it's to have the whole screen.
+        assertEquals(0, one.copy(clearOfCamera = false).marginRoom(middle).top)
+        assertEquals(0, one.copy(clearOfCamera = false).pictureRoom(middle).top)
     }
 
     @Test

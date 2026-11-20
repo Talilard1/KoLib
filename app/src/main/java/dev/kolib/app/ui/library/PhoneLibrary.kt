@@ -195,13 +195,32 @@ internal fun PhoneLibraryScreen(
     onSyncReading: ((List<String>) -> Unit)? = null,
     koboNotice: KoboNotice? = null,
     transfers: List<dev.kolib.app.link.Transfer> = emptyList(),
+    /** The library's comics (in the Comics tab, not with the books), and what can be done with them. */
+    comics: List<LibraryBook> = emptyList(),
+    comicActions: ComicActions = ComicActions(),
 ) {
-    // A book from a collection (in the Collections tab) opens on a page of its own too, going back to the collection.
+    val notComics = remember(books, comics) { if (comics.isEmpty()) books else books.filterNot { it.isComic } }
+    val comicEntries = remember(comics) { dev.kolib.app.library.ComicSeries.entries(comics) }
+    val openSeries = if (browse.tab == 2) browse.comicKey?.let { k -> comicEntries.firstOrNull { it.key == k } } else null
+    // A book from a collection (in the Collections tab) opens on a page of its own too, going back to the collection; a
+    // comic's details from its series, going back to the series.
     val fromCollection = if (browse.tab == 1 && browse.collectionKey != null) browse.collectionBookId?.let { id -> books.firstOrNull { it.id == id } } else null
-    val open = if (browse.tab == 1) fromCollection else selected?.takeIf { !browse.selecting }
+    val fromSeries = openSeries?.let { e -> browse.comicBookId?.let { id -> e.issues.firstOrNull { it.id == id } } }
+    val open = when (browse.tab) {
+        1 -> fromCollection
+        2 -> fromSeries
+        else -> selected?.takeIf { !browse.selecting }
+    }
+    if (open == null && openSeries != null) {
+        // A series opens on a page of its own.
+        BackHandler { if (browse.comicSelecting != null) browse.stopComicSelecting() else browse.comicKey = null }
+        ComicSeriesPage(openSeries, covers, browse, koboConnected, here, comicActions, onBack = { browse.comicKey = null; browse.stopComicSelecting() })
+        return
+    }
     if (open != null) {
         val inCollection = browse.tab == 1
-        val back = { if (inCollection) browse.collectionBookId = null else browse.selectedId = null }
+        val inSeries = browse.tab == 2
+        val back = { if (inSeries) browse.comicBookId = null else if (inCollection) browse.collectionBookId = null else browse.selectedId = null }
         // A tag or a search from a collection's book shows the books in the Books tab.
         val toBooks = {
             browse.collectionBookId = null
@@ -330,11 +349,16 @@ internal fun PhoneLibraryScreen(
                 ) {
                     KoLibMark(Modifier.size(34.dp).semantics { contentDescription = tr("KoLib") }, glow = true)
                     Spacer(Modifier.width(10.dp))
+                    val onComics = browse.tab == 2
                     PhoneSearchField(
-                        query = browse.query,
-                        // A search is for books: from the Collections tab it shows them in the Books tab.
-                        onQuery = { browse.query = it; if (it.isNotEmpty()) browse.tab = 0 },
-                        placeholder = if (books.isEmpty()) tr("Search the library") else tr("Search {0}", Fmt.plural(books.size, "book")),
+                        query = if (onComics) browse.comicQuery else browse.query,
+                        // A search is for books, or in the Comics tab for comics: from the Collections tab it shows books in the Books tab.
+                        onQuery = { if (onComics) browse.comicQuery = it else { browse.query = it; if (it.isNotEmpty()) browse.tab = 0 } },
+                        placeholder = when {
+                            onComics -> tr("Search the comics")
+                            notComics.isEmpty() -> tr("Search the library")
+                            else -> tr("Search {0}", Fmt.plural(notComics.size, "book"))
+                        },
                         onHelp = { showHelp = true },
                         modifier = Modifier.weight(1f),
                     )
@@ -363,22 +387,31 @@ internal fun PhoneLibraryScreen(
                 return@Column
             }
             // Swipe left or right for the other tab, or tap it. Choosing books (from anywhere) shows the Books tab.
-            val pager = rememberTabPager(browse.tab, 2) { browse.tab = it }
+            val tabCount = if (comics.isEmpty() && browse.tab != 2) 2 else 3
+            val pager = rememberTabPager(browse.tab, tabCount) { t ->
+                if (t != 2) browse.stopComicSelecting()
+                browse.tab = t
+            }
             LaunchedEffect(browse.selecting) { if (browse.selecting) browse.tab = 0 }
+            LaunchedEffect(comics.isEmpty()) { if (comics.isEmpty() && browse.tab == 2) browse.tab = 0 }
             val goTo = rememberTabTap(pager)
-            if (!browse.selecting) {
-                PrimaryTabRow(selectedTabIndex = pager.currentPage, containerColor = Color.Transparent) {
+            if (!browse.selecting && browse.comicSelecting == null) {
+                PrimaryTabRow(selectedTabIndex = pager.currentPage.coerceAtMost(tabCount - 1), containerColor = Color.Transparent) {
                     Tab(selected = pager.currentPage == 0, onClick = { goTo(0) }, text = { Text(tr("Books")) })
                     Tab(selected = pager.currentPage == 1, onClick = { goTo(1) }, text = { Text(tr("Collections")) })
+                    if (tabCount == 3) Tab(selected = pager.currentPage == 2, onClick = { goTo(2) }, text = { Text(tr("Comics")) }, modifier = Modifier.testTag("tab-comics"))
                 }
             }
-            TabPages(pager, Modifier.fillMaxSize(), swipe = !browse.selecting) { page ->
-                if (page == 1) LibraryCollectionsTab(books, covers, browse, koboConnected, reading, here, onSend) { _, _, _ -> }
-                else Column(Modifier.fillMaxSize()) { PhoneBooksPage(books, visible, covers, browse, reading, here, onTap, onHold) }
+            TabPages(pager, Modifier.fillMaxSize(), swipe = !browse.selecting && browse.comicSelecting == null) { page ->
+                when (page) {
+                    2 -> LibraryComicsTab(comics, covers, browse, koboConnected, here, comicActions) { _, _, _ -> }
+                    1 -> LibraryCollectionsTab(books, covers, browse, koboConnected, reading, here, onSend) { _, _, _ -> }
+                    else -> Column(Modifier.fillMaxSize()) { PhoneBooksPage(notComics, visible, covers, browse, reading, here, onTap, onHold) }
+                }
             }
         }
 
-        if (!browse.selecting && books.isNotEmpty()) {
+        if (!browse.selecting && browse.comicSelecting == null && books.isNotEmpty()) {
             GoldFab(
                 text = tr("Add books"),
                 icon = Icons.Filled.Add,

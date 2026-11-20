@@ -580,7 +580,11 @@ fun AppRoot(
                         asText = text
                     }
                     if (book.isComic && libraryVm.library.sourceFile(book.id) != null) {
-                        // A comic: page by page, or as a long strip, read from the comic file itself.
+                        // A comic: page by page, or as a long strip, read from the comic file itself; at its end, the
+                        // next in its series is offered.
+                        val series = remember(books, book.id) {
+                            dev.kolib.app.library.ComicSeries.entryOf(book, dev.kolib.app.ui.library.libraryComics(books))?.takeIf { it.isSeries }
+                        }
                         dev.kolib.app.ui.reader.ComicBookReader(
                             book = book,
                             library = libraryVm.library,
@@ -588,6 +592,8 @@ fun AppRoot(
                             onClose = { overlay = null },
                             readingHere = libraryVm.readingHere,
                             onAppSettings = { showLook = true },
+                            series = series,
+                            onOpen = { id -> overlay = "read:$id" },
                         )
                     } else if (book.isPdf && !asText) {
                         PdfBookReader(
@@ -732,6 +738,8 @@ fun AppRoot(
                         onSyncReading = { ids -> vm.syncReading(ids) },
                         koboNotice = noticeForLibrary,
                         transfers = linkTransfers,
+                        onGroupComics = { ids, name -> libraryVm.groupComics(ids, name) },
+                        onTakeOutOfSeries = { ids -> libraryVm.takeComicsOutOfSeries(ids) },
                     ) }
                     Section.KOBO -> CompositionLocalProvider(dev.kolib.app.ui.components.LocalKoboLibraryCovers provides koboLibraryCovers) { when {
                         connection is Connection.Connected && koboView != null -> DeviceScreen(

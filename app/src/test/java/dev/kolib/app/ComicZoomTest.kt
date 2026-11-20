@@ -343,7 +343,7 @@ class ComicZoomTest {
 
     @Test
     fun withTapZonesOffATapShowsAndHidesTheMenu() {
-        open(ComicSettings(taps = ComicTaps.OFF), "menu")
+        open(ComicSettings(tapsPaged = ComicTaps.OFF), "menu")
         val bmp = shot("menu_before")
         val w = bmp.width.toFloat()
         val h = bmp.height.toFloat()
@@ -364,7 +364,7 @@ class ComicZoomTest {
 
     @Test
     fun inTheStripWithTapZonesOffATapShowsAndHidesTheMenu() {
-        open(ComicSettings(mode = ComicMode.STRIP, taps = ComicTaps.OFF), "menu_strip")
+        open(ComicSettings(mode = ComicMode.STRIP, tapsStrip = ComicTaps.OFF), "menu_strip")
         val bmp = shot("menu_strip_before")
         val w = bmp.width.toFloat()
         val h = bmp.height.toFloat()

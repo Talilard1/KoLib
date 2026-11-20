@@ -20,6 +20,9 @@ object ListLooks {
                 s.descending = p.getBoolean("library_descending", order.startsDescending)
             }
             if (p.contains("library_grid")) s.grid = p.getBoolean("library_grid", true)
+            s.comicsTab = p.getBoolean("library_comics_tab", true)
+            s.seriesInPlace = p.getBoolean("library_series_in_place", false)
+            s.seriesGrid = p.getBoolean("library_series_grid", false)
         }
         kobo?.let { s ->
             KoboSort.entries.firstOrNull { it.name == p.getString("kobo_sort", null) }?.let { order ->
@@ -31,8 +34,14 @@ object ListLooks {
     }
 
     /** What's kept, as it is now. */
-    data class Now(val librarySort: LibrarySort, val libraryDescending: Boolean, val libraryGrid: Boolean, val koboSort: KoboSort, val koboDescending: Boolean, val koboGrid: Boolean) {
-        constructor(library: LibraryBrowseState, kobo: BrowseState) : this(library.sort, library.descending, library.grid, kobo.sort, kobo.descending, kobo.grid)
+    data class Now(
+        val librarySort: LibrarySort, val libraryDescending: Boolean, val libraryGrid: Boolean, val koboSort: KoboSort, val koboDescending: Boolean, val koboGrid: Boolean,
+        val comicsTab: Boolean = true, val seriesInPlace: Boolean = false, val seriesGrid: Boolean = false,
+    ) {
+        constructor(library: LibraryBrowseState, kobo: BrowseState) : this(
+            library.sort, library.descending, library.grid, kobo.sort, kobo.descending, kobo.grid,
+            library.comicsTab, library.seriesInPlace, library.seriesGrid,
+        )
     }
 
     fun save(context: Context, now: Now) {
@@ -43,6 +52,9 @@ object ListLooks {
             .putString("kobo_sort", now.koboSort.name)
             .putBoolean("kobo_descending", now.koboDescending)
             .putBoolean("kobo_grid", now.koboGrid)
+            .putBoolean("library_comics_tab", now.comicsTab)
+            .putBoolean("library_series_in_place", now.seriesInPlace)
+            .putBoolean("library_series_grid", now.seriesGrid)
             .apply()
     }
 }

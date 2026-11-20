@@ -2,6 +2,7 @@ package dev.kolib.app.ui.library
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,6 +36,12 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.AutoStories
+import androidx.compose.material.icons.outlined.GridView
+import androidx.compose.material.icons.outlined.VisibilityOff
+import androidx.compose.material.icons.automirrored.outlined.ViewList
+import androidx.compose.material.icons.automirrored.outlined.PlaylistAdd
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.DoneAll
 import androidx.compose.material.icons.outlined.Info
@@ -69,6 +76,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.kolib.app.library.ComicEntry
 import dev.kolib.app.library.ComicSeries
@@ -157,28 +165,39 @@ internal fun LibraryComicsTab(
     }
     val book = browse.comicBookId?.let { id -> open?.issues?.firstOrNull { it.id == id } }
     val phone = phoneLayout()
+    val closeSeries = { browse.comicKey = null; browse.comicBookId = null; browse.stopComicSelecting() }
     BoxWithConstraints(Modifier.fillMaxSize()) {
-        val twoPanes = !phone && maxWidth >= TwoPaneWidth
+        val wide = !phone && maxWidth >= TwoPaneWidth
+        // Beside the shelf, or (chosen, or on a narrower screen) in its place, with no side panel.
+        val beside = wide && !browse.seriesInPlace
         when {
-            twoPanes -> Row(Modifier.fillMaxSize()) {
-                ComicShelf(entries, covers, browse, here, open?.key, actions, Modifier.weight(1.45f))
-                VerticalDivider()
-                Box(Modifier.weight(1f).fillMaxHeight()) {
-                    when {
-                        open != null && book != null -> detail(book, open.title) { browse.comicBookId = null }
-                        open != null -> ComicSeriesPage(open, covers, browse, koboConnected, here, actions, onBack = null)
-                        else -> EmptyState(Icons.Outlined.AutoStories, tr("Tap a series"), tr("Its comics show here, in order. Hold a series to select several."))
+            beside -> {
+                // Back from a comic's details is its series again; from a series, the shelf on its own.
+                if (open != null && book != null) TabBackHandler { browse.comicBookId = null }
+                else if (open != null && browse.comicSelecting == null) TabBackHandler { closeSeries() }
+                Row(Modifier.fillMaxSize()) {
+                    ComicShelf(entries, covers, browse, here, open?.key, actions, Modifier.weight(1.45f), wide = true)
+                    VerticalDivider()
+                    Box(Modifier.weight(1f).fillMaxHeight()) {
+                        when {
+                            open != null && book != null -> detail(book, open.title) { browse.comicBookId = null }
+                            open != null -> ComicSeriesPage(open, covers, browse, koboConnected, here, actions, onBack = null, others = entries)
+                            else -> EmptyState(Icons.Outlined.AutoStories, tr("Tap a series"), tr("Its comics show here, in order. Hold a series to select several."))
+                        }
                     }
                 }
             }
-            phone || open == null -> ComicShelf(entries, covers, browse, here, null, actions, Modifier.fillMaxSize())
+            phone || open == null -> ComicShelf(entries, covers, browse, here, null, actions, Modifier.fillMaxSize(), wide = wide)
             book != null -> {
                 TabBackHandler { browse.comicBookId = null }
                 detail(book, open.title) { browse.comicBookId = null }
             }
             else -> {
-                TabBackHandler { browse.comicKey = null; browse.stopComicSelecting() }
-                ComicSeriesPage(open, covers, browse, koboConnected, here, actions, onBack = { browse.comicKey = null; browse.stopComicSelecting() })
+                TabBackHandler { closeSeries() }
+                ComicSeriesPage(
+                    open, covers, browse, koboConnected, here, actions, onBack = closeSeries,
+                    grid = browse.seriesGrid, onGrid = { browse.seriesGrid = it }, others = entries,
+                )
             }
         }
     }
@@ -194,12 +213,22 @@ private fun ComicShelf(
     highlighted: String?,
     actions: ComicActions,
     modifier: Modifier,
+    /** Wide enough for a series to open beside the shelf: whether it does is a choice in the menu. */
+    wide: Boolean = false,
 ) {
     val phone = phoneLayout()
     val shown = remember(entries, browse.comicQuery, browse.comicSort, here) { shownComicSeries(entries, browse.comicQuery, browse.comicSort, here) }
     val choosing = browse.comicSelecting == ComicSelecting.SERIES
     var confirmRemove by remember { mutableStateOf<List<String>?>(null) }
     var naming by remember { mutableStateOf<List<String>?>(null) }
+    // The comics chosen, to put in a series there is (or a new one).
+    var adding by remember { mutableStateOf<List<String>?>(null) }
+    // Series chosen to remove: their comics stay, each on its own, unless they're to be removed too.
+    var removingSeries by remember { mutableStateOf<List<ComicEntry>?>(null) }
+    val remove = {
+        val picked = chosenEntriesOf(shown, browse)
+        if (picked.any { it.isSeries }) removingSeries = picked else confirmRemove = picked.flatMap { e -> e.issues.map { it.id } }
+    }
     if (choosing) {
         TabBackHandler { browse.stopComicSelecting() }
         if (phone) HideBottomBar()
@@ -215,10 +244,10 @@ private fun ComicShelf(
                 if (phone) ComicChoosingHeader(title, onSelectAll = { shown.forEach { browse.comicPicked[it.key] = true } }, onCancel = done)
                 else SelectionBar(count = 0, title = title, onSelectAll = { shown.forEach { browse.comicPicked[it.key] = true } }, onCancel = done) {
                     ComicSeriesButtons(count, onSend = { actions.onSend(chosen()); done() }, onRead = { actions.onMarkFinished(chosen()); done() },
-                        onUnread = { actions.onMarkUnread(chosen()); done() }, onGroup = { naming = chosen() }, onRemove = { confirmRemove = chosen() })
+                        onUnread = { actions.onMarkUnread(chosen()); done() }, onAddTo = { adding = chosen() }, onRemove = remove)
                 }
             } else if (!phone) {
-                ComicSearchRow(browse, shown.size, entries.sumOf { it.issues.size })
+                ComicSearchRow(browse, shown.size, entries.sumOf { it.issues.size }, wide)
             } else {
                 ComicSortRow(browse, shown.size, entries.sumOf { it.issues.size })
             }
@@ -275,10 +304,37 @@ private fun ComicShelf(
                 PhoneAction(Icons.AutoMirrored.Filled.Send, tr("Send"), { actions.onSend(chosen()); done() }, enabled = count > 0, main = true)
                 PhoneAction(Icons.Outlined.DoneAll, dev.kolib.app.trc("mark", "Read"), { actions.onMarkFinished(chosen()); done() }, enabled = count > 0)
                 PhoneAction(Icons.Outlined.RemoveDone, dev.kolib.app.trc("mark", "Unread"), { actions.onMarkUnread(chosen()); done() }, enabled = count > 0)
-                PhoneAction(Icons.Outlined.LibraryAdd, tr("Group"), { naming = chosen() }, enabled = count >= 2)
-                PhoneAction(Icons.Outlined.Delete, tr("Remove"), { confirmRemove = chosen() }, enabled = count > 0, destructive = true)
+                PhoneAction(Icons.AutoMirrored.Outlined.PlaylistAdd, tr("Add to series"), { adding = chosen() }, enabled = count > 0)
+                PhoneAction(Icons.Outlined.Delete, tr("Remove"), remove, enabled = count > 0, destructive = true)
             }
         }
+    }
+    removingSeries?.let { picked ->
+        RemoveSeriesDialog(
+            series = picked.filter { it.isSeries },
+            alone = picked.count { !it.isSeries },
+            onKeepComics = {
+                actions.onTakeOut(picked.filter { it.isSeries }.flatMap { e -> e.issues.map { it.id } })
+                removingSeries = null
+                done()
+            },
+            onRemoveComics = {
+                actions.onDelete(picked.flatMap { e -> e.issues.map { it.id } })
+                removingSeries = null
+                done()
+            },
+            onDismiss = { removingSeries = null },
+        )
+    }
+    adding?.let { ids ->
+        val picked = remember(ids) { chosenEntries().map { it.key }.toSet() }
+        AddToSeriesDialog(
+            series = entries.filter { it.isSeries && it.key !in picked },
+            covers = covers,
+            onPick = { e -> actions.onGroup(ids, e.title); adding = null; done() },
+            onNew = { adding = null; naming = ids },
+            onDismiss = { adding = null },
+        )
     }
     naming?.let { ids ->
         val suggestion = remember(ids) { chosenEntries().firstOrNull { it.isSeries }?.title ?: chosenEntries().firstOrNull()?.let { ComicSeries.parse(ComicSeries.nameOf(it.cover)).stem }.orEmpty() }
@@ -294,14 +350,52 @@ private fun ComicShelf(
     }
 }
 
+/** The entries chosen on the shelf, of those [shown]. */
+private fun chosenEntriesOf(shown: List<ComicEntry>, browse: LibraryBrowseState) = shown.filter { browse.comicPicked.containsKey(it.key) }
+
+/**
+ * Removing series: the series go and their comics stay in the library, each on its own; or the comics are removed
+ * from the library too. [alone] comics chosen on their own besides stay, unless the comics are removed.
+ */
+@Composable
+internal fun RemoveSeriesDialog(series: List<ComicEntry>, alone: Int = 0, onKeepComics: () -> Unit, onRemoveComics: () -> Unit, onDismiss: () -> Unit) {
+    val comics = series.sumOf { it.issues.size } + alone
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(if (series.size == 1) tr("Remove the series “{0}”?", series[0].title) else tr("Remove {0} series?", series.size)) },
+        text = {
+            Text(
+                if (series.size == 1) tr("Its comics stay in the library, each on its own, unless you remove them too.")
+                else tr("Their comics stay in the library, each on its own, unless you remove them too."),
+            )
+        },
+        confirmButton = {
+            Column(horizontalAlignment = Alignment.End) {
+                TextButton(onClick = onKeepComics, modifier = Modifier.testTag("series-remove-keep")) { Text(tr("Remove the series")) }
+                TextButton(onClick = onRemoveComics, modifier = Modifier.testTag("series-remove-all")) {
+                    Text(
+                        when {
+                            comics == 1 -> tr("Remove the series and its comic")
+                            series.size == 1 -> tr("Remove the series and its {0} comics", comics)
+                            else -> tr("Remove the series and their {0} comics", comics)
+                        },
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+                TextButton(onClick = onDismiss) { Text(tr("Cancel")) }
+            }
+        },
+    )
+}
+
 /** On a tablet, the buttons for the series chosen. */
 @Composable
-private fun ComicSeriesButtons(count: Int, onSend: () -> Unit, onRead: () -> Unit, onUnread: () -> Unit, onGroup: () -> Unit, onRemove: () -> Unit) {
+private fun ComicSeriesButtons(count: Int, onSend: () -> Unit, onRead: () -> Unit, onUnread: () -> Unit, onAddTo: () -> Unit, onRemove: () -> Unit) {
     OutlinedButton(onClick = onRemove, enabled = count > 0, contentPadding = ComicButtonPadding) { ButtonLabel(Icons.Outlined.Delete, tr("Remove")) }
     OutlinedButton(onClick = onUnread, enabled = count > 0, contentPadding = ComicButtonPadding) { ButtonLabel(Icons.Outlined.RemoveDone, tr("Mark as unread")) }
     OutlinedButton(onClick = onRead, enabled = count > 0, contentPadding = ComicButtonPadding) { ButtonLabel(Icons.Outlined.DoneAll, tr("Mark as read")) }
-    OutlinedButton(onClick = onGroup, enabled = count >= 2, contentPadding = ComicButtonPadding, modifier = Modifier.testTag("comics-group")) {
-        ButtonLabel(Icons.Outlined.LibraryAdd, tr("Put in one series"))
+    OutlinedButton(onClick = onAddTo, enabled = count > 0, contentPadding = ComicButtonPadding, modifier = Modifier.testTag("comics-add-to-series")) {
+        ButtonLabel(Icons.AutoMirrored.Outlined.PlaylistAdd, tr("Add to series"))
     }
     Button(onClick = onSend, enabled = count > 0, contentPadding = ComicButtonPadding) { ButtonLabel(Icons.AutoMirrored.Filled.Send, tr("Send to Kobo")) }
 }
@@ -330,7 +424,7 @@ private fun ComicChoosingHeader(title: String, onSelectAll: () -> Unit, onCancel
 
 /** On a tablet: the search, how many there are, and the order. */
 @Composable
-private fun ComicSearchRow(browse: LibraryBrowseState, series: Int, comics: Int) {
+private fun ComicSearchRow(browse: LibraryBrowseState, series: Int, comics: Int, wide: Boolean) {
     Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
         OutlinedTextField(
             value = browse.comicQuery,
@@ -343,7 +437,7 @@ private fun ComicSearchRow(browse: LibraryBrowseState, series: Int, comics: Int)
             modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("comic-search"),
         )
         Spacer(Modifier.width(8.dp))
-        ComicSortButton(browse, series, comics)
+        ComicSortButton(browse, series, comics, wide)
     }
 }
 
@@ -363,11 +457,16 @@ private fun ComicSortRow(browse: LibraryBrowseState, series: Int, comics: Int) {
 
 private fun countLine(series: Int, comics: Int) = (if (series == 1) tr("1 series") else tr("{0} series", series)) + " · " + comicsLabel(comics)
 
+/**
+ * The order of the series; on a wide screen, where a series opens (beside the shelf, or in its place); and a way to
+ * hide the Comics tab.
+ */
 @Composable
-private fun ComicSortButton(browse: LibraryBrowseState, series: Int?, comics: Int?) {
+private fun ComicSortButton(browse: LibraryBrowseState, series: Int?, comics: Int?, wide: Boolean = false) {
     var open by remember { mutableStateOf(false) }
+    val context = androidx.compose.ui.platform.LocalContext.current
     Box {
-        TextButton(onClick = { open = true }) {
+        TextButton(onClick = { open = true }, modifier = Modifier.testTag("comic-sort")) {
             Icon(Icons.AutoMirrored.Filled.Sort, null, Modifier.size(18.dp))
             Spacer(Modifier.width(6.dp))
             Text(if (series != null && comics != null) countLine(series, comics) else browse.comicSort.label, maxLines = 1)
@@ -380,6 +479,29 @@ private fun ComicSortButton(browse: LibraryBrowseState, series: Int?, comics: In
                     onClick = { browse.comicSort = s; open = false },
                 )
             }
+            if (wide) {
+                HorizontalDivider()
+                Text(tr("A series opens"), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+                for (inPlace in listOf(false, true)) {
+                    DropdownMenuItem(
+                        text = { Text(if (inPlace) tr("In place of the shelf") else tr("Beside the shelf")) },
+                        leadingIcon = { RadioButton(selected = browse.seriesInPlace == inPlace, onClick = null) },
+                        onClick = { browse.seriesInPlace = inPlace; open = false },
+                        modifier = Modifier.testTag(if (inPlace) "series-in-place" else "series-beside"),
+                    )
+                }
+            }
+            HorizontalDivider()
+            DropdownMenuItem(
+                text = { Text(tr("Hide the Comics tab")) },
+                leadingIcon = { Icon(Icons.Outlined.VisibilityOff, null) },
+                onClick = {
+                    open = false
+                    browse.comicsTab = false
+                    android.widget.Toast.makeText(context, tr("Comics are with the books now. The tab can be shown again in Settings."), android.widget.Toast.LENGTH_LONG).show()
+                },
+                modifier = Modifier.testTag("comics-hide-tab"),
+            )
         }
     }
 }
@@ -437,11 +559,19 @@ internal fun ComicSeriesPage(
     here: (LibraryBook) -> ReadHere?,
     actions: ComicActions,
     onBack: (() -> Unit)?,
+    /** Its comics as a grid of covers, each as an entry of its own, rather than a list. */
+    grid: Boolean = false,
+    /** Switches between the grid and the list, where the series has the screen's width. */
+    onGrid: ((Boolean) -> Unit)? = null,
+    /** The library's other series and comics: this one's comics can be put in one of them. */
+    others: List<ComicEntry> = emptyList(),
 ) {
     val phone = phoneLayout()
     val choosing = browse.comicSelecting == ComicSelecting.ISSUES
     var confirmRemove by remember { mutableStateOf<List<String>?>(null) }
     var naming by remember { mutableStateOf(false) }
+    var adding by remember { mutableStateOf(false) }
+    var removing by remember { mutableStateOf(false) }
     var menu by remember { mutableStateOf(false) }
     if (choosing) {
         TabBackHandler { browse.stopComicSelecting() }
@@ -479,19 +609,28 @@ internal fun ComicSeriesPage(
                 ) {
                     if (onBack != null) IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Back to the comics")) }
                     Text(entry.title, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f).padding(start = 4.dp))
-                    SeriesMenu(entry, menu, { menu = it }, actions, onRename = { naming = true })
+                    if (onGrid != null) {
+                        IconButton(onClick = { onGrid(!grid) }, modifier = Modifier.testTag("comic-series-layout")) {
+                            Icon(
+                                if (grid) Icons.AutoMirrored.Outlined.ViewList else Icons.Outlined.GridView,
+                                if (grid) tr("Show the comics as a list") else tr("Show the comics as covers"),
+                            )
+                        }
+                    }
+                    SeriesMenu(entry, menu, { menu = it }, actions, onRename = { naming = true }, onAddTo = { adding = true }, onRemove = { removing = true })
                 }
             }
-            LazyColumn(Modifier.fillMaxSize(), state = browse.comicIssues, contentPadding = PaddingValues(bottom = if (phone) 104.dp else 24.dp)) {
-                item(key = "head") {
-                    Row(Modifier.fillMaxWidth().padding(start = 20.dp, end = 12.dp, top = if (phone || onBack != null) 8.dp else 20.dp)) {
+            // [inset]: the room the grid leaves at its sides already, so the head lines up as it does in the list.
+            val head: @Composable (inset: Dp) -> Unit = { inset ->
+                Column(Modifier.fillMaxWidth()) {
+                    Row(Modifier.fillMaxWidth().padding(start = 20.dp - inset, end = 12.dp - inset, top = if (phone || onBack != null) 8.dp else 20.dp)) {
                         LibraryCover(entry.cover, covers, large = false, modifier = Modifier.width(if (phone) 108.dp else 132.dp))
                         Spacer(Modifier.width(16.dp))
                         Column(Modifier.weight(1f)) {
                             if (!phone && onBack == null) {
                                 Row(verticalAlignment = Alignment.Top) {
                                     Text(entry.title, style = MaterialTheme.typography.headlineSmall, maxLines = 3, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
-                                    SeriesMenu(entry, menu, { menu = it }, actions, onRename = { naming = true })
+                                    SeriesMenu(entry, menu, { menu = it }, actions, onRename = { naming = true }, onAddTo = { adding = true }, onRemove = { removing = true })
                                 }
                             } else {
                                 Text(entry.title, style = MaterialTheme.typography.titleLarge, maxLines = 3, overflow = TextOverflow.Ellipsis)
@@ -540,11 +679,11 @@ internal fun ComicSeriesPage(
                                 style = MaterialTheme.typography.bodyMedium,
                                 maxLines = if (more) Int.MAX_VALUE else 4,
                                 overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp).clip(RoundedCornerShape(8.dp)).combinedClickable(onClick = { more = !more }),
+                                modifier = Modifier.padding(start = 20.dp - inset, end = 20.dp - inset, top = 12.dp, bottom = 12.dp).clip(RoundedCornerShape(8.dp)).combinedClickable(onClick = { more = !more }),
                             )
                         }
                     }
-                    Row(Modifier.fillMaxWidth().padding(start = 20.dp, end = 8.dp, top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.fillMaxWidth().padding(start = 20.dp - inset, end = 8.dp - inset, top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                         Text(comicsLabel(entry.issues.size), style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
                         if (entry.issues.size > 1) {
                             TextButton(onClick = { browse.comicIssuesDescending = !browse.comicIssuesDescending }) {
@@ -554,24 +693,50 @@ internal fun ComicSeriesPage(
                             }
                         }
                     }
-                    HorizontalDivider(Modifier.padding(horizontal = 12.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
+                    HorizontalDivider(Modifier.padding(horizontal = 12.dp - inset), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
                 }
+            }
+            val tap = { issue: LibraryBook ->
+                if (choosing) {
+                    if (browse.comicPicked.remove(issue.id) == null) browse.comicPicked[issue.id] = true
+                } else actions.onRead(issue.id)
+            }
+            val hold = { issue: LibraryBook ->
+                if (!choosing) {
+                    browse.stopComicSelecting()
+                    browse.comicSelecting = ComicSelecting.ISSUES
+                }
+                browse.comicPicked[issue.id] = true
+            }
+            if (grid) {
+                // Each comic an entry of its own, as the series are on the shelf.
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(132.dp),
+                    state = browse.comicIssueGrid,
+                    contentPadding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 24.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxSize().testTag("comic-issue-grid"),
+                ) {
+                    item(key = "head", span = { GridItemSpan(maxLineSpan) }) { head(8.dp) }
+                    items(issues, key = { it.id }) { issue ->
+                        ComicIssueTile(
+                            issue, entry, here(issue), covers,
+                            picked = if (choosing) browse.comicPicked.containsKey(issue.id) else null,
+                            onTap = { tap(issue) },
+                            onHold = { hold(issue) },
+                            onDetails = { browse.comicBookId = issue.id },
+                        )
+                    }
+                }
+            } else LazyColumn(Modifier.fillMaxSize(), state = browse.comicIssues, contentPadding = PaddingValues(bottom = if (phone) 104.dp else 24.dp)) {
+                item(key = "head") { head(0.dp) }
                 items(issues, key = { it.id }) { issue ->
                     ComicIssueRow(
                         issue, entry, here(issue),
                         picked = if (choosing) browse.comicPicked.containsKey(issue.id) else null,
-                        onTap = {
-                            if (choosing) {
-                                if (browse.comicPicked.remove(issue.id) == null) browse.comicPicked[issue.id] = true
-                            } else actions.onRead(issue.id)
-                        },
-                        onHold = {
-                            if (!choosing) {
-                                browse.stopComicSelecting()
-                                browse.comicSelecting = ComicSelecting.ISSUES
-                            }
-                            browse.comicPicked[issue.id] = true
-                        },
+                        onTap = { tap(issue) },
+                        onHold = { hold(issue) },
                         onDetails = { browse.comicBookId = issue.id },
                     )
                 }
@@ -588,6 +753,23 @@ internal fun ComicSeriesPage(
             }
         }
     }
+    if (removing) {
+        RemoveSeriesDialog(
+            series = listOf(entry),
+            onKeepComics = { actions.onTakeOut(entry.issues.map { it.id }); removing = false },
+            onRemoveComics = { actions.onDelete(entry.issues.map { it.id }); removing = false },
+            onDismiss = { removing = false },
+        )
+    }
+    if (adding) {
+        AddToSeriesDialog(
+            series = others.filter { it.isSeries && it.key != entry.key },
+            covers = covers,
+            onPick = { e -> actions.onGroup(entry.issues.map { it.id }, e.title); adding = false },
+            onNew = { adding = false; naming = true },
+            onDismiss = { adding = false },
+        )
+    }
     if (naming) {
         ComicSeriesNameDialog(
             title = if (entry.isSeries) tr("Rename the series") else tr("Make it a series"),
@@ -601,9 +783,17 @@ internal fun ComicSeriesPage(
     }
 }
 
-/** The series' menu: mark them all read or unread, or name the series. */
+/** The series' menu: mark them all read or unread, name the series, or put its comics in another. */
 @Composable
-private fun SeriesMenu(entry: ComicEntry, open: Boolean, setOpen: (Boolean) -> Unit, actions: ComicActions, onRename: () -> Unit) {
+private fun SeriesMenu(
+    entry: ComicEntry,
+    open: Boolean,
+    setOpen: (Boolean) -> Unit,
+    actions: ComicActions,
+    onRename: () -> Unit,
+    onAddTo: () -> Unit,
+    onRemove: () -> Unit,
+) {
     Box {
         IconButton(onClick = { setOpen(true) }, modifier = Modifier.testTag("comic-series-menu")) { Icon(Icons.Outlined.MoreVert, tr("More")) }
         DropdownMenu(open, onDismissRequest = { setOpen(false) }) {
@@ -615,6 +805,20 @@ private fun SeriesMenu(entry: ComicEntry, open: Boolean, setOpen: (Boolean) -> U
                 leadingIcon = { Icon(Icons.Outlined.LibraryAdd, null) },
                 onClick = { setOpen(false); onRename() },
             )
+            DropdownMenuItem(
+                text = { Text(if (entry.isSeries) tr("Add its comics to another series") else tr("Add to series")) },
+                leadingIcon = { Icon(Icons.AutoMirrored.Outlined.PlaylistAdd, null) },
+                onClick = { setOpen(false); onAddTo() },
+                modifier = Modifier.testTag("comic-series-add-to"),
+            )
+            if (entry.isSeries) {
+                DropdownMenuItem(
+                    text = { Text(tr("Remove the series")) },
+                    leadingIcon = { Icon(Icons.Outlined.Delete, null) },
+                    onClick = { setOpen(false); onRemove() },
+                    modifier = Modifier.testTag("comic-series-remove"),
+                )
+            }
         }
     }
 }
@@ -688,6 +892,125 @@ private fun ComicIssueRow(
         }
         if (picked == null) IconButton(onClick = onDetails) { Icon(Icons.Outlined.Info, tr("Details")) }
     }
+}
+
+/** A comic in its series' grid: its cover (how far it's been read on it), its name, and its details to open. */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun ComicIssueTile(
+    issue: LibraryBook,
+    entry: ComicEntry,
+    readHere: ReadHere?,
+    covers: LibraryCovers,
+    picked: Boolean?,
+    onTap: () -> Unit,
+    onHold: () -> Unit,
+    onDetails: () -> Unit,
+) {
+    val read = ComicSeries.isRead(readHere)
+    Column(
+        Modifier
+            .clip(RoundedCornerShape(12.dp))
+            .then(if (picked == true) Modifier.background(MaterialTheme.colorScheme.secondaryContainer) else Modifier)
+            .combinedClickable(onClick = onTap, onLongClick = onHold)
+            .padding(8.dp)
+            .testTag("comic-issue"),
+    ) {
+        // Read ones are dimmed, as in the list.
+        LibraryCover(
+            issue, covers, large = false, onKobo = issue.koboPath != null, picked = picked, readHere = readHere,
+            modifier = Modifier.gridCover().alpha(if (read && picked != true) 0.55f else 1f),
+        )
+        Row(Modifier.padding(top = 6.dp), verticalAlignment = Alignment.Top) {
+            Column(Modifier.weight(1f).padding(top = 2.dp)) {
+                Text(issueName(entry, issue), style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                Text(
+                    when {
+                        read -> dev.kolib.app.trc("badge", "Read")
+                        readHere != null -> tr("{0}% read", readHere.percent)
+                        else -> tr("Not read yet")
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                )
+            }
+            if (picked == null) {
+                IconButton(onClick = onDetails, modifier = Modifier.size(36.dp)) { Icon(Icons.Outlined.Info, tr("Details"), Modifier.size(20.dp)) }
+            }
+        }
+    }
+}
+
+/**
+ * Choosing the series to put comics in: one there is (by name, A to Z, searched where there are many), or a new one,
+ * named next.
+ */
+@Composable
+internal fun AddToSeriesDialog(
+    series: List<ComicEntry>,
+    covers: LibraryCovers,
+    onPick: (ComicEntry) -> Unit,
+    onNew: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    var query by remember { mutableStateOf("") }
+    val sorted = remember(series) { series.sortedWith { a, b -> ComicSeries.naturalCompare(a.title, b.title) } }
+    val shown = remember(sorted, query) { query.trim().let { q -> if (q.isEmpty()) sorted else sorted.filter { it.title.contains(q, ignoreCase = true) } } }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(tr("Add to series")) },
+        text = {
+            Column {
+                if (sorted.size > 6) {
+                    OutlinedTextField(
+                        value = query,
+                        onValueChange = { query = it },
+                        singleLine = true,
+                        placeholder = { Text(tr("Search the series")) },
+                        leadingIcon = { Icon(Icons.Outlined.Search, null) },
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                    )
+                }
+                Row(
+                    Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).clickable(onClick = onNew).padding(vertical = 10.dp, horizontal = 4.dp)
+                        .testTag("comics-new-series"),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Box(Modifier.width(40.dp), contentAlignment = Alignment.Center) { Icon(Icons.Outlined.LibraryAdd, null) }
+                    Spacer(Modifier.width(12.dp))
+                    Text(tr("A new series…"), style = MaterialTheme.typography.bodyLarge)
+                }
+                HorizontalDivider()
+                if (sorted.isEmpty()) {
+                    Text(
+                        tr("There are no series yet."),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(vertical = 12.dp),
+                    )
+                }
+                LazyColumn(Modifier.heightIn(max = 360.dp)) {
+                    items(shown, key = { it.key }) { e ->
+                        Row(
+                            Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).clickable { onPick(e) }.padding(vertical = 6.dp, horizontal = 4.dp)
+                                .testTag("add-to-series"),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            ComicSeriesCover(e.cover, covers, unread = 0, onKobo = false, modifier = Modifier.width(40.dp))
+                            Spacer(Modifier.width(12.dp))
+                            Column(Modifier.weight(1f)) {
+                                Text(e.title, style = MaterialTheme.typography.bodyLarge, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                Text(comicsLabel(e.issues.size), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Cancel")) } },
+    )
 }
 
 /** Naming the series comics go in. */

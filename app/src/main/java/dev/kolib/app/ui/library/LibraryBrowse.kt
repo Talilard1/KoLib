@@ -81,6 +81,14 @@ class LibraryBrowseState {
     var comicIssuesDescending by mutableStateOf(false)
     val comicGrid = LazyGridState()
     val comicIssues = LazyListState()
+    val comicIssueGrid = LazyGridState()
+
+    /** The Comics tab is there; without it, comics are in the Books tab with the rest. */
+    var comicsTab by mutableStateOf(true)
+    /** On a wide screen, a series opens in place of the shelf (with no side panel), rather than beside it. */
+    var seriesInPlace by mutableStateOf(false)
+    /** A series open in place of the shelf shows its comics as a grid of covers, rather than a list. */
+    var seriesGrid by mutableStateOf(false)
 
     fun stopComicSelecting() {
         comicSelecting = null

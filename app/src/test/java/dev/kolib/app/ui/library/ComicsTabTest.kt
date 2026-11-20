@@ -25,7 +25,13 @@ import dev.kolib.app.reader.ReadHere
 import dev.kolib.app.ui.theme.AppSurface
 import java.io.File
 import java.util.UUID
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.material3.Text
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -57,6 +63,8 @@ class ComicsTabTest {
     private val read = mutableListOf<String>()
     private val finished = mutableListOf<List<String>>()
     private val grouped = mutableListOf<Pair<List<String>, String>>()
+    private val takenOut = mutableListOf<List<String>>()
+    private val deleted = mutableListOf<List<String>>()
     private val browse = LibraryBrowseState()
 
     private fun show(here: Map<String, ReadHere> = mapOf("Saga 001.cbz" to ReadHere(1f, 10))) {
@@ -64,6 +72,8 @@ class ComicsTabTest {
             onRead = { read += it },
             onMarkFinished = { finished += it },
             onGroup = { ids, name -> grouped += ids to name },
+            onTakeOut = { takenOut += it },
+            onDelete = { deleted += it },
         )
         compose.setContent {
             AppSurface { LibraryComicsTab(comics, covers, browse, koboConnected = false, here = { here[it.id] }, actions = actions) { _, _, _ -> } }
@@ -120,12 +130,37 @@ class ComicsTabTest {
         compose.onNodeWithText("Watchmen").performTouchInput { longClick() }
         compose.onNodeWithText("Saga").performClick()
         compose.onNodeWithText("2 series selected").assertExists()
-        compose.onNodeWithTag("comics-group").performClick()
-        // The series' name to start with: the one there is.
+        compose.onNodeWithTag("comics-add-to-series").performClick()
+        // A new series: its name to start with, the one there is.
+        compose.onNodeWithTag("comics-new-series").performClick()
         compose.onNodeWithTag("comic-series-name-done").performClick()
         assertEquals(1, grouped.size)
         assertEquals("Saga", grouped[0].second)
         assertEquals(setOf("Saga 001.cbz", "Saga 002.cbz", "Saga 003.cbz", "Watchmen.cbz"), grouped[0].first.toSet())
+    }
+
+    @Test
+    fun comicsChosenAreAddedToASeriesThereIs() {
+        show()
+        compose.onNodeWithText("Watchmen").performTouchInput { longClick() }
+        compose.onNodeWithText("1 series selected").assertExists()
+        compose.onNodeWithTag("comics-add-to-series").performClick()
+        // The series there are, to choose from (not the comics chosen).
+        compose.onAllNodesWithTag("add-to-series").assertCountEquals(1)
+        compose.onAllNodesWithTag("add-to-series")[0].performClick()
+        assertEquals(listOf(listOf("Watchmen.cbz") to "Saga"), grouped)
+        // Choosing ends with it.
+        compose.onAllNodesWithText("1 series selected").assertCountEquals(0)
+    }
+
+    @Test
+    fun aComicOnItsOwnIsAddedToASeriesFromItsMenu() {
+        browse.comicKey = "b:Watchmen.cbz"
+        show()
+        compose.onNodeWithTag("comic-series-menu").performClick()
+        compose.onNodeWithTag("comic-series-add-to").performClick()
+        compose.onAllNodesWithTag("add-to-series")[0].performClick()
+        assertEquals(listOf(listOf("Watchmen.cbz") to "Saga"), grouped)
     }
 
     @Test
@@ -173,7 +208,7 @@ class ComicsTabTest {
     }
 
     @Test
-    fun theLibraryHasAComicsTabOnlyWithComics() {
+    fun theLibraryAlwaysHasAComicsTab() {
         val book = comic("The Histories.epub", title = "The Histories").copy(sourceFormat = null)
         var books by androidx.compose.runtime.mutableStateOf(listOf(book) + comics)
         compose.setContent {
@@ -192,10 +227,163 @@ class ComicsTabTest {
         compose.waitForIdle()
         assertEquals(2, browse.tab)
         compose.onAllNodesWithTag("comic-series").assertCountEquals(2)
+        // The last comic gone, the tab's still there, saying how to fill it.
         books = listOf(book)
         compose.mainClock.advanceTimeBy(1_000)
         compose.waitForIdle()
+        compose.onNodeWithText("Comics (0)").assertExists()
+        assertEquals(2, browse.tab)
+        compose.onNodeWithText("No comics").assertExists()
+    }
+
+    @Test
+    @Config(qualifiers = "w400dp-h800dp-mdpi")
+    fun onAPhoneTheComicsTabIsThereWithNoComics() {
+        val book = comic("The Histories.epub", title = "The Histories").copy(sourceFormat = null)
+        compose.setContent {
+            AppSurface {
+                LibraryScreen(
+                    books = listOf(book), covers = covers, browse = browse, job = null, koboConnected = false,
+                    onAddFiles = {}, onAddFromKobo = {}, onShowJob = {}, onEditDetails = {}, onChangeCover = {}, onDelete = {}, onSend = {},
+                )
+            }
+        }
+        compose.waitForIdle()
+        compose.onNodeWithTag("tab-comics").performClick()
+        compose.mainClock.advanceTimeBy(1_000)
+        compose.waitForIdle()
+        assertEquals(2, browse.tab)
+        compose.onNodeWithText("No comics").assertExists()
+    }
+
+    private lateinit var back: OnBackPressedDispatcher
+
+    private fun pressBack() {
+        compose.runOnIdle { back.onBackPressed() }
+        compose.waitForIdle()
+    }
+
+    /** The tab, with a comic's details shown as a line saying whose they are. */
+    private fun showWithDetails() {
+        compose.setContent {
+            back = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
+            AppSurface { LibraryComicsTab(comics, covers, browse, koboConnected = false, here = { null }, actions = ComicActions()) { b, _, _ -> Text("Details of ${b.title}") } }
+        }
+        compose.waitForIdle()
+    }
+
+    @Test
+    fun onAWideScreenBackFromAComicsDetailsIsItsSeries() {
+        showWithDetails()
+        compose.onNodeWithText("Saga").performClick()
+        compose.waitForIdle()
+        compose.onAllNodesWithContentDescription("Details")[1].performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Details of Saga 002").assertExists()
+        pressBack()
+        compose.onAllNodesWithText("Details of Saga 002").assertCountEquals(0)
+        compose.onNodeWithTag("comic-series-page").assertExists()
+        assertEquals("s:saga", browse.comicKey)
+        // Back again: the shelf on its own.
+        pressBack()
+        assertNull(browse.comicKey)
+    }
+
+    @Test
+    fun aSeriesCanOpenInPlaceOfTheShelfAsAListOrAsCovers() {
+        browse.seriesInPlace = true
+        showWithDetails()
+        // No side panel.
+        compose.onAllNodesWithText("Tap a series").assertCountEquals(0)
+        compose.onNodeWithText("Saga").performClick()
+        compose.waitForIdle()
+        compose.onAllNodesWithTag("comic-shelf").assertCountEquals(0)
+        compose.onAllNodesWithTag("comic-issue").assertCountEquals(3)
+        // As covers, each an entry of its own.
+        compose.onNodeWithTag("comic-series-layout").performClick()
+        compose.waitForIdle()
+        assertTrue(browse.seriesGrid)
+        compose.onNodeWithTag("comic-issue-grid").assertExists()
+        compose.onAllNodesWithTag("comic-issue").assertCountEquals(3)
+        // A comic's details, back to its series as it was, then back to the shelf.
+        compose.onAllNodesWithContentDescription("Details")[0].performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Details of Saga 001").assertExists()
+        pressBack()
+        compose.onNodeWithTag("comic-issue-grid").assertExists()
+        pressBack()
+        compose.onNodeWithTag("comic-shelf").assertExists()
+        // And as a list again.
+        compose.onNodeWithText("Saga").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("comic-series-layout").performClick()
+        compose.waitForIdle()
+        assertFalse(browse.seriesGrid)
+        compose.onAllNodesWithTag("comic-issue-grid").assertCountEquals(0)
+    }
+
+    @Test
+    fun theComicsTabCanBeHiddenFromItsMenu() {
+        val book = comic("The Histories.epub", title = "The Histories").copy(sourceFormat = null)
+        compose.setContent {
+            AppSurface {
+                LibraryScreen(
+                    books = listOf(book) + comics, covers = covers, browse = browse, job = null, koboConnected = false,
+                    onAddFiles = {}, onAddFromKobo = {}, onShowJob = {}, onEditDetails = {}, onChangeCover = {}, onDelete = {}, onSend = {},
+                )
+            }
+        }
+        compose.waitForIdle()
+        compose.onNodeWithText("Comics (2)").performClick()
+        compose.mainClock.advanceTimeBy(1_000)
+        compose.waitForIdle()
+        compose.onNodeWithTag("comic-sort").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("comics-hide-tab").performClick()
+        compose.mainClock.advanceTimeBy(1_000)
+        compose.waitForIdle()
+        assertFalse(browse.comicsTab)
         compose.onAllNodesWithTag("tab-comics").assertCountEquals(0)
         assertEquals(0, browse.tab)
+        // The comics are with the books again.
+        compose.onNodeWithText("Books (5)").assertExists()
+    }
+
+    @Test
+    fun removingASeriesKeepsItsComicsUnlessTheyreRemovedToo() {
+        show()
+        compose.onNodeWithText("Saga").performTouchInput { longClick() }
+        compose.onNodeWithText("1 series selected").assertExists()
+        compose.onNodeWithText("Remove").performClick()
+        compose.onNodeWithTag("series-remove-keep").performClick()
+        // Its comics stay, out of the series; none removed.
+        assertEquals(listOf(setOf("Saga 001.cbz", "Saga 002.cbz", "Saga 003.cbz")), takenOut.map { it.toSet() })
+        assertTrue(deleted.isEmpty())
+        // Or with the comics.
+        compose.onNodeWithText("Saga").performTouchInput { longClick() }
+        compose.onNodeWithText("Remove").performClick()
+        compose.onNodeWithText("Remove the series and its 3 comics").performClick()
+        assertEquals(listOf(setOf("Saga 001.cbz", "Saga 002.cbz", "Saga 003.cbz")), deleted.map { it.toSet() })
+    }
+
+    @Test
+    fun aSeriesIsRemovedFromItsMenuKeepingItsComics() {
+        browse.comicKey = "s:saga"
+        show()
+        compose.onNodeWithTag("comic-series-menu").performClick()
+        compose.onNodeWithTag("comic-series-remove").performClick()
+        compose.onNodeWithTag("series-remove-keep").performClick()
+        assertEquals(1, takenOut.size)
+        assertTrue(deleted.isEmpty())
+    }
+
+    @Test
+    fun aComicOnItsOwnIsRemovedAsBefore() {
+        show()
+        compose.onNodeWithText("Watchmen").performTouchInput { longClick() }
+        compose.onNodeWithText("Remove").performClick()
+        // The usual question for removing books: no series to keep.
+        compose.onAllNodesWithTag("series-remove-keep").assertCountEquals(0)
+        compose.onNodeWithText("Remove this book from the library?").assertExists()
     }
 }

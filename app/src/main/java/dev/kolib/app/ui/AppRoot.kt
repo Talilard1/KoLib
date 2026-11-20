@@ -1077,6 +1077,10 @@ fun AppRoot(
                 readingSetup = true
             }) else null,
             onAi = { showAi = true },
+            comicsTab = libraryBrowse.comicsTab,
+            onComicsTab = { libraryBrowse.comicsTab = it },
+            seriesInPlace = libraryBrowse.seriesInPlace,
+            onSeriesInPlace = { libraryBrowse.seriesInPlace = it },
         )
         if (showAi) dev.kolib.app.ui.ai.AiSetupDialog(onDismiss = { showAi = false })
         // A newer KoLib, when there is one (or what a look for one found, when it was asked for). It's looked for
@@ -1329,6 +1333,12 @@ fun LookDialog(
     onReadingSetup: (() -> Unit)? = null,
     /** Opens the AI settings: the model that explains words, summarises and answers questions. */
     onAi: (() -> Unit)? = null,
+    /** Comics have a tab of their own in the library (null: not offered here). */
+    comicsTab: Boolean? = null,
+    onComicsTab: (Boolean) -> Unit = {},
+    /** On a wide screen, a series opens in place of the comics' shelf rather than beside it. */
+    seriesInPlace: Boolean = false,
+    onSeriesInPlace: (Boolean) -> Unit = {},
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -1410,6 +1420,35 @@ fun LookDialog(
                 }
                 FileManagerLine()
                 UpdateLines()
+                if (comicsTab != null) {
+                    SwitchLine(tr("Comics tab"), tr("Comics in a tab of their own, a series to an entry. Off: they're with the books."), comicsTab, onComicsTab)
+                    if (comicsTab && androidx.compose.ui.platform.LocalConfiguration.current.smallestScreenWidthDp >= 600) {
+                        Text(
+                            tr("On a wide screen, a series opens"),
+                            style = MaterialTheme.typography.titleSmall,
+                            modifier = Modifier.padding(start = 4.dp, top = 8.dp, bottom = 2.dp),
+                        )
+                        for (inPlace in listOf(false, true)) {
+                            Row(
+                                Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                                    .selectable(seriesInPlace == inPlace, role = Role.RadioButton) { onSeriesInPlace(inPlace) }
+                                    .padding(vertical = 2.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                RadioButton(selected = seriesInPlace == inPlace, onClick = null, modifier = Modifier.padding(horizontal = 10.dp))
+                                Column(Modifier.weight(1f).padding(vertical = 6.dp)) {
+                                    Text(if (inPlace) tr("In place of the shelf") else tr("Beside the shelf"), style = MaterialTheme.typography.bodyLarge)
+                                    Text(
+                                        if (inPlace) tr("No side panel: its comics as covers or a list, as you choose in it.") else tr("Its comics listed beside the shelf."),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    HorizontalDivider(Modifier.padding(vertical = 10.dp))
+                }
                 dev.kolib.app.ui.theme.ThemePicker(current, onPick)
                 if (onOpening != null) {
                     HorizontalDivider(Modifier.padding(vertical = 10.dp))

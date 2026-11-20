@@ -16,6 +16,7 @@ import dev.kolib.app.epub.EpubFileFiles
 import java.io.File
 import java.io.IOException
 import java.util.UUID
+import org.json.JSONObject
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -245,15 +246,42 @@ class ComicTest {
 
     @Test
     fun settingsAreKeptAndReadBack() {
-        val s = ComicSettings(mode = ComicMode.STRIP_GAPS, scale = ComicScale.SMART, splitWide = true, taps = ComicTaps.KINDLE, sidePadding = 15, background = ComicBackground.AUTO)
+        val s = ComicSettings(
+            mode = ComicMode.STRIP_GAPS, rotation = ComicRotation.LOCKED_LANDSCAPE, scale = ComicScale.SMART, splitWide = true,
+            tapsPaged = ComicTaps.KINDLE, tapsStrip = ComicTaps.EDGE, invertTapsStrip = ComicInvert.BOTH, sidePadding = 13,
+            background = ComicBackground.AUTO, alwaysTransition = false, flash = true, flashMillis = 300, flashEvery = 3,
+            flashWith = ComicFlash.WHITE_BLACK, verticalIn = setOf(ComicMode.STRIP, ComicMode.VERTICAL), verticalLeft = true,
+            verticalHeight = 80, customBrightness = true, brightness = -40, colourFilter = true, colour = 0x66FF8800,
+            blend = ComicBlend.OVERLAY, greyscale = true, inverted = true, fullscreen = false, cutout = false,
+            rotateWideStrip = true, invertRotate = true, splitWideStrip = true, invertSplitStrip = true,
+        )
         assertEquals(s, ComicSettings.fromJson(s.toJson()))
         // Something unknown (a newer KoLib's) falls back to the usual.
-        val o = s.toJson().put("mode", "SIDEWAYS").put("sidePadding", 13)
+        val o = s.toJson().put("mode", "SIDEWAYS").put("brightness", 400)
         assertEquals(ComicMode.LEFT_TO_RIGHT, ComicSettings.fromJson(o).mode)
-        assertEquals(15, ComicSettings.fromJson(o).sidePadding)
-        ComicSettingsStore.saveMode(dir, ComicMode.RIGHT_TO_LEFT)
+        assertEquals(100, ComicSettings.fromJson(o).brightness)
+        // Saved before taps were set for each way of reading: the one setting does for both.
+        val old = JSONObject().put("taps", "KINDLE").put("invertTaps", "VERTICAL")
+        assertEquals(ComicTaps.KINDLE, ComicSettings.fromJson(old).tapsPaged)
+        assertEquals(ComicTaps.KINDLE, ComicSettings.fromJson(old).tapsStrip)
+        assertEquals(ComicInvert.VERTICAL, ComicSettings.fromJson(old).invertTapsStrip)
+        // And before comics had a rotation of their own: the book reader's.
+        assertEquals(ComicRotation.PORTRAIT, ComicSettings.fromJson(old, firstRotation = ComicRotation.PORTRAIT).rotation)
+        assertEquals(ComicRotation.LOCKED_LANDSCAPE, ComicSettings.fromJson(s.toJson(), firstRotation = ComicRotation.PORTRAIT).rotation)
+    }
+
+    @Test
+    fun aSeriesKeepsItsOwnModeAndRotation() {
+        val own = ComicOwnStore.inMemory()
+        assertEquals(ComicOwn(), own.of("s:saga"))
+        own.set("s:saga", ComicOwn(mode = ComicMode.RIGHT_TO_LEFT))
+        own.set("s:saga", own.of("s:saga").copy(rotation = ComicRotation.LANDSCAPE))
+        assertEquals(ComicOwn(ComicMode.RIGHT_TO_LEFT, ComicRotation.LANDSCAPE), own.of("s:saga"))
+        // Back to the defaults: nothing kept.
+        own.set("s:saga", ComicOwn())
+        assertTrue(own.all.value.isEmpty())
+        // A comic's mode from before modes were kept for each series is still read.
+        java.io.File(dir, "comic.json").writeText("""{"mode":"RIGHT_TO_LEFT"}""")
         assertEquals(ComicMode.RIGHT_TO_LEFT, ComicSettingsStore.modeOf(dir))
-        ComicSettingsStore.saveMode(dir, null)
-        assertNull(ComicSettingsStore.modeOf(dir))
     }
 }

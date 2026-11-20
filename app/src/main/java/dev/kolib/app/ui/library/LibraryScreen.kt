@@ -224,13 +224,12 @@ fun LibraryScreen(
     onTakeOutOfSeries: (List<String>) -> Unit = {},
 ) {
     // Comics have a tab of their own, a series to an entry; the Books tab has the rest.
-    val comics = remember(books) { libraryComics(books) }
+    // (With the Comics tab hidden, comics are books like the rest.)
+    val comics = remember(books, browse.comicsTab) { if (browse.comicsTab) libraryComics(books) else emptyList() }
     val notComics = remember(books, comics) { if (comics.isEmpty()) books else books.filterNot { it.isComic } }
     val comicActions = remember(onRead, onSend, onDelete, onMarkFinished, onMarkUnread, onGroupComics, onTakeOutOfSeries) {
         ComicActions(onRead, onSend, onDelete, onMarkFinished, onMarkUnread, onGroupComics, onTakeOutOfSeries)
     }
-    // The last comic gone, the tab goes too.
-    LaunchedEffect(comics.isEmpty()) { if (comics.isEmpty() && browse.tab == 2) browse.tab = 0 }
     val reading: (LibraryBook) -> KoboBook? = remember(onKobo) {
         { b -> b.koboPath?.let { onKobo[KoboPaths.contentId(it)] } }
     }
@@ -338,9 +337,11 @@ fun LibraryScreen(
             val collectionCount = remember(books) { libraryCollectionCount(books) }
             val seriesCount = remember(comics) { dev.kolib.app.library.ComicSeries.entries(comics).size }
             // Swipe left or right for the other tab, or tap it. Books being chosen are let go of on the other tabs,
-            // and choosing books (from anywhere) shows the Books tab.
-            // (Kept while it's showing, till the library's moved on from it, when the last comic goes.)
-            val tabCount = if (comics.isEmpty() && browse.tab != 2) 2 else 3
+            // and choosing books (from anywhere) shows the Books tab. The Comics tab is there with no comics too,
+            // unless it's been hidden.
+            // (Hidden while it's showing, it's kept till the library has moved on to the Books tab.)
+            val tabCount = if (browse.comicsTab || browse.tab == 2) 3 else 2
+            LaunchedEffect(browse.comicsTab) { if (!browse.comicsTab && browse.tab == 2) browse.tab = 0 }
             val pager = rememberTabPager(browse.tab.coerceAtMost(tabCount - 1), tabCount) { t ->
                 if (t != 0) browse.stopSelecting()
                 if (t != 2) browse.stopComicSelecting()

@@ -9,6 +9,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
@@ -28,7 +32,8 @@ import dev.kolib.app.reader.ReaderSettings
 import dev.kolib.app.reader.ReaderStore
 import dev.kolib.app.ui.library.LibraryBrowseState
 import dev.kolib.app.ui.library.LibraryScreen
-import dev.kolib.app.ui.reader.ComicEnding
+import dev.kolib.app.ui.reader.Neighbour
+import dev.kolib.app.ui.reader.OpenComic
 import dev.kolib.app.ui.reader.ComicView
 import dev.kolib.app.ui.reader.PageSettings
 import dev.kolib.app.ui.theme.AppSurface
@@ -113,6 +118,65 @@ class ComicsShots {
     }
 
     @Test
+    @Config(qualifiers = "w1280dp-h800dp-land-mdpi")
+    fun tabletSeriesInPlaceAsCovers() {
+        val (lib, covers) = library()
+        screen(lib, covers, LibraryBrowseState().apply { tab = 2; comicKey = "s:saga"; seriesInPlace = true; seriesGrid = true })
+        shot("comics_tablet_inplace_grid")
+    }
+
+    @Test
+    @Config(qualifiers = "w1280dp-h800dp-land-mdpi")
+    fun tabletSeriesInPlaceAsAList() {
+        val (lib, covers) = library()
+        screen(lib, covers, LibraryBrowseState().apply { tab = 2; comicKey = "s:saga"; seriesInPlace = true })
+        shot("comics_tablet_inplace_list")
+    }
+
+    @Test
+    @Config(qualifiers = "w1280dp-h800dp-land-mdpi")
+    fun tabletShelfInPlace() {
+        val (lib, covers) = library()
+        screen(lib, covers, LibraryBrowseState().apply { tab = 2; seriesInPlace = true })
+        shot("comics_tablet_inplace_shelf")
+    }
+
+    @Test
+    @Config(qualifiers = "w1280dp-h800dp-land-mdpi")
+    fun tabletAddToSeries() {
+        val (lib, covers) = library()
+        val browse = LibraryBrowseState().apply { tab = 2 }
+        screen(lib, covers, browse)
+        compose.waitForIdle()
+        compose.onNodeWithText("Watchmen").performTouchInput { longClick() }
+        compose.onNodeWithTag("comics-add-to-series").performClick()
+        shot("comics_add_to_series")
+    }
+
+    @Test
+    @Config(qualifiers = "w1280dp-h800dp-land-mdpi")
+    fun tabletRemoveSeries() {
+        val (lib, covers) = library()
+        val browse = LibraryBrowseState().apply { tab = 2 }
+        screen(lib, covers, browse)
+        compose.waitForIdle()
+        compose.onNodeWithText("Saga").performTouchInput { longClick() }
+        compose.onNodeWithText("Remove").performClick()
+        shot("comics_remove_series")
+    }
+
+    @Test
+    @Config(qualifiers = "w1280dp-h800dp-land-mdpi")
+    fun settingsWithTheLibraryChoices() {
+        compose.setContent {
+            AppSurface(ThemeChoice.SYSTEM) {
+                dev.kolib.app.ui.LookDialog(current = ThemeChoice.SYSTEM, onPick = {}, onDismiss = {}, comicsTab = true, seriesInPlace = true)
+            }
+        }
+        shot("comics_settings_library")
+    }
+
+    @Test
     @Config(qualifiers = "w411dp-h914dp-port-xxhdpi")
     fun phoneComicsShelf() {
         val (lib, covers) = library()
@@ -140,12 +204,14 @@ class ComicsShots {
         )
         ReaderStore.savePdfPlace(dir, PdfPlace(2, 3))
         val pages = ComicPages(ComicArchives.open(file, libArchive = null))
+        val next = ComicPages(ComicArchives.open(file, libArchive = null))
+        val first = OpenComic(book, pages, dir, name = "#1")
+        val second = OpenComic(book.copy(id = "saga-2"), next, File(dir, "2"), name = "#2")
         compose.setContent {
             AppSurface(ThemeChoice.BOOKCASE) {
                 ComicView(
-                    book = book, pages = pages, dir = dir, s = ComicSettings(), mode = ComicSettings().mode, menu = false, setMenu = {},
-                    ending = ComicEnding("#1", series = "Saga", next = "#2", onNext = {}),
-                    onMode = {}, onSettings = {}, onClose = {}, onCover = {}, readingHere = null,
+                    comic = first, s = ComicSettings(), mode = ComicSettings().mode, menu = false, setMenu = {}, onSettings = {}, onClose = {},
+                    onCover = { _, _ -> }, readingHere = null, series = "Saga", after = Neighbour(second.id, second.name, second),
                 )
             }
         }
@@ -154,6 +220,7 @@ class ComicsShots {
         compose.mainClock.advanceTimeBy(1_000)
         shot("comics_end")
         pages.close()
+        next.close()
     }
 
     @Test

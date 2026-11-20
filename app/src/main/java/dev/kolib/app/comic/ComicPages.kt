@@ -20,17 +20,9 @@ import kotlinx.coroutines.withContext
 class ComicPages(val archive: ComicArchive) : Closeable {
     val count: Int get() = archive.pages.size
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private val io = Dispatchers.IO.limitedParallelism(2)
+    /** Marks this comic's pages in the caches, which all the comics open at once share. */
+    private val id = "${ids.incrementAndGet()}:"
 
-    // The files of the last few pages read, up to 48 MB (held in the app's own memory, which a phone keeps small).
-    private val files = object : LruCache<Int, ByteArray>(48 * 1024 * 1024) {
-        override fun sizeOf(key: Int, value: ByteArray) = value.size
-    }
-    // Pictures drawn, up to 120 MB: the pages either side of the one being read, at the screen's size.
-    private val drawn = object : LruCache<String, Bitmap>(120 * 1024 * 1024) {
-        override fun sizeOf(key: String, value: Bitmap) = value.allocationByteCount
-    }
     private val sizes = ConcurrentHashMap<Int, PageSize>()
     private val crops = ConcurrentHashMap<Int, Rect>()
     private val tones = ConcurrentHashMap<Int, Int>()
@@ -43,7 +35,7 @@ class ComicPages(val archive: ComicArchive) : Closeable {
     fun knownSize(index: Int): PageSize? = sizes[index]
 
     suspend fun file(index: Int): ByteArray = withContext(io) {
-        files.get(index) ?: archive.bytes(index).also { files.put(index, it) }
+        files.get(id + index) ?: archive.bytes(index).also { files.put(id + index, it) }
     }
 
     /** Page [index]'s picture size, read from the start of its file. */
@@ -99,7 +91,7 @@ class ComicPages(val archive: ComicArchive) : Closeable {
      */
     suspend fun bitmap(index: Int, region: Rect, outW: Int, outH: Int): Bitmap? {
         val sample = ComicLayout.sampleFor(region.width(), region.height(), outW, outH)
-        val key = "$index:${region.flattenToString()}:$sample"
+        val key = "$id$index:${region.flattenToString()}:$sample"
         drawn.get(key)?.takeIf { !it.isRecycled }?.let { return it }
         return withContext(io) { decode(index, region, outW, outH)?.also { drawn.put(key, it) } }
     }
@@ -129,9 +121,27 @@ class ComicPages(val archive: ComicArchive) : Closeable {
     }
 
     override fun close() {
-        drawn.evictAll()
-        files.evictAll()
+        for (k in drawn.snapshot().keys) if (k.startsWith(id)) drawn.remove(k)
+        for (k in files.snapshot().keys) if (k.startsWith(id)) files.remove(k)
         runCatching { archive.close() }
+    }
+
+    companion object {
+        private val ids = java.util.concurrent.atomic.AtomicInteger()
+
+        @OptIn(ExperimentalCoroutinesApi::class)
+        private val io = Dispatchers.IO.limitedParallelism(2)
+
+        // The files of the last few pages read, up to 48 MB (held in the app's own memory, which a phone keeps small),
+        // for every comic open: the one being read and those either side of it in its series.
+        private val files = object : LruCache<String, ByteArray>(48 * 1024 * 1024) {
+            override fun sizeOf(key: String, value: ByteArray) = value.size
+        }
+
+        // Pictures drawn, up to 120 MB: the pages either side of the one being read, at the screen's size.
+        private val drawn = object : LruCache<String, Bitmap>(120 * 1024 * 1024) {
+            override fun sizeOf(key: String, value: Bitmap) = value.allocationByteCount
+        }
     }
 }
 

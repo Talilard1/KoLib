@@ -214,7 +214,7 @@ internal fun PhoneLibraryScreen(
     if (open == null && openSeries != null) {
         // A series opens on a page of its own.
         BackHandler { if (browse.comicSelecting != null) browse.stopComicSelecting() else browse.comicKey = null }
-        ComicSeriesPage(openSeries, covers, browse, koboConnected, here, comicActions, onBack = { browse.comicKey = null; browse.stopComicSelecting() })
+        ComicSeriesPage(openSeries, covers, browse, koboConnected, here, comicActions, onBack = { browse.comicKey = null; browse.stopComicSelecting() }, others = comicEntries)
         return
     }
     if (open != null) {
@@ -387,13 +387,15 @@ internal fun PhoneLibraryScreen(
                 return@Column
             }
             // Swipe left or right for the other tab, or tap it. Choosing books (from anywhere) shows the Books tab.
-            val tabCount = if (comics.isEmpty() && browse.tab != 2) 2 else 3
+            // The Comics tab is there with no comics too, unless it's been hidden.
+            // (Hidden while it's showing, it's kept till the library has moved on to the Books tab.)
+            val tabCount = if (browse.comicsTab || browse.tab == 2) 3 else 2
+            LaunchedEffect(browse.comicsTab) { if (!browse.comicsTab && browse.tab == 2) browse.tab = 0 }
             val pager = rememberTabPager(browse.tab, tabCount) { t ->
                 if (t != 2) browse.stopComicSelecting()
                 browse.tab = t
             }
             LaunchedEffect(browse.selecting) { if (browse.selecting) browse.tab = 0 }
-            LaunchedEffect(comics.isEmpty()) { if (comics.isEmpty() && browse.tab == 2) browse.tab = 0 }
             val goTo = rememberTabTap(pager)
             if (!browse.selecting && browse.comicSelecting == null) {
                 PrimaryTabRow(selectedTabIndex = pager.currentPage.coerceAtMost(tabCount - 1), containerColor = Color.Transparent) {

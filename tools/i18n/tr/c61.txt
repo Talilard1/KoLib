@@ -1,0 +1,680 @@
+@fr
+3154|Rotation
+3155|Rogner les marges : activé
+3156|Rogner les marges : désactivé
+3157|BD suivante
+3158|BD précédente
+3159|Réinitialiser
+3160|Appliquer
+3163|Elle n’a pas pu être ouverte.
+3164|Général
+3165|Filtre personnalisé
+3166|Pour cette série
+3167|Pour cette BD
+3168|Par défaut
+3169|Mise à l’échelle
+3170|Zoomer automatiquement sur les pages larges
+3171|Parcourir les pages larges
+3172|Inverser les moitiés
+3173|Inverser la rotation
+3174|Couleur du fond
+3175|Curseur des pages sur le côté en
+3176|À gauche
+3177|Sa hauteur
+3178|Plein écran
+3179|Afficher les pages autour de la caméra
+3180|Toujours afficher la page entre les BD
+3181|Désactivé : la BD suivante de la série suit directement la dernière page.
+3183|Flash au changement de page
+3184|Efface les images rémanentes des écrans à encre électronique.
+3185|Durée du flash
+3186|{0} ms
+3187|Flash toutes les
+3188|Couleur du flash
+3189|Pour toutes les BD
+3190|Rotation par défaut
+3191|Luminosité personnalisée
+3192|Filtre de couleur personnalisé
+3193|Rouge
+3194|Opacité
+3195|Mode de fusion
+3196|Niveaux de gris
+3197|Couleurs inversées
+3198|Page par page (de gauche à droite)
+3199|Page par page (de droite à gauche)
+3200|Page par page (vertical)
+3201|Libre
+3202|Portrait verrouillé
+3203|Paysage verrouillé
+3204|Portrait inversé
+3205|Produit
+3206|Incrustation
+3207|Densité − / Éclaircir
+3208|Densité + / Obscurcir
+3209|Blanc puis noir
+3210|Onglet BD
+3211|Les BD dans un onglet à part, une entrée par série. Désactivé : elles sont avec les livres.
+3212|Sur un grand écran, une série s’ouvre
+3213|À la place de l’étagère
+3214|À côté de l’étagère
+3215|Sans panneau latéral : ses BD en couvertures ou en liste, au choix dans la série.
+3216|Ses BD en liste à côté de l’étagère.
+3217|Une série s’ouvre
+3218|Masquer l’onglet BD
+3219|Les BD sont maintenant avec les livres. L’onglet peut être réaffiché dans les Réglages.
+3220|Afficher les BD en liste
+3221|Afficher les BD en couvertures
+3222|Superposition
+3223|Précédente
+3224|En cours
+3225|Terminée
+3226|Suivante
+@de
+3154|Drehung
+3155|Ränder zuschneiden: an
+3156|Ränder zuschneiden: aus
+3157|Nächster Comic
+3158|Vorheriger Comic
+3159|Zurücksetzen
+3160|Übernehmen
+3163|Er konnte nicht geöffnet werden.
+3164|Allgemein
+3165|Eigener Filter
+3166|Für diese Reihe
+3167|Für diesen Comic
+3168|Standard
+3169|Skalierung
+3170|Breite Seiten automatisch vergrößern
+3171|Breite Seiten durchschieben
+3172|Hälften vertauschen
+3173|Andersherum drehen
+3174|Hintergrundfarbe
+3175|Seitenregler am Rand bei
+3176|Links
+3177|Höhe
+3178|Vollbild
+3179|Seiten um die Kamera herum zeigen
+3180|Seite zwischen Comics immer zeigen
+3181|Aus: Der nächste Comic der Reihe folgt direkt auf die letzte Seite.
+3183|Beim Seitenwechsel aufblitzen
+3184|Entfernt Geisterbilder auf E-Ink-Bildschirmen.
+3185|Blitzdauer
+3186|{0} ms
+3187|Blitz alle
+3188|Blitzfarbe
+3189|Für alle Comics
+3190|Standard-Drehung
+3191|Eigene Helligkeit
+3192|Eigener Farbfilter
+3193|Rot
+3194|Deckkraft
+3195|Mischmodus
+3196|Graustufen
+3197|Farben umkehren
+3198|Seitenweise (links nach rechts)
+3199|Seitenweise (rechts nach links)
+3200|Seitenweise (vertikal)
+3201|Frei
+3202|Hochformat (fest)
+3203|Querformat (fest)
+3204|Hochformat (umgedreht)
+3205|Multiplizieren
+3206|Ineinanderkopieren
+3207|Abwedeln / Aufhellen
+3208|Nachbelichten / Abdunkeln
+3209|Weiß, dann Schwarz
+3210|Tab „Comics“
+3211|Comics in einem eigenen Tab, eine Reihe pro Eintrag. Aus: Sie stehen bei den Büchern.
+3212|Auf einem breiten Bildschirm öffnet sich eine Reihe
+3213|Anstelle des Regals
+3214|Neben dem Regal
+3215|Ohne Seitenleiste: Die Comics als Cover oder als Liste, wie Sie es in der Reihe wählen.
+3216|Die Comics als Liste neben dem Regal.
+3217|Eine Reihe öffnet sich
+3218|Tab „Comics“ ausblenden
+3219|Comics stehen jetzt bei den Büchern. Der Tab lässt sich in den Einstellungen wieder einblenden.
+3220|Comics als Liste zeigen
+3221|Comics als Cover zeigen
+3222|Negativ multiplizieren
+3223|Davor
+3224|Aktuell
+3225|Fertig gelesen
+3226|Als Nächstes
+@es
+3154|Rotación
+3155|Recortar bordes: activado
+3156|Recortar bordes: desactivado
+3157|Cómic siguiente
+3158|Cómic anterior
+3159|Restablecer
+3160|Aplicar
+3163|No se pudo abrir.
+3164|General
+3165|Filtro personalizado
+3166|Para esta serie
+3167|Para este cómic
+3168|Por defecto
+3169|Escala
+3170|Ampliar automáticamente las páginas anchas
+3171|Recorrer las páginas anchas
+3172|Invertir las mitades
+3173|Invertir el giro
+3174|Color de fondo
+3175|Barra de páginas al lado en
+3176|A la izquierda
+3177|Su altura
+3178|Pantalla completa
+3179|Mostrar las páginas alrededor de la cámara
+3180|Mostrar siempre la página entre cómics
+3181|Desactivado: el siguiente cómic de la serie sigue justo después de la última página.
+3183|Destello al cambiar de página
+3184|Elimina las imágenes residuales en pantallas de tinta electrónica.
+3185|Duración del destello
+3186|{0} ms
+3187|Destello cada
+3188|Color del destello
+3189|Para todos los cómics
+3190|Rotación por defecto
+3191|Brillo personalizado
+3192|Filtro de color personalizado
+3193|Rojo
+3194|Opacidad
+3195|Modo de fusión
+3196|Escala de grises
+3197|Colores invertidos
+3198|Por páginas (de izquierda a derecha)
+3199|Por páginas (de derecha a izquierda)
+3200|Por páginas (vertical)
+3201|Libre
+3202|Vertical fijo
+3203|Horizontal fijo
+3204|Vertical invertido
+3205|Multiplicar
+3206|Superponer
+3207|Sobreexponer / Aclarar
+3208|Subexponer / Oscurecer
+3209|Blanco y luego negro
+3210|Pestaña Cómics
+3211|Los cómics en su propia pestaña, una entrada por serie. Desactivado: están con los libros.
+3212|En una pantalla ancha, una serie se abre
+3213|En lugar de la estantería
+3214|Junto a la estantería
+3215|Sin panel lateral: sus cómics como portadas o como lista, según elijas en ella.
+3216|Sus cómics en una lista junto a la estantería.
+3217|Una serie se abre
+3218|Ocultar la pestaña Cómics
+3219|Los cómics están ahora con los libros. Puedes volver a mostrar la pestaña en Ajustes.
+3220|Mostrar los cómics en lista
+3221|Mostrar los cómics como portadas
+3222|Trama
+3223|Anterior
+3224|Actual
+3225|Terminado
+3226|Siguiente
+@it
+3154|Rotazione
+3155|Ritaglia i bordi: attivo
+3156|Ritaglia i bordi: disattivato
+3157|Fumetto successivo
+3158|Fumetto precedente
+3159|Ripristina
+3160|Applica
+3163|Non è stato possibile aprirlo.
+3164|Generale
+3165|Filtro personalizzato
+3166|Per questa serie
+3167|Per questo fumetto
+3168|Predefinito
+3169|Ridimensionamento
+3170|Ingrandisci automaticamente le pagine larghe
+3171|Scorri le pagine larghe
+3172|Inverti le metà
+3173|Inverti la rotazione
+3174|Colore di sfondo
+3175|Cursore delle pagine di lato in
+3176|A sinistra
+3177|Altezza
+3178|Schermo intero
+3179|Mostra le pagine intorno alla fotocamera
+3180|Mostra sempre la pagina tra i fumetti
+3181|Disattivato: il fumetto successivo della serie segue subito dopo l’ultima pagina.
+3183|Lampeggio al cambio pagina
+3184|Elimina le immagini residue sugli schermi e-ink.
+3185|Durata del lampeggio
+3186|{0} ms
+3187|Lampeggio ogni
+3188|Colore del lampeggio
+3189|Per tutti i fumetti
+3190|Rotazione predefinita
+3191|Luminosità personalizzata
+3192|Filtro colore personalizzato
+3193|Rosso
+3194|Opacità
+3195|Metodo di fusione
+3196|Scala di grigi
+3197|Colori invertiti
+3198|A pagine (da sinistra a destra)
+3199|A pagine (da destra a sinistra)
+3200|A pagine (verticale)
+3201|Libera
+3202|Verticale bloccato
+3203|Orizzontale bloccato
+3204|Verticale capovolto
+3205|Moltiplica
+3206|Sovrapponi
+3207|Scherma / Schiarisci
+3208|Brucia / Scurisci
+3209|Bianco, poi nero
+3210|Scheda Fumetti
+3211|I fumetti in una scheda a parte, una voce per serie. Disattivato: sono insieme ai libri.
+3212|Su uno schermo largo, una serie si apre
+3213|Al posto dello scaffale
+3214|Accanto allo scaffale
+3215|Senza pannello laterale: i suoi fumetti come copertine o come elenco, come scegli al suo interno.
+3216|I suoi fumetti elencati accanto allo scaffale.
+3217|Una serie si apre
+3218|Nascondi la scheda Fumetti
+3219|Ora i fumetti sono insieme ai libri. Puoi mostrare di nuovo la scheda nelle Impostazioni.
+3220|Mostra i fumetti come elenco
+3221|Mostra i fumetti come copertine
+3222|Scolora
+3223|Precedente
+3224|Attuale
+3225|Finito
+3226|Successivo
+@nl
+3154|Draaiing
+3155|Randen bijsnijden: aan
+3156|Randen bijsnijden: uit
+3157|Volgende strip
+3158|Vorige strip
+3159|Herstellen
+3160|Toepassen
+3163|Die kon niet worden geopend.
+3164|Algemeen
+3165|Eigen filter
+3166|Voor deze reeks
+3167|Voor deze strip
+3168|Standaard
+3169|Schaal
+3170|Automatisch inzoomen op brede pagina’s
+3171|Langs brede pagina’s schuiven
+3172|Helften omdraaien
+3173|Andersom draaien
+3174|Achtergrondkleur
+3175|Paginaschuif aan de zijkant bij
+3176|Links
+3177|Hoogte
+3178|Volledig scherm
+3179|Pagina’s rond de camera tonen
+3180|Altijd de pagina tussen strips tonen
+3181|Uit: de volgende strip in de reeks volgt direct na de laatste pagina.
+3183|Flitsen bij het omslaan
+3184|Wist schaduwbeelden op e-ink-schermen.
+3185|Flitsduur
+3186|{0} ms
+3187|Flitsen elke
+3188|Flitskleur
+3189|Voor alle strips
+3190|Standaard draaiing
+3191|Eigen helderheid
+3192|Eigen kleurfilter
+3193|Rood
+3194|Dekking
+3195|Overvloeimodus
+3196|Grijstinten
+3197|Omgekeerde kleuren
+3198|Per pagina (links naar rechts)
+3199|Per pagina (rechts naar links)
+3200|Per pagina (verticaal)
+3201|Vrij
+3202|Staand vergrendeld
+3203|Liggend vergrendeld
+3204|Staand omgekeerd
+3205|Vermenigvuldigen
+3206|Bedekken
+3207|Tegenhouden / Lichter
+3208|Doordrukken / Donkerder
+3209|Wit, dan zwart
+3210|Tabblad Strips
+3211|Strips in een eigen tabblad, één item per reeks. Uit: ze staan bij de boeken.
+3212|Op een breed scherm opent een reeks
+3213|In plaats van de plank
+3214|Naast de plank
+3215|Zonder zijpaneel: de strips als omslagen of als lijst, zoals je in de reeks kiest.
+3216|De strips in een lijst naast de plank.
+3217|Een reeks opent
+3218|Tabblad Strips verbergen
+3219|Strips staan nu bij de boeken. Het tabblad kan weer worden getoond in Instellingen.
+3220|Strips als lijst tonen
+3221|Strips als omslagen tonen
+3222|Bleken
+3223|Vorige
+3224|Huidige
+3225|Uitgelezen
+3226|Volgende
+@pt
+3154|Rotação
+3155|Cortar bordas: ativado
+3156|Cortar bordas: desativado
+3157|Próximo quadrinho
+3158|Quadrinho anterior
+3159|Restaurar
+3160|Aplicar
+3163|Não foi possível abri-lo.
+3164|Geral
+3165|Filtro personalizado
+3166|Para esta série
+3167|Para este quadrinho
+3168|Padrão
+3169|Escala
+3170|Ampliar automaticamente páginas largas
+3171|Percorrer páginas largas
+3172|Inverter as metades
+3173|Inverter a rotação
+3174|Cor de fundo
+3175|Barra de páginas na lateral em
+3176|À esquerda
+3177|Altura
+3178|Tela cheia
+3179|Mostrar as páginas ao redor da câmera
+3180|Sempre mostrar a página entre quadrinhos
+3181|Desativado: o próximo quadrinho da série vem logo depois da última página.
+3183|Piscar ao mudar de página
+3184|Remove imagens fantasmas em telas de tinta eletrônica.
+3185|Duração da piscada
+3186|{0} ms
+3187|Piscar a cada
+3188|Cor da piscada
+3189|Para todos os quadrinhos
+3190|Rotação padrão
+3191|Brilho personalizado
+3192|Filtro de cor personalizado
+3193|Vermelho
+3194|Opacidade
+3195|Modo de mesclagem
+3196|Escala de cinza
+3197|Cores invertidas
+3198|Paginado (da esquerda para a direita)
+3199|Paginado (da direita para a esquerda)
+3200|Paginado (vertical)
+3201|Livre
+3202|Retrato travado
+3203|Paisagem travada
+3204|Retrato invertido
+3205|Multiplicação
+3206|Sobrepor
+3207|Subexposição / Clarear
+3208|Superexposição / Escurecer
+3209|Branco, depois preto
+3210|Aba Quadrinhos
+3211|Quadrinhos numa aba própria, uma entrada por série. Desativado: ficam junto com os livros.
+3212|Em uma tela larga, uma série abre
+3213|No lugar da estante
+3214|Ao lado da estante
+3215|Sem painel lateral: os quadrinhos como capas ou como lista, como você escolher nela.
+3216|Os quadrinhos em lista ao lado da estante.
+3217|Uma série abre
+3218|Ocultar a aba Quadrinhos
+3219|Os quadrinhos agora estão junto com os livros. A aba pode ser mostrada de novo em Configurações.
+3220|Mostrar os quadrinhos em lista
+3221|Mostrar os quadrinhos como capas
+3222|Tela
+3223|Anterior
+3224|Atual
+3225|Concluído
+3226|Próximo
+@ru
+3154|Поворот
+3155|Обрезать поля: вкл.
+3156|Обрезать поля: выкл.
+3157|Следующий комикс
+3158|Предыдущий комикс
+3159|Сбросить
+3160|Применить
+3163|Его не удалось открыть.
+3164|Общие
+3165|Свой фильтр
+3166|Для этой серии
+3167|Для этого комикса
+3168|По умолчанию
+3169|Масштаб
+3170|Автоматически увеличивать широкие страницы
+3171|Сдвигать широкие страницы
+3172|Поменять половины местами
+3173|Поворачивать в другую сторону
+3174|Цвет фона
+3175|Ползунок страниц сбоку в режимах
+3176|Слева
+3177|Высота
+3178|Полноэкранный режим
+3179|Показывать страницы вокруг камеры
+3180|Всегда показывать страницу между комиксами
+3181|Выкл.: следующий комикс серии идёт сразу после последней страницы.
+3183|Вспышка при смене страницы
+3184|Убирает остаточные изображения на экранах E Ink.
+3185|Длительность вспышки
+3186|{0} мс
+3187|Вспышка каждые
+3188|Цвет вспышки
+3189|Для всех комиксов
+3190|Поворот по умолчанию
+3191|Своя яркость
+3192|Свой цветовой фильтр
+3193|Красный
+3194|Непрозрачность
+3195|Режим наложения
+3196|Оттенки серого
+3197|Инверсия цветов
+3198|Постранично (слева направо)
+3199|Постранично (справа налево)
+3200|Постранично (вертикально)
+3201|Свободно
+3202|Только книжная
+3203|Только альбомная
+3204|Книжная перевёрнутая
+3205|Умножение
+3206|Перекрытие
+3207|Осветление / Замена светлым
+3208|Затемнение / Замена тёмным
+3209|Белый, затем чёрный
+3210|Вкладка «Комиксы»
+3211|Комиксы на отдельной вкладке, одна запись на серию. Выкл.: они вместе с книгами.
+3212|На широком экране серия открывается
+3213|Вместо полки
+3214|Рядом с полкой
+3215|Без боковой панели: комиксы обложками или списком — выбирается внутри серии.
+3216|Комиксы списком рядом с полкой.
+3217|Серия открывается
+3218|Скрыть вкладку «Комиксы»
+3219|Теперь комиксы вместе с книгами. Вкладку можно вернуть в настройках.
+3220|Показать комиксы списком
+3221|Показать комиксы обложками
+3222|Экран
+3223|Предыдущий
+3224|Текущий
+3225|Прочитано
+3226|Следующий
+@ja
+3154|画面の向き
+3155|余白を切り取る：オン
+3156|余白を切り取る：オフ
+3157|次のコミック
+3158|前のコミック
+3159|既定に戻す
+3160|適用
+3163|開けませんでした。
+3164|全般
+3165|カスタムフィルター
+3166|このシリーズ
+3167|このコミック
+3168|既定
+3169|表示サイズ
+3170|横長のページを自動で拡大する
+3171|横長のページを動かして見る
+3172|分割の順番を逆にする
+3173|回転を逆にする
+3174|背景色
+3175|ページのスライダーを横に置く読み方
+3176|左側に
+3177|高さ
+3178|全画面
+3179|カメラの周りにもページを表示する
+3180|コミックの間のページを常に表示する
+3181|オフ：シリーズの次のコミックが最後のページのすぐ後に続きます。
+3183|ページ切り替え時にフラッシュ
+3184|電子ペーパー画面の残像を消します。
+3185|フラッシュの長さ
+3186|{0} ミリ秒
+3187|フラッシュの間隔
+3188|フラッシュの色
+3189|すべてのコミック
+3190|既定の画面の向き
+3191|カスタムの明るさ
+3192|カスタムの色フィルター
+3193|赤
+3194|不透明度
+3195|描画モード
+3196|グレースケール
+3197|色を反転
+3198|ページめくり（左から右）
+3199|ページめくり（右から左）
+3200|ページめくり（縦）
+3201|自由
+3202|縦向きで固定
+3203|横向きで固定
+3204|縦向き（逆さま）
+3205|乗算
+3206|オーバーレイ
+3207|覆い焼き / 比較（明）
+3208|焼き込み / 比較（暗）
+3209|白、次に黒
+3210|コミックのタブ
+3211|コミックを専用のタブに、シリーズごとに1件で表示します。オフ：本と一緒に表示します。
+3212|横長の画面でシリーズを開く場所
+3213|棚の代わりに
+3214|棚の横に
+3215|サイドパネルなし：シリーズ内で表紙かリストかを選べます。
+3216|棚の横にコミックをリストで表示します。
+3217|シリーズを開く場所
+3218|コミックのタブを隠す
+3219|コミックは本と一緒に表示されます。タブは設定で再表示できます。
+3220|コミックをリストで表示
+3221|コミックを表紙で表示
+3222|スクリーン
+3223|前
+3224|現在
+3225|読み終わり
+3226|次
+@fr
+3227|Ajouter à une série
+3228|Retirer la série « {0} » ?
+3229|Retirer {0} séries ?
+3230|Ses BD restent dans la bibliothèque, chacune à part, sauf si vous les retirez aussi.
+3231|Leurs BD restent dans la bibliothèque, chacune à part, sauf si vous les retirez aussi.
+3232|Retirer la série
+3233|Retirer la série et sa BD
+3234|Retirer la série et ses {0} BD
+3235|Retirer les séries et leurs {0} BD
+3236|Ajouter ses BD à une autre série
+3237|Chercher une série
+3238|Une nouvelle série…
+3239|Il n’y a encore aucune série.
+@de
+3227|Zu einer Reihe hinzufügen
+3228|Reihe „{0}“ entfernen?
+3229|{0} Reihen entfernen?
+3230|Die Comics bleiben in der Bibliothek, jeder für sich, außer Sie entfernen sie auch.
+3231|Die Comics bleiben in der Bibliothek, jeder für sich, außer Sie entfernen sie auch.
+3232|Reihe entfernen
+3233|Reihe und ihren Comic entfernen
+3234|Reihe und ihre {0} Comics entfernen
+3235|Reihen und ihre {0} Comics entfernen
+3236|Comics zu einer anderen Reihe hinzufügen
+3237|Reihe suchen
+3238|Eine neue Reihe…
+3239|Es gibt noch keine Reihen.
+@es
+3227|Añadir a una serie
+3228|¿Quitar la serie «{0}»?
+3229|¿Quitar {0} series?
+3230|Sus cómics se quedan en la biblioteca, cada uno por separado, salvo que también los quites.
+3231|Sus cómics se quedan en la biblioteca, cada uno por separado, salvo que también los quites.
+3232|Quitar la serie
+3233|Quitar la serie y su cómic
+3234|Quitar la serie y sus {0} cómics
+3235|Quitar las series y sus {0} cómics
+3236|Añadir sus cómics a otra serie
+3237|Buscar una serie
+3238|Una serie nueva…
+3239|Todavía no hay series.
+@it
+3227|Aggiungi a una serie
+3228|Rimuovere la serie «{0}»?
+3229|Rimuovere {0} serie?
+3230|I suoi fumetti restano nella libreria, ciascuno per conto suo, a meno che tu non li rimuova.
+3231|I loro fumetti restano nella libreria, ciascuno per conto suo, a meno che tu non li rimuova.
+3232|Rimuovi la serie
+3233|Rimuovi la serie e il suo fumetto
+3234|Rimuovi la serie e i suoi {0} fumetti
+3235|Rimuovi le serie e i loro {0} fumetti
+3236|Aggiungi i suoi fumetti a un’altra serie
+3237|Cerca una serie
+3238|Una nuova serie…
+3239|Non ci sono ancora serie.
+@nl
+3227|Aan een reeks toevoegen
+3228|De reeks ‘{0}’ verwijderen?
+3229|{0} reeksen verwijderen?
+3230|De strips blijven in de bibliotheek, elk op zichzelf, tenzij je ze ook verwijdert.
+3231|De strips blijven in de bibliotheek, elk op zichzelf, tenzij je ze ook verwijdert.
+3232|Reeks verwijderen
+3233|Reeks en de strip verwijderen
+3234|Reeks en de {0} strips verwijderen
+3235|Reeksen en de {0} strips verwijderen
+3236|De strips aan een andere reeks toevoegen
+3237|Een reeks zoeken
+3238|Een nieuwe reeks…
+3239|Er zijn nog geen reeksen.
+@pt
+3227|Adicionar a uma série
+3228|Remover a série “{0}”?
+3229|Remover {0} séries?
+3230|Os quadrinhos dela ficam na biblioteca, cada um separado, a menos que você também os remova.
+3231|Os quadrinhos delas ficam na biblioteca, cada um separado, a menos que você também os remova.
+3232|Remover a série
+3233|Remover a série e o quadrinho
+3234|Remover a série e seus {0} quadrinhos
+3235|Remover as séries e seus {0} quadrinhos
+3236|Adicionar os quadrinhos a outra série
+3237|Pesquisar uma série
+3238|Uma nova série…
+3239|Ainda não há séries.
+@ru
+3227|Добавить в серию
+3228|Убрать серию «{0}»?
+3229|Убрать {0} {0:серию|серии|серий}?
+3230|Её комиксы останутся в библиотеке, каждый сам по себе, если вы не уберёте и их.
+3231|Их комиксы останутся в библиотеке, каждый сам по себе, если вы не уберёте и их.
+3232|Убрать серию
+3233|Убрать серию и её комикс
+3234|Убрать серию и её {0} {0:комикс|комикса|комиксов}
+3235|Убрать серии и их {0} {0:комикс|комикса|комиксов}
+3236|Добавить её комиксы в другую серию
+3237|Поиск серии
+3238|Новая серия…
+3239|Серий пока нет.
+@ja
+3227|シリーズに追加
+3228|シリーズ「{0}」を削除しますか？
+3229|{0} 件のシリーズを削除しますか？
+3230|コミックはそれぞれ単独でライブラリに残ります（一緒に削除しない限り）。
+3231|コミックはそれぞれ単独でライブラリに残ります（一緒に削除しない限り）。
+3232|シリーズを削除
+3233|シリーズとコミックを削除
+3234|シリーズとコミック {0} 冊を削除
+3235|シリーズとコミック {0} 冊を削除
+3236|コミックを別のシリーズに追加
+3237|シリーズを検索
+3238|新しいシリーズ…
+3239|まだシリーズはありません。

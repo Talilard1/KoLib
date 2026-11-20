@@ -25,10 +25,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/images/phone-library.webp" width="200" alt="The library on a phone">
-  <img src="docs/images/phone-reader.webp" width="200" alt="The reader on a phone">
-  <img src="docs/images/phone-comic-reader.webp" width="200" alt="The comic reader on a phone">
-  <img src="docs/images/phone-kobo.webp" width="200" alt="A Kobo's books on a phone">
+  <img src="docs/images/phones.webp" width="860" alt="The library, a book's page, the reader and the comic reader on a phone">
 </p>
 
 ## Screenshots
@@ -56,14 +53,9 @@
   </tr>
 </table>
 
-<table>
-  <tr>
-    <td align="center" width="25%"><a href="docs/images/phone-book.webp"><img src="docs/images/phone-book.webp" alt="A book's page"></a><br><b>Book details</b></td>
-    <td align="center" width="25%"><a href="docs/images/phone-ai.webp"><img src="docs/images/phone-ai.webp" alt="The AI's summary of a chapter"></a><br><b>AI summary</b></td>
-    <td align="center" width="25%"><a href="docs/images/phone-send.webp"><img src="docs/images/phone-send.webp" alt="Sending a book"></a><br><b>Send to Kobo</b></td>
-    <td align="center" width="25%"><a href="docs/images/phone-make-cover.webp"><img src="docs/images/phone-make-cover.webp" alt="The cover generator"></a><br><b>Cover generator</b></td>
-  </tr>
-</table>
+<p align="center">
+  <img src="docs/images/phones-more.webp" width="860" alt="A Kobo's books, sending a book, the AI's summary of a chapter and the cover generator on a phone">
+</p>
 
 ### The AI companion
 

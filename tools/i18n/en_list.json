@@ -3402,5 +3402,11 @@
 "1 bookmark or highlight stays in KoLib only. The Kobo takes them only in books sent as Kepub.",
 "{0} bookmarks and highlights stay in KoLib only. The Kobo takes them only in books sent as Kepub.",
 "1 book syncs once the Kobo has added it. Eject the Kobo, then connect it again.",
-"{0} books sync once the Kobo has added them. Eject the Kobo, then connect it again."
+"{0} books sync once the Kobo has added them. Eject the Kobo, then connect it again.",
+"A short tour of each screen, the first time you open it.",
+"Tours are off. You can turn them on again in Settings.",
+"Turn off tours",
+"Choose books, switch between covers and a list, or open Settings and Reading stats. You can turn off the opening animation in Settings.",
+"Change how KoLib looks, its language, and how books are read. You can turn off the opening animation here too.",
+"Turn these tours on or off, or see them all again."
 ]

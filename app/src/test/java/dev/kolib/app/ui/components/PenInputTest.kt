@@ -117,7 +117,7 @@ class PenInputTest {
 
     @Test
     fun withHandwritingOnASlidingPenWritesInstead() {
-        // What happened on the Tab S9 with "S Pen to text" off: Compose takes the slide for
+        // What happened on a Samsung tablet with "S Pen to text" off: Compose takes the slide for
         // handwriting, and the keyboard doesn't come back.
         val keyboard = Keyboard()
         textBox({ true }, keyboard)

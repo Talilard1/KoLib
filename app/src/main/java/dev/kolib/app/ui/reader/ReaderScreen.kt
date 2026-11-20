@@ -292,6 +292,8 @@ internal fun ReaderScreen(
     /** The reader's tour is given: it's the first time a book is read. */
     tour: Boolean = false,
     onTourDone: () -> Unit = {},
+    /** Turns every tour off, from the tour. */
+    onToursOff: (() -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val view = LocalView.current
@@ -738,7 +740,7 @@ internal fun ReaderScreen(
             Tour(stops, tourPlaces, onDone = {
                 touring = false
                 onTourDone()
-            })
+            }, onTurnOff = onToursOff?.let { off -> { touring = false; off() } })
         }
     }
     }

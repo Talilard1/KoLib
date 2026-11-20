@@ -45,15 +45,15 @@ class LinkNotificationTest {
 
     @Test
     fun whatCameOfItShowsInPlaceOfTheUsualLine() {
-        val n = LinkService.build(context, emptyList(), paired = true, said = "Reading positions synced with Galaxy Tab S9.")
-        assertEquals("Reading positions synced with Galaxy Tab S9.", NotificationCompat.getContentText(n).toString())
+        val n = LinkService.build(context, emptyList(), paired = true, said = "Reading positions synced with Tablet.")
+        assertEquals("Reading positions synced with Tablet.", NotificationCompat.getContentText(n).toString())
     }
 
     @Test
     fun whileSendingItShowsHowFarWithNoActions() {
-        val t = Transfer(1, "Galaxy Tab S9", "The Histories", outgoing = true, done = 45, total = 100)
+        val t = Transfer(1, "Tablet", "The Histories", outgoing = true, done = 45, total = 100)
         val n = LinkService.build(context, listOf(t), paired = true, said = null)
-        assertEquals(tr("Sending to {0}", "Galaxy Tab S9"), NotificationCompat.getContentTitle(n).toString())
+        assertEquals(tr("Sending to {0}", "Tablet"), NotificationCompat.getContentTitle(n).toString())
         assertTrue(actions(n).isEmpty())
     }
 }

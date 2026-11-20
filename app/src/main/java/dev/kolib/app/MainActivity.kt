@@ -61,6 +61,7 @@ class MainActivity : ComponentActivity() {
             val introSeen by themes.introSeen.collectAsStateWithLifecycle()
             val editorTourSeen by themes.editorTourSeen.collectAsStateWithLifecycle()
             val toursSeen by themes.toursSeen.collectAsStateWithLifecycle()
+            val toursOff by themes.toursOff.collectAsStateWithLifecycle()
             var showOpening by remember { mutableStateOf(playOpening) }
             val clock = remember { OpeningClock() }
             Box(Modifier.fillMaxSize()) {
@@ -85,6 +86,8 @@ class MainActivity : ComponentActivity() {
                         toursSeen = toursSeen,
                         onTourSeen = themes::setTourSeen,
                         onShowToursAgain = themes::showToursAgain,
+                        toursOff = toursOff,
+                        onToursOff = themes::setToursOff,
                     )
                 }
                 }

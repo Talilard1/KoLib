@@ -48,7 +48,7 @@ private const val PORTRAIT = "w800dp-h1280dp-port-mdpi"
 private const val LANDSCAPE_NIGHT = "w1280dp-h800dp-land-night-mdpi"
 private const val PORTRAIT_NIGHT = "w800dp-h1280dp-port-night-mdpi"
 
-/** Renders every screen at the Galaxy Tab S9's size so the layout can be checked by eye. */
+/** Renders every screen at a 2560 x 1600 tablet's size so the layout can be checked by eye. */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 @GraphicsMode(GraphicsMode.Mode.NATIVE)

@@ -350,6 +350,14 @@ fun LibraryScreen(
                                 leadingIcon = { Icon(Icons.AutoMirrored.Outlined.NoteAdd, null) },
                                 onClick = { addMenu = false; onNewBook() },
                             )
+                            onAddSamples?.let { add ->
+                                DropdownMenuItem(
+                                    text = { Text(tr("Sample books")) },
+                                    leadingIcon = { Icon(Icons.Outlined.AutoStories, null) },
+                                    onClick = { addMenu = false; add() },
+                                    modifier = Modifier.testTag("library-add-samples-menu"),
+                                )
+                            }
                         }
                     }
                     Spacer(Modifier.width(8.dp))

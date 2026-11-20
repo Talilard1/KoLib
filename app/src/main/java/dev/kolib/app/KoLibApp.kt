@@ -214,7 +214,7 @@ class KoLibApp : Application() {
         }
     }
 
-    /** This device's name, as it's set in Android's settings ("Galaxy Tab S9"), for the user's other devices. */
+    /** This device's name, as it's set in Android's settings ("Tablet"), for the user's other devices. */
     fun deviceName(): String =
         runCatching { android.provider.Settings.Global.getString(contentResolver, android.provider.Settings.Global.DEVICE_NAME) }.getOrNull()
             ?.takeIf { it.isNotBlank() } ?: android.os.Build.MODEL ?: "KoLib"

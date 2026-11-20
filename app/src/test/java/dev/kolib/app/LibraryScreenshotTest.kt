@@ -88,7 +88,7 @@ private const val PORTRAIT = "w800dp-h1280dp-port-mdpi"
 private const val LANDSCAPE_NIGHT = "w1280dp-h800dp-land-night-mdpi"
 private const val PHONE = "w411dp-h891dp-port-mdpi"
 
-/** The library, the details editor and the cover editor, at the Galaxy Tab S9's size. */
+/** The library, the details editor and the cover editor, at a 2560 x 1600 tablet's size. */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -202,7 +202,7 @@ class LibraryScreenshotTest {
 
     // ---- books on their way to another device: the Devices screen's progress bars, in the library -----
 
-    private val sending = listOf(dev.kolib.app.link.Transfer(1, "Galaxy Tab S9", "The Histories", outgoing = true, done = 620_000, total = 1_000_000, item = 2, items = 5))
+    private val sending = listOf(dev.kolib.app.link.Transfer(1, "Tablet", "The Histories", outgoing = true, done = 620_000, total = 1_000_000, item = 2, items = 5))
 
     @Test
     @Config(qualifiers = LANDSCAPE)

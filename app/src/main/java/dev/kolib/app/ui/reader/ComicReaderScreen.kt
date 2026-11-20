@@ -355,6 +355,8 @@ fun ComicBookReader(
     /** The comic reader's tour is given: it's the first time a comic is read. */
     tour: Boolean = false,
     onTourDone: () -> Unit = {},
+    /** Turns every tour off, from the tour. */
+    onToursOff: (() -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val view = LocalView.current
@@ -519,7 +521,7 @@ fun ComicBookReader(
         Tour(stops, tourPlaces, onDone = {
             touring = false
             onTourDone()
-        })
+        }, onTurnOff = onToursOff?.let { off -> { touring = false; off() } })
     }
     } }
 }

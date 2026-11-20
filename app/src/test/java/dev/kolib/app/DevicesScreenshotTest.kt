@@ -51,17 +51,17 @@ class DevicesScreenshotTest {
         keepPlacesInStep = {}, stayReachable = {},
     )
 
-    private val phone = PairedDevice("phone-1", "Galaxy A72", "", 0L)
+    private val phone = PairedDevice("phone-1", "Phone", "", 0L)
     private val other = PairedDevice("tab-2", "Old tablet", "", 0L)
 
     private fun view(transfers: List<Transfer> = emptyList()) = DevicesView(
-        me = "Galaxy Tab S9",
+        me = "Tablet",
         addresses = listOf("192.168.1.23"),
         port = LinkManager.PORT,
         paired = listOf(phone, other),
         nearby = listOf(
-            LinkManager.Nearby("phone-1", "Galaxy A72", "192.168.1.31", LinkManager.PORT, 0L),
-            LinkManager.Nearby("pc-3", "Galaxy S24", "192.168.1.40", LinkManager.PORT, 0L),
+            LinkManager.Nearby("phone-1", "Phone", "192.168.1.31", LinkManager.PORT, 0L),
+            LinkManager.Nearby("pc-3", "Second phone", "192.168.1.40", LinkManager.PORT, 0L),
         ),
         transfers = transfers,
         settings = LinkSettings(keepPlacesInStep = true, stayReachable = false),
@@ -79,7 +79,7 @@ class DevicesScreenshotTest {
     @Config(qualifiers = TABLET)
     fun devicesOnTheTablet() = shot("devicesTablet") {
         AppFrame(section = Section.DEVICES, onSection = {}, koboConnected = false, onNarrow = {}, onLook = {}, devicesHere = true) {
-            DevicesContent(view(listOf(Transfer(1, "Galaxy A72", "The Histories", outgoing = true, done = 45, total = 100))), actions)
+            DevicesContent(view(listOf(Transfer(1, "Phone", "The Histories", outgoing = true, done = 45, total = 100))), actions)
         }
     }
 
@@ -95,7 +95,7 @@ class DevicesScreenshotTest {
     @Config(qualifiers = PHONE)
     fun devicesOnThePhone() = shot("devicesPhone") {
         AppFrame(section = Section.DEVICES, onSection = {}, koboConnected = true, onNarrow = {}) {
-            DevicesContent(view().copy(me = "Galaxy A72", paired = listOf(PairedDevice("tab-1", "Galaxy Tab S9", "", 0L)), nearby = emptyList()), actions)
+            DevicesContent(view().copy(me = "Phone", paired = listOf(PairedDevice("tab-1", "Tablet", "", 0L)), nearby = emptyList()), actions)
         }
     }
 
@@ -125,14 +125,14 @@ class DevicesScreenshotTest {
     @Config(qualifiers = PHONE)
     fun sharedToADeviceDirectly() = shot("devicesSendDirect") {
         dev.kolib.app.link.ShareSheetContent(
-            title = tr("Send to {0}", "Galaxy Tab S9"), about = tr("{0} files to the other device's Downloads.", 3),
-            body = dev.kolib.app.link.SheetBody.Sending("Galaxy Tab S9", 0.4f),
+            title = tr("Send to {0}", "Tablet"), about = tr("{0} files to the other device's Downloads.", 3),
+            body = dev.kolib.app.link.SheetBody.Sending("Tablet", 0.4f),
             closeLabel = tr("Cancel"), canClose = false,
         )
     }
 
     /** This device's pairing code, for the other to scan. */
-    private val pairingCode = dev.kolib.app.link.LinkQr(listOf("192.168.1.23"), LinkManager.PORT, "tab-1", "WNKUWbITCi4VElLUCLlebQ", "4P38l8UponaZzkqX", "Galaxy Tab S9").encode()
+    private val pairingCode = dev.kolib.app.link.LinkQr(listOf("192.168.1.23"), LinkManager.PORT, "tab-1", "WNKUWbITCi4VElLUCLlebQ", "4P38l8UponaZzkqX", "Tablet").encode()
 
     @Test
     @Config(qualifiers = TABLET)
@@ -147,7 +147,7 @@ class DevicesScreenshotTest {
     @Config(qualifiers = PHONE)
     fun pairingCodeOnThePhone() = shot("devicesQrPhone", ThemeChoice.DARK, screen = true) {
         AppFrame(section = Section.DEVICES, onSection = {}, koboConnected = false, onNarrow = {}) {
-            DevicesContent(view().copy(me = "Galaxy A72", paired = emptyList(), nearby = emptyList()), actions)
+            DevicesContent(view().copy(me = "Phone", paired = emptyList(), nearby = emptyList()), actions)
             dev.kolib.app.ui.link.ShowQrDialog(pairingCode, onDismiss = {})
         }
     }
@@ -176,13 +176,13 @@ class DevicesScreenshotTest {
     @Test
     @Config(qualifiers = TABLET)
     fun askedToPair() = shot("pairingAsked", screen = true) {
-        PairingDialog(Pairing("Galaxy A72", "482913", incoming = true)) {}
+        PairingDialog(Pairing("Phone", "482913", incoming = true)) {}
     }
 
     @Test
     @Config(qualifiers = PHONE)
     fun waitingForTheOtherToPair() = shot("pairingWaiting", screen = true) {
-        PairingDialog(Pairing("Galaxy Tab S9", "482913", incoming = false, confirmed = true)) {}
+        PairingDialog(Pairing("Tablet", "482913", incoming = false, confirmed = true)) {}
     }
 
     @Test

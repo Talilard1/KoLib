@@ -52,6 +52,7 @@ fun ReaderHost(
     // The readers' tours, the first time a book and a comic are read.
     val themes = app.themeSettings
     val seenTours by themes.toursSeen.collectAsStateWithLifecycle()
+    val toursOff by themes.toursOff.collectAsStateWithLifecycle()
     if (book == null) {
         // Removed while it was open.
         LaunchedEffect(Unit) { onClose() }
@@ -78,8 +79,9 @@ fun ReaderHost(
             onAppSettings = { showLook = true },
             series = series,
             onOpen = { next -> id = next },
-            tour = Tours.COMIC_READER !in seenTours,
+            tour = !toursOff && Tours.COMIC_READER !in seenTours,
             onTourDone = { themes.setTourSeen(Tours.COMIC_READER) },
+            onToursOff = { themes.setToursOff(true) },
         )
     } else if (book.isPdf && !asText) {
         PdfBookReader(
@@ -103,8 +105,9 @@ fun ReaderHost(
             onAppSettings = { showLook = true },
             // The Kobo's copy, if it has a place in it: how far through is counted as the Kobo counts it.
             koboSpans = if (book.id == startId) koboSpans else emptyList(),
-            tour = Tours.BOOK_READER !in seenTours,
+            tour = !toursOff && Tours.BOOK_READER !in seenTours,
             onTourDone = { themes.setTourSeen(Tours.BOOK_READER) },
+            onToursOff = { themes.setToursOff(true) },
         )
     }
     // The app's own settings, over the book: what can be chosen with a book open.
@@ -122,12 +125,14 @@ fun ReaderHost(
                 showLanguage = true
             },
             onAi = { showAi = true },
-            tour = Tours.SETTINGS !in seenTours,
+            tour = !toursOff && Tours.SETTINGS !in seenTours,
             onTourDone = { themes.setTourSeen(Tours.SETTINGS) },
             onShowTours = {
                 showLook = false
                 themes.showToursAgain()
             },
+            toursOn = !toursOff,
+            onToursOn = { on -> themes.setToursOff(!on) },
         )
     }
     if (showLanguage) LanguageDialog(onDismiss = { showLanguage = false })

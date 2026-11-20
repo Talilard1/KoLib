@@ -16,10 +16,10 @@ class AiModelsTest {
         // An old phone: the small one; with a recent processor, the next one up.
         assertEquals("qwen3.5-0.8b", AiModels.bestFor(sold(4), slow).id)
         assertEquals("qwen3.5-2b", AiModels.bestFor(sold(4), fast).id)
-        // A mid-range phone of the last few years (a Galaxy A72), with 6 GB or 8.
+        // A mid-range phone of the last few years, with 6 GB or 8.
         assertEquals("gemma-4-e2b", AiModels.bestFor(sold(6), mid).id)
         assertEquals("gemma-4-e2b", AiModels.bestFor(sold(8), mid).id)
-        // A fast tablet with 8 GB (a Galaxy Tab S9), or a phone with 12: the best of the four-billion ones.
+        // A fast tablet with 8 GB, or a phone with 12: the best of the four-billion ones.
         assertEquals("gemma-4-e4b", AiModels.bestFor(sold(8), fast).id)
         assertEquals("gemma-4-e4b", AiModels.bestFor(sold(12), fast).id)
         // With 16 GB, the best there is.
@@ -33,11 +33,11 @@ class AiModelsTest {
     @Test
     fun eachDeviceIsOfferedTheThreeThatSuitItBest() {
         fun picks(gb: Int, speed: Device.Speed) = AiModels.picks(sold(gb), speed).map { it.id }
-        // The Tab S9: the best it runs comfortably, and the two below.
+        // The fast tablet: the best it runs comfortably, and the two below.
         assertEquals(listOf("gemma-4-e4b", "qwen3.5-4b", "gemma-4-e2b"), picks(8, Device.Speed.FAST))
         // A phone with 12 GB: above those, the nine-billion one, a tight fit.
         assertEquals(listOf("qwen3.5-9b", "gemma-4-e4b", "qwen3.5-4b"), picks(12, Device.Speed.FAST))
-        // An A72 with 6 GB: the one it runs well, the smaller one below, and above, the best that runs at all (slowly).
+        // The mid-range phone with 6 GB: the one it runs well, the smaller one below, and above, the best that runs at all (slowly).
         assertEquals(listOf("gemma-4-e4b", "gemma-4-e2b", "qwen3.5-2b"), picks(6, Device.Speed.MID))
         // An old phone.
         assertEquals(listOf("gemma-4-e2b", "qwen3.5-2b", "qwen3.5-0.8b"), picks(4, Device.Speed.SLOW))
@@ -70,9 +70,9 @@ class AiModelsTest {
 
     @Test
     fun aModelRunsOnTheFastCoresOnly() {
-        // A Galaxy Tab S9's processor: one very fast core, four fast, three slow.
+        // A fast tablet's processor: one very fast core, four fast, three slow.
         assertEquals(4, Device.threads(listOf(3360000L, 2800000, 2800000, 2800000, 2800000, 2000000, 2000000, 2000000), 8))
-        // A Galaxy A72's: two fast, six slow.
+        // A mid-range phone's: two fast, six slow.
         assertEquals(2, Device.threads(listOf(2300000L, 2300000, 1800000, 1800000, 1800000, 1800000, 1800000, 1800000), 8))
         // Where the system doesn't say: all but two, four at most.
         assertEquals(4, Device.threads(emptyList(), 8))

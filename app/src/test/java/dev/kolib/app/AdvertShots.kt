@@ -93,7 +93,7 @@ import org.robolectric.annotation.GraphicsMode
 import java.io.File
 import java.util.UUID
 
-/** The Galaxy Tab S9's screen, at its real pixel size. */
+/** A 2560 x 1600 tablet's screen, at its real pixel size. */
 private const val TAB = "w1280dp-h800dp-land-xhdpi"
 
 /** A phone with a 1080 x 2400 screen. */
@@ -104,7 +104,7 @@ private const val STORY_FILE = "acd_adventures"
 private const val STORY_CHAPTER = "a-scandal-in-bohemia.xhtml"
 
 /**
- * Pictures of the app for its advert, at the Tab S9's 2560 x 1600: real public-domain books (Standard
+ * Pictures of the app for its advert, at 2560 x 1600: real public-domain books (Standard
  * Ebooks covers and covers made by the app's own designer, and pages laid out by the app's reader in
  * Chrome). One book, The Adventures of Sherlock Holmes, is followed through the app: it's added from a
  * badly made file, given its details and a new cover, cleaned up, read, and sent to the Kobo.

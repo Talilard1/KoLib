@@ -153,6 +153,9 @@ fun AppRoot(
     onTourSeen: (String) -> Unit = {},
     /** Every tour is to be given again, from Settings. */
     onShowToursAgain: (() -> Unit)? = null,
+    /** No tours are given (the sample books are still added): turned off from a tour, or in Settings. */
+    toursOff: Boolean = false,
+    onToursOff: (Boolean) -> Unit = {},
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
     val folderScan by libraryVm.folderScan.collectAsStateWithLifecycle()
@@ -507,7 +510,7 @@ fun AppRoot(
     val tourPlaces = remember { dev.kolib.app.ui.tour.TourPlaces() }
     val seenTours = toursSeen
     val koboShowing = koboView != null && (connection is Connection.Connected || connection is Connection.Waiting)
-    val sectionTour = if (seenTours == null || !introSeen || readingSetup || overlay != null || showLook) null else when (section) {
+    val sectionTour = if (seenTours == null || toursOff || !introSeen || readingSetup || overlay != null || showLook) null else when (section) {
         Section.LIBRARY -> Tours.LIBRARY.takeIf { books.isNotEmpty() && Tours.SAMPLES in seenTours }
         Section.KOBO -> if (koboShowing) Tours.KOBO else Tours.KOBO_CONNECT
         Section.DEVICES -> Tours.DEVICES
@@ -630,8 +633,9 @@ fun AppRoot(
                                 overlay = null
                             },
                             onRead = { from -> preview = from ?: "" },
-                            tour = !editorTourSeen,
+                            tour = !editorTourSeen && !toursOff,
                             onTourDone = onEditorTourSeen,
+                            onToursOff = if (toursSeen != null) ({ onToursOff(true) }) else null,
                         )
                         preview?.let { from ->
                             PreviewReader(
@@ -804,7 +808,7 @@ fun AppRoot(
                         else -> Tours.devices()
                     }
                 }
-                dev.kolib.app.ui.tour.Tour(stops, tourPlaces, onDone = { onTourSeen(name) })
+                dev.kolib.app.ui.tour.Tour(stops, tourPlaces, onDone = { onTourSeen(name) }, onTurnOff = { onToursOff(true) })
             }
         }
         // Got ready as KoLib opens, if asked to be: the model opened and the library read ahead, in the background.
@@ -1083,9 +1087,11 @@ fun AppRoot(
             onComicsTab = { libraryBrowse.comicsTab = it },
             seriesInPlace = libraryBrowse.seriesInPlace,
             onSeriesInPlace = { libraryBrowse.openSeriesInPlace(it) },
-            tour = toursSeen?.let { Tours.SETTINGS !in it } == true,
+            tour = !toursOff && toursSeen?.let { Tours.SETTINGS !in it } == true,
             onTourDone = { onTourSeen(Tours.SETTINGS) },
             onShowTours = onShowToursAgain?.let { again -> { showLook = false; again() } },
+            toursOn = if (toursSeen != null) !toursOff else null,
+            onToursOn = { on -> onToursOff(!on) },
         )
         if (showAi) dev.kolib.app.ui.ai.AiSetupDialog(onDismiss = { showAi = false })
         // A newer KoLib, when there is one (or what a look for one found, when it was asked for). It's looked for
@@ -1356,6 +1362,9 @@ fun LookDialog(
     onTourDone: () -> Unit = {},
     /** Gives every tour again, each the next time its screen opens (null: not offered here). */
     onShowTours: (() -> Unit)? = null,
+    /** Tours are given, the first time each screen opens (null: not offered here). */
+    toursOn: Boolean? = null,
+    onToursOn: (Boolean) -> Unit = {},
 ) {
     val scroll = rememberScrollState()
     val places = remember { dev.kolib.app.ui.tour.TourPlaces() }
@@ -1490,16 +1499,20 @@ fun LookDialog(
                         )
                     }
                 }
-                if (onShowTours != null) {
+                if (onShowTours != null || toursOn != null) Column(Modifier.tourPlace("settings-tours")) {
                     HorizontalDivider(Modifier.padding(vertical = 10.dp))
-                    Row(
+                    if (toursOn != null) {
+                        Box(Modifier.testTag("settings-tours-on")) {
+                            SwitchLine(tr("Tours"), tr("A short tour of each screen, the first time you open it."), toursOn, onToursOn)
+                        }
+                    }
+                    if (onShowTours != null) Row(
                         Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(12.dp))
                             .clickable(onClick = onShowTours)
                             .padding(vertical = 10.dp, horizontal = 4.dp)
-                            .testTag("settings-tours")
-                            .tourPlace("settings-tours"),
+                            .testTag("settings-tours"),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Icon(Icons.Outlined.Explore, null, Modifier.padding(horizontal = 10.dp))
@@ -1545,7 +1558,7 @@ fun LookDialog(
             dev.kolib.app.ui.tour.Tour(stops, places, onDone = {
                 touring = false
                 onTourDone()
-            })
+            }, onTurnOff = if (toursOn != null) ({ touring = false; onToursOn(false) }) else null)
         }
     }
 }

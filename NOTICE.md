@@ -27,6 +27,7 @@ Third-party components and their licences are listed below. Each licence text is
 | Wiktionary, © its contributors | Dictionary entries. Not bundled: fetched from en.wiktionary.org when a word is looked up | CC BY-SA 4.0 | https://creativecommons.org/licenses/by-sa/4.0/ |
 | ZXing (`com.google.zxing:core`), © ZXing authors | QR codes for pairing devices | Apache 2.0 | `apache-2.0.txt` |
 | CameraX (`androidx.camera`), © The Android Open Source Project | The camera, for scanning a pairing QR code | Apache 2.0 | `apache-2.0.txt` |
+| Sample books: *Alice's Adventures in Wonderland* (Lewis Carroll), *Persuasion* (Jane Austen), *The Wisdom of Father Brown* (G. K. Chesterton) | Books to try KoLib with. Their covers, made with KoLib's cover designer, and the comic *The Lighthouse Cat* are part of KoLib | Texts in the public domain | `sample-books.txt` |
 
 Test-only libraries (JUnit, Robolectric, Roborazzi, sqlite-jdbc) are not part of the app.
 
@@ -54,8 +55,9 @@ Mihon (Apache 2.0, https://github.com/mihonapp/mihon) is not used, and none of i
 app. KoLib's comic reader is modelled on Mihon's: its reading modes, ways of fitting pages, cropping
 borders and splitting wide pages, its tap zones, and how its pages are zoomed (pinching, double
 tapping to twice the size with the spot tapped brought to the middle, and double tapping then
-sliding up or down). Mihon's reader was read to see how it behaves, and the comic reader was
-written for this app. Thanks to the Mihon project.
+sliding up or down), its bars and page slider, and its settings (reading mode, general and filter).
+Comics in a series show as one entry, as Mihon's library shows a series. Mihon's reader was read to
+see how it behaves, and the comic reader was written for this app. Thanks to the Mihon project.
 
 ## Trademarks
 

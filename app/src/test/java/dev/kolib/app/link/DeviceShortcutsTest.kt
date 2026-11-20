@@ -16,8 +16,8 @@ import org.robolectric.annotation.Config
 @Config(sdk = [35])
 class DeviceShortcutsTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
-    private val tablet = PairedDevice("tab-1", "Galaxy Tab S9", "", 0L)
-    private val phone = PairedDevice("phone-1", "Galaxy A72", "", 0L)
+    private val tablet = PairedDevice("tab-1", "Tablet", "", 0L)
+    private val phone = PairedDevice("phone-1", "Phone", "", 0L)
 
     private fun offered() = ShortcutManagerCompat.getDynamicShortcuts(context).filter { DeviceShortcuts.deviceOf(it.id) != null }
 
@@ -29,7 +29,7 @@ class DeviceShortcutsTest {
         // In Share's top row (the share target's category), kept there (long-lived), by the device's name.
         assertTrue(made.all { DeviceShortcuts.CATEGORY in it.categories.orEmpty() })
         val tab = made.first { DeviceShortcuts.deviceOf(it.id) == "tab-1" }
-        assertEquals("Galaxy Tab S9", tab.shortLabel.toString())
+        assertEquals("Tablet", tab.shortLabel.toString())
         // Opened from KoLib's icon, it asks what to send to that device.
         assertEquals(ShareToDeviceActivity.ACTION_CHOOSE, tab.intent.action)
         assertEquals("tab-1", tab.intent.getStringExtra(ShareToDeviceActivity.EXTRA_DEVICE))

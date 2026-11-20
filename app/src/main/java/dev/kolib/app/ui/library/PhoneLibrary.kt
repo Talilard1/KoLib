@@ -55,6 +55,7 @@ import androidx.compose.material.icons.automirrored.outlined.NoteAdd
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.AutoStories
 import androidx.compose.material.icons.outlined.Eject
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.CollectionsBookmark
@@ -454,6 +455,7 @@ internal fun PhoneLibraryScreen(
             onAddFromKobo = onAddFromKobo,
             onAddFolder = onAddFolder,
             onNewBook = onNewBook,
+            onAddSamples = onAddSamples,
         )
     }
     if (showHelp) SearchHelpDialog(onPick = { browse.query = it; showHelp = false }, onDismiss = { showHelp = false })
@@ -503,6 +505,7 @@ private fun AddBooksSheet(
     onAddFromKobo: () -> Unit,
     onAddFolder: () -> Unit,
     onNewBook: () -> Unit,
+    onAddSamples: (() -> Unit)? = null,
 ) {
     val state = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = state) {
@@ -511,6 +514,7 @@ private fun AddBooksSheet(
         SheetItem(Icons.Outlined.FolderOpen, tr("A folder of books"), tr("Every book in it, and in the folders inside it")) { onDismiss(); onAddFolder() }
         SheetItem(Icons.Outlined.Usb, tr("Books from the Kobo"), if (koboConnected) null else tr("Connect your Kobo first")) { onDismiss(); onAddFromKobo() }
         SheetItem(Icons.AutoMirrored.Outlined.NoteAdd, tr("Write a new book")) { onDismiss(); onNewBook() }
+        onAddSamples?.let { add -> SheetItem(Icons.Outlined.AutoStories, tr("Sample books")) { onDismiss(); add() } }
         Spacer(Modifier.height(16.dp))
         Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
     }

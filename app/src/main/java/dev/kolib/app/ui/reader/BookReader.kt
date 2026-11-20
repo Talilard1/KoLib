@@ -55,6 +55,7 @@ fun BookReader(
     /** The reader's tour is given: it's the first time a book is read. */
     tour: Boolean = false,
     onTourDone: () -> Unit = {},
+    onToursOff: (() -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -125,7 +126,7 @@ fun BookReader(
     }
     val c = controller
     when {
-        c != null -> ReaderWith(c, settings, onClose, onEdit, onReadAsPdf, onAppSettings, lookStore = store, tour = tour, onTourDone = onTourDone)
+        c != null -> ReaderWith(c, settings, onClose, onEdit, onReadAsPdf, onAppSettings, lookStore = store, tour = tour, onTourDone = onTourDone, onToursOff = onToursOff)
         error != null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(error!!, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(24.dp))
@@ -168,6 +169,7 @@ private fun ReaderWith(
     lookStore: ReaderStore? = null,
     tour: Boolean = false,
     onTourDone: () -> Unit = {},
+    onToursOff: (() -> Unit)? = null,
 ) {
     val landscape = heldSideways()
     val upright by settings.settings.collectAsStateWithLifecycle()
@@ -210,6 +212,7 @@ private fun ReaderWith(
         },
         tour = tour,
         onTourDone = onTourDone,
+        onToursOff = onToursOff,
     )
     // On a screen with a camera in the middle of its top, the first time it's read on held this way: the headings
     // and the time move clear of the camera, where nobody has moved them (the usual ones, and this book's own).

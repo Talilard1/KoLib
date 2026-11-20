@@ -44,13 +44,13 @@ class LinkHandshakeTest {
 
     @Test
     fun bothSidesKnowEachOtherAndShowTheSameCode() {
-        val tablet = identity("tablet-0001", "Galaxy Tab S9")
-        val phone = identity("phone-00001", "Galaxy A72")
+        val tablet = identity("tablet-0001", "Tablet")
+        val phone = identity("phone-00001", "Phone")
         val (a, b) = connect(phone, tablet, pairing = true)
         val p = a.get(10, TimeUnit.SECONDS)
         val t = b.get(10, TimeUnit.SECONDS)
         assertEquals("tablet-0001", p.peerId)
-        assertEquals("Galaxy Tab S9", p.peerName)
+        assertEquals("Tablet", p.peerName)
         assertArrayEquals(tablet.publicKey, p.peerKey)
         assertEquals("phone-00001", t.peerId)
         assertArrayEquals(phone.publicKey, t.peerKey)

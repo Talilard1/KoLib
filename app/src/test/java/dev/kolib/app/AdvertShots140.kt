@@ -18,6 +18,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
+import dev.kolib.app.ai.AiHub
+import dev.kolib.app.ui.ai.Act
+import dev.kolib.app.ui.ai.Fidget
+import dev.kolib.app.ui.ai.Mascot
+import dev.kolib.app.ui.ai.MascotMotion
+import dev.kolib.app.ui.ai.MascotView
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import com.github.takahirom.roborazzi.captureScreenRoboImage
@@ -87,7 +100,7 @@ import org.robolectric.annotation.GraphicsMode
 import java.io.File
 import java.util.UUID
 
-/** The Galaxy Tab S9's screen, at its real pixel size. */
+/** A 2560 x 1600 tablet's screen, at its real pixel size. */
 private const val TAB = "w1280dp-h800dp-land-xhdpi"
 
 /** A phone with a 1080 x 2400 screen. */
@@ -95,7 +108,7 @@ private const val PHONE = "w360dp-h800dp-port-xxhdpi"
 
 /**
  * Pictures of the app for its 1:40 advert: real public-domain books (Standard Ebooks covers, and pages laid
- * out by the app's own reader in Chrome), at the Tab S9's 2560 x 1600. Only runs where those files are.
+ * out by the app's own reader in Chrome), at 2560 x 1600. Only runs where those files are.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
@@ -173,6 +186,8 @@ class AdvertShots140 {
             lib.load()
             lib.rememberKoboCollections(session.snapshot.collections.map { it.name })
             for (b in session.snapshot.books.filter { it.isSideloaded }) lib.importFromKobo(session, b)
+            // The sample comic, so the Comics tab isn't empty.
+            lib.import("lighthouse-cat.cbz", { context.assets.open("samples/lighthouse-cat.cbz") }, BookSource.FILE)
             val covers = LibraryCovers(lib)
             for (b in lib.books.value) {
                 covers.load(b, false, 600)
@@ -696,8 +711,9 @@ class AdvertShots140 {
         name: String, book: String, title: String, author: String, chapterFile: String, settings: ReaderSettings,
         page: String, screen: Int, screens: Int, columns: Int, twoUp: Boolean = true, controls: Boolean = false,
         panel: Panel = Panel.NONE, lookTab: Int = 0, prepare: (ReaderController) -> Unit = {}, blankFirst: Boolean = twoUp,
+        into: File = five,
     ) = withBook(book) { files, structure ->
-        out = five
+        out = into
         val c = ReaderController(files, structure, title, "en", null, settings, context.assets, author)
         val at = c.chapters.indexOfFirst { it.path.endsWith(chapterFile) }
         counted(c)
@@ -818,5 +834,192 @@ class AdvertShots140 {
                 c.openAnnotation = ReaderController.OpenAnnotation(note.id, android.graphics.RectF(r[0], r[1], r[2], r[3]))
             },
         )
+    }
+
+    // ---- the front page (README): the library in every look, both readers as they are now, and the AI ----------
+
+    private val front = File(root, "front")
+
+    /** The library, with Moby Dick open beside it, in [theme]. */
+    private fun look(theme: ThemeChoice) {
+        out = front
+        libraryIn("look_${theme.name.lowercase()}", theme) { selectedId = it.titled("Moby Dick").id }
+    }
+    @Test @Config(qualifiers = TAB) fun lookLight() = look(ThemeChoice.LIGHT)
+    @Test @Config(qualifiers = TAB) fun lookDark() = look(ThemeChoice.DARK)
+    @Test @Config(qualifiers = TAB) fun lookOled() = look(ThemeChoice.OLED)
+    @Test @Config(qualifiers = TAB) fun lookBookcase() = look(ThemeChoice.BOOKCASE)
+    @Test @Config(qualifiers = TAB) fun lookBookcaseDark() = look(ThemeChoice.BOOKCASE_DARK)
+    @Test @Config(qualifiers = TAB) fun lookCleanLight() = look(ThemeChoice.CLEAN_LIGHT)
+    @Test @Config(qualifiers = TAB) fun lookCleanDark() = look(ThemeChoice.CLEAN_DARK)
+    @Test @Config(qualifiers = TAB) fun lookManuscript() = look(ThemeChoice.MANUSCRIPT)
+    @Test @Config(qualifiers = TAB) fun lookRomance() = look(ThemeChoice.ROMANCE)
+    @Test @Config(qualifiers = TAB) fun lookCinema() = look(ThemeChoice.CINEMA)
+    @Test @Config(qualifiers = TAB) fun lookTerminal() = look(ThemeChoice.TERMINAL)
+    @Test @Config(qualifiers = TAB) fun lookStarship() = look(ThemeChoice.STARSHIP)
+    @Test @Config(qualifiers = TAB) fun lookHologram() = look(ThemeChoice.HOLOGRAM)
+    @Test @Config(qualifiers = TAB) fun lookRelic() = look(ThemeChoice.RELIC)
+
+    /** Pride and Prejudice on two pages, with the book reader's bars showing. */
+    @Test @Config(qualifiers = TAB)
+    fun frontReader() = readerNow(
+        "reader_bars", prideBook, "Pride and Prejudice", "Jane Austen", "chapter-1.xhtml", prideDual(), "pride_dual_s1", 0, 2, 3,
+        blankFirst = false, controls = true, into = front,
+    )
+
+    /** The sample comic open at its spread across two pages, with the comic reader's bars showing. */
+    @Test @Config(qualifiers = TAB)
+    fun frontComic() {
+        val comic = openSampleComic(context)
+        val settings = dev.kolib.app.comic.ComicSettings()
+        compose.mainClock.autoAdvance = true
+        compose.setContent {
+            AppSurface(ThemeChoice.BOOKCASE) {
+                dev.kolib.app.ui.reader.ComicView(
+                    comic = comic, s = settings, mode = settings.mode, menu = true, setMenu = {}, onSettings = {}, onClose = {},
+                    onCover = { _, _ -> }, readingHere = null, startPage = 3,
+                )
+            }
+        }
+        repeat(40) { compose.waitForIdle(); Thread.sleep(100) }
+        front.mkdirs()
+        captureScreenRoboImage(File(front, "comic_reader.png").path)
+        comic.pages.close()
+    }
+
+    private val aiScope = CoroutineScope(kotlinx.coroutines.SupervisorJob() + Dispatchers.Default)
+    private val kolib get() = context as KoLibApp
+
+    /** What the AI says in the pictures: a summary of the chapter, who someone is, and what to read next. */
+    private fun answers(messages: List<dev.kolib.app.ai.AiMessage>): String = when {
+        messages.last().content.contains("Summarise it") -> PRIDE_SUMMARY
+        messages.first().content.contains("Books in the library:") ->
+            "You're 81% of the way through The Count of Monte Cristo, so I'd finish that first. After that, you've read " +
+                "The Adventures of Sherlock Holmes, and The Hound of the Baskervilles is waiting in your To Read collection. " +
+                "If you'd like something gentler, Anne of Green Gables is in Cosy."
+        else -> "A rich young man who has just taken Netherfield Park, near the Bennets' home. He's single, with four or five " +
+            "thousand a year, which is why Mrs Bennet is so keen for her husband to call on him. So far he's only been talked " +
+            "about: he hasn't appeared yet."
+    }
+
+    /** Pride and Prejudice on two pages with the bars showing, and [act] done with the AI before the picture's taken. */
+    private fun prideWithAi(name: String, act: (ReaderController) -> Unit) = withBook(prideBook) { files, structure ->
+        answeringModel(context, aiScope, ::answers)
+        val c = ReaderController(files, structure, "Pride and Prejudice", "en", null, prideDual(), context.assets, "Jane Austen")
+        counted(c)
+        val at = c.chapters.indexOfFirst { it.path.endsWith("chapter-1.xhtml") }
+        c.showForPreview(at, 0, 2, 3, true, 0)
+        c.controlsVisible = true
+        val img = pageNow("pride_dual_s1")
+        compose.mainClock.autoAdvance = true
+        compose.setContent {
+            AppSurface(ThemeChoice.BOOKCASE) {
+                ReaderScreen(
+                    c, onSettings = {}, onClose = {}, onEdit = {},
+                    pagePreview = { Image(img, null, Modifier.fillMaxSize(), contentScale = ContentScale.FillBounds) },
+                )
+            }
+        }
+        compose.waitForIdle()
+        c.showForPreview(at, 0, 2, 3, true, 0)
+        c.screenForPreview = ReaderController.OnScreen(PRIDE_SCREEN, "")
+        compose.waitForIdle()
+        act(c)
+        front.mkdirs()
+        captureScreenRoboImage(File(front, "$name.png").path)
+    }
+
+    @Test @Config(qualifiers = TAB)
+    fun frontAiSummary() = prideWithAi("ai_summary") { compose.summariseTheChapter(context) }
+
+    @Test @Config(qualifiers = TAB)
+    fun frontAiAsk() = prideWithAi("ai_ask") { c ->
+        compose.onNodeWithTag("reader-companion").performClick()
+        compose.settleUntil { compose.onAllNodes(hasTestTag("companion-summarise")).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithText(tr("Ask")).performClick()
+        repeat(20) { compose.waitForIdle(); Thread.sleep(50) }
+        compose.onNodeWithTag("companion-question").performTextInput("Who is Mr Bingley?")
+        compose.onNodeWithTag("companion-send").performClick()
+        compose.settleUntil {
+            compose.onAllNodes(hasTestTag("companion-answer")).fetchSemanticsNodes().isNotEmpty() && kolib.ai.busy.value == AiHub.State.IDLE
+        }
+        repeat(10) { compose.waitForIdle(); Thread.sleep(50) }
+    }
+
+    /** The chat from the library, asked what to read next. */
+    @Test @Config(qualifiers = TAB)
+    fun frontAiLibrary() {
+        answeringModel(context, aiScope, ::answers)
+        val (lib, covers) = library()
+        val books = lib.books.value
+        val place = dev.kolib.app.ui.ai.ChatPlace.Library(books) {
+            dev.kolib.app.ui.ai.LibraryOnScreen("The library, showing ${books.size} books, by title, in this order.", books.map { it.id })
+        }
+        compose.mainClock.autoAdvance = true
+        compose.setContent {
+            AppSurface(ThemeChoice.BOOKCASE) {
+                Box(Modifier.fillMaxSize()) {
+                    LibraryPage(lib, covers, LibraryBrowseState().apply { selectedId = lib.titled("Moby Dick").id })
+                    dev.kolib.app.ui.ai.AiLayer(place)
+                }
+            }
+        }
+        kolib.aiPanel.open()
+        compose.settleUntil { compose.onAllNodesWithText("What should I read next?").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithText("What should I read next?").performClick()
+        compose.settleUntil {
+            kolib.chat.turns.size == 1 && !kolib.chat.asking && kolib.ai.busy.value == AiHub.State.IDLE &&
+                kolib.chat.turns.single().answer.value.isNotBlank()
+        }
+        repeat(10) { compose.waitForIdle(); Thread.sleep(50) }
+        front.mkdirs()
+        captureScreenRoboImage(File(front, "ai_library.png").path)
+    }
+
+    /** The five characters the AI can be, each doing something. */
+    @Test @Config(qualifiers = TAB)
+    fun frontAiCharacters() {
+        dev.kolib.app.ui.ai.mascotsMove = false
+        val cast: List<Triple<Mascot, String, (MascotMotion) -> Unit>> = listOf(
+            Triple(Mascot.ROBOT, "Cheerful and precise", { m -> m.forced = Act.IDLE; m.forcedFidget = Fidget.WAVE }),
+            Triple(Mascot.ANIME, "Warm and quick-witted", { m -> m.forced = Act.HAPPY }),
+            Triple(Mascot.CAT, "Curious and playful", { m -> m.forced = Act.READING }),
+            Triple(Mascot.OWL, "Wise and kind", { m -> m.forced = Act.THINKING }),
+            Triple(Mascot.GHOST, "Loves a good mystery", { m -> m.forced = Act.WRITING }),
+        )
+        val motions = cast.mapIndexed { i, (_, _, set) ->
+            MascotMotion(seed = i).also { m ->
+                m.noBlinks = true
+                set(m)
+                repeat(66) { m.step(1 / 60f) }
+            }
+        }
+        compose.mainClock.autoAdvance = false
+        compose.setContent {
+            AppSurface(ThemeChoice.LIGHT) {
+                androidx.compose.foundation.layout.Row(
+                    Modifier.fillMaxSize().padding(horizontal = 24.dp),
+                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    cast.forEachIndexed { i, (mascot, line, _) ->
+                        androidx.compose.foundation.layout.Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            MascotView(mascot, motions[i], Modifier.size(210.dp))
+                            androidx.compose.material3.Text(
+                                mascot.title, style = androidx.compose.material3.MaterialTheme.typography.headlineSmall,
+                                modifier = Modifier.padding(top = 12.dp),
+                            )
+                            androidx.compose.material3.Text(
+                                line, style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        compose.mainClock.advanceTimeBy(500)
+        front.mkdirs()
+        captureScreenRoboImage(File(front, "ai_characters.png").path)
     }
 }

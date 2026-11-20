@@ -13,6 +13,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -63,6 +64,7 @@ class ToursTest {
 
     private val app get() = ApplicationProvider.getApplicationContext<KoLibApp>()
     private var seen by mutableStateOf(setOf(Tours.SAMPLES))
+    private var off by mutableStateOf(false)
     private val shots = File("/tmp/tour_shots")
 
     private fun withABook() = runBlocking {
@@ -77,7 +79,10 @@ class ToursTest {
         compose.mainClock.autoAdvance = true
         compose.setContent {
             KoLibTheme {
-                AppRoot(vm, libraryVm, toursSeen = seen, onTourSeen = { seen = seen + it }, onShowToursAgain = { seen = setOf(Tours.SAMPLES) })
+                AppRoot(
+                    vm, libraryVm, toursSeen = seen, onTourSeen = { seen = seen + it }, onShowToursAgain = { seen = setOf(Tours.SAMPLES); off = false },
+                    toursOff = off, onToursOff = { off = it },
+                )
             }
         }
     }
@@ -145,6 +150,40 @@ class ToursTest {
         }
         assertTrue(Tours.SAMPLES in seen)
         assertEquals(1, app.library.books.value.size)
+        compose.mainClock.advanceTimeBy(900)
+        compose.waitForIdle()
+        compose.onNodeWithTag("tour-card").assertIsDisplayed()
+    }
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun everyTourCanTurnThemAllOffAndSettingsTurnsThemOnAgain() {
+        withABook()
+        showApp()
+        compose.mainClock.advanceTimeBy(900)
+        compose.waitForIdle()
+        compose.onNodeWithTag("tour-card").assertIsDisplayed()
+        compose.onNodeWithTag("tour-off").performClick()
+        compose.waitForIdle()
+        assertTrue("tours are off", off)
+        assertTrue("the tour is gone", compose.onAllNodesWithTag("tour").fetchSemanticsNodes().isEmpty())
+        // Not given when they're off, the library's included, though it was never finished.
+        assertTrue(Tours.LIBRARY !in seen)
+        compose.onNodeWithText("Devices").performClick()
+        compose.mainClock.advanceTimeBy(900)
+        compose.waitForIdle()
+        assertTrue(compose.onAllNodesWithTag("tour").fetchSemanticsNodes().isEmpty())
+        // On again in Settings (a phone's are in the library's menu): the library's tour is given once it shows again.
+        compose.onNodeWithText("Library").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithContentDescription("More options").performClick()
+        compose.onNodeWithText("Settings").performClick()
+        compose.waitForIdle()
+        assertTrue("no Settings tour while they're off", compose.onAllNodesWithTag("tour").fetchSemanticsNodes().isEmpty())
+        compose.onNodeWithTag("settings-tours-on").performScrollTo().performClick()
+        compose.waitForIdle()
+        assertTrue("tours are on", !off)
+        compose.onNodeWithText("Done").performClick()
         compose.mainClock.advanceTimeBy(900)
         compose.waitForIdle()
         compose.onNodeWithTag("tour-card").assertIsDisplayed()
@@ -286,6 +325,37 @@ class ToursTest {
         assertEquals(0, addSamples(vm, onlyIfEmpty = false))
         assertEquals(4, app.library.books.value.size)
     }
+
+    /** With books in the library already, the samples are in the Add books menu (the sheet on a phone). */
+    private fun samplesFromTheAddMenu() {
+        withABook()
+        var asked = 0
+        compose.mainClock.autoAdvance = true
+        compose.setContent {
+            AppSurface {
+                dev.kolib.app.ui.library.LibraryScreen(
+                    books = app.library.books.value, covers = dev.kolib.app.library.LibraryCovers(app.library),
+                    browse = dev.kolib.app.ui.library.LibraryBrowseState(), job = null, koboConnected = false,
+                    onAddFiles = {}, onAddFromKobo = {}, onShowJob = {}, onEditDetails = {}, onChangeCover = {}, onDelete = {}, onSend = {},
+                    onAddSamples = { asked++ },
+                )
+            }
+        }
+        compose.waitForIdle()
+        compose.onNodeWithText("Add books", useUnmergedTree = true).performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Sample books").performClick()
+        compose.waitForIdle()
+        assertEquals(1, asked)
+    }
+
+    @Test
+    @Config(qualifiers = TABLET)
+    fun theSampleBooksAreInTheAddBooksMenu() = samplesFromTheAddMenu()
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun theSampleBooksAreInThePhonesAddBooksSheet() = samplesFromTheAddMenu()
 
     @Test
     fun theFirstTimeTheyAreNotAddedToALibraryWithBooks() {

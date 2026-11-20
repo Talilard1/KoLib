@@ -89,7 +89,7 @@ private const val PORTRAIT = "w800dp-h1280dp-port-mdpi"
 private const val LANDSCAPE_NIGHT = "w1280dp-h800dp-land-night-mdpi"
 private const val PHONE = "w411dp-h891dp-port-mdpi"
 
-/** The reader, the text editor and the Kobo tab's new filters, at the Galaxy Tab S9's size. */
+/** The reader, the text editor and the Kobo tab's new filters, at a 2560 x 1600 tablet's size. */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 @GraphicsMode(GraphicsMode.Mode.NATIVE)

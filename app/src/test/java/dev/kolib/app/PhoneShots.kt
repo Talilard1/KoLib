@@ -81,7 +81,7 @@ import org.robolectric.annotation.GraphicsMode
 import java.io.File
 import java.util.UUID
 
-/** A Galaxy A72: 1080 x 2400 pixels at 420 dpi. */
+/** A phone: 1080 x 2400 pixels at 420 dpi. */
 private const val PHONE = "w411dp-h914dp-port-420dpi"
 
 /** A narrow phone, or a large display size setting: 360 dp across. */
@@ -584,6 +584,65 @@ class PhoneShots {
     }
 
     @Test @Config(qualifiers = PHONE) fun readerControls() = reader("p40_reader_controls", controls = true)
+
+    // ---- for the front page: the comic reader, and the AI's summary of the chapter ---------------------------------
+
+    /** The sample comic, with the comic reader's bars showing. */
+    @Test @Config(qualifiers = PHONE)
+    fun comicReader() {
+        assumeTrue(home.exists())
+        val comic = openSampleComic(context)
+        val settings = dev.kolib.app.comic.ComicSettings()
+        compose.mainClock.autoAdvance = true
+        compose.setContent {
+            AppSurface(ThemeChoice.BOOKCASE) {
+                dev.kolib.app.ui.reader.ComicView(
+                    comic = comic, s = settings, mode = settings.mode, menu = true, setMenu = {}, onSettings = {}, onClose = {},
+                    onCover = { _, _ -> }, readingHere = null, startPage = 1,
+                )
+            }
+        }
+        repeat(40) { compose.waitForIdle(); Thread.sleep(100) }
+        capture("p50_comic_reader")
+        comic.pages.close()
+    }
+
+    private val aiScope = CoroutineScope(kotlinx.coroutines.SupervisorJob() + Dispatchers.Default)
+
+    /** The first chapter of Moby Dick summarised in the AI's window. */
+    @Test @Config(qualifiers = PHONE)
+    fun aiSummary() {
+        val f = File(art, "books/herman-melville_moby-dick.epub")
+        val pageNow = File(home, "pages/moby_now_1.png")
+        assumeTrue(f.exists() && pageNow.exists())
+        answeringModel(context, aiScope) { m -> if (m.last().content.contains("Summarise it")) MOBY_SUMMARY else "" }
+        EpubFile.open(f).use { epub ->
+            val files = EpubFileFiles(epub)
+            val c = ReaderController(files, BookStructure(files), "Moby Dick", "en", null, ReaderSettings(), context.assets, "Herman Melville")
+            val at = c.chapters.indexOfFirst { it.path.endsWith("chapter-1.xhtml") }
+            counted(c)
+            val pages = File(home, "pages/moby_now_pages.txt").takeIf { it.exists() }?.readText()?.trim()?.toIntOrNull() ?: 8
+            c.showForPreview(at, 0, pages)
+            c.controlsVisible = true
+            val img = BitmapFactory.decodeFile(pageNow.path).asImageBitmap()
+            compose.mainClock.autoAdvance = true
+            compose.setContent {
+                AppSurface(ThemeChoice.BOOKCASE) {
+                    ReaderScreen(
+                        c, onSettings = {}, onClose = {}, onEdit = {},
+                        pagePreview = { Image(img, null, Modifier.fillMaxSize(), contentScale = ContentScale.FillBounds) },
+                        onAppSettings = {},
+                    )
+                }
+            }
+            compose.waitForIdle()
+            c.showForPreview(at, 0, pages)
+            compose.waitForIdle()
+            compose.summariseTheChapter(context, whole = true)
+            capture("p60_ai_summary")
+        }
+    }
+
     @Test @Config(qualifiers = PHONE) fun readerLook() = reader("p41_reader_look", controls = true, panel = Panel.LOOK, lookTab = 0)
     @Test @Config(qualifiers = PHONE) fun readerLookPage() = reader("p42_reader_look_page", controls = true, panel = Panel.LOOK, lookTab = 1)
     @Test @Config(qualifiers = PHONE) fun readerLookControls() = reader("p47_reader_look_controls", controls = true, panel = Panel.LOOK, lookTab = 3)

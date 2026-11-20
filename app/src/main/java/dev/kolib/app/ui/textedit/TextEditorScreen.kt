@@ -147,6 +147,8 @@ fun TextEditorScreen(
     tour: Boolean = false,
     /** The tour was gone through, or skipped. */
     onTourDone: () -> Unit = {},
+    /** Turns every tour off, from the tour (null: the tour hasn't that choice). */
+    onToursOff: (() -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val snackbar = remember { SnackbarHostState() }
@@ -281,7 +283,7 @@ fun TextEditorScreen(
         Tour(stops, places, onDone = {
             touring = false
             onTourDone()
-        })
+        }, onTurnOff = onToursOff?.let { off -> { touring = false; off() } })
     }
     }
     }

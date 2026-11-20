@@ -143,10 +143,12 @@ private enum class CardSide { BELOW, ABOVE, RIGHT, LEFT, OVER }
 /**
  * A tour of a screen, over all of it: the screen is dimmed but for the part each stop is about, which is
  * ringed, with a card beside it saying what it's for. The screen under it can't be touched meanwhile.
- * [onDone] is told when the last stop is passed, or the tour is skipped.
+ * [onDone] is told when the last stop is passed, or the tour is skipped. With [onTurnOff], each card has a way to
+ * turn every tour off (they can be turned on again in Settings).
  */
 @Composable
-fun Tour(stops: List<TourStop>, places: TourPlaces, onDone: () -> Unit, modifier: Modifier = Modifier) {
+fun Tour(stops: List<TourStop>, places: TourPlaces, onDone: () -> Unit, modifier: Modifier = Modifier, onTurnOff: (() -> Unit)? = null) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     var at by rememberSaveable { mutableIntStateOf(0) }
     val present = stops.filter { places.rectOf(it.places) != null }
     val stop = stops.getOrNull(at)
@@ -294,6 +296,17 @@ fun Tour(stops: List<TourStop>, places: TourPlaces, onDone: () -> Unit, modifier
                     }
                     Spacer(Modifier.height(16.dp))
                     SetupButton(if (shown == present.lastOrNull()) tr("Done") else tr("Next"), c, Modifier.testTag("tour-next"), height = 46.dp) { step(1) }
+                    if (onTurnOff != null) {
+                        androidx.compose.material3.TextButton(
+                            onClick = {
+                                android.widget.Toast.makeText(context, tr("Tours are off. You can turn them on again in Settings."), android.widget.Toast.LENGTH_LONG).show()
+                                onTurnOff()
+                            },
+                            modifier = Modifier.align(androidx.compose.ui.Alignment.CenterHorizontally).padding(top = 2.dp).testTag("tour-off"),
+                        ) {
+                            Text(tr("Turn off tours"), color = c.text.copy(alpha = 0.72f), style = MaterialTheme.typography.labelLarge)
+                        }
+                    }
                 }
             }
         }

@@ -82,12 +82,25 @@ class ThemeSettings(context: Context) {
         _toursSeen.value = now
     }
 
-    /** Every tour is given again, the editor's too, the next time its screen is opened. The sample books aren't added again. */
+    /**
+     * Every tour is given again, the editor's too, the next time its screen is opened, with tours turned on. The
+     * sample books aren't added again.
+     */
     fun showToursAgain() {
         val now = _toursSeen.value.filter { it == dev.kolib.app.ui.tour.Tours.SAMPLES }.toSet()
-        prefs.edit().putStringSet(TOURS_SEEN, now).putBoolean(EDITOR_TOUR_SEEN, false).apply()
+        prefs.edit().putStringSet(TOURS_SEEN, now).putBoolean(EDITOR_TOUR_SEEN, false).putBoolean(TOURS_OFF, false).apply()
         _toursSeen.value = now
         _editorTourSeen.value = false
+        _toursOff.value = false
+    }
+
+    private val _toursOff = MutableStateFlow(prefs.getBoolean(TOURS_OFF, false))
+    /** No tours are given: turned off from one of them, or in Settings. */
+    val toursOff: StateFlow<Boolean> = _toursOff.asStateFlow()
+
+    fun setToursOff(off: Boolean) {
+        prefs.edit().putBoolean(TOURS_OFF, off).apply()
+        _toursOff.value = off
     }
 
     fun set(choice: ThemeChoice) {
@@ -118,5 +131,6 @@ class ThemeSettings(context: Context) {
         const val INTRO_SEEN = "introSeen"
         const val EDITOR_TOUR_SEEN = "editorTourSeen"
         const val TOURS_SEEN = "toursSeen"
+        const val TOURS_OFF = "toursOff"
     }
 }

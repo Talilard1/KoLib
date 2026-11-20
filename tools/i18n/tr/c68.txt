@@ -1,0 +1,87 @@
+@fr
+3404|Une courte visite de chaque écran, la première fois que vous l’ouvrez.
+3405|Les visites sont désactivées. Vous pouvez les réactiver dans les Réglages.
+3406|Désactiver les visites
+3407|Choisissez des livres, passez des couvertures à la liste, ou ouvrez Réglages et Statistiques de lecture. Vous pouvez désactiver l’animation d’ouverture dans les Réglages.
+3408|Changez l’apparence de KoLib, sa langue et la façon de lire les livres. Vous pouvez aussi désactiver l’animation d’ouverture ici.
+3409|Activez ou désactivez ces visites, ou revoyez-les toutes.
+
+@de
+3404|Eine kurze Tour durch jeden Bildschirm, wenn du ihn zum ersten Mal öffnest.
+3405|Touren sind aus. Du kannst sie in den Einstellungen wieder einschalten.
+3406|Touren ausschalten
+3407|Wähle Bücher, wechsle zwischen Covern und Liste oder öffne Einstellungen und Lesestatistik. In den Einstellungen kannst du die Startanimation ausschalten.
+3408|Ändere das Aussehen von KoLib, die Sprache und wie Bücher gelesen werden. Hier kannst du auch die Startanimation ausschalten.
+3409|Schalte diese Touren ein oder aus, oder sieh sie dir alle noch einmal an.
+
+@es
+3404|Un recorrido corto por cada pantalla, la primera vez que la abres.
+3405|Los recorridos están desactivados. Puedes volver a activarlos en Ajustes.
+3406|Desactivar los recorridos
+3407|Elige libros, cambia entre portadas y lista, o abre Ajustes y Estadísticas de lectura. En Ajustes puedes desactivar la animación de inicio.
+3408|Cambia el aspecto de KoLib, su idioma y cómo se leen los libros. Aquí también puedes desactivar la animación de inicio.
+3409|Activa o desactiva estos recorridos, o vuelve a verlos todos.
+
+@it
+3404|Una breve guida di ogni schermata, la prima volta che la apri.
+3405|Le guide sono disattivate. Puoi riattivarle nelle Impostazioni.
+3406|Disattiva le guide
+3407|Scegli i libri, passa tra copertine ed elenco, oppure apri Impostazioni e Statistiche di lettura. Nelle Impostazioni puoi disattivare l’animazione di apertura.
+3408|Cambia l’aspetto di KoLib, la lingua e il modo in cui si leggono i libri. Qui puoi anche disattivare l’animazione di apertura.
+3409|Attiva o disattiva queste guide, o rivedile tutte.
+
+@nl
+3404|Een korte rondleiding door elk scherm, de eerste keer dat je het opent.
+3405|Rondleidingen staan uit. Je kunt ze weer aanzetten in Instellingen.
+3406|Rondleidingen uitzetten
+3407|Kies boeken, wissel tussen omslagen en een lijst, of open Instellingen en Leesstatistieken. In Instellingen kun je de openingsanimatie uitzetten.
+3408|Verander hoe KoLib eruitziet, de taal en hoe boeken worden gelezen. Hier kun je ook de openingsanimatie uitzetten.
+3409|Zet deze rondleidingen aan of uit, of bekijk ze allemaal opnieuw.
+
+@pt
+3404|Um tour curto por cada tela, na primeira vez que você a abrir.
+3405|Os tours estão desativados. Você pode reativá-los em Configurações.
+3406|Desativar os tours
+3407|Escolha livros, alterne entre capas e lista, ou abra Configurações e Estatísticas de leitura. Em Configurações você pode desativar a animação de abertura.
+3408|Mude a aparência do KoLib, o idioma e como os livros são lidos. Aqui você também pode desativar a animação de abertura.
+3409|Ative ou desative estes tours, ou veja todos de novo.
+
+@ro
+3404|Un tur scurt al fiecărui ecran, prima dată când îl deschizi.
+3405|Tururile sunt oprite. Le poți porni din nou din Setări.
+3406|Oprește tururile
+3407|Alege cărți, treci de la coperți la listă sau deschide Setări și Statistici de citire. Din Setări poți opri animația de pornire.
+3408|Schimbă aspectul KoLib, limba și felul în care se citesc cărțile. Tot aici poți opri animația de pornire.
+3409|Pornește sau oprește aceste tururi ori revezi-le pe toate.
+
+@ru
+3404|Короткий обзор каждого экрана, когда вы впервые его открываете.
+3405|Обзоры выключены. Их можно снова включить в настройках.
+3406|Выключить обзоры
+3407|Выбирайте книги, переключайтесь между обложками и списком или открывайте «Настройки» и «Статистику чтения». В настройках можно выключить анимацию при запуске.
+3408|Меняйте внешний вид KoLib, язык и то, как читаются книги. Здесь же можно выключить анимацию при запуске.
+3409|Включайте и выключайте эти обзоры или посмотрите их все снова.
+
+@ja
+3404|各画面を初めて開いたときに、短いツアーを表示します。
+3405|ツアーをオフにしました。設定でまたオンにできます。
+3406|ツアーをオフにする
+3407|本を選んだり、表紙とリストを切り替えたり、設定や読書の記録を開いたりできます。起動アニメーションは設定でオフにできます。
+3408|KoLib の見た目、言語、本の読み方を変えられます。起動アニメーションもここでオフにできます。
+3409|これらのツアーのオン・オフを切り替えたり、すべてもう一度見たりできます。
+
+@ko
+3404|각 화면을 처음 열 때 짧은 둘러보기를 보여 줘요.
+3405|둘러보기를 껐어요. 설정에서 다시 켤 수 있어요.
+3406|둘러보기 끄기
+3407|책을 고르거나, 표지와 목록을 바꾸거나, 설정과 읽기 통계를 열어요. 설정에서 시작 애니메이션을 끌 수 있어요.
+3408|KoLib의 모습, 언어, 책 읽는 방식을 바꿔요. 여기서 시작 애니메이션도 끌 수 있어요.
+3409|이 둘러보기를 켜거나 끄고, 모두 다시 볼 수 있어요.
+
+@zh
+3404|第一次打开每个界面时，显示一段简短的导览。
+3405|导览已关闭。可以在设置中重新开启。
+3406|关闭导览
+3407|选择书籍、在封面和列表之间切换，或打开设置和阅读统计。可以在设置中关闭开场动画。
+3408|更改 KoLib 的外观、语言和读书方式。也可以在这里关闭开场动画。
+3409|开启或关闭这些导览，或全部再看一遍。

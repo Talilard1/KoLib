@@ -22,7 +22,10 @@ object Tours {
         TourStop(listOf("library-shelf"), tr("Your library"), tr("Tap a book to see it, read it or send it to your Kobo. Hold one to choose several at once.")),
         TourStop(listOf("library-tabs"), tr("Books, collections and comics"), tr("Switch between your books, your collections and your comics. You can swipe between them too.")),
         TourStop(listOf("library-search"), tr("Find a book"), tr("Search titles, authors, series and tags. Tap ? to see all the ways you can search.")),
-        TourStop(listOf("library-menu"), tr("More"), tr("Choose books, switch between covers and a list, or open Settings and Reading stats.")),
+        TourStop(
+            listOf("library-menu"), tr("More"),
+            tr("Choose books, switch between covers and a list, or open Settings and Reading stats. You can turn off the opening animation in Settings."),
+        ),
         TourStop(listOf("library-add"), tr("Add books"), tr("Add books and comics from this device, a folder or your Kobo. You can write a new book here too.")),
         TourStop(
             listOf("library-sync"), tr("Sync reading with the Kobo"),
@@ -31,7 +34,7 @@ object Tours {
         TourStop(listOf("library-stats"), tr("Reading stats"), tr("See how much you read, in KoLib and on your Kobo.")),
         TourStop(listOf("nav-kobo"), tr("Your Kobo"), tr("Plug in your Kobo to see what's on it, send it books and back it up.")),
         TourStop(listOf("nav-devices"), tr("Your other devices"), tr("Send books to KoLib on your other phones and tablets over Wi-Fi, or to your Kobo without the cable.")),
-        TourStop(listOf("nav-settings"), tr("Settings"), tr("Change how KoLib looks, its language, and how books are read.")),
+        TourStop(listOf("nav-settings"), tr("Settings"), tr("Change how KoLib looks, its language, and how books are read. You can turn off the opening animation here too.")),
     )
 
     fun koboConnect() = listOf(
@@ -69,7 +72,7 @@ object Tours {
         stop("settings-comics", tr("Comics"), tr("Give comics a tab of their own in the library, with each series as one entry."), reveal),
         stop("settings-look", tr("Look"), tr("Choose how KoLib looks. The opening animation matches the look you choose."), reveal),
         stop("settings-opening", tr("Opening animation"), tr("Turn the animation and its sound on or off, or use a lighter one on a slower device."), reveal),
-        stop("settings-tours", tr("Tours"), tr("See these tours again, each the next time you open its screen."), reveal),
+        stop("settings-tours", tr("Tours"), tr("Turn these tours on or off, or see them all again."), reveal),
     )
 
     private fun stop(place: String, title: String, text: String, reveal: (String) -> (suspend () -> Unit)) =

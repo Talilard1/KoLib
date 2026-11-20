@@ -50,7 +50,7 @@ class ExampleBookTest {
 
     @Test
     fun itIsInEveryLanguageKoLibIs() {
-        for (lang in listOf("fr", "de", "es", "it", "nl", "pt-BR", "ru", "ja")) {
+        for (lang in listOf("fr", "de", "es", "it", "nl", "pt-BR", "ro", "ru", "ja", "ko", "zh-Hans")) {
             L10n.use(lang, table(lang))
             val files = ExampleBook.files()
             val book = BookStructure(files)

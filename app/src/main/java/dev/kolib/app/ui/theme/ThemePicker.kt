@@ -1,14 +1,5 @@
 package dev.kolib.app.ui.theme
 
-import dev.kolib.app.tr
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.getValue
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -56,120 +47,74 @@ import androidx.compose.ui.unit.dp
 
 /**
  * The looks to choose from: each a small picture of itself (its page, a row of covers, its lettering and its
- * main button, in its own colours), with its name under it and what it's like said of the one chosen. Under them,
- * Clean in other colours: a palette's light or dark, as Light or Dark is set over them.
+ * main button, in its own colours), with its name under it and what it's like said of the one chosen.
  */
 @Composable
 fun ThemePicker(current: ThemeChoice, onPick: (ThemeChoice) -> Unit, modifier: Modifier = Modifier) {
     val systemDark = isSystemInDarkTheme()
-    val context = LocalContext.current
     Column(modifier.fillMaxWidth()) {
         BoxWithConstraints(Modifier.fillMaxWidth()) {
             val columns = ((maxWidth + 10.dp) / 104.dp).toInt().coerceIn(2, 5)
-            Column {
-                LookGrid(
-                    ThemeChoice.entries.filter { it.palette == null }, columns,
-                    chosen = { it == current }, label = { it.label }, tag = { "look-${it.name}" }, onPick = onPick,
-                ) { choice ->
-                    if (choice == ThemeChoice.SYSTEM) {
-                        // Light or dark, as the device is set: half of each.
-                        LookPicture(lookOf(ThemeChoice.LIGHT, false), Modifier.fillMaxSize())
-                        LookPicture(lookOf(ThemeChoice.DARK, true), Modifier.fillMaxSize(), half = true)
-                    } else {
-                        LookPicture(lookOf(choice, systemDark, context), Modifier.fillMaxSize())
+            Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                ThemeChoice.entries.chunked(columns).forEach { row ->
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        row.forEach { choice ->
+                            val chosen = choice == current
+                            Column(
+                                Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(14.dp))
+                                    .selectable(selected = chosen, role = Role.RadioButton, onClick = { onPick(choice) })
+                                    .padding(3.dp)
+                                    .testTag("look-${choice.name}"),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                Box(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(1.18f)
+                                        .border(
+                                            if (chosen) 2.5.dp else 1.dp,
+                                            if (chosen) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
+                                            RoundedCornerShape(12.dp),
+                                        )
+                                        .padding(if (chosen) 4.5.dp else 1.dp)
+                                        .clip(RoundedCornerShape(if (chosen) 8.dp else 11.dp)),
+                                ) {
+                                    if (choice == ThemeChoice.SYSTEM) {
+                                        // Light or dark, as the device is set: half of each.
+                                        LookPicture(lookOf(ThemeChoice.LIGHT, false), Modifier.fillMaxSize())
+                                        LookPicture(lookOf(ThemeChoice.DARK, true), Modifier.fillMaxSize(), half = true)
+                                    } else {
+                                        LookPicture(lookOf(choice, systemDark), Modifier.fillMaxSize())
+                                    }
+                                    if (chosen) {
+                                        Box(
+                                            Modifier.align(Alignment.TopEnd).padding(5.dp).size(18.dp).clip(CircleShape)
+                                                .drawBehind { drawRect(Brush.linearGradient(listOf(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.55f), androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.55f)))) },
+                                            contentAlignment = Alignment.Center,
+                                        ) { Icon(Icons.Filled.Check, null, Modifier.size(13.dp), tint = androidx.compose.ui.graphics.Color.White) }
+                                    }
+                                }
+                                Spacer(Modifier.height(5.dp))
+                                Text(
+                                    choice.label,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = if (chosen) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                                    textAlign = TextAlign.Center, maxLines = 2, overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.padding(bottom = 2.dp),
+                                )
+                            }
+                        }
+                        // A short last row keeps its pictures the size of the others.
+                        repeat(columns - row.size) { Spacer(Modifier.weight(1f)) }
                     }
                 }
-                Spacer(Modifier.height(20.dp))
-                Text(tr("Clean, in other colours"), style = MaterialTheme.typography.titleSmall)
-                Spacer(Modifier.height(8.dp))
-                // Light or dark for the palettes: as the look chosen is, to begin with.
-                var dark by remember(current) { mutableStateOf(current.palette?.let { current.paletteDark } ?: lookOf(current, systemDark, context).style.dark) }
-                SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth().testTag("palette-light-dark")) {
-                    for ((i, isDark) in listOf(false, true).withIndex()) {
-                        SegmentedButton(
-                            selected = dark == isDark,
-                            onClick = {
-                                dark = isDark
-                                current.palette?.let { onPick(ThemeChoice.of(it, isDark)) }
-                            },
-                            shape = SegmentedButtonDefaults.itemShape(i, 2),
-                        ) { Text(if (isDark) tr("Dark") else tr("Light")) }
-                    }
-                }
-                Spacer(Modifier.height(12.dp))
-                LookGrid(
-                    Palette.shown, columns,
-                    chosen = { it == current.palette && current.paletteDark == dark }, label = { it.label }, tag = { "palette-${it.name}" },
-                    onPick = { onPick(ThemeChoice.of(it, dark)) },
-                ) { palette -> LookPicture(paletteLook(palette, dark, context), Modifier.fillMaxSize()) }
             }
         }
         Spacer(Modifier.height(12.dp))
         Text(current.label, style = MaterialTheme.typography.titleSmall)
         Text(current.description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-    }
-}
-
-/** Looks or palettes in rows of [columns]: each its picture, framed more boldly when it's the one chosen, and its name. */
-@Composable
-private fun <T> LookGrid(
-    items: List<T>,
-    columns: Int,
-    chosen: (T) -> Boolean,
-    label: (T) -> String,
-    tag: (T) -> String,
-    onPick: (T) -> Unit,
-    picture: @Composable (T) -> Unit,
-) {
-    Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        items.chunked(columns).forEach { row ->
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                row.forEach { item ->
-                    val isChosen = chosen(item)
-                    Column(
-                        Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(14.dp))
-                            .selectable(selected = isChosen, role = Role.RadioButton, onClick = { onPick(item) })
-                            .padding(3.dp)
-                            .testTag(tag(item)),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Box(
-                            Modifier
-                                .fillMaxWidth()
-                                .aspectRatio(1.18f)
-                                .border(
-                                    if (isChosen) 2.5.dp else 1.dp,
-                                    if (isChosen) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
-                                    RoundedCornerShape(12.dp),
-                                )
-                                .padding(if (isChosen) 4.5.dp else 1.dp)
-                                .clip(RoundedCornerShape(if (isChosen) 8.dp else 11.dp)),
-                        ) {
-                            picture(item)
-                            if (isChosen) {
-                                Box(
-                                    Modifier.align(Alignment.TopEnd).padding(5.dp).size(18.dp).clip(CircleShape)
-                                        .drawBehind { drawRect(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.55f)) },
-                                    contentAlignment = Alignment.Center,
-                                ) { Icon(Icons.Filled.Check, null, Modifier.size(13.dp), tint = androidx.compose.ui.graphics.Color.White) }
-                            }
-                        }
-                        Spacer(Modifier.height(5.dp))
-                        Text(
-                            label(item),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = if (isChosen) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                            textAlign = TextAlign.Center, maxLines = 2, overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.padding(bottom = 2.dp),
-                        )
-                    }
-                }
-                // A short last row keeps its pictures the size of the others.
-                repeat(columns - row.size) { Spacer(Modifier.weight(1f)) }
-            }
-        }
     }
 }
 
@@ -194,25 +139,35 @@ private fun LookPicture(look: Look, modifier: Modifier, half: Boolean = false) {
             }
             if (light != null) drawRect(Brush.radialGradient(listOf(light, androidx.compose.ui.graphics.Color.Transparent), center = Offset(w * 0.2f, -h * 0.1f), radius = w * 0.95f))
             when (style.backdrop) {
-                Backdrop.PROJECTION -> {
+                Backdrop.MESH -> {
+                    // The mesh, much larger than it is, to be seen this small.
+                    val side = w / 5f
+                    val rise = side * 0.866f
                     var y = 0f
-                    while (y < h) { drawRect(style.gold, Offset(0f, y), Size(w, 1f), alpha = 0.09f); y += h / 26f }
-                    drawRect(Brush.radialGradient(listOf(style.markGold[1].copy(alpha = 0.32f), androidx.compose.ui.graphics.Color.Transparent), center = Offset(w * 0.5f, h * 1.05f), radius = w * 0.7f))
-                }
-                Backdrop.PANELS -> {
-                    drawRoundRect(androidx.compose.ui.graphics.Color.White, Offset(w * 0.58f, h * 0.06f), Size(w * 0.36f, h * 0.22f), CornerRadius(w * 0.02f), alpha = 0.08f, style = androidx.compose.ui.graphics.drawscope.Stroke(1f))
-                    drawRect(style.markGold[1], Offset(w * 0.6f, h * 0.09f), Size(w * 0.015f, h * 0.16f), alpha = 0.6f)
+                    while (y < h) { drawRect(style.gold, Offset(0f, y), Size(w, 1f), alpha = 0.12f); y += rise }
+                    var x = -h
+                    while (x < w + h) {
+                        drawLine(style.gold, Offset(x, 0f), Offset(x + h * 0.577f, h), alpha = 0.12f)
+                        drawLine(style.gold, Offset(x, 0f), Offset(x - h * 0.577f, h), alpha = 0.12f)
+                        x += side
+                    }
                 }
                 Backdrop.SCANLINES -> {
                     var y = 0f
                     while (y < h) { drawRect(style.gold, Offset(0f, y), Size(w, 1f), alpha = 0.07f); y += h / 22f }
                 }
-                Backdrop.SPACE -> {
-                    for ((x, y) in listOf(0.82f to 0.12f, 0.6f to 0.2f, 0.93f to 0.42f, 0.72f to 0.08f, 0.5f to 0.1f, 0.3f to 0.05f, 0.14f to 0.3f)) {
-                        drawCircle(c.onBackground, radius = w * 0.007f, center = Offset(w * x, h * y), alpha = 0.6f)
+                Backdrop.HULL -> {
+                    // The hull's panels, much larger than they are, to be seen this small.
+                    val across = w / 2.6f
+                    val down = across * 0.6f
+                    var row = 0
+                    var y = 0f
+                    while (y < h) {
+                        var x = if (row % 2 == 0) 0f else -across / 2
+                        while (x < w) { drawRect(androidx.compose.ui.graphics.Color(0xFF9DB7E0), Offset(x + 1.5f, y + 1.5f), Size(across - 3f, down - 3f), alpha = 0.14f, style = androidx.compose.ui.graphics.drawscope.Stroke(1f)); x += across }
+                        y += down
+                        row++
                     }
-                    val r = w * 0.9f
-                    drawCircle(androidx.compose.ui.graphics.Color(0xFF7DB4FF), radius = r, center = Offset(w * 0.95f, h + r * 0.8f), alpha = 0.55f, style = androidx.compose.ui.graphics.drawscope.Stroke(w * 0.012f))
                 }
                 else -> Unit
             }

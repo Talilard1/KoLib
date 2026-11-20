@@ -1,0 +1,231 @@
+@ro
+0|{0} carte
+1|{0} {0:carte|cărți|de cărți}
+2|{0} capitol
+3|{0} {0:capitol|capitole|de capitole}
+4|{0} colecție
+5|{0} {0:colecție|colecții|de colecții}
+6|{0} pagină
+7|{0} {0:pagină|pagini|de pagini}
+8|Înlocuiește
+9|Păstrează-le pe amândouă
+10|Omite
+11|Se adaugă cărți
+12|Nu se poate deschide {0}
+14|Se adaugă o carte
+15|Se adaugă {0} {0:carte|cărți|de cărți}
+16|Așteaptă mai întâi să se termine „{0}”.
+17|Omis: „{0}”.
+18|{0} {0:carte omisă|cărți omise|de cărți omise}.
+19|Se înlocuiește cartea
+20|Se înlocuiesc cărțile
+21|Se adaugă cartea
+22|Se adaugă cărțile
+23|„{0}” a fost înlocuită cu fișierul nou.
+25|O carte a fost înlocuită cu fișierul nou.
+26|{0} {0:carte a fost înlocuită|cărți au fost înlocuite|de cărți au fost înlocuite} cu fișierele noi.
+30|Se duplică cartea
+31|Se duplică cărțile
+32|Se duplică ({0} din {1})
+33|Duplicată ca „{0}”.
+34|{0} {0:carte duplicată|cărți duplicate|de cărți duplicate}.
+36|Nu e destul spațiu liber pe acest dispozitiv pentru {0} {0:carte|cărți|de cărți}.
+37|Se adaugă cărți de pe Kobo
+43|O carte
+44|Nu mai e în bibliotecă.
+46|Se trimite pe Kobo
+47|Se trimit {0} {0:carte|cărți|de cărți} pe Kobo
+49|Salvat.
+50|Nu s-a putut salva: {0}
+51|Coperta a fost salvată. Va fi trimisă pe Kobo neschimbată.
+52|Coperta a fost salvată.
+53|Nu s-a putut salva coperta: {0}
+54|Marcată ca terminată.
+55|{0} {0:carte marcată|cărți marcate|de cărți marcate} ca terminate.
+56|Marcată ca necitită.
+57|{0} {0:carte marcată|cărți marcate|de cărți marcate} ca necitite.
+58|Eliminată din bibliotecă.
+59|{0} {0:carte eliminată|cărți eliminate|de cărți eliminate} din bibliotecă.
+60|Coperta originală a fost restaurată.
+61|Nu s-a putut restaura coperta originală: {0}
+62|Se creează cartea
+63|Fără titlu
+64|A fost creată „{0}”.
+65|Se combină cărțile
+66|{0} {0:carte combinată|cărți combinate|de cărți combinate} în „{1}”.
+67|Se împarte cartea
+68|{0} (partea {1})
+69|„{0}” a fost împărțită în {1} {1:carte|cărți|de cărți}.
+70|Necunoscut
+71|Se salvează fișierul
+73|S-a salvat „{0}”.
+74|„{0}” a fost salvată ca kepub.
+75|„{0}” a fost salvată ca EPUB.
+76|Se salvează fișierele
+77|Se salvează fișierele ({0} din {1})
+78|Nu s-a putut crea un fișier în acel dosar.
+79|Nu s-a putut scrie fișierul nou.
+80|S-a salvat ca {1}: {0}.
+81|S-a salvat: {0}.
+82| Nu s-au putut salva: {0}. Detaliile sunt în jurnal.
+83|Această carte nu poate fi editată: {0}
+84|Android nu a dat acces permanent la acea unitate. Încearcă din nou și atinge „Folosește acest dosar”, apoi „Permite”.
+85|Se conectează…
+86|Copia de rezervă a bazei de date a eșuat: {0}
+87|Baza de date a Kobo-ului nu a trecut verificarea. Detaliile sunt în jurnal.
+88|S-a făcut o copie de rezervă a bazei de date a Kobo-ului.
+89|Unitatea aceea nu pare să fie un Kobo.
+90|Kobo-ul a fost deconectat în timp ce era citit. Conectează-l din nou și atinge Conectează pe pagina Kobo.
+91|Android nu mai permite accesul la această unitate. Atinge „Alege unitatea” ca să dai din nou acces.
+92|Ceva n-a mers la citirea Kobo-ului: {0}: {1}. Detaliile sunt în jurnal.
+93|Kobo-ul a fost deconectat
+94|Nu s-au putut actualiza colecțiile și detaliile Kobo-ului: {0}. Kobo-ul nu a fost modificat.
+95|Se șterge de pe Kobo…
+96|„{0}” a fost ștearsă de pe Kobo.
+97|{0} {0:carte ștearsă|cărți șterse|de cărți șterse} de pe Kobo.
+98| Nu s-au putut șterge: {0}. Detaliile sunt în jurnal.
+99| Scoate Kobo-ul ca să-și poată actualiza biblioteca.
+100|Se face copia de rezervă…
+101|S-a făcut o copie de rezervă a bazei de date a Kobo-ului.
+102|Nimic nu s-a schimbat de la ultima copie de rezervă.
+103|Copia de rezervă a eșuat: {0}
+104|Salvat în {0}.
+105|Nu s-a putut salva în Descărcări: {0}
+106|Fișierul copiei de rezervă nu a putut fi terminat
+107|Android nu a putut crea {0} în Descărcări
+108|Nu s-a putut scrie {0} în Descărcări
+109|Nu există text din care să se facă o carte.
+110|Nu există niciun fișier FictionBook în acest zip.
+111|PDF-ul este închis.
+112|Fișierul FictionBook este deteriorat: {0}
+113|Acesta nu e un fișier FictionBook.
+114|Fișierul e prea scurt ca să fie o carte Kindle.
+115|Această carte Kindle este deteriorată.
+116|Această carte e blocată cu DRM, așa că nu poate fi deschisă.
+117|Această carte Kindle e comprimată într-un mod care nu poate fi citit.
+118|Lipsesc tabelele de comprimare ale acestei cărți Kindle.
+119|Tabelele de comprimare ale acestei cărți Kindle sunt deteriorate.
+120|Textul acestei cărți Kindle este deteriorat.
+121|Un index din această carte Kindle este deteriorat.
+122|Aceasta nu e o carte Kindle.
+123|Această carte Kindle nu a putut fi citită: {0}
+124|Nu există text în această carte Kindle.
+125|Lipsește indexul de pagini al acestei cărți Kindle.
+126|Fișierul e prea mare ca să fie deschis.
+127|Lipsește {0} documentului.
+128|{0} documentului este deteriorat.
+129|Nu există text în acest document.
+131|Acesta nu e un fișier PDF.
+132|Blocarea acestui PDF nu poate fi citită.
+133|Acest PDF cere o parolă ca să fie deschis, așa că nu poate fi convertit.
+134|Acest PDF este deteriorat.
+135|Acest PDF e blocat într-un mod care nu poate fi deschis.
+136|Acesta nu e un fișier Rich Text.
+137|Nu există imagini în acest fișier de bandă desenată.
+138|O carte trebuie să aibă cel puțin o pagină.
+139|Lipsește o pagină din ordinea de citire: {0}
+140|Selectează cel puțin două cărți de combinat.
+141|„{0}” nu are pagini de citit.
+142|Alege cel puțin un capitol de la care începe o carte nouă.
+143|Un titlu și un fișier pentru fiecare carte.
+144|„{0}” e protejată la copiere, așa că nu poate fi împărțită sau combinată.
+145|Nu s-a putut salva o copie a cărții originale
+146|Nu s-a putut înlocui {0}
+147|{0}, rândul {1}: {2}
+148|Fișierul pachet al cărții (OPF) nu poate fi citit
+149|Ordinea de citire e goală
+150|Cartea listează acest fișier, dar el lipsește
+151|Ordinea de citire include „{0}”, care nu e în carte
+152|Lipsește fișierul pachet al cărții.
+153|Acel capitol nu mai e în carte.
+154|Scrie un nume pentru capitol.
+155|„{0}” a fost redenumit „{1}”
+156|Un capitol a fost mutat
+157|Cartea nu are o ordine de citire.
+158|Capitolele s-au schimbat în timp ce erau mutate.
+159|Acel capitol nu e în ordinea de citire.
+160|Ascuns: „{0}”
+161|Afișat din nou: „{0}”
+162|Cartea se deschide acum la „{0}”
+163|O carte trebuie să aibă cel puțin un capitol.
+164|Acel capitol nu e în lista de fișiere a cărții.
+165|Șters: „{0}”
+166|E primul capitol, așa că nu există un capitol anterior cu care să fie unit.
+167|Capitolul anterior nu poate fi citit.
+168|Capitolul nu poate fi citit.
+169|Unul dintre aceste capitole nu are o secțiune de text (body), așa că nu pot fi unite.
+170|„{0}” a fost unit cu „{1}”
+171|Acel loc nu mai e în capitol.
+172|Un capitol poate fi împărțit doar în textul lui.
+173|Acolo e deja începutul capitolului.
+174|Cartea nu are o listă de fișiere.
+175|Adăugat: „{0}”
+176|A fost adăugată o imagine
+177|Niciun capitol nu are titlu, așa că cuprinsul nu poate fi refăcut.
+178|Cuprinsul a fost refăcut din titluri
+179|Elimină rândurile goale în plus
+183|Ghilimele drepte în ghilimele curbe
+184|"Hello," he said, 'it's mine.' devine “Hello,” he said, ‘it’s mine.’
+185|Unește rândurile rupte în mijlocul propoziției
+189|Cratime duble în linii de pauză
+190|Transformă -- și --- într-o linie de pauză adevărată (—).
+191|Elimină fonturile încorporate
+192|Șterge fișierele de font din carte, ca Kobo-ul să folosească fontul pe care îl alegi pe el.
+193|Acest fișier nu e un EPUB (nu are META-INF/container.xml).
+194|Fișierul container.xml al cărții e deteriorat.
+195|Fișierul container.xml al cărții nu spune unde e fișierul pachet.
+196|Lipsește fișierul pachet al cărții ({0}).
+197|Acest fișier nu e un EPUB (nu e o arhivă zip).
+198|Acest EPUB folosește nume de fișiere neobișnuite care nu pot fi citite.
+199|Fișierul nu a putut fi deschis: {0}
+200|Acel tipar nu e valid.
+201|Acel tipar s-ar potrivi cu text gol, așa că nu poate fi folosit.
+202|cu literă mică
+203|după „{0}”
+204|parte dintr-un cuvânt cu cratimă
+205|numai cu majuscule
+206|într-un titlu
+207|începe un paragraf
+208|începe o propoziție
+209|Comentariu neînchis la {0}
+210|CDATA neînchis la {0}
+211|Instrucțiune de procesare neînchisă la {0}
+212|Etichetă de sfârșit neînchisă la {0}
+213|Niciun element rădăcină
+214|Etichetă greșită la {0}
+215|Rândul {0}, coloana {1}: {2}
+216|Un caracter de control (codul {0}) nu e permis
+217|Text după sfârșitul documentului
+218|Text înainte de începutul documentului
+219|Un comentariu nu e închis
+220|„--” nu e permis într-un comentariu
+221|CDATA nu e permis în afara documentului
+222|O secțiune CDATA nu e închisă
+223|O instrucțiune de procesare nu e închisă
+224|Un doctype nu poate veni după începutul documentului
+225|Doctype-ul nu e închis
+226|Fișierul nu are conținut
+227|Fișierul s-a terminat prea devreme
+228|Nu e un fișier zip
+229|Nu e un fișier zip (fără director)
+230|Directorul arhivei zip e deteriorat
+231|Intrare zip deteriorată: {0}
+235|Baza de date Kobo nu are tabelul „content”, așa că nu poate fi citită.
+236|Nu s-a putut citi versiunea bazei de date ({0}).
+237|Nu s-au putut citi evaluările Kobo-ului ({0}).
+238|Din baza de date Kobo lipsesc coloanele {0}.
+239|Rânduri de cărți fără ContentID, omise: {0}.
+240|Baza de date a acestui Kobo nu are tabel de colecții.
+241|Tabelul de colecții nu are o coloană de nume.
+242|Tabelul de apartenență la colecții are coloane neașteptate.
+243|Baza de date a acestui Kobo nu are tabel de apartenență la colecții.
+244|O intrare de colecție trimite la o colecție ștearsă sau lipsă (Kobo le ignoră).
+245|Dosarul .kobo al Kobo-ului nu poate fi găsit. Mai e conectat?
+246|Baza de date a Kobo-ului nu poate fi găsită.
+247|Baza de date a Kobo-ului s-a schimbat de când a fost citită. Conectează mai întâi din nou Kobo-ul.
+248|Baza de date actualizată nu a putut fi adunată într-un singur fișier, așa că nu a fost copiată pe Kobo.
+249|Baza de date actualizată nu a trecut verificarea ({0}), așa că nu a fost copiată pe Kobo.
+250|Baza de date actualizată a dispărut de pe Kobo în timp ce era scrisă.
+251|Baza de date actualizată nu s-a citit corect înapoi de pe Kobo, așa că baza de date originală a Kobo-ului nu a fost înlocuită.
+252|Baza de date actualizată nu a putut înlocui baza de date veche pe Kobo. Nu scoate încă Kobo-ul. Conectează-l din nou și verifică cărțile de pe Kobo.
+254|=

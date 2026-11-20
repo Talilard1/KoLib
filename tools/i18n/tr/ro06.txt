@@ -1,0 +1,231 @@
+@ro
+1716|Alte modele
+1718|Fantasy
+1719|Science fiction
+1720|Mister și polițist
+1721|Thriller
+1722|Horror
+1723|Romance
+1724|Istoric
+1725|Aventură
+1726|Western
+1727|Literatură și clasici
+1728|Non-ficțiune
+1729|Pentru copii
+1730|Găsește o imagine
+1731|Folosește această imagine
+1732|Cartea are deja o pagină de copertă, „{0}”.
+1734|„{0}” e acum pagina de copertă
+1735|Cartea nu are imagine de copertă.
+1736|Imaginea de copertă a cărții nu a putut fi citită.
+1737|Au fost create o copertă și o pagină de copertă
+1738|A fost creată o pagină de copertă
+1739|Carte de vrăji
+1740|Spini și trandafiri
+1741|Neon
+1742|Revistă pulp
+1743|Afiș
+1744|Instantaneu
+1745|Smarald
+1746|Carmin
+1747|Safir
+1748|Obsidian
+1749|Synthwave
+1750|Lavandă
+1751|Mentă
+1752|Nr.
+1753|pictură castel magic noaptea
+1754|artă dark fantasy
+1755|pictură căsuță de vrăjitoare în lumina lunii
+1756|pictură călătorie fantasy epică
+1757|pictură furtună fantasy epică
+1758|pictură mitologică
+1759|ilustrație basm
+1760|artă fantasy romantică
+1761|oraș urban fantasy noaptea
+1762|pictură peisaj chinezesc în tuș
+1763|concept art bătălie spațială
+1764|concept art navă spațială
+1765|artă oraș cyberpunk
+1766|artă oraș postapocaliptic
+1767|artă oraș steampunk cu dirijabile
+1768|artă oraș cu supereroi noaptea
+1769|pictură Londra victoriană în ceață
+1770|pictură sat englezesc
+1771|oraș noaptea thriller de spionaj
+1772|pictură de război
+1773|pictură bătălie medievală
+1774|pictură epoca Regenței
+1775|pictură ruine antice
+1776|lumini romantice de oraș
+1777|trandafir roșu închis
+1778|ilustrație cozy
+1779|stradă ploioasă noaptea
+1780|castel gotic lună roșie
+1781|artă monstru marin tentacule
+1782|dovleci de Halloween noaptea
+1783|ilustrație cafenea cozy
+1784|campus universitar toamna
+1785|luminile stadionului noaptea
+1786|lumini de scenă la concert
+1787|sat înzăpezit de Crăciun
+1789|Școală de magie
+1790|Magie neagră
+1791|Vrăjitoare și vrăji
+1792|Misiuni și legende
+1793|Epopee în furtună
+1794|Mituri și zei
+1795|Basm
+1796|Fantasy romantic
+1797|Urban fantasy
+1798|Wuxia și cultivare
+1799|Space opera
+1800|Călătorii cu nave spațiale
+1801|Cyberpunk
+1802|Distopie și apocalipsă
+1803|Steampunk
+1804|Supereroi
+1805|Detectivi victorieni
+1806|Mister cozy
+1807|Spioni
+1808|Război
+1809|Cavaleri și bătălii
+1810|Regență și drame de epocă
+1811|Lumi antice
+1812|Romance modern
+1813|Dark romance
+1814|Fluff și confort
+1815|Angst și inimi frânte
+1816|Vampiri și vârcolaci
+1817|Horror cosmic
+1818|Halloween
+1819|Cafenele și viața la oraș
+1820|Școală și facultate
+1821|Sport
+1822|Muzică și faimă
+1823|Crăciun și iarnă
+1824|Fantasy și magie
+1825|Mister și thrillere
+1826|Istorie, război și aventură
+1827|Horror și supranatural
+1828|Viața de zi cu zi și altele
+1829|Baghetă
+1830|Bufniță
+1831|Corb
+1832|Rotește imaginea spre stânga
+1833|Rotește imaginea spre dreapta
+1838|Imagini
+1839|Această carte nu are imagini.
+1840|Doar cele mari ({0})
+1841|Începutul cărții
+1842|Mergi la pagina ei
+1857|Demontează din Setări
+1858|Deschide pagina Kobo-ului în setările Android. Atinge acolo Demontare, apoi deconectează-l.
+1859|Scoate din Fișiere
+1860|Deschide Kobo-ul în aplicația Fișiere din Android. Deschide-i meniul (☰) și atinge ⏏ de lângă unitatea USB.
+1861|Demontează din Fișierele mele
+1862|Atinge unitatea USB, apoi ⋮ (dreapta sus) → Demontare.
+1863|Găsește unitatea USB și atinge Demontare.
+1864|Continuă de unde ai rămas pe Kobo
+1865|Revii la locul de pe Kobo?
+1867|Revino
+1880|Kobo-ul e demontat. Acum îl poți deconecta în siguranță.
+1881|Se deschide Kobo-ul… Nu-l deconecta.
+1882|Se așteaptă ca Android să deschidă Kobo-ul…
+1883|Încă se așteaptă ca Android să deschidă Kobo-ul. Verifică dacă pe Kobo scrie că e conectat.
+1885|Înainte de prima carte: {0}.
+1886|După ultima: {0}.
+1887|Dacă una dintre ele e o pagină de cuprins, aceasta listează capitolele fiecărei cărți.
+1888|Secțiuni copiate
+1889|Închide secțiunile copiate
+1893|Listezi capitolele acestei cărți?
+1895|Listează capitolele acestei cărți
+1897|Ștergi „{0}” din secțiunile copiate?
+1899|Secțiune fără titlu
+1900|Din „{0}”
+1901|Pagină de cuprins
+1902|O imagine
+1903|{0} {0:imagine|imagini|de imagini}
+1904|Șterge „{0}” din secțiunile copiate
+1905|Adaugă în această carte
+1907|Nu s-a putut copia: {0}
+1908|Secțiunea copiată nu a putut fi citită.
+1909|Copiate ({0})
+1910|Copiate
+1911|Nu s-a putut citi cum împarte Kobo-ul cărțile în capitole ({0}).
+1912|Capitolul acela nu a putut fi citit.
+1916|Pagini pentru fiecare carte
+1917|De la începutul primei cărți
+1918|De la sfârșitul ultimei cărți
+1920|Alege paginile…
+1921|Titlu și autor
+1923|Crem
+1924|Auriu pal
+1925|Auriu
+1926|Aramiu
+1927|Argintiu
+1928|Roz
+1929|Stacojiu
+1930|Verde pădure
+1931|Bleumarin
+1932|Maro
+1934|Luminozitate
+1935|Litere
+1937|Au fost mutate {0} {0:capitol|capitole|de capitole}
+1938|Deselectează tot
+1939|Mută la…
+1940|Trage ca să reordonezi, ține apăsat ca să selectezi · {0}
+1941|Selectează capitole
+1942|Mută {0} la…
+1943|Începutul cărții
+1944|După „{0}”
+1945|Ștergi {0}?
+1946|Ele și intrările lor din cuprins vor fi șterse, iar linkurile către ele vor deveni text simplu. Poți anula până închizi editorul.
+1947|Funingine
+1948|Abanos
+1949|Amurg
+1950|Indigo
+1951|Vânătă
+1952|Sânge de bou
+1953|Lemn de trandafir
+1954|Scoarță
+1955|Mușchi
+1956|Măsliniu
+1957|Molid
+1958|Au fost șterse {0} {0:capitol|capitole|de capitole}
+1959|Atinge capitolele ca să le selectezi
+1960|Un capitol selectat
+1961|{0} {0:capitol selectat|capitole selectate|de capitole selectate}
+1963|Imaginea nu a putut fi salvată.
+1964|Imaginea nu a putut fi partajată.
+1965|Carte din
+1966|Numărul din serie
+1967|Fără număr
+1968|Nu există niciun browser în care să se deschidă.
+1970|Titlu copiat
+1971|Caută pe internet
+1974|Serie copiată
+1975|O carte din
+1976|Linii și ornamente
+1977|Autor copiat
+1978|Caută în KoLib
+1979|Se trimite „{0}” către {1}…
+1980|Se trimit {0} {0:carte|cărți|de cărți} către {1}…
+1981|Fișierul nu a putut fi citit.
+1983|Clipboardul e gol.
+1984|Dispozitive
+1985|Trimite pe dispozitiv
+1986|Pe dispozitiv
+1987|Dispozitivele tale
+1989|Acest dispozitiv
+1990|Nu ești conectat la o rețea. Conectează-te la o rețea Wi-Fi sau la hotspotul celuilalt dispozitiv.
+1991|În rețea la {0}
+1992|Asociate
+1994|În apropiere
+1995|Conectează-te la o rețea ca să-ți găsești celelalte dispozitive.
+1997|Asociază
+1998|Nu-l găsești? Conectează-te după adresă
+2004|În această rețea
+2005|Nu a fost găsit în această rețea
+2006|Uită acest dispozitiv
+2007|Trimite cărți

@@ -1,0 +1,231 @@
+@ro
+2781|Acest dispozitiv nu poate rula singur modele AI. Poți folosi în continuare un server propriu.
+2782|Fișierul modelului lipsește. Descarcă-l din nou.
+2783|Nu e destulă memorie liberă pentru acest model. Închide alte aplicații sau alege un model mai mic.
+2784|Acest model nu a putut fi deschis. Fișierul lui poate fi deteriorat sau e de un tip pe care KoLib nu-l poate rula.
+2785|Nu e destul spațiu de stocare liber pentru acest model.
+2786|Descărcarea a eșuat (eroarea {0}).
+2787|Descărcarea s-a oprit la jumătate. Încearcă din nou ca să continui de acolo.
+2788|Descărcarea nu a ajuns întreagă. Încearcă din nou.
+2789|Modelul nu a putut fi salvat.
+2790|Acela nu e un fișier de model GGUF.
+2791|Serverul a răspuns cu eroarea {0}.
+2792|Serverul nu a putut fi contactat: {0}
+2793|AI și dicționar
+2794|Sensuri de cuvinte, rezumate de capitole și întrebări despre o carte
+2795|Fișierele se aleg cu
+2796|Întreabă din nou
+2797|Alege alt Kobo
+2798|văzut {0}
+2799|Afișat acum
+2800|Deschide în browser
+2801|Alege fișierele cu
+2802|Se copiază {0}…
+2803|Se copiază {0}… {1}
+2804|Fișierul acela nu a putut fi adăugat.
+2805|=
+2806|Un model AI poate explica un cuvânt așa cum e folosit acolo unde citești, poate rezuma un capitol și poate răspunde la întrebări despre carte.
+2807|Pe acest dispozitiv
+2808|Rulează pe acest dispozitiv, fără internet după ce e descărcat. Nimic din ce citești nu pleacă de pe el.
+2809|Modelul tău · {0}
+2810|Șterge acest model
+2811|Adaugă un model propriu
+2812|Merge orice model de chat într-un fișier GGUF: genul pe care îl rulează llama.cpp, găsit pe Hugging Face.
+2813|Acest dispozitiv nu poate rula singur modele AI: e nevoie de un telefon sau o tabletă pe 64 de biți. Poți folosi în continuare un server propriu.
+2814|Serverul tău
+2815|Nu folosi AI
+2816|Caută cuvintele în Wiktionary
+2817|Dicționarul liber, prin internet. Se trimite doar cuvântul.
+2818|=
+2819|Recomandat pentru acest dispozitiv
+2820|Cere mai multă memorie decât are acest dispozitiv
+2821|Se verifică descărcarea…
+2822|Pentru Ollama, LM Studio sau llama.cpp pe un calculator al tău ori orice serviciu care folosește API-ul de chat OpenAI. Cuvintele pe care le cauți și paginile din jurul lor îi sunt trimise.
+2823|Adresă
+2824|Cheie (dacă e nevoie)
+2825|Serverul nu a listat niciun model. Scrie numele modelului.
+2826|Model
+2827|Se caută…
+2828|Vezi modelele serverului
+2829|Folosește acest server
+2831|Cu un model AI configurat, KoLib poate rezuma capitolul în care ești și poate răspunde la întrebări despre carte până la locul unde ai ajuns, fără să dezvăluie ce urmează.
+2832|Configurează AI
+2833|Rezumat
+2834|Întreabă
+2835|Setări AI și dicționar
+2836|Acest capitol are prea puțin text ca să fie rezumat.
+2837|Ai citit încă prea puțin din acest capitol ca să fie rezumat.
+2838|Se pregătește {0}…
+2839|Se scrie rezumatul…
+2840|Se citește capitolul…
+2841|Se citește partea {0} din {1}…
+2842|Acest capitol e prea lung pentru model.
+2843|Modelul nu a putut răspunde.
+2844|Ce am citit
+2845|Tot capitolul
+2846|Un rezumat al întregului capitol. Poate dezvălui ce n-ai citit încă.
+2847|Un rezumat al acestui capitol până unde ai ajuns.
+2848|Rezumă
+2849|E mai mult decât poate primi modelul dintr-odată. Încearcă o întrebare mai scurtă.
+2850|Întreabă despre carte. Răspunde pe baza a ce ai citit până acum, așa că nu dezvăluie ce urmează.
+2851|Ce s-a întâmplat până acum?
+2852|Cine sunt personajele din acest capitol?
+2853|Unde se petrece acțiunea?
+2854|Se citește cartea…
+2855|Întreabă despre carte
+2859|Se gândește…
+2861|Ce înseamnă în această propoziție
+2862|Un model AI de pe acest dispozitiv îți poate spune.
+2863|Configurează
+2864|Nu există nicio intrare în dicționar pentru „{0}”.
+2865|Dicționarul nu a putut fi accesat. Verifică conexiunea la internet.
+2866|Din Wiktionary
+2867|Deschide mereu aplicația pe care o aleg
+2868|Rezumat și întrebări
+2869|Fontul acela nu a putut fi adăugat.
+2870|Elimină acest font
+2871|Adaugă un font
+2872|Fontul nu a putut fi adăugat
+2873|Cărțile care îl folosesc revin la {0}.
+2874|Modificat. Anulează aduce înapoi.
+2875|Adăugat. Anulează îl scoate.
+2876|Se lucrează la partea {0} din {1}…
+2877|Scrie…
+2878|Modelul nu a putut face asta.
+2879|Asistent AI
+2880|Cu un model AI configurat, asistentul poate corecta ortografia, poate face ordine în formatare, poate rescrie ce selectezi sau poate continua să scrie pentru tine.
+2881|Se uită la pagină…
+2882|Deschide pagina (nu codul ei) ca să folosești asistentul.
+2883|Nu e nimic selectat. Selectează textul de schimbat sau lasă-l să continue să scrie de unde e cursorul.
+2884|Un cuvânt selectat.
+2885|{0} {0:cuvânt selectat|cuvinte selectate|de cuvinte selectate}.
+2886|Selectează acest paragraf
+2887|Selectează tot capitolul
+2888|Corectează ortografia și punctuația
+2889|Pune ordine în formatare
+2890|Fă-l mai clar
+2891|Continuă să scrii
+2892|Sau spune-i ce să facă
+2893|Fă textul mai formal
+2894|Schimbă selecția
+2895|Asta va înlocui textul selectat.
+2896|Aplică modificările fără să întrebi
+2897|Altfel, o modificare a textului e afișată mai întâi, ca s-o accepți.
+2898|Fișierul acela e prea mare ca să fie un font.
+2899|„{0}” nu e un fișier de font. Fonturile se termină în .ttf, .otf, .ttc, .woff sau .woff2.
+2900|Linkurile, imaginile și stilurile speciale din el se vor pierde.
+2901|Asta e mult mai scurt decât ce ai selectat.
+2902|Titlurile și paragrafele cu linkuri, imagini sau stiluri speciale rămân așa cum sunt.
+2903|=
+2904|În jurul paginii
+2905|Alege ce apare în partea de sus și de jos a paginii.
+2906|Ora și bateria
+2907|Vertical și orizontal au setări separate. Acestea sunt pentru orizontal.
+2908|Vertical și orizontal au setări separate. Acestea sunt pentru vertical.
+2909|Caută actualizări
+2910|Ai KoLib {0}.
+2911|Caută automat actualizări
+2912|Întreabă GitHub de cea mai nouă versiune când pornește KoLib, o dată pe zi.
+2913|Cu un model AI configurat, poți întreba aici despre biblioteca ta și despre o carte în timp ce o citești.
+2914|Conversații salvate
+2915|Conversație nouă
+2916|Încă nu ai conversații salvate.
+2917|Întreabă orice. Nu citește cartea, așa că răspunde din ce știe.
+2918|Întreabă despre cărțile tale sau despre orice altceva. Știe ce e în biblioteca ta.
+2919|Ce să citesc mai departe?
+2920|Care dintre cărțile mele fac parte dintr-o serie?
+2922|Îți schimbi mesajul: ce a urmat după el va dispărea.
+2923|Citește cartea
+2924|Întreabă despre cărțile tale
+2925|=
+2926|O întrebare
+2927|{0} {0:întrebare|întrebări|de întrebări}
+2928|Șterge această conversație
+2929|Găsește un model
+2930|Tot restul de pe acest dispozitiv
+2932|Caută pe Hugging Face
+2933|Potrivite pentru acest dispozitiv
+2934|Toate mărimile
+2935|Necenzurate
+2936|De pe Hugging Face. Sunt modele ale altor oameni, iar KoLib nu le-a verificat.
+2937|Hugging Face nu a putut fi accesat. Verifică conexiunea la internet.
+2938|Nu s-a găsit nimic.
+2939|{0} descărcări
+2940|Pentru acesta trebuie mai întâi să ceri acces pe Hugging Face, așa că nu poate fi descărcat aici.
+2941|Aici nu există niciun fișier pe care KoLib să-l poată rula.
+2942|Mai puține mărimi
+2943|Alte mărimi
+2944|La limită: poate fi lent sau poate închide alte aplicații
+2945|În uz
+2946|Folosește
+2947|Chat AI
+2948|KoLib {0} e disponibil
+2949|Se descarcă KoLib {0}…
+2950|Se instalează KoLib {0}…
+2951|Actualizări
+2952|Se caută actualizări…
+2953|Ai cea mai nouă versiune, {0}.
+2954|Nu s-au putut căuta actualizări. Verifică conexiunea la internet.
+2955|Ai {0}.
+2956|Încă nu există o descărcare pentru acest dispozitiv în versiunea aceea.
+2957|Omite această versiune
+2958|Nu acum
+2959|Actualizează ({0})
+2960|Actualizează
+2961|Deschide pagina de descărcare
+2962|Android poate să-ți ceară confirmarea. Prima dată îți cere și să permiți ca KoLib să instaleze actualizări. KoLib se închide cât timp se actualizează: deschide-l din nou după aceea.
+2963|Ce e nou
+2964|Actualizarea nu a putut fi instalată: {0}
+2965|Descărcarea aceea nu e o actualizare KoLib, așa că nu a fost instalată.
+2966|Descărcarea aceea nu e mai nouă decât KoLib-ul pe care îl ai.
+2967|Instrucțiuni pentru chat
+2970|Răspunsuri AI
+2971|Răspunsul tău e gata
+2972|AI lucrează
+2973|Răspunde…
+2974|Nu întreba despre aceste cuvinte
+2975|Note despre carte
+2976|Doar în timpul încărcării
+2977|Se scrie o notă despre „{0}”…
+2979|Note pentru {0} din {1} capitole citite. Restul așteaptă încărcătorul.
+2980|Note pentru {0} din {1} capitole citite. Restul se scriu în timp ce citești.
+2981|Notele se scriu pentru fiecare capitol pe măsură ce îl termini.
+2982|Note pentru {0} din {1} capitole citite.
+2983|Ia notițe despre fiecare capitol pe care îl termini, așa că își amintește toată cartea până acum. Scrierea lor consumă baterie.
+2984|Minimizează
+2985|Data trecută, Android a închis KoLib cât timp modelul AI era încărcat, cel mai probabil pentru că dispozitivul a rămas fără memorie. Un model mai mic sau o variantă mai mică a acestuia ar trebui să ajute.
+2986|Data trecută, KoLib s-a oprit brusc cât timp modelul AI era încărcat. Dacă se mai întâmplă, încearcă alt model.
+2987|Atinge ca să deschizi. Trage la ✕ ca să închizi.
+2988|Răspuns gata
+2989|Deschide AI-ul
+2990|Rezumatul pentru „{0}”
+2991|Întreabă AI-ul
+2992|Se scrie o notă despre un capitol…
+2993|Rapid, cu răspunsuri simple, dar corecte.
+2994|Răspunsuri chibzuite, la o viteză decentă.
+2995|Răspunsuri foarte bune, puțin mai lent.
+2996|Cele mai bune răspunsuri de aici și cele mai lente. Pentru dispozitive rapide, cu multă memorie.
+2997|Editează
+2998|Ales pentru acest dispozitiv: {0} de memorie și un procesor rapid.
+2999|=
+3000|Ales pentru acest dispozitiv: {0} de memorie și un procesor de gamă medie.
+3001|Ales pentru acest dispozitiv: {0} de memorie și un procesor mai vechi.
+3002|Răspunsuri mai bune, dar lent pe acest dispozitiv
+3003|Citește…
+3004|Folosește instrucțiunile tale „{0}”.
+3006|Ale tale (nesalvate)
+3007|Salvează ca presetare
+3008|Schimbă instrucțiunile
+3009|Aspect
+3011|Pregătește-te când se deschide KoLib
+3012|Deschide modelul și citește în avans în fundal, ca primul răspuns să vină mai repede. Folosește mai multă memorie și baterie.
+3013|Ce i se spune chatului înainte de fiecare întrebare. Schimbă-le ca să schimbi felul în care răspunde. Păstrează-le pe cele care îți plac ca presetări și comută între ele în chat.
+3014|Șterge „{0}”
+3015|Dă un nume acestor instrucțiuni. O presetare cu același nume va fi înlocuită.
+3016|Descărcări neterminate
+3017|Robot
+3018|Anime
+3019|Pisică
+3020|Fantomă
+3021|Doarme
+3022|Ieși din ecranul complet

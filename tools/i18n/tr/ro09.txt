@@ -1,0 +1,231 @@
+@ro
+2538|Se construiește cartea…
+2539|Text din scanare
+2540|Convertește în text
+2541|Continuă și cu KoLib închis. Poți verifica paginile gata până acum.
+2542|Textul a fost recunoscut din paginile scanate ({0}), așa că poate avea greșeli.
+2543|Textul a fost recunoscut din paginile scanate, așa că poate avea greșeli.
+2544| PDF-ul original e încă disponibil.
+2545|Acest PDF e prea mare ca să fie convertit aici în EPUB, așa că e citit și trimis ca PDF. Dacă e o scanare, recunoașterea textului îl poate transforma într-o carte cu text redimensionabil.
+2546|Acest PDF e o scanare, așa că e citit și trimis ca PDF. Recunoașterea textului îl poate transforma într-o carte cu text redimensionabil.
+2547|Fiecare limbă are nevoie de o singură descărcare de câțiva megaocteți.
+2548|{0} din {1} pagini gata.
+2549|Reia
+2550|Convertește în text…
+2551|Se convertește „{0}” în text
+2552|Convertește „{0}” în text
+2553|Convertește {0} {0:carte|cărți|de cărți} în text
+2554|Recunoașterea textului (OCR) rulează pe acest dispozitiv și face o carte cu text redimensionabil. Durează câteva secunde pe pagină și continuă și cu KoLib închis.
+2555|E nevoie de o singură descărcare: {0} de date de limbă de la proiectul Tesseract.
+2556|Datele de limbă sunt deja pe acest dispozitiv.
+2557|Așteaptă-te la unele greșeli, mai ales la tipar vechi sau mărunt, tabele, note de subsol și alte alfabete. Poți compara textul cu scanarea pagină cu pagină și poți reveni la scanare.
+2558|Selectează toate limbile din carte. Fiecare încetinește puțin procesul.
+2559|Revii la scanare?
+2560|„{0}” va fi din nou citită și trimisă ca PDF. O nouă conversie în aceleași limbi va fi rapidă.
+2563|Nu a putut fi convertită într-o carte.
+2564|Nu a putut fi convertită într-o carte ({0}).
+2565|Fișierul cărții nu a ajuns.
+2566|Această carte nu are o copertă originală de restaurat.
+2567|Această carte nu a fost convertită dintr-o scanare.
+2568|PDF scanat
+2569|PDF, prea mare ca să fie convertit
+2570|PDF scanat, convertit în text
+2571|Bandă desenată {0}
+2573|Urmează dispozitivul.
+2574|Blocat vertical.
+2575|Blocat orizontal.
+2576|Imaginile nu se schimbă.
+2577|Ornamentele și diagramele alb-negru se potrivesc cu culoarea paginii și devin deschise la culoare pe paginile întunecate.
+2578|Toate imaginile se potrivesc cu culoarea paginii. Fotografiile arată inversate pe paginile întunecate.
+2579|=
+2580|Un rând
+2581|Coperta întreagă, cu o copie estompată care umple golurile.
+2583|Cartea aceea nu mai e disponibilă.
+2584|„{0}” nu a putut fi pregătită: {1}
+2585|Asocierea a expirat. Încearcă din nou.
+2586|Textul de la {0} a fost copiat în clipboard.
+2587|„{0}” a fost primit de la {1}. Salvat în {2}.
+2588|Au fost primite {0} {0:fișier|fișiere|de fișiere} de la {1}. Salvate în {2}.
+2589|Pozițiile de citire au fost sincronizate cu {0}.
+2590|{0} nu mai are spațiu.
+2591|Nu s-a putut trimite către {0}: {1}
+2592|Celălalt dispozitiv nu mai e asociat cu acesta. Asociază-le din nou.
+2593|Celălalt dispozitiv a refuzat.
+2594|Una era deja acolo
+2595|{0} {0:era|erau|erau} deja acolo
+2596|Una a eșuat
+2597|{0} {0:a eșuat|au eșuat|au eșuat}
+2598|Transferuri între dispozitivele tale
+2599|Gata să primească de la dispozitivele tale
+2600|Dispozitivele asociate pot trimite cât timp KoLib e închis.
+2601|Un mesaj de la celălalt dispozitiv a fost deteriorat.
+2602|Un mesaj nu a trecut verificarea de securitate.
+2603|Conexiunea cu celălalt dispozitiv nu a putut fi stabilită.
+2604|Celălalt dispozitiv nu a putut fi verificat.
+2605|Celălalt dispozitiv s-a deconectat.
+2606|Nimic de aici nu poate fi trimis.
+2607|Text în clipboardul celuilalt dispozitiv: „{0}”
+2608|Un fișier în Descărcări pe celălalt dispozitiv.
+2609|{0} {0:fișier|fișiere|de fișiere} în Descărcări pe celălalt dispozitiv.
+2610|Niciun dispozitiv asociat. Asociază unul în KoLib, la Dispozitive.
+2612|Descărcarea pentru {0} era deteriorată, așa că nu a fost folosită.
+2613|PDF-ul original lipsește, așa că paginile lui nu pot fi citite.
+2614|Recunoașterea textului
+2615|Progresul recunoașterii textului
+2617|Comprimă rândurile goale repetate și le elimină de la începutul și sfârșitul capitolelor. Separatoarele de scenă nu sunt afectate.
+2618|Reunește paragrafele rupte în mijlocul propoziției, frecvente în cărțile convertite din PDF-uri sau scanări.
+2619|Acest PDF nu are text (poate fi o scanare), așa că nu poate fi convertit într-o carte.
+2620|Această bandă desenată nu a putut fi convertită în CBZ pentru Kobo.
+2621|Recunoașterea textului nu a putut porni. Datele de limbă pot fi deteriorate. Încearcă din nou ca să le descarci iar.
+2622|Fișier {0}, convertit în EPUB
+2623|Coduri QR pentru asocierea dispozitivelor.
+2624|© autorii ZXing
+2625|Camera, pentru scanarea unui cod QR de asociere.
+2626|Selectează mai întâi un text.
+2627|Decupat.
+2628|Copiat.
+2629|Nimic de lipit.
+2631|Aliniere stânga-dreapta
+2632|Selectează și copiază
+2633|Selectează până la început
+2634|Selectează până la sfârșit
+2635|Selectează paragraful
+2636|Decupează
+2637|Lipește
+2638|Arată codul QR
+2639|Scanează codul QR
+2640|Asociază cu un cod QR
+2641|Conectează-te mai întâi la o rețea Wi-Fi.
+2642|Pe celălalt dispozitiv, deschide Dispozitive și atinge Scanează codul QR.
+2643|Camera nu a putut fi deschisă.
+2644|KoLib are nevoie de cameră ca să scaneze codul.
+2645|Acela nu e un cod de asociere KoLib.
+2646|Îndreaptă camera spre codul de pe celălalt dispozitiv.
+2647|Permite camera
+2648|Acela e codul acestui dispozitiv. Scanează-l cu celălalt dispozitiv.
+2649|{0} nu a putut fi contactat. Conectează ambele dispozitive la aceeași rețea Wi-Fi.
+2650|Acela nu e dispozitivul de la care a venit codul.
+2651|Codul acela nu mai e afișat. Afișează-l din nou pe {0}.
+2652|„{0}” a fost duplicat
+2653|Aliniază la stânga
+2654|Centrează
+2655|Aliniază la dreapta
+2657| · {0} pe Kobo
+2658|Încă nu există colecții. Ca să adaugi o carte într-una, atinge Editează detaliile.
+2659|{0} în biblioteca ta
+2660|Trimite tot pe Kobo
+2661|Trimite {0} pe Kobo
+2662|Fiecare carte din biblioteca ta e în cel puțin o colecție.
+2663|Nu există cărți în această colecție.
+2664|Folosește acest model
+2665|Același model de copertă pentru fiecare carte
+2666|Fiecare carte primește o copertă nouă în acest model, inclusiv prima.
+2667|Dezactivat: o carte fără copertă primește una într-un model ales la întâmplare.
+2668|Fiecare carte primește capitolele ei, cu imaginile, stilurile, fonturile și notele lor. Vechea copertă a primei cărți poate fi pusă la loc cu Schimbă coperta, apoi Restaurează originalul. „{0}” nu se schimbă.
+2669|Alege tu pentru mine
+2670|Alte sugestii
+2671|Toate modelele…
+2672|Un model potrivit pentru carte e ales atunci când e împărțită.
+2673|{0}, fiecare carte în altă culoare.
+2674|{0}, în {1}.
+2675|{0}, în culorile imaginii.
+2676|O culoare diferită pentru fiecare carte
+2677|Alte culori
+2678|Cum vor arăta
+2679|Trimite către {0}
+2680|Sincronizează
+2681|Se sincronizează pozițiile de citire…
+2682|Ce vrei să trimiți?
+2683|Cărți din biblioteca ta: alege-le în KoLib.
+2684|Configurarea citirii
+2685|Culoarea paginii, fontul, mărimea textului și cum funcționează cititorul
+2686|Lampa de la fereastră
+2687|Ultimul feribot
+2688|În fiecare seară, după ce pleca ultimul feribot și luminile portului se aprindeau una câte una, Mara își urca cartea pe scara îngustă, în camera de deasupra brutăriei. Fereastra de acolo dădea spre mare. Aprindea lampa, o punea pe pervaz și deschidea cartea la pagina unde se oprise cu o seară înainte.
+2689|Era o carte veche, mai veche decât casa. Coperta i se decolorase până la culoarea nisipului uscat, iar cineva, cu mult timp în urmă, scrisese înăuntru un nume, atent, cu cerneală albastră. Mara nu știa al cui era numele. Îi plăcea să creadă că era al altui cititor, la altă fereastră, pe un alt țărm.
+2690|„Ai să-ți strici ochii”, îi spuse bunica, așa cum îi spunea în fiecare seară, și îi puse alături o ceașcă de ceai. Dar nu-i spunea niciodată să se oprească. Doar stătea o clipă în prag, ascultând cum se întorc paginile, apoi cobora în liniște înapoi la cuptoare.
+2691|Afară, venea fluxul. O barcă de pescuit se lovea ușor de chei. Undeva, un câine lătră de două ori și tăcu. Mara n-auzea nimic din toate astea. Era deja departe, traversând un deșert pe un cal obosit, cu <i>apă pentru trei zile și nicio hartă</i>, iar în urma ei se ridica o furtună.
+2692|Călăreața din carte căuta o fântână pe care n-o mai văzuse nimeni de o sută de ani. Toți cei pe care îi întâlnea îi spuneau că e doar o poveste. Ea mergea totuși mai departe. Mara înțelegea asta. Nu plecase niciodată de pe insulă, dar știa ce înseamnă să vrei ceva ce alții numesc poveste.
+2693|Până când calul ajunse la dealurile roșii, ceaiul se răcise și brutăria de dedesubt se cufundase în întuneric. Mara întoarse pagina. Furtuna izbucni. Călăreața își trase eșarfa peste față, își plecă fruntea și își duse calul de căpăstru în bătaia vântului, numărându-și pașii ca să nu se rătăcească.
+2694|„Încă un capitol”, spuse Mara cu voce tare, nimănui.
+2695|Nu era niciodată doar încă un capitol. Lampa ardea tot mai slab, iar ea tot citea, până când furtuna trecu și călăreața ajunse în vârful ultimului deal. Sub ea, mic și verde în tot nisipul acela, se întindea un cerc de palmieri. În mijlocul lui, ceva strălucea ca o monedă.
+2696|Mara închise cartea acolo. Ăsta era lucrul ciudat la citit, se gândi ea. Camera nu se mișcase. Lampa era unde o lăsase. Și totuși, fusese plecată ore întregi și se întorsese cu nisip în pantofi.
+2697|Își însemnă locul cu o panglică și ținu cartea închisă în ambele mâini. Mâine feribotul avea să circule din nou, pâinea avea să crească, iar orașul avea să-și vadă de treburile lui mărunte. Iar mâine seară lampa avea să fie din nou la fereastră, și fântâna avea s-o aștepte acolo unde o lăsase.
+2698|Acum, deasupra apei ieșiseră stelele. Mara dădu lampa mai încet, dar nu de tot. I se părea nepotrivit, cumva, să lase povestea în întuneric.
+2699|Arată-mi
+2700|Continuă
+2701|Alege-o pe cea mai odihnitoare pentru ochii tăi.
+2702|Alege cum arată cuvintele.
+2703|Trage până când citești comod.
+2704|Spațiere
+2705|Dă-le cuvintelor mai mult loc sau încape mai mult pe o pagină.
+2706|Încearcă: derulează pagina în sus.
+2707|Încearcă: glisează pagina.
+2708|Încearcă: atinge partea dreaptă a paginii sau glisează.
+2709|Acum atinge partea stângă ca să revii.
+2710|Acum glisează în cealaltă direcție ca să revii.
+2711|Încearcă și celelalte moduri de întoarcere a paginii.
+2712|Întoarcerea paginilor
+2713|Meniul
+2714|Atinge mijlocul paginii ca să-l deschizi sau să-l închizi.
+2715|Tot ce ai ales adineauri și altele.
+2717|Gata, totul e pregătit
+2718|Poți schimba orice mai târziu în Setări de citire.
+2719|Glisează de pe marginea stângă pentru cuprins sau de pe cea dreaptă pentru setări.
+2720|Glisează în sus sau în jos pe marginea stângă ca să schimbi luminozitatea.
+2721|Ține apăsat pe un cuvânt ca să-l evidențiezi, să adaugi o notă sau să-l cauți.
+2722|Editează textul
+2723|Atinge în capitol și scrie. Nimic nu se schimbă în carte până nu atingi Salvează.
+2724|Atinge un capitol ca să-l deschizi. Trage-l ca să-l muți sau atinge ⋮ ca să-l redenumești, să-l împarți, să-l unești sau să-l ștergi.
+2725|Atinge numele capitolului ca să le vezi pe toate. Acolo poți muta, redenumi, împărți, uni și șterge capitole.
+2726|Selectează câteva cuvinte ca să le faci aldine sau cursive. Titlurile și alinierea schimbă tot paragraful.
+2727|Adaugă și împarte
+2728|Adaugă un separator de scenă sau o imagine unde e cursorul, ori împarte acolo capitolul în două.
+2729|Selectează un paragraf, tot capitolul sau tot ce e înainte ori după cursor. Tot aici sunt și Copiază, Decupează și Lipește.
+2730|Capitolele pe care le copiezi în lista de capitole sunt păstrate aici, gata să fie adăugate în această carte sau în alta.
+2731|Treci la HTML-ul capitolului când trebuie să corectezi ceva de mână.
+2732|Anulează și refă
+2733|Orice modificare poate fi anulată, chiar și un capitol șters, până închizi editorul.
+2734|Găsește, curăță, previzualizează
+2735|Găsește și înlocuiește în toată cartea, corectează dintr-o dată problemele obișnuite și vezi modificările în cititor înainte să salvezi.
+2736|Salvează modificările în carte. KoLib verifică mai întâi cartea și păstrează textul original, în caz că vrei să revii la el.
+2737|Aici sunt Găsește și înlocuiește, Curățări și Previzualizează în cititor. Tot aici sunt Caută probleme, Restaurează textul original și acest tur.
+2738|Verifică dacă are cartea probleme, restaurează-i textul original sau revezi acest tur.
+2739|Turul editorului
+2741|Alege cum ții dispozitivul când citești.
+2742|Kobo-ul e deconectat.
+2743|Nu mai lăsa {0} să se deschidă
+2744|Nu mai lăsa alte aplicații să se deschidă
+2745|Dacă {0} se deschide când conectezi Kobo-ul, deschide-i setările, atinge Setare ca implicit (sau Deschide în mod prestabilit), apoi Ștergere setări implicite.
+2746|Dacă una dintre aceste aplicații se deschide când conectezi Kobo-ul, deschide-i setările, atinge Setare ca implicit (sau Deschide în mod prestabilit), apoi Ștergere setări implicite.
+2747|Data viitoare când conectezi Kobo-ul, alege KoLib și atinge Întotdeauna.
+2748|Nu mai afișa
+2749|Deschide setările
+2750|Pagina de copertă a fost adăugată la început.
+2751|Bibliotecă cu rafturi, întunecat
+2752|Rafturi în culorile temei Întunecat
+2753|Simplu luminos
+2754|Alb și gri deschis, cu albastru. Simplu și luminos
+2755|Simplu întunecat
+2756|Negru și grafit, cu albastru. Simplu și discret
+2757|Manuscris
+2758|Pergament, sânge de bou și foiță de aur, pe o pagină cu model
+2759|Roz pal, trandafiriu și vișiniu, cu titluri curgătoare
+2760|Cinema
+2761|Negru și roșu, ca un ecran când se sting luminile
+2762|Terminal
+2763|Litere verzi pe negru, ca pe ecranul unui calculator vechi
+2764|Navă stelară
+2766|Hologramă
+2768|Relicvă
+2769|Gri metalic și portocaliu de jar, ca o mașinărie veche
+2770|„{0}” e acum pagina de copertă.
+2771|Romance
+2772|Descărcări de modele AI
+2773|Se descarcă {0}
+2774|Model AI
+2775|Descărcarea a eșuat. Verifică conexiunea și încearcă din nou.
+2776|Serverul tău
+2777|Alege mai întâi un model AI.
+2778|Mic și rapid, cu răspunsuri mai aproximative. Pentru telefoane mai vechi.
+2779|Răspunsuri bune la o viteză bună. Pentru majoritatea telefoanelor și tabletelor din ultimii ani.

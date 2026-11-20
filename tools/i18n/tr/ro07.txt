@@ -1,0 +1,231 @@
+@ro
+2008|Trimite fișiere
+2009|Trimite clipboardul
+2011|Trimitere și primire
+2012|„{0}” către {1}
+2013|„{0}” de la {1}
+2014|Conectează-te după adresă
+2016|Nu s-a găsit KoLib acolo. Verifică dacă e deschis pe celălalt dispozitiv.
+2017|Neasociat
+2018|Se conectează la {0}…
+2019|Se așteaptă {0}…
+2020|{0} vrea să se asocieze
+2021|Te asociezi cu {0}?
+2022|Ține KoLib deschis pe {0}.
+2024|Verifică dacă {0} arată același cod. Dacă nu, nu te asocia.
+2025|=
+2026|Nu te asocia
+2027|Pe ce dispozitiv trimiți?
+2029|De la {0}
+2030|Descărcări, în dosarul {0}
+2031|Detaliile cărții nu au putut fi citite.
+2032|{0} nu e în această rețea. Deschide KoLib pe el.
+2033|{0} nu a putut fi contactat. Deschide KoLib pe el, în aceeași rețea cu acesta.
+2034|Dispozitivul găsit acolo nu e {0}.
+2035|Asociat cu {0}.
+2036|{0} nu s-a asociat.
+2038|{0} nu a putut fi contactat.
+2043|Trimis în clipboardul de pe {0}.
+2044|„{0}” a fost trimis către {1}.
+2045|Au fost trimise {0} {0:fișier|fișiere|de fișiere} către {1}.
+2050|O carte adăugată
+2051|{0} {0:carte adăugată|cărți adăugate|de cărți adăugate}
+2052|O carte actualizată
+2053|{0} {0:carte actualizată|cărți actualizate|de cărți actualizate}
+2058|De la {0}: {1}.
+2059|Către {0}: {1}.
+2060|Celelalte dispozitive ale tale
+2062| · încă {0}
+2063|Se trimite către {0}
+2064|Se primește de la {0}
+2065|„{0}” · {1}%
+2070|Un mesaj de la celălalt dispozitiv a fost prea mare.
+2071|Fișierul s-a schimbat în timp ce era trimis.
+2072|Acela nu e KoLib.
+2073|Celălalt dispozitiv are altă versiune de KoLib. Actualizează-le pe amândouă la aceeași versiune.
+2081|Se trimite către {0}…
+2083|Încă nu a fost găsit în această rețea
+2086|Trimite pe Kobo prin Wi-Fi
+2087|Cartea e pe Kobo-ul tău. Acum poți închide asta.
+2088|Toate cărțile sunt pe Kobo-ul tău. Acum poți închide asta.
+2089|Pe Kobo-ul tău
+2090|Conectează-l la aceeași rețea Wi-Fi ca acest dispozitiv sau la hotspotul acestui dispozitiv.
+2091|Deschide-i browserul web: More, apoi Beta features, apoi Web browser.
+2092|Scrie această adresă în partea de sus, apoi atinge fiecare carte ca s-o descarci:
+2094|Acest dispozitiv nu e conectat la o rețea. Conectează-te la o rețea Wi-Fi sau pornește-i hotspotul.
+2098|Descărcată
+2101|Gata de descărcare · {0}
+2102|Se descarcă · {0}%
+2103|Pe Kobo
+2106|Prin Wi-Fi
+2109|Kobo-ul tău, prin Wi-Fi
+2112|Alege cărți
+2115|Nu există cărți de trimis.
+2116|Descarcă
+2117|Atinge o carte ca s-o descarci. Kobo-ul o adaugă în biblioteca lui.
+2118|Dacă o descărcare se oprește la jumătate, închide browserul Kobo-ului și deschide-l din nou înainte de următoarea.
+2119|Înapoi la cărți
+2120|„{0}” · {1} din {2} · {3}%
+2121|=
+2122|=
+2123|=
+2124|=
+2125|=
+2126|=
+2127|=
+2128|=
+2129|=
+2130|=
+2131|=
+2132|=
+2133|=
+2134|=
+2135|=
+2136|=
+2137|=
+2138|=
+2139|=
+2140|=
+2141|=
+2142|=
+2143|Pânză cu model
+2144|Carton marmorat
+2145|Piele și aurire
+2146|Medalion
+2147|Filigran
+2148|Art Nouveau
+2149|Ediție de lux
+2150|Afiș de teatru
+2151|Carte de tarot
+2152|Hartă stelară
+2153|Vitraliu
+2154|Blazon
+2155|Hartă veche
+2156|Împletituri celtice
+2157|Meandru grecesc
+2158|Faianță
+2159|Solzi de dragon
+2160|Emblemă
+2161|Litere mari
+2162|Forme colorate
+2163|Hârtie decupată
+2164|Un singur motiv
+2165|Hârtie ruptă
+2166|Strălucire
+2167|Ecou
+2168|Două cerneluri
+2169|Simboluri
+2170|Op art
+2171|Dungi anii ’70
+2172|Schiță tehnică
+2173|Labirint
+2174|Curbe de nivel
+2175|Text simplu
+2176|Dosar de caz
+2177|Lumină de felinar
+2178|Pragul ușii
+2179|Sticlă spartă
+2180|Vedere dublă
+2181|Horror de buzunar
+2182|Gravură în lemn
+2183|Pictograme vii
+2184|Cunună
+2185|Scrisoare
+2186|Botanic
+2187|Peisaj din hârtie
+2188|Valuri
+2189|Laviu în tuș
+2190|Tartan
+2191|Timbru
+2192|Ecran lat
+2193|Gaura cheii
+2194|Prima pagină
+2195|Disc de vinil
+2196|Culorile echipei
+2197|Bandă desenată
+2198|Tablă
+2199|Caiet
+2200|Placă de circuit
+2201|Glitch
+2202|Mecanism de ceas
+2203|Ladă de transport
+2204|Fazele lunii
+2205|Raft de cărți
+2206|Gravură
+2207|Piscuri în acuarelă
+2208|În adâncul pădurii
+2209|Brazi în ceață
+2210|Dune
+2211|Eclipsă
+2212|Sabie și șarpe
+2213|Cerb
+2214|Arborele lumii
+2215|Tom vechi
+2216|Piscuri în linii
+2217|Piele gravată
+2218|Dragon
+2219|Cadran mare
+2220|Flori risipite
+2221|Hartă de străzi
+2222|Lumi neon
+2223|Pumnal și lună
+2224|Acuarelă și aur
+2225|Frunze de stejar aurite
+2226|Inele
+2227|Bătut de vânt
+2228|Sticluță de farmacie
+2229|Emblemă de piatră
+2230|Legătură ornată
+2231|Păun
+2232|Cobalt
+2233|Teracotă
+2234|Salvie
+2235|Cer
+2236|Ghețar
+2237|Unt
+2238|Coral
+2239|Mandarină
+2241|Toate cele {0} modele
+2242|Sul agățat
+2243|Legătură cusută
+2244|Cocori și soare
+2245|Spadasin singuratic
+2246|Koi
+2247|Bambus în tuș
+2248|Poartă torii
+2249|Cocori în nori
+2250|Blazon de familie
+2251|Lampioane de hârtie
+2252|Cinabru
+2253|peisaj stampă japoneză
+2254|Samurai și Japonia de altădată
+2256|Statistici de citire
+2257|Citit în KoLib
+2259|Timp de citire
+2260|Cărți terminate
+2261|=
+2263|=
+2269|Citești acum
+2270|Citit timp de {0}
+2271|mai durează circa {0}
+2275|Citit pe Kobo-ul tău
+2278|Din cărțile lui sunt terminate
+2280|=
+2283|Această carte
+2286|Se adaugă sau se trimit cărți. Încearcă din nou când se termină.
+2287|„{0}” a fost adăugată ca o carte separată.
+2288|O carte a fost adăugată ca o carte separată.
+2289|Au fost adăugate {0} {0:carte|cărți|de cărți} ca cărți separate.
+2290|{0} {0:a eșuat|au eșuat|au eșuat}. Detaliile sunt în jurnal.
+2291|Cărțile din Kobo Store nu pot fi adăugate, doar cele adăugate manual.
+2292|Nu e destul spațiu pe Kobo: e nevoie de circa {0} MB, sunt liberi {1} MB.
+2293|Deja se trimite.
+2294|Adăugată în coada de trimitere.
+2295|{0} {0:carte adăugată|cărți adăugate|de cărți adăugate} în coada de trimitere.
+2296|Încă se adaugă cărți. Încearcă din nou când se termină.
+2297|Rulează altă activitate. Încearcă din nou când se termină.
+2298|Nu s-a putut găsi poziția Kobo-ului în această carte.
+2299|„{0}” a revenit la scanare.
+2300|Nu s-a putut reveni la scanare: {0}
+2301|Nu se poate salva acolo.
+2302|Conversia în kepub urmează metoda kepubify.

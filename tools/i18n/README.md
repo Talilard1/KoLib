@@ -36,6 +36,8 @@ automatically, and French gets its no-break spaces before `: ; ? !` and inside `
    Russian has three forms of a word with a count (1 книга, 2 книги, 5 книг; 21 книга), so a Russian
    translation of a count's sentence picks the word with `{0:книга|книги|книг}` (one, few, many) next to
    the number's `{0}`: `{0} {0:книга|книги|книг}`. The app chooses the form for the count it's given.
+   Romanian has three too (1 carte, 2 cărți, 20 de cărți): `{0} {0:carte|cărți|de cărți}`. Japanese,
+   Korean and Chinese have one, so they don't use `{0:...}` at all.
 4. `python3 build.py` checks them: every language has every text, with the same `{n}` and line breaks.
 5. `python3 build.py --write` writes the app's tables.
 
@@ -47,5 +49,8 @@ automatically, and French gets its no-break spaces before `: ; ? !` and inside `
 | it | Italian | tu | il Kobo |
 | nl | Dutch | je | de Kobo |
 | pt (pt-BR) | Brazilian Portuguese | você | o Kobo |
+| ro | Romanian | tu | Kobo (Kobo-ul, pe Kobo) |
 | ru | Russian | вы | Kobo (masculine, not declined) |
 | ja | Japanese | polite (です・ます) | Kobo |
+| ko | Korean | polite (해요체) | Kobo |
+| zh (zh-Hans) | Simplified Chinese | 你 | Kobo |

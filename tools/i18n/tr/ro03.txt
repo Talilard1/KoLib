@@ -1,0 +1,231 @@
+@ro
+815|Colecție nouă „{0}”
+816|Încă nu e în nicio colecție.
+819|Adaugă o etichetă
+820|Etichetă nouă „{0}”
+821|Nicio etichetă.
+822|Mai multe detalii
+823|Evaluarea ta
+824|Încă nu există descriere.
+825|Scrie o descriere
+826|Editează descrierea
+827|Nume
+828|Folosit când cărțile sunt sortate după autor, de exemplu „Doyle, Arthur Conan”.
+829|Fă-l primul autor
+830|Elimină
+831|Elimină {0}
+832|Șterge {0}
+833|Număr
+834|Cu unul mai puțin
+835|Cu unul mai mult
+836|1 stea
+837|Neevaluată
+838|{0} din 5
+839|{0}½ din 5
+840|Șterge
+841|Nesetat
+842|2005 sau 2005-07-17
+843|Alege o dată
+844|Deja în bibliotecă
+845|{0} {0:carte|cărți|de cărți} deja în bibliotecă
+846|A fost adăugată încă o carte.
+847|Au fost adăugate încă {0} {0:carte|cărți|de cărți}.
+848|Nu s-au putut adăuga: {0}. Detaliile sunt în jurnal.
+849|Alege pentru toate
+850|Înlocuiește: folosește fișierul nou pentru această carte. Colecțiile ei nu se schimbă.\nPăstrează-le pe amândouă: adaugă fișierul nou ca o carte separată.\nOmite: nu adăuga fișierul nou.
+851|Fișier nou: {0}\nCartea care se potrivea a fost între timp eliminată din bibliotecă.
+852|Fișier nou: {0}\nÎn biblioteca ta: {1}
+853|, adăugată {0}
+854|, pe Kobo
+855|, în {0}
+856|Se caută cărți…
+857|Se caută cărți… {0} până acum.
+862|Adaugă 1 carte
+863|Adaugă {0} {0:carte|cărți|de cărți}
+864|Alege alt dosar
+865|Oprit
+866|Trimis
+869|Una dintre ele era deja pe Kobo și a fost actualizată.
+870|{0} dintre ele erau deja pe Kobo și au fost actualizate.
+871|Nu s-au putut trimite: {0}.
+872|Nu s-au putut adăuga: {0}.
+873|Una a fost omisă pentru că ai oprit.
+874|{0} au fost omise pentru că ai oprit.
+879|Cum să-l scoți
+880|Cărțile care nu au putut fi convertite în kepub pot fi trimise ca EPUB.
+881|Ascunde
+882|Oprește
+883|Trimite-le ca EPUB
+884|Deschide biblioteca
+885|Nu sunt pe Kobo
+886|Modificate de la trimitere
+887|Ultima editare
+888|Citită ultima dată pe Kobo
+889|Citită ultima dată pe acest dispozitiv
+891|Despre și licențe
+892|Adaugă cărți
+893|Fișiere de pe acest dispozitiv
+894|Un dosar de cărți
+895|Cărți de pe Kobo
+896|Cărți de pe Kobo (conectează-l mai întâi)
+897|Scrie o carte nouă
+900|{0}: {1} din {2}
+901|Biblioteca ta e goală
+903|Adaugă de pe Kobo
+904|Conectează Kobo-ul
+905|Adaugă fișiere
+906|Salvează ca fișiere
+907|Duplică
+908|Combină
+909|Trimite pe Kobo
+910|Încearcă o altă căutare sau șterge filtrele.
+911|{0}% citit pe Kobo
+912|Elimini această carte din bibliotecă?
+913|Elimini {0} {0:carte|cărți|de cărți} din bibliotecă?
+916|Cărți cu o etichetă care conține „history”
+917|Cărți cu eticheta exactă „History”
+918|Folosește ghilimele ca să cauți o expresie
+919|Cu eticheta history, dar nu Greece
+920|Se potrivește oricare dintre ele
+921|Semnul minus exclude: cărți care nu sunt pe Kobo
+922|Evaluate cu patru stele sau mai mult
+923|Publicate înainte de 1900
+924|Modificată de când a fost trimisă pe Kobo
+925|Începute, dar neterminate pe Kobo
+926|Cărți care nu sunt încă în biblioteca ta
+927|Începute, dar neterminate
+928|Terminate și evaluate cu patru stele sau mai mult
+929|Semnul minus exclude: fără horror
+930|Numai PDF-uri (sau epub, kepub, cbz și așa mai departe)
+931|Cum să cauți pe Kobo
+932|Cum să cauți în bibliotecă
+938|Filtrează după etichete
+939|Se potrivesc toate
+940|Se potrivește oricare
+941|Caută etichete
+942|Afișează
+943|Citește din nou
+944|Citește · {0}%
+945|Marchează ca terminată
+946|Marchează ca necitită
+947|Editează textul
+948|Schimbă coperta
+949|Împarte în cărți
+950|Salvează ca fișier
+951|Actualizează pe Kobo
+952|Trimite din nou pe Kobo
+953|Modificată de când ai trimis-o. Atinge Actualizează pe Kobo ca să trimiți versiunea nouă.
+954|Conectează Kobo-ul ca să trimiți această carte.
+955|În nicio colecție. Ca s-o adaugi într-una, atinge Editează detaliile.
+956|Circa {0} ({1} cuvinte)
+957|Fișierul de pe Kobo
+958|Netrimisă încă
+959|Ultima trimitere
+960|Adăugată ca
+961|Elimini „{0}”?
+964|Neîncepută pe Kobo
+965|{0}% citit pe Kobo
+966|Terminată pe Kobo
+967| · citită ultima dată {0}
+969|{0}: Cărțile {1}–{2}
+970|{0}: Cărțile {1} și {2}
+972|{0} – volum integral
+973|{0} și alții
+974|Diverși
+976|Pentru mai mulți autori, pune & între nume
+977|Creează
+978|Combină {0} {0:carte|cărți|de cărți}
+979|Ordine
+980|Mută „{0}” în sus
+981|Mută „{0}” în jos
+982|Copertă
+983|Fă o copertă nouă cu titlul
+984|Folosește coperta „{0}”
+986|„{0}” are un singur capitol, așa că nu poate fi împărțită în cărți. Împarte mai întâi capitolul în editorul de text.
+987|Cartea nu a putut fi citită: {0}
+988|Împarte „{0}”
+989|Denumește cele {0} cărți
+990|Bifează capitolele de la care începe fiecare carte nouă.
+991| Capitolele care par începutul unei cărți sunt deja bifate.
+992|1 cuvânt
+994|deschis doar din linkuri
+995|Cartea {0}
+996|Nimic bifat încă. Prima carte începe mereu de la început.
+997|Așa vor rezulta {0} {0:carte|cărți|de cărți}.
+998|Numerotează-le ca serie
+999|Vor fi numerotate 1, 2, 3… în această ordine
+1002|Înainte
+1003|Împarte
+1004|Salvează „{0}” ca fișier
+1005|Salvează {0} {0:carte|cărți|de cărți} ca fișiere
+1006|EPUB: merge cu orice aplicație de citit sau cititor electronic
+1011|Apoi vei alege unde s-o salvezi.
+1012|Apoi vei alege un dosar. Fiecare carte va fi salvată acolo ca „Titlu - Autor”.
+1013|Alege locația
+1014|Despre KoLib
+1015|Caută în bibliotecă
+1016|Trimite
+1017|EPUB, PDF, MOBI, Word și altele
+1018|Toate cărțile din el și din dosarele din interior
+1019|Conectează mai întâi Kobo-ul
+1020|Înapoi la bibliotecă
+1021|Elimină din bibliotecă
+1022|Trimite din nou
+1023|Kepub (recomandat)
+1024|Trimite „{0}” pe Kobo
+1025|Trimite {0} {0:carte|cărți|de cărți} pe Kobo
+1026|Formatul fișierului
+1027|Trimite PDF-ul
+1028|Trimite PDF-urile ca PDF
+1036|Coperți care nu se potrivesc cu ecranul Kobo-ului
+1037|Coperta acestei cărți va fi trimisă neschimbată.
+1038|Coperta unei cărți va fi trimisă neschimbată.
+1039|Copertele a {0} {0:carte|cărți|de cărți} vor fi trimise neschimbate.
+1046|Dimensiune totală: {0}.
+1047| Spațiu liber pe Kobo: {0}.
+1048|Kobo-ul nu e conectat. Conectează-l și atinge Connect pe ecranul lui.
+1049|Mergi la Kobo
+1050|+ Nou
+1051|KoLib. Atinge ca să sari peste.
+1052|Subliniază în schimb
+1053|Notă
+1054|Adaugă o notă
+1055|Copiază
+1056|Partajează
+1057|Caută
+1058|Adaugă o notă
+1059|Nota ta
+1060|Șterge nota
+1063|=
+1067|Note
+1068|{0}: evidențieri și note
+1069|Partajează evidențierile și notele
+1070|Capitol fără titlu
+1071|Editează nota
+1072|Această carte nu are capitole de citit.
+1073|Cartea nu a putut fi deschisă.
+1074|PDF-ul nu mai e în bibliotecă.
+1075|Acest PDF nu are pagini.
+1076|Acest PDF nu a putut fi deschis. Poate fi deteriorat sau blocat cu parolă.
+1077|Citește ca text
+1078|Închide cartea
+1079|Cuprins
+1080|Paginile {0} și {1} din {2}
+1081|Pagina {0} din {1}
+1082|Afișează câte o pagină
+1083|Afișează două pagini una lângă alta
+1084|Pagina anterioară
+1085|Pagina {0}
+1086|Pagina următoare
+1087|Acest PDF nu are cuprins. Folosește bara de jos ca să mergi la o pagină.
+1088|Întunecare suplimentară {0}%
+1089|Luminozitate {0}%
+1090|Înapoi la {0}
+1091|unde erai
+1092|Închide
+1093|Deschizi acest link?
+1094|Acest link deschide o pagină web din afara cărții:\n\n{0}
+1095|Deschide
+1096|Sfârșit
+1097|Ai ajuns la sfârșitul cărții „{0}”.
+1098|Înapoi la bibliotecă

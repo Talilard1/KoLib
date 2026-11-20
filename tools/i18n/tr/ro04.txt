@@ -1,0 +1,231 @@
+@ro
+1099|Rămâi pe această pagină
+1100|Cuprins și semne de carte
+1101|Caută în carte
+1102|Elimină semnul de carte
+1103|Pune semn de carte la această pagină
+1104|Setări de citire
+1105|Citește ca PDF
+1106|Editează textul acestui capitol
+1107|Capitolul anterior
+1108|Capitolul următor
+1109|Mergi la {0}%
+1110|{0} din {1} în capitol
+1111|Se numără paginile…
+1112|Mai sunt {0} min în capitol
+1113|{0}% din carte citit
+1114|Înapoi la pagina {0}
+1115|Înapoi la {0}%
+1116|Pune pe pauză derularea automată
+1117|Derulare automată
+1118|Viteză
+1119|Mai încet
+1120|cuvinte pe minut
+1121|{0} {0:cuvânt|cuvinte|de cuvinte} pe minut
+1122|Mai repede
+1125|Semne de carte
+1126|Evidențieri
+1128|Semn de carte
+1129|Caută
+1130|Caută în carte
+1131|Se caută…
+1132|Scrie un cuvânt sau o expresie ca s-o găsești în carte.
+1133|Nu s-a găsit nimic.
+1134|Se afișează primele 2.000 de rezultate
+1135|Text
+1136|Pagină
+1137|Aspect
+1138|Comenzi
+1139|Font
+1140|Mărimea textului
+1141|Mai mic
+1142|Mai mare
+1143|Spațiere între rânduri
+1144|Implicit al cărții
+1145|Margini
+1146|Aliniere
+1148|Revino la setările implicite ale cărții
+1149|Culoarea paginii
+1150|=
+1151|Luminozitate
+1153|Folosește luminozitatea sistemului
+1154|Potrivește imaginile cu culoarea paginii
+1155|Antetele paginii
+1156|Alege mai jos unde apar numărul paginii și titlurile.
+1159|Poziția titlului
+1160|Titlul volumului integral
+1162|Informații în jurul paginii
+1166|Arată cât ai citit din carte sau din capitol.
+1167|Culoarea barei
+1169|Mod de citire
+1170|Derulează în jos prin fiecare capitol. La sfârșit, atinge Capitolul următor sau continuă să tragi în sus.
+1171|Întoarce paginile, ca la o carte tipărită.
+1172|Pagini una lângă alta
+1173|Efectul de întoarcere a paginii
+1174|Pagini cu titlul capitolului
+1177|Atinge ca să întorci paginile
+1178|Atinge mijlocul paginii ca să deschizi meniul.
+1188|Rotirea ecranului
+1191|Cuvintele sunt căutate în {0}.
+1193|Întreabă de fiecare dată
+1194|Derulează pagina pentru tine, în ritmul tău de citire.
+1195|Întoarce pagina pentru tine, în ritmul tău de citire.
+1196| Ca să pornești: atinge mijlocul paginii, apoi atinge Derulare automată.
+1197|Majoritatea oamenilor citesc între 200 și 300 de cuvinte pe minut.
+1198|La sfârșitul unui capitol
+1199|Când atingi pagina
+1201|Mergi la notă
+1202|Această imagine nu poate fi afișată.
+1203|Închide imaginea
+1204|Ultima pagină din capitol
+1205|Mai e o pagină
+1206|Mai sunt {0} {0:pagină|pagini|de pagini}
+1207|Mai e mai puțin de un minut
+1208|Baterie
+1209|Ochiul lumii
+1210|Începutul
+1211|Capitole
+1213|Adaugă
+1214|Opțiunile cuprinsului
+1215|Refă cuprinsul din titluri
+1216|Trage ca să reordonezi
+1217|cartea se deschide aici
+1218|Opțiuni pentru „{0}”
+1219|Redenumește…
+1220|Adaugă un capitol după…
+1221|Împarte în două…
+1222|Unește cu capitolul anterior
+1223|Mută în sus
+1224|Mută în jos
+1225|Ascunde (sărit la citire)
+1226|Afișează din nou
+1227|Deschide cartea aici
+1228|Șterge…
+1229|Găsește și înlocuiește
+1230|Caută din nou
+1231|Închide Găsește și înlocuiește
+1232|Numele de găsit
+1233|Găsește
+1234|Înlocuiește cu
+1235|Mod nume
+1236|Doar acest capitol
+1237|Potrivește majusculele
+1238|Cuvinte întregi
+1239|Tipar
+1240|Roșu: probabil cuvântul obișnuit, nu numele. Chihlimbar: nesigur. Glisează-le deoparte pe cele pe care vrei să le sari.
+1241|Înlocuiește tot ({0})
+1242|Scrie ceva, apoi atinge Găsește.
+1243| · caută din nou ca să incluzi textul nou
+1245|Omite cele {0} care probabil nu sunt numele
+1247|Înlocuit
+1248|Probabil nu e numele:
+1249|Nesigur:
+1250|Căutarea aceea nu e validă.
+1251|Textul de acolo s-a schimbat, așa că s-a căutat din nou.
+1252|„{0}” a fost înlocuit cu „{1}”
+1253|Acela a fost ultimul.
+1255|Înlocuite: {0}.
+1256| {0} se schimbaseră și au fost omise.
+1257|Scriere în „{0}”
+1258|Codul din „{0}” a fost editat
+1259|Corectează mai întâi greșeala din cod sau anuleaz-o. ({0})
+1260|Se lucrează…
+1261|N-a mers: {0}
+1262|Revino din cod ca să împarți la cursor.
+1263|Pune cursorul în paragraful cu care trebuie să înceapă capitolul nou.
+1264|Acest capitol nu are text de împărțit.
+1265|Locul de împărțire nu a putut fi găsit.
+1266|Imaginea aceea nu a putut fi citită.
+1267|Imaginea aceea nu a putut fi folosită.
+1268|A fost înlocuită o imagine
+1269|Codul are o greșeală, așa că modificarea ta nu e încă în carte. Corecteaz-o sau anuleaz-o mai întâi.
+1270|Se salvează și se verifică cartea…
+1271|Nimic de salvat.
+1275|Nu s-a putut salva: {0}. Cartea nu a fost modificată.
+1276|Se verifică cartea…
+1277|Se restaurează textul original…
+1279|Nu s-a putut restaura textul original: {0}
+1280|Imaginea aceea nu a putut fi deschisă.
+1281|Unești „{0}” cu capitolul anterior?
+1282|Textul lui va fi adăugat la sfârșitul lui „{0}”, iar linkurile către el vor trimite acolo. Poți anula.
+1283|Unește
+1284|Ștergi „{0}”?
+1285|Capitolul și intrarea lui din cuprins vor fi șterse, iar linkurile către el vor deveni text simplu. Poți anula până închizi editorul.
+1286|Salvezi modificările?
+1287|Modificările din „{0}” nu au fost încă salvate.
+1288|Nu salva
+1289|Restaurezi textul original?
+1291|Restaurează originalul
+1292|Nesalvat: aceste modificări ar strica cartea
+1293|Probleme găsite:
+1294|…și încă {0}.
+1296|Anulează ultima modificare
+1297|Nicio problemă găsită
+1298|O problemă găsită
+1299|{0} {0:problemă găsită|probleme găsite|de probleme găsite}
+1301|Închide editorul
+1302| · modificări nesalvate
+1303|Anulează: {0}
+1304|Refă: {0}
+1305|Curățări
+1306|Previzualizează în cititor
+1307|Caută probleme
+1308|Restaurează textul original…
+1309|Titlu 1
+1310|Titlu 2
+1311|Titlu 3
+1312|Titlu
+1313|Paragraf
+1314|Titlu 1 (parte)
+1315|Titlu 2 (capitol)
+1316|Titlu 3 (secțiune)
+1317|Separator de scenă
+1318|Înlocuiește imaginea
+1319|Imagine
+1320|Împarte capitolul aici
+1321|Cod
+1322|Redenumește capitolul
+1323|Numele din cuprins
+1324|Schimbă și titlul (acum „{0}”)
+1325|Redenumește
+1326|Capitolul {0}
+1327|Adaugă un capitol
+1331|Acest capitol nu poate fi împărțit.
+1332|Titlu:
+1333|({0} gol)
+1334|Numele capitolului nou (opțional)
+1335|Împarte aici
+1336|Toată cartea
+1337|Acest capitol
+1338|Nimic de corectat
+1339|Găsite: {0}
+1340|Corectează
+1341|Poți anula fiecare corectare.
+1342|Implicit de sistem
+1343|Luminos sau întunecat, după setarea dispozitivului
+1344|Luminos
+1345|Hârtie caldă, cerneală și aur
+1346|Întunecat
+1347|Aur pe maro închis, ca la deschidere. Odihnitor pentru ochi noaptea
+1348|Negru OLED
+1349|Aur pe negru pur, pentru ecranele OLED. Economisește bateria
+1350|Bibliotecă cu rafturi
+1351|Lemn închis și alamă, cu cărțile tale pe rafturi
+1352|Nu s-au putut trimite: {0}. Detaliile sunt în jurnal.
+1356|{0} din {1}
+1357|{0} {0:stea|stele|de stele}
+1358| de {0}
+1360|1 rezultat
+1361|{0} {0:rezultat|rezultate|de rezultate}
+1362|Au rămas {0}
+1363|Înlocuite: {0}
+1364|Omise: {0}
+1365|{0} (copie)
+1366|Paginile {0}–{1}
+1367|{0} {0:intrare|intrări|de intrări} de colecții trimit la o colecție ștearsă sau lipsă (Kobo le ignoră).
+1369|Baza de date a Kobo-ului s-a schimbat de când a fost citită ({0} octeți, se așteptau {1}). Conectează mai întâi din nou Kobo-ul.
+1370|{0} (continuare)
+1371|Fișierul pachet al cărții e deteriorat ({0}).
+1372|Referință de caracter necunoscută &{0};
+1373|{0} {0:etichetă|etichete|de etichete} (toate)
+1374|{0} {0:etichetă|etichete|de etichete} (oricare)

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add_to_library">KoLib에 추가</string>
+    <string name="send_to_device">기기로 보내기</string>
+</resources>

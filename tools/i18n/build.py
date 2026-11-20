@@ -9,11 +9,11 @@ import glob, json, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 EN = json.load(open(os.path.join(HERE, 'en_list.json')))
-LANGS = ['fr', 'de', 'es', 'it', 'nl', 'pt', 'ru', 'ja']
+LANGS = ['fr', 'de', 'es', 'it', 'nl', 'pt', 'ro', 'ru', 'ja', 'ko', 'zh']
 # How many forms a word has with a count, {0:...|...}, in languages that use them (see L10n.formFor).
-FORMS = {'ru': 3}
+FORMS = {'ru': 3, 'ro': 3}
 OUT = os.path.join(HERE, '..', '..', 'app', 'src', 'main', 'assets', 'i18n')
-FILE_LANG = {'pt': 'pt-BR'}
+FILE_LANG = {'pt': 'pt-BR', 'zh': 'zh-Hans'}
 
 def decode(s):
     out, i = [], 0

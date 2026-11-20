@@ -6,15 +6,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-/** The looks the app offers: its own, and Clean in other colours, a light and a dark in each palette. */
-enum class ThemeChoice(
-    val label: String,
-    val description: String,
-    /** The palette of a Clean look in other colours. */
-    val palette: Palette? = null,
-    /** Which of a palette's two it is. */
-    val paletteDark: Boolean = false,
-) {
+/** The looks the app offers. */
+enum class ThemeChoice(val label: String, val description: String) {
     SYSTEM(tr("System default"), tr("Light or dark, matching your device's setting")),
     LIGHT(tr("Light"), tr("Warm paper, ink and gold")),
     DARK(tr("Dark"), tr("Gold on dark brown, like the opening. Easy on the eyes at night")),
@@ -27,38 +20,9 @@ enum class ThemeChoice(
     ROMANCE(dev.kolib.app.trc("look", "Romance"), tr("Blush, rose and wine, with flowing titles")),
     CINEMA(tr("Cinema"), tr("Black and red, like a screen as the lights go down")),
     TERMINAL(tr("Terminal"), tr("Green type on black, like an old computer screen")),
-    STARSHIP(tr("Starship"), tr("A bridge at night, deep space through the glass: ice blue, amber and teal")),
-    HOLOGRAM(tr("Hologram"), tr("A projection in a dark room: pale blue light, scan lines, a beam from below")),
+    STARSHIP(tr("Starship"), tr("A ship's hull at night: steel-blue panels, with ice blue, amber and teal lights")),
+    HOLOGRAM(tr("Hologram"), tr("Pale blue light in the air, drawn as a fine mesh")),
     RELIC(tr("Relic"), tr("Gunmetal and ember orange, like an old machine")),
-    FLIGHT_DECK(tr("Flight deck"), tr("Charcoal panels with signal red, cyan and amber lights")),
-
-    DYNAMIC_LIGHT(Palette.DYNAMIC, false), DYNAMIC_DARK(Palette.DYNAMIC, true),
-    CATPPUCCIN_LIGHT(Palette.CATPPUCCIN, false), CATPPUCCIN_DARK(Palette.CATPPUCCIN, true),
-    GREEN_APPLE_LIGHT(Palette.GREEN_APPLE, false), GREEN_APPLE_DARK(Palette.GREEN_APPLE, true),
-    LAVENDER_LIGHT(Palette.LAVENDER, false), LAVENDER_DARK(Palette.LAVENDER, true),
-    MIDNIGHT_DUSK_LIGHT(Palette.MIDNIGHT_DUSK, false), MIDNIGHT_DUSK_DARK(Palette.MIDNIGHT_DUSK, true),
-    NORD_LIGHT(Palette.NORD, false), NORD_DARK(Palette.NORD, true),
-    STRAWBERRY_LIGHT(Palette.STRAWBERRY, false), STRAWBERRY_DARK(Palette.STRAWBERRY, true),
-    TAKO_LIGHT(Palette.TAKO, false), TAKO_DARK(Palette.TAKO, true),
-    TEAL_TURQUOISE_LIGHT(Palette.TEAL_TURQUOISE, false), TEAL_TURQUOISE_DARK(Palette.TEAL_TURQUOISE, true),
-    TIDAL_WAVE_LIGHT(Palette.TIDAL_WAVE, false), TIDAL_WAVE_DARK(Palette.TIDAL_WAVE, true),
-    YIN_YANG_LIGHT(Palette.YIN_YANG, false), YIN_YANG_DARK(Palette.YIN_YANG, true),
-    YOTSUBA_LIGHT(Palette.YOTSUBA, false), YOTSUBA_DARK(Palette.YOTSUBA, true),
-    TOKYO_NIGHT_LIGHT(Palette.TOKYO_NIGHT, false), TOKYO_NIGHT_DARK(Palette.TOKYO_NIGHT, true),
-    MONOCHROME_LIGHT(Palette.MONOCHROME, false), MONOCHROME_DARK(Palette.MONOCHROME, true),
-    ;
-
-    constructor(palette: Palette, dark: Boolean) : this(
-        if (dark) tr("{0}, dark", palette.label) else tr("{0}, light", palette.label),
-        if (dark) tr("Plain and quiet, on black, in the colours of {0}", palette.label) else tr("Plain and bright, in the colours of {0}", palette.label),
-        palette,
-        dark,
-    )
-
-    companion object {
-        /** The Clean look in [palette]'s colours, light or [dark]. */
-        fun of(palette: Palette, dark: Boolean): ThemeChoice = entries.first { it.palette == palette && it.paletteDark == dark }
-    }
 }
 
 /** The chosen look, and how the opening animation plays (at all, with its sound, lighter), remembered between visits. */

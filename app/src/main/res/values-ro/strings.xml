@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add_to_library">Adaugă în KoLib</string>
+    <string name="send_to_device">Trimite pe dispozitiv</string>
+</resources>

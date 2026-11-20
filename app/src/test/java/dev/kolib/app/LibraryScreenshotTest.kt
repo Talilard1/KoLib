@@ -1011,7 +1011,7 @@ class LibraryScreenshotTest {
             }
         }
         val out = File(TestLanguage.folder("build/outputs/roborazzi"), "looks").apply { mkdirs() }
-        for (t in if (picker) listOf(ThemeChoice.LIGHT, ThemeChoice.DARK, ThemeChoice.HOLOGRAM, ThemeChoice.ROMANCE, ThemeChoice.CATPPUCCIN_DARK) else ThemeChoice.entries) {
+        for (t in if (picker) listOf(ThemeChoice.LIGHT, ThemeChoice.DARK, ThemeChoice.HOLOGRAM, ThemeChoice.ROMANCE) else ThemeChoice.entries) {
             theme.value = t
             compose.waitForIdle()
             compose.mainClock.advanceTimeBy(1_000)
@@ -1027,24 +1027,6 @@ class LibraryScreenshotTest {
     @Test
     @Config(qualifiers = PHONE)
     fun everyLookOnAPhone() = everyLook("phone")
-
-    /** The looks to choose from, the whole list: KoLib's own, then Clean in each palette's colours, light and dark. */
-    @Test
-    @Config(qualifiers = "w720dp-h2000dp-port-mdpi")
-    fun thePalettesToChooseFrom() {
-        val out = File(TestLanguage.folder("build/outputs/roborazzi"), "looks").apply { mkdirs() }
-        val current = androidx.compose.runtime.mutableStateOf(ThemeChoice.CATPPUCCIN_DARK)
-        compose.setContent {
-            AppSurface(current.value) {
-                androidx.compose.foundation.layout.Box(Modifier.padding(16.dp)) { dev.kolib.app.ui.theme.ThemePicker(current.value, onPick = {}) }
-            }
-        }
-        for (look in listOf(ThemeChoice.CATPPUCCIN_DARK, ThemeChoice.NORD_LIGHT)) {
-            current.value = look
-            compose.waitForIdle()
-            compose.onRoot().captureRoboImage(File(out, "palettes_${look.name.lowercase()}.png").path)
-        }
-    }
 
     @Test
     @Config(qualifiers = LANDSCAPE)

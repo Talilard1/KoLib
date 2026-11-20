@@ -1,0 +1,222 @@
+@ro
+3023|Ecran complet
+3024|Arată-l pe butonul AI
+3025|Butonul de sus îi arată fața, care se schimbă după ce face AI-ul. Dezactivat: pictograma AI simplă.
+3026|Schimbă personajul AI-ului
+3027|Ale lui {0}
+3028|Cine e AI-ul pe ecranul tău. Fiecare are felul lui de a arăta ce face, felul lui de a vorbi și păstrează instrucțiunile pe care i le-ai dat ultima dată.
+3029|Redenumește {0}
+3030|Șterge {0}
+3031|Lasă gol ca să revină la numele lui.
+3032|Folosește instrucțiunile lui {0}
+3033|Ale tale
+3034|Dintr-o planșă
+3035|Nu s-a găsit niciun personaj în acea imagine. Desenează-l în pătratele verzi, cel puțin în pătratul 1, și păstrează fundalul simplu.
+3036|Creează-ți propriul personaj
+3038|Salvează planșa
+3039|Partajează planșa
+3041|Acest dispozitiv nu are selector de imagini.
+3042|Alege planșa terminată
+3043|Alege altă planșă
+3044|Cum e și cum vorbește
+3045|De exemplu: un pirat bătrân și morocănos, cu inimă bună, căruia îi place poezia
+3046|Personajul nu a putut fi salvat.
+3047|Creează
+3048|Planșa nu a putut fi salvată.
+3050|Instrucțiunile lui
+3051|Instrucțiunile „{0}”
+3052|Ale lui, modificate
+3053|Desenează-ți personajul în fiecare pătrat al planșei, în poziția scrisă dedesubt. Lasă verdele din jur simplu și ține verdele acela departe de personaj. Apoi alege aici planșa terminată.
+3054|Se sincronizează cu Kobo data viitoare când Kobo-ul e conectat.
+3055|Se sincronizează cu Kobo data viitoare când Kobo-ul e conectat.
+3056|Citirea nu a putut fi sincronizată cu Kobo: {0}. Nu s-a schimbat nimic pe Kobo sau în KoLib.
+3057|Sincronizează citirea cu Kobo
+3058|Sincronizează cu Kobo
+3059|Sincronizează cu Kobo-ul
+3060|Unde ai ajuns (oriunde ai citit ultima dată), plus semnele de carte, evidențierile și notele, în ambele direcții.
+3061|Locul unde ai ajuns în fiecare carte se ia de unde ai citit-o ultima dată. Semnele de carte, evidențierile și notele se copiază în ambele direcții, iar cele pe care le-ai șters sunt șterse și pe partea cealaltă.
+3062|O carte e în biblioteca ta și pe Kobo.
+3063|{0} {0:carte|cărți|de cărți} sunt în biblioteca ta și pe Kobo.
+3064|Sincronizează tot
+3065|Sincronizează-mi citirea
+3066|Unde ai ajuns, plus semnele de carte, evidențierile și notele, în ambele direcții. O carte nouă se sincronizează după ce Kobo-ul a adăugat-o.
+3067|Citirea ta e deja la fel ca pe Kobo.
+3068|Kobo-ul deschide acum o carte unde ai ajuns în KoLib.
+3069|Kobo-ul deschide acum {0} {0:carte|cărți|de cărți} unde ai ajuns în KoLib.
+3070|KoLib deschide acum o carte unde ai ajuns pe Kobo.
+3071|KoLib deschide acum {0} {0:carte|cărți|de cărți} unde ai ajuns pe Kobo.
+3072|Un semn de carte sau o evidențiere a fost copiat pe Kobo.
+3073|Semne de carte și evidențieri copiate pe Kobo: {0}.
+3074|Un semn de carte sau o evidențiere a fost copiat de pe Kobo.
+3075|Semne de carte și evidențieri copiate de pe Kobo: {0}.
+3076|Unul șters pe o parte a fost șters și pe cealaltă.
+3077|{0} șterse pe o parte au fost șterse și pe cealaltă.
+3078|Un semn de carte sau o evidențiere rămâne doar în KoLib: acestea ajung pe Kobo doar în cărțile trimise ca Kepub.
+3079|Semne de carte și evidențieri care rămân doar în KoLib: {0}. Acestea ajung pe Kobo doar în cărțile trimise ca Kepub.
+3080|O carte se sincronizează după ce Kobo-ul o adaugă: scoate Kobo-ul, apoi conectează-l din nou.
+3081|{0} {0:carte|cărți|de cărți} se sincronizează după ce Kobo-ul le adaugă: scoate Kobo-ul, apoi conectează-l din nou.
+3082|O carte nu a putut fi sincronizată. Detaliile sunt în jurnal.
+3083|{0} {0:carte|cărți|de cărți} nu au putut fi sincronizate. Detaliile sunt în jurnal.
+3084|O bandă desenată e acum în „{0}”.
+3085|{0} {0:bandă desenată|benzi desenate|de benzi desenate} sunt acum în „{1}”.
+3086|O bandă desenată a fost scoasă din serie.
+3087|{0} {0:bandă desenată|benzi desenate|de benzi desenate} au fost scoase din serie.
+3088|Una necitită încă
+3089|{0} necitite încă
+3090|O bandă desenată
+3091|{0} {0:bandă desenată|benzi desenate|de benzi desenate}
+3092|Atinge o serie
+3097|Nicio bandă desenată
+3099|Nicio bandă desenată nu se potrivește
+3100|Nimic din fila Benzi desenate nu are „{0}” în nume.
+3102|Pune-le într-o singură serie
+3103|Marchează ca citite
+3105|Caută în benzile desenate
+3106|Șterge căutarea
+3107|O serie
+3108|{0} {0:serie|serii|de serii}
+3112|Scoate din serie
+3113|Înapoi la benzile desenate
+3114| · toate citite
+3115| · {0} necitite încă
+3116|Începe să citești
+3117|Continuă: {0}
+3120|Scoate
+3121|Redenumește seria
+3122|Fă din ea o serie
+3123|Marchează toate ca citite
+3124|Marchează toate ca necitite
+3125|Necitită încă
+3126| · pe Kobo
+3127|Apar ca o singură serie în fila Benzi desenate, în ordine.
+3128|Benzi desenate ({0})
+3129|Benzi desenate
+3131|Asta e ultima bandă desenată din {0}.
+3132|Asta e finalul benzii desenate.
+3133|Închide banda desenată
+3135|Benzile ei desenate apar aici, în ordine. Ține apăsat pe o serie ca să selectezi mai multe.
+3136|Atinge seriile ca să le selectezi
+3137|O serie selectată
+3138|{0} {0:serie selectată|serii selectate|de serii selectate}
+3139|Benzile desenate pe care le adaugi apar aici, câte o intrare pentru fiecare serie.
+3140|Atinge benzile desenate ca să le selectezi
+3141|O bandă desenată selectată
+3142|{0} {0:bandă desenată selectată|benzi desenate selectate|de benzi desenate selectate}
+3143|De la ultima la prima
+3144|De la prima la ultima
+3147|Citite
+3148|Necitite
+3149|Titlurile și numerele paginilor sunt în antetele paginii. Ca să le pui aici, dezactivează antetele.
+3150|În antete
+3151|{0} · simplu
+3152|Ca antetele paginii
+3153|Simplu
+3154|Rotire
+3155|Decupare margini: activată
+3156|Decupare margini: dezactivată
+3157|Banda desenată următoare
+3158|Banda desenată anterioară
+3159|Revino la implicit
+3160|Aplică
+3163|Nu a putut fi deschisă.
+3164|General
+3165|Filtru personalizat
+3166|Pentru această serie
+3167|Pentru această bandă desenată
+3168|Implicit
+3169|Tip de scalare
+3170|Mărește automat paginile late
+3171|Deplasează paginile late
+3172|Inversează paginile împărțite
+3173|Inversează rotirea
+3174|Culoarea fundalului
+3175|Bara de pagini pe lateral în modurile
+3176|În stânga
+3177|Înălțimea ei
+3178|Ecran complet
+3179|Arată paginile în jurul camerei
+3180|Arată mereu pagina dintre benzile desenate
+3181|Dezactivat: banda desenată următoare din serie urmează imediat după ultima pagină.
+3183|Clipește la schimbarea paginii
+3184|Elimină imaginile fantomă de pe ecranele e-ink.
+3185|Durata clipirii
+3186|=
+3187|Clipește la fiecare
+3188|Culoarea clipirii
+3189|Pentru toate benzile desenate
+3190|Rotire implicită
+3191|Luminozitate personalizată
+3192|Filtru de culoare personalizat
+3193|Roșu
+3194|Opacitate
+3195|Mod de amestecare
+3196|Tonuri de gri
+3197|Inversat
+3198|Pe pagini (de la stânga la dreapta)
+3199|Pe pagini (de la dreapta la stânga)
+3200|Pe pagini (vertical)
+3201|Liberă
+3202|Blocat vertical
+3203|Blocat orizontal
+3204|Vertical inversat
+3205|Multiplicare
+3206|Suprapunere
+3207|Albire / Luminare
+3208|Ardere / Întunecare
+3209|Alb, apoi negru
+3210|Fila Benzi desenate
+3211|Benzile desenate într-o filă separată, câte o intrare pe serie. Dezactivat: sunt împreună cu cărțile.
+3212|Pe un ecran lat, o serie se deschide
+3213|În locul raftului
+3214|Lângă raft
+3215|Fără panou lateral: benzile ei desenate apar ca coperți sau ca listă, cum alegi acolo.
+3216|Benzile ei desenate sunt listate lângă raft.
+3217|O serie se deschide
+3218|Ascunde fila Benzi desenate
+3219|Benzile desenate sunt acum împreună cu cărțile. Fila poate fi afișată din nou din Setări.
+3220|Arată benzile desenate ca listă
+3221|Arată benzile desenate ca coperți
+3222|Ecran
+3223|Anterioară
+3224|Curentă
+3225|Terminată
+3226|Următoarea
+3227|Adaugă în serie
+3228|Elimini seria „{0}”?
+3229|Elimini {0} {0:serie|serii|de serii}?
+3230|Benzile ei desenate rămân în bibliotecă, fiecare separat, dacă nu le elimini și pe ele.
+3231|Benzile lor desenate rămân în bibliotecă, fiecare separat, dacă nu le elimini și pe ele.
+3232|Elimină seria
+3233|Elimină seria și banda ei desenată
+3234|Elimină seria și cele {0} {0:bandă desenată|benzi desenate|de benzi desenate} ale ei
+3235|Elimină seriile și cele {0} {0:bandă desenată|benzi desenate|de benzi desenate} ale lor
+3236|Adaugă benzile ei desenate în altă serie
+3237|Caută în serii
+3238|O serie nouă…
+3239|Încă nu există serii.
+3240|Descărcat din memorie. Se încarcă din nou când îl întrebi ceva.
+3241|Descarcă AI-ul din memorie
+3242|Note pentru {0} din {1} capitole citite. Restul așteaptă până când AI-ul e întrebat ceva.
+3243|Încărcat în memorie
+3244|Neîncărcat
+3245|Descarcă-l din memorie ca să eliberezi memoria și să economisești bateria. Se încarcă din nou când îl întrebi ceva.
+3246|Se încarcă când îl întrebi ceva și se descarcă din memorie după câteva minute fără folosire.
+3247|Descarcă din memorie
+3248|Titlurile capitolelor
+3249|Bara de stare se ascunde cât citești și revine odată cu meniul.
+3250|Bara de stare rămâne, iar pagina stă sub ea.
+3251|Pagina și camera
+3252|Trage bara de jos ca să te miști prin carte sau sari un capitol cu butoanele de pe ambele părți ale ei.
+3253|O bandă neagră ascunde camera, iar pagina începe sub ea.
+3254|Pagina umple ecranul, iar textul ei evită camera.
+3255|Pagina umple ecranul, iar textul ei poate trece pe sub cameră. Ce apare în jurul paginii tot evită camera.
+3256|Sub ea
+3257|În jurul ei
+3258|Pe sub ea
+3259|Informații
+3263|Android nu a rotit ecranul. La Rotire găsești un sfat pentru asta.
+3264|Data trecută, Android nu a rotit ecranul. Pe o tabletă cu Android 16, face asta doar după ce raportul de aspect al KoLib e setat la Prestabilit pentru aplicație în setările Android (caută în ele „raport de aspect”).
+3265|Deselectează tot
+3283|Coperți generate și titlurile temei Navă stelară.
+3286|Carena unei nave noaptea: panouri albastru-oțel, cu lumini albastru-gheață, chihlimbar și turcoaz
+3287|Lumină albastru-pal în aer, desenată ca o rețea fină

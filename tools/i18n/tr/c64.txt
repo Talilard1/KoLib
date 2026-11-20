@@ -143,34 +143,34 @@
 3281|{0} の色で、黒地にシンプルで落ち着いた見た目
 3282|{0} の色で、シンプルで明るい見た目
 @fr
-3283|Couvertures générées, et les titres de l'apparence Vaisseau.
+3283|Couvertures générées, et les titres du thème Vaisseau.
 3284|Les palettes des apparences Épuré dans d'autres couleurs.
 3285|Les couleurs de la palette Catppuccin.
 @de
-3283|Erzeugte Cover und die Titel des Raumschiff-Designs.
+3283|Erzeugte Cover und die Titel von „Raumschiff“.
 3284|Die Paletten der schlichten Designs in anderen Farben.
 3285|Die Farben der Catppuccin-Palette.
 @es
-3283|Portadas generadas y los títulos del aspecto Nave estelar.
+3283|Portadas generadas y los títulos del tema Nave estelar.
 3284|Las paletas de los aspectos Limpio en otros colores.
 3285|Los colores de la paleta Catppuccin.
 @it
-3283|Copertine generate e i titoli dell'aspetto Astronave.
+3283|Copertine generate e i titoli del tema Astronave.
 3284|Le palette degli aspetti Essenziale in altri colori.
 3285|I colori della palette Catppuccin.
 @nl
-3283|Gemaakte omslagen, en de titels van het uiterlijk Sterrenschip.
+3283|Gemaakte omslagen, en de titels van Sterrenschip.
 3284|De paletten van de strakke uiterlijken in andere kleuren.
 3285|De kleuren van het Catppuccin-palet.
 @pt
-3283|Capas geradas e os títulos do aspeto Nave estelar.
+3283|Capas geradas e os títulos do tema Nave estelar.
 3284|As paletas dos aspetos Limpo noutras cores.
 3285|As cores da paleta Catppuccin.
 @ru
-3283|Созданные обложки и заголовки в оформлении «Звездолёт».
+3283|Созданные обложки и заголовки в теме «Звездолёт».
 3284|Палитры чистых оформлений в других цветах.
 3285|Цвета палитры Catppuccin.
 @ja
-3283|生成された表紙と、「スターシップ」の見た目のタイトル。
+3283|生成された表紙と、「スターシップ」のタイトル。
 3284|ほかの配色のクリーンな見た目のパレット。
 3285|Catppuccin パレットの色。

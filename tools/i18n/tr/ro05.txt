@@ -1,0 +1,231 @@
+@ro
+1375|Citită
+1378|O carte pe acest dispozitiv
+1379|{0} {0:carte|cărți|de cărți} pe acest dispozitiv
+1382|O intrare de colecție trimite la o carte care nu e încă în baza de date. Cărțile pe care tocmai le-ai trimis sunt adăugate când scoți Kobo-ul.
+1383|{0} {0:intrare|intrări|de intrări} de colecții trimit la o carte care nu e încă în baza de date. Cărțile pe care tocmai le-ai trimis sunt adăugate când scoți Kobo-ul.
+1384|Copia de rezervă a fost ștearsă.
+1385|Parantezele grupează termenii; un spațiu înseamnă „and”
+1386|Acest fișier FictionBook nu conține text.
+1387|Fișierul pachet al cărții nu are elementul <package>.
+1388|Fișierul pachet al cărții nu are secțiune de metadate.
+1389|Cartea nu are manifest.
+1390|nu e pe Kobo
+1392|=
+1393|=
+1396|{0} {0:cuvânt|cuvinte|de cuvinte}
+1397|{0} {0:cuvânt|cuvinte|de cuvinte}, începând cu „{1}”
+1400|Înlocuit de {0} ori „{1}” cu „{2}”
+1401|Pagini
+1402|O carte trimisă.
+1403|{0} {0:carte trimisă|cărți trimise|de cărți trimise}.
+1404|O carte adăugată.
+1405|{0} {0:carte adăugată|cărți adăugate|de cărți adăugate}.
+1406|O carte selectată
+1407|{0} {0:carte selectată|cărți selectate|de cărți selectate}
+1408|Un rând gol
+1409|{0} {0:rând gol|rânduri goale|de rânduri goale}
+1410|O ghilimea
+1411|{0} {0:ghilimea|ghilimele|de ghilimele}
+1412|Un rând rupt
+1413|{0} {0:rând rupt|rânduri rupte|de rânduri rupte}
+1414|O liniuță
+1415|{0} {0:liniuță|liniuțe|de liniuțe}
+1416|Un font
+1417|{0} {0:font|fonturi|de fonturi}
+1418|Derulare automată
+1419|Editează textul
+1421|„{0}”
+1423|Sfârșitul cărții
+1424|Sfârșitul capitolului
+1425|Capitolul următor: {0}
+1426|Atinge butonul sau trage în sus ca să citești mai departe
+1427|Dă drumul ca să deschizi capitolul următor
+1428|Trage în sus pentru capitolul următor
+1429|Dă drumul ca să deschizi capitolul anterior
+1430|Trage în jos pentru capitolul anterior
+1431|Kobo-ul nu are nicio colecție numită „{0}”, așa că nu s-au pus cărți în ea. Creeaz-o pe Kobo, apoi conectează-l din nou.
+1432|Kobo-ul nu are aceste colecții, așa că nu s-au pus cărți în ele: {0}. Creează-le pe Kobo, apoi conectează-l din nou.
+1433|Tag neînchis <{0}>
+1434|Atribut neînchis în <{0}>
+1435|„&” trebuie scris ca &amp;
+1436|„<” rătăcit
+1437|„]]>” nu e permis în text
+1438|Declarația <?xml …?> trebuie să fie prima
+1439|Tagul de închidere </{0}> nu e închis corect
+1440|</{0}> nu se potrivește cu niciun tag deschis
+1441|S-a găsit </{0}>, dar se aștepta </{1}>
+1442|„<” trebuie scris ca &lt;
+1443|Un al doilea element rădăcină <{0}>
+1444|Tagul <{0}> nu e închis
+1445|„/” neașteptat în <{0}>
+1446|Atributele din <{0}> trebuie separate prin spații
+1447|„{0}” neașteptat în <{1}>
+1448|Atributul {0} apare de două ori în <{1}>
+1449|Atributul {0} din <{1}> nu are valoare
+1450|Valoarea lui {0} din <{1}> trebuie pusă între ghilimele
+1451|Valoarea lui {0} din <{1}> nu e închisă
+1452|„<” nu e permis în valoarea unui atribut
+1453|<{0}> nu e închis niciodată
+1454|ascuns
+1456|Licența BSD cu 2 clauze
+1457|=
+1458|libarchive pentru Android
+1459|=
+1461|Licența publică generală GNU 3.0
+1462|© 2026 autorii KoLib
+1463|Setări
+1464|Dosarul cu cărți
+1465|Încă nu ai ales
+1466|Alege
+1467|Caută cărți noi
+1468|Banda desenată nu mai e în bibliotecă.
+1469|Această bandă desenată nu a putut fi deschisă. Fișierul poate fi deteriorat sau blocat cu parolă.
+1474|Decupează marginile
+1475|Folosește drept copertă
+1476|Salvează în „Imagini”
+1478|Pagina nu a putut fi salvată.
+1479|Această pagină nu poate fi afișată.
+1490|Bandă lungă
+1492|Atinge de două ori pentru zoom
+1493|Atingeri și taste
+1494|Zone de atingere
+1497|Tastele de volum întorc paginile
+1500|Ecran
+1502|Animează întoarcerea paginilor
+1505|Acest tip de fișier de bandă desenată nu poate fi deschis aici.
+1506|Acest fișier de bandă desenată nu poate fi citit.
+1507|Pagina {0} nu e în fișier.
+1511|Bandă lungă cu spații
+1512|Potrivește pe ecran
+1513|Întinde
+1514|Potrivește lățimea
+1515|Potrivește înălțimea
+1516|Mărime originală
+1517|Potrivire inteligentă
+1518|Dreapta
+1519|Mijloc
+1521|În formă de L
+1522|Ca pe Kindle
+1523|Margini
+1524|Dreapta și stânga
+1525|Nu
+1526|Stânga și dreapta
+1527|Sus și jos
+1528|Ambele
+1529|Gri
+1531|Nu e destul spațiu pe acest dispozitiv pentru asta.
+1534|Setările aplicației
+1535|Temă, limbă și dosarul cu cărți
+1536|Linkuri
+1537|Colorează linkurile
+1540|Se actualizează colecțiile și detaliile cărților pe Kobo
+1544|Compară
+1546|Se actualizează colecțiile pe Kobo… Nu-l scoate încă.
+1547|Nu e în bibliotecă
+1553|Deschide cărțile la luminozitatea sistemului
+1555|Mărimea titlurilor
+1556|Spațiu sub titluri
+1559|Începe capitolele pe o pagină din dreapta
+1563|Literă inițială mare
+1565|Compară cu paginile
+1570|Nu s-au găsit cuvinte pe această pagină.
+1572|Se descarcă datele de limbă: {0} din {1} MB
+1573|Se pregătește…
+1574| · mai durează circa {0}
+1585|Continuă
+1587|Alte limbi…
+1593|Limbile din carte
+1603|Mai mare
+1605|Kobo-ul are o modificare neterminată în baza de date. Scoate-l și așteaptă până își afișează cărțile, apoi conectează-l din nou.
+1606|Baza de date a Kobo-ului e mai scurtă decât era de așteptat.
+1607|Baza de date a Kobo-ului a ieșit cu o mărime greșită.
+1608|O parte din baza de date a Kobo-ului nu s-a citit înapoi așa cum a fost scrisă.
+1609|Jurnalul de lângă baza de date a Kobo-ului nu a putut fi eliminat, așa că modificarea a fost anulată.
+1610|Kobo-ul a încetat să răspundă în timp ce i se actualiza baza de date. Kobo-ul anulează singur modificarea neterminată după ce e scos.
+1612|Nu s-a găsit text pe pagini.
+1613|Engleză
+1614|Franceză
+1615|Germană
+1616|Spaniolă
+1617|Italiană
+1618|Olandeză
+1619|Portugheză
+1620|Rusă
+1621|Japoneză
+1622|Japoneză, scrisă vertical
+1623|Greacă veche
+1624|Greacă modernă
+1625|Latină
+1626|Descărcarea pentru {0} a eșuat ({1}).
+1627|Oprit.
+1629|Descărcarea pentru {0} nu a putut fi salvată.
+1633| · încă {0} în așteptare
+1634|Se descarcă datele de limbă…
+1635|{0} minut
+1636|{0} {0:minut|minute|de minute}
+1637|{0} oră
+1638|{0} {0:oră|ore|de ore}
+1639|Mai puțin
+1640|Mai mult
+1641| · mai e mai puțin de un minut
+1643|© Google LLC și contribuitorii Tesseract
+1644|Date de limbă Tesseract
+1646|=
+1648|© Robert Pösel, Robert Theis și contribuitorii
+1650|=
+1652|Licența IJG
+1653|=
+1655|Licența PNG Reference Library 2
+1656|=
+1659|=
+1660|=
+1661|=
+1662|=
+1663|=
+1664|=
+1665|=
+1666|=
+1667|=
+1668|=
+1669|=
+1670|=
+1671|=
+1672|=
+1673|=
+1674|=
+1680|Fă o pagină de copertă
+1681|pagină de copertă
+1682|Folosește ca pagină de copertă
+1683|Imagine înrămată
+1684|Pânză aurită
+1685|Pictură
+1686|Noir
+1687|Gotic
+1688|Cer înstelat
+1689|Art deco
+1690|Flori
+1691|Carte de povești
+1692|Eseu
+1693|Cărbune
+1694|Brun
+1695|Prună
+1696|Bleu petrol
+1697|Roz pal
+1698|Cartea {0} din
+1699|pictură peisaj fantasy
+1700|pictură spațiu science fiction
+1701|stradă în ceață noaptea
+1702|oraș noaptea
+1703|casă bântuită noaptea
+1704|pictură apus romantic
+1705|pictură istorică
+1706|pictură corabie cu pânze
+1707|pictură peisaj vestul sălbatic
+1708|pictură peisaj
+1709|fotografie peisaj
+1710|ilustrație carte de povești
+1711|Gen
+1712|Imagine nouă
+1713|Trage imaginea ca s-o muți și apropie degetele sau folosește glisorul pentru zoom.
+1715|Modele pentru acest gen

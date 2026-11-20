@@ -1,0 +1,231 @@
+@ro
+2303|Coperți generate.
+2304|Coperți generate, pentru alte alfabete.
+2305|Font de citire, plus titlurile din aplicație.
+2306|Font de citire.
+2307|Interfața și pictogramele (AndroidX, Jetpack Compose, Material icons).
+2308|Limbaj de programare, cu kotlinx.coroutines.
+2309|Benzi desenate CBR și CB7.
+2310|Recunoașterea textului (OCR) pentru paginile scanate.
+2311|Date de limbă pentru Tesseract, descărcate la prima utilizare.
+2312|Tesseract pentru Android.
+2313|Procesarea imaginilor pentru Tesseract.
+2314|Suport JPEG pentru Tesseract. Acest software se bazează în parte pe munca Independent JPEG Group.
+2315|Suport PNG pentru Tesseract.
+2316|Această aplicație.
+2317|Cărțile tale rămân pe dispozitivele tale și pe Kobo. KoLib se conectează la internet doar ca să caute coperți și să descarce datele pentru recunoașterea textului.
+2318|Cititorul de benzi desenate e modelat după cel din Mihon. Mulțumiri proiectului Mihon.
+2319|Revezi introducerea
+2320|„{0}” a fost convertită în text.
+2321|„{0}” nu a putut fi convertită în text: {1}.
+2322|Selectează cărțile de trimis către {0}.
+2323|Selectează cărțile, apoi atinge Trimite pe Kobo → Prin Wi-Fi.
+2324|Acest dispozitiv nu are selector de dosare. KoLib are nevoie de unul ca să deschidă Kobo-ul.
+2325|Folosește volumul media.
+2326|O animație mai ușoară pentru dispozitivele mai lente. Pornită implicit pe telefoane.
+2327|Când conectezi Kobo-ul, se face automat o copie de rezervă.
+2328|Copii arhivate ale bazei de date a Kobo-ului: biblioteca, colecțiile și progresul de citire. Se face una când conectezi Kobo-ul și s-a schimbat ceva. Se păstrează doar cele mai noi {0}. Atinge butonul de descărcare ca să copiezi una în Descărcări/{1}.
+2329|Șterge de pe acest dispozitiv copia de rezervă din {0}. Kobo-ul nu e afectat.
+2330|Detaliile ei apar aici.
+2331|Fișierele, progresul de citire și evidențierile lor sunt șterse de pe Kobo. Copiile din biblioteca ta nu sunt afectate. Cărțile din Kobo Store nu pot fi șterse aici.
+2332|\n\nNiciuna dintre ele nu poate fi ștearsă: sunt cărți din Kobo Store.
+2333|Fișierul, progresul de citire și evidențierile tale sunt șterse de pe Kobo.
+2334|Copia din biblioteca ta nu e afectată.
+2335|Nu e în biblioteca ta. Adaug-o mai întâi ca să păstrezi o copie.
+2336|Ca să editezi detaliile sau coperta, adaugă cartea în bibliotecă.
+2337|Cărțile ei apar aici.
+2338|În selectorul de dosare Android, atinge „Folosiți acest dosar”, apoi „Permiteți”.
+2339|KoLib îl găsește și îl încarcă din nou.
+2340|KoLib pierde accesul la unitatea Kobo-ului. Nu se schimbă nimic pe Kobo sau în copiile de rezervă. Data viitoare ți se va cere din nou acces.
+2341|Neconectat. Se afișează Kobo-ul tău așa cum era la {0}.
+2342|Se actualizează Kobo-ul… Nu-l scoate încă.
+2343|Deconectat. Se afișează datele din {0}. Ca să le reîmprospătezi, conectează-l și atinge Connect pe Kobo.
+2344|De fiecare dată când baza de date a Kobo-ului se schimbă, o copie arhivată a ei se salvează pe acest dispozitiv. Se păstrează doar cele mai noi {0}.
+2345|Scrie pe Kobo un mic fișier de test ascuns, îl citește înapoi și îl șterge.
+2346|Încă se trimit cărți. Așteaptă să se termine trimiterea.
+2347|Se actualizează Kobo-ul. Așteaptă câteva secunde.
+2348|Demontează-l înainte de a-l deconecta, altfel Android poate avea nevoie de o repornire ca să conecteze din nou Kobo-ul.
+2349|Pagina de descărcare nu a putut fi pornită.
+2350|Acest dispozitiv e conectat la mai multe rețele. Folosește adresa din rețeaua Kobo-ului.
+2351|Prin Wi-Fi se trimit doar cărți. Colecțiile, actualizarea cărților care sunt deja pe Kobo și sincronizarea progresului de citire au nevoie de cablu.
+2352|Ține acest ecran deschis până se termină descărcările. Dacă una se oprește, închide browserul Kobo-ului, redeschide-l și încearcă din nou.
+2353|În așteptare
+2354|Se pregătește…
+2355|Activitatea KoLib e înregistrată aici.
+2356|Carte eliminată
+2357|Încă nu ai citit nimic. Timpul de citire se măsoară de când deschizi o carte în KoLib.
+2358|Din biblioteca ta e terminată
+2359|Sesiune medie
+2360|Pagini pe minut
+2361|Cuvinte pe minut
+2362|Ultimele 14 zile
+2363|Ai citit {0} în ultimele 14 zile.
+2364|Cele mai citite
+2365|O sesiune
+2366|{0} {0:sesiune|sesiuni|de sesiuni}
+2367|Conectează-ți Kobo-ul ca să-i vezi statisticile de citire.
+2368|De la ultima conectare a Kobo-ului.
+2369|Baza de date a acestui Kobo nu are timpi de citire.
+2370|Textul lipit e adăugat fără formatare.
+2371|Se actualizează pe Kobo când trimiți cartea.
+2372|Se aplică atunci când trimiți cartea. KoLib nu poate crea colecții pe Kobo, așa că creează-le mai întâi acolo pe cele care lipsesc.
+2373|Nu s-au găsit cărți în acest dosar.
+2374|S-a găsit o carte. E omisă dacă e deja în biblioteca ta.
+2375|S-au găsit {0} {0:carte|cărți|de cărți}. Cele care sunt deja în biblioteca ta sunt omise.
+2376|Acest dosar nu a putut fi deschis. Alege-l din nou sau alege altul.
+2377|Schimbarea limbii repornește KoLib. Așteaptă până termină de trimis sau de adăugat cărți.
+2378|Ține Kobo-ul conectat până se termină trimiterea.
+2379|Poți ascunde asta și poți folosi KoLib în continuare. Progresul apare în partea de sus a bibliotecii.
+2380|Acum scoate Kobo-ul. Adaugă cărțile noi după ce e deconectat.
+2381|Ca să vezi coperta nouă a cărții „{0}”, repornește Kobo-ul după ce îl scoți.
+2382|Ca să vezi copertele noi ale celor {0} {0:carte|cărți|de cărți}, repornește Kobo-ul după ce îl scoți.
+2383|Detaliile ei apar aici. Ține apăsat pe o carte ca să selectezi mai multe, apoi ține apăsat pe alta ca să selectezi tot ce e între ele.
+2385|Adaugă cărți de pe acest dispozitiv sau de pe Kobo: EPUB, PDF, MOBI, Word și altele.
+2386|Cartea și modificările tale sunt șterse din bibliotecă. O copie de pe Kobo nu e afectată.
+2387|Cărțile și modificările tale sunt șterse din bibliotecă. Copiile de pe Kobo nu sunt afectate.
+2388|Caută în titluri, autori, serii, etichete, colecții și edituri.\n\nCa să cauți într-un singur câmp, scrie mai întâi numele lui și două puncte, de exemplu author:tolkien. Câmpuri: title, author, tag, series, collection, publisher, language, isbn, pages, rating, year, read, library, format.\n\nAtinge un exemplu ca să-l încerci. Etichetele vin din cartea din biblioteca ta sau din fișierul ei de pe Kobo.
+2389|Caută în titluri, autori, serii, etichete, colecții și edituri.\n\nCa să cauți într-un singur câmp, scrie mai întâi numele lui și două puncte, de exemplu author:tolkien. Câmpuri: title, author, tag, series, collection, publisher, language, isbn, pages, rating, year, kobo, read.\n\nAtinge un exemplu ca să-l încerci.
+2390|Cartea și modificările tale sunt șterse din bibliotecă.
+2391| Copia de pe Kobo nu e afectată.
+2392| (la ultima conectare a Kobo-ului)
+2393|Aici ai ajuns mai departe ({0}%) decât pe Kobo ({1}%).
+2394|Se deschide în editorul de text cu un capitol gol și o copertă simplă. Le poți schimba pe amândouă mai târziu.
+2395|O singură carte cu toate capitolele lor în această ordine și un cuprins pe cărți. E adăugată în toate colecțiile lor. Originalele nu se schimbă.
+2396|Adaugă pagini de început și de sfârșit fiecărei cărți
+2397|Pagini precum pagina de titlu sau nota de copyright. Nu s-a găsit niciuna: alege-le tu.
+2398|Fiecare carte primește capitolele ei, cu imaginile, stilurile, fonturile și notele lor. Prima primește coperta originală; celelalte își folosesc propria pagină de copertă sau primesc o copertă nouă. „{0}” nu se schimbă.
+2399|Kepub: formatul propriu al Kobo
+2400|{0}: fișierul original
+2401|Fișierele originale: PDF-ul, MOBI-ul sau alt fișier cu care a fost adăugată fiecare
+2402|Fișierele originale: PDF-uri, MOBI-uri și altele în formatul lor, restul ca EPUB
+2403|Paginile arată ca tipărite. Mărimea textului nu poate fi schimbată, așa că un ecran mare e cel mai potrivit.
+2404|Trimisă ca {0}, ca textul să se potrivească pe ecran și să poată fi redimensionat.
+2405|PDF-urile sunt trimise ca {0}, ca textul să se potrivească pe ecran și să poată fi redimensionat.
+2406|Poate fi trimisă doar ca PDF: paginile ei sunt scanări, fără text de convertit.
+2407|Poate fi trimisă doar ca PDF: e prea mare ca să fie convertită pe acest dispozitiv.
+2408|O carte poate fi trimisă doar ca PDF: e scanată sau prea mare ca să fie convertită.
+2409|{0} {0:carte|cărți|de cărți} pot fi trimise doar ca PDF: sunt scanate sau prea mari ca să fie convertite.
+2410|Convertește-o mai întâi în text…
+2411|Convertește-le mai întâi în text…
+2412|E deja pe Kobo. Va fi actualizată și nu vei pierde locul unde ai rămas, decât dacă i s-au schimbat capitolele.
+2413|O carte e deja pe Kobo. Va fi actualizată și nu vei pierde locul unde ai rămas, decât dacă i s-au schimbat capitolele.
+2414|{0} {0:carte|cărți|de cărți} sunt deja pe Kobo. Vor fi actualizate și nu vei pierde locul unde ai rămas, decât dacă li s-au schimbat capitolele.
+2415|E pe Kobo ca {0}. Schimbarea formatului îi resetează progresul de citire.
+2416|O carte își va schimba formatul, ceea ce îi resetează progresul de citire.
+2417|{0} {0:carte|cărți|de cărți} își vor schimba formatul, ceea ce le resetează progresul de citire.
+2418|Sau trimite prin Wi-Fi, prin browserul web al Kobo-ului. Colecțiile au nevoie de cablu.
+2420|Încă nu ai evidențieri. Ține apăsat pe un cuvânt, trage ca să selectezi, apoi atinge Evidențiază sau Notă.
+2421|Setată drept copertă.
+2422|Pagina aceea nu a putut fi setată drept copertă.
+2423|Salvată în Imagini/KoLib.
+2424|Mod de citire implicit
+2425|Pe pagini
+2426|Poziția de start a zoomului
+2427|Împarte paginile late
+2429|Rotește paginile late ca să încapă
+2432|Margini laterale
+2433|Inversează zonele de atingere
+2434|Arată zonele de atingere la deschidere
+2435|Inversează tastele de volum
+2436|Arată acțiunile la apăsare lungă
+2437|Arată numărul paginii
+2438|Ține ecranul pornit
+2439|Încă nu ai semne de carte. Atinge mijlocul unei pagini, apoi pictograma semn de carte.
+2440|Această carte are setările ei.
+2441|Modificările de aici se aplică doar acestei cărți.
+2442|Setează ca implicit
+2443|Folosește implicitul
+2444|Despărțire în silabe
+2445|Glisează complet la stânga pentru întunecare suplimentară. Merge și glisarea în sus sau în jos pe marginea stângă a paginii.
+2446|Dezactivat: cărțile se deschid la luminozitatea pe care ai setat-o ultima dată aici.
+2447|Dezactivat: linkurile arată ca textul obișnuit, dar funcționează în continuare.
+2448|Numărul paginii, cu titlul cărții pe paginile din stânga și titlul capitolului pe cele din dreapta.
+2449| Nu apare la derulare.
+2450|Cărțile tipărite folosesc mărimea Standard și Un rând.
+2451|Ce titlu să apară într-o carte formată din mai multe.
+2452|Atinge o poziție ca să alegi ce afișează.
+2453| Antetele paginii folosesc partea de sus.
+2454| Antetele paginii folosesc partea de jos.
+2455|Bara de progres
+2456|Varianta estompată ajută la prevenirea arderii ecranelor OLED.
+2457|Arată în partea de sus a capitolului
+2458|Pentru cărțile care pun numărul sau imaginea unui capitol pe o pagină separată.
+2459|Cu două pagini una lângă alta. Se adaugă o pagină goală unde e nevoie.
+2460|Titluri de capitol ca în cărțile tipărite
+2461|Numărul („Prolog”, „Capitolul 1”) cu majuscule rărite și titlul cu italice dedesubt. Dezactivat: se folosește stilul cărții.
+2462|Prima literă a fiecărui capitol ocupă trei rânduri.
+2463|Mărimea zonelor de atingere
+2464|Glisările de pe margini deschid panouri
+2465|Glisează de pe marginea stângă pentru cuprins sau de pe cea dreaptă pentru setări. Dezactivat: ambele margini te duc înapoi.
+2466|Ambele margini te duc înapoi. Cuprinsul și setările sunt în meniu.
+2467|Gestul Înapoi al KoLib
+2468|Glisează de pe oricare margine și dă drumul când săgeata se umple.
+2469|Se folosește gestul Înapoi din Android.
+2470|Dicționar
+2471|Vei fi întrebat de fiecare dată ce aplicație să folosești.
+2472|Aplicația de dicționar pe care ai ales-o nu mai e instalată.
+2473|Deschiderea meniului o pune mereu pe pauză.
+2474|Timp rămas
+2475|Timp de citire
+2476|Timpul rămas se bazează pe viteza ta de citire.
+2477|Încă nu ai copiat nimic. În lista de capitole, atinge ⋮ lângă o secțiune, apoi Copiază. Secțiunile copiate pot fi adăugate în orice carte.
+2478|Adăugată după „{0}”, cu imaginile și stilurile ei.
+2479|Adăugată cu imaginile și stilurile ei.
+2480|„{0}” e o pagină de cuprins din „{1}”. Poate lista în schimb capitolele acestei cărți, în același stil, sau poate fi adăugată neschimbată.
+2481|Adaugă neschimbată
+2482|Cărțile în care a fost adăugată nu sunt afectate.
+2483|Restaurează tot
+2484|Omite-l pe acesta
+2485|Rândul {0}: {1}. Corectează asta ca să-ți salvezi modificarea.
+2486|„{0}” a fost copiată. E în panoul Copiate, pentru această carte sau oricare alta.
+2487|Salvat. Nu s-au găsit probleme noi.
+2488| (O problemă exista deja înainte de editarea ta.)
+2489| ({0} {0:problemă exista|probleme existau|de probleme existau} deja înainte de editarea ta.)
+2490|Textul original a fost restaurat. Detaliile și coperta nu s-au schimbat.
+2491|Toate modificările de text se vor pierde. Detaliile și coperta nu se vor schimba.
+2492|Corectează-le (butonul Cod te poate ajuta) sau anulează modificarea. Nu s-a salvat nimic.
+2493|Toate capitolele, fișierele, ordinea de citire și cuprinsul sunt valide.
+2494|Adăugat după „{0}”. Numele lui e titlul și intrarea din cuprins.
+2495|Numele lui e titlul și intrarea din cuprins.
+2496|Atinge paragraful cu care începe capitolul nou.
+2497|Umple ecranul. Marginile care nu încap sunt tăiate.
+2498|Imaginea întreagă, cu o copie estompată care umple golurile.
+2499|Imaginea întreagă, cu alb care umple golurile.
+2500|Fără decupare sau redimensionare.
+2501|Generată: {0}
+2502|Cartea își recapătă coperta cu care a venit.
+2503|Coperta cu care a venit cartea. Potrivește-o pe ecranul Kobo-ului sau restaureaz-o neschimbată.
+2504|Mutarea și zoomul sunt dezactivate la Mărime originală.
+2505|Cam așa arată pe Kobo.
+2506|Salvată la mărimea originală, {0} × {1} pixeli.
+2507|Salvată la mărimea originală.
+2508|Salvată la {0} × {1} pixeli, mărimea ecranului Kobo-ului tău.
+2509|Salvată la {0} × {1} pixeli, mărimea ecranului Kobo Clara.
+2510|Acest model nu are imagine. Alege unul care are, ca s-o folosești pe a ta.
+2511|Doar modelele acestui gen
+2512|Acest model folosește culorile imaginii.
+2513|Creată la {0} × {1} pixeli, mărimea ecranului Kobo-ului tău.
+2514|Creată la 1072 × 1448 pixeli, mărimea ecranului Kobo Clara.
+2515|Implicit al modelului
+2516|Atinge o imagine ca s-o mărești, apoi ține apăsat pe ea ca s-o folosești.
+2517|Imaginea aceea nu a putut fi încărcată. Atinge-o ca s-o mărești, apoi încearcă din nou.
+2518|Trimite cărți, fișiere și text între telefon și tabletă și sincronizează-ți poziția de citire.
+2519|Niciunul încă. Deschide KoLib pe celălalt dispozitiv, în aceeași rețea Wi-Fi sau pe același hotspot, apoi asociază-l mai jos.
+2520|Se caută în această rețea…
+2521|Se scanează rețeaua…
+2522|Scanează din nou
+2523|Trimite cărți fără cablu, prin browserul web al Kobo-ului. În bibliotecă, atinge Trimite pe Kobo → Prin Wi-Fi.
+2524|Colecțiile, actualizarea cărților care sunt deja pe Kobo și sincronizarea progresului de citire au nevoie de cablu.
+2525|Sincronizează poziția de citire
+2526|Fiecare carte se deschide unde ai citit-o ultima dată, pe oricare dispozitiv.
+2527|Primește când KoLib e închis
+2528|Dispozitivele asociate pot trimite cât timp KoLib e închis. Cât e activată opțiunea, apare o notificare.
+2529|Transferurile sunt criptate și rămân în rețeaua ta. Doar dispozitivele asociate pot trimite.
+2530|Sincronizează pozițiile acum
+2531|Introdu adresa afișată în Dispozitive pe celălalt dispozitiv.
+2532|Confirmă și pe {0}, dacă arată acest cod.
+2533|Scanarea în stânga, textul recunoscut în dreapta. Cuvintele nesigure sunt portocalii. Trage linia sau atinge ca s-o muți; apropie degetele pentru zoom.
+2534|Revino la scanare
+2535|PDF-ul original lipsește.
+2536|Această pagină nu a fost încă convertită.
+2537|Se așteaptă în coadă…

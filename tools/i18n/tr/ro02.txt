@@ -1,0 +1,231 @@
+@ro
+544|Titlu
+545|De la A la Z
+546|De la Z la A
+547|Autor
+548|Serie
+549|cele mai vechi primele
+550|cele mai noi primele
+551|Data adăugării
+552|Dimensiunea fișierului
+553|cele mai mici primele
+554|cele mai mari primele
+555|Pagini
+556|cele mai scurte primele
+557|cele mai lungi primele
+558|Evaluare
+559|cele mai slabe primele
+560|cele mai bune primele
+561|cele mai vechi lecturi primele
+562|cele mai recente lecturi primele
+563|Progres
+564|cele mai puțin citite primele
+565|cele mai citite primele
+566|În nicio colecție
+567|Atinge o colecție
+569|Acest Kobo nu are încă nicio colecție.
+570|{0} pe acest Kobo
+571| · ascunsă pe Kobo
+572|Înapoi la colecții
+573|Adaugă toate în bibliotecă
+574|Adaugă {0} în bibliotecă
+575|Colecții
+576| · atinge o carte ca să-i vezi detaliile
+577|Colecție goală
+578|Fiecare carte de pe acest Kobo e în cel puțin o colecție.
+579|Nicio carte din această colecție nu e acum pe Kobo.
+580|Conectează-ți Kobo-ul
+581|KoLib citește cărțile și colecțiile Kobo-ului tău printr-un cablu USB-C.
+582|Conectează Kobo-ul la acest dispozitiv cu un cablu de date USB-C.
+583|Pe ecranul Kobo-ului, atinge Connect.
+584|Doar prima dată: permite accesul la unitatea Kobo-ului mai jos.
+585|Alege manual unitatea Kobo-ului
+586|Copii de rezervă ale bazei de date ({0})
+587|Jurnal
+589|Se așteaptă Kobo-ul…
+590|S-a găsit „{0}”.
+591|Permite accesul la Kobo
+593|Încearcă din nou
+594|Alege unitatea
+597|Alege manual unitatea
+598|Firmware {0}
+599|Scoate
+600|Reîmprospătează
+601|Conectează
+602|Mai multe
+603|Selectează cărți
+604|Fă acum copia de rezervă a bazei de date
+605|Verifică accesul de scriere
+606|Uită acest Kobo
+607|Cărți
+608|Cărți ({0})
+609|Colecții ({0})
+610|Dispozitiv
+611|Uiți acest Kobo?
+613|Uită
+615|Cum să-l conectezi
+618|=
+619|Număr de serie
+620|ID model
+621|ID USB
+622|Versiunea bazei de date
+623|Unitate
+624|{0} libere din {1}
+625|Nu e raportat de Android
+626|Stocare
+627|Stocare (la ultima conectare)
+628|Conectat
+629|Ultima conectare
+630|Pe acest Kobo
+631|Kobo Store, nedescărcate
+632|Previzualizări
+633|Baza de date și copiile de rezervă
+634|Verificare de sănătate
+635|Se verifică…
+636|Nerulată
+637|Trecută
+638|Jurnal de scriere anticipată
+639|Prezent
+640|Niciunul
+641|Ultima copie de rezervă
+642|Eșuat: {0}
+643|Făcută când te-ai conectat ({0}), {1} arhivată
+644|{0} (fără modificări de atunci)
+645|Încă niciuna
+647|Fă acum copia de rezervă
+648|Copii de rezervă ({0})
+649|Verificarea accesului de scriere
+651|Diagnosticare
+652|Căutări rapide de fișiere
+653|Funcționează
+654|Nefolosit
+655|Acces direct la fișiere
+656|Disponibil
+657|Indisponibil (normal)
+658|Coperți încărcate
+659|Note despre baza de date
+660|Nimic neobișnuit
+661|Deschide jurnalul
+662|Scoate Kobo-ul
+673|Deschide setările de stocare
+674|Închide
+675|Partajează fișierul jurnal
+676|Copiază jurnalul
+677|Golește jurnalul
+678|Jurnalul e gol
+680|Golești jurnalul?
+681|Se șterge tot jurnalul, inclusiv sesiunile anterioare.
+682|Partajează jurnalul
+683|Nu s-a putut partaja jurnalul: {0}
+684|Jurnal KoLib
+685|Jurnalul a fost copiat.
+686|Șterge filtrele
+687|Mai multe opțiuni
+688|Caută în {0}
+689|Se citesc etichetele din fișierele cărților: {0} din {1}
+690|Înapoi la cărțile de pe Kobo
+691|Conectează Kobo-ul ca să adaugi această carte în bibliotecă.
+692|Citește
+693|Modificată
+694|Pe Kobo
+695|Terminată pe acest dispozitiv
+696|{0}% citit pe acest dispozitiv
+697|Selectată
+698|Oprește selecția
+699|Decupează ca să umple
+701|Estompează golurile
+703|Goluri albe
+707|Coperta cărții
+708|Coperta originală
+709|Imaginea aceea nu a putut fi deschisă. Încearcă un JPEG sau PNG.
+710|Imaginea aceea nu a putut fi deschisă. Încearcă alta.
+711|Imagine din Fotografii
+712|Imagine din Fișiere
+714|Salvează coperta
+715|Acest dispozitiv nu are selector de fotografii. Folosește Fișiere.
+716|Restaurezi coperta originală?
+718|Restaurează
+719|Renunți la coperta nouă?
+720|Coperta cărții nu se va schimba.
+721|Încă nu există copertă. Alege o imagine.
+722|Coperta actuală
+723|Coperta originală
+726|Fotografii
+727|Fișiere
+729|Fă o copertă
+728|Caută online
+730|Această imagine e mult mai mică decât ecranul Kobo-ului, așa că poate arăta neclar.
+731|Încadrează
+732|Zoom
+734|Trage imaginea ca s-o muți, ciupește ca să faci zoom sau atinge de două ori ca să mărești și să micșorezi.
+735|Previzualizare alb-negru
+741|Etichetă
+742|Clasic
+743|Răsărit
+744|Mozaic
+745|Miezul nopții
+746|Bordo
+747|Pădure
+748|Ardezie
+749|Pergament
+750|In
+751|Șofran
+752|Cerneală
+753|Personalizat
+754|{0} · Cartea {1}
+755|{0}, {1} și alții
+756|Folosește această copertă
+757|Coperta
+758|Surprinde-mă
+759|Stil
+760|Culoare
+761|Culoarea ta
+762|Copertă întunecată
+763|Copertă deschisă
+764|Intensitate
+766|Găsește o copertă
+767|Caută
+768|Amazon și site-uri de cărți
+769|=
+770|Se caută pe Amazon, Google Books și Open Library…
+771|Nu s-au găsit coperți. Verifică dacă ești online, încearcă alte cuvinte sau caută pe Google Images.
+772|{0} copertă carte
+773|Se obține imaginea…
+776|Aldin
+777|Cursiv
+778|Subliniat
+779|Listă cu marcatori
+780|Listă numerotată
+781|Elimină formatarea din textul selectat
+782|Anulează
+783|Refă
+784|Despre ce e cartea…
+786|Renunți la modificările descrierii?
+787|Renunță
+788|Continuă editarea
+789|Scrie un titlu.
+790|Folosește un număr, cum ar fi 3 sau 2.5.
+791|Folosește un an (2005) sau o dată (2005-07-17).
+792|Un ISBN are 10 sau 13 cifre. Acesta are {0}.
+793|Acest ISBN nu e valid. Verifică dacă nu e o greșeală de tipar.
+794|Acest ISBN a venit cu cartea, dar nu e valid.
+795|Editează detaliile
+796|Salvează
+797|Ca să schimbi coperta, atinge Schimbă coperta pe pagina cărții.
+798|Identificatorul cărții: {0}
+799|Renunți la modificări?
+800|Detaliile cărții nu se vor schimba.
+801|Rezolvă aceste probleme ca să salvezi:
+802|Titlu și autori
+803|Sortat ca „{0}”
+804|Schimbă
+805|Sortează ca
+806|Resetează
+807|Autori
+808|Adaugă un autor
+809|Adaugă „{0}”
+810|Niciun autor. Kobo-ul va afișa „Autor necunoscut”.
+811|Atinge un autor ca să-i editezi numele, să schimbi cum e sortat sau să-l faci primul autor.
+812|Nu face parte dintr-o serie.
+813|Colecții Kobo
+814|Adaugă într-o colecție

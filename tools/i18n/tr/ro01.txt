@@ -1,0 +1,231 @@
+@ro
+255|Unitate amovibilă
+256|Se verifică unitatea…
+257|Unitatea Kobo-ului nu e disponibilă. Conectează Kobo-ul și atinge Conectează pe ecranul lui.
+258|Unitatea aceea nu are un dosar .kobo, așa că nu pare să fie un Kobo. Alege nivelul de sus al unității numite KOBOeReader.
+259|Se încarcă detaliile dispozitivului…
+260|Lipsește fișierul bazei de date a Kobo-ului (KoboReader.sqlite). A terminat Kobo-ul configurarea?
+261|Se copiază baza de date a Kobo-ului… {0}%
+262|Se încarcă cărțile și colecțiile…
+263|verificarea a eșuat: {0}
+264|Kobo-ul nu mai e conectat.
+265|Lipsește baza de date a Kobo-ului.
+266|Android nu a permis crearea unui fișier pe Kobo.
+267|Un fișier de test a fost scris, dar s-a citit diferit înapoi. Scrierea pe Kobo nu e de încredere.
+268|Un fișier de test a fost scris și citit înapoi, dar nu a putut fi șters. E ascuns și inofensiv: {0}.
+269|Scrierea funcționează: un fișier de test de 64 KB a fost scris, citit înapoi și șters în {0} ms.
+270|Kobo-ul nu mai poate fi accesat. Mai e conectat?
+271|Android nu i-a dat acestei aplicații acces de scriere la Kobo. Încearcă „Uită acest Kobo” și conectează-te din nou.
+272|Verificarea scrierii a eșuat: {0}: {1}
+273|=
+274|Formatul propriu al Kobo. Paginile se întorc mai repede, iar Kobo-ul arată statistici de citire.
+275|Formatul standard. Kobo-ul îl deschide în cititorul lui mai vechi și mai lent.
+276|Nu s-a putut converti în kepub ({0}).
+277|Nu s-a putut scrie pe Kobo.
+278|Android nu a permis scrierea pe Kobo.
+279|Puse în colecțiile lor pe Kobo: {0}.
+280|Detalii actualizate pe Kobo pentru {0}.
+281|Modificările colecțiilor au fost copiate de pe Kobo pentru {0} din biblioteca ta.
+282|Marcate ca șterse de pe Kobo: {0}.
+283|1 carte
+284|Nu s-a putut citi fișierul: {0}
+285|Fișierul e gol.
+286|KoLib nu poate deschide acest tip de fișier.
+288|E prea mare ca să fie convertit pe acest dispozitiv.
+290|Acesta nu e un fișier EPUB.
+291|Detaliile cărții nu au putut fi citite: {0}
+292|Una dintre cărțile selectate nu mai e în bibliotecă.
+293|Cartea aceea nu mai e în bibliotecă.
+294|{0} (copia {1})
+295|Fișierul nou nu e un EPUB.
+296|Nu s-a putut înlocui fișierul.
+298|Baza de date a Kobo-ului nu spune unde e fișierul acestei cărți.
+299|Cărțile din Kobo Store nu pot fi copiate de pe Kobo.
+300|Fișierul nu mai e pe Kobo ({0}).
+306|Textul acestei cărți nu a fost modificat.
+307|Nu s-a putut restaura originalul
+312|Galben
+313|Verde
+314|Albastru
+315|Roz
+316|\nEvidențieri și note,
+317|Notă:
+318|Hârtie
+319|Alb
+320|Sepia
+321|Noapte
+322|Negru
+333|Îngust
+334|Mediu
+335|Lat
+336|Stânga
+337|Aliniat stânga-dreapta
+338|Activat
+339|Dezactivat
+340|Două în modul peisaj
+341|Mereu una
+342|Mereu două
+343|Automat
+345|Portret
+347|Peisaj
+349|Stânga merge înapoi, dreapta merge înainte
+350|Ambele părți merg înainte
+351|Util când citești cu o singură mână. Glisează spre dreapta ca să mergi înapoi.
+352|Sus merge înapoi, jos merge înainte
+353|Funcționează și părțile din stânga și dreapta.
+354|Glisează sau folosește butoanele de volum ca să întorci paginile.
+355|Mic
+356|Mare
+358|Decorațiuni
+360|Toate imaginile
+362|Carte
+363|Capitol
+364|La fel ca textul
+365|Estompat
+366|Derulare
+367|Treci direct la capitolul următor
+368|Așteaptă 3 secunde, apoi continuă
+369|Așteaptă 10 secunde, apoi continuă
+370|Continuă
+371|Pauză de 2 secunde
+372|Pauză de 5 secunde
+373|Glisare
+374|Pagină îndoită
+375|Măturare
+376|Estompare
+377|Instantaneu
+378|Sus stânga
+379|Sus centru
+380|Sus dreapta
+381|Jos stânga
+382|Jos centru
+383|Jos dreapta
+384|Sus
+385|Jos
+386|Centrat
+387|Lângă cotor
+388|Cartea curentă
+389|Tot volumul
+390|Titlul cărții
+391|Titlul capitolului
+392|1 Cârligul
+393|Numărul paginii în capitol
+394|Pagina 3 din 12
+395|Numărul paginii în carte
+396|Pagina 45 din 380
+397|Pagini rămase în capitol
+398|Mai sunt 9 pagini
+399|Timp de citire rămas în capitol
+400|Mai sunt 12 min
+401|Ceas
+402|Procentul citit din carte
+403|Evidențiază
+404|Unitatea nu a răspuns la listarea {0}
+405|Nu s-a putut deschide {0} pentru citire
+406|Nu s-a putut deschide {0} pentru scriere
+407|Nu s-a putut crea dosarul {0} pe unitate
+408|Nu se poate crea dosarul {0}, pentru că există un fișier cu acest nume
+409|Android nu a putut crea {0} pe unitate
+410|Unitatea a redenumit {0} în {1}
+411|{0} a fost scris, dar dimensiunea lui pe unitate e greșită ({1} în loc de {2} octeți)
+413|Licența MIT
+414|=
+415|=
+417|=
+418|=
+419|=
+420|Liberation Serif și Sans
+422|=
+423|=
+425|=
+426|=
+428|=
+429|=
+430|=
+431|=
+432|=
+433|=
+435|=
+436|=
+438|© JetBrains s.r.o. și contribuitorii Kotlin
+439|Despre
+440|Înapoi
+441|O bibliotecă pentru cititorul tău Kobo
+442|Versiunea {0}
+444|Kobo este o marcă înregistrată a Rakuten Kobo Inc. Această aplicație nu e făcută sau susținută de Rakuten Kobo.
+446|Programe și fonturi open-source
+447|Citește licența
+448|Licența nu a putut fi citită.
+450|Acest dispozitiv nu are un selector de fișiere.
+451|Acest dispozitiv nu are un selector de dosare.
+452|Una era deja în bibliotecă.
+453|{0} erau deja în bibliotecă.
+455| Scoate Kobo-ul ca să le poată adăuga.
+456| Repornește-l ca să vezi copertele noi.
+459|Se verifică Kobo-ul… Nu-l scoate încă.
+460|=
+461|Bibliotecă
+462|=
+465|Limbă
+466|Animația de pornire
+467|Rulează când pornește KoLib. Atinge-o ca s-o sari.
+468|Sunetul de pornire
+470|Mod performanță
+472|Gata
+473|Copii de rezervă ale bazei de date
+474|Încă nu există copii de rezervă
+478|Salvează în Descărcări
+479|Șterge copia de rezervă
+480|Ștergi această copie de rezervă?
+482|Șterge
+483|Anulează
+484|Atinge o carte
+486|Conectează Kobo-ul ca să adaugi sau să ștergi cărți
+487|Șterge de pe Kobo
+488|Adaugă în bibliotecă
+489|Nicio carte pe acest Kobo
+490|Cărțile pe care le pui pe Kobo vor apărea aici.
+491|Nicio carte potrivită
+492|Încearcă o altă căutare sau șterge filtrele.
+493|Ștergi „{0}” de pe Kobo?
+494|Ștergi {0} {0:carte|cărți|de cărți} de pe Kobo?
+497|Anulează selecția
+498|Atinge cărțile ca să le selectezi
+499|Selectează tot
+501|1 pagină
+503|Terminată
+504|{0}% citit
+505|Caută titluri, autori, etichete…
+506|Șterge căutarea
+507|Cum să cauți
+508|Selectează
+509|Sortează
+510|Ordine inversă
+511|Afișează ca listă
+512|Afișează ca grilă
+513|Colecție
+514|Toate colecțiile
+515|Etichete
+517| · sortate după {0}
+518| · se citesc etichetele din fișierele cărților: {0} din {1}
+519|Șterge căutarea și filtrele
+520|În bibliotecă
+521|Necitite
+525|Toate cărțile
+526|Adăugate manual
+527|=
+528|În biblioteca ta
+529|Colecții pe Kobo
+530|În nicio colecție.
+531|Detalii
+532|Citită ultima dată
+533|Adăugată
+534|Publicată
+535|Editură
+536|Lungime
+537|Circa {0}
+538|Fișier
+539|Dimensiune
+540|Descriere
+542|Toate
+543|În curs de citire

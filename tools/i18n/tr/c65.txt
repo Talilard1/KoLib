@@ -1,0 +1,31 @@
+@fr
+3286|La coque d’un vaisseau la nuit : panneaux bleu acier, avec des lumières bleu glacier, ambre et bleu canard
+3287|Une lumière bleu pâle dans l’air, dessinée en maillage fin
+
+@de
+3286|Ein Schiffsrumpf bei Nacht: stahlblaue Platten mit eisblauen, bernsteinfarbenen und petrolfarbenen Lichtern
+3287|Blassblaues Licht in der Luft, als feines Gitternetz gezeichnet
+
+@es
+3286|El casco de una nave de noche: paneles azul acero, con luces azul hielo, ámbar y verde azulado
+3287|Luz azul pálido en el aire, dibujada como una malla fina
+
+@it
+3286|Lo scafo di una nave di notte: pannelli blu acciaio, con luci azzurro ghiaccio, ambra e verde acqua
+3287|Luce azzurra tenue nell’aria, disegnata come una rete sottile
+
+@nl
+3286|Een scheepsromp bij nacht: staalblauwe panelen, met ijsblauwe, amberkleurige en blauwgroene lichtjes
+3287|Lichtblauw licht in de lucht, getekend als een fijn netwerk
+
+@pt
+3286|O casco de uma nave à noite: painéis azul-aço, com luzes azul-gelo, âmbar e verde-azulado
+3287|Luz azul-clara no ar, desenhada como uma malha fina
+
+@ru
+3286|Корпус корабля ночью: стально-синие панели с ледяно-голубыми, янтарными и бирюзовыми огнями
+3287|Бледно-голубой свет в воздухе, нарисованный тонкой сеткой
+
+@ja
+3286|夜の船体：スチールブルーのパネルに、アイスブルー、琥珀色、ティールの灯り
+3287|宙に浮かぶ淡い青の光を、細かな網目で描いて

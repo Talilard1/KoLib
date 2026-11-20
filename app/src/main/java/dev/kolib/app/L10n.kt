@@ -50,8 +50,9 @@ object L10n {
 
     /**
      * Which of a word's forms goes with [value], a count, in the language KoLib is shown in: Russian has
-     * three (1 книга, 2 книги, 5 книг; 21 книга), French and Portuguese two (0 and 1 are one), English and
-     * most others two (1, and the rest), Japanese one. [forms] are the language's, in that order.
+     * three (1 книга, 2 книги, 5 книг; 21 книга), Romanian three (1 carte, 2 cărți, 20 de cărți), French and
+     * Portuguese two (0 and 1 are one), English and most others two (1, and the rest), Japanese, Korean and
+     * Chinese one. [forms] are the language's, in that order.
      */
     internal fun formFor(value: Any?, forms: List<String>): String {
         if (forms.isEmpty()) return ""
@@ -63,7 +64,7 @@ object L10n {
             is Number -> value.toDouble().takeIf { it % 1.0 == 0.0 }?.toLong()
             else -> value?.toString()?.filter { !it.isWhitespace() && it != ',' && it != '\u202F' && it != '\u00A0' }?.toLongOrNull()
         }?.let { kotlin.math.abs(it) }
-        val i = when (language) {
+        val i = when (language.substringBefore('-')) {
             "ru", "uk", "be" -> when {
                 // A fraction takes the second form: 1,5 книги.
                 n == null -> 1
@@ -71,8 +72,14 @@ object L10n {
                 n % 10 in 2L..4L && n % 100 !in 12L..14L -> 1
                 else -> 2
             }
+            // Romanian: 1 carte, 2 cărți (and 0, and 2 to 19 past each hundred), 20 de cărți.
+            "ro" -> when {
+                n == 1L -> 0
+                n == null || n == 0L || n % 100 in 1L..19L -> 1
+                else -> 2
+            }
             "ja", "zh", "ko" -> 0
-            "fr", "pt-BR", "pt" -> if (n != null && n <= 1) 0 else 1
+            "fr", "pt" -> if (n != null && n <= 1) 0 else 1
             else -> if (n == 1L) 0 else 1
         }
         return forms[i.coerceAtMost(forms.size - 1)]

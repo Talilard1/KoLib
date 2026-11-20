@@ -79,19 +79,8 @@ class LooksTest {
 
     @Test
     fun everyLookHasANameAndAWordAboutIt() {
-        // KoLib's own sixteen, and a light and a dark Clean look in each of fourteen palettes.
-        assertEquals(16 + 14 * 2, ThemeChoice.entries.size)
-        assertEquals(ThemeChoice.entries.size, ThemeChoice.entries.map { it.label }.toSet().size)
+        assertEquals(15, ThemeChoice.entries.size)
+        assertEquals(15, ThemeChoice.entries.map { it.label }.toSet().size)
         assertTrue(ThemeChoice.entries.all { it.description.isNotBlank() })
-    }
-
-    @Test
-    fun everyPaletteHasALightAndADark() {
-        for (palette in Palette.entries) {
-            assertEquals(false, lookOf(ThemeChoice.of(palette, false), false).style.dark)
-            assertEquals(true, lookOf(ThemeChoice.of(palette, true), false).style.dark)
-        }
-        // The darks are on black (but for Dynamic, which without the wallpaper's colours to go on is plain Clean).
-        for (palette in Palette.entries - Palette.DYNAMIC) assertEquals(palette.name, Color.Black, lookOf(ThemeChoice.of(palette, true), false).scheme.background)
     }
 }

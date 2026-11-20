@@ -182,3 +182,27 @@
 @ja
 3259|情報
 3260|画面が回転しませんでした。端末の設定でこの向きに固定されている可能性があります。
+@fr
+3261|Touchez des livres pour les sélectionner, puis utilisez les boutons sous la liste.
+3262|Cet appareil n’a pas laissé l’écran tourner.
+@de
+3261|Tippe auf Bücher, um sie auszuwählen, und nutze dann die Schaltflächen unter der Liste.
+3262|Dieses Gerät hat den Bildschirm nicht drehen lassen.
+@es
+3261|Toca libros para seleccionarlos y usa los botones de debajo de la lista.
+3262|Este dispositivo no ha dejado girar la pantalla.
+@it
+3261|Tocca i libri per selezionarli, poi usa i pulsanti sotto l’elenco.
+3262|Questo dispositivo non ha lasciato ruotare lo schermo.
+@nl
+3261|Tik op boeken om ze te selecteren en gebruik dan de knoppen onder de lijst.
+3262|Dit apparaat liet het scherm niet draaien.
+@pt
+3261|Toque nos livros para selecioná-los e use os botões abaixo da lista.
+3262|Este aparelho não deixou a tela girar.
+@ru
+3261|Нажимайте на книги, чтобы выбрать их, затем используйте кнопки под списком.
+3262|Это устройство не дало экрану повернуться.
+@ja
+3261|本をタップして選び、リストの下のボタンを使います。
+3262|この端末では画面を回転できませんでした。

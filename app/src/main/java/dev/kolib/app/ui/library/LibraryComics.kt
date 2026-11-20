@@ -237,7 +237,7 @@ private fun ComicShelf(
     }
     val chosenEntries = { shown.filter { browse.comicPicked.containsKey(it.key) } }
     // A series opens in place of the shelf (chosen so, or there's no room beside it): a comic on its own is opened to
-    // read when it's tapped, and what's held has its details (or its series' page) from Info at the top.
+    // read when it's tapped, and what's held has its details (or its series' page) from Info in the bar for it.
     val inPlace = !phone && (!wide || browse.seriesInPlace)
     val showInfo = { e: ComicEntry ->
         browse.stopComicSelecting()
@@ -248,66 +248,71 @@ private fun ComicShelf(
     val done = { browse.stopComicSelecting() }
     Box(modifier) {
         Column(Modifier.fillMaxSize()) {
-            if (choosing) {
-                val count = browse.comicPicked.size
-                val title = if (count == 0) tr("Tap series to select them") else if (count == 1) tr("1 series selected") else tr("{0} series selected", count)
-                if (phone) ComicChoosingHeader(title, onSelectAll = { shown.forEach { browse.comicPicked[it.key] = true } }, onCancel = done)
-                else SelectionBar(count = 0, title = title, onSelectAll = { shown.forEach { browse.comicPicked[it.key] = true } }, onCancel = done) {
-                    ComicSeriesButtons(count, onSend = { actions.onSend(chosen()); done() }, onRead = { actions.onMarkFinished(chosen()); done() },
-                        onUnread = { actions.onMarkUnread(chosen()); done() }, onAddTo = { adding = chosen() }, onRemove = remove,
-                        onInfo = if (inPlace && count == 1) ({ chosenEntries().firstOrNull()?.let(showInfo) }) else null)
-                }
+            val chosenCount = browse.comicPicked.size
+            val title = if (chosenCount == 0) tr("Tap series to select them") else if (chosenCount == 1) tr("1 series selected") else tr("{0} series selected", chosenCount)
+            if (choosing && phone) {
+                ComicChoosingHeader(title, onSelectAll = { shown.forEach { browse.comicPicked[it.key] = true } }, onCancel = done)
             } else if (!phone) {
                 ComicSearchRow(browse, shown.size, entries.sumOf { it.issues.size }, wide)
             } else {
                 ComicSortRow(browse, shown.size, entries.sumOf { it.issues.size })
             }
-            if (shown.isEmpty()) {
-                if (browse.comicQuery.isBlank()) EmptyState(Icons.Outlined.AutoStories, tr("No comics"), tr("Comics you add show here, one entry for each series."))
-                else EmptyState(Icons.Outlined.Search, tr("No comics match"), tr("Nothing in the Comics tab has “{0}” in its name.", browse.comicQuery.trim()))
-                return@Column
-            }
-            val cellPadding = if (phone) 6.dp else 8.dp
-            ShelfGridBox(minCell = if (phone) 100.dp else 132.dp, coverPadding = cellPadding, columns = if (phone) 3 else null) {
-                val bookcase = LocalBookcase.current
-                LazyVerticalGrid(
-                    columns = if (phone) GridCells.Fixed(3) else GridCells.Adaptive(132.dp),
-                    state = browse.comicGrid,
-                    contentPadding = if (bookcase) PaddingValues(top = 8.dp, bottom = if (phone) 104.dp else 24.dp)
-                    else PaddingValues(start = if (phone) 8.dp else 12.dp, end = if (phone) 8.dp else 12.dp, top = 8.dp, bottom = if (phone) 104.dp else 24.dp),
-                    horizontalArrangement = Arrangement.spacedBy(if (bookcase || phone) 0.dp else 4.dp),
-                    verticalArrangement = Arrangement.spacedBy(if (phone) 4.dp else 8.dp),
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .testTag("comic-shelf")
-                        .then(if (bookcase) Modifier.background((dev.kolib.app.ui.theme.LocalKoLibStyle.current.shelf ?: ShelfColors).back) else Modifier),
-                ) {
-                    itemsIndexed(shown, key = { _, e -> e.key }) { index, entry ->
-                        ComicSeriesItem(
-                            entry, covers, here, index, shown.size,
-                            picked = if (choosing) browse.comicPicked.containsKey(entry.key) else null,
-                            highlighted = entry.key == highlighted,
-                            padding = cellPadding,
-                            onTap = {
-                                if (choosing) {
-                                    if (browse.comicPicked.remove(entry.key) == null) browse.comicPicked[entry.key] = true
-                                } else if (inPlace && !entry.isSeries) {
-                                    actions.onRead(entry.issues.first().id)
-                                } else {
-                                    browse.comicKey = entry.key
-                                    browse.comicBookId = null
-                                    if (browse.comicSelecting == ComicSelecting.ISSUES) browse.stopComicSelecting()
-                                }
-                            },
-                            onHold = {
-                                if (!choosing) {
-                                    browse.stopComicSelecting()
-                                    browse.comicSelecting = ComicSelecting.SERIES
-                                }
-                                browse.comicPicked[entry.key] = true
-                            },
-                        )
+            // The shelf, and while series are being chosen, the bar for them along the foot of the screen.
+            Column(Modifier.weight(1f).fillMaxWidth()) {
+                if (shown.isEmpty()) {
+                    if (browse.comicQuery.isBlank()) EmptyState(Icons.Outlined.AutoStories, tr("No comics"), tr("Comics you add show here, one entry for each series."))
+                    else EmptyState(Icons.Outlined.Search, tr("No comics match"), tr("Nothing in the Comics tab has “{0}” in its name.", browse.comicQuery.trim()))
+                    return@Column
+                }
+                val cellPadding = if (phone) 6.dp else 8.dp
+                ShelfGridBox(minCell = if (phone) 100.dp else 132.dp, coverPadding = cellPadding, columns = if (phone) 3 else null) {
+                    val bookcase = LocalBookcase.current
+                    LazyVerticalGrid(
+                        columns = if (phone) GridCells.Fixed(3) else GridCells.Adaptive(132.dp),
+                        state = browse.comicGrid,
+                        contentPadding = if (bookcase) PaddingValues(top = 8.dp, bottom = if (phone) 104.dp else 24.dp)
+                        else PaddingValues(start = if (phone) 8.dp else 12.dp, end = if (phone) 8.dp else 12.dp, top = 8.dp, bottom = if (phone) 104.dp else 24.dp),
+                        horizontalArrangement = Arrangement.spacedBy(if (bookcase || phone) 0.dp else 4.dp),
+                        verticalArrangement = Arrangement.spacedBy(if (phone) 4.dp else 8.dp),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .testTag("comic-shelf")
+                            .then(if (bookcase) Modifier.background((dev.kolib.app.ui.theme.LocalKoLibStyle.current.shelf ?: ShelfColors).back) else Modifier),
+                    ) {
+                        itemsIndexed(shown, key = { _, e -> e.key }) { index, entry ->
+                            ComicSeriesItem(
+                                entry, covers, here, index, shown.size,
+                                picked = if (choosing) browse.comicPicked.containsKey(entry.key) else null,
+                                highlighted = entry.key == highlighted,
+                                padding = cellPadding,
+                                onTap = {
+                                    if (choosing) {
+                                        if (browse.comicPicked.remove(entry.key) == null) browse.comicPicked[entry.key] = true
+                                    } else if (inPlace && !entry.isSeries) {
+                                        actions.onRead(entry.issues.first().id)
+                                    } else {
+                                        browse.comicKey = entry.key
+                                        browse.comicBookId = null
+                                        if (browse.comicSelecting == ComicSelecting.ISSUES) browse.stopComicSelecting()
+                                    }
+                                },
+                                onHold = {
+                                    if (!choosing) {
+                                        browse.stopComicSelecting()
+                                        browse.comicSelecting = ComicSelecting.SERIES
+                                    }
+                                    browse.comicPicked[entry.key] = true
+                                },
+                            )
+                        }
                     }
+                }
+            }
+            if (choosing && !phone) {
+                SelectionBar(count = 0, title = title, onSelectAll = { shown.forEach { browse.comicPicked[it.key] = true } }, onCancel = done) {
+                    ComicSeriesButtons(chosenCount, onSend = { actions.onSend(chosen()); done() }, onRead = { actions.onMarkFinished(chosen()); done() },
+                        onUnread = { actions.onMarkUnread(chosen()); done() }, onAddTo = { adding = chosen() }, onRemove = remove,
+                        onInfo = if (inPlace && chosenCount == 1) ({ chosenEntries().firstOrNull()?.let(showInfo) }) else null)
                 }
             }
         }
@@ -588,7 +593,7 @@ internal fun ComicSeriesPage(
     onGrid: ((Boolean) -> Unit)? = null,
     /** The library's other series and comics: this one's comics can be put in one of them. */
     others: List<ComicEntry> = emptyList(),
-    /** A comic's details are had by holding it, then Info at the top, rather than from a button on each. */
+    /** A comic's details are had by holding it, then Info in the bar for it, rather than from a button on each. */
     infoAtTop: Boolean = false,
 ) {
     val phone = phoneLayout()
@@ -610,26 +615,10 @@ internal fun ComicSeriesPage(
     val notOnKobo = entry.issues.filter { it.koboPath == null }
     Box(Modifier.fillMaxSize().testTag("comic-series-page")) {
         Column(Modifier.fillMaxSize()) {
-            if (choosing) {
-                val count = browse.comicPicked.size
-                val title = if (count == 0) tr("Tap comics to select them") else if (count == 1) tr("1 comic selected") else tr("{0} comics selected", count)
-                if (phone) Box(Modifier.windowInsetsPadding(TopInsets)) { ComicChoosingHeader(title, onSelectAll = { issues.forEach { browse.comicPicked[it.id] = true } }, onCancel = done) }
-                else SelectionBar(count = 0, title = title, onSelectAll = { issues.forEach { browse.comicPicked[it.id] = true } }, onCancel = done) {
-                    val count2 = browse.comicPicked.size
-                    if (infoAtTop && count2 == 1) OutlinedButton(
-                        onClick = { chosen().firstOrNull()?.let { id -> done(); browse.comicBookId = id } },
-                        contentPadding = ComicButtonPadding, modifier = Modifier.testTag("comic-issue-info"),
-                    ) { ButtonLabel(Icons.Outlined.Info, tr("Info")) }
-                    OutlinedButton(onClick = { confirmRemove = chosen() }, enabled = count2 > 0, contentPadding = ComicButtonPadding) { ButtonLabel(Icons.Outlined.Delete, tr("Remove")) }
-                    if (entry.isSeries) OutlinedButton(onClick = { actions.onTakeOut(chosen()); done() }, enabled = count2 > 0, contentPadding = ComicButtonPadding) {
-                        ButtonLabel(Icons.Outlined.LayersClear, tr("Take out of the series"))
-                    }
-                    OutlinedButton(onClick = { actions.onMarkUnread(chosen()); done() }, enabled = count2 > 0, contentPadding = ComicButtonPadding) { ButtonLabel(Icons.Outlined.RemoveDone, tr("Mark as unread")) }
-                    OutlinedButton(onClick = { actions.onMarkFinished(chosen()); done() }, enabled = count2 > 0, contentPadding = ComicButtonPadding, modifier = Modifier.testTag("comics-mark-read")) {
-                        ButtonLabel(Icons.Outlined.DoneAll, tr("Mark as read"))
-                    }
-                    Button(onClick = { actions.onSend(chosen()); done() }, enabled = count2 > 0, contentPadding = ComicButtonPadding) { ButtonLabel(Icons.AutoMirrored.Filled.Send, tr("Send to Kobo")) }
-                }
+            val chosenCount = browse.comicPicked.size
+            val title = if (chosenCount == 0) tr("Tap comics to select them") else if (chosenCount == 1) tr("1 comic selected") else tr("{0} comics selected", chosenCount)
+            if (choosing && phone) {
+                Box(Modifier.windowInsetsPadding(TopInsets)) { ComicChoosingHeader(title, onSelectAll = { issues.forEach { browse.comicPicked[it.id] = true } }, onCancel = done) }
             } else if (phone || onBack != null) {
                 // A bar with the way back, and the series' menu.
                 Row(
@@ -737,20 +726,34 @@ internal fun ComicSeriesPage(
                 }
                 browse.comicPicked[issue.id] = true
             }
-            if (grid) {
-                // Each comic an entry of its own, as the series are on the shelf.
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(132.dp),
-                    state = browse.comicIssueGrid,
-                    contentPadding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 24.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxSize().testTag("comic-issue-grid"),
-                ) {
-                    item(key = "head", span = { GridItemSpan(maxLineSpan) }) { head(8.dp) }
+            // The comics, and while some are being chosen, the bar for them along the foot of the screen.
+            Box(Modifier.weight(1f).fillMaxWidth()) {
+                if (grid) {
+                    // Each comic an entry of its own, as the series are on the shelf.
+                    LazyVerticalGrid(
+                        columns = GridCells.Adaptive(132.dp),
+                        state = browse.comicIssueGrid,
+                        contentPadding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 24.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxSize().testTag("comic-issue-grid"),
+                    ) {
+                        item(key = "head", span = { GridItemSpan(maxLineSpan) }) { head(8.dp) }
+                        items(issues, key = { it.id }) { issue ->
+                            ComicIssueTile(
+                                issue, entry, here(issue), covers,
+                                picked = if (choosing) browse.comicPicked.containsKey(issue.id) else null,
+                                onTap = { tap(issue) },
+                                onHold = { hold(issue) },
+                                onDetails = if (infoAtTop) null else ({ browse.comicBookId = issue.id }),
+                            )
+                        }
+                    }
+                } else LazyColumn(Modifier.fillMaxSize(), state = browse.comicIssues, contentPadding = PaddingValues(bottom = if (phone) 104.dp else 24.dp)) {
+                    item(key = "head") { head(0.dp) }
                     items(issues, key = { it.id }) { issue ->
-                        ComicIssueTile(
-                            issue, entry, here(issue), covers,
+                        ComicIssueRow(
+                            issue, entry, here(issue),
                             picked = if (choosing) browse.comicPicked.containsKey(issue.id) else null,
                             onTap = { tap(issue) },
                             onHold = { hold(issue) },
@@ -758,16 +761,23 @@ internal fun ComicSeriesPage(
                         )
                     }
                 }
-            } else LazyColumn(Modifier.fillMaxSize(), state = browse.comicIssues, contentPadding = PaddingValues(bottom = if (phone) 104.dp else 24.dp)) {
-                item(key = "head") { head(0.dp) }
-                items(issues, key = { it.id }) { issue ->
-                    ComicIssueRow(
-                        issue, entry, here(issue),
-                        picked = if (choosing) browse.comicPicked.containsKey(issue.id) else null,
-                        onTap = { tap(issue) },
-                        onHold = { hold(issue) },
-                        onDetails = if (infoAtTop) null else ({ browse.comicBookId = issue.id }),
-                    )
+            }
+            if (choosing && !phone) {
+                SelectionBar(count = 0, title = title, onSelectAll = { issues.forEach { browse.comicPicked[it.id] = true } }, onCancel = done) {
+                    val count2 = browse.comicPicked.size
+                    if (infoAtTop && count2 == 1) OutlinedButton(
+                        onClick = { chosen().firstOrNull()?.let { id -> done(); browse.comicBookId = id } },
+                        contentPadding = ComicButtonPadding, modifier = Modifier.testTag("comic-issue-info"),
+                    ) { ButtonLabel(Icons.Outlined.Info, tr("Info")) }
+                    OutlinedButton(onClick = { confirmRemove = chosen() }, enabled = count2 > 0, contentPadding = ComicButtonPadding) { ButtonLabel(Icons.Outlined.Delete, tr("Remove")) }
+                    if (entry.isSeries) OutlinedButton(onClick = { actions.onTakeOut(chosen()); done() }, enabled = count2 > 0, contentPadding = ComicButtonPadding) {
+                        ButtonLabel(Icons.Outlined.LayersClear, tr("Take out of the series"))
+                    }
+                    OutlinedButton(onClick = { actions.onMarkUnread(chosen()); done() }, enabled = count2 > 0, contentPadding = ComicButtonPadding) { ButtonLabel(Icons.Outlined.RemoveDone, tr("Mark as unread")) }
+                    OutlinedButton(onClick = { actions.onMarkFinished(chosen()); done() }, enabled = count2 > 0, contentPadding = ComicButtonPadding, modifier = Modifier.testTag("comics-mark-read")) {
+                        ButtonLabel(Icons.Outlined.DoneAll, tr("Mark as read"))
+                    }
+                    Button(onClick = { actions.onSend(chosen()); done() }, enabled = count2 > 0, contentPadding = ComicButtonPadding) { ButtonLabel(Icons.AutoMirrored.Filled.Send, tr("Send to Kobo")) }
                 }
             }
         }

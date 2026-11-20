@@ -305,7 +305,7 @@ class ComicsTabTest {
         assertTrue(browse.seriesGrid)
         compose.onNodeWithTag("comic-issue-grid").assertExists()
         compose.onAllNodesWithTag("comic-issue").assertCountEquals(3)
-        // A comic's details: no button on each, but held, then Info at the top; back to its series as it was, then back to
+        // A comic's details: no button on each, but held, then Info in the bar; back to its series as it was, then back to
         // the shelf.
         compose.onAllNodesWithContentDescription("Details").assertCountEquals(0)
         compose.onAllNodesWithTag("comic-issue")[0].performTouchInput { longClick() }

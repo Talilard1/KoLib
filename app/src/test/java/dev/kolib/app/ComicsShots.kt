@@ -12,6 +12,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
@@ -131,6 +132,28 @@ class ComicsShots {
         val (lib, covers) = library()
         screen(lib, covers, LibraryBrowseState().apply { tab = 2; comicKey = "s:saga"; seriesInPlace = true })
         shot("comics_tablet_inplace_list")
+    }
+
+    /** A comic held in its series: the bar for what's chosen is along the foot of the screen. */
+    @Test
+    @Config(qualifiers = "w1280dp-h800dp-land-mdpi")
+    fun tabletSeriesInPlaceWithAComicChosen() {
+        val (lib, covers) = library()
+        screen(lib, covers, LibraryBrowseState().apply { tab = 2; comicKey = "s:saga"; seriesInPlace = true })
+        compose.waitForIdle()
+        compose.onAllNodesWithTag("comic-issue")[1].performTouchInput { longClick() }
+        shot("comics_tablet_inplace_chosen")
+    }
+
+    /** Series held on the shelf: the bar for them along the foot, the search still at the top. */
+    @Test
+    @Config(qualifiers = "w1280dp-h800dp-land-mdpi")
+    fun tabletShelfWithASeriesChosen() {
+        val (lib, covers) = library()
+        screen(lib, covers, LibraryBrowseState().apply { tab = 2 })
+        compose.waitForIdle()
+        compose.onNodeWithText("Saga").performTouchInput { longClick() }
+        shot("comics_tablet_shelf_chosen")
     }
 
     @Test

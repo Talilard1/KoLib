@@ -72,24 +72,9 @@
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode|density"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize">
-            <!-- Android 16 ignores an app's choice of portrait or landscape on tablets (smallest width 600dp and
-                 up) unless the app opts out, and the readers' "Screen rotation" setting depends on that choice.
-                 KoLib fits any shape of screen; this only lets the readers turn the screen when asked to. -->
-            <property
-                android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
-                android:value="true" />
-            <!-- KoLib asks for portrait or landscape only in its readers, when it's chosen there. Tablet makers can
-                 override an app's choice (keeping a tablet held sideways in landscape, say): these leave it to the
-                 reader. -->
-            <property
-                android:name="android.window.PROPERTY_COMPAT_ALLOW_ORIENTATION_OVERRIDE"
-                android:value="false" />
-            <property
-                android:name="android.window.PROPERTY_COMPAT_ALLOW_DISPLAY_ORIENTATION_OVERRIDE"
-                android:value="false" />
-            <property
-                android:name="android.window.PROPERTY_COMPAT_ALLOW_IGNORING_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED"
-                android:value="false" />
+            <!-- No opting out of Android 16's handling of tablets (PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY), as
+                 Mihon doesn't: an app that opts out is open to the tablet maker's own orientation rules, and a
+                 Samsung tablet held in landscape then keeps the readers in landscape whatever they ask for. -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

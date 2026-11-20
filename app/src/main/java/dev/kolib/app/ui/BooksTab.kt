@@ -223,6 +223,9 @@ private fun BookBrowser(
     if (browse.selecting) TabBackHandler { browse.stopSelecting() }
     var confirmDelete by remember { mutableStateOf<List<KoboBook>?>(null) }
     Column(modifier.fillMaxHeight()) {
+        BrowserControls(browse, books.size, view.snapshot, extras, readingTags)
+        // The books, and while some are being chosen, the bar for them along the foot of the screen.
+        Box(Modifier.weight(1f).fillMaxWidth()) { KoboBookList(view, browse, books, selectedId, extras, inLibrary) }
         if (browse.selecting) {
             val chosen = { books.filter { browse.picked.containsKey(it.contentId) } }
             SelectionBar(
@@ -252,7 +255,43 @@ private fun BookBrowser(
                 }
             }
         }
-        BrowserControls(browse, books.size, view.snapshot, extras, readingTags)
+    }
+    confirmDelete?.let { doomed ->
+        AlertDialog(
+            onDismissRequest = { confirmDelete = null },
+            title = { Text(if (doomed.size == 1) tr("Delete “{0}” from the Kobo?", doomed[0].title) else tr("Delete {0} books from the Kobo?", doomed.size)) },
+            text = {
+                Text(
+                    tr("Their files, reading progress and highlights are deleted from the Kobo. Copies in your library aren't affected. Kobo Store books can't be deleted here.") +
+                        if (doomed.isEmpty()) tr("\n\nNone of these can be deleted: they're Kobo Store books.") else ""
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDeleteFromKobo(doomed)
+                        confirmDelete = null
+                        browse.stopSelecting()
+                    },
+                    enabled = doomed.isNotEmpty(),
+                ) { Text(tr("Delete"), color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = { TextButton(onClick = { confirmDelete = null }) { Text(tr("Cancel")) } },
+        )
+    }
+}
+
+/** The Kobo's books as covers or a list: tapped for their details, or chosen while choosing. */
+@Composable
+private fun KoboBookList(
+    view: KoboView,
+    browse: BrowseState,
+    books: List<KoboBook>,
+    selectedId: String?,
+    extras: KoboExtras,
+    inLibrary: (KoboBook) -> Boolean,
+) {
+    Column(Modifier.fillMaxSize()) {
         if (books.isEmpty()) {
             if (view.snapshot.books.isEmpty()) {
                 EmptyState(Icons.Outlined.AutoStories, tr("No books on this Kobo"), tr("Books you add to the Kobo will appear here."))
@@ -312,32 +351,9 @@ private fun BookBrowser(
             }
         }
     }
-    confirmDelete?.let { doomed ->
-        AlertDialog(
-            onDismissRequest = { confirmDelete = null },
-            title = { Text(if (doomed.size == 1) tr("Delete “{0}” from the Kobo?", doomed[0].title) else tr("Delete {0} books from the Kobo?", doomed.size)) },
-            text = {
-                Text(
-                    tr("Their files, reading progress and highlights are deleted from the Kobo. Copies in your library aren't affected. Kobo Store books can't be deleted here.") +
-                        if (doomed.isEmpty()) tr("\n\nNone of these can be deleted: they're Kobo Store books.") else ""
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onDeleteFromKobo(doomed)
-                        confirmDelete = null
-                        browse.stopSelecting()
-                    },
-                    enabled = doomed.isNotEmpty(),
-                ) { Text(tr("Delete"), color = MaterialTheme.colorScheme.error) }
-            },
-            dismissButton = { TextButton(onClick = { confirmDelete = null }) { Text(tr("Cancel")) } },
-        )
-    }
 }
 
-/** The bar shown while choosing books: how many are chosen, and what can be done with them. */
+/** The bar shown while choosing books, along the foot of the screen: how many are chosen, and what can be done with them. */
 @Composable
 fun SelectionBar(
     count: Int,

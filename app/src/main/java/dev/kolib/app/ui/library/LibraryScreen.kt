@@ -439,7 +439,7 @@ private fun SelectionHelp(count: Int) {
     EmptyState(
         Icons.Outlined.Checklist,
         if (count == 0) tr("Select books") else if (count == 1) tr("1 book selected") else tr("{0} books selected", count),
-        tr("Tap books to select them, then use the buttons above the list."),
+        tr("Tap books to select them, then use the buttons below the list."),
     )
 }
 
@@ -534,6 +534,50 @@ private fun LibraryBrowser(
     // Holding a book chooses it, and every book from the one chosen last to it.
     val onHold: (LibraryBook) -> Unit = { b -> browse.holdPick(b.id, books.map { it.id }) }
     Column(modifier.fillMaxHeight()) {
+        LibraryControls(all, browse, books.size)
+        // The books, and while some are being chosen, the bar for them along the foot of the screen.
+        Column(Modifier.weight(1f).fillMaxWidth()) {
+            if (books.isEmpty()) {
+                EmptyState(Icons.Outlined.SearchOff, tr("No matching books"), tr("Try a different search, or clear the filters."))
+                return@Column
+            }
+            if (browse.grid) ShelfGridBox(minCell = 132.dp, coverPadding = 8.dp) {
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(132.dp),
+                    state = browse.gridState,
+                    // In the Bookcase look the covers stand on shelves that run edge to edge.
+                    contentPadding = if (LocalBookcase.current) PaddingValues(top = 8.dp, bottom = 24.dp)
+                    else PaddingValues(start = 12.dp, end = 12.dp, top = 4.dp, bottom = 24.dp),
+                    horizontalArrangement = Arrangement.spacedBy(if (LocalBookcase.current) 0.dp else 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .then(if (LocalBookcase.current) Modifier.background((LocalKoLibStyle.current.shelf ?: ShelfColors).back) else Modifier),
+                ) {
+                    itemsIndexed(books, key = { _, b -> b.id }) { index, book ->
+                        LibraryGridItem(
+                            book, covers, index, books.size,
+                            picked = if (browse.selecting) browse.picked.containsKey(book.id) else null,
+                            highlighted = book.id == selectedId,
+                            sort = browse.sort, reading = reading(book), here = here(book),
+                            onTap = { onTap(book) }, onHold = { onHold(book) },
+                        )
+                    }
+                }
+            } else {
+                LazyColumn(state = browse.listState, contentPadding = PaddingValues(bottom = 24.dp), modifier = Modifier.fillMaxSize()) {
+                    items(books, key = { it.id }) { book ->
+                        LibraryListItem(
+                            book, covers,
+                            picked = if (browse.selecting) browse.picked.containsKey(book.id) else null,
+                            highlighted = book.id == selectedId,
+                            sort = browse.sort, reading = reading(book), here = here(book),
+                            onTap = { onTap(book) }, onHold = { onHold(book) }, onToggle = { browse.togglePicked(book.id) },
+                        )
+                    }
+                }
+            }
+        }
         if (browse.selecting) {
             val chosen = { books.filter { browse.picked.containsKey(it.id) }.map { it.id } }
             SelectionBar(
@@ -584,47 +628,6 @@ private fun LibraryBrowser(
                     Icon(Icons.AutoMirrored.Filled.Send, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
                     Text(tr("Send to Kobo"))
-                }
-            }
-        }
-        LibraryControls(all, browse, books.size)
-        if (books.isEmpty()) {
-            EmptyState(Icons.Outlined.SearchOff, tr("No matching books"), tr("Try a different search, or clear the filters."))
-            return@Column
-        }
-        if (browse.grid) ShelfGridBox(minCell = 132.dp, coverPadding = 8.dp) {
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(132.dp),
-                state = browse.gridState,
-                // In the Bookcase look the covers stand on shelves that run edge to edge.
-                contentPadding = if (LocalBookcase.current) PaddingValues(top = 8.dp, bottom = 24.dp)
-                else PaddingValues(start = 12.dp, end = 12.dp, top = 4.dp, bottom = 24.dp),
-                horizontalArrangement = Arrangement.spacedBy(if (LocalBookcase.current) 0.dp else 4.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .then(if (LocalBookcase.current) Modifier.background((LocalKoLibStyle.current.shelf ?: ShelfColors).back) else Modifier),
-            ) {
-                itemsIndexed(books, key = { _, b -> b.id }) { index, book ->
-                    LibraryGridItem(
-                        book, covers, index, books.size,
-                        picked = if (browse.selecting) browse.picked.containsKey(book.id) else null,
-                        highlighted = book.id == selectedId,
-                        sort = browse.sort, reading = reading(book), here = here(book),
-                        onTap = { onTap(book) }, onHold = { onHold(book) },
-                    )
-                }
-            }
-        } else {
-            LazyColumn(state = browse.listState, contentPadding = PaddingValues(bottom = 24.dp), modifier = Modifier.fillMaxSize()) {
-                items(books, key = { it.id }) { book ->
-                    LibraryListItem(
-                        book, covers,
-                        picked = if (browse.selecting) browse.picked.containsKey(book.id) else null,
-                        highlighted = book.id == selectedId,
-                        sort = browse.sort, reading = reading(book), here = here(book),
-                        onTap = { onTap(book) }, onHold = { onHold(book) }, onToggle = { browse.togglePicked(book.id) },
-                    )
                 }
             }
         }

@@ -71,6 +71,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -251,6 +252,13 @@ internal fun <P> readItems(
         after.comic?.let { addPages(it) }
     }
     return out
+}
+
+/** Where the page at [at] in [was] is in [now], if it's still there and has moved: null if it hasn't. */
+internal fun movedTo(was: List<ReadItem<*>>, now: List<ReadItem<*>>, at: Int): Int? {
+    val key = was.getOrNull(at)?.key ?: return null
+    val i = now.indexOfFirst { it.key == key }
+    return i.takeIf { it >= 0 && it != at }
 }
 
 /** The 4 × 5 colour matrix that makes pages greyscale or inverted (or both); null for none. */
@@ -1032,6 +1040,15 @@ private fun PagedComic(
     val itemsNow by rememberUpdatedState(items)
     val startIndex = remember { items.indexOfFirst { it is ReadItem.Page && it.comic.id == current.id && it.page == startPage }.coerceAtLeast(0) }
     val pager = rememberPagerState(initialPage = startIndex) { itemsNow.size }
+    // Pages come and go before the one showing (the comic before, opened after this one, or let go as reading goes on
+    // into the next): the pager stays on its page. Its own keeping by key looks only so far, and past a long comic's
+    // pages it loses the page and keeps its number, which is then in another comic.
+    val lastItems = remember { arrayOfNulls<List<ReadItem<*>>>(1) }
+    SideEffect {
+        val was = lastItems[0]
+        lastItems[0] = items
+        if (was != null && was !== items) movedTo(was, items, pager.currentPage)?.let { pager.requestScrollToPage(it, pager.currentPageOffsetFraction) }
+    }
     var locked by remember { mutableStateOf(false) }
     // The page settled on, known by its key in what's laid out (the list may have changed since the pager last looked).
     LaunchedEffect(pager) {
@@ -1666,6 +1683,13 @@ private fun StripComic(
         val itemsNow by rememberUpdatedState(items)
         val startIndex = remember { items.indexOfFirst { it is ReadItem.Page && it.comic.id == current.id && it.page == startPage }.coerceAtLeast(0) }
         val list = rememberLazyListState(initialFirstVisibleItemIndex = startIndex)
+        // The strip stays where it is as pages come and go before it, as the pager does.
+        val lastItems = remember { arrayOfNulls<List<ReadItem<*>>>(1) }
+        SideEffect {
+            val was = lastItems[0]
+            lastItems[0] = items
+            if (was != null && was !== items) movedTo(was, items, list.firstVisibleItemIndex)?.let { list.requestScrollToItem(it, list.firstVisibleItemScrollOffset) }
+        }
         val firstKey by remember { derivedStateOf { list.layoutInfo.visibleItemsInfo.firstOrNull()?.key } }
         // The pages near the screen read first, so the strip knows their shapes before they come into view: the
         // comics either side's too, where they meet.

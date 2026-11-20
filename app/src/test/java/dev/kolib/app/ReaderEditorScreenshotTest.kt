@@ -467,7 +467,7 @@ class ReaderEditorScreenshotTest {
         val c = ReaderController(files, structure, "The Garden", "en", null, ReaderSettings(theme = ReaderTheme.PAPER), context.assets)
         c.showForPreview(1, 3, 12)
         c.controlsVisible = true
-        c.lookTab = dev.kolib.app.ui.reader.LookTab.PAGE.ordinal
+        c.lookTab = dev.kolib.app.ui.reader.LookTab.LAYOUT.ordinal
         compose.mainClock.autoAdvance = true
         compose.setContent { AppSurface(ThemeChoice.SYSTEM) { ReaderScreen(c, onSettings = {}, onClose = {}, onEdit = {}, pagePreview = { FakePage(ReaderTheme.PAPER, 2) }, initialPanel = Panel.LOOK) } }
         compose.waitForIdle()

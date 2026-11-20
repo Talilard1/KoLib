@@ -182,6 +182,18 @@ class AiHub(
     /** What the model is doing now: nothing, being opened, or answering. */
     val busy: StateFlow<State> = state
 
+    private val heldNow = MutableStateFlow(false)
+    /** A model on this device is open: held in memory, which it takes a good share of, until it's let go. */
+    val held: StateFlow<Boolean> = heldNow
+
+    /**
+     * Let go of on purpose ([unload]), to save memory and battery: nothing opens it again by itself (reading ahead,
+     * notes on a book) until something's asked of it.
+     */
+    @Volatile
+    var resting = false
+        private set
+
     enum class State { IDLE, OPENING, ANSWERING }
 
     /** How many tokens the model on this device is opened to hold: more where there's the memory for it. */
@@ -204,6 +216,7 @@ class AiHub(
         }
         engine = made
         engineFor = s.copy(dictionary = true)
+        heldNow.value = !s.usesServer
         return made
     }
 
@@ -284,6 +297,7 @@ class AiHub(
      * model can't be made ready.
      */
     suspend fun <T> use(work: (AiEngine) -> T): T {
+        resting = false
         waiting.incrementAndGet()
         val counted = AtomicBoolean(true)
         lastAsked = System.currentTimeMillis()
@@ -314,7 +328,7 @@ class AiHub(
      * asked for before.
      */
     fun warm(build: (AiEngine) -> List<AiMessage>) {
-        if (!ready()) return
+        if (!ready() || resting) return
         lastAsked = System.currentTimeMillis()
         makeWay(forAhead = true)
         scope.launch(worker) {
@@ -342,7 +356,7 @@ class AiHub(
      * Cancelling the coroutine stops it too. Throws [AiException] if the model can't be made ready.
      */
     suspend fun <T> background(work: (AiEngine) -> T): T? = withContext(worker) {
-        if (waiting.get() > 0) return@withContext null
+        if (waiting.get() > 0 || resting) return@withContext null
         val mine = ++uses
         try {
             val e = open()
@@ -365,6 +379,7 @@ class AiHub(
         was.close()
         engine = null
         engineFor = null
+        heldNow.value = false
         onHolding(false)
     }
 
@@ -373,6 +388,16 @@ class AiHub(
 
     /** Lets go of the model now (the app is short of memory, or another model was chosen). */
     fun release() {
+        scope.launch(worker) { closeNow() }
+    }
+
+    /**
+     * Lets go of the model now, asked to, to free its memory and save battery: reading ahead and notes being written
+     * stop (an answer being written is finished first), and it isn't opened again until something's asked of it.
+     */
+    fun unload() {
+        resting = true
+        makeWay(forAhead = false)
         scope.launch(worker) { closeNow() }
     }
 

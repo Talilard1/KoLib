@@ -1,0 +1,184 @@
+@fr
+3240|IA déchargée. Elle se recharge la prochaine fois que vous lui demandez quelque chose.
+3241|Décharger l’IA de la mémoire
+3242|Notes sur {0} des {1} chapitres lus. Les autres attendent qu’on pose une question à l’IA.
+3243|En mémoire
+3244|Pas en mémoire
+3245|Déchargez-le pour libérer la mémoire et économiser la batterie. Il se recharge la prochaine fois que vous posez une question.
+3246|Il se charge quand vous posez une question, et se décharge après quelques minutes sans servir.
+3247|Décharger
+3248|Titres de chapitre
+3249|La barre d’état se cache pendant la lecture et revient avec le menu.
+3250|La barre d’état reste affichée, et la page se place en dessous.
+3251|La page et la caméra
+3252|Faites glisser la barre du bas pour vous déplacer dans le livre, ou changez de chapitre avec les boutons de chaque côté.
+3253|Une bande noire cache la caméra, et la page commence en dessous.
+3254|La page remplit l’écran, et son texte reste à l’écart de la caméra.
+3255|La page remplit l’écran, et son texte peut passer derrière la caméra. Ce qui s’affiche autour de la page reste à l’écart.
+3256|En dessous
+3257|Autour
+3258|Derrière
+@de
+3240|KI entladen. Sie lädt wieder, wenn du sie das nächste Mal etwas fragst.
+3241|KI aus dem Speicher entladen
+3242|Notizen zu {0} von {1} gelesenen Kapiteln. Der Rest wartet, bis die KI etwas gefragt wird.
+3243|Im Speicher geladen
+3244|Nicht geladen
+3245|Entlade es, um Speicher freizugeben und Akku zu sparen. Es lädt wieder, wenn du das nächste Mal etwas fragst.
+3246|Es lädt, wenn du etwas fragst, und wird nach ein paar Minuten ohne Nutzung wieder entladen.
+3247|Entladen
+3248|Kapitelüberschriften
+3249|Die Statusleiste verschwindet beim Lesen und kommt mit dem Menü zurück.
+3250|Die Statusleiste bleibt, und die Seite liegt darunter.
+3251|Seite und Kamera
+3252|Ziehe die Leiste unten, um durchs Buch zu gehen, oder springe mit den Knöpfen links und rechts davon ein Kapitel weiter.
+3253|Ein schwarzer Streifen verdeckt die Kamera, und die Seite beginnt darunter.
+3254|Die Seite füllt den Bildschirm, und ihr Text bleibt frei von der Kamera.
+3255|Die Seite füllt den Bildschirm, und ihr Text darf hinter der Kamera durchlaufen. Was um die Seite herum steht, bleibt frei davon.
+3256|Darunter
+3257|Drumherum
+3258|Dahinter
+@es
+3240|IA quitada de la memoria. Se vuelve a cargar la próxima vez que le preguntes algo.
+3241|Quitar la IA de la memoria
+3242|Notas de {0} de {1} capítulos leídos. El resto espera a que se le pregunte algo a la IA.
+3243|Cargado en memoria
+3244|No cargado
+3245|Quítalo de la memoria para liberarla y ahorrar batería. Se vuelve a cargar la próxima vez que preguntes algo.
+3246|Se carga cuando preguntas algo y se quita de la memoria tras unos minutos sin usarse.
+3247|Quitar
+3248|Títulos de capítulo
+3249|La barra de estado se oculta mientras lees y vuelve con el menú.
+3250|La barra de estado se queda y la página va debajo.
+3251|La página y la cámara
+3252|Arrastra la barra de abajo para moverte por el libro, o salta de capítulo con los botones a cada lado.
+3253|Una franja negra oculta la cámara y la página empieza debajo.
+3254|La página llena la pantalla y su texto se mantiene lejos de la cámara.
+3255|La página llena la pantalla y su texto puede pasar por detrás de la cámara. Lo que se muestra alrededor de la página sigue apartado de ella.
+3256|Debajo
+3257|Alrededor
+3258|Detrás
+@it
+3240|IA tolta dalla memoria. Si ricarica la prossima volta che le chiedi qualcosa.
+3241|Togli l’IA dalla memoria
+3242|Note su {0} dei {1} capitoli letti. Il resto aspetta che si chieda qualcosa all’IA.
+3243|Caricato in memoria
+3244|Non caricato
+3245|Toglilo dalla memoria per liberarla e risparmiare batteria. Si ricarica la prossima volta che chiedi qualcosa.
+3246|Si carica quando chiedi qualcosa e si toglie dalla memoria dopo qualche minuto inutilizzato.
+3247|Togli
+3248|Titoli dei capitoli
+3249|La barra di stato si nasconde mentre leggi e torna con il menu.
+3250|La barra di stato resta e la pagina sta sotto.
+3251|La pagina e la fotocamera
+3252|Trascina la barra in basso per spostarti nel libro, o salta un capitolo con i pulsanti ai lati.
+3253|Una striscia nera nasconde la fotocamera e la pagina inizia sotto.
+3254|La pagina riempie lo schermo e il suo testo resta lontano dalla fotocamera.
+3255|La pagina riempie lo schermo e il suo testo può passare dietro la fotocamera. Ciò che è intorno alla pagina resta comunque lontano.
+3256|Sotto
+3257|Intorno
+3258|Dietro
+@nl
+3240|AI vrijgegeven. Hij laadt weer als je hem iets vraagt.
+3241|AI vrijgeven
+3242|Notities bij {0} van {1} gelezen hoofdstukken. De rest wacht tot de AI iets wordt gevraagd.
+3243|In het geheugen geladen
+3244|Niet geladen
+3245|Geef het vrij om geheugen te winnen en batterij te sparen. Het laadt weer als je iets vraagt.
+3246|Het laadt zodra je iets vraagt en wordt na een paar minuten zonder gebruik weer vrijgegeven.
+3247|Vrijgeven
+3248|Hoofdstukkoppen
+3249|De statusbalk verdwijnt tijdens het lezen en komt terug met het menu.
+3250|De statusbalk blijft staan en de pagina komt eronder.
+3251|De pagina en de camera
+3252|Sleep de balk onderaan om door het boek te gaan, of sla een hoofdstuk over met de knoppen ernaast.
+3253|Een zwarte strook verbergt de camera en de pagina begint eronder.
+3254|De pagina vult het scherm en de tekst blijft vrij van de camera.
+3255|De pagina vult het scherm en de tekst mag achter de camera door lopen. Wat rond de pagina staat, blijft er vrij van.
+3256|Eronder
+3257|Eromheen
+3258|Erachter
+@pt
+3240|IA descarregada. Ela carrega de novo na próxima vez que você perguntar algo.
+3241|Descarregar a IA da memória
+3242|Notas de {0} dos {1} capítulos lidos. O resto espera até a IA receber uma pergunta.
+3243|Carregado na memória
+3244|Não carregado
+3245|Descarregue para liberar a memória e poupar bateria. Ele carrega de novo na próxima vez que você perguntar algo.
+3246|Ele carrega quando você pergunta algo e descarrega depois de alguns minutos sem uso.
+3247|Descarregar
+3248|Títulos de capítulo
+3249|A barra de status some enquanto você lê e volta com o menu.
+3250|A barra de status fica, e a página vai abaixo dela.
+3251|A página e a câmera
+3252|Arraste a barra de baixo para se mover pelo livro, ou pule de capítulo com os botões de cada lado.
+3253|Uma faixa preta esconde a câmera, e a página começa abaixo dela.
+3254|A página ocupa a tela, e o texto fica longe da câmera.
+3255|A página ocupa a tela, e o texto pode passar por trás da câmera. O que aparece em volta da página continua longe dela.
+3256|Abaixo
+3257|Em volta
+3258|Atrás
+@ru
+3240|ИИ выгружен. Он загрузится снова, когда вы о чём-нибудь спросите.
+3241|Выгрузить ИИ из памяти
+3242|Заметки к {0} из {1} прочитанных глав. Остальные подождут, пока ИИ о чём-нибудь не спросят.
+3243|Загружена в память
+3244|Не загружена
+3245|Выгрузите её, чтобы освободить память и сберечь заряд. Она загрузится снова, когда вы о чём-нибудь спросите.
+3246|Она загружается, когда вы о чём-нибудь спрашиваете, и выгружается через несколько минут без дела.
+3247|Выгрузить
+3248|Заголовки глав
+3249|Строка состояния прячется во время чтения и появляется вместе с меню.
+3250|Строка состояния остаётся, а страница располагается под ней.
+3251|Страница и камера
+3252|Перетаскивайте полосу внизу, чтобы перемещаться по книге, или переходите между главами кнопками по её краям.
+3253|Чёрная полоса скрывает камеру, а страница начинается под ней.
+3254|Страница занимает весь экран, а текст не заходит под камеру.
+3255|Страница занимает весь экран, и текст может проходить под камерой. То, что показано вокруг страницы, всё равно её обходит.
+3256|Ниже
+3257|Вокруг
+3258|Под ней
+@ja
+3240|AIを解放しました。次に質問すると、また読み込みます。
+3241|AIをメモリから解放
+3242|読んだ{1}章のうち{0}章にメモがあります。残りはAIに次に質問したときに書きます。
+3243|メモリに読み込み済み
+3244|読み込まれていません
+3245|解放するとメモリが空き、バッテリーも節約できます。次に質問すると、また読み込みます。
+3246|質問すると読み込み、数分使わないと解放します。
+3247|解放
+3248|章見出し
+3249|読んでいる間はステータスバーを隠し、メニューと一緒に表示します。
+3250|ステータスバーは表示したままで、ページはその下に表示します。
+3251|ページとカメラ
+3252|下のバーをドラッグすると本の中を移動でき、両側のボタンで章を移れます。
+3253|黒い帯でカメラを隠し、その下からページを表示します。
+3254|ページは画面いっぱいに表示し、文字はカメラを避けます。
+3255|ページは画面いっぱいに表示し、文字はカメラの下にも表示します。ページの周りに表示するものはカメラを避けたままです。
+3256|下に
+3257|周りに
+3258|重ねる
+@fr
+3259|Infos
+3260|L’écran n’a pas tourné. Les réglages de votre appareil le gardent peut-être dans ce sens.
+@de
+3259|Infos
+3260|Der Bildschirm hat sich nicht gedreht. Vielleicht halten ihn die Einstellungen deines Geräts so.
+@es
+3259|Información
+3260|La pantalla no ha girado. Puede que los ajustes de tu dispositivo la mantengan así.
+@it
+3259|Info
+3260|Lo schermo non è ruotato. Forse le impostazioni del dispositivo lo tengono così.
+@nl
+3259|Info
+3260|Het scherm is niet gedraaid. Misschien houden de instellingen van je apparaat het zo.
+@pt
+3259|Informações
+3260|A tela não girou. Talvez as configurações do seu aparelho a mantenham assim.
+@ru
+3259|Сведения
+3260|Экран не повернулся. Возможно, его так удерживают настройки устройства.
+@ja
+3259|情報
+3260|画面が回転しませんでした。端末の設定でこの向きに固定されている可能性があります。

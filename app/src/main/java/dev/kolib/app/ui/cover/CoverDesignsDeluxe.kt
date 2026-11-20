@@ -330,7 +330,11 @@ internal fun CoverGenerator.blade(s: Sheet, t: Words, art: Art) {
     fun sx(f: Float) = cx + (5f + 7f * sin(3.1416f * f)) * u * sin(6.2832f * coils * f + phase)
     fun sy(f: Float) = low - (low - high) * f
     fun thick(f: Float) = (0.7f + 3.4f * min(1f, f * 3.2f).pow(0.7f)) * u * (1f - 0.12f * f)
-    fun inFront(f: Float) = cos(6.2832f * coils * f + phase) > 0f
+    fun turnedTowardUs(f: Float) = cos(6.2832f * coils * f + phase) > 0f
+    // The head is in front of the blade, so the neck that leads to it is too: from where the body last came round, on.
+    var neck = 1f
+    while (neck > 0f && turnedTowardUs(neck - 0.002f) == turnedTowardUs(1f)) neck -= 0.002f
+    fun inFront(f: Float) = f >= neck || turnedTowardUs(f)
     val steps = 260
     fun body(front: Boolean, paint: Paint, grow: Float) {
         val pen = Paint(paint).apply { style = Paint.Style.STROKE; strokeCap = Paint.Cap.ROUND }

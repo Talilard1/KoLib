@@ -821,6 +821,8 @@ class ReaderController(
         if (pos != null && index != null) {
             open(index, target("anchor", pos.anchor, pos.progress))
         } else {
+            // Not read before: if it's left where it opens (or taken back there), it's still not started.
+            openedFresh = true
             val startPath = runCatching { ChapterOps.startPath(structure) }.getOrNull()
             val first = chapters.indexOfFirst { it.path == startPath }.takeIf { it >= 0 }
                 ?: chapters.indexOfFirst { it.linear }.takeIf { it >= 0 } ?: 0
@@ -1787,8 +1789,30 @@ class ReaderController(
 
     fun saveNow() {
         val s = store ?: return
-        s.save(ReaderState(position, bookmarks, annotations, deletedMarks, koboMarks))
+        // Not started, it's kept with no place: not read yet (or still finished, if it was).
+        s.save(ReaderState(position.takeUnless { notStarted }, bookmarks, annotations, deletedMarks, koboMarks))
     }
+
+    /** It hadn't been read when it was opened, and opened at its start. */
+    private var openedFresh = false
+    /** Where it opened then: the first place the page told. */
+    private var freshPlace: ReaderPosition? = null
+
+    /**
+     * Not started: on the book's first page (its cover, say), or still where it opened when it hadn't been read (or
+     * taken back there). Then it isn't being read: it's kept as not read yet.
+     */
+    val notStarted: Boolean
+        get() {
+            // Judged by the place itself (not what's on screen, which may not be there yet): its chapter, how far into it
+            // and how far into the book.
+            val p = position ?: return true
+            val first = chapters.indexOfFirst { it.linear }.takeIf { it >= 0 } ?: 0
+            val i = chapters.indexOfFirst { it.path == p.path }
+            if (i in 0..first && p.progress <= 0.001f && p.bookProgress <= 0.0005f) return true
+            val f = freshPlace ?: return false
+            return f.path == p.path && f.anchor == p.anchor && abs(f.progress - p.progress) < 0.001f
+        }
 
     private inner class Bridge {
         @JavascriptInterface
@@ -1949,6 +1973,7 @@ class ReaderController(
                 snippet = o.optString("snippet"),
                 chapterTitle = chapterTitle,
             )
+            if (openedFresh && freshPlace == null) freshPlace = position
             saveSoon()
         }
     }

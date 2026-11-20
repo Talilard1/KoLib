@@ -31,6 +31,7 @@ import dev.kolib.app.ui.theme.AppSurface
 import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -161,7 +162,8 @@ class ComicEndTest {
         tap()
         assertEquals("saga-2", current)
         assertFalse(betweenShowing())
-        assertEquals(0, ReaderStore.pdfPlace(comics[1].dir)!!.page)
+        // On its first page it isn't being read yet.
+        assertNull(ReaderStore.readHereOf(comics[1].dir))
     }
 
     @Test
@@ -235,7 +237,8 @@ class ComicEndTest {
         settle()
         assertEquals(listOf("saga-3"), goneTo)
         assertEquals("saga-3", current)
-        assertEquals(0, ReaderStore.pdfPlace(comics[2].dir)!!.page)
+        // On its first page it isn't being read yet.
+        assertNull(ReaderStore.readHereOf(comics[2].dir))
         if (compose.onAllNodesWithTag("comic-previous-comic").fetchSemanticsNodes().isEmpty()) tap(x = 200f)
         compose.onNodeWithTag("comic-previous-comic").performClick()
         settle()

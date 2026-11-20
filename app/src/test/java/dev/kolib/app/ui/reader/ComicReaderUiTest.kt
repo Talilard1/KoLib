@@ -67,6 +67,8 @@ class ComicReaderUiTest {
     private lateinit var back: OnBackPressedDispatcher
     private lateinit var dir: File
 
+    private var appSettingsOpened = 0
+
     private fun open(settings: ComicSettings = ComicSettings(), pages: Int = 8, shown: Boolean = true) {
         s = settings
         menu = shown
@@ -85,7 +87,7 @@ class ComicReaderUiTest {
                 ComicView(
                     comic = comic, s = s, mode = own.mode ?: s.mode, menu = menu, setMenu = { menu = it },
                     onSettings = { change -> s = change(s) }, onClose = { closes++ }, onCover = { _, _ -> }, readingHere = null,
-                    own = own, onOwn = { own = it },
+                    own = own, onOwn = { own = it }, onAppSettings = { appSettingsOpened++ },
                 )
             }
         }
@@ -228,5 +230,15 @@ class ComicReaderUiTest {
         compose.runOnIdle { back.onBackPressed() }
         compose.waitForIdle()
         assertEquals(1, closes)
+    }
+
+    @Test
+    fun theAppsOwnSettingsAreAtTheTopOfTheSettings() {
+        open()
+        compose.onNodeWithTag("comic-settings-button").performClick()
+        settle()
+        compose.onNodeWithTag("comic-app-settings").performClick()
+        settle()
+        assertEquals(1, appSettingsOpened)
     }
 }

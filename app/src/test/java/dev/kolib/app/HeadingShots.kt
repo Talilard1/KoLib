@@ -135,22 +135,22 @@ class HeadingShots {
     @Config(qualifiers = "w411dp-h914dp-port-xxhdpi")
     fun phoneRightHand() = shot("phone_3", "phone_3", 3, 14, 14, false)
 
-    /** The page's settings, tall enough to show the headings' choice and the margins under it. */
+    /** The layout settings, tall enough to show the headings' choice and the margins under it. */
     @Test
     @Config(qualifiers = "w411dp-h1800dp-port-xxhdpi")
-    fun phoneSettings() = shot("phone_settings", "phone_3", 3, 14, 14, false, panel = Panel.LOOK, prepare = { it.lookTab = dev.kolib.app.ui.reader.LookTab.PAGE.ordinal })
+    fun phoneSettings() = shot("phone_settings", "phone_3", 3, 14, 14, false, panel = Panel.LOOK, prepare = { it.lookTab = dev.kolib.app.ui.reader.LookTab.LAYOUT.ordinal })
 
-    /** The layout settings, with the choices for chapters' first pages. */
+    /** The text settings, with the choices for chapters' headings. */
     @Test
     @Config(qualifiers = "w411dp-h1800dp-port-xxhdpi")
-    fun phoneLayoutSettings() = shot(
-        "phone_layout", "phone_3", 3, 14, 14, false, panel = Panel.LOOK, prepare = { it.lookTab = dev.kolib.app.ui.reader.LookTab.LAYOUT.ordinal },
+    fun phoneTextSettings() = shot(
+        "phone_text", "phone_3", 3, 14, 14, false, panel = Panel.LOOK, prepare = { it.lookTab = dev.kolib.app.ui.reader.LookTab.TEXT.ordinal },
     )
 
     @Test
     @Config(qualifiers = "w411dp-h1800dp-port-xxhdpi")
     fun phoneSettingsOff() = shot(
         "phone_settings_off", "phone_3", 3, 14, 14, false, settings = ReaderSettings().withHeads(RunningHeads.OFF), panel = Panel.LOOK,
-        prepare = { it.lookTab = dev.kolib.app.ui.reader.LookTab.PAGE.ordinal },
+        prepare = { it.lookTab = dev.kolib.app.ui.reader.LookTab.LAYOUT.ordinal },
     )
 }

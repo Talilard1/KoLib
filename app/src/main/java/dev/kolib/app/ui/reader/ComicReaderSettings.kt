@@ -97,6 +97,8 @@ internal fun ComicSettingsSheet(
         modifier = Modifier.testTag("comic-settings"),
     ) {
         Column(Modifier.fillMaxWidth().heightIn(max = most)) {
+            // The app's own settings, a step away, as the book reader has them: its theme, language and books folder.
+            if (onAppSettings != null) AppSettingsLink(onAppSettings, Modifier.padding(horizontal = 16.dp, vertical = 4.dp).testTag("comic-app-settings"))
             val tabs = listOf(tr("Reading mode"), tr("General"), tr("Custom filter"))
             PrimaryTabRow(selectedTabIndex = pager.currentPage, containerColor = Color.Transparent) {
                 tabs.forEachIndexed { i, t ->
@@ -112,7 +114,7 @@ internal fun ComicSettingsSheet(
                 Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(vertical = 8.dp)) {
                     when (p) {
                         SETTINGS_TAB_MODE -> ReadingModePage(s, mode, own, inSeries, onOwn, onSettings)
-                        SETTINGS_TAB_GENERAL -> GeneralPage(s, hasCutout, onSettings, onAppSettings)
+                        SETTINGS_TAB_GENERAL -> GeneralPage(s, hasCutout, onSettings)
                         else -> FilterPage(s, onSettings)
                     }
                     Spacer(Modifier.padding(bottom = 16.dp))
@@ -172,7 +174,6 @@ private fun ColumnScope.GeneralPage(
     s: ComicSettings,
     hasCutout: Boolean,
     onSettings: ((ComicSettings) -> ComicSettings) -> Unit,
-    onAppSettings: (() -> Unit)?,
 ) {
     Chips(tr("Background colour"), ComicBackground.entries, s.background, { it.label() }) { v -> onSettings { it.copy(background = v) } }
     Check(tr("Show page number"), s.pageNumber) { v -> onSettings { it.copy(pageNumber = v) } }
@@ -205,7 +206,6 @@ private fun ColumnScope.GeneralPage(
     Heading(tr("For all comics"))
     Chips(tr("Default reading mode"), ComicMode.entries, s.mode, { it.label() }) { v -> onSettings { it.copy(mode = v) } }
     Chips(tr("Default rotation"), ComicRotation.entries, s.rotation, { it.label() }) { v -> onSettings { it.copy(rotation = v) } }
-    if (onAppSettings != null) AppSettingsLink(onAppSettings, Modifier.padding(horizontal = 24.dp, vertical = 12.dp))
 }
 
 @Composable

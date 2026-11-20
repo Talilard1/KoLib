@@ -424,12 +424,7 @@ fun ComicBookReader(
         view.keepScreenOn = s.keepScreenOn
         onDispose { view.keepScreenOn = false }
     }
-    DisposableEffect(rotation) {
-        val activity = context as? Activity
-        val before = activity?.requestedOrientation
-        activity?.requestedOrientation = rotation.orientation
-        onDispose { if (before != null) activity.requestedOrientation = before }
-    }
+    ScreenFacing(rotation.orientation)
     val brightness = comicBrightness(s, rs.brightness)
     DisposableEffect(brightness) {
         val window = (context as? Activity)?.window
@@ -597,6 +592,12 @@ internal fun ComicView(
     val moved = remember { { if (menuNow && SystemClock.uptimeMillis() - menuMovedAt > 1500) setMenuNow(false) } }
     LaunchedEffect(mode.paged) { if (mode.paged) snapshotFlow { turns }.drop(1).collect { moved() } }
     LaunchedEffect(comic.id, page) {
+        // On its first page (its cover) it isn't being read: not read yet, or still finished if it was.
+        if (page == 0) {
+            val here = withContext(placeWriter) { ReaderStore.leaveAtStart(comic.dir) }
+            if (here != null) readingHere?.set(comic.id, here) else readingHere?.forget(listOf(comic.id))
+            return@LaunchedEffect
+        }
         val place = PdfPlace(page, count)
         withContext(placeWriter) { ReaderStore.savePdfPlace(comic.dir, place) }
         readingHere?.set(comic.id, place.readHere)
@@ -759,7 +760,12 @@ internal fun ComicView(
             )
             ComicSheet.ROTATION -> ComicChoiceSheet(
                 title = tr("Rotation"), options = ComicRotation.entries, own = own.rotation, icon = { it.icon() }, label = { it.label() },
-                onApply = { r -> onOwn(own.copy(rotation = r)); sheet = null }, onDismiss = { sheet = null }, tag = "comic-rotation-sheet",
+                onApply = { r ->
+                    onOwn(own.copy(rotation = r))
+                    sheet = null
+                    scope.launch { sayIfNotTurned(context, (r ?: s.rotation).orientation) }
+                },
+                onDismiss = { sheet = null }, tag = "comic-rotation-sheet",
             )
             ComicSheet.SETTINGS -> ComicSettingsSheet(
                 s = s, mode = mode, own = own, inSeries = series != null, hasCutout = hasCutout, onOwn = onOwn, onSettings = onSettings,

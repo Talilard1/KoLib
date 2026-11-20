@@ -366,16 +366,7 @@ fun PdfBookReader(
         view.keepScreenOn = s.keepScreenOn
         onDispose { view.keepScreenOn = false }
     }
-    DisposableEffect(s.rotation) {
-        val activity = context as? Activity
-        val before = activity?.requestedOrientation
-        activity?.requestedOrientation = when (s.rotation) {
-            ReaderRotation.AUTO -> android.content.pm.ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-            ReaderRotation.PORTRAIT -> android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
-            ReaderRotation.LANDSCAPE -> android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
-        }
-        onDispose { if (before != null) activity.requestedOrientation = before }
-    }
+    ScreenFacing(s.rotation.orientation)
     DisposableEffect(s.brightness) {
         val window = (context as? Activity)?.window
         val before = window?.attributes?.screenBrightness
@@ -456,6 +447,12 @@ internal fun PdfPagesView(
                     page = first
                     if (first == savedPage) return@collect
                     savedPage = first
+                    // Back on its first page it isn't being read: not read yet, or still finished if it was.
+                    if (first == 0) {
+                        val here = withContext(Dispatchers.IO) { ReaderStore.leaveAtStart(dir) }
+                        if (here != null) readingHere?.set(book.id, here) else readingHere?.forget(listOf(book.id))
+                        return@collect
+                    }
                     val place = PdfPlace(first, count)
                     withContext(Dispatchers.IO) { ReaderStore.savePdfPlace(dir, place) }
                     readingHere?.set(book.id, place.readHere)

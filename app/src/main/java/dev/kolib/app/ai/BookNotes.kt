@@ -113,7 +113,7 @@ class NotesWriter(
     private val every: Long = EVERY_MS,
 ) {
     /** Why it's waiting. */
-    enum class Wait { CHARGER, AWAY }
+    enum class Wait { CHARGER, AWAY, UNLOADED }
 
     sealed interface Status {
         data object Off : Status
@@ -144,7 +144,8 @@ class NotesWriter(
                 _status.value = Status.UpToDate
                 continue
             }
-            val why = blocked()
+            // Not while the model's been let go to save memory and battery, till something's asked of it.
+            val why = blocked() ?: Wait.UNLOADED.takeIf { hub.resting }
             if (why != null || !hub.ready()) {
                 _status.value = Status.Waiting(why)
                 continue

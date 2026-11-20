@@ -38,6 +38,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import dev.kolib.app.ui.components.OutlinedButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.material.icons.outlined.Search
@@ -241,6 +242,21 @@ fun AiSetupDialog(onDismiss: () -> Unit, hub: AiHub = (LocalContext.current.appl
                             )
                         }
                         Switch(checked = settings.preload, onCheckedChange = { hub.settingsStore.set(settings.copy(preload = it)) }, modifier = Modifier.testTag("ai-preload"))
+                    }
+                    // Whether the model is in memory now, and letting go of it to free the memory and save battery.
+                    if (!settings.usesServer && hub.ready(settings)) {
+                        val held by hub.held.collectAsState()
+                        Row(Modifier.fillMaxWidth().padding(top = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Column(Modifier.weight(1f).padding(start = 12.dp, end = 8.dp)) {
+                                Text(if (held) tr("Loaded in memory") else tr("Not loaded"), style = MaterialTheme.typography.titleSmall)
+                                Text(
+                                    if (held) tr("Unload it to free the memory and save battery. It loads again when you next ask it something.")
+                                    else tr("It loads when you next ask it something, and unloads after a few minutes unused."),
+                                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                            OutlinedButton(onClick = { hub.unload() }, enabled = held, modifier = Modifier.testTag("ai-unload")) { Text(tr("Unload")) }
+                        }
                     }
                     ModelStorage(hub, own, changed)
                 } else {

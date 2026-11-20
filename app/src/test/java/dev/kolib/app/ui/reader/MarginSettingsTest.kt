@@ -32,7 +32,10 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-/** The reading settings' margins: what the page headings show is theirs while they're on; and the camera option. */
+/**
+ * The reading settings' margins (what the page headings show is theirs while they're on, and each item's style), the
+ * omnibus title's choice, and full screen and the camera.
+ */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35], qualifiers = "w400dp-h2000dp-mdpi")
 class MarginSettingsTest {
@@ -44,6 +47,13 @@ class MarginSettingsTest {
     private var camera by mutableStateOf(false)
 
     private fun show() {
+        compose.setContent {
+            AppSurface { Column(Modifier.verticalScroll(rememberScrollState())) { LayoutSettings(settings, { settings = it }) } }
+        }
+        compose.waitForIdle()
+    }
+
+    private fun showPage() {
         compose.setContent {
             AppSurface { Column(Modifier.verticalScroll(rememberScrollState())) { PageSettings(settings, { settings = it }, camera) } }
         }
@@ -66,32 +76,67 @@ class MarginSettingsTest {
     }
 
     @Test
-    fun eachItemCanKeepThePlainStyle() {
+    fun theTimeAndBatteryStartPlainAndEachItemCanHaveEitherStyle() {
         show()
+        assertEquals(setOf(MarginItem.CLOCK, MarginItem.BATTERY), settings.plainMargins)
         val clockButton = hasAnyAncestor(hasTestTag("margin-CLOCK")) and hasClickAction()
+        compose.onNode(hasAnyAncestor(hasTestTag("margin-CLOCK")) and hasText("plain", substring = true)).performScrollTo().assertExists()
+        // In the headings' style.
         compose.onNode(clockButton).performScrollTo().performClick()
-        compose.onNodeWithText("Plain").performClick()
-        compose.waitForIdle()
-        assertEquals(setOf(MarginItem.CLOCK), settings.plainMargins)
-        compose.onNode(hasAnyAncestor(hasTestTag("margin-CLOCK")) and hasText("plain", substring = true)).assertExists()
-        // And back to the headings' style.
-        compose.onNode(clockButton).performClick()
         compose.onNodeWithText("Like the page headings").performClick()
         compose.waitForIdle()
-        assertEquals(emptySet<MarginItem>(), settings.plainMargins)
+        assertEquals(setOf(MarginItem.BATTERY), settings.plainMargins)
+        // And plain again.
+        compose.onNode(clockButton).performClick()
+        compose.onNodeWithText("Plain").performClick()
+        compose.waitForIdle()
+        assertEquals(setOf(MarginItem.CLOCK, MarginItem.BATTERY), settings.plainMargins)
     }
 
     @Test
-    fun theCameraOptionShowsWhereThereIsACamera() {
+    fun theOmnibusTitleShowsOnlyWhenTheBookTitleDoes() {
         show()
-        compose.onAllNodesWithText("Keep text clear of the camera").assertCountEquals(0)
+        // The headings show the book's title over left-hand pages.
+        compose.onAllNodesWithText("Omnibus title").assertCountEquals(1)
+        // Off, with the book's title nowhere else: nothing to choose.
+        settings = settings.withHeads(RunningHeads.OFF)
+        compose.waitForIdle()
+        compose.onAllNodesWithText("Omnibus title").assertCountEquals(0)
+        // The book's title in a margin: there's a choice again.
+        settings = settings.copy(marginItems = settings.marginItems + (MarginItem.BOOK to dev.kolib.app.reader.MarginSpot.TOP_CENTER))
+        compose.waitForIdle()
+        compose.onAllNodesWithText("Omnibus title").assertCountEquals(1)
+    }
+
+    @Test
+    fun fullScreenAndWhereThePageGoesBesideTheCamera() {
+        showPage()
+        // Full screen: a switch, there on any screen.
+        compose.onNodeWithText("Full screen").performScrollTo().performClick()
+        compose.waitForIdle()
+        assertFalse(settings.fullscreen)
+        compose.onNodeWithText("Full screen").performClick()
+        compose.waitForIdle()
+        assertTrue(settings.fullscreen)
+        // The camera's choice: only where there's a camera in the screen.
+        compose.onAllNodesWithText("The page and the camera").assertCountEquals(0)
         camera = true
         compose.waitForIdle()
-        compose.onNodeWithText("Keep text clear of the camera").performScrollTo().performClick()
+        compose.onNodeWithText("Below it").performScrollTo().performClick()
         compose.waitForIdle()
+        assertEquals(dev.kolib.app.reader.CameraRoom.BELOW, settings.cameraRoom)
+        assertFalse(settings.roundCamera)
+        compose.onNodeWithText("Under it").performClick()
+        compose.waitForIdle()
+        assertTrue(settings.roundCamera)
         assertFalse(settings.clearOfCamera)
-        compose.onNodeWithText("Keep text clear of the camera").performClick()
+        compose.onNodeWithText("Round it").performClick()
         compose.waitForIdle()
+        assertTrue(settings.roundCamera)
         assertTrue(settings.clearOfCamera)
+        // Not full screen, the status bar's over the camera: nothing to choose.
+        settings = settings.copy(fullscreen = false)
+        compose.waitForIdle()
+        compose.onAllNodesWithText("The page and the camera").assertCountEquals(0)
     }
 }

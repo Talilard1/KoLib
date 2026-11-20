@@ -2,12 +2,10 @@ package dev.kolib.app.ui.reader
 
 import dev.kolib.app.ui.components.FittedText
 import dev.kolib.app.tr
-import dev.kolib.app.ui.components.phoneLayout
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material.icons.outlined.ZoomIn
-import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.Toc
@@ -105,21 +103,15 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.automirrored.filled.NavigateBefore
-import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.RotateLeft
 import androidx.compose.material.icons.filled.RotateRight
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.EditNote
-import androidx.compose.material.icons.outlined.PictureAsPdf
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Remove
 import androidx.compose.material.icons.outlined.Add
@@ -127,8 +119,6 @@ import dev.kolib.app.ui.components.AlertDialog
 import dev.kolib.app.ui.components.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import dev.kolib.app.ui.components.FilledTonalButton
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -140,7 +130,6 @@ import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Tab
@@ -170,7 +159,6 @@ import dev.kolib.app.reader.MarginSpot
 import dev.kolib.app.reader.MarginItem
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.testTag
@@ -178,6 +166,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.PlatformTextStyle
@@ -194,9 +183,7 @@ import dev.kolib.app.reader.HeadGap
 import dev.kolib.app.reader.CollectionTitle
 import dev.kolib.app.ui.theme.Garamond
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
@@ -233,6 +220,7 @@ import dev.kolib.app.reader.TapZones
 import dev.kolib.app.reader.ReaderRotation
 import dev.kolib.app.reader.ReaderFrame
 import dev.kolib.app.reader.ReaderAlign
+import dev.kolib.app.reader.CameraRoom
 import dev.kolib.app.reader.Cutouts
 import dev.kolib.app.reader.ReaderController
 import dev.kolib.app.reader.ReaderFont
@@ -357,16 +345,20 @@ internal fun ReaderScreen(
     }
     val scope = rememberCoroutineScope()
 
-    // Full screen while reading; the status bar comes back with the controls. The navigation bar stays
-    // hidden while the book is open (a swipe up from the bottom shows it for a moment): while it's
-    // hidden, Android lets the reader have the whole of each side edge, for the swipes in from them.
-    DisposableEffect(controller.controlsVisible) {
+    // Full screen while reading, unless the status bar is to stay; it comes back with the controls. The navigation bar
+    // stays hidden while the book is open (a swipe up from the bottom shows it for a moment): while it's hidden,
+    // Android lets the reader have the whole of each side edge, for the swipes in from them.
+    val statusOverPage = !s.fullscreen && !controller.controlsVisible
+    DisposableEffect(controller.controlsVisible, s.fullscreen, s.theme.dark) {
         val window = (context as? Activity)?.window
         val insets = window?.let { WindowCompat.getInsetsController(it, view) }
         insets?.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         insets?.hide(WindowInsetsCompat.Type.navigationBars())
-        if (controller.controlsVisible) insets?.show(WindowInsetsCompat.Type.statusBars()) else insets?.hide(WindowInsetsCompat.Type.statusBars())
-        onDispose { }
+        if (controller.controlsVisible || !s.fullscreen) insets?.show(WindowInsetsCompat.Type.statusBars()) else insets?.hide(WindowInsetsCompat.Type.statusBars())
+        // The status bar over the page, not the controls: its icons dark on a light page and light on a dark one.
+        val before = insets?.isAppearanceLightStatusBars
+        if (statusOverPage) insets?.isAppearanceLightStatusBars = !s.theme.dark
+        onDispose { if (statusOverPage && before != null) insets.isAppearanceLightStatusBars = before }
     }
     DisposableEffect(Unit) {
         onDispose {
@@ -376,16 +368,7 @@ internal fun ReaderScreen(
         }
     }
     // Which way the screen faces while reading.
-    DisposableEffect(s.rotation) {
-        val activity = context as? Activity
-        val before = activity?.requestedOrientation
-        activity?.requestedOrientation = when (s.rotation) {
-            ReaderRotation.AUTO -> android.content.pm.ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-            ReaderRotation.PORTRAIT -> android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
-            ReaderRotation.LANDSCAPE -> android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
-        }
-        onDispose { if (before != null) activity.requestedOrientation = before }
-    }
+    ScreenFacing(s.rotation.orientation)
     // The reader's own brightness, while it's open.
     DisposableEffect(s.brightness) {
         val window = (context as? Activity)?.window
@@ -412,10 +395,24 @@ internal fun ReaderScreen(
     // (so it stays in the middle); one at the top or bottom is kept clear of by what's shown round the page.
     val density = LocalDensity.current
     val cutInsets = WindowInsets.displayCutout
-    val cutTopPx = cutInsets.getTop(density)
-    val cutBottomPx = cutInsets.getBottom(density)
+    val cutTopPx = cutouts?.top?.let { (it.depth * density.density).roundToInt() } ?: cutInsets.getTop(density)
+    val cutBottomPx = cutouts?.bottom?.let { (it.depth * density.density).roundToInt() } ?: cutInsets.getBottom(density)
     val cutSidePx = maxOf(cutInsets.getLeft(density, androidx.compose.ui.unit.LayoutDirection.Ltr), cutInsets.getRight(density, androidx.compose.ui.unit.LayoutDirection.Ltr))
     val cutSide = cutouts?.side ?: (cutSidePx / density.density)
+    // The screen has a camera in it, somewhere: where the page goes beside it can be chosen.
+    val camera = cutTopPx > 0 || cutBottomPx > 0 || cutSide > 0f
+    // Strips the page leaves at the top and bottom of the screen: under the status bar while it stays, or round a
+    // camera there when the page is to start below it (in a black strip).
+    val statusTopPx = WindowInsets.statusBars.getTop(density)
+    val below = s.fullscreen && !s.roundCamera
+    val stripTop = with(density) {
+        when {
+            !s.fullscreen -> maxOf(statusTopPx, cutTopPx).toDp()
+            below -> cutTopPx.toDp()
+            else -> 0.dp
+        }
+    }
+    val stripBottom = with(density) { if (!s.fullscreen || below) cutBottomPx.toDp() else 0.dp }
     LaunchedEffect(Unit) { controller.start() }
 
     // Going back closes what's over the page, else the book: from Android's back, or KoLib's own back swipe.
@@ -439,19 +436,32 @@ internal fun ReaderScreen(
     fun pageClear(): Boolean = panel == Panel.NONE && controller.note == null && controller.image == null && controller.browsing == null &&
         controller.externalLink == null && !controller.atEnd && controller.openAnnotation == null && controller.editingNote == null &&
         controller.lookUpText == null
-    BoxWithConstraints(Modifier.fillMaxSize().background(pageColor).edgeBackSwipe(edgeBack, backSwipe) { goBack() }.padding(horizontal = cutSide.dp)) {
+    // The screen round the page: the page's colour, or black where a camera is hidden in a strip of its own.
+    val stripColor = if (below && camera) Color.Black else pageColor
+    BoxWithConstraints(Modifier.fillMaxSize().background(stripColor).edgeBackSwipe(edgeBack, backSwipe) { goBack() }.padding(horizontal = cutSide.dp)) {
         val wide = maxWidth >= 720.dp
-        val cut = cutouts?.copy(width = maxWidth.value, height = maxHeight.value) ?: remember(cutTopPx, cutBottomPx, cutSidePx, maxWidth, maxHeight) {
-            val d = density.density
-            val shape = view.rootWindowInsets?.displayCutout
-            // Where along the edge it is, from the window's left: the page starts the side cutout's depth in from there.
-            fun span(r: android.graphics.Rect?, depthPx: Int): Cutouts.Span? = when {
-                depthPx <= 0 -> null
-                r == null || r.isEmpty -> Cutouts.Span(0f, Float.MAX_VALUE, depthPx / d)
-                else -> Cutouts.Span(r.left / d - cutSide, r.right / d - cutSide, depthPx / d)
+      // The page itself, inside the strips.
+      BoxWithConstraints(Modifier.fillMaxSize().padding(top = stripTop, bottom = stripBottom).background(pageColor)) {
+        // Inside a strip, the camera isn't over the page.
+        val topInPage = stripTop == 0.dp
+        val bottomInPage = stripBottom == 0.dp
+        val cut = cutouts?.copy(width = maxWidth.value, height = maxHeight.value, top = cutouts.top.takeIf { topInPage }, bottom = cutouts.bottom.takeIf { bottomInPage })
+            ?: remember(cutTopPx, cutBottomPx, cutSidePx, maxWidth, maxHeight, topInPage, bottomInPage) {
+                val d = density.density
+                val shape = view.rootWindowInsets?.displayCutout
+                // Where along the edge it is, from the window's left: the page starts the side cutout's depth in from there.
+                fun span(r: android.graphics.Rect?, depthPx: Int): Cutouts.Span? = when {
+                    depthPx <= 0 -> null
+                    r == null || r.isEmpty -> Cutouts.Span(0f, Float.MAX_VALUE, depthPx / d)
+                    else -> Cutouts.Span(r.left / d - cutSide, r.right / d - cutSide, depthPx / d)
+                }
+                Cutouts(
+                    maxWidth.value, maxHeight.value,
+                    top = if (topInPage) span(shape?.boundingRectTop, cutTopPx) else null,
+                    bottom = if (bottomInPage) span(shape?.boundingRectBottom, cutBottomPx) else null,
+                    side = cutSide,
+                )
             }
-            Cutouts(maxWidth.value, maxHeight.value, top = span(shape?.boundingRectTop, cutTopPx), bottom = span(shape?.boundingRectBottom, cutBottomPx), side = cutSide)
-        }
         SideEffect { controller.placeCutouts(cut) }
         if (pagePreview != null) pagePreview() else {
             AndroidView(
@@ -486,6 +496,7 @@ internal fun ReaderScreen(
             Margins(controller, s, inkColor.copy(alpha = 0.72f))
             if (s.progressLine != ProgressLine.OFF) ProgressLineBar(controller, s)
         }
+      }
 
         // The reading setup's card and hints: over the page, under the controls (and told how far in their bars come).
         var topBarHeight by remember { mutableStateOf(0) }
@@ -547,7 +558,7 @@ internal fun ReaderScreen(
                 shadowElevation = 3.dp,
                 modifier = Modifier
                     .align(Alignment.BottomStart)
-                    .padding(start = 16.dp, bottom = if (controller.controlsVisible) 132.dp else 40.dp)
+                    .padding(start = 16.dp, bottom = if (controller.controlsVisible) with(LocalDensity.current) { bottomBarHeight.toDp() } + 8.dp else 40.dp)
                     .navigationBarsPadding(),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(start = 6.dp, end = 4.dp)) {
@@ -570,12 +581,10 @@ internal fun ReaderScreen(
         // The controls.
         AnimatedVisibility(controller.controlsVisible, enter = fadeIn() + slideInVertically { -it }, exit = fadeOut() + slideOutVertically { -it }, modifier = Modifier.align(Alignment.TopCenter)) {
             Box(Modifier.onSizeChanged { topBarHeight = it.height }) {
-                ReaderTopBar(
+                BookTopBar(
                     controller = controller,
                     onClose = onClose,
-                    onContents = { panel = Panel.CONTENTS },
                     onSearch = { panel = Panel.SEARCH },
-                    onLook = { panel = Panel.LOOK },
                     onStats = { panel = Panel.STATS },
                     onEdit = onEdit?.let { edit -> { controller.chapter?.let { edit(it.path) } } },
                     onPdf = onReadAsPdf,
@@ -584,9 +593,26 @@ internal fun ReaderScreen(
                 )
             }
         }
+        var rotating by remember { mutableStateOf(false) }
         AnimatedVisibility(controller.controlsVisible, enter = fadeIn() + slideInVertically { it }, exit = fadeOut() + slideOutVertically { it }, modifier = Modifier.align(Alignment.BottomCenter)) {
-            Box(Modifier.onSizeChanged { bottomBarHeight = it.height }) { ReaderBottomBar(controller, onSettings) }
+            Box(Modifier.onSizeChanged { bottomBarHeight = it.height }) {
+                BookBottomBars(
+                    controller, onSettings,
+                    onContents = { panel = Panel.CONTENTS },
+                    onLook = { panel = Panel.LOOK },
+                    onRotation = { rotating = true },
+                )
+            }
         }
+        if (rotating) BookRotationSheet(
+            s.rotation,
+            onPick = {
+                onSettings(s.copy(rotation = it))
+                rotating = false
+                scope.launch { sayIfNotTurned(context, it.orientation) }
+            },
+            onDismiss = { rotating = false },
+        )
 
         // Panels slide in from the side: on a tablet as a plain side panel, on a phone as a drawer with a header.
         val dismiss = { panel = Panel.NONE }
@@ -601,7 +627,7 @@ internal fun ReaderScreen(
             when (if (panel != Panel.NONE) panel else lastPanel.value) {
                 Panel.CONTENTS -> ContentsPanel(controller, wide, onPicked = { panel = Panel.NONE; controller.controlsVisible = false }, onClose = dismiss, onLeaveBook = onClose)
                 Panel.SEARCH -> SearchPanel(controller, wide, onPicked = { panel = Panel.NONE; controller.controlsVisible = false }, onClose = dismiss)
-                Panel.LOOK -> LookPanel(s, onSettings, controller.lookTab, wide, onTab = { controller.lookTab = it }, onClose = dismiss, onAppSettings = onAppSettings, bookLook = bookLook, camera = cut.top != null || cut.bottom != null)
+                Panel.LOOK -> LookPanel(s, onSettings, controller.lookTab, wide, onTab = { controller.lookTab = it }, onClose = dismiss, onAppSettings = onAppSettings, bookLook = bookLook, camera = camera)
                 Panel.STATS -> ReadingStatsPanel(controller, onClose = dismiss) { title, subtitle, close -> DrawerHeader(title, subtitle, close) }
                 Panel.NONE -> Unit
             }
@@ -687,229 +713,6 @@ internal fun ReaderScreen(
             Box(Modifier.align(Alignment.CenterEnd).width(48.dp).fillMaxHeight().systemGestureExclusion().testTag("edge-kept-right"))
         }
         EdgeBackIndicator(edgeBack)
-    }
-}
-
-@Composable
-private fun ReaderTopBar(
-    controller: ReaderController,
-    onClose: () -> Unit,
-    onContents: () -> Unit,
-    onSearch: () -> Unit,
-    onLook: () -> Unit,
-    onStats: () -> Unit,
-    onEdit: (() -> Unit)?,
-    onPdf: (() -> Unit)? = null,
-    onCompanion: (() -> Unit)? = null,
-    aiPlace: dev.kolib.app.ui.ai.ChatPlace? = null,
-) {
-    // A phone's width hasn't room for every button: the ones used least go in a menu there.
-    val compact = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 600
-    var more by remember { mutableStateOf(false) }
-    Surface(color = MaterialTheme.colorScheme.surfaceContainer, shadowElevation = 4.dp, modifier = Modifier.fillMaxWidth()) {
-        Row(
-            Modifier.statusBarsPadding().padding(horizontal = 4.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            IconButton(onClick = onClose) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Close the book")) }
-            // The contents on the left, where their panel opens.
-            IconButton(onClick = onContents) { Icon(Icons.AutoMirrored.Filled.List, tr("Contents and bookmarks")) }
-            Column(Modifier.weight(1f).padding(horizontal = 4.dp)) {
-                Text(controller.bookTitle, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                controller.chapterTitle.takeIf { it.isNotBlank() }?.let {
-                    Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                }
-            }
-            IconButton(onClick = onSearch) { Icon(Icons.Filled.Search, tr("Search the book")) }
-            val marked = controller.currentBookmark != null
-            IconButton(onClick = { controller.toggleBookmark() }) {
-                Icon(if (marked) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder, if (marked) tr("Remove bookmark") else tr("Bookmark this page"),
-                    tint = if (marked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
-            }
-            // Out of sight while the AI is out as its bubble, which stands in for it.
-            if (onCompanion != null && dev.kolib.app.ui.ai.aiButtonShown()) IconButton(onClick = onCompanion, modifier = Modifier.testTag("reader-companion")) {
-                dev.kolib.app.ui.ai.AiButtonIcon(tr("Summary and questions"), aiPlace)
-            }
-            if (!compact) IconButton(onClick = onStats) { Icon(Icons.Outlined.BarChart, tr("Reading stats")) }
-            IconButton(onClick = onLook) { Icon(Icons.Outlined.Settings, tr("Reading settings")) }
-            if (!compact) {
-                if (onPdf != null) IconButton(onClick = onPdf) { Icon(Icons.Outlined.PictureAsPdf, tr("Read as PDF")) }
-                if (onEdit != null) IconButton(onClick = onEdit) { Icon(Icons.Outlined.EditNote, tr("Edit this chapter's text")) }
-            } else Box {
-                IconButton(onClick = { more = true }, modifier = Modifier.testTag("reader-more")) { Icon(Icons.Filled.MoreVert, tr("More")) }
-                DropdownMenu(expanded = more, onDismissRequest = { more = false }) {
-                    DropdownMenuItem(text = { Text(tr("Reading stats")) }, leadingIcon = { Icon(Icons.Outlined.BarChart, null) }, onClick = { more = false; onStats() })
-                    if (onPdf != null) DropdownMenuItem(text = { Text(tr("Read as PDF")) }, leadingIcon = { Icon(Icons.Outlined.PictureAsPdf, null) }, onClick = { more = false; onPdf() })
-                    if (onEdit != null) DropdownMenuItem(text = { Text(tr("Edit this chapter's text")) }, leadingIcon = { Icon(Icons.Outlined.EditNote, null) }, onClick = { more = false; onEdit() })
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun ReaderBottomBar(controller: ReaderController, onSettings: (ReaderSettings) -> Unit) {
-    var dragging by remember { mutableStateOf(false) }
-    var value by remember { mutableFloatStateOf(0f) }
-    val progress = if (dragging) value else controller.bookProgress
-    val book = controller.bookPages
-    Surface(color = MaterialTheme.colorScheme.surfaceContainer, shadowElevation = 4.dp, modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.navigationBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp)) {
-            AutoscrollRow(controller, onSettings)
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = { controller.previousChapter() }) { Icon(Icons.AutoMirrored.Filled.NavigateBefore, tr("Previous chapter")) }
-                Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                    // Where chapters start.
-                    val marks = controller.chapterMarks
-                    val tick = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
-                    androidx.compose.foundation.Canvas(Modifier.fillMaxWidth().height(14.dp).padding(horizontal = 10.dp)) {
-                        for (m in marks) {
-                            val x = size.width * m
-                            drawLine(tick, androidx.compose.ui.geometry.Offset(x, 0f), androidx.compose.ui.geometry.Offset(x, size.height), strokeWidth = 1.5.dp.toPx())
-                        }
-                    }
-                    // The place the button with the controls goes back to: a line across the bar, like the bar's own handle.
-                    val backAt = controller.barReturn?.bookProgress
-                    val backMark = MaterialTheme.colorScheme.onSurfaceVariant
-                    Slider(
-                        value = progress,
-                        onValueChange = { dragging = true; value = it },
-                        onValueChangeFinished = {
-                            dragging = false
-                            controller.goToBookProgressFromBar(value)
-                        },
-                        track = { state ->
-                            SliderDefaults.Track(
-                                sliderState = state,
-                                modifier = if (backAt == null) Modifier else Modifier.drawWithContent {
-                                    drawContent()
-                                    val x = size.width * backAt.coerceIn(0f, 1f)
-                                    val half = 13.dp.toPx()
-                                    drawLine(
-                                        backMark, Offset(x, size.height / 2 - half), Offset(x, size.height / 2 + half),
-                                        strokeWidth = 3.dp.toPx(), cap = StrokeCap.Round,
-                                    )
-                                },
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-                IconButton(onClick = { controller.nextChapter() }) { Icon(Icons.AutoMirrored.Filled.NavigateNext, tr("Next chapter")) }
-            }
-            // Pages are counted through the whole book, at the text size and page size being read at. Its
-            // numbers are all one width, so they don't shift about as they change.
-            val footStyle = MaterialTheme.typography.labelMedium.copy(fontFeatureSettings = "tnum")
-            val footColor = MaterialTheme.colorScheme.onSurfaceVariant
-            val dragAt = if (dragging) controller.bookPageAt(value) else null
-            if (dragAt != null && book != null) {
-                // While dragging: the page number held still, just left of the middle, and the chapter it's
-                // in just right of it, however long the chapter's name.
-                val total = book.total.toString()
-                val shown = dragAt.toString().padStart(total.length, '\u2007')
-                Row(Modifier.fillMaxWidth().padding(bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text(tr("Page {0} of {1}", shown, total), style = footStyle, color = footColor, maxLines = 1, textAlign = TextAlign.End, modifier = Modifier.weight(1f))
-                    Text("  ·  ", style = footStyle, color = footColor, maxLines = 1)
-                    Text(
-                        controller.chapterTitleAt(value), style = footStyle, color = footColor,
-                        maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f),
-                    )
-                }
-            } else {
-                val details = if (dragging) tr("Go to {0}%", (value * 100).roundToInt()) else listOfNotNull(
-                    controller.chapterTitle.ifBlank { null },
-                    controller.bookPage?.let { tr("{0} of {1}", controller.pagesLabel(it, controller.bookPageLast), book?.total) }
-                        ?: if (controller.chapterPages > 1) tr("{0} of {1} in chapter", controller.pagesLabel(controller.firstShown + 1, controller.lastShown + 1), controller.chapterPages) else null,
-                    // The book's page numbers show once every chapter is counted, so they never change.
-                    if (controller.countingPages && book == null) tr("Counting pages…") else null,
-                    controller.minutesLeftInChapter.takeIf { it > 0 }?.let { tr("{0} min left in chapter", it) },
-                    tr("{0}% of book read", (controller.bookProgress * 100).roundToInt()),
-                ).joinToString(" · ")
-                Text(
-                    details,
-                    style = footStyle,
-                    color = footColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
-                )
-            }
-        }
-    }
-}
-
-/**
- * Back to [back], where the reader was before moving with the progress bar (and then back again).
- * On a phone, where the row is full, just its icon.
- */
-@Composable
-private fun BarReturnButton(controller: ReaderController, back: ReaderPosition, compact: Boolean, modifier: Modifier = Modifier) {
-    val label = controller.barReturnBookPage?.let { tr("Back to page {0}", it) } ?: tr("Back to {0}%", (back.bookProgress * 100).roundToInt())
-    if (compact) {
-        FilledTonalIconButton(onClick = { controller.swapWithBarReturn() }, modifier = modifier) {
-            Icon(Icons.AutoMirrored.Filled.Undo, label, Modifier.size(20.dp))
-        }
-    } else {
-        FilledTonalButton(
-            onClick = { controller.swapWithBarReturn() },
-            contentPadding = PaddingValues(start = 14.dp, end = 18.dp, top = 8.dp, bottom = 8.dp),
-            modifier = modifier,
-        ) {
-            Icon(Icons.AutoMirrored.Filled.Undo, null, Modifier.size(18.dp))
-            Spacer(Modifier.width(8.dp))
-            Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        }
-    }
-}
-
-/** Starting and pausing autoscroll, and its speed. Starting it puts the controls away, to read. */
-@Composable
-private fun AutoscrollRow(controller: ReaderController, onSettings: (ReaderSettings) -> Unit) {
-    val s = controller.settings
-    val on = controller.autoscroll
-    // A phone hasn't room for the speed on one line: the number goes over its unit, without the label.
-    val phone = phoneLayout()
-    val back = controller.barReturn
-    Box(Modifier.fillMaxWidth()) {
-        Row(Modifier.fillMaxWidth().padding(start = 4.dp, bottom = 2.dp), verticalAlignment = Alignment.CenterVertically) {
-            FilledTonalButton(onClick = {
-                if (on) controller.stopAutoscroll()
-                else {
-                    controller.startAutoscroll()
-                    controller.controlsVisible = false
-                }
-            }) {
-                Icon(if (on) Icons.Filled.Pause else Icons.Filled.PlayArrow, null, Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
-                Text(if (on) tr("Pause autoscroll") else tr("Autoscroll"))
-            }
-            Spacer(Modifier.weight(1f))
-            if (phone && back != null) {
-                BarReturnButton(controller, back, compact = true)
-                Spacer(Modifier.weight(1f))
-            }
-            if (!phone) Text(tr("Speed"), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            IconButton(
-                onClick = { onSettings(s.copy(autoWpm = (s.autoWpm - 10).coerceAtLeast(ReaderSettings.MIN_WPM))) },
-                enabled = s.autoWpm > ReaderSettings.MIN_WPM,
-            ) { Icon(Icons.Outlined.Remove, tr("Slower")) }
-            if (phone) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("${s.autoWpm}", style = MaterialTheme.typography.titleSmall)
-                    Text(tr("words per minute"), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            } else {
-                Text(tr("{0} words per minute", s.autoWpm), style = MaterialTheme.typography.labelLarge)
-            }
-            IconButton(
-                onClick = { onSettings(s.copy(autoWpm = (s.autoWpm + 10).coerceAtMost(ReaderSettings.MAX_WPM))) },
-                enabled = s.autoWpm < ReaderSettings.MAX_WPM,
-            ) { Icon(Icons.Outlined.Add, tr("Faster")) }
-        }
-        // After moving with the progress bar: back to where the reader was, in the middle of the bar.
-        if (!phone && back != null) BarReturnButton(controller, back, compact = false, modifier = Modifier.align(Alignment.Center).padding(bottom = 2.dp))
     }
 }
 
@@ -1545,7 +1348,7 @@ private fun Help(text: String) {
     )
 }
 
-/** Font, size, spacing and the shape of the text. */
+/** Font, size, spacing and the shape of the text, and how chapters' headings are set. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun TextSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) {
@@ -1597,9 +1400,15 @@ private fun TextSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) 
     TextButton(onClick = {
         onChange(s.copy(font = ReaderFont.BOOK, fontScale = 1f, lineSpacing = 0f, margins = ReaderMargins.MEDIUM, align = ReaderAlign.BOOK, hyphens = ReaderHyphens.BOOK))
     }) { Text(tr("Reset to book defaults")) }
+
+    Heading(tr("Chapter headings"))
+    SwitchRow(tr("Print-style chapter headings"), s.printHeads) { onChange(s.copy(printHeads = it)) }
+    Help(tr("The number (“Prologue”, “Chapter 1”) in spaced capitals with the title in italics below. Off, the book's own style is used."))
+    SwitchRow(tr("Large first letter"), s.dropCaps) { onChange(s.copy(dropCaps = it)) }
+    Help(tr("The first letter of each chapter spans three lines."))
 }
 
-/** The page's colour and brightness, its pictures, and what shows around it. */
+/** The page's colour and brightness, the screen it's on, and how its pictures and links look. */
 @Composable
 internal fun PageSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit, camera: Boolean = false) {
     Heading(tr("Page colour"), first = true)
@@ -1644,6 +1453,15 @@ internal fun PageSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit,
     SwitchRow(tr("Open books at the system brightness"), s.brightnessFromScreen) { onChange(s.copy(brightnessFromScreen = it)) }
     Help(tr("Off, books open at the brightness you last set here."))
 
+    Heading(tr("Screen"))
+    SwitchRow(tr("Full screen"), s.fullscreen) { onChange(s.copy(fullscreen = it)) }
+    Help(if (s.fullscreen) tr("The status bar hides while you read, and comes back with the menu.") else tr("The status bar stays, and the page sits below it."))
+    if (camera && s.fullscreen) {
+        Heading(tr("The page and the camera"))
+        Choices(CameraRoom.entries, s.cameraRoom, { it.label }) { onChange(s.withCameraRoom(it)) }
+        Help(s.cameraRoom.help)
+    }
+
     Heading(tr("Match pictures to the page colour"))
     Choices(PictureBlend.entries, s.pictures, { it.label }) { onChange(s.copy(pictures = it)) }
     Help(s.pictures.help)
@@ -1651,6 +1469,36 @@ internal fun PageSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit,
     Heading(tr("Links"))
     SwitchRow(tr("Colour links"), s.colourLinks) { onChange(s.copy(colourLinks = it)) }
     Help(tr("Off, links look like normal text but still work."))
+}
+
+/**
+ * Pages or scrolling and how pages turn, and what's round the page: the page headings, the rest shown in the margins,
+ * and the progress bar.
+ */
+@Composable
+internal fun LayoutSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) {
+    Heading(tr("Reading mode"), first = true)
+    Choices(ReaderFlow.entries, s.flow, { it.label }) { onChange(s.copy(flow = it)) }
+    Help(
+        if (s.scrolling) tr("Scroll down through each chapter. At the end, tap Next chapter or keep pulling up.")
+        else tr("Turn pages, like a printed book.")
+    )
+
+    if (!s.scrolling) {
+        Heading(tr("Pages side by side"))
+        Choices(ReaderSpread.entries, s.spread, { it.label }) { onChange(s.copy(spread = it)) }
+        if (s.spread != ReaderSpread.ONE) {
+            SwitchRow(tr("Start chapters on a right-hand page"), s.rectoOpenings) { onChange(s.copy(rectoOpenings = it)) }
+            Help(tr("With two pages side by side. A blank page is added where needed."))
+        }
+
+        Heading(tr("Page turn effect"))
+        Choices(PageTurn.entries, s.pageTurn, { it.label }) { onChange(s.copy(pageTurn = it)) }
+    }
+
+    Heading(tr("Chapter title pages"))
+    SwitchRow(tr("Show at the top of the chapter"), s.joinOpenings) { onChange(s.copy(joinOpenings = it)) }
+    Help(tr("For books that put a chapter's number or picture on a page of its own."))
 
     Heading(tr("Page headings"))
     Choices(RunningHeads.entries, s.runningHeads, { it.label }) { onChange(s.withHeads(it)) }
@@ -1669,9 +1517,12 @@ internal fun PageSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit,
         Help(tr("Printed books use Standard size and One line."))
     }
 
-    Heading(tr("Omnibus title"))
-    Choices(CollectionTitle.entries, s.collectionTitle, { it.label }) { onChange(s.copy(collectionTitle = it)) }
-    Help(tr("Which title to show in a book made of several."))
+    // Which title a book of several shows: only when its title shows somewhere.
+    if (s.bookTitleShown) {
+        Heading(tr("Omnibus title"))
+        Choices(CollectionTitle.entries, s.collectionTitle, { it.label }) { onChange(s.copy(collectionTitle = it)) }
+        Help(tr("Which title to show in a book made of several."))
+    }
 
     Heading(tr("Info around the page"))
     Help(
@@ -1699,11 +1550,6 @@ internal fun PageSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit,
         }
     }
     if (headsEnd != null) Help(tr("The titles and page numbers are in the page headings. To put them here instead, turn the headings off."))
-    if (camera) {
-        Spacer(Modifier.height(8.dp))
-        SwitchRow(tr("Keep text clear of the camera"), s.clearOfCamera) { onChange(s.copy(clearOfCamera = it)) }
-        Help(tr("Off, the text uses the whole screen and goes under the camera. Anything shown in the margins still keeps clear of it."))
-    }
 
     Heading(tr("Progress bar"))
     Choices(ProgressLine.entries, s.progressLine, { it.label }) { onChange(s.copy(progressLine = it)) }
@@ -1714,38 +1560,7 @@ internal fun PageSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit,
     Help(tr("Dimmed helps prevent burn-in on OLED screens."))
 }
 
-/** Pages or scrolling, and how pages turn. */
-@Composable
-private fun LayoutSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) {
-    Heading(tr("Reading mode"), first = true)
-    Choices(ReaderFlow.entries, s.flow, { it.label }) { onChange(s.copy(flow = it)) }
-    Help(
-        if (s.scrolling) tr("Scroll down through each chapter. At the end, tap Next chapter or keep pulling up.")
-        else tr("Turn pages, like a printed book.")
-    )
-
-    if (!s.scrolling) {
-        Heading(tr("Pages side by side"))
-        Choices(ReaderSpread.entries, s.spread, { it.label }) { onChange(s.copy(spread = it)) }
-
-        Heading(tr("Page turn effect"))
-        Choices(PageTurn.entries, s.pageTurn, { it.label }) { onChange(s.copy(pageTurn = it)) }
-    }
-
-    Heading(tr("Chapter title pages"))
-    SwitchRow(tr("Show at the top of the chapter"), s.joinOpenings) { onChange(s.copy(joinOpenings = it)) }
-    Help(tr("For books that put a chapter's number or picture on a page of its own."))
-
-    Heading(tr("Chapter openings"))
-    SwitchRow(tr("Start chapters on a right-hand page"), s.rectoOpenings) { onChange(s.copy(rectoOpenings = it)) }
-    Help(tr("With two pages side by side. A blank page is added where needed."))
-    SwitchRow(tr("Print-style chapter headings"), s.printHeads) { onChange(s.copy(printHeads = it)) }
-    Help(tr("The number (“Prologue”, “Chapter 1”) in spaced capitals with the title in italics below. Off, the book's own style is used."))
-    SwitchRow(tr("Large first letter"), s.dropCaps) { onChange(s.copy(dropCaps = it)) }
-    Help(tr("The first letter of each chapter spans three lines."))
-}
-
-/** Taps, buttons, the screen, and looking words up. */
+/** Taps, buttons, the screen staying on, and looking words up. (Rotation is a button in the controls.) */
 @Composable
 private fun ControlSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) {
     Heading(tr("Tap to turn pages"), first = true)
@@ -1771,10 +1586,6 @@ private fun ControlSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Uni
             else tr("Android's back gesture is used.")
         )
     }
-
-    Heading(tr("Screen rotation"))
-    Choices(ReaderRotation.entries, s.rotation, { it.label }) { onChange(s.copy(rotation = it)) }
-    Help(s.rotation.help)
 
     Heading(tr("Dictionary"))
     val key = s.dictionary

@@ -74,6 +74,15 @@ class CoverDesignShots {
         sheet("designs", covers, 4)
     }
 
+    /** The sword and serpent with its serpent wound either way: its head, and the neck to it, in front of the blade. */
+    @Test
+    fun theSerpentEitherWay() {
+        assumeTrue(out.isDirectory)
+        val book = books.getValue(CoverGenre.FANTASY)
+        val covers = (1..8).map { seed -> generator.render(book, CoverDesign(CoverStyle.BLADE, CoverDesign.boardFor(6.0)!!, CoverGenre.FANTASY, seed), 268, 362) }
+        sheet("serpent", covers, 4)
+    }
+
     /** The designs from [from] on, two of each (in the colours and for the genres they'd be given), four designs to a sheet. */
     @Test
     fun designsUpClose() {

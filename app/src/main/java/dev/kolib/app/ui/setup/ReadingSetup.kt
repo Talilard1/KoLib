@@ -45,8 +45,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.BorderColor
 import androidx.compose.material.icons.outlined.BrightnessMedium
@@ -557,20 +557,22 @@ private fun EdgesStep(s: ReaderSettings, c: SetupColours, change: (ReaderSetting
     ) { p, chosen -> SegmentWords(p.label, chosen, c) }
 }
 
-/** The reader's menu: how to bring it up, and once it's up, what its buttons are, in the order they're in along the top. */
+/** The reader's menu: how to bring it up, and once it's up, what its buttons are, along the top and then along the foot. */
 @Composable
 private fun MenuStep(c: SetupColours, menuOpen: Boolean) {
     StepTitle(tr("The menu"), tr("Tap the middle of the page to open or close it."), c)
     AnimatedVisibility(menuOpen, enter = expandVertically() + fadeIn(), exit = shrinkVertically() + fadeOut()) {
         Column(Modifier.padding(start = Edge, end = Edge, top = 10.dp)) {
             IconLine(Icons.AutoMirrored.Filled.ArrowBack, tr("Close the book"), c)
-            IconLine(Icons.AutoMirrored.Filled.List, tr("Contents and bookmarks"), c)
             IconLine(Icons.Filled.Search, tr("Search the book"), c)
             IconLine(Icons.Outlined.BookmarkBorder, tr("Bookmark this page"), c)
-            IconLine(Icons.Outlined.BarChart, tr("Reading stats"), c)
+            IconLine(Icons.AutoMirrored.Filled.List, tr("Contents and bookmarks"), c)
+            IconLine(Icons.Filled.PlayArrow, tr("Autoscroll"), c)
+            IconLine(Icons.Outlined.ScreenRotation, tr("Rotation"), c)
             IconLine(Icons.Outlined.Settings, tr("Reading settings"), c, note = tr("Everything you just chose, and more."), strong = true)
             Text(
-                tr("Drag the bar at the bottom to move through the book."), color = c.soft, style = SetupLabel.copy(fontWeight = FontWeight.Normal),
+                tr("Drag the bar at the bottom to move through the book, or skip a chapter with the buttons either side of it."),
+                color = c.soft, style = SetupLabel.copy(fontWeight = FontWeight.Normal),
                 modifier = Modifier.padding(top = 8.dp),
             )
         }

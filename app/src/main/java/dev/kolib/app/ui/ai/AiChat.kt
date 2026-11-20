@@ -47,6 +47,7 @@ import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.Eject
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Icon
@@ -428,6 +429,18 @@ fun ColumnScope.ChatPane(session: ChatSession, place: ChatPlace, hub: AiHub, onS
         IconButton(onClick = { listing = !listing }, modifier = Modifier.testTag("chat-saved")) {
             Icon(Icons.Outlined.History, tr("Saved chats"), tint = if (listing) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
         }
+        // While the model's held in memory, and not answering: let go of it, to free the memory and save battery.
+        val held by hub.held.collectAsState()
+        if (held && !asking) {
+            val context = LocalContext.current
+            IconButton(
+                onClick = {
+                    hub.unload()
+                    android.widget.Toast.makeText(context, tr("Unloaded. It loads again when you next ask it something."), android.widget.Toast.LENGTH_SHORT).show()
+                },
+                modifier = Modifier.testTag("chat-unload"),
+            ) { Icon(Icons.Outlined.Eject, tr("Unload the AI"), tint = MaterialTheme.colorScheme.onSurfaceVariant) }
+        }
         InstructionsMenu(session, place, hub, asking, onSettings)
     }
 
@@ -727,6 +740,7 @@ private fun BookSwitches(session: ChatSession, place: ChatPlace.Book, hub: AiHub
             is dev.kolib.app.ai.NotesWriter.Status.Writing -> (if (status.chapter.isBlank()) tr("Writing a note on a chapter…") else tr("Writing a note on “{0}”…", status.chapter))
             is dev.kolib.app.ai.NotesWriter.Status.Waiting -> when (status.why) {
                 dev.kolib.app.ai.NotesWriter.Wait.CHARGER -> tr("Notes on {0} of {1} chapters read. The rest wait for the charger.", done, of)
+                dev.kolib.app.ai.NotesWriter.Wait.UNLOADED -> tr("Notes on {0} of {1} chapters read. The rest wait till the AI is asked something.", done, of)
                 else -> tr("Notes on {0} of {1} chapters read. The rest are written while you read.", done, of)
             }
             else -> if (of == 0) tr("Notes are written on each chapter as you finish it.") else tr("Notes on {0} of {1} chapters read.", done, of)

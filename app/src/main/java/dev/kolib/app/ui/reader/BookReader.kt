@@ -57,7 +57,14 @@ fun BookReader(
     val scope = rememberCoroutineScope()
     val landscape = heldSideways()
     var controller by remember(book.id) { mutableStateOf<ReaderController?>(null) }
-    val store = remember(book.id) { ReaderStore(library.bookDir(book.id)) { saved -> readingHere?.update(book.id, saved.position) } }
+    val store = remember(book.id) {
+        val dir = library.bookDir(book.id)
+        ReaderStore(dir) { saved ->
+            // With no place (not started), as it's kept: not read yet, or finished.
+            if (saved.position != null) readingHere?.update(book.id, saved.position)
+            else ReaderStore.readHereOf(dir)?.let { readingHere?.set(book.id, it) } ?: readingHere?.forget(listOf(book.id))
+        }
+    }
     var error by remember(book.id) { mutableStateOf<String?>(null) }
     val session = rememberReadingSession(book)
     CountReading(session)

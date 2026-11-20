@@ -92,6 +92,32 @@ class AiHubTest {
     }
 
     @Test
+    fun unloadedItStaysUnloadedTillSomethingsAsked() {
+        val hub = hub()
+        hub.addOwn()
+        hub.settingsStore.set(hub.settings.value.copy(source = "own:Tiny"))
+        assertFalse(hub.held.value)
+        runBlocking { hub.use { it.contextTokens } }
+        assertTrue(hub.held.value)
+        // Unloaded: let go of at once.
+        hub.unload()
+        runBlocking { for (i in 0 until 100) if (hub.held.value) delay(20) }
+        assertFalse(hub.held.value)
+        assertTrue(engines.single().closed)
+        // Reading ahead and work in the background don't open it again.
+        hub.warm { listOf(AiMessage.user("ahead")) }
+        assertNull(runBlocking { hub.background { it.contextTokens } })
+        runBlocking { delay(200) }
+        assertEquals(1, opened.size)
+        assertFalse(hub.held.value)
+        // Something asked: it loads again, and then reads ahead as before.
+        runBlocking { hub.use { it.contextTokens } }
+        assertEquals(2, opened.size)
+        assertTrue(hub.held.value)
+        assertFalse(hub.resting)
+    }
+
+    @Test
     fun aStoppedDownloadStopsAndLetsGoOfWhatItHad() {
         // A download that hands over a piece only when one's put in: it would never end on its own.
         val pieces = java.util.concurrent.LinkedBlockingQueue<Int>()

@@ -59,6 +59,16 @@ enum class ReaderRotation(val label: String, val help: String) {
     LANDSCAPE(tr("Landscape"), tr("Locked sideways.")),
 }
 
+/**
+ * Where the page goes beside a camera in the screen (a punch hole, a notch), while reading full screen: below it, with
+ * the camera in a black strip; round it, the text keeping clear of it; or round it with the text going under it too.
+ */
+enum class CameraRoom(val label: String, val help: String) {
+    BELOW(trc("the page and the camera", "Below it"), tr("A black strip hides the camera, and the page starts below it.")),
+    ROUND(trc("the page and the camera", "Round it"), tr("The page fills the screen, and its text keeps clear of the camera.")),
+    UNDER(trc("the page and the camera", "Under it"), tr("The page fills the screen, and its text can go under the camera. What's shown round the page still keeps clear of it.")),
+}
+
 /** What taps on the page do. The middle always brings up the controls. */
 enum class TapZones(val label: String, val js: String, val help: String) {
     SIDES(tr("Left goes back, right goes forward"), "sides", ""),
@@ -305,10 +315,17 @@ data class ReaderSettings(
      * the whole screen; what's shown in the margins still keeps clear of the camera.
      */
     val clearOfCamera: Boolean = true,
+    /** The status bar hides while reading. Off, it stays, and the page sits below it. */
+    val fullscreen: Boolean = true,
+    /**
+     * Full screen, the page goes round a camera in the screen (keeping clear of it as [clearOfCamera] says). Off, it
+     * starts below it (or beside one in a side), the camera in a black strip.
+     */
+    val roundCamera: Boolean = true,
     /** Where the chapter, page number, time and the rest show in the margins (or don't). */
     val marginItems: Map<MarginItem, MarginSpot> = MarginItem.DEFAULTS,
     /** The margins' items shown in plain type, as they were before: the rest are in the page headings' type. */
-    val plainMargins: Set<MarginItem> = emptySet(),
+    val plainMargins: Set<MarginItem> = PLAIN_TO_START,
     /** Page headings as a printed book has them: at the top of each page, the bottom, or none. */
     val runningHeads: RunningHeads = RunningHeads.TOP,
     /** Where the page headings' titles sit along the page. */
@@ -358,6 +375,25 @@ data class ReaderSettings(
     val barShade: BarShade = BarShade.DIM,
 ) {
     val scrolling: Boolean get() = flow == ReaderFlow.SCROLL
+
+    /** Where the page goes beside a camera in the screen, while reading full screen. */
+    val cameraRoom: CameraRoom get() = when {
+        !roundCamera -> CameraRoom.BELOW
+        clearOfCamera -> CameraRoom.ROUND
+        else -> CameraRoom.UNDER
+    }
+
+    fun withCameraRoom(room: CameraRoom): ReaderSettings = when (room) {
+        CameraRoom.BELOW -> copy(roundCamera = false)
+        CameraRoom.ROUND -> copy(roundCamera = true, clearOfCamera = true)
+        CameraRoom.UNDER -> copy(roundCamera = true, clearOfCamera = false)
+    }
+
+    /**
+     * The book's title shows somewhere: in the page headings (over left-hand pages, or scrolling as the chapter's
+     * stands in for it) or in the margins. Only then does it matter which title a book of several shows.
+     */
+    val bookTitleShown: Boolean get() = runningHeads != RunningHeads.OFF || spotOf(MarginItem.BOOK) != MarginSpot.OFF
 
     /**
      * The bars' colour, as one solid colour: the text's, or part way from the page's colour to it. Solid,
@@ -632,7 +668,7 @@ data class ReaderSettings(
         headTitlePlace = HeadTitlePlace.CENTRED, collectionTitle = CollectionTitle.BOOK,
         highlightColor = HighlightColor.YELLOW, highlightStyle = HighlightStyle.HIGHLIGHT, dictionary = null,
         dim = 0f, rotation = ReaderRotation.AUTO, autoWpm = 230, autoEnd = AutoEnd.WAIT, autoResume = AutoResume.SOON,
-        progressLine = ProgressLine.BOOK,
+        progressLine = ProgressLine.BOOK, fullscreen = true, roundCamera = true,
     )
 
     /**
@@ -714,6 +750,12 @@ data class ReaderSettings(
     }.toString()
 
     companion object {
+        /**
+         * The margins' items in plain type to start with: the time and the battery, as the status bar has them. (First
+         * in here: the settings made below start with it.)
+         */
+        val PLAIN_TO_START: Set<MarginItem> = setOf(MarginItem.CLOCK, MarginItem.BATTERY)
+
         /** [base] with the look kept in [o] (see [lookJson]); anything missing or unknown stays as [base] has it. */
         fun withLook(base: ReaderSettings, o: JSONObject): ReaderSettings {
             fun <E : Enum<E>> pick(key: String, values: Array<E>, d: E): E = o.optString(key).let { v -> values.firstOrNull { it.name == v } } ?: d
@@ -757,6 +799,7 @@ data class ReaderSettings(
 
         /** How the reader starts on this kind of device. */
         fun startingOn(phone: Boolean): ReaderSettings = if (phone) PHONE else ReaderSettings()
+
 
         fun css(argb: Long): String = "#%06x".format(argb and 0xFFFFFF)
         val FONT_SCALES = listOf(0.7f, 0.8f, 0.9f, 1f, 1.1f, 1.2f, 1.3f, 1.45f, 1.6f, 1.8f, 2f, 2.3f, 2.6f)
@@ -868,6 +911,8 @@ class ReaderSettingsStore(context: Context) {
             .putBoolean("edgePanels", next.edgePanels)
             .putBoolean("edgeBack", next.edgeBack)
             .putBoolean("clearOfCamera", next.clearOfCamera)
+            .putBoolean("fullscreen", next.fullscreen)
+            .putBoolean("roundCamera", next.roundCamera)
             .putString("marginItems", MarginItem.write(next.marginItems))
             .putString("plainMargins", MarginItem.writeSet(next.plainMargins))
             .putBoolean("awake", next.keepScreenOn)
@@ -945,6 +990,8 @@ class ReaderSettingsStore(context: Context) {
             edgePanels = prefs.getBoolean("edgePanels", d.edgePanels),
             edgeBack = prefs.getBoolean("edgeBack", d.edgeBack),
             clearOfCamera = prefs.getBoolean("clearOfCamera", d.clearOfCamera),
+            fullscreen = prefs.getBoolean("fullscreen", d.fullscreen),
+            roundCamera = prefs.getBoolean("roundCamera", d.roundCamera),
             brightness = prefs.getFloat("brightness", d.brightness),
             highlightColor = enumOf("hlColor", d.highlightColor),
             highlightStyle = enumOf("hlStyle", d.highlightStyle),
@@ -963,7 +1010,7 @@ class ReaderSettingsStore(context: Context) {
             progressLine = enumOf("progressBar", d.progressLine),
             barShade = enumOf("barShade", d.barShade),
             marginItems = prefs.getString("marginItems", null)?.let { MarginItem.parse(it) } ?: marginsBefore(),
-            plainMargins = MarginItem.parseSet(prefs.getString("plainMargins", null)),
+            plainMargins = prefs.getString("plainMargins", null)?.let { MarginItem.parseSet(it) } ?: d.plainMargins,
             runningHeads = enumOf("heads", d.runningHeads),
             headTitlePlace = enumOf("headTitles", d.headTitlePlace),
             headSize = enumOf("headSize", d.headSize),

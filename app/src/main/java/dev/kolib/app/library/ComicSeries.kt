@@ -25,8 +25,8 @@ class ComicEntry(val key: String, val title: String, val issues: List<LibraryBoo
     /** The issue to carry on with: the first not yet read, as Mihon's Resume has it; null once they've all been read. */
     fun next(here: (LibraryBook) -> ReadHere?): LibraryBook? = issues.firstOrNull { !ComicSeries.isRead(here(it)) }
 
-    /** Whether any issue has been opened: to carry on, rather than start. */
-    fun started(here: (LibraryBook) -> ReadHere?): Boolean = issues.any { here(it) != null }
+    /** Whether any issue has been read (past its first page): to carry on, rather than start. */
+    fun started(here: (LibraryBook) -> ReadHere?): Boolean = issues.any { here(it)?.let { h -> h.finished || h.progress > 0f } == true }
 
     /** When an issue was last read here; null if none has been. */
     fun lastRead(here: (LibraryBook) -> ReadHere?): Long? = issues.mapNotNull { here(it)?.at }.maxOrNull()

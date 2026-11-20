@@ -277,6 +277,37 @@ ${chapters.keys.joinToString("\n") { """<item id="$it" href="text/$it.xhtml" med
         shoot(name)
     }
 
+    /** The page kept below the camera: a black strip across the top with the camera in it, and the page under it. */
+    @Test
+    @Config(qualifiers = PHONE)
+    fun aPageKeptBelowTheCameraStartsUnderABlackStrip() {
+        val cut = Cutouts(top = Cutouts.Span(190f, 221f, 32f))
+        val settings = ReaderSettings.PHONE.copy(theme = ReaderTheme.PAPER, roundCamera = false)
+        val files = EpubFileFiles(EpubFile.open(garden()))
+        val c = ReaderController(files, BookStructure(files), "The Garden", "en", null, settings, context.assets, bookAuthor = "A. Gardener")
+        c.showForPreview(1, 3, 12, 1)
+        c.controlsVisible = false
+        compose.setContent {
+            AppSurface(ThemeChoice.SYSTEM) {
+                Box {
+                    ReaderScreen(c, onSettings = {}, onClose = {}, onEdit = {}, pagePreview = { Page() }, cutouts = cut)
+                    Box(Modifier.padding(start = 193.dp, top = 5.dp).size(25.dp).background(Color.Black, androidx.compose.foundation.shape.CircleShape))
+                }
+            }
+        }
+        compose.waitForIdle()
+        // The page is below the camera: as the reader sees it, there's no camera in it.
+        assertNull(c.cutouts.top)
+        val screen = compose.onRoot().fetchSemanticsNode().size.height / context.resources.displayMetrics.density
+        assertEquals(screen - 32f, c.cutouts.height, 1f)
+        shoot("97_camera_below")
+        val shot = android.graphics.BitmapFactory.decodeFile("${TestLanguage.folder("build/outputs/roborazzi")}/97_camera_below.png")
+        val density = context.resources.displayMetrics.density
+        // Black at the top left, beside the camera; the page below the strip.
+        assertEquals(android.graphics.Color.BLACK, shot.getPixel((20 * density).toInt(), (10 * density).toInt()))
+        assertTrue(shot.getPixel((20 * density).toInt(), (40 * density).toInt()) != android.graphics.Color.BLACK)
+    }
+
     @Test
     @Config(qualifiers = PHONE)
     fun aCameraInTheTopOfTheScreenHasTheTimeEitherSideOfIt() = camera("97_camera_placed", placed = true)

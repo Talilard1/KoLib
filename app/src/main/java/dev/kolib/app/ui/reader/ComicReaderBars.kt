@@ -377,8 +377,9 @@ internal fun <T> ComicChoiceSheet(
     }
 }
 
+/** One of the choices in a sheet from the bottom bar (the comic reader's, and the book reader's rotation). */
 @Composable
-private fun ChoiceButton(icon: ImageVector, label: String, chosen: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+internal fun ChoiceButton(icon: ImageVector, label: String, chosen: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(50),

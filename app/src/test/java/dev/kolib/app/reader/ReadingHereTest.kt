@@ -41,6 +41,35 @@ class ReadingHereTest {
     }
 
     @Test
+    fun aBookLeftOnItsFirstPageIsNotReadYetOrStillFinished() {
+        val dir = tmp.newFolder("first")
+        val store = ReaderStore(dir)
+        // Opened and left with no place (on its first page): not read yet.
+        store.save(ReaderState(null))
+        assertNull(ReaderStore.readHereOf(dir))
+        // Finished, then opened and left on its first page: still finished.
+        ReaderStore.markFinished(dir, now = 5_000L)
+        store.save(ReaderState(null))
+        assertTrue(ReaderStore.readHereOf(dir)!!.finished)
+        // Read past it: being read again.
+        store.save(ReaderState(ReaderPosition("ch2.xhtml", null, 0.2f, bookProgress = 0.1f, at = 6_000L)))
+        assertEquals(ReadHere(0.1f, 6_000L), ReaderStore.readHereOf(dir))
+    }
+
+    @Test
+    fun aComicOrPdfLeftOnItsFirstPageIsNotReadYetOrStillFinished() {
+        val dir = tmp.newFolder("comic")
+        ReaderStore.savePdfPlace(dir, PdfPlace(3, 20, at = 1_000L))
+        assertTrue(ReaderStore.readHereOf(dir)!!.started)
+        // Back to its cover.
+        assertNull(ReaderStore.leaveAtStart(dir))
+        assertNull(ReaderStore.pdfPlace(dir))
+        // Finished, then looked at the cover of again.
+        ReaderStore.markFinished(dir, now = 2_000L)
+        assertTrue(ReaderStore.leaveAtStart(dir)!!.finished)
+    }
+
+    @Test
     fun aStartedBookNeverShowsAsNoneRead() {
         assertEquals(1, ReadHere(0.001f, 0L).percent)
         assertEquals(0, ReadHere(0f, 0L).percent)

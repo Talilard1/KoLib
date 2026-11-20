@@ -124,8 +124,11 @@ class ReaderStore(
     fun save(state: ReaderState) {
         try {
             bookDir.mkdirs()
+            // With no place (left on its first page), a book marked as finished stays finished: it wasn't read again.
+            val wasFinished = if (state.position != null) null else runCatching { JSONObject(file.readText()) }.getOrNull()?.takeIf { it.optBoolean("finished") }
             val o = JSONObject().apply {
                 state.position?.let { put("position", it.toJson()) }
+                wasFinished?.let { put("finished", true).put("finishedAt", it.optLong("finishedAt")) }
                 put("bookmarks", JSONArray().apply { state.bookmarks.forEach { put(it.toJson()) } })
                 put("annotations", JSONArray().apply { state.annotations.forEach { put(it.toJson()) } })
                 if (state.deleted.isNotEmpty()) put("deleted", deletionsJson(state.deleted))
@@ -360,6 +363,15 @@ class ReaderStore(
             o.put("position", position.toJson())
             o.remove("finished")
             o.remove("finishedAt")
+        }
+
+        /**
+         * Left on its first page (its cover), or never gone past it: the book isn't being read. Its place in the PDF (or
+         * comic) is let go, so it shows as not read yet, or as finished if it was marked so. Returns how it shows now.
+         */
+        fun leaveAtStart(bookDir: File): ReadHere? {
+            forgetPdfPage(bookDir)
+            return readHereOf(bookDir)
         }
 
         /** Marks the book as not started: its place is let go (it opens at the beginning); bookmarks and highlights are kept. */

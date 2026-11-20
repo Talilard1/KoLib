@@ -1080,7 +1080,7 @@ fun AppRoot(
             comicsTab = libraryBrowse.comicsTab,
             onComicsTab = { libraryBrowse.comicsTab = it },
             seriesInPlace = libraryBrowse.seriesInPlace,
-            onSeriesInPlace = { libraryBrowse.seriesInPlace = it },
+            onSeriesInPlace = { libraryBrowse.openSeriesInPlace(it) },
         )
         if (showAi) dev.kolib.app.ui.ai.AiSetupDialog(onDismiss = { showAi = false })
         // A newer KoLib, when there is one (or what a look for one found, when it was asked for). It's looked for

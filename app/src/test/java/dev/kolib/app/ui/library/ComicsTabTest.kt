@@ -264,10 +264,10 @@ class ComicsTabTest {
     }
 
     /** The tab, with a comic's details shown as a line saying whose they are. */
-    private fun showWithDetails() {
+    private fun showWithDetails(actions: ComicActions = ComicActions(onRead = { read += it })) {
         compose.setContent {
             back = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
-            AppSurface { LibraryComicsTab(comics, covers, browse, koboConnected = false, here = { null }, actions = ComicActions()) { b, _, _ -> Text("Details of ${b.title}") } }
+            AppSurface { LibraryComicsTab(comics, covers, browse, koboConnected = false, here = { null }, actions = actions) { b, _, _ -> Text("Details of ${b.title}") } }
         }
         compose.waitForIdle()
     }
@@ -305,8 +305,12 @@ class ComicsTabTest {
         assertTrue(browse.seriesGrid)
         compose.onNodeWithTag("comic-issue-grid").assertExists()
         compose.onAllNodesWithTag("comic-issue").assertCountEquals(3)
-        // A comic's details, back to its series as it was, then back to the shelf.
-        compose.onAllNodesWithContentDescription("Details")[0].performClick()
+        // A comic's details: no button on each, but held, then Info at the top; back to its series as it was, then back to
+        // the shelf.
+        compose.onAllNodesWithContentDescription("Details").assertCountEquals(0)
+        compose.onAllNodesWithTag("comic-issue")[0].performTouchInput { longClick() }
+        compose.waitForIdle()
+        compose.onNodeWithTag("comic-issue-info").performClick()
         compose.waitForIdle()
         compose.onNodeWithText("Details of Saga 001").assertExists()
         pressBack()
@@ -385,5 +389,47 @@ class ComicsTabTest {
         // The usual question for removing books: no series to keep.
         compose.onAllNodesWithTag("series-remove-keep").assertCountEquals(0)
         compose.onNodeWithText("Remove this book from the library?").assertExists()
+    }
+
+    @Test
+    fun inPlaceOfTheShelfAComicIsOpenedByATapAndItsInfoIsAtTheTop() {
+        browse.seriesInPlace = true
+        showWithDetails()
+        // A comic on its own opens to read; the shelf stays.
+        compose.onNodeWithText("Watchmen").performClick()
+        compose.waitForIdle()
+        assertEquals(listOf("Watchmen.cbz"), read)
+        assertNull(browse.comicKey)
+        // Held, its details are Info at the top.
+        compose.onNodeWithText("Watchmen").performTouchInput { longClick() }
+        compose.waitForIdle()
+        compose.onNodeWithTag("comics-info").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Details of Watchmen").assertExists()
+        // Back is the shelf.
+        pressBack()
+        compose.onNodeWithTag("comic-shelf").assertExists()
+        assertNull(browse.comicKey)
+        // With two chosen there's no Info.
+        compose.onNodeWithText("Watchmen").performTouchInput { longClick() }
+        compose.onNodeWithText("Saga").performClick()
+        compose.waitForIdle()
+        compose.onAllNodesWithTag("comics-info").assertCountEquals(0)
+    }
+
+    @Test
+    fun switchedToInPlaceOfTheShelfTheShelfShows() {
+        showWithDetails()
+        // Open beside the shelf.
+        compose.onNodeWithText("Saga").performClick()
+        compose.waitForIdle()
+        assertEquals("s:saga", browse.comicKey)
+        compose.onNodeWithTag("comic-sort").performClick()
+        compose.onNodeWithTag("series-in-place").performClick()
+        compose.waitForIdle()
+        assertTrue(browse.seriesInPlace)
+        assertNull(browse.comicKey)
+        compose.onNodeWithTag("comic-shelf").assertExists()
+        compose.onAllNodesWithTag("comic-series-page").assertCountEquals(0)
     }
 }

@@ -312,7 +312,9 @@ html.kl-recolor body *:not(img):not(svg):not(svg *):not(video),
 html.kl-recolor #kl-opening,
 html.kl-recolor #kl-opening *:not(img):not(svg):not(svg *):not(video),
 html.kl-recolor #kl-pair,
-html.kl-recolor #kl-pair *:not(img):not(svg):not(svg *):not(video) {
+html.kl-recolor #kl-pair *:not(img):not(svg):not(svg *):not(video),
+html.kl-recolor #kl-section,
+html.kl-recolor #kl-section *:not(img):not(svg):not(svg *):not(video) {
   color: inherit !important;
   background-color: transparent !important;
   border-color: rgba(127, 127, 127, 0.45) !important;
@@ -339,7 +341,9 @@ html.kl-font body *:not(code):not(pre):not(kbd):not(samp):not(tt):not(svg):not(s
 html.kl-font #kl-opening,
 html.kl-font #kl-opening *:not(code):not(pre):not(kbd):not(samp):not(tt):not(svg):not(svg *),
 html.kl-font #kl-pair,
-html.kl-font #kl-pair *:not(code):not(pre):not(kbd):not(samp):not(tt):not(svg):not(svg *) {
+html.kl-font #kl-pair *:not(code):not(pre):not(kbd):not(samp):not(tt):not(svg):not(svg *),
+html.kl-font #kl-section,
+html.kl-font #kl-section *:not(code):not(pre):not(kbd):not(samp):not(tt):not(svg):not(svg *) {
   font-family: var(--kl-font) !important;
 }
 html.kl-lh body,
@@ -347,7 +351,8 @@ html.kl-lh body p, html.kl-lh body div, html.kl-lh body li, html.kl-lh body bloc
 html.kl-lh body span, html.kl-lh body dd, html.kl-lh body td,
 html.kl-lh #kl-opening, html.kl-lh #kl-opening p, html.kl-lh #kl-opening div, html.kl-lh #kl-opening span,
 html.kl-lh #kl-pair, html.kl-lh #kl-pair p, html.kl-lh #kl-pair div, html.kl-lh #kl-pair li,
-html.kl-lh #kl-pair blockquote, html.kl-lh #kl-pair span, html.kl-lh #kl-pair dd, html.kl-lh #kl-pair td {
+html.kl-lh #kl-pair blockquote, html.kl-lh #kl-pair span, html.kl-lh #kl-pair dd, html.kl-lh #kl-pair td,
+html.kl-lh #kl-section p, html.kl-lh #kl-section div, html.kl-lh #kl-section li, html.kl-lh #kl-section span {
   line-height: var(--kl-line) !important;
 }
 html.kl-paged .kl-align-left { text-align: left !important; }
@@ -363,6 +368,39 @@ html.kl-paged .kl-picture-box > a > img, html.kl-paged .kl-picture-box > a > svg
 html.kl-hyphens body, html.kl-hyphens #kl-pair { -webkit-hyphens: auto !important; hyphens: auto !important; }
 html.kl-nohyphens body, html.kl-nohyphens body *, html.kl-nohyphens #kl-opening, html.kl-nohyphens #kl-opening *,
 html.kl-nohyphens #kl-pair, html.kl-nohyphens #kl-pair * { -webkit-hyphens: manual !important; hyphens: manual !important; }
+
+/* Scrolling: the pages round a book's chapters (its cover, title page, copyright and contents; at the end its
+   acknowledgements and the rest), put in front of the last of them by the app, read as one section in the text's
+   column, one page after another. The cover has the first screen to itself. */
+html.kl-scroll #kl-section {
+  max-width: var(--kl-measure, 46em);
+  margin: 0 auto;
+}
+html.kl-scroll #kl-section > div + div { margin-top: 3em; }
+html.kl-scroll #kl-section > div:last-child { margin-bottom: 3em; }
+html.kl-scroll #kl-section > .kl-cover-part {
+  min-height: calc(var(--kl-vh, 100vh) - var(--kl-band-top, 0px) - var(--kl-pad-y, 0px));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  margin: 0 !important;
+}
+html.kl-scroll #kl-section > .kl-cover-part + div { margin-top: 0; padding-top: 3em; }
+html.kl-scroll #kl-section > .kl-cover-part img {
+  max-width: 100% !important;
+  max-height: calc(var(--kl-vh, 100vh) - var(--kl-band-top, 0px) - var(--kl-band-bottom, 0px) - 2 * var(--kl-pad-y, 0px)) !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain;
+}
+/* A cover drawn in an svg (as many books have it) fills the screen's height, its picture kept whole inside. */
+html.kl-scroll #kl-section > .kl-cover-part svg {
+  width: 100% !important;
+  height: calc(var(--kl-vh, 100vh) - var(--kl-band-top, 0px) - var(--kl-band-bottom, 0px) - 2 * var(--kl-pad-y, 0px)) !important;
+  max-width: 100% !important;
+}
 
 ::selection { background: var(--kl-sel); }
 ::highlight(kl-search) { background-color: var(--kl-hl); color: inherit; }

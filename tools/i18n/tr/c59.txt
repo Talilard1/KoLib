@@ -1,0 +1,248 @@
+@fr
+3054|Il sera synchronisé avec la Kobo la prochaine fois qu’elle sera connectée.
+3055|Ils seront synchronisés avec la Kobo la prochaine fois qu’elle sera connectée.
+3056|Impossible de synchroniser la lecture avec la Kobo : {0}. Rien n’a été modifié sur la Kobo ni dans KoLib.
+3057|Synchroniser la lecture avec la Kobo
+3058|Synchroniser avec la Kobo
+3059|Synchroniser avec la Kobo
+3060|Votre position (là où vous avez lu en dernier), ainsi que les signets, surlignages et notes, dans les deux sens.
+3061|Pour chaque livre, la position suit l’appareil où vous l’avez lu en dernier. Les signets, surlignages et notes sont copiés dans les deux sens, et ceux que vous avez supprimés le sont aussi de l’autre côté.
+3062|1 livre est à la fois dans votre bibliothèque et sur la Kobo.
+3063|{0} livres sont à la fois dans votre bibliothèque et sur la Kobo.
+3064|Tout synchroniser
+3065|Synchroniser ma lecture
+3066|Votre position, ainsi que vos signets, surlignages et notes, dans les deux sens. Un nouveau livre est synchronisé une fois que la Kobo l’a ajouté.
+3067|Votre lecture correspond déjà à celle de la Kobo.
+3068|La Kobo ouvre maintenant 1 livre là où vous en êtes dans KoLib.
+3069|La Kobo ouvre maintenant {0} livres là où vous en êtes dans KoLib.
+3070|KoLib ouvre maintenant 1 livre là où vous en êtes sur la Kobo.
+3071|KoLib ouvre maintenant {0} livres là où vous en êtes sur la Kobo.
+3072|1 signet ou surlignage copié sur la Kobo.
+3073|{0} signets et surlignages copiés sur la Kobo.
+3074|1 signet ou surlignage copié depuis la Kobo.
+3075|{0} signets et surlignages copiés depuis la Kobo.
+3076|1 élément supprimé d’un côté a été supprimé de l’autre.
+3077|{0} éléments supprimés d’un côté ont été supprimés de l’autre.
+3078|1 signet ou surlignage reste seulement dans KoLib : ils ne vont sur la Kobo que dans les livres envoyés en Kepub.
+3079|{0} signets et surlignages restent seulement dans KoLib : ils ne vont sur la Kobo que dans les livres envoyés en Kepub.
+3080|1 livre sera synchronisé une fois que la Kobo l’aura ajouté : éjectez la Kobo, puis reconnectez-la.
+3081|{0} livres seront synchronisés une fois que la Kobo les aura ajoutés : éjectez la Kobo, puis reconnectez-la.
+3082|1 livre n’a pas pu être synchronisé. Le journal donne les détails.
+3083|{0} livres n’ont pas pu être synchronisés. Le journal donne les détails.
+@de
+3054|Es wird beim nächsten Verbinden des Kobo abgeglichen.
+3055|Sie werden beim nächsten Verbinden des Kobo abgeglichen.
+3056|Der Lesestand konnte nicht mit dem Kobo abgeglichen werden: {0}. Weder am Kobo noch in KoLib wurde etwas geändert.
+3057|Lesestand mit dem Kobo abgleichen
+3058|Mit Kobo abgleichen
+3059|Mit dem Kobo abgleichen
+3060|Deine Leseposition (wo du zuletzt gelesen hast) sowie Lesezeichen, Markierungen und Notizen, in beide Richtungen.
+3061|Bei jedem Buch gilt die Stelle, an der du zuletzt gelesen hast. Lesezeichen, Markierungen und Notizen werden in beide Richtungen kopiert, und was du gelöscht hast, wird auch auf der anderen Seite gelöscht.
+3062|1 Buch ist in deiner Bibliothek und auf dem Kobo.
+3063|{0} Bücher sind in deiner Bibliothek und auf dem Kobo.
+3064|Alle abgleichen
+3065|Meinen Lesestand abgleichen
+3066|Deine Leseposition sowie deine Lesezeichen, Markierungen und Notizen, in beide Richtungen. Ein neues Buch wird abgeglichen, sobald der Kobo es hinzugefügt hat.
+3067|Dein Lesestand stimmt schon mit dem Kobo überein.
+3068|Der Kobo öffnet jetzt 1 Buch an deiner Stelle in KoLib.
+3069|Der Kobo öffnet jetzt {0} Bücher an deiner Stelle in KoLib.
+3070|KoLib öffnet jetzt 1 Buch an deiner Stelle auf dem Kobo.
+3071|KoLib öffnet jetzt {0} Bücher an deiner Stelle auf dem Kobo.
+3072|1 Lesezeichen oder Markierung auf den Kobo kopiert.
+3073|{0} Lesezeichen und Markierungen auf den Kobo kopiert.
+3074|1 Lesezeichen oder Markierung vom Kobo kopiert.
+3075|{0} Lesezeichen und Markierungen vom Kobo kopiert.
+3076|1 auf einer Seite gelöschter Eintrag wurde auch auf der anderen gelöscht.
+3077|{0} auf einer Seite gelöschte Einträge wurden auch auf der anderen gelöscht.
+3078|1 Lesezeichen oder Markierung bleibt nur in KoLib: Auf den Kobo kommen sie nur bei Büchern, die als Kepub gesendet wurden.
+3079|{0} Lesezeichen und Markierungen bleiben nur in KoLib: Auf den Kobo kommen sie nur bei Büchern, die als Kepub gesendet wurden.
+3080|1 Buch wird abgeglichen, sobald der Kobo es hinzugefügt hat: Wirf den Kobo aus und verbinde ihn dann wieder.
+3081|{0} Bücher werden abgeglichen, sobald der Kobo sie hinzugefügt hat: Wirf den Kobo aus und verbinde ihn dann wieder.
+3082|1 Buch konnte nicht abgeglichen werden. Details stehen im Protokoll.
+3083|{0} Bücher konnten nicht abgeglichen werden. Details stehen im Protokoll.
+@es
+3054|Se sincronizará con el Kobo la próxima vez que lo conectes.
+3055|Se sincronizarán con el Kobo la próxima vez que lo conectes.
+3056|No se pudo sincronizar la lectura con el Kobo: {0}. No se cambió nada en el Kobo ni en KoLib.
+3057|Sincronizar la lectura con el Kobo
+3058|Sincronizar con Kobo
+3059|Sincronizar con el Kobo
+3060|Por dónde vas (donde leíste por última vez), y los marcadores, subrayados y notas, en ambos sentidos.
+3061|En cada libro, la posición pasa a donde lo leíste por última vez. Los marcadores, subrayados y notas se copian en ambos sentidos, y los que hayas borrado se borran también en el otro lado.
+3062|1 libro está en tu biblioteca y en el Kobo.
+3063|{0} libros están en tu biblioteca y en el Kobo.
+3064|Sincronizar todo
+3065|Sincronizar mi lectura
+3066|Por dónde vas, y tus marcadores, subrayados y notas, en ambos sentidos. Un libro nuevo se sincroniza cuando el Kobo lo haya añadido.
+3067|Tu lectura ya coincide con el Kobo.
+3068|El Kobo ahora abre 1 libro donde vas en KoLib.
+3069|El Kobo ahora abre {0} libros donde vas en KoLib.
+3070|KoLib ahora abre 1 libro donde vas en el Kobo.
+3071|KoLib ahora abre {0} libros donde vas en el Kobo.
+3072|1 marcador o subrayado copiado al Kobo.
+3073|{0} marcadores y subrayados copiados al Kobo.
+3074|1 marcador o subrayado copiado desde el Kobo.
+3075|{0} marcadores y subrayados copiados desde el Kobo.
+3076|1 elemento borrado en un lado se borró en el otro.
+3077|{0} elementos borrados en un lado se borraron en el otro.
+3078|1 marcador o subrayado se queda solo en KoLib: solo pasan al Kobo en libros enviados como Kepub.
+3079|{0} marcadores y subrayados se quedan solo en KoLib: solo pasan al Kobo en libros enviados como Kepub.
+3080|1 libro se sincronizará cuando el Kobo lo haya añadido: expulsa el Kobo y vuelve a conectarlo.
+3081|{0} libros se sincronizarán cuando el Kobo los haya añadido: expulsa el Kobo y vuelve a conectarlo.
+3082|No se pudo sincronizar 1 libro. Los detalles están en el registro.
+3083|No se pudieron sincronizar {0} libros. Los detalles están en el registro.
+@it
+3054|Verrà sincronizzato con il Kobo la prossima volta che lo colleghi.
+3055|Verranno sincronizzati con il Kobo la prossima volta che lo colleghi.
+3056|Impossibile sincronizzare la lettura con il Kobo: {0}. Non è stato cambiato nulla sul Kobo né in KoLib.
+3057|Sincronizza la lettura con il Kobo
+3058|Sincronizza con Kobo
+3059|Sincronizza con il Kobo
+3060|Il punto in cui sei (dove hai letto per ultimo) e segnalibri, evidenziazioni e note, in entrambe le direzioni.
+3061|Per ogni libro, la posizione segue il dispositivo su cui l’hai letto per ultimo. Segnalibri, evidenziazioni e note vengono copiati in entrambe le direzioni, e quelli che hai eliminato vengono eliminati anche dall’altra parte.
+3062|1 libro è nella tua libreria e sul Kobo.
+3063|{0} libri sono nella tua libreria e sul Kobo.
+3064|Sincronizza tutto
+3065|Sincronizza la mia lettura
+3066|Il punto in cui sei e i tuoi segnalibri, evidenziazioni e note, in entrambe le direzioni. Un libro nuovo viene sincronizzato quando il Kobo l’ha aggiunto.
+3067|La tua lettura corrisponde già a quella del Kobo.
+3068|Ora il Kobo apre 1 libro dove sei arrivato in KoLib.
+3069|Ora il Kobo apre {0} libri dove sei arrivato in KoLib.
+3070|Ora KoLib apre 1 libro dove sei arrivato sul Kobo.
+3071|Ora KoLib apre {0} libri dove sei arrivato sul Kobo.
+3072|1 segnalibro o evidenziazione copiato sul Kobo.
+3073|{0} segnalibri ed evidenziazioni copiati sul Kobo.
+3074|1 segnalibro o evidenziazione copiato dal Kobo.
+3075|{0} segnalibri ed evidenziazioni copiati dal Kobo.
+3076|1 elemento eliminato da una parte è stato eliminato anche dall’altra.
+3077|{0} elementi eliminati da una parte sono stati eliminati anche dall’altra.
+3078|1 segnalibro o evidenziazione resta solo in KoLib: passano sul Kobo solo nei libri inviati come Kepub.
+3079|{0} segnalibri ed evidenziazioni restano solo in KoLib: passano sul Kobo solo nei libri inviati come Kepub.
+3080|1 libro verrà sincronizzato quando il Kobo l’avrà aggiunto: espelli il Kobo e poi ricollegalo.
+3081|{0} libri verranno sincronizzati quando il Kobo li avrà aggiunti: espelli il Kobo e poi ricollegalo.
+3082|Non è stato possibile sincronizzare 1 libro. I dettagli sono nel registro.
+3083|Non è stato possibile sincronizzare {0} libri. I dettagli sono nel registro.
+@nl
+3054|Het wordt gesynchroniseerd met de Kobo zodra de Kobo weer verbonden is.
+3055|Ze worden gesynchroniseerd met de Kobo zodra de Kobo weer verbonden is.
+3056|Lezen kon niet worden gesynchroniseerd met de Kobo: {0}. Er is niets veranderd op de Kobo of in KoLib.
+3057|Lezen synchroniseren met de Kobo
+3058|Synchroniseren met Kobo
+3059|Synchroniseren met de Kobo
+3060|Waar je bent (waar je het laatst las), en bladwijzers, markeringen en notities, in beide richtingen.
+3061|Bij elk boek gaat je plek naar waar je het laatst las. Bladwijzers, markeringen en notities worden in beide richtingen gekopieerd, en wat je hebt verwijderd, wordt ook aan de andere kant verwijderd.
+3062|1 boek staat in je bibliotheek en op de Kobo.
+3063|{0} boeken staan in je bibliotheek en op de Kobo.
+3064|Alles synchroniseren
+3065|Mijn leesvoortgang synchroniseren
+3066|Waar je bent, en je bladwijzers, markeringen en notities, in beide richtingen. Een nieuw boek wordt gesynchroniseerd zodra de Kobo het heeft toegevoegd.
+3067|Je leesvoortgang komt al overeen met de Kobo.
+3068|De Kobo opent nu 1 boek waar je in KoLib bent.
+3069|De Kobo opent nu {0} boeken waar je in KoLib bent.
+3070|KoLib opent nu 1 boek waar je op de Kobo bent.
+3071|KoLib opent nu {0} boeken waar je op de Kobo bent.
+3072|1 bladwijzer of markering gekopieerd naar de Kobo.
+3073|{0} bladwijzers en markeringen gekopieerd naar de Kobo.
+3074|1 bladwijzer of markering gekopieerd van de Kobo.
+3075|{0} bladwijzers en markeringen gekopieerd van de Kobo.
+3076|1 aan één kant verwijderd item is ook aan de andere kant verwijderd.
+3077|{0} aan één kant verwijderde items zijn ook aan de andere kant verwijderd.
+3078|1 bladwijzer of markering blijft alleen in KoLib: ze gaan alleen naar de Kobo in boeken die als Kepub zijn verzonden.
+3079|{0} bladwijzers en markeringen blijven alleen in KoLib: ze gaan alleen naar de Kobo in boeken die als Kepub zijn verzonden.
+3080|1 boek wordt gesynchroniseerd zodra de Kobo het heeft toegevoegd: werp de Kobo uit en verbind hem daarna opnieuw.
+3081|{0} boeken worden gesynchroniseerd zodra de Kobo ze heeft toegevoegd: werp de Kobo uit en verbind hem daarna opnieuw.
+3082|1 boek kon niet worden gesynchroniseerd. Details staan in het logboek.
+3083|{0} boeken konden niet worden gesynchroniseerd. Details staan in het logboek.
+@pt
+3054|Ele será sincronizado com o Kobo na próxima vez que o Kobo for conectado.
+3055|Eles serão sincronizados com o Kobo na próxima vez que o Kobo for conectado.
+3056|Não foi possível sincronizar a leitura com o Kobo: {0}. Nada foi alterado no Kobo nem no KoLib.
+3057|Sincronizar a leitura com o Kobo
+3058|Sincronizar com o Kobo
+3059|Sincronizar com o Kobo
+3060|Onde você parou (onde leu por último), e marcadores, destaques e notas, nos dois sentidos.
+3061|Em cada livro, a posição vai para onde você leu por último. Marcadores, destaques e notas são copiados nos dois sentidos, e os que você apagou são apagados do outro lado também.
+3062|1 livro está na sua biblioteca e no Kobo.
+3063|{0} livros estão na sua biblioteca e no Kobo.
+3064|Sincronizar tudo
+3065|Sincronizar minha leitura
+3066|Onde você parou e seus marcadores, destaques e notas, nos dois sentidos. Um livro novo é sincronizado depois que o Kobo o adicionar.
+3067|Sua leitura já está igual à do Kobo.
+3068|O Kobo agora abre 1 livro onde você está no KoLib.
+3069|O Kobo agora abre {0} livros onde você está no KoLib.
+3070|O KoLib agora abre 1 livro onde você está no Kobo.
+3071|O KoLib agora abre {0} livros onde você está no Kobo.
+3072|1 marcador ou destaque copiado para o Kobo.
+3073|{0} marcadores e destaques copiados para o Kobo.
+3074|1 marcador ou destaque copiado do Kobo.
+3075|{0} marcadores e destaques copiados do Kobo.
+3076|1 item apagado de um lado foi apagado do outro.
+3077|{0} itens apagados de um lado foram apagados do outro.
+3078|1 marcador ou destaque fica só no KoLib: eles só vão para o Kobo em livros enviados como Kepub.
+3079|{0} marcadores e destaques ficam só no KoLib: eles só vão para o Kobo em livros enviados como Kepub.
+3080|1 livro será sincronizado quando o Kobo o adicionar: ejete o Kobo e conecte-o de novo.
+3081|{0} livros serão sincronizados quando o Kobo os adicionar: ejete o Kobo e conecte-o de novo.
+3082|Não foi possível sincronizar 1 livro. Os detalhes estão no registro.
+3083|Não foi possível sincronizar {0} livros. Os detalhes estão no registro.
+@ru
+3054|Книга синхронизируется с Kobo, когда Kobo подключат в следующий раз.
+3055|Книги синхронизируются с Kobo, когда Kobo подключат в следующий раз.
+3056|Не удалось синхронизировать чтение с Kobo: {0}. Ни на Kobo, ни в KoLib ничего не изменилось.
+3057|Синхронизировать чтение с Kobo
+3058|Синхронизировать с Kobo
+3059|Синхронизировать с Kobo
+3060|Место, где вы остановились (там, где читали в последний раз), а также закладки, выделения и заметки — в обе стороны.
+3061|В каждой книге место чтения берётся оттуда, где вы читали в последний раз. Закладки, выделения и заметки копируются в обе стороны, а удалённые вами удаляются и на другой стороне.
+3062|1 книга есть и в вашей библиотеке, и на Kobo.
+3063|{0} {0:книга|книги|книг} есть и в вашей библиотеке, и на Kobo.
+3064|Синхронизировать все
+3065|Синхронизировать моё чтение
+3066|Место, где вы остановились, а также ваши закладки, выделения и заметки — в обе стороны. Новая книга синхронизируется, когда Kobo её добавит.
+3067|Чтение уже совпадает с Kobo.
+3068|Теперь Kobo откроет 1 книгу там, где вы остановились в KoLib.
+3069|Теперь Kobo откроет {0} {0:книгу|книги|книг} там, где вы остановились в KoLib.
+3070|Теперь KoLib откроет 1 книгу там, где вы остановились на Kobo.
+3071|Теперь KoLib откроет {0} {0:книгу|книги|книг} там, где вы остановились на Kobo.
+3072|1 закладка или выделение скопированы на Kobo.
+3073|На Kobo скопировано закладок и выделений: {0}.
+3074|С Kobo скопирована 1 закладка или выделение.
+3075|С Kobo скопировано закладок и выделений: {0}.
+3076|1 элемент, удалённый на одной стороне, удалён и на другой.
+3077|Удалённое на одной стороне удалено и на другой: {0}.
+3078|1 закладка или выделение остаётся только в KoLib: на Kobo они переносятся только в книгах, отправленных в формате Kepub.
+3079|Только в KoLib остаётся закладок и выделений: {0}. На Kobo они переносятся только в книгах, отправленных в формате Kepub.
+3080|1 книга синхронизируется, когда Kobo её добавит: извлеките Kobo, а затем подключите его снова.
+3081|{0} {0:книга синхронизируется|книги синхронизируются|книг синхронизируются}, когда Kobo их добавит: извлеките Kobo, а затем подключите его снова.
+3082|Не удалось синхронизировать 1 книгу. Подробности в журнале.
+3083|Не удалось синхронизировать {0} {0:книгу|книги|книг}. Подробности в журнале.
+@ja
+3054|次に Kobo をつないだときに同期します。
+3055|次に Kobo をつないだときに同期します。
+3056|Kobo と読書を同期できませんでした: {0}。Kobo にも KoLib にも変更はありません。
+3057|Kobo と読書を同期
+3058|Kobo と同期
+3059|Kobo と同期
+3060|読んでいる位置(最後に読んだほうに合わせます)と、しおり・ハイライト・メモを双方向に。
+3061|各本の読んでいる位置は、最後に読んだほうに合わせます。しおり・ハイライト・メモは双方向にコピーし、削除したものは相手側でも削除します。
+3062|ライブラリと Kobo の両方にある本: 1 冊。
+3063|ライブラリと Kobo の両方にある本: {0} 冊。
+3064|すべて同期
+3065|読書を同期
+3066|読んでいる位置と、しおり・ハイライト・メモを双方向に同期します。新しい本は、Kobo が取り込んでから同期します。
+3067|読書はすでに Kobo と同じです。
+3068|Kobo で 1 冊が KoLib で読んでいる位置から開くようになりました。
+3069|Kobo で {0} 冊が KoLib で読んでいる位置から開くようになりました。
+3070|KoLib で 1 冊が Kobo で読んでいる位置から開くようになりました。
+3071|KoLib で {0} 冊が Kobo で読んでいる位置から開くようになりました。
+3072|しおりかハイライトを 1 件 Kobo にコピーしました。
+3073|しおりとハイライトを {0} 件 Kobo にコピーしました。
+3074|しおりかハイライトを 1 件 Kobo からコピーしました。
+3075|しおりとハイライトを {0} 件 Kobo からコピーしました。
+3076|片方で削除した 1 件を、もう片方でも削除しました。
+3077|片方で削除した {0} 件を、もう片方でも削除しました。
+3078|しおりかハイライト 1 件は KoLib にだけ残ります。Kobo にコピーできるのは Kepub で送った本だけです。
+3079|しおりとハイライト {0} 件は KoLib にだけ残ります。Kobo にコピーできるのは Kepub で送った本だけです。
+3080|1 冊は Kobo が取り込んでから同期します。Kobo を取り出してから、もう一度つないでください。
+3081|{0} 冊は Kobo が取り込んでから同期します。Kobo を取り出してから、もう一度つないでください。
+3082|1 冊を同期できませんでした。詳しくはログをご覧ください。
+3083|{0} 冊を同期できませんでした。詳しくはログをご覧ください。

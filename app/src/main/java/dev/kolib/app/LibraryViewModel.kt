@@ -129,6 +129,11 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         get() = prefs.getBoolean("send_pdfs", false)
         set(value) = prefs.edit().putBoolean("send_pdfs", value).apply()
 
+    /** Whether sending books syncs their reading with the Kobo too (place, bookmarks, highlights and notes), as chosen last time. */
+    var syncReadingOnSend: Boolean
+        get() = prefs.getBoolean("send_sync_reading", false)
+        set(value) = prefs.edit().putBoolean("send_sync_reading", value).apply()
+
     /** Books waiting to be sent by the send that's running; more can join it while it runs. */
     private class SendRequest(val id: String, val session: KoboSession, val format: SendFormat, val covers: CoverFitting, val pdfs: Boolean)
 

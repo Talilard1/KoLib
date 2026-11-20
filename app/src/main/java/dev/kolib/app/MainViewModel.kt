@@ -104,6 +104,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     private val library = (app as KoLibApp).library
     private val sender = KoboSender(app)
     private val syncRunner = KoboSyncRunner(repo, library, (app as KoLibApp).pendingKoboRecords)
+    private val readingRunner = dev.kolib.app.kobo.ReadingSyncRunner(repo, library, (app as KoLibApp).readingHere)
+    private val readingQueue get() = getApplication<KoLibApp>().readingSyncQueue
     private val syncLock = Mutex()
     /** Work waiting for the next sync to be done (see [KoLibApp.koboSyncRequests]). */
     private val syncWaiters = mutableListOf<CompletableDeferred<Unit>>()
@@ -530,6 +532,12 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 val mention = outcome.missingCollections.isNotEmpty() && missingTold != session.connectedAtMillis to outcome.missingCollections
                 if (outcome.missingCollections.isNotEmpty()) missingTold = session.connectedAtMillis to outcome.missingCollections
                 outcome.describe(mentionMissing = mention)?.let { msg -> _state.update { it.copy(message = msg) } }
+                // Books waiting to have their reading synced, now the Kobo may have them.
+                val waiting = readingQueue.all()
+                if (waiting.isNotEmpty()) {
+                    val current = (_state.value.connection as? Connection.Connected)?.session ?: outcome.session
+                    syncReadingLocked(current, waiting, quietIfWaiting = true)
+                }
             } catch (e: KoboDatabaseChangedException) {
                 AppLog.w("Sync", e.message ?: "The Kobo's database changed")
                 _state.update { it.copy(message = e.message) }
@@ -540,6 +548,71 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             } finally {
                 _state.update { it.copy(syncing = false) }
             }
+        }
+    }
+
+    /**
+     * Syncs the reading of these library books with the Kobo: where they're up to (wherever they were read last), and
+     * their bookmarks, highlights and notes both ways. Books the Kobo hasn't got yet, or all of them while it isn't
+     * connected, wait for when it is.
+     */
+    fun syncReading(ids: Collection<String>) {
+        if (ids.isEmpty()) return
+        val c = _state.value.connection as? Connection.Connected
+        val checked = _state.value.afterConnect
+        if (c == null || c.unplugged) {
+            readingQueue.add(ids)
+            _state.update { it.copy(message = if (ids.size == 1) tr("It syncs with the Kobo next time the Kobo is connected.") else tr("They sync with the Kobo next time the Kobo is connected.")) }
+            return
+        }
+        if (_state.value.afterConnectRunning || checked == null) {
+            // Once the database just read is backed up and checked: the sync after that check does these.
+            readingQueue.add(ids)
+            return
+        }
+        viewModelScope.launch {
+            syncLock.withLock {
+                val now = _state.value.connection as? Connection.Connected ?: return@withLock
+                if (now.unplugged) return@withLock
+                syncReadingLocked(now.session, ids.toSet(), quietIfWaiting = false)
+            }
+        }
+    }
+
+    /** Syncs these books' reading with the Kobo once it has them (after they're sent, say), without saying anything now. */
+    fun queueReadingSync(ids: Collection<String>) = readingQueue.add(ids)
+
+    /** The work of [syncReading], with the sync lock held. */
+    private suspend fun syncReadingLocked(session: KoboSession, ids: Set<String>, quietIfWaiting: Boolean) {
+        val checked = _state.value.afterConnect
+        if (checked == null || checked.integrity != "ok" || checked.backupError != null) {
+            readingQueue.add(ids)
+            return
+        }
+        _state.update { it.copy(syncing = true) }
+        try {
+            val outcome = readingRunner.run(session, ids) { _state.update { it.copy(syncing = false) } }
+            readingQueue.remove(ids - outcome.waiting)
+            readingQueue.add(outcome.waiting)
+            if (outcome.session !== session) {
+                _state.update { s ->
+                    val now = s.connection as? Connection.Connected
+                    if (now?.session === session) s.copy(connection = now.copy(session = outcome.session)) else s
+                }
+                withContext(Dispatchers.IO) { repo.saveLastSeen(outcome.session, outcome.session.snapshot.without(_state.value.removedIds)) }
+            }
+            // Books still waiting for the Kobo to take them in are only told of when asked for.
+            val quiet = quietIfWaiting && outcome.synced.isEmpty() && outcome.failed == 0
+            if (!quiet) outcome.describe().takeIf { it.isNotBlank() }?.let { msg -> _state.update { it.copy(message = msg) } }
+        } catch (e: KoboDatabaseChangedException) {
+            AppLog.w("Kobo sync", e.message ?: "The Kobo's database changed")
+            _state.update { it.copy(message = e.message) }
+        } catch (e: Exception) {
+            AppLog.e("Kobo sync", "Syncing reading with the Kobo failed", e)
+            val why = (e.message ?: e.javaClass.simpleName).trimEnd('.')
+            _state.update { it.copy(message = tr("Couldn't sync reading with the Kobo: {0}. No changes were made to the Kobo or KoLib.", why)) }
+        } finally {
+            _state.update { it.copy(syncing = false) }
         }
     }
 

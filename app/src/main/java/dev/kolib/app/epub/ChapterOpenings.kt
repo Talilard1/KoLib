@@ -117,6 +117,86 @@ object ChapterOpenings {
         return out.takeIf { XmlCheck.check(it, htmlEntities = true) == null }
     }
 
+    /** A page put in front of another by [joinSection]: its text and path, its box's id, and whether it's the book's cover. */
+    class Piece(val text: String, val path: String, val id: String, val cover: Boolean = false)
+
+    /**
+     * [text] (a page at [textPath]) with [pieces] (the pages before it, in order) in front of it, for reading the pages
+     * round a book's chapters (its cover, title page, copyright and contents; its acknowledgements and the rest at the
+     * end) as one when scrolling. As [joinAll] puts them, each in a box of its own within one box ([SECTION_BOX]): each
+     * with its [Piece.id], and the cover's marked "kl-cover-part" (to fill the first screen). A page from another folder
+     * has its links (pictures, style sheets, links to other pages) made to work from this one. Null if it can't be done
+     * safely.
+     */
+    fun joinSection(text: String, textPath: String, pieces: List<Piece>): String? {
+        if (pieces.isEmpty()) return null
+        val doc = try { Xml.parse(text) } catch (e: XmlException) { return null }
+        if (doc.root.namespaceUri() != XHTML_NS) return null
+        val body = doc.root.elements().firstOrNull { it.localName == "body" } ?: return null
+        val head = doc.root.elements().firstOrNull { it.localName == "head" }
+        val here = textPath.substringBeforeLast('/', "")
+        val parsed = pieces.map { piece ->
+            val odoc = try { Xml.parse(piece.text) } catch (e: XmlException) { return null }
+            val obody = odoc.root.elements().firstOrNull { it.localName == "body" } ?: return null
+            Triple(piece, odoc, obody)
+        }
+        val attrs = LinkedHashMap<String, String>()
+        attrs["id"] = SECTION_BOX
+        for ((_, odoc, obody) in parsed) for ((k, v) in odoc.root.attributes + obody.attributes) if (k.startsWith("xmlns:")) attrs.putIfAbsent(k, v)
+        val box = Xml.startTag("div", attrs, false) + parsed.joinToString("") { (piece, _, obody) ->
+            val each = LinkedHashMap<String, String>()
+            each["id"] = piece.id
+            val cls = listOfNotNull(obody.attributes["class"], "kl-cover-part".takeIf { piece.cover }).joinToString(" ")
+            if (cls.isNotEmpty()) each["class"] = cls
+            val inner = if (obody.selfClosing) "" else piece.text.substring(obody.startTagEnd, obody.endTagStart)
+            Xml.startTag("div", each, false) + relink(inner, piece.path.substringBeforeLast('/', ""), here) + "</div>"
+        } + "</div>\n"
+
+        // Their style sheets, where the page doesn't already have them, linked from here.
+        val linkRe = Regex("""<link\b[^>]*>""", RegexOption.IGNORE_CASE)
+        val hrefRe = Regex("""\bhref\s*=\s*(?:"([^"]*)"|'([^']*)')""", RegexOption.IGNORE_CASE)
+        fun sheets(t: String, end: Int, from: String) = linkRe.findAll(t.substring(0, end))
+            .filter { it.value.contains("stylesheet", ignoreCase = true) }
+            .mapNotNull { m -> hrefRe.find(m.value)?.let { it.groupValues[1].ifEmpty { it.groupValues[2] } } }
+            .map { relinked(it, from, here) }
+            .toList()
+        val have = if (head != null) sheets(text, head.end, here).toSet() else emptySet()
+        val missing = parsed.flatMap { (piece, odoc, _) ->
+            val ohead = odoc.root.elements().firstOrNull { it.localName == "head" }
+            if (ohead != null) sheets(piece.text, ohead.end, piece.path.substringBeforeLast('/', "")) else emptyList()
+        }.distinct().filter { it !in have }
+
+        val edits = TextEdits(text)
+        if (missing.isNotEmpty() && head != null && !head.selfClosing) {
+            edits.insert(head.endTagStart, missing.joinToString("") { "<link rel=\"stylesheet\" type=\"text/css\" href=\"${Xml.escapeAttr(it)}\"/>" })
+        }
+        edits.insert(body.start, box)
+        val out = edits.apply()
+        return out.takeIf { XmlCheck.check(it, htmlEntities = true) == null }
+    }
+
+    private val urlAttr = Regex("""(\s(?:src|href|xlink:href|poster)\s*=\s*)(["'])([^"']*)\2""", RegexOption.IGNORE_CASE)
+
+    /** [markup] from a page in folder [from], with its links made to work from a page in folder [to]. */
+    internal fun relink(markup: String, from: String, to: String): String {
+        if (from == to) return markup
+        return urlAttr.replace(markup) { m -> m.groupValues[1] + m.groupValues[2] + relinked(m.groupValues[3], from, to) + m.groupValues[2] }
+    }
+
+    /** A link [url] in a page in folder [from], as it's written in a page in folder [to]. */
+    internal fun relinked(url: String, from: String, to: String): String {
+        if (from == to || url.isEmpty() || url.startsWith("#") || url.startsWith("/") || url.contains(':')) return url
+        val cut = url.indexOfAny(charArrayOf('#', '?')).let { if (it < 0) url.length else it }
+        val target = ArrayList<String>()
+        for (part in (from.split('/') + url.substring(0, cut).split('/')).filter { it.isNotEmpty() && it != "." }) {
+            if (part == "..") { if (target.isNotEmpty()) target.removeAt(target.lastIndex) } else target += part
+        }
+        val base = to.split('/').filter { it.isNotEmpty() }
+        var same = 0
+        while (same < base.size && same < target.size - 1 && base[same] == target[same]) same++
+        return (List(base.size - same) { ".." } + target.drop(same)).joinToString("/") + url.substring(cut)
+    }
+
     private const val XHTML_NS = "http://www.w3.org/1999/xhtml"
 
     /** The box an opening goes in, in front of its chapter. */
@@ -124,4 +204,10 @@ object ChapterOpenings {
 
     /** The box a short page goes in, in front of the short page shown beside it. */
     const val PAIR_BOX = "kl-pair"
+
+    /** The box the pages round a book's chapters go in, in front of the last of them, when scrolling (see [joinSection]). */
+    const val SECTION_BOX = "kl-section"
+
+    /** The start of the id of each page's box in [SECTION_BOX]: then its chapter's number. */
+    const val SECTION_PART = "kl-part-"
 }

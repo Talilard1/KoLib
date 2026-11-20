@@ -314,11 +314,18 @@ class ReaderController(
     /** The chapter's words have been counted (so the time left in it means something). */
     val chapterWordsKnown: Boolean get() = chapterWords.getOrElse(chapterIndex) { 0 } > 0
 
+    /** Bookmarks and highlights deleted, and which have been on a Kobo: kept with the book (see ReaderState). */
+    private var deletedMarks: Map<String, Long> = emptyMap()
+    private var koboMarks: JSONObject? = null
+
     init {
         store?.load()?.let { s ->
             annotations = s.annotations
-            bookmarks = s.bookmarks
+            // In the book's order (another device's or the Kobo's may have come in any order).
+            bookmarks = s.bookmarks.sortedWith(compareBy({ b -> chapters.indexOfFirst { it.path == b.path }.let { if (it < 0) Int.MAX_VALUE else it } }, { it.progress }))
             position = s.position
+            deletedMarks = s.deleted
+            koboMarks = s.kobo
         }
         scope.launch {
             val stamp = java.util.zip.CRC32()
@@ -630,6 +637,7 @@ class ReaderController(
 
     /** The chapters known to be shown in front of chapter [i] on its page: its opening, or the pieces of its page before it. */
     private fun inFront(i: Int): List<Int> {
+        sectionAt(i)?.takeIf { it.last == i }?.let { s -> return (s.first until i).filter { chapters[it].linear } }
         if (i > 0 && openings[i - 1] == true) return listOf(i - 1)
         var j = i
         while (j > 0 && pieces[j - 1] == true) j--
@@ -822,6 +830,17 @@ class ReaderController(
         }
 
     fun open(index: Int, target: JSONObject) {
+        // Scrolling, the pages before the book's chapters are one section, and those after them another: shown as the
+        // last page of the section, with the rest in front of it. A page of it opens there (its first, at the top).
+        sectionAt(index)?.takeIf { index != it.last }?.let { s ->
+            val t = when {
+                target.optString("type") in setOf("fragment", "picture") -> target
+                index == s.first -> target("start")
+                else -> target("fragment", ChapterOpenings.SECTION_PART + index)
+            }
+            open(s.last, t)
+            return
+        }
         // A chapter's opening page is shown with the chapter's text, so it's never opened alone: its
         // text opens instead, at its start (a link into the opening still finds its place). The same
         // for a short page shown beside the next.
@@ -873,6 +892,13 @@ class ReaderController(
     private fun nextLinear(from: Int, step: Int): Int? {
         var i = from + step
         while (i in chapters.indices) {
+            // Onto a section of pages shown as one (scrolling): forward, it opens; back, it's opened as a whole.
+            val section = sectionAt(i)
+            if (section != null && i != section.last) {
+                if (step > 0) return section.last
+                i = section.first - 1
+                continue
+            }
             if (chapters[i].linear) {
                 // Forward onto an opening: its chapter, which shows it. Back onto one: it's the opening of the
                 // chapter being left, already shown, so on to the chapter before. (A short page shown
@@ -932,6 +958,12 @@ class ReaderController(
     private fun joined(path: String, text: String): String? {
         val i = chapters.indexOfFirst { it.path == path }
         if (i <= 0) return null
+        sectionAt(i)?.takeIf { it.last == i }?.let { s ->
+            val pieces = (s.first until i).filter { chapters[it].linear }.map { k ->
+                ChapterOpenings.Piece(files.text(chapters[k].path) ?: return null, chapters[k].path, ChapterOpenings.SECTION_PART + k, cover = pageKind(k) == PageKind.COVER)
+            }
+            return ChapterOpenings.joinSection(text, path, pieces)
+        }
         val before = chapters[i - 1]
         if (isOpening(i - 1)) return ChapterOpenings.join(text, path, files.text(before.path) ?: return null, before.path)
         if (isPiece(i - 1)) {
@@ -942,6 +974,39 @@ class ReaderController(
         }
         if (isPairedLeft(i - 1)) return ChapterOpenings.join(text, path, files.text(before.path) ?: return null, before.path, ChapterOpenings.PAIR_BOX)
         return null
+    }
+
+    // ---- scrolling: the pages round the book's chapters, as a section each -------------------------------
+
+    /**
+     * Scrolling, the pages before the book's first chapter (its cover, title page, copyright, dedication, contents) are
+     * read as one section, and the pages after its last chapter (acknowledgements, about the author, other books) as
+     * another: a section of two pages or more, with chapters in the book between them. Null for chapter [i] otherwise.
+     */
+    private fun sectionAt(i: Int): IntRange? {
+        if (!settings.scrolling) return null
+        return scrollSections.firstOrNull { i in it }
+    }
+
+    private val scrollSections: List<IntRange> by lazy {
+        runCatching {
+            val linear = chapters.indices.filter { chapters[it].linear }
+            if (linear.size < 3) return@runCatching emptyList<IntRange>()
+            val front = linear.takeWhile { isMatter(it) }
+            val back = linear.drop(front.size).reversed().takeWhile { isMatter(it) }.reversed()
+            listOfNotNull(
+                front.takeIf { it.size >= 2 && front.size < linear.size }?.let { it.first()..it.last() },
+                back.takeIf { it.size >= 2 && front.size + back.size < linear.size }?.let { it.first()..it.last() },
+            )
+        }.onFailure { AppLog.w("Reader", "The pages round the book's chapters couldn't be told apart", it) }.getOrDefault(emptyList())
+    }
+
+    /** Chapter [i] is one of the pages round the book, not one of its chapters: by its name, or as a page of its own kind. */
+    private fun isMatter(i: Int): Boolean {
+        val title = chapters[i].title.trim()
+        if (CONTENT_TITLE.matches(title)) return false
+        if (MATTER_TITLE.matches(title)) return true
+        return pageKind(i) != PageKind.TEXT
     }
 
     // ---- pieces of one page --------------------------------------------------------------------------
@@ -1476,16 +1541,26 @@ class ReaderController(
 
     fun toggleBookmark() {
         val existing = currentBookmark
-        bookmarks = if (existing != null) bookmarks - existing else {
+        bookmarks = if (existing != null) {
+            forget(existing.markId)
+            bookmarks - existing
+        } else {
             val p = position ?: return
-            (bookmarks + p.copy(at = System.currentTimeMillis())).sortedWith(compareBy({ b -> chapters.indexOfFirst { it.path == b.path } }, { it.progress }))
+            val mark = p.copy(at = System.currentTimeMillis(), id = java.util.UUID.randomUUID().toString())
+            (bookmarks + mark).sortedWith(compareBy({ b -> chapters.indexOfFirst { it.path == b.path } }, { it.progress }))
         }
         saveSoon()
     }
 
     fun removeBookmark(b: ReaderPosition) {
+        forget(b.markId)
         bookmarks = bookmarks - b
         saveSoon()
+    }
+
+    /** A bookmark or highlight deleted: it goes from the book's other devices and the Kobo too, when they're next synced. */
+    private fun forget(id: String) {
+        deletedMarks = deletedMarks + (id to System.currentTimeMillis())
     }
 
     // ---- highlights and notes ------------------------------------------------------------------------
@@ -1629,6 +1704,7 @@ class ReaderController(
 
     fun removeAnnotation(id: String) {
         if (openAnnotation?.id == id) openAnnotation = null
+        forget(id)
         changeAnnotations(annotations.filterNot { it.id == id })
     }
 
@@ -1687,7 +1763,7 @@ class ReaderController(
 
     fun saveNow() {
         val s = store ?: return
-        s.save(ReaderState(position, bookmarks, annotations))
+        s.save(ReaderState(position, bookmarks, annotations, deletedMarks, koboMarks))
     }
 
     private inner class Bridge {
@@ -1902,5 +1978,20 @@ class ReaderController(
         const val WORDS_PER_MINUTE = 250f
         /** The most words one turn of the page reads: two full pages side by side, and some. */
         const val MOST_WORDS_A_TURN = 1800f
+
+        /** The names of a book's chapters, and of what's read like one (a prologue, a foreword): never pages round it. */
+        internal val CONTENT_TITLE = Regex(
+            "(?i)^\\W*(chapter|chap\\.?|part|book|section|prologue|epilogue|foreword|introduction|preface|afterword|interlude|letter|" +
+                "\\d+|[ivxlcdm]+)\\b.*$"
+        )
+
+        /** The names of the pages round a book: before its chapters, and after them. */
+        internal val MATTER_TITLE = Regex(
+            "(?i)^\\W*(cover|title(\\s*page)?|half[- ]?title|copyright( page)?|dedication|epigraph|(table of )?contents|also by.*|" +
+                "books by.*|other (books|titles) by.*|by the same author.*|praise( for.*)?|imprint|frontispiece|landmarks|" +
+                "about the (author|publisher|illustrator|translator|book)s?|acknowledge?ments?|credits|colophon|newsletter.*|" +
+                "sign up.*|thank you( for reading)?.*|reading group guide|discussion questions|questions for discussion|" +
+                "(an )?excerpt.*|preview.*|sneak peek.*|coming soon.*|more from.*)\\W*$"
+        )
     }
 }

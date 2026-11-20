@@ -116,7 +116,7 @@
    */
   function letPaperGo() {
     if (countingOnly) return;
-    var roots = [document.body, document.getElementById('kl-opening'), pairBox()];
+    var roots = [document.body, document.getElementById('kl-opening'), pairBox(), document.getElementById('kl-section')];
     // All read first, then marked: a mark changes styles, and reading after each would work them all out again.
     var paper = [];
     for (var i = 0; i < roots.length; i++) if (roots[i]) letPaperGoIn(roots[i], paper);
@@ -462,7 +462,7 @@
    */
   function centrePictures() {
     // In the body, and in a chapter's opening or a page beside the next, which the app puts in front of it.
-    var roots = [document.body, document.getElementById('kl-opening'), pairBox()];
+    var roots = [document.body, document.getElementById('kl-opening'), pairBox(), document.getElementById('kl-section')];
     for (var r = 0; r < roots.length; r++) {
       var scope = roots[r];
       if (!scope) continue;

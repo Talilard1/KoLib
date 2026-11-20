@@ -729,6 +729,7 @@ fun AppRoot(
                                 overlay = "read:$id"
                             }
                         },
+                        onSyncReading = { ids -> vm.syncReading(ids) },
                         koboNotice = noticeForLibrary,
                         transfers = linkTransfers,
                     ) }
@@ -885,6 +886,11 @@ fun AppRoot(
                         libraryBrowse.stopSelecting()
                         koboWifi = libraryVm.koboOverWifi(ids, format, covers, pdfs)
                         overlay = "kobo-wifi"
+                    },
+                    initialSyncReading = libraryVm.syncReadingOnSend,
+                    onSyncReading = { on ->
+                        libraryVm.syncReadingOnSend = on
+                        if (on) vm.queueReadingSync(chosen.filter { !it.isComic && !it.isPdf }.map { it.id })
                     },
                 )
             }

@@ -118,6 +118,44 @@ class ReadingDataTest {
     }
 
     @Test
+    fun bookmarksHighlightsAndDeletionsGoWithPlacesBetweenDevices() {
+        val mine = dir("mine")
+        val theirs = dir("theirs")
+        val kept = mark("c2.xhtml", "y")
+        val gone = mark("c1.xhtml", "x")
+        val goneId = dev.kolib.app.reader.ReaderPosition.markIdOf("c1.xhtml", "x")
+        // This device deleted n1 and a bookmark; the other added n3 since they last met.
+        File(mine, "reader.json").writeText(
+            JSONObject().put("position", position(1000)).put("bookmarks", JSONArray().put(kept))
+                .put("annotations", JSONArray().put(note("n2", 20, "both")))
+                .put("deleted", JSONObject().put("n1", 900L).put(goneId, 950L)).toString()
+        )
+        File(theirs, "reader.json").writeText(
+            JSONObject().put("position", position(1200, "c3.xhtml")).put("bookmarks", JSONArray().put(gone).put(kept))
+                .put("annotations", JSONArray().put(note("n1", 10, "old")).put(note("n2", 20, "both")).put(note("n3", 30, "new")))
+                .put("kobo", JSONObject().put("n3", JSONObject().put("k", JSONObject().put("added", "a").put("at", 5L)))).toString()
+        )
+        assertFalse(ReadingData.samePlace(ReadingData.placeOf(mine), ReadingData.placeOf(theirs)))
+        // As the sync of places does it: put together once, and that given to both.
+        val merged = ReadingData.mergePlace(ReadingData.placeOf(mine), ReadingData.placeOf(theirs))
+        ReadingData.applyPlace(mine, merged)
+        ReadingData.applyPlace(theirs, merged)
+        for (d in listOf(mine, theirs)) {
+            val o = JSONObject(File(d, "reader.json").readText())
+            assertEquals("c3.xhtml", o.getJSONObject("position").getString("path"))
+            val notes = o.getJSONArray("annotations").let { a -> (0 until a.length()).map { a.getJSONObject(it).getString("id") }.toSet() }
+            assertEquals(setOf("n2", "n3"), notes)
+            val marks = o.getJSONArray("bookmarks").let { a -> (0 until a.length()).map { a.getJSONObject(it).getString("path") } }
+            assertEquals(listOf("c2.xhtml"), marks)
+            assertTrue(o.getJSONObject("deleted").has("n1"))
+            assertTrue(o.getJSONObject("deleted").has(goneId))
+            assertTrue(o.getJSONObject("kobo").has("n3"))
+        }
+        // Both the same now: the next sync has nothing to do.
+        assertTrue(ReadingData.samePlace(ReadingData.placeOf(mine), ReadingData.placeOf(theirs)))
+    }
+
+    @Test
     fun aBookNeverOpenedTakesTheOthersReadingAsItIs() {
         val d = dir("new")
         ReadingData.mergeInto(d, JSONObject().put("reader", JSONObject().put("finished", true).put("finishedAt", 900L).put("annotations", JSONArray().put(note("n1", 1, "a")))))

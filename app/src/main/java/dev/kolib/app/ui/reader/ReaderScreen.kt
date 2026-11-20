@@ -53,6 +53,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
@@ -588,8 +589,9 @@ internal fun ReaderScreen(
         // On a phone, the drawer leaves a strip of the page to tap to close it.
         val drawerWidth = (maxWidth - 56.dp).coerceIn(280.dp, 360.dp)
         ReaderPanel(panel != Panel.NONE, wide, drawerWidth, dismiss, fromLeft = fromLeft) {
-            when (panel) {
-                Panel.CONTENTS -> ContentsPanel(controller, wide, onPicked = { panel = Panel.NONE; controller.controlsVisible = false }, onClose = dismiss)
+            // A panel sliding shut still shows what it held.
+            when (if (panel != Panel.NONE) panel else lastPanel.value) {
+                Panel.CONTENTS -> ContentsPanel(controller, wide, onPicked = { panel = Panel.NONE; controller.controlsVisible = false }, onClose = dismiss, onLeaveBook = onClose)
                 Panel.SEARCH -> SearchPanel(controller, wide, onPicked = { panel = Panel.NONE; controller.controlsVisible = false }, onClose = dismiss)
                 Panel.LOOK -> LookPanel(s, onSettings, controller.lookTab, wide, onTab = { controller.lookTab = it }, onClose = dismiss, onAppSettings = onAppSettings, bookLook = bookLook)
                 Panel.STATS -> ReadingStatsPanel(controller, onClose = dismiss) { title, subtitle, close -> DrawerHeader(title, subtitle, close) }
@@ -958,70 +960,95 @@ private fun androidx.compose.foundation.layout.BoxScope.ScrollBands(s: ReaderSet
 
 /**
  * A panel over the page that slides in from the edge it's swiped in from (the contents from the left, the
- * rest from the right), over a shade that closes it when tapped. On a tablet it's a plain 420dp side panel;
- * on a phone, a drawer with its inner corners rounded.
+ * rest from the right), over a shade. A tap on the shade closes it; a finger dragged across the shade slides it
+ * closed, and it springs back open if let go short of half way without a flick. On a tablet it's a plain 420dp side
+ * panel; on a phone, a drawer with its inner corners rounded.
  */
 @Composable
-private fun ReaderPanel(visible: Boolean, wide: Boolean, width: androidx.compose.ui.unit.Dp, onDismiss: () -> Unit, fromLeft: Boolean = false, content: @Composable () -> Unit) {
-    Box(Modifier.fillMaxSize()) {
-        AnimatedVisibility(visible, enter = fadeIn(), exit = fadeOut()) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = if (wide) 0.32f else 0.4f))
-                    .pointerInput(Unit) { detectTapGestures { onDismiss() } }
-            )
-        }
-        if (wide) {
-            AnimatedVisibility(
-                visible,
-                enter = slideInHorizontally { if (fromLeft) -it else it },
-                exit = slideOutHorizontally { if (fromLeft) -it else it },
-                modifier = Modifier.align(if (fromLeft) Alignment.CenterStart else Alignment.CenterEnd),
-            ) {
-                Surface(
-                    color = MaterialTheme.colorScheme.surfaceContainerLow,
-                    shadowElevation = 8.dp,
-                    modifier = Modifier.width(420.dp).fillMaxHeight(),
-                ) {
-                    Box(Modifier.windowInsetsPadding(WindowInsets.safeDrawing)) { content() }
+internal fun ReaderPanel(visible: Boolean, wide: Boolean, width: androidx.compose.ui.unit.Dp, onDismiss: () -> Unit, fromLeft: Boolean = false, content: @Composable () -> Unit) {
+    // How open it is: 1 open, 0 closed.
+    val open = remember { androidx.compose.animation.core.Animatable(0f) }
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(visible) {
+        open.animateTo(if (visible) 1f else 0f, androidx.compose.animation.core.tween(if (visible) 260 else 220, easing = androidx.compose.animation.core.FastOutSlowInEasing))
+    }
+    if (!visible && open.value <= 0f) return
+    val panelWidth = if (wide) 420.dp else width
+    val density = LocalDensity.current
+    val widthPx = with(density) { panelWidth.toPx() }
+    // Which way a drag closes it: left for one on the left.
+    val closing = if (fromLeft) -1f else 1f
+    Box(Modifier.fillMaxSize().testTag("reader-panel")) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .graphicsLayer { alpha = open.value }
+                .background(Color.Black.copy(alpha = if (wide) 0.32f else 0.4f))
+                .testTag("reader-panel-shade")
+                .pointerInput(visible) { if (visible) detectTapGestures { onDismiss() } }
+                .pointerInput(visible, widthPx, fromLeft) {
+                    if (!visible) return@pointerInput
+                    val tracker = androidx.compose.ui.input.pointer.util.VelocityTracker()
+                    detectHorizontalDragGestures(
+                        onDragStart = { tracker.resetTracking() },
+                        onHorizontalDrag = { change, amount ->
+                            change.consume()
+                            tracker.addPosition(change.uptimeMillis, change.position)
+                            scope.launch { open.snapTo((open.value - amount * closing / widthPx).coerceIn(0f, 1f)) }
+                        },
+                        onDragEnd = {
+                            // Positive: thrown the way that closes it.
+                            val thrown = tracker.calculateVelocity().x * closing
+                            if (thrown > with(density) { 700.dp.toPx() } || open.value < 0.5f) onDismiss()
+                            else scope.launch { open.animateTo(1f, androidx.compose.animation.core.spring(stiffness = androidx.compose.animation.core.Spring.StiffnessMediumLow)) }
+                        },
+                        onDragCancel = { scope.launch { open.animateTo(1f) } },
+                    )
                 }
+        )
+        val slide = Modifier.graphicsLayer { translationX = (1f - open.value) * widthPx * closing }
+        if (wide) {
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                shadowElevation = 8.dp,
+                modifier = Modifier.align(if (fromLeft) Alignment.CenterStart else Alignment.CenterEnd).then(slide).width(420.dp).fillMaxHeight(),
+            ) {
+                Box(Modifier.windowInsetsPadding(WindowInsets.safeDrawing)) { content() }
             }
         } else {
-            AnimatedVisibility(
-                visible,
-                enter = slideInHorizontally { if (fromLeft) -it else it },
-                exit = slideOutHorizontally { if (fromLeft) -it else it },
-                modifier = Modifier.align(if (fromLeft) Alignment.CenterStart else Alignment.CenterEnd),
+            val corner = 28.dp
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                shadowElevation = 12.dp,
+                shape = if (fromLeft) RoundedCornerShape(topEnd = corner, bottomEnd = corner) else RoundedCornerShape(topStart = corner, bottomStart = corner),
+                modifier = Modifier
+                    .align(if (fromLeft) Alignment.CenterStart else Alignment.CenterEnd)
+                    .then(slide)
+                    .width(width)
+                    .fillMaxHeight()
+                    // Taps inside the drawer stay in it.
+                    .pointerInput(Unit) { detectTapGestures { } },
             ) {
-                val corner = 28.dp
-                Surface(
-                    color = MaterialTheme.colorScheme.surfaceContainerLow,
-                    shadowElevation = 12.dp,
-                    shape = if (fromLeft) RoundedCornerShape(topEnd = corner, bottomEnd = corner) else RoundedCornerShape(topStart = corner, bottomStart = corner),
-                    modifier = Modifier
-                        .width(width)
-                        .fillMaxHeight()
-                        // Taps inside the drawer stay in it.
-                        .pointerInput(Unit) { detectTapGestures { } },
-                ) {
-                    val outer = if (fromLeft) WindowInsetsSides.Start else WindowInsetsSides.End
-                    Box(Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical + outer))) { content() }
-                }
+                val outer = if (fromLeft) WindowInsetsSides.Start else WindowInsetsSides.End
+                Box(Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical + outer))) { content() }
             }
         }
     }
 }
 
-/** The top of a drawer: its name, a line under it, and a button to close it. */
+/** The top of a drawer: its name, a line under it, and a button to close it; and, given [onLeave], one to leave the book. */
 @Composable
-private fun DrawerHeader(title: String, subtitle: String? = null, onClose: () -> Unit) {
+internal fun DrawerHeader(title: String, subtitle: String? = null, onClose: () -> Unit, onLeave: (() -> Unit)? = null) {
     Row(
         Modifier
             .fillMaxWidth()
-            .padding(start = 24.dp, end = 8.dp, top = 14.dp, bottom = 6.dp),
+            .padding(start = if (onLeave != null) 4.dp else 24.dp, end = 8.dp, top = 14.dp, bottom = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        if (onLeave != null) {
+            IconButton(onClick = onLeave, modifier = Modifier.testTag("contents-leave")) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Close the book")) }
+            Spacer(Modifier.width(4.dp))
+        }
         Column(Modifier.weight(1f)) {
             Text(title, style = MaterialTheme.typography.titleLarge, maxLines = 2, overflow = TextOverflow.Ellipsis)
             subtitle?.let {
@@ -1070,7 +1097,7 @@ private fun DrawerTabs(tabs: List<DrawerTab>, pager: PagerState) {
 }
 
 @Composable
-private fun ContentsPanel(controller: ReaderController, wide: Boolean, onPicked: () -> Unit, onClose: () -> Unit) {
+private fun ContentsPanel(controller: ReaderController, wide: Boolean, onPicked: () -> Unit, onClose: () -> Unit, onLeaveBook: (() -> Unit)? = null) {
     val pager = rememberPagerState(initialPage = controller.contentsTab.coerceIn(0, 3)) { 4 }
     // The book's pictures are looked for once the panel's open (the tab shows how many once they're found).
     LaunchedEffect(controller) { controller.findPictures() }
@@ -1082,7 +1109,15 @@ private fun ContentsPanel(controller: ReaderController, wide: Boolean, onPicked:
                 controller.bookTitle,
                 subtitle = controller.bookAuthor?.takeIf { it.isNotBlank() } ?: tr("{0}% read", (controller.bookProgress * 100).roundToInt()),
                 onClose = onClose,
+                onLeave = onLeaveBook,
             )
+        } else if (onLeaveBook != null) {
+            // Out of the book from here too, as from the bar over the page.
+            Row(Modifier.fillMaxWidth().padding(start = 4.dp, end = 16.dp, top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = onLeaveBook, modifier = Modifier.testTag("contents-leave")) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Close the book")) }
+                Spacer(Modifier.width(4.dp))
+                Text(controller.bookTitle, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
         }
         // Four tabs, each an icon over its name (with how many it holds), so they fit side by side on any screen.
         DrawerTabs(

@@ -54,6 +54,7 @@ import androidx.compose.material.icons.automirrored.outlined.NoteAdd
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.CollectionsBookmark
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.TaskAlt
@@ -191,6 +192,7 @@ internal fun PhoneLibraryScreen(
     onMarkFinished: (List<String>) -> Unit = {},
     onMarkUnread: (List<String>) -> Unit = {},
     onContinueFromKobo: ((String, KoboBook) -> Unit)? = null,
+    onSyncReading: ((List<String>) -> Unit)? = null,
     koboNotice: KoboNotice? = null,
     transfers: List<dev.kolib.app.link.Transfer> = emptyList(),
 ) {
@@ -251,6 +253,7 @@ internal fun PhoneLibraryScreen(
             onMarkFinished = { onMarkFinished(listOf(selected.id)) },
             onMarkUnread = { onMarkUnread(listOf(selected.id)) },
             onContinueFromKobo = onContinueFromKobo?.let { f -> { k: KoboBook -> f(selected.id, k) } },
+            onSyncReading = onSyncReading?.let { f -> { f(listOf(selected.id)) } },
             koboNotice = koboNotice,
             transfers = transfers,
         )
@@ -265,6 +268,15 @@ internal fun PhoneLibraryScreen(
         HideBottomBar()
     }
     val chosen = { visible.filter { browse.picked.containsKey(it.id) }.map { it.id } }
+    // Syncing reading with the Kobo: every book in both, or ones picked.
+    val onBoth = remember(books) { books.filter { it.koboPath != null && it.canReadFromKoboPlace } }
+    var askSync by remember { mutableStateOf(false) }
+    if (askSync && onSyncReading != null) SyncReadingDialog(
+        count = onBoth.size,
+        onAll = { askSync = false; onSyncReading(onBoth.map { it.id }) },
+        onChoose = { askSync = false; browse.selecting = true },
+        onDismiss = { askSync = false },
+    )
     val onTap: (LibraryBook) -> Unit = { b -> if (browse.selecting) browse.togglePicked(b.id) else browse.selectedId = b.id }
     // Holding a book chooses it, and every book from the one chosen last to it.
     val onHold: (LibraryBook) -> Unit = { b -> browse.holdPick(b.id, visible.map { it.id }) }
@@ -334,6 +346,7 @@ internal fun PhoneLibraryScreen(
                         onSelect = { browse.selecting = true },
                         onGrid = { browse.grid = it },
                         more = listOfNotNull(
+                            onSyncReading?.takeIf { onBoth.isNotEmpty() }?.let { MenuEntry(tr("Sync reading with the Kobo"), Icons.Outlined.Sync) { askSync = true } },
                             onTheme?.let { MenuEntry(tr("Settings"), Icons.Outlined.Settings, it) },
                             MenuEntry(tr("Reading stats"), Icons.Outlined.BarChart, onStats),
                             MenuEntry(tr("About KoLib"), Icons.Outlined.Info, onAbout),
@@ -380,6 +393,7 @@ internal fun PhoneLibraryScreen(
             val any = browse.picked.isNotEmpty()
             PhoneActionBar(Modifier.align(Alignment.BottomCenter)) {
                 PhoneAction(Icons.AutoMirrored.Filled.Send, tr("Send"), { onSend(chosen()) }, enabled = any, main = true)
+                onSyncReading?.let { sync -> PhoneAction(Icons.Outlined.Sync, tr("Sync"), { sync(chosen()); browse.stopSelecting() }, enabled = any) }
                 dev.kolib.app.ui.link.LocalLinkActions.current?.let { link ->
                     PhoneAction(Icons.AutoMirrored.Outlined.SendToMobile, tr("To device"), { link.sendBooks(chosen()) }, enabled = any)
                 }
@@ -504,6 +518,8 @@ internal fun PhoneBookPage(
     onMarkUnread: (() -> Unit)? = null,
     /** Moving the app's reader to where the Kobo is in the book. */
     onContinueFromKobo: ((KoboBook) -> Unit)? = null,
+    /** Syncing the book's reading with the Kobo. */
+    onSyncReading: (() -> Unit)? = null,
     /** Searches for books (a search for the tab: the book's title, author or series), from holding one of those. */
     onSearch: ((String) -> Unit)? = null,
     /** What to say about the Kobo under the bar at the top, as the library does. */
@@ -618,6 +634,7 @@ internal fun PhoneBookPage(
                 ReadingLine(
                     k, live = readingLive, here = readHere, wideButton = true,
                     onContinue = onContinueFromKobo?.takeIf { book.canReadFromKoboPlace }?.let { f -> { f(k) } },
+                    onSync = onSyncReading?.takeIf { book.canReadFromKoboPlace },
                 )
             }
             dev.kolib.app.ui.ocr.OcrSection(book)

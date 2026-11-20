@@ -133,6 +133,10 @@ class KoboRepository(private val context: Context) {
         session.afterWrite(written.database, read, snapshot)
     }
 
+    /** Reads from the copy of the Kobo's database the connection has (nothing on the Kobo is touched). */
+    fun <T> readLocal(session: KoboSession, block: (dev.kolib.app.kobo.db.SqlSource) -> T): T =
+        openLocal(session.workDb).use { db -> block(AndroidSqlSource(db)) }
+
     /**
      * What was on a Kobo the last time it was connected, with covers kept on the tablet: the Kobo kept under
      * [key], or the one shown (the one chosen, or seen last) without one.

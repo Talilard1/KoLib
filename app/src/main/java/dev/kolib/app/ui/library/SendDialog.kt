@@ -42,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -72,11 +73,15 @@ fun SendDialog(
     onMakeText: ((List<LibraryBook>) -> Unit)? = null,
     /** Sends them over Wi-Fi instead, through the Kobo's web browser, when it isn't plugged in. */
     onWifi: ((SendFormat, CoverFitting, Boolean) -> Unit)? = null,
+    /** Whether their reading is to be synced with the Kobo too, as chosen last time; and told the choice when they're sent. */
+    initialSyncReading: Boolean = false,
+    onSyncReading: ((Boolean) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     var format by remember { mutableStateOf(initialFormat) }
     var covers by remember { mutableStateOf(initialCovers) }
     var pdfs by remember { mutableStateOf(initialPdfs) }
+    var syncReading by remember { mutableStateOf(initialSyncReading) }
     val onKobo = remember(books) { books.mapNotNull { b -> pathOnKobo(b)?.let { b to it } } }
     // What each book goes as: "kepub", "EPUB" or "PDF", the way KoboPaths.kindOf names them.
     val goesAs = { b: LibraryBook ->
@@ -194,6 +199,24 @@ fun SendDialog(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+                if (onSyncReading != null && books.any { !it.isComic }) {
+                    Spacer(Modifier.height(12.dp))
+                    Row(
+                        Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp))
+                            .toggleable(value = syncReading, role = Role.Switch, onValueChange = { syncReading = it })
+                            .padding(vertical = 4.dp)
+                            .testTag("send-sync-reading"),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(tr("Sync my reading"), style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
+                        Switch(checked = syncReading, onCheckedChange = null)
+                    }
+                    Text(
+                        tr("Where you're up to, and your bookmarks, highlights and notes, both ways. A new book syncs once the Kobo has added it."),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
                 Spacer(Modifier.height(16.dp))
                 if (replacing > 0) {
                     Note(
@@ -228,9 +251,9 @@ fun SendDialog(
             }
         },
         confirmButton = {
-            if (connected) TextButton(onClick = { onSend(format, covers, pdfs) }) { Text(tr("Send")) }
+            if (connected) TextButton(onClick = { onSyncReading?.invoke(syncReading); onSend(format, covers, pdfs) }) { Text(tr("Send")) }
             else Row {
-                if (onWifi != null) TextButton(onClick = { onWifi(format, covers, pdfs) }) { Text(tr("Over Wi-Fi")) }
+                if (onWifi != null) TextButton(onClick = { onSyncReading?.invoke(syncReading); onWifi(format, covers, pdfs) }) { Text(tr("Over Wi-Fi")) }
                 TextButton(onClick = onConnect) { Text(tr("Go to Kobo")) }
             }
         },

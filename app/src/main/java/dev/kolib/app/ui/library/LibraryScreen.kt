@@ -44,6 +44,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.SendToMobile
 import androidx.compose.material.icons.outlined.SaveAlt
+import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.Merge
 import androidx.compose.material.icons.automirrored.outlined.CallSplit
@@ -212,6 +213,8 @@ fun LibraryScreen(
     onMarkUnread: (List<String>) -> Unit = {},
     /** Moving the app's reader to where the Kobo is in a book, and opening it there. */
     onContinueFromKobo: ((String, KoboBook) -> Unit)? = null,
+    /** Syncing books' reading with the Kobo: where they're up to, and their bookmarks, highlights and notes. */
+    onSyncReading: ((List<String>) -> Unit)? = null,
     /** What to say at the top about the Kobo: opening, being saved to, safe to unplug, unplugged. */
     koboNotice: KoboNotice? = null,
     /** What's being sent to or taken in from the user's other devices, for its progress bars. */
@@ -238,7 +241,7 @@ fun LibraryScreen(
             onChangeCover = onChangeCover, onDelete = onDelete, onSend = onSend, onRead = onRead, onEditText = onEditText,
             onNewBook = onNewBook, onMerge = onMerge, onSplit = onSplit, onExport = onExport, onDuplicate = onDuplicate,
             onAbout = onAbout, onStats = onStats, onTheme = onTheme, onMarkFinished = onMarkFinished, onMarkUnread = onMarkUnread,
-            onContinueFromKobo = onContinueFromKobo, koboNotice = koboNotice, transfers = transfers,
+            onContinueFromKobo = onContinueFromKobo, onSyncReading = onSyncReading, koboNotice = koboNotice, transfers = transfers,
         )
         return
     }
@@ -261,6 +264,17 @@ fun LibraryScreen(
                 actions = {
                     dev.kolib.app.ui.ai.LocalOpenAiChat.current?.takeIf { dev.kolib.app.ui.ai.aiButtonShown() }?.let { open ->
                         IconButton(onClick = open, modifier = Modifier.testTag("library-ai")) { dev.kolib.app.ui.ai.AiButtonIcon(tr("AI chat")) }
+                    }
+                    val onBoth = books.filter { it.koboPath != null && it.canReadFromKoboPlace }
+                    if (onSyncReading != null && onBoth.isNotEmpty()) {
+                        var ask by remember { mutableStateOf(false) }
+                        IconButton(onClick = { ask = true }, modifier = Modifier.testTag("library-sync-reading")) { Icon(Icons.Outlined.Sync, tr("Sync reading with the Kobo")) }
+                        if (ask) SyncReadingDialog(
+                            count = onBoth.size,
+                            onAll = { ask = false; onSyncReading(onBoth.map { it.id }) },
+                            onChoose = { ask = false; browse.selectedId = null; browse.selecting = true },
+                            onDismiss = { ask = false },
+                        )
                     }
                     IconButton(onClick = onStats) { Icon(Icons.Outlined.BarChart, tr("Reading stats")) }
                     IconButton(onClick = onAbout) { Icon(Icons.Outlined.Info, tr("About and licences")) }
@@ -350,6 +364,7 @@ fun LibraryScreen(
                         reading = reading(book),
                         readingLive = koboLive,
                         onContinueFromKobo = onContinueFromKobo?.let { f -> { k: KoboBook -> f(book.id, k) } },
+                        onSyncReading = onSyncReading?.let { f -> { f(listOf(book.id)) } },
                         onCollection = { name ->
                             if (inCollection != null) {
                                 // Another of its collections opens, the book still beside it.
@@ -376,7 +391,7 @@ fun LibraryScreen(
                         LibraryCollectionsTab(books, covers, browse, koboConnected, reading, here, onSend) { book, collection, onBack -> detail(book, onBack, collection) }
                     } else if (twoPanes) {
                         Row(Modifier.fillMaxSize()) {
-                            LibraryBrowser(books, visible, covers, browse, selected?.id, onSend, onDelete, Modifier.weight(1.45f), reading, here, onMerge, onExport, onDuplicate)
+                            LibraryBrowser(books, visible, covers, browse, selected?.id, onSend, onDelete, Modifier.weight(1.45f), reading, here, onMerge, onExport, onDuplicate, onSyncReading)
                             VerticalDivider()
                             Box(Modifier.weight(1f).fillMaxHeight()) {
                                 if (selected != null && !browse.selecting) detail(selected, null, null)
@@ -388,7 +403,7 @@ fun LibraryScreen(
                         TabBackHandler { browse.selectedId = null }
                         detail(selected, { browse.selectedId = null }, null)
                     } else {
-                        LibraryBrowser(books, visible, covers, browse, null, onSend, onDelete, Modifier.fillMaxSize(), reading, here, onMerge, onExport, onDuplicate)
+                        LibraryBrowser(books, visible, covers, browse, null, onSend, onDelete, Modifier.fillMaxSize(), reading, here, onMerge, onExport, onDuplicate, onSyncReading)
                     }
                 }
             }
@@ -491,6 +506,7 @@ private fun LibraryBrowser(
     onMerge: (List<String>) -> Unit = {},
     onExport: (List<String>) -> Unit = {},
     onDuplicate: (List<String>) -> Unit = {},
+    onSyncReading: ((List<String>) -> Unit)? = null,
 ) {
     if (browse.selecting) TabBackHandler { browse.stopSelecting() }
     var confirmRemove by remember { mutableStateOf<List<String>?>(null) }
@@ -530,6 +546,18 @@ private fun LibraryBrowser(
                         Icon(Icons.AutoMirrored.Outlined.SendToMobile, null, Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
                         Text(tr("Send to device"))
+                    }
+                }
+                if (onSyncReading != null) {
+                    OutlinedButton(
+                        onClick = { onSyncReading(chosen()); browse.stopSelecting() },
+                        enabled = browse.picked.isNotEmpty(),
+                        contentPadding = SelectionButtonPadding,
+                        modifier = Modifier.testTag("selection-sync-reading"),
+                    ) {
+                        Icon(Icons.Outlined.Sync, null, Modifier.size(18.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text(tr("Sync with Kobo"))
                     }
                 }
                 Button(onClick = { onSend(chosen()) }, enabled = browse.picked.isNotEmpty(), contentPadding = SelectionButtonPadding) {
@@ -1000,6 +1028,8 @@ fun LibraryDetailPane(
     onMarkUnread: (() -> Unit)? = null,
     /** Moving the app's reader to where the Kobo is in the book. */
     onContinueFromKobo: ((KoboBook) -> Unit)? = null,
+    /** Syncing the book's reading with the Kobo. */
+    onSyncReading: (() -> Unit)? = null,
     /** Searches for books (a search for the tab: the book's title, author or series), from holding one of those. */
     onSearch: ((String) -> Unit)? = null,
     /** What [onBack] goes back to. */
@@ -1133,7 +1163,11 @@ fun LibraryDetailPane(
             }
         }
         reading?.let { k ->
-            ReadingLine(k, live = readingLive, here = readHere, onContinue = onContinueFromKobo?.takeIf { book.canReadFromKoboPlace }?.let { f -> { f(k) } })
+            ReadingLine(
+                k, live = readingLive, here = readHere,
+                onContinue = onContinueFromKobo?.takeIf { book.canReadFromKoboPlace }?.let { f -> { f(k) } },
+                onSync = onSyncReading?.takeIf { book.canReadFromKoboPlace },
+            )
         }
         dev.kolib.app.ui.ocr.OcrSection(book)
         if (book.changedSinceOnKobo) {
@@ -1230,6 +1264,8 @@ internal fun ReadingLine(
     here: Float? = null,
     /** Moves the app's reader to where the Kobo is, and opens it there. */
     onContinue: (() -> Unit)? = null,
+    /** Syncs the book's reading with the Kobo, both ways. */
+    onSync: (() -> Unit)? = null,
     /** Its button across the page, as the phone's other buttons are. */
     wideButton: Boolean = false,
 ) {
@@ -1256,6 +1292,22 @@ internal fun ReadingLine(
                 drawStopIndicator = {},
             )
         }
+        if (onSync != null) {
+            OutlinedButton(
+                onClick = onSync,
+                modifier = Modifier.padding(top = 8.dp).testTag("sync-reading").then(if (wideButton) Modifier.fillMaxWidth() else Modifier),
+            ) {
+                Icon(Icons.Outlined.Sync, null, Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text(tr("Sync with the Kobo"))
+            }
+            Text(
+                tr("Where you're up to (wherever you read last), and bookmarks, highlights and notes, both ways."),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp),
+            )
+        }
         if (onContinue != null && k.readStatus == ReadStatus.READING) {
             // Going back from further on in the app's reader is checked first: that place would be lost.
             var ask by remember { mutableStateOf(false) }
@@ -1264,7 +1316,7 @@ internal fun ReadingLine(
                 onClick = { if (ahead) ask = true else onContinue() },
                 modifier = Modifier.padding(top = 8.dp).then(if (wideButton) Modifier.fillMaxWidth() else Modifier),
             ) {
-                Icon(Icons.Outlined.Sync, null, Modifier.size(18.dp))
+                Icon(Icons.Outlined.Download, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
                 Text(tr("Continue from the Kobo"))
             }
@@ -1277,6 +1329,29 @@ internal fun ReadingLine(
             )
         }
     }
+}
+
+/** Syncing reading with the Kobo: every book that's in both, or ones picked from the library. */
+@Composable
+internal fun SyncReadingDialog(count: Int, onAll: () -> Unit, onChoose: () -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = { Icon(Icons.Outlined.Sync, null) },
+        title = { Text(tr("Sync reading with the Kobo")) },
+        text = {
+            Text(
+                tr("Where you're up to in each book goes to wherever you read it last. Bookmarks, highlights and notes are copied both ways, and ones you've deleted are deleted on the other side too.") +
+                    "\n\n" + if (count == 1) tr("1 book is in your library and on the Kobo.") else tr("{0} books are in your library and on the Kobo.", count),
+            )
+        },
+        confirmButton = { TextButton(onClick = onAll, modifier = Modifier.testTag("sync-reading-all")) { Text(tr("Sync all")) } },
+        dismissButton = {
+            Row {
+                TextButton(onClick = onDismiss) { Text(tr("Cancel")) }
+                TextButton(onClick = onChoose) { Text(tr("Choose books")) }
+            }
+        },
+    )
 }
 
 /** Books the app's reader opens as text, where the Kobo's place can be found: not comics, nor PDFs read as PDFs. */

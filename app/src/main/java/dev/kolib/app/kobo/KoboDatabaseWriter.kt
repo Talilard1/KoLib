@@ -327,6 +327,80 @@ class KoboDbEditor(private val db: SQLiteDatabase, private val now: String = tim
         return db.update("content", values, where, arrayOf(contentId)) > 0
     }
 
+    /** Whether this Kobo keeps bookmarks, highlights and notes (its Bookmark table). */
+    val hasMarks: Boolean get() = "bookmark" in tables
+
+    private class Column(val name: String, val type: String, val notNull: Boolean, val hasDefault: Boolean)
+
+    private val markColumns: List<Column> by lazy {
+        db.rawQuery("PRAGMA table_info(\"Bookmark\")", null).use { c ->
+            buildList {
+                while (c.moveToNext()) {
+                    add(Column(
+                        c.getString(c.getColumnIndexOrThrow("name")),
+                        c.getString(c.getColumnIndexOrThrow("type")).orEmpty().uppercase(),
+                        c.getInt(c.getColumnIndexOrThrow("notnull")) != 0,
+                        !c.isNull(c.getColumnIndexOrThrow("dflt_value")),
+                    ))
+                }
+            }
+        }
+    }
+
+    private fun markValues(values: Map<String, Any?>, fillRequired: Boolean): ContentValues {
+        val cols = markColumns.associateBy { it.name }
+        val out = ContentValues()
+        for ((column, value) in values) {
+            if (column !in cols) continue
+            put(out, column, value)
+        }
+        if (fillRequired) {
+            // A column this Kobo requires that nothing was given for: empty, as the Kobo leaves it.
+            for (c in markColumns) {
+                if (!c.notNull || c.hasDefault) continue
+                if (out.containsKey(c.name) && out.get(c.name) != null) continue
+                if (c.type.contains("INT") || c.type.contains("REAL") || c.type.contains("NUM") || c.type.contains("BOOL")) out.put(c.name, 0) else out.put(c.name, "")
+            }
+        }
+        return out
+    }
+
+    private fun put(out: ContentValues, column: String, value: Any?) = when (value) {
+        null -> out.putNull(column)
+        is String -> out.put(column, value)
+        is Double -> out.put(column, value)
+        is Float -> out.put(column, value.toDouble())
+        is Int -> out.put(column, value)
+        is Long -> out.put(column, value)
+        is Boolean -> out.put(column, if (value) "true" else "false")
+        else -> out.put(column, value.toString())
+    }
+
+    /** Adds a bookmark, highlight or note to a sideloaded book ([values]: column to value). False if there's nowhere to put it. */
+    fun addMark(values: Map<String, Any?>): Boolean {
+        if (!hasMarks) return false
+        val volume = values["VolumeID"] as? String ?: return false
+        if (!volume.startsWith("file://")) return false
+        val id = values["BookmarkID"] as? String ?: return false
+        db.delete("Bookmark", "BookmarkID = ?", arrayOf(id))
+        db.insertOrThrow("Bookmark", null, markValues(values, fillRequired = true))
+        return true
+    }
+
+    /** Changes a bookmark, highlight or note. */
+    fun updateMark(id: String, values: Map<String, Any?>): Boolean {
+        if (!hasMarks) return false
+        val v = markValues(values, fillRequired = false)
+        if (v.size() == 0) return false
+        return db.update("Bookmark", v, "BookmarkID = ?", arrayOf(id)) > 0
+    }
+
+    /** Deletes a bookmark, highlight or note. */
+    fun deleteMark(id: String): Boolean {
+        if (!hasMarks) return false
+        return db.delete("Bookmark", "BookmarkID = ?", arrayOf(id)) > 0
+    }
+
     companion object {
         private val STAMP = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(ZoneOffset.UTC)
 

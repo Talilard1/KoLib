@@ -65,7 +65,7 @@ object KoboPlaces {
         return KoboPlace(chapter, span, point?.trim()?.takeIf { it.isNotEmpty() }, progress)
     }
 
-    private fun cleanPath(path: String): String? {
+    internal fun cleanPath(path: String): String? {
         var p = path.trim().replace('\\', '/')
         p = runCatching { URLDecoder.decode(p.replace("+", "%2B"), "UTF-8") }.getOrDefault(p)
         p = p.removePrefix("file:///mnt/onboard/").trimStart('/')
@@ -161,7 +161,7 @@ object KoboPlaces {
             val xhtml = files.text(chapter.path)
             val text = xhtml?.let { runCatching { ChapterLetters(it) }.getOrNull() }
             val exact = if (xhtml == null || text == null) null else {
-                place.span?.let { spanLetters(xhtml, it) } ?: place.point?.let { runCatching { text.lettersAtPoint(it) }.getOrNull() }
+                place.span?.let { spanLetters(xhtml, it) } ?: place.point?.let { pointLetters(xhtml, it) }
             }
             AppLog.i("Kobo place", if (exact != null) "Found it $exact letters into the chapter, of ${text?.total}." else "The exact spot wasn't found; going by the chapter.")
             if (text != null && exact != null) {
@@ -216,6 +216,15 @@ object KoboPlaces {
         AppLog.w("Kobo place", "The chapter couldn't be read to find ${span}: ${e.message}")
         null
     }
+
+    /**
+     * How many letters into the chapter Adobe's [point] is: counted Adobe's way (every node, and bytes), else as an
+     * EPUB CFI counts (see [ChapterText.atAdobePoint]).
+     */
+    internal fun pointLetters(xhtml: String, point: String): Int? = runCatching {
+        val t = ChapterText(xhtml)
+        t.atAdobePoint(point)?.let { (piece, offset) -> t.lettersAt(piece, offset) }
+    }.getOrNull()
 
     /** How far through the book a place [progress] through [chapter] is, by the letters in the chapters before it. */
     private fun bookProgress(files: EpubFileFiles, chapters: List<Chapter>, chapter: Chapter, progress: Float): Float {

@@ -32,6 +32,9 @@ class KoLibApp : Application() {
     /** Changes to the Kobo's records of books just sent again, for the next write of its database. */
     val pendingKoboRecords = PendingKoboRecords()
 
+    /** Books whose reading (place, bookmarks, highlights and notes) is to be synced with the Kobo once it has them. */
+    val readingSyncQueue: dev.kolib.app.kobo.ReadingSyncQueue by lazy { dev.kolib.app.kobo.ReadingSyncQueue(this) }
+
     /** The colours the app is shown in. */
     val themeSettings: ThemeSettings by lazy { ThemeSettings(this) }
 

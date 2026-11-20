@@ -17,8 +17,14 @@ data class ReaderPosition(
     val snippet: String = "",
     val chapterTitle: String = "",
     val at: Long = System.currentTimeMillis(),
+    /** A bookmark's id, the same on every device and on the Kobo (see [markId]); a place has none. */
+    val id: String? = null,
 ) {
+    /** A bookmark's id: its own, or for one from before bookmarks had them, one made from its place (the same everywhere). */
+    val markId: String get() = id ?: markIdOf(path, anchor)
+
     fun toJson(): JSONObject = JSONObject().apply {
+        putOpt("id", id)
         put("path", path)
         putOpt("anchor", anchor)
         put("progress", progress.toDouble())
@@ -40,8 +46,12 @@ data class ReaderPosition(
                 snippet = o.optString("snippet"),
                 chapterTitle = o.optString("chapter"),
                 at = o.optLong("at"),
+                id = o.optString("id").takeIf { it.isNotEmpty() },
             )
         }
+
+        fun markIdOf(path: String, anchor: String?): String =
+            java.util.UUID.nameUUIDFromBytes("$path|${anchor.orEmpty()}".toByteArray()).toString()
     }
 }
 
@@ -58,7 +68,26 @@ data class ReaderState(
     val position: ReaderPosition? = null,
     val bookmarks: List<ReaderPosition> = emptyList(),
     val annotations: List<Annotation> = emptyList(),
+    /** Bookmarks and highlights deleted here, by id, and when: so they go from other devices and the Kobo too. */
+    val deleted: Map<String, Long> = emptyMap(),
+    /** Which bookmarks and highlights have been on which Kobo (see ReadingSync), kept as it is. */
+    val kobo: JSONObject? = null,
 )
+
+/** The most deletions kept: the oldest go first. */
+const val MOST_DELETIONS_KEPT = 3000
+
+/** Deletions as kept in reader.json. */
+fun deletionsFrom(o: JSONObject?): Map<String, Long> {
+    o ?: return emptyMap()
+    val out = LinkedHashMap<String, Long>()
+    for (k in o.keys()) out[k] = o.optLong(k)
+    return out
+}
+
+fun deletionsJson(deleted: Map<String, Long>): JSONObject = JSONObject().apply {
+    deleted.entries.sortedByDescending { it.value }.take(MOST_DELETIONS_KEPT).forEach { (k, v) -> put(k, v) }
+}
 
 /** The files a book's own look is kept in, for the device held upright and sideways. */
 const val LOOK_PORTRAIT = "look-portrait.json"
@@ -83,6 +112,8 @@ class ReaderStore(
                 position = ReaderPosition.from(o.optJSONObject("position")),
                 bookmarks = o.optJSONArray("bookmarks")?.let { a -> (0 until a.length()).mapNotNull { ReaderPosition.from(a.optJSONObject(it)) } }.orEmpty(),
                 annotations = Annotation.listFrom(o.optJSONArray("annotations")),
+                deleted = deletionsFrom(o.optJSONObject("deleted")),
+                kobo = o.optJSONObject("kobo"),
             )
         }
     } catch (e: Exception) {
@@ -97,6 +128,8 @@ class ReaderStore(
                 state.position?.let { put("position", it.toJson()) }
                 put("bookmarks", JSONArray().apply { state.bookmarks.forEach { put(it.toJson()) } })
                 put("annotations", JSONArray().apply { state.annotations.forEach { put(it.toJson()) } })
+                if (state.deleted.isNotEmpty()) put("deleted", deletionsJson(state.deleted))
+                state.kobo?.takeIf { it.length() > 0 }?.let { put("kobo", it) }
             }
             val tmp = File(bookDir, "reader.json.part")
             tmp.writeText(o.toString())

@@ -116,18 +116,14 @@ class ReaderPanelTest {
     }
 
     @Test
-    fun theContentsTopHasAButtonToLeaveTheBookAtTheLeft() {
-        var left = 0
+    fun theContentsTopHasTheBooksNameAndAButtonToCloseItButNoWayOutOfTheBook() {
         var closed = 0
-        compose.setContent { DrawerHeader("The Sea", subtitle = "40% read", onClose = { closed++ }, onLeave = { left++ }) }
-        val back = compose.onNodeWithTag("contents-leave").fetchSemanticsNode().boundsInRoot
-        val title = compose.onNodeWithText("The Sea").fetchSemanticsNode().boundsInRoot
-        val close = compose.onNodeWithContentDescription("Close").fetchSemanticsNode().boundsInRoot
-        // At the left, level with the book's name.
-        assertTrue("back at $back", back.left < 12f && back.top < title.bottom && back.bottom > title.top)
-        assertTrue(back.right <= title.left && title.right <= close.left)
-        compose.onNodeWithTag("contents-leave").performClick()
-        assertEquals(1, left)
-        assertEquals(0, closed)
+        compose.setContent { DrawerHeader("The Sea", subtitle = "40% read", onClose = { closed++ }) }
+        compose.onNodeWithText("The Sea").assertExists()
+        // Leaving the book is the bar over the page's: the panel's top only closes the panel.
+        compose.onNodeWithTag("contents-leave").assertDoesNotExist()
+        compose.onNodeWithContentDescription("Close the book").assertDoesNotExist()
+        compose.onNodeWithContentDescription("Close").performClick()
+        assertEquals(1, closed)
     }
 }

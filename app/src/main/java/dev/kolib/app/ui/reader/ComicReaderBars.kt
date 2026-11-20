@@ -338,7 +338,8 @@ private fun Modifier.upright(): Modifier = layout { measurable, constraints ->
 
 /**
  * The reading modes (or rotations) to choose from for the series, as buttons, as Mihon has them: one chosen and
- * applied, or the series put back to the default.
+ * applied, or the series put back to the default. With [applyOnTap], a button applies its choice when it's tapped,
+ * with nothing else to press: no Apply, and no Revert to default.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -355,20 +356,25 @@ internal fun <T> ComicChoiceSheet(
     tag: String,
     /** Said under the choices. */
     note: (@Composable () -> Unit)? = null,
+    applyOnTap: Boolean = false,
+    /** The choice shown as chosen when the sheet opens: what the series has of its own, unless told otherwise. */
+    current: T? = own,
 ) {
     val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet) {
-        var chosen by remember { mutableStateOf(own) }
+        var chosen by remember { mutableStateOf(current) }
         Column(Modifier.fillMaxWidth().padding(bottom = 16.dp).testTag(tag)) {
             Text(title, style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp))
             options.chunked(3).forEach { row ->
                 Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    row.forEach { o -> ChoiceButton(icon(o), label(o), o == chosen, { chosen = o }, Modifier.weight(1f)) }
+                    row.forEach { o -> ChoiceButton(icon(o), label(o), o == chosen, { if (applyOnTap) onApply(o) else chosen = o }, Modifier.weight(1f)) }
                     repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
                 }
             }
             note?.invoke()
-            Row(Modifier.fillMaxWidth().padding(horizontal = 24.dp).padding(top = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+            if (!applyOnTap) Row(
+                Modifier.fillMaxWidth().padding(horizontal = 24.dp).padding(top = 12.dp), verticalAlignment = Alignment.CenterVertically,
+            ) {
                 if (own != null) OutlinedButton(onClick = { onApply(null) }) { Text(tr("Revert to default")) }
                 Spacer(Modifier.weight(1f))
                 FilledTonalButton(onClick = { onApply(chosen) }) {

@@ -800,6 +800,10 @@ internal fun ComicView(
                 },
                 onDismiss = { sheet = null }, tag = "comic-rotation-sheet",
                 note = { RotationTip(Modifier.padding(horizontal = 24.dp, vertical = 8.dp)) },
+                // A tap turns the screen there and then, as the book reader's rotation does. The way it turns now is
+                // shown chosen, the series' own or the default.
+                applyOnTap = true,
+                current = own.rotation ?: s.rotation,
             )
             ComicSheet.SETTINGS -> ComicSettingsSheet(
                 s = s, mode = mode, own = own, inSeries = series != null, hasCutout = hasCutout, onOwn = onOwn, onSettings = onSettings,

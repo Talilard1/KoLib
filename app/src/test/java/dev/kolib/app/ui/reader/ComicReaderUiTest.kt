@@ -155,14 +155,24 @@ class ComicReaderUiTest {
     }
 
     @Test
-    fun theRotationIsChosenForTheSeries() {
+    fun theRotationIsChosenForTheSeriesWithATap() {
         open()
         compose.onNodeWithTag("comic-rotation-button").performClick()
         settle()
+        // No Apply: the choice tapped is the one used, and the sheet goes.
+        compose.onAllNodesWithText("Apply").assertCountEquals(0)
         compose.onNodeWithText("Locked landscape").performClick()
-        compose.onNodeWithText("Apply").performClick()
         settle()
         assertEquals(ComicRotation.LOCKED_LANDSCAPE, own.rotation)
+        compose.onNodeWithTag("comic-rotation-sheet").assertDoesNotExist()
+        // Opened again: just the choices, with no Revert to default either.
+        compose.onNodeWithTag("comic-rotation-button").performClick()
+        settle()
+        compose.onAllNodesWithText("Revert to default").assertCountEquals(0)
+        compose.onAllNodesWithText("Apply").assertCountEquals(0)
+        compose.onNodeWithText("Free").performClick()
+        settle()
+        assertEquals(ComicRotation.FREE, own.rotation)
     }
 
     @Test

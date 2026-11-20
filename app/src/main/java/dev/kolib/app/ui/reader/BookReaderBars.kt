@@ -136,7 +136,7 @@ internal fun BookTopBar(
 /**
  * The foot of the book reader, kept short: autoscroll's speed while it's running, the progress bar between the buttons
  * for the chapters before and after, where the reader is in the book, and along the bottom the buttons for the contents,
- * autoscroll, rotation and the settings.
+ * autoscroll, rotation and the settings (and after a move with the progress bar, the way back among them).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -169,12 +169,26 @@ internal fun BookBottomBars(
                             drawLine(tick, Offset(x, 0f), Offset(x, size.height), strokeWidth = 1.5.dp.toPx())
                         }
                     }
+                    // The place the way back goes to: a line across the bar, like the bar's own handle.
+                    val backAt = controller.barReturn?.bookProgress
+                    val backMark = MaterialTheme.colorScheme.onSurfaceVariant
                     Slider(
                         value = progress,
                         onValueChange = { dragging = true; value = it },
                         onValueChangeFinished = {
                             dragging = false
                             controller.goToBookProgressFromBar(value)
+                        },
+                        track = { state ->
+                            SliderDefaults.Track(
+                                sliderState = state,
+                                modifier = if (backAt == null) Modifier else Modifier.drawWithContent {
+                                    drawContent()
+                                    val x = size.width * backAt.coerceIn(0f, 1f)
+                                    val half = 13.dp.toPx()
+                                    drawLine(backMark, Offset(x, size.height / 2 - half), Offset(x, size.height / 2 + half), strokeWidth = 3.dp.toPx(), cap = StrokeCap.Round)
+                                },
+                            )
                         },
                         modifier = Modifier.fillMaxWidth().testTag("reader-slider"),
                     )
@@ -213,7 +227,7 @@ internal fun BookBottomBars(
                     modifier = Modifier.fillMaxWidth().testTag("reader-caption"),
                 )
             }
-            // The buttons.
+            // The buttons, and after a move with the progress bar, the way back among them.
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onContents, modifier = Modifier.testTag("reader-contents").tourPlace("reader-contents")) { Icon(Icons.AutoMirrored.Filled.List, tr("Contents and bookmarks")) }
                 val on = controller.autoscroll
@@ -227,9 +241,34 @@ internal fun BookBottomBars(
                     },
                     modifier = Modifier.testTag("reader-autoscroll").tourPlace("reader-autoscroll"),
                 ) { Icon(if (on) Icons.Filled.Pause else Icons.Filled.PlayArrow, if (on) tr("Pause autoscroll") else tr("Autoscroll")) }
+                controller.barReturn?.let { back -> BarReturnButton(controller, back, compact = phoneLayout()) }
                 IconButton(onClick = onRotation, modifier = Modifier.testTag("reader-rotation").tourPlace("reader-rotation")) { Icon(controller.settings.rotation.icon(), tr("Rotation")) }
                 IconButton(onClick = onLook, modifier = Modifier.testTag("reader-settings").tourPlace("reader-settings")) { Icon(Icons.Outlined.Settings, tr("Reading settings")) }
             }
+        }
+    }
+}
+
+/**
+ * Back to [back], where the reader was before moving with the progress bar (and then back again). On a phone, where
+ * the row is narrow, just its icon.
+ */
+@Composable
+private fun BarReturnButton(controller: ReaderController, back: ReaderPosition, compact: Boolean, modifier: Modifier = Modifier) {
+    val label = controller.barReturnBookPage?.let { tr("Back to page {0}", it) } ?: tr("Back to {0}%", (back.bookProgress * 100).roundToInt())
+    if (compact) {
+        FilledTonalIconButton(onClick = { controller.swapWithBarReturn() }, modifier = modifier.testTag("reader-bar-return")) {
+            Icon(Icons.AutoMirrored.Filled.Undo, label, Modifier.size(20.dp))
+        }
+    } else {
+        FilledTonalButton(
+            onClick = { controller.swapWithBarReturn() },
+            contentPadding = PaddingValues(start = 14.dp, end = 18.dp, top = 8.dp, bottom = 8.dp),
+            modifier = modifier.testTag("reader-bar-return"),
+        ) {
+            Icon(Icons.AutoMirrored.Filled.Undo, null, Modifier.size(18.dp))
+            Spacer(Modifier.width(8.dp))
+            Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
     }
 }

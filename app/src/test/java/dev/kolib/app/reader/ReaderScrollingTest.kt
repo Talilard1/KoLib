@@ -52,6 +52,24 @@ class ReaderScrollingTest {
     }
 
     @Test
+    fun withOnlyTheProgressBarAtTheFootTheTextFadesOutAboveIt() {
+        val bare = ReaderSettings(
+            flow = ReaderFlow.SCROLL, runningHeads = RunningHeads.OFF, marginItems = MarginItem.entries.associateWith { MarginSpot.OFF },
+        )
+        // Nothing round the page but the progress bar: a band at the foot all the same, so the text doesn't run under the bar.
+        assertEquals(ProgressLine.BOOK, bare.progressLine)
+        assertEquals(ReaderSettings.BAR_BAND, JSONObject(bare.toJs("en")).getInt("bandBottom"))
+        assertEquals(0, JSONObject(bare.toJs("en")).getInt("bandTop"))
+        // No bar either: the text has the whole screen.
+        assertEquals(0, JSONObject(bare.copy(progressLine = ProgressLine.OFF).toJs("en")).getInt("bandBottom"))
+        // Something at the foot as well: its own, deeper band.
+        val withPercent = bare.copy(marginItems = bare.marginItems + (MarginItem.entries.first() to MarginSpot.BOTTOM_RIGHT))
+        assertEquals(ReaderSettings.BAND, JSONObject(withPercent.toJs("en")).getInt("bandBottom"))
+        // Pages have no bands.
+        assertEquals(0, JSONObject(bare.copy(flow = ReaderFlow.PAGES).toJs("en")).getInt("bandBottom"))
+    }
+
+    @Test
     fun scrollingAndAutoscrollSettingsAreKept() {
         ReaderSettingsStore(context).update {
             it.copy(flow = ReaderFlow.SCROLL, autoWpm = 310, autoEnd = AutoEnd.GO_ON, autoResume = AutoResume.STOP)

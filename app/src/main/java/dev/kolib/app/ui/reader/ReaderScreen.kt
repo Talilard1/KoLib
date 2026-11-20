@@ -647,7 +647,7 @@ internal fun ReaderScreen(
         ReaderPanel(panel != Panel.NONE, wide, drawerWidth, dismiss, fromLeft = fromLeft) {
             // A panel sliding shut still shows what it held.
             when (if (panel != Panel.NONE) panel else lastPanel.value) {
-                Panel.CONTENTS -> ContentsPanel(controller, wide, onPicked = { panel = Panel.NONE; controller.controlsVisible = false }, onClose = dismiss, onLeaveBook = onClose)
+                Panel.CONTENTS -> ContentsPanel(controller, wide, onPicked = { panel = Panel.NONE; controller.controlsVisible = false }, onClose = dismiss)
                 Panel.SEARCH -> SearchPanel(controller, wide, onPicked = { panel = Panel.NONE; controller.controlsVisible = false }, onClose = dismiss)
                 Panel.LOOK -> LookPanel(s, onSettings, controller.lookTab, wide, onTab = { controller.lookTab = it }, onClose = dismiss, onAppSettings = onAppSettings, bookLook = bookLook, camera = camera)
                 Panel.STATS -> ReadingStatsPanel(controller, onClose = dismiss) { title, subtitle, close -> DrawerHeader(title, subtitle, close) }
@@ -792,12 +792,14 @@ private fun androidx.compose.foundation.layout.BoxScope.ScrollBands(s: ReaderSet
             .height(bandTop.dp)
             .background(androidx.compose.ui.graphics.Brush.verticalGradient(0f to paper, 0.75f to paper, 1f to paper.copy(alpha = 0f)))
     )
+    // With only the progress bar at the foot, its band is shallower: the text fades over half of it, down to the bar.
+    val solidFrom = if (s.footItemsShown) 0.25f else 0.5f
     if (bandBottom > 0) Box(
         Modifier
             .align(Alignment.BottomCenter)
             .fillMaxWidth()
             .height(bandBottom.dp)
-            .background(androidx.compose.ui.graphics.Brush.verticalGradient(0f to paper.copy(alpha = 0f), 0.25f to paper, 1f to paper))
+            .background(androidx.compose.ui.graphics.Brush.verticalGradient(0f to paper.copy(alpha = 0f), solidFrom to paper, 1f to paper))
     )
 }
 
@@ -879,19 +881,15 @@ internal fun ReaderPanel(visible: Boolean, wide: Boolean, width: androidx.compos
     }
 }
 
-/** The top of a drawer: its name, a line under it, and a button to close it; and, given [onLeave], one to leave the book. */
+/** The top of a drawer: its name, a line under it, and a button to close it. (Leaving the book is the bar over the page's.) */
 @Composable
-internal fun DrawerHeader(title: String, subtitle: String? = null, onClose: () -> Unit, onLeave: (() -> Unit)? = null) {
+internal fun DrawerHeader(title: String, subtitle: String? = null, onClose: () -> Unit) {
     Row(
         Modifier
             .fillMaxWidth()
-            .padding(start = if (onLeave != null) 4.dp else 24.dp, end = 8.dp, top = 14.dp, bottom = 6.dp),
+            .padding(start = 24.dp, end = 8.dp, top = 14.dp, bottom = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (onLeave != null) {
-            IconButton(onClick = onLeave, modifier = Modifier.testTag("contents-leave")) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Close the book")) }
-            Spacer(Modifier.width(4.dp))
-        }
         Column(Modifier.weight(1f)) {
             Text(title, style = MaterialTheme.typography.titleLarge, maxLines = 2, overflow = TextOverflow.Ellipsis)
             subtitle?.let {
@@ -940,7 +938,7 @@ private fun DrawerTabs(tabs: List<DrawerTab>, pager: PagerState) {
 }
 
 @Composable
-private fun ContentsPanel(controller: ReaderController, wide: Boolean, onPicked: () -> Unit, onClose: () -> Unit, onLeaveBook: (() -> Unit)? = null) {
+private fun ContentsPanel(controller: ReaderController, wide: Boolean, onPicked: () -> Unit, onClose: () -> Unit) {
     val pager = rememberPagerState(initialPage = controller.contentsTab.coerceIn(0, 3)) { 4 }
     // The book's pictures are looked for once the panel's open (the tab shows how many once they're found).
     LaunchedEffect(controller) { controller.findPictures() }
@@ -952,15 +950,7 @@ private fun ContentsPanel(controller: ReaderController, wide: Boolean, onPicked:
                 controller.bookTitle,
                 subtitle = controller.bookAuthor?.takeIf { it.isNotBlank() } ?: tr("{0}% read", (controller.bookProgress * 100).roundToInt()),
                 onClose = onClose,
-                onLeave = onLeaveBook,
             )
-        } else if (onLeaveBook != null) {
-            // Out of the book from here too, as from the bar over the page.
-            Row(Modifier.fillMaxWidth().padding(start = 4.dp, end = 16.dp, top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onLeaveBook, modifier = Modifier.testTag("contents-leave")) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Close the book")) }
-                Spacer(Modifier.width(4.dp))
-                Text(controller.bookTitle, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            }
         }
         // Four tabs, each an icon over its name (with how many it holds), so they fit side by side on any screen.
         DrawerTabs(

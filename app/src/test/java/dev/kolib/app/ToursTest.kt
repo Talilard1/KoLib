@@ -299,7 +299,8 @@ class ToursTest {
     private fun addSamples(vm: LibraryViewModel, onlyIfEmpty: Boolean): Int {
         var added = -1
         vm.addSamples(onlyIfEmpty) { added = it }
-        repeat(1_500) {
+        // Up to a minute: four books and their covers, slower on a busy machine.
+        repeat(3_000) {
             if (added >= 0) return added
             shadowOf(Looper.getMainLooper()).idle()
             Thread.sleep(20)

@@ -75,8 +75,8 @@ class RotationTest {
         }
         compose.onNodeWithTag("comic-rotation-button").performClick()
         settle()
+        // A tap on the choice turns the screen: there's nothing more to press.
         compose.onNodeWithText("Landscape").performClick()
-        compose.onNodeWithText("Apply").performClick()
         settle()
         assertEquals(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE, compose.activity.requestedOrientation)
     }

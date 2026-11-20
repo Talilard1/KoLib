@@ -41,6 +41,7 @@ import com.github.takahirom.roborazzi.captureScreenRoboImage
 import androidx.compose.ui.test.performScrollTo
 import dev.kolib.app.reader.MarginSpot
 import dev.kolib.app.reader.MarginItem
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
@@ -256,6 +257,23 @@ class ReaderEditorScreenshotTest {
     @Config(qualifiers = LANDSCAPE)
     fun readerScrolling() = reader("72_reader_scrolling", ReaderTheme.PAPER, controls = false, settings = ReaderSettings(theme = ReaderTheme.PAPER, flow = ReaderFlow.SCROLL))
 
+    /** Scrolling with nothing round the page but the progress bar: the text fades out above the bar, not under it. */
+    private fun scrollingBarOnly(name: String) = reader(
+        name, ReaderTheme.PAPER, controls = false,
+        settings = ReaderSettings(
+            theme = ReaderTheme.PAPER, flow = ReaderFlow.SCROLL, runningHeads = dev.kolib.app.reader.RunningHeads.OFF,
+            marginItems = dev.kolib.app.reader.MarginItem.entries.associateWith { dev.kolib.app.reader.MarginSpot.OFF },
+        ),
+    )
+
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun readerScrollingWithOnlyTheProgressBar() = scrollingBarOnly("72_reader_scrolling_bar_only")
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun readerScrollingWithOnlyTheProgressBarOnAPhone() = scrollingBarOnly("72_reader_scrolling_bar_only_phone")
+
     /** After moving with the progress bar: the way back to where the reader was, with the controls. */
     private val backThere = dev.kolib.app.reader.ReaderPosition(
         path = "chapter1.xhtml", anchor = null, progress = 0.4f, bookProgress = 0.18f, snippet = "", chapterTitle = "The Walled Garden",
@@ -263,7 +281,11 @@ class ReaderEditorScreenshotTest {
 
     @Test
     @Config(qualifiers = LANDSCAPE)
-    fun readerBarReturn() = reader("79_reader_bar_return", ReaderTheme.PAPER, prepare = { it.showBarReturnForPreview(backThere) })
+    fun readerBarReturn() {
+        reader("79_reader_bar_return", ReaderTheme.PAPER, prepare = { it.showBarReturnForPreview(backThere) })
+        // The way back is among the buttons along the foot.
+        compose.onNodeWithTag("reader-bar-return").assertExists()
+    }
 
     @Test
     @Config(qualifiers = "w411dp-h914dp-port-xxhdpi")

@@ -695,14 +695,18 @@ data class ReaderSettings(
         }
     }
 
+    /** Something is shown along the foot of the page besides the progress bar: a margin item, or the headings. */
+    val footItemsShown: Boolean get() = marginItems.values.any { !it.top && it != MarginSpot.OFF } || runningHeads == RunningHeads.BOTTOM
+
     fun bandBottom(cut: Cutouts): Int {
         if (!scrolling) return 0
-        val used = marginItems.values.any { !it.top && it != MarginSpot.OFF } || runningHeads == RunningHeads.BOTTOM
         val depth = cut.bottom?.let { Math.round(it.depth) } ?: 0
+        val camera = if (depth > 0 && clearOfCamera) depth + 4 else 0
         return when {
-            used -> maxOf(BAND, depth + MarginRoom.ROW_HEIGHT + 10)
-            depth > 0 && clearOfCamera -> depth + 4
-            else -> 0
+            footItemsShown -> maxOf(BAND, depth + MarginRoom.ROW_HEIGHT + 10)
+            // Only the progress bar: a shallower band, for the text to fade out above it rather than run under it.
+            progressLine != ProgressLine.OFF -> maxOf(BAR_BAND, camera)
+            else -> camera
         }
     }
 
@@ -809,6 +813,8 @@ data class ReaderSettings(
         const val HEAD_SMALL = 13f
         /** How tall the bands are that margin items show in when scrolling, in dp (the page's pixels). */
         const val BAND = 36
+        /** How tall the band at the foot is when scrolling with only the progress bar there, in dp. */
+        const val BAR_BAND = 24
         /** How far in from the sides what's in the margins sits, in dp. */
         const val SIDE = 24f
         /** The least space between a camera and what's beside it, in dp. */

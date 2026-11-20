@@ -65,9 +65,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.KoLib">
         <!-- Android 16 ignores an app's choice of portrait or landscape on a tablet (smallest width 600dp and up) unless
-             the app opts out, or its aspect ratio is set to App default in Android's settings, which lets Mihon's reader
-             turn the screen. Opted out, the readers can turn it from portrait, and once that setting's made, either way.
-             Without it they can't turn it at all. -->
+             its aspect ratio is App default in Android's settings. Opted out, KoLib is App default from install, so the
+             readers' Rotation buttons turn the screen whatever auto-rotate is set to; without it, it's Full screen and
+             they can't. Taking Full screen off that list instead changes nothing. (Both tried on a Galaxy Tab S9 with
+             Android 16.) The opt-out ends for apps that target API 37. -->
         <property
             android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
             android:value="true" />

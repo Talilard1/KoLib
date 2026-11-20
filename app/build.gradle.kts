@@ -27,6 +27,7 @@ android {
     defaultConfig {
         applicationId = "dev.kolib.app"
         minSdk = 29
+        // Keep at 36: from 37, Android drops the opt-out in the manifest that lets the readers turn a tablet's screen.
         targetSdk = 36
         versionCode = 100
         versionName = "2.7 preview"

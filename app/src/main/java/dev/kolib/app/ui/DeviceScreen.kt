@@ -32,6 +32,7 @@ import androidx.compose.material.icons.outlined.Restore
 import androidx.compose.material.icons.outlined.Usb
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.UsbOff
+import dev.kolib.app.ui.components.WithFoot
 import dev.kolib.app.ui.components.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -305,7 +306,8 @@ fun DeviceScreen(
                     Tab(selected = pager.currentPage == 2, onClick = { goTo(2) }, text = { Text(tr("Device")) })
                 }
             }
-            TabPages(pager, Modifier.fillMaxSize(), swipe = !browse.selecting) { page ->
+            // The bar for books being chosen goes along the foot, the screen's whole width, under a side panel too.
+            WithFoot(Modifier.fillMaxSize()) { TabPages(pager, Modifier.fillMaxSize(), swipe = !browse.selecting) { page ->
                 when (page) {
                     0 -> BooksTab(
                         view,
@@ -328,7 +330,7 @@ fun DeviceScreen(
                     )
                     else -> DeviceTab(view, live, state, onWriteCheck, onBackupNow, onOpenBackups, onOpenLog)
                 }
-            }
+            } }
         }
     }
 

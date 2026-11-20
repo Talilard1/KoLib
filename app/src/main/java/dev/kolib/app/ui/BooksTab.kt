@@ -2,6 +2,7 @@
 
 package dev.kolib.app.ui
 
+import dev.kolib.app.ui.components.AtFoot
 import dev.kolib.app.tr
 import dev.kolib.app.ui.components.seriesSearch
 import dev.kolib.app.ui.components.DetailText
@@ -224,9 +225,9 @@ private fun BookBrowser(
     var confirmDelete by remember { mutableStateOf<List<KoboBook>?>(null) }
     Column(modifier.fillMaxHeight()) {
         BrowserControls(browse, books.size, view.snapshot, extras, readingTags)
-        // The books, and while some are being chosen, the bar for them along the foot of the screen.
+        // The books, and while some are being chosen, the bar for them along the foot of the screen, its whole width.
         Box(Modifier.weight(1f).fillMaxWidth()) { KoboBookList(view, browse, books, selectedId, extras, inLibrary) }
-        if (browse.selecting) {
+        if (browse.selecting) AtFoot {
             val chosen = { books.filter { browse.picked.containsKey(it.contentId) } }
             SelectionBar(
                 count = browse.picked.size,

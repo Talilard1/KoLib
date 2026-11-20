@@ -26,6 +26,8 @@ import dev.kolib.app.ui.opening.OpeningAnimation
 import dev.kolib.app.ui.opening.OpeningClock
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private val vm: MainViewModel by viewModels()
@@ -44,11 +46,13 @@ class MainActivity : ComponentActivity() {
         // is opened again from the recent apps, after it was closed with Back.
         val fromRecents = ((intent?.flags ?: 0) and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0
         if (savedInstanceState == null && !fromRecents) handleIncoming(intent)
-        val themes = (application as KoLibApp).themeSettings
+        val themes = app.themeSettings
         // The opening plays when the app is started from its icon: not after a restart, nor when it's sent a book.
         val playOpening = savedInstanceState == null && themes.opening.value &&
             (intent?.action == null || intent?.action == Intent.ACTION_MAIN)
         matchStartingScreen(themes.opening.value)
+        // The Kobo is looked for, and the link to other devices kept up, while KoLib is in use: the library or a reader.
+        lifecycleScope.launch { app.inUse.collect { inUse(it) } }
         setContent {
             val theme by themes.choice.collectAsStateWithLifecycle()
             val opening by themes.opening.collectAsStateWithLifecycle()
@@ -133,38 +137,53 @@ class MainActivity : ComponentActivity() {
         libraryVm.importUris(uris)
     }
 
-    /** When KoLib was last touched, to tell it going out of sight by itself from another app opening over it. */
-    private var lastTouch = 0L
+    private val app get() = application as KoLibApp
 
     override fun dispatchTouchEvent(ev: android.view.MotionEvent): Boolean {
-        if (ev.actionMasked == android.view.MotionEvent.ACTION_DOWN) lastTouch = android.os.SystemClock.elapsedRealtime()
+        if (ev.actionMasked == android.view.MotionEvent.ACTION_DOWN) app.touched()
         return super.dispatchTouchEvent(ev)
     }
 
     /** The volume buttons turn pages while a book is open. */
     @SuppressLint("RestrictedApi") // Calling the activity's own dispatchKeyEvent from its override is fine.
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        if (event.action == KeyEvent.ACTION_DOWN) lastTouch = android.os.SystemClock.elapsedRealtime()
+        if (event.action == KeyEvent.ACTION_DOWN) app.touched()
         if (ReaderKeys.handler?.invoke(event) == true) return true
         return super.dispatchKeyEvent(event)
     }
 
-    override fun onStart() {
-        super.onStart()
-        vm.onForeground()
-        // KoLib on the user's other devices can find and reach this one while it's open.
-        val app = application as KoLibApp
-        if (!underTest) {
-            app.link.start()
-            if (app.link.settings.value.stayReachable) dev.kolib.app.link.LinkService.start(this)
+    /** Whether what's done while KoLib is in use is going (see [inUse]). */
+    private var inUseNow = false
+
+    /**
+     * KoLib came into use ([now]), or went out of sight: the library's screen or a reader is showing, or neither is (a
+     * reader over the library's screen keeps it in use).
+     */
+    private fun inUse(now: Boolean) {
+        if (now == inUseNow) return
+        inUseNow = now
+        if (now) {
+            vm.onForeground()
+            // KoLib on the user's other devices can find and reach this one while it's open.
+            if (!underTest) {
+                app.link.start()
+                if (app.link.settings.value.stayReachable) dev.kolib.app.link.LinkService.start(this)
+            }
+        } else {
+            vm.onLeft(app.lastTouch)
+            vm.onBackground()
+            if (!underTest) app.link.stop()
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        inUse(app.inUse.value)
+    }
+
     override fun onStop() {
-        if (!isChangingConfigurations) vm.onLeft(lastTouch)
-        vm.onBackground()
-        if (!underTest) (application as KoLibApp).link.stop()
         super.onStop()
+        inUse(app.inUse.value)
     }
 
     /** Robolectric, which runs the tests: no network there. */

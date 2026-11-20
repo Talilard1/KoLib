@@ -139,6 +139,27 @@ class KoLibApp : Application() {
     var inFront = false
         private set
 
+    /** How many of the library's screen and the readers are started. */
+    private var screensStarted = 0
+
+    /**
+     * Whether the library's screen or a reader is showing: KoLib is in use, so the Kobo is looked for and the link to
+     * the user's other devices kept up. Still so while a reader turns (and so is made anew).
+     */
+    val inUse = kotlinx.coroutines.flow.MutableStateFlow(false)
+
+    /** When KoLib was last touched (since start-up), to tell it going out of sight by itself from another app opening over it. */
+    @Volatile
+    var lastTouch = 0L
+        private set
+
+    fun touched() {
+        lastTouch = android.os.SystemClock.elapsedRealtime()
+    }
+
+    /** Something to open in the library's screen as it's shown again: the text editor, chosen in a reader. */
+    val openInLibrary = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+
     /** Chapter summaries the model has written, kept so they're there at once the next time. */
     val summaries: dev.kolib.app.ai.SummaryStore by lazy { dev.kolib.app.ai.SummaryStore(java.io.File(filesDir, "ai/summaries.json")) }
 
@@ -214,6 +235,10 @@ class KoLibApp : Application() {
             override fun onActivityStarted(activity: android.app.Activity) {
                 started++
                 inFront = true
+                if (activity is MainActivity || activity is ReaderActivity) {
+                    screensStarted++
+                    inUse.value = true
+                }
             }
 
             override fun onActivityStopped(activity: android.app.Activity) {
@@ -221,6 +246,10 @@ class KoLibApp : Application() {
                 inFront = started > 0
                 // Out of sight, a model kept ready is let go of after a while.
                 if (!inFront) aiHub?.settle()
+                if (activity is MainActivity || activity is ReaderActivity) {
+                    screensStarted = (screensStarted - 1).coerceAtLeast(0)
+                    if (screensStarted == 0 && !activity.isChangingConfigurations) inUse.value = false
+                }
             }
 
             override fun onActivityCreated(activity: android.app.Activity, savedInstanceState: android.os.Bundle?) {}

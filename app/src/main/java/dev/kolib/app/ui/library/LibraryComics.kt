@@ -98,6 +98,7 @@ import dev.kolib.app.ui.components.PhoneActionBar
 import dev.kolib.app.ui.components.ShelfGridBox
 import dev.kolib.app.ui.components.ShelfSpace
 import dev.kolib.app.ui.components.TabBackHandler
+import dev.kolib.app.ui.components.AtFoot
 import dev.kolib.app.ui.components.TopInsets
 import dev.kolib.app.ui.components.gridCover
 import dev.kolib.app.ui.components.phoneLayout
@@ -257,7 +258,7 @@ private fun ComicShelf(
             } else {
                 ComicSortRow(browse, shown.size, entries.sumOf { it.issues.size })
             }
-            // The shelf, and while series are being chosen, the bar for them along the foot of the screen.
+            // The shelf, and while series are being chosen, the bar for them along the foot of the screen, its whole width.
             Column(Modifier.weight(1f).fillMaxWidth()) {
                 if (shown.isEmpty()) {
                     if (browse.comicQuery.isBlank()) EmptyState(Icons.Outlined.AutoStories, tr("No comics"), tr("Comics you add show here, one entry for each series."))
@@ -308,7 +309,7 @@ private fun ComicShelf(
                     }
                 }
             }
-            if (choosing && !phone) {
+            if (choosing && !phone) AtFoot {
                 SelectionBar(count = 0, title = title, onSelectAll = { shown.forEach { browse.comicPicked[it.key] = true } }, onCancel = done) {
                     ComicSeriesButtons(chosenCount, onSend = { actions.onSend(chosen()); done() }, onRead = { actions.onMarkFinished(chosen()); done() },
                         onUnread = { actions.onMarkUnread(chosen()); done() }, onAddTo = { adding = chosen() }, onRemove = remove,
@@ -726,7 +727,7 @@ internal fun ComicSeriesPage(
                 }
                 browse.comicPicked[issue.id] = true
             }
-            // The comics, and while some are being chosen, the bar for them along the foot of the screen.
+            // The comics, and while some are being chosen, the bar for them along the foot of the screen, its whole width.
             Box(Modifier.weight(1f).fillMaxWidth()) {
                 if (grid) {
                     // Each comic an entry of its own, as the series are on the shelf.
@@ -762,7 +763,7 @@ internal fun ComicSeriesPage(
                     }
                 }
             }
-            if (choosing && !phone) {
+            if (choosing && !phone) AtFoot {
                 SelectionBar(count = 0, title = title, onSelectAll = { issues.forEach { browse.comicPicked[it.id] = true } }, onCancel = done) {
                     val count2 = browse.comicPicked.size
                     if (infoAtTop && count2 == 1) OutlinedButton(

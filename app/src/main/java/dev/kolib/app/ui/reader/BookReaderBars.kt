@@ -310,16 +310,25 @@ internal val ReaderRotation.orientation: Int get() = when (this) {
 
 /**
  * While a reader is open, the screen faces as [wanted] (as Android is asked for it), and when it closes, as it did
- * before. Android is asked only when the way changes: asked over and over in a moment, some tablets stop listening.
+ * before (on the reader's own screen, which closes with it, there's nothing to put back, nor as it's made anew when
+ * it turns). Android is asked only when the way changes: asked over and over in a moment, some tablets stop listening.
  */
 @Composable
 internal fun ScreenFacing(wanted: Int) {
     val activity = androidx.compose.ui.platform.LocalContext.current as? android.app.Activity ?: return
     androidx.compose.runtime.DisposableEffect(activity) {
         val before = activity.requestedOrientation
-        onDispose { if (activity.requestedOrientation != before) activity.requestedOrientation = before }
+        onDispose {
+            if (activity is dev.kolib.app.ReaderActivity || activity.isFinishing || activity.isChangingConfigurations) return@onDispose
+            if (activity.requestedOrientation != before) activity.requestedOrientation = before
+        }
     }
-    androidx.compose.runtime.SideEffect { if (activity.requestedOrientation != wanted) activity.requestedOrientation = wanted }
+    androidx.compose.runtime.SideEffect {
+        if (activity.requestedOrientation != wanted) {
+            dev.kolib.app.log.AppLog.i("Rotation", "Reader asks for ${dev.kolib.app.orientationName(wanted)} (was ${dev.kolib.app.orientationName(activity.requestedOrientation)}).")
+            activity.requestedOrientation = wanted
+        }
+    }
 }
 
 /**
@@ -337,9 +346,13 @@ internal suspend fun sayIfNotTurned(context: android.content.Context, wanted: In
         android.content.pm.ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE, android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE,
     )
     val now = context.resources.configuration.orientation
-    if ((portrait && now != android.content.res.Configuration.ORIENTATION_PORTRAIT) || (landscape && now != android.content.res.Configuration.ORIENTATION_LANDSCAPE)) {
-        android.widget.Toast.makeText(context, tr("This device didn't let the screen turn."), android.widget.Toast.LENGTH_LONG).show()
-    }
+    val turned = !((portrait && now != android.content.res.Configuration.ORIENTATION_PORTRAIT) || (landscape && now != android.content.res.Configuration.ORIENTATION_LANDSCAPE))
+    dev.kolib.app.log.AppLog.i(
+        "Rotation",
+        "Asked for ${dev.kolib.app.orientationName(wanted)}: the screen is ${if (now == android.content.res.Configuration.ORIENTATION_LANDSCAPE) "landscape" else "portrait"} " +
+            "(display turned ${(context.getSystemService(android.hardware.display.DisplayManager::class.java)?.getDisplay(android.view.Display.DEFAULT_DISPLAY)?.rotation ?: 0) * 90}°).",
+    )
+    if (!turned) android.widget.Toast.makeText(context, tr("This device didn't let the screen turn."), android.widget.Toast.LENGTH_LONG).show()
 }
 
 /** Each way of holding the screen's icon. */

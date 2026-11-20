@@ -2,7 +2,9 @@
 
 package dev.kolib.app.ui.library
 
+import dev.kolib.app.ui.components.AtFoot
 import dev.kolib.app.ui.components.FittedText
+import dev.kolib.app.ui.components.WithFoot
 import dev.kolib.app.tr
 import dev.kolib.app.ui.components.seriesSearch
 import dev.kolib.app.ui.components.DetailText
@@ -354,7 +356,8 @@ fun LibraryScreen(
                 Tab(selected = pager.currentPage == 1, onClick = { goTo(1) }, text = { Text(tr("Collections ({0})", collectionCount)) })
                 if (tabCount == 3) Tab(selected = pager.currentPage == 2, onClick = { goTo(2) }, text = { Text(tr("Comics ({0})", seriesCount)) }, modifier = Modifier.testTag("tab-comics"))
             }
-            BoxWithConstraints(Modifier.fillMaxSize()) {
+            // The bar for what's chosen goes along the foot, the screen's whole width, under a side panel too.
+            WithFoot(Modifier.fillMaxSize()) { BoxWithConstraints(Modifier.fillMaxSize()) {
                 val twoPanes = maxWidth >= TwoPaneWidth
                 // From the Collections tab, a tag or a search shows the books in the Books tab (the book still open there on a wide screen).
                 val toBooks = { book: LibraryBook ->
@@ -426,7 +429,7 @@ fun LibraryScreen(
                         LibraryBrowser(notComics, visible, covers, browse, null, onSend, onDelete, Modifier.fillMaxSize(), reading, here, onMerge, onExport, onDuplicate, onSyncReading)
                     }
                 }
-            }
+            } }
         }
     }
 }
@@ -535,7 +538,7 @@ private fun LibraryBrowser(
     val onHold: (LibraryBook) -> Unit = { b -> browse.holdPick(b.id, books.map { it.id }) }
     Column(modifier.fillMaxHeight()) {
         LibraryControls(all, browse, books.size)
-        // The books, and while some are being chosen, the bar for them along the foot of the screen.
+        // The books, and while some are being chosen, the bar for them along the foot of the screen, its whole width.
         Column(Modifier.weight(1f).fillMaxWidth()) {
             if (books.isEmpty()) {
                 EmptyState(Icons.Outlined.SearchOff, tr("No matching books"), tr("Try a different search, or clear the filters."))
@@ -578,7 +581,7 @@ private fun LibraryBrowser(
                 }
             }
         }
-        if (browse.selecting) {
+        if (browse.selecting) AtFoot {
             val chosen = { books.filter { browse.picked.containsKey(it.id) }.map { it.id } }
             SelectionBar(
                 count = browse.picked.size,

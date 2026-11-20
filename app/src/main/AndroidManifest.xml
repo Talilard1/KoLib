@@ -73,8 +73,7 @@
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize">
             <!-- No opting out of Android 16's handling of tablets (PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY), as
-                 Mihon doesn't: an app that opts out is open to the tablet maker's own orientation rules, and a
-                 Samsung tablet held in landscape then keeps the readers in landscape whatever they ask for. -->
+                 Mihon doesn't: an app that opts out is open to the tablet maker's own orientation rules. -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -124,6 +123,15 @@
                 <data android:mimeType="application/x-cbz" />
             </intent-filter>
         </activity>
+
+        <!-- The readers, on a screen of their own, as Mihon's reader is: turned the way they're to be read as they open,
+             and made anew as they turn (no configChanges). A Samsung tablet held in landscape won't turn for the
+             library's screen when it asks while it's open, but does for Mihon's reader. -->
+        <activity
+            android:name=".ReaderActivity"
+            android:exported="false"
+            android:theme="@style/Theme.KoLib"
+            android:windowSoftInputMode="adjustResize" />
 
         <!-- Lets Android offer KoLib when a Kobo is connected, beside any file manager that takes USB drives, so
              KoLib can be the app that opens (and stays open) rather than the file manager. It's turned on only

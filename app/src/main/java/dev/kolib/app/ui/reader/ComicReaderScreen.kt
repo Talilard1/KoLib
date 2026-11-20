@@ -295,7 +295,7 @@ internal fun comicBrightness(s: ComicSettings, readerBrightness: Float): Float =
 }
 
 /** The rotation comics had before they had their own: the book reader's. */
-private fun ReaderRotation.forComics(): ComicRotation = when (this) {
+internal fun ReaderRotation.forComics(): ComicRotation = when (this) {
     ReaderRotation.AUTO -> ComicRotation.FREE
     ReaderRotation.PORTRAIT -> ComicRotation.PORTRAIT
     ReaderRotation.LANDSCAPE -> ComicRotation.LANDSCAPE

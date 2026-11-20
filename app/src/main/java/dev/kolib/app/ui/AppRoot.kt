@@ -110,11 +110,9 @@ import dev.kolib.app.ui.library.JobDialog
 import dev.kolib.app.ui.library.SendDialog
 import dev.kolib.app.ui.library.LibraryBrowseState
 import dev.kolib.app.ui.library.LibraryScreen
-import dev.kolib.app.ui.reader.BookReader
 import dev.kolib.app.ui.reader.PreviewReader
 import dev.kolib.app.ui.textedit.TextEditorScreen
 import dev.kolib.app.ui.components.HideStatusBar
-import dev.kolib.app.ui.reader.PdfBookReader
 import androidx.compose.foundation.layout.width
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -498,7 +496,26 @@ fun AppRoot(
             .fillMaxSize()
             .appBackdrop()
     ) {
-        val current = overlay
+        // A book is read on a screen of its own, the reader's (see ReaderActivity): it's opened there, with the library's
+        // screen left under it as it was.
+        val current = overlay?.takeUnless { it.startsWith("read:") }
+        val readerContext = androidx.compose.ui.platform.LocalContext.current
+        LaunchedEffect(overlay) {
+            val read = overlay?.takeIf { it.startsWith("read:") }?.removePrefix("read:") ?: return@LaunchedEffect
+            overlay = null
+            val book = books.firstOrNull { it.id == read } ?: return@LaunchedEffect
+            // The Kobo's copy, if it has a place in it: how far through is counted as the Kobo counts it.
+            val spans = book.koboPath?.let { koboView?.snapshot?.booksById?.get(dev.kolib.app.kobo.KoboPaths.contentId(it)) }?.chapterSpans.orEmpty()
+            dev.kolib.app.ReaderActivity.open(readerContext, book.id, spans)
+        }
+        // The text editor, chosen in a reader.
+        val fromReader by (readerContext.applicationContext as dev.kolib.app.KoLibApp).openInLibrary.collectAsStateWithLifecycle()
+        LaunchedEffect(fromReader) {
+            fromReader?.let {
+                (readerContext.applicationContext as dev.kolib.app.KoLibApp).openInLibrary.value = null
+                overlay = it
+            }
+        }
         when {
             current == "log" -> LogScreen(onBack = { overlay = null }, onMessage = { localMessage = it })
             current == "kobo-wifi" -> koboWifi.let { server ->
@@ -562,64 +579,6 @@ fun AppRoot(
                         onClose = { overlay = null },
                         onGoBack = if (book.isRecognised) ({ goBackId = book.id }) else null,
                     )
-                }
-            }
-            current?.startsWith("read:") == true -> {
-                val book = books.firstOrNull { it.id == current.removePrefix("read:") }
-                if (book == null) {
-                    LaunchedEffect(Unit) { overlay = null }
-                } else {
-                    // A book added as a PDF reads as the PDF, or as the text made from it, whichever was used last.
-                    val dir = libraryVm.library.bookDir(book.id)
-                    var asText by remember(book.id) {
-                        mutableStateOf(book.isPdf && !book.isScan && dev.kolib.app.reader.ReaderStore.pdfPlace(dir)?.asText == true)
-                    }
-                    val readAs = { text: Boolean ->
-                        val place = dev.kolib.app.reader.ReaderStore.pdfPlace(dir) ?: dev.kolib.app.reader.PdfPlace(0, 0)
-                        dev.kolib.app.reader.ReaderStore.savePdfPlace(dir, place.copy(asText = text))
-                        asText = text
-                    }
-                    if (book.isComic && libraryVm.library.sourceFile(book.id) != null) {
-                        // A comic: page by page, or as a long strip, read from the comic file itself; at its end, the
-                        // next in its series is offered.
-                        val series = remember(books, book.id) {
-                            dev.kolib.app.library.ComicSeries.entryOf(book, dev.kolib.app.ui.library.libraryComics(books))?.takeIf { it.isSeries }
-                        }
-                        dev.kolib.app.ui.reader.ComicBookReader(
-                            book = book,
-                            library = libraryVm.library,
-                            readerSettings = libraryVm.readerSettings,
-                            onClose = { overlay = null },
-                            readingHere = libraryVm.readingHere,
-                            onAppSettings = { showLook = true },
-                            series = series,
-                            onOpen = { id -> overlay = "read:$id" },
-                        )
-                    } else if (book.isPdf && !asText) {
-                        PdfBookReader(
-                            book = book,
-                            library = libraryVm.library,
-                            settings = libraryVm.readerSettings,
-                            onClose = { overlay = null },
-                            onReadAsText = if (book.isScan) null else ({ readAs(true) }),
-                            readingHere = libraryVm.readingHere,
-                            onAppSettings = { showLook = true },
-                        )
-                    } else {
-                        BookReader(
-                            book = book,
-                            library = libraryVm.library,
-                            settings = libraryVm.readerSettings,
-                            onClose = { overlay = null },
-                            onEdit = { path -> overlay = "text:${book.id}|$path" },
-                            readingHere = libraryVm.readingHere,
-                            onReadAsPdf = if (book.isPdf) ({ readAs(false) }) else null,
-                            onAppSettings = { showLook = true },
-                            // The Kobo's copy, if it has a place in it: how far through is counted as the Kobo counts it.
-                            koboSpans = book.koboPath?.let { koboView?.snapshot?.booksById?.get(dev.kolib.app.kobo.KoboPaths.contentId(it)) }
-                                ?.chapterSpans.orEmpty(),
-                        )
-                    }
                 }
             }
             current?.startsWith("text:") == true -> {

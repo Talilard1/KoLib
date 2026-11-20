@@ -40,7 +40,8 @@ object ComicSeries {
     data class Name(val stem: String, val volume: Double?, val number: Double?)
 
     private val ending = Regex("""\.(cbz|cbr|cb7|cbt|zip|rar|7z|epub|kepub|pdf)$""", RegexOption.IGNORE_CASE)
-    private val brackets = Regex("""\([^)]*\)|\[[^\]]*]|\{[^}]*}""")
+    // (Every bracket and brace that's meant as itself escaped: Android's regex engine won't take a lone "}" as one.)
+    private val brackets = Regex("""\([^)]*\)|\[[^\]]*\]|\{[^}]*\}""")
     private val volumeRe = Regex("""(?i)(?<![\p{L}\d])(?:volume|vol|tome|tomo|band|bd|v|t)\.?\s*(\d+(?:\.\d+)?)(?![\p{L}\d])""")
     private val numberRe = Regex(
         """(?i)(?<![\p{L}\d])(?:chapter|chap|ch|c|issue|episode|ep|part|pt|number|no|nr|#)\.?\s*(\d+(?:\.\d+)?)(?![\p{L}\d])""",
@@ -53,8 +54,14 @@ object ComicSeries {
         "tome", "tomo", "band", "bd", "t", "book", "comic", "comics", "manga", "page", "scan", "read",
     )
 
-    /** What the comic's file name [fileName] (or its title) says. */
-    fun parse(fileName: String): Name {
+    /** What the comic's file name [fileName] (or its title) says; nothing, if it can't be read (never an error). */
+    fun parse(fileName: String): Name = try {
+        parseName(fileName)
+    } catch (e: Exception) {
+        Name("", null, null)
+    }
+
+    private fun parseName(fileName: String): Name {
         val clean = fileName.trim().replace(ending, "").replace(brackets, " ").replace('_', ' ').replace(Regex("\\s+"), " ").trim()
         val volume = volumeRe.find(clean)
         val keyword = numberRe.find(clean)

@@ -150,7 +150,8 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
             // (koboApp's, not the property below: init runs before that's set.)
             withContext(Dispatchers.IO) { koboApp.readingHere.load(library.books.value.map { it.id }) { library.bookDir(it) } }
             // Comics added before there were series go in them, by the names they share: once.
-            if (!prefs.getBoolean("comic_series_given", false)) {
+            // (A new name for it: 2.2 preview stopped before it could do it.)
+            if (!prefs.getBoolean("comic_series_given_2", false)) {
                 runCatching {
                     withContext(Dispatchers.IO) {
                         val given = ComicSeries.assignAll(library.books.value.filter { it.isComic })
@@ -158,7 +159,7 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
                         setComicSeries(given.keys) { given[it.id] }
                     }
                 }.onFailure { AppLog.e("Library", "Putting comics in series failed", it) }
-                prefs.edit().putBoolean("comic_series_given", true).apply()
+                prefs.edit().putBoolean("comic_series_given_2", true).apply()
             }
             // Page counts for books added before the app counted them.
             library.fillMissingWordCounts { isActive }

@@ -130,6 +130,7 @@ internal fun PhoneKoboBrowser(
                 PhoneSelectionHeader(
                     count = browse.picked.size,
                     onSelectAll = { books.filter { it.isSideloaded && !inLibrary(it) }.forEach { browse.picked[it.contentId] = true } },
+                    onDeselectAll = { browse.deselectAll() },
                     onCancel = { browse.stopSelecting() },
                     hint = if (!live) tr("Connect your Kobo to add or delete books") else null,
                 )
@@ -209,13 +210,14 @@ internal fun PhoneKoboBrowser(
         }
         if (browse.selecting) {
             val any = browse.picked.isNotEmpty()
-            PhoneActionBar(Modifier.align(Alignment.BottomCenter)) {
-                PhoneAction(Icons.Filled.LibraryAdd, tr("Add to library"), {
-                    onAddToLibrary(chosen())
-                    browse.stopSelecting()
-                }, enabled = live && any, main = true)
-                PhoneAction(Icons.Outlined.Delete, tr("Delete from Kobo"), { confirmDelete = chosen().filter { it.isSideloaded } }, enabled = live && any, destructive = true)
-            }
+            PhoneActionBar(
+                koboSelectionActions(
+                    live, any,
+                    onAdd = { onAddToLibrary(chosen()); browse.stopSelecting() },
+                    onDelete = { confirmDelete = chosen().filter { it.isSideloaded } },
+                ),
+                Modifier.align(Alignment.BottomCenter),
+            )
         }
     }
     if (showHelp) SearchHelpDialog(onPick = { browse.query = it; showHelp = false }, onDismiss = { showHelp = false }, forKobo = true)

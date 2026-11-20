@@ -1,5 +1,8 @@
 package dev.kolib.app.ui.library
 
+import dev.kolib.app.ui.components.BarAction
+import androidx.compose.foundation.layout.RowScope
+import dev.kolib.app.ui.components.SelectAllButtons
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -252,7 +255,8 @@ private fun ComicShelf(
             val chosenCount = browse.comicPicked.size
             val title = if (chosenCount == 0) tr("Tap series to select them") else if (chosenCount == 1) tr("1 series selected") else tr("{0} series selected", chosenCount)
             if (choosing && phone) {
-                ComicChoosingHeader(title, onSelectAll = { shown.forEach { browse.comicPicked[it.key] = true } }, onCancel = done)
+                ComicChoosingHeader(title, onSelectAll = { shown.forEach { browse.comicPicked[it.key] = true } }, onDeselectAll = { browse.comicPicked.clear() },
+                    anySelected = browse.comicPicked.isNotEmpty(), onCancel = done)
             } else if (!phone) {
                 ComicSearchRow(browse, shown.size, entries.sumOf { it.issues.size }, wide)
             } else {
@@ -310,22 +314,24 @@ private fun ComicShelf(
                 }
             }
             if (choosing && !phone) AtFoot {
-                SelectionBar(count = 0, title = title, onSelectAll = { shown.forEach { browse.comicPicked[it.key] = true } }, onCancel = done) {
-                    ComicSeriesButtons(chosenCount, onSend = { actions.onSend(chosen()); done() }, onRead = { actions.onMarkFinished(chosen()); done() },
+                SelectionBar(
+                    count = 0, title = title, anySelected = chosenCount > 0,
+                    onSelectAll = { shown.forEach { browse.comicPicked[it.key] = true } }, onDeselectAll = { browse.comicPicked.clear() }, onCancel = done,
+                    moreTag = "comics-more",
+                    actions = comicShelfActions(chosenCount, onSend = { actions.onSend(chosen()); done() }, onRead = { actions.onMarkFinished(chosen()); done() },
                         onUnread = { actions.onMarkUnread(chosen()); done() }, onAddTo = { adding = chosen() }, onRemove = remove,
-                        onInfo = if (inPlace && chosenCount == 1) ({ chosenEntries().firstOrNull()?.let(showInfo) }) else null)
-                }
+                        onInfo = if (inPlace && chosenCount == 1) ({ chosenEntries().firstOrNull()?.let(showInfo) }) else null),
+                )
             }
         }
         if (choosing && phone) {
             val count = browse.comicPicked.size
-            PhoneActionBar(Modifier.align(Alignment.BottomCenter)) {
-                PhoneAction(Icons.AutoMirrored.Filled.Send, tr("Send"), { actions.onSend(chosen()); done() }, enabled = count > 0, main = true)
-                PhoneAction(Icons.Outlined.DoneAll, dev.kolib.app.trc("mark", "Read"), { actions.onMarkFinished(chosen()); done() }, enabled = count > 0)
-                PhoneAction(Icons.Outlined.RemoveDone, dev.kolib.app.trc("mark", "Unread"), { actions.onMarkUnread(chosen()); done() }, enabled = count > 0)
-                PhoneAction(Icons.AutoMirrored.Outlined.PlaylistAdd, tr("Add to series"), { adding = chosen() }, enabled = count > 0)
-                PhoneAction(Icons.Outlined.Delete, tr("Remove"), remove, enabled = count > 0, destructive = true)
-            }
+            PhoneActionBar(
+                comicShelfActions(count, onSend = { actions.onSend(chosen()); done() }, onRead = { actions.onMarkFinished(chosen()); done() },
+                    onUnread = { actions.onMarkUnread(chosen()); done() }, onAddTo = { adding = chosen() }, onRemove = remove),
+                Modifier.align(Alignment.BottomCenter),
+                moreTag = "comics-more",
+            )
         }
     }
     removingSeries?.let { picked ->
@@ -407,9 +413,8 @@ internal fun RemoveSeriesDialog(series: List<ComicEntry>, alone: Int = 0, onKeep
     )
 }
 
-/** On a tablet, the buttons for the series chosen. */
-@Composable
-private fun ComicSeriesButtons(
+/** What can be done with the series and comics chosen on the shelf: the same in the bar along the foot of a phone or a wider screen. */
+private fun comicShelfActions(
     count: Int,
     onSend: () -> Unit,
     onRead: () -> Unit,
@@ -418,35 +423,50 @@ private fun ComicSeriesButtons(
     onRemove: () -> Unit,
     /** The one chosen's details (or its series' page); null with more than one chosen, or where there's no need. */
     onInfo: (() -> Unit)? = null,
-) {
-    if (onInfo != null) OutlinedButton(onClick = onInfo, contentPadding = ComicButtonPadding, modifier = Modifier.testTag("comics-info")) { ButtonLabel(Icons.Outlined.Info, tr("Info")) }
-    OutlinedButton(onClick = onRemove, enabled = count > 0, contentPadding = ComicButtonPadding) { ButtonLabel(Icons.Outlined.Delete, tr("Remove")) }
-    OutlinedButton(onClick = onUnread, enabled = count > 0, contentPadding = ComicButtonPadding) { ButtonLabel(Icons.Outlined.RemoveDone, tr("Mark as unread")) }
-    OutlinedButton(onClick = onRead, enabled = count > 0, contentPadding = ComicButtonPadding) { ButtonLabel(Icons.Outlined.DoneAll, tr("Mark as read")) }
-    OutlinedButton(onClick = onAddTo, enabled = count > 0, contentPadding = ComicButtonPadding, modifier = Modifier.testTag("comics-add-to-series")) {
-        ButtonLabel(Icons.AutoMirrored.Outlined.PlaylistAdd, tr("Add to series"))
-    }
-    Button(onClick = onSend, enabled = count > 0, contentPadding = ComicButtonPadding) { ButtonLabel(Icons.AutoMirrored.Filled.Send, tr("Send to Kobo")) }
+): List<BarAction> {
+    val any = count > 0
+    return listOfNotNull(
+        BarAction(Icons.AutoMirrored.Filled.Send, tr("Send"), onSend, enabled = any, main = true, tag = "comics-send", longLabel = tr("Send to Kobo")),
+        BarAction(Icons.Outlined.DoneAll, dev.kolib.app.trc("mark", "Read"), onRead, enabled = any, tag = "comics-mark-read", longLabel = tr("Mark as read")),
+        BarAction(Icons.Outlined.RemoveDone, dev.kolib.app.trc("mark", "Unread"), onUnread, enabled = any, tag = "comics-mark-unread", longLabel = tr("Mark as unread")),
+        BarAction(Icons.AutoMirrored.Outlined.PlaylistAdd, tr("Add to series"), onAddTo, enabled = any, tag = "comics-add-to-series", canWait = true),
+        onInfo?.let { BarAction(Icons.Outlined.Info, tr("Info"), it, tag = "comics-info", canWait = true) },
+        BarAction(Icons.Outlined.Delete, tr("Remove"), onRemove, enabled = any, destructive = true, tag = "comics-remove"),
+    )
 }
 
-@Composable
-private fun ButtonLabel(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String) {
-    Icon(icon, null, Modifier.size(18.dp))
-    Spacer(Modifier.width(6.dp))
-    Text(text)
+/** What can be done with the comics chosen in a series: the same in the bar along the foot of a phone or a wider screen. */
+private fun comicIssueActions(
+    count: Int,
+    inSeries: Boolean,
+    onSend: () -> Unit,
+    onRead: () -> Unit,
+    onUnread: () -> Unit,
+    onTakeOut: () -> Unit,
+    onRemove: () -> Unit,
+    /** The one chosen's details; null with more than one chosen, or where there's no need. */
+    onInfo: (() -> Unit)? = null,
+): List<BarAction> {
+    val any = count > 0
+    return listOfNotNull(
+        BarAction(Icons.AutoMirrored.Filled.Send, tr("Send"), onSend, enabled = any, main = true, tag = "comic-issues-send", longLabel = tr("Send to Kobo")),
+        BarAction(Icons.Outlined.DoneAll, dev.kolib.app.trc("mark", "Read"), onRead, enabled = any, tag = "comics-mark-read", longLabel = tr("Mark as read")),
+        BarAction(Icons.Outlined.RemoveDone, dev.kolib.app.trc("mark", "Unread"), onUnread, enabled = any, tag = "comic-issues-mark-unread", longLabel = tr("Mark as unread")),
+        if (inSeries) BarAction(Icons.Outlined.LayersClear, tr("Take out"), onTakeOut, enabled = any, tag = "comic-issues-take-out", canWait = true, longLabel = tr("Take out of the series")) else null,
+        onInfo?.let { BarAction(Icons.Outlined.Info, tr("Info"), it, tag = "comic-issue-info", canWait = true) },
+        BarAction(Icons.Outlined.Delete, tr("Remove"), onRemove, enabled = any, destructive = true, tag = "comic-issues-remove"),
+    )
 }
 
-private val ComicButtonPadding = PaddingValues(start = 10.dp, end = 14.dp, top = 8.dp, bottom = 8.dp)
-
-/** On a phone, the top of the screen while choosing: what's chosen, Select all, and a way out. */
+/** On a phone, the top of the screen while choosing: what's chosen, Select all and Deselect all, and a way out. */
 @Composable
-private fun ComicChoosingHeader(title: String, onSelectAll: () -> Unit, onCancel: () -> Unit) {
+private fun ComicChoosingHeader(title: String, onSelectAll: () -> Unit, onDeselectAll: () -> Unit, anySelected: Boolean, onCancel: () -> Unit) {
     Surface(color = MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.fillMaxWidth()) {
         Row(Modifier.heightIn(min = 56.dp).padding(start = 4.dp, end = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onCancel) { Icon(Icons.Filled.Close, tr("Stop selecting"), tint = MaterialTheme.colorScheme.onSecondaryContainer) }
             Spacer(Modifier.width(4.dp))
             Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSecondaryContainer, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
-            TextButton(onClick = onSelectAll) { Text(tr("Select all")) }
+            SelectAllButtons(onSelectAll, onDeselectAll, anySelected = anySelected, tint = MaterialTheme.colorScheme.onSecondaryContainer)
         }
     }
 }
@@ -619,7 +639,8 @@ internal fun ComicSeriesPage(
             val chosenCount = browse.comicPicked.size
             val title = if (chosenCount == 0) tr("Tap comics to select them") else if (chosenCount == 1) tr("1 comic selected") else tr("{0} comics selected", chosenCount)
             if (choosing && phone) {
-                Box(Modifier.windowInsetsPadding(TopInsets)) { ComicChoosingHeader(title, onSelectAll = { issues.forEach { browse.comicPicked[it.id] = true } }, onCancel = done) }
+                Box(Modifier.windowInsetsPadding(TopInsets)) { ComicChoosingHeader(title, onSelectAll = { issues.forEach { browse.comicPicked[it.id] = true } }, onDeselectAll = { browse.comicPicked.clear() },
+                    anySelected = browse.comicPicked.isNotEmpty(), onCancel = done) }
             } else if (phone || onBack != null) {
                 // A bar with the way back, and the series' menu.
                 Row(
@@ -764,33 +785,34 @@ internal fun ComicSeriesPage(
                 }
             }
             if (choosing && !phone) AtFoot {
-                SelectionBar(count = 0, title = title, onSelectAll = { issues.forEach { browse.comicPicked[it.id] = true } }, onCancel = done) {
-                    val count2 = browse.comicPicked.size
-                    if (infoAtTop && count2 == 1) OutlinedButton(
-                        onClick = { chosen().firstOrNull()?.let { id -> done(); browse.comicBookId = id } },
-                        contentPadding = ComicButtonPadding, modifier = Modifier.testTag("comic-issue-info"),
-                    ) { ButtonLabel(Icons.Outlined.Info, tr("Info")) }
-                    OutlinedButton(onClick = { confirmRemove = chosen() }, enabled = count2 > 0, contentPadding = ComicButtonPadding) { ButtonLabel(Icons.Outlined.Delete, tr("Remove")) }
-                    if (entry.isSeries) OutlinedButton(onClick = { actions.onTakeOut(chosen()); done() }, enabled = count2 > 0, contentPadding = ComicButtonPadding) {
-                        ButtonLabel(Icons.Outlined.LayersClear, tr("Take out of the series"))
-                    }
-                    OutlinedButton(onClick = { actions.onMarkUnread(chosen()); done() }, enabled = count2 > 0, contentPadding = ComicButtonPadding) { ButtonLabel(Icons.Outlined.RemoveDone, tr("Mark as unread")) }
-                    OutlinedButton(onClick = { actions.onMarkFinished(chosen()); done() }, enabled = count2 > 0, contentPadding = ComicButtonPadding, modifier = Modifier.testTag("comics-mark-read")) {
-                        ButtonLabel(Icons.Outlined.DoneAll, tr("Mark as read"))
-                    }
-                    Button(onClick = { actions.onSend(chosen()); done() }, enabled = count2 > 0, contentPadding = ComicButtonPadding) { ButtonLabel(Icons.AutoMirrored.Filled.Send, tr("Send to Kobo")) }
-                }
+                SelectionBar(
+                    count = 0, title = title, anySelected = browse.comicPicked.isNotEmpty(),
+                    onSelectAll = { issues.forEach { browse.comicPicked[it.id] = true } }, onDeselectAll = { browse.comicPicked.clear() }, onCancel = done,
+                    moreTag = "comic-issues-more",
+                    actions = browse.comicPicked.size.let { count2 ->
+                        comicIssueActions(
+                            count2, entry.isSeries,
+                            onSend = { actions.onSend(chosen()); done() }, onRead = { actions.onMarkFinished(chosen()); done() },
+                            onUnread = { actions.onMarkUnread(chosen()); done() }, onTakeOut = { actions.onTakeOut(chosen()); done() },
+                            onRemove = { confirmRemove = chosen() },
+                            onInfo = if (infoAtTop && count2 == 1) ({ chosen().firstOrNull()?.let { id -> done(); browse.comicBookId = id } }) else null,
+                        )
+                    },
+                )
             }
         }
         if (choosing && phone) {
             val count = browse.comicPicked.size
-            PhoneActionBar(Modifier.align(Alignment.BottomCenter)) {
-                PhoneAction(Icons.AutoMirrored.Filled.Send, tr("Send"), { actions.onSend(chosen()); done() }, enabled = count > 0, main = true)
-                PhoneAction(Icons.Outlined.DoneAll, dev.kolib.app.trc("mark", "Read"), { actions.onMarkFinished(chosen()); done() }, enabled = count > 0)
-                PhoneAction(Icons.Outlined.RemoveDone, dev.kolib.app.trc("mark", "Unread"), { actions.onMarkUnread(chosen()); done() }, enabled = count > 0)
-                if (entry.isSeries) PhoneAction(Icons.Outlined.LayersClear, tr("Take out"), { actions.onTakeOut(chosen()); done() }, enabled = count > 0)
-                PhoneAction(Icons.Outlined.Delete, tr("Remove"), { confirmRemove = chosen() }, enabled = count > 0, destructive = true)
-            }
+            PhoneActionBar(
+                comicIssueActions(
+                    count, entry.isSeries,
+                    onSend = { actions.onSend(chosen()); done() }, onRead = { actions.onMarkFinished(chosen()); done() },
+                    onUnread = { actions.onMarkUnread(chosen()); done() }, onTakeOut = { actions.onTakeOut(chosen()); done() },
+                    onRemove = { confirmRemove = chosen() },
+                ),
+                Modifier.align(Alignment.BottomCenter),
+                moreTag = "comic-issues-more",
+            )
         }
     }
     if (removing) {

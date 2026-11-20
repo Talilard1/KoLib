@@ -195,7 +195,7 @@ val ShelfColors = ShelfWood(
  * What's drawn behind the screens: a glow like the opening's, lamplight, paper, plain black or a plain
  * colour, or one of the patterned backdrops (see [appBackdrop]).
  */
-enum class Backdrop { GLOW, LAMP, PAPER, BLACK, FLAT, SCANLINES, PARCHMENT, STARS, GRID, PLATES, SPOTLIGHT, BLUSH }
+enum class Backdrop { GLOW, LAMP, PAPER, BLACK, FLAT, SCANLINES, PARCHMENT, SPACE, PROJECTION, PANELS, PLATES, SPOTLIGHT, BLUSH }
 
 /**
  * The parts of a look beyond Material's colour roles: the gold of the main buttons and the mark, and
@@ -280,7 +280,7 @@ val LocalKoLibStyle = staticCompositionLocalOf { LightStyle }
 
 @Composable
 fun KoLibTheme(choice: ThemeChoice = ThemeChoice.SYSTEM, content: @Composable () -> Unit) {
-    val look = lookOf(choice, isSystemInDarkTheme())
+    val look = lookOf(choice, isSystemInDarkTheme(), androidx.compose.ui.platform.LocalContext.current)
     CompositionLocalProvider(
         LocalBookcase provides (look.style.shelf != null),
         LocalKoLibStyle provides look.style,
@@ -293,7 +293,7 @@ fun KoLibTheme(choice: ThemeChoice = ThemeChoice.SYSTEM, content: @Composable ()
  * The look's background, with what's drawn on it: in Dark, a warm glow from the top like the opening's;
  * in the Bookcase looks, lamplight on the wood; in Light, paper catching the light; in OLED black and the
  * Clean looks, nothing; and in the others a pattern of their own (scan lines, a parchment's diaper pattern,
- * stars, a grid, plating, a spotlight, a scatter of hearts), all faint enough to read over.
+ * deep space, a projection, a deck's panels, plating, a spotlight, a scatter of hearts), all faint enough to read over.
  */
 @Composable
 fun Modifier.appBackdrop(): Modifier {

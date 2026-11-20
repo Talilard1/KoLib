@@ -126,6 +126,12 @@ class LibraryBrowseState {
         range.hold(picked, id, shown)
     }
 
+    /** Nothing chosen, still choosing. */
+    fun deselectAll() {
+        picked.clear()
+        range.reset()
+    }
+
     fun stopSelecting() {
         selecting = false
         picked.clear()

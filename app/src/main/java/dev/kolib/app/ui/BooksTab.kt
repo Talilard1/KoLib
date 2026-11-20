@@ -2,6 +2,12 @@
 
 package dev.kolib.app.ui
 
+import androidx.compose.ui.platform.testTag
+import androidx.compose.runtime.CompositionLocalProvider
+import dev.kolib.app.ui.components.BarAction
+import dev.kolib.app.ui.components.BarActions
+import dev.kolib.app.ui.components.LocalActionMaxWidth
+import dev.kolib.app.ui.components.SelectAllButtons
 import dev.kolib.app.ui.components.AtFoot
 import dev.kolib.app.tr
 import dev.kolib.app.ui.components.seriesSearch
@@ -232,29 +238,15 @@ private fun BookBrowser(
             SelectionBar(
                 count = browse.picked.size,
                 onSelectAll = { books.filter { it.isSideloaded && !inLibrary(it) }.forEach { browse.picked[it.contentId] = true } },
+                onDeselectAll = { browse.deselectAll() },
                 onCancel = { browse.stopSelecting() },
                 hint = if (!live) tr("Connect your Kobo to add or delete books") else null,
-            ) {
-                OutlinedButton(
-                    onClick = { confirmDelete = chosen().filter { it.isSideloaded } },
-                    enabled = live && browse.picked.isNotEmpty(),
-                ) {
-                    Icon(Icons.Outlined.Delete, null, Modifier.size(18.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text(tr("Delete from Kobo"))
-                }
-                Button(
-                    onClick = {
-                        onAddToLibrary(chosen())
-                        browse.stopSelecting()
-                    },
-                    enabled = live && browse.picked.isNotEmpty(),
-                ) {
-                    Icon(Icons.Filled.LibraryAdd, null, Modifier.size(18.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text(tr("Add to library"))
-                }
-            }
+                actions = koboSelectionActions(
+                    live, browse.picked.isNotEmpty(),
+                    onAdd = { onAddToLibrary(chosen()); browse.stopSelecting() },
+                    onDelete = { confirmDelete = chosen().filter { it.isSideloaded } },
+                ),
+            )
         }
     }
     confirmDelete?.let { doomed ->
@@ -354,44 +346,53 @@ private fun KoboBookList(
     }
 }
 
-/** The bar shown while choosing books, along the foot of the screen: how many are chosen, and what can be done with them. */
+/**
+ * The bar shown while choosing books, along the foot of the screen: how many are chosen, ways to choose them all or
+ * none, and what can be done with them, as buttons with their labels under them, as on a phone held upright. Laid out
+ * like that, they fit on one line on a phone held sideways too.
+ */
 @Composable
 fun SelectionBar(
     count: Int,
     onSelectAll: () -> Unit,
+    onDeselectAll: () -> Unit,
     onCancel: () -> Unit,
     hint: String? = null,
     /** What's chosen, where it isn't books. */
     title: String? = null,
-    actions: @Composable RowScope.() -> Unit,
+    /** Whether any are chosen, where [count] isn't the number. */
+    anySelected: Boolean = count > 0,
+    moreTag: String? = null,
+    actions: List<BarAction>,
 ) {
-    Surface(color = MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.fillMaxWidth()) {
-        FlowRow(
-            Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
-            verticalArrangement = Arrangement.Center,
-            itemVerticalAlignment = Alignment.CenterVertically,
-        ) {
+    Surface(color = MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.fillMaxWidth().testTag("selection-bar")) {
+        Row(Modifier.fillMaxWidth().height(76.dp).padding(start = 4.dp, end = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onCancel) { Icon(Icons.Filled.Close, tr("Cancel selection")) }
-            Column(Modifier.padding(end = 8.dp)) {
+            Column(Modifier.widthIn(max = 220.dp).padding(start = 4.dp, end = 4.dp)) {
                 Text(
                     title ?: if (count == 0) tr("Tap books to select them") else if (count == 1) tr("1 book selected") else tr("{0} books selected", count),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
-                hint?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondaryContainer) }
+                hint?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondaryContainer, maxLines = 2, overflow = TextOverflow.Ellipsis) }
             }
-            Spacer(Modifier.weight(1f))
-            TextButton(onClick = onSelectAll) { Text(tr("Select all")) }
+            SelectAllButtons(onSelectAll, onDeselectAll, anySelected = anySelected)
             Spacer(Modifier.width(8.dp))
-            // The buttons wrap onto another line when there are more than fit.
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-                itemVerticalAlignment = Alignment.CenterVertically,
-            ) { actions() }
+            // The buttons share what's left, up to a width each, gathered at the end: all of them, where there's room.
+            Box(Modifier.weight(1f).fillMaxHeight()) {
+                CompositionLocalProvider(LocalActionMaxWidth provides 112.dp) { BarActions(actions, narrowest = 60.dp, moreTag = moreTag) }
+            }
         }
     }
 }
+
+/** What can be done with books chosen on the Kobo: the same in the bar along the foot of a phone or a wider screen. */
+internal fun koboSelectionActions(live: Boolean, any: Boolean, onAdd: () -> Unit, onDelete: () -> Unit) = listOf(
+    BarAction(Icons.Filled.LibraryAdd, tr("Add to library"), onAdd, enabled = live && any, main = true, tag = "kobo-add-to-library"),
+    BarAction(Icons.Outlined.Delete, tr("Delete from Kobo"), onDelete, enabled = live && any, destructive = true, tag = "kobo-delete"),
+)
 
 /** A line under each book that shows what it's sorted by, when that isn't obvious. */
 internal fun koboSortDetail(book: KoboBook, sort: KoboSort, extras: KoboExtras): String? = when (sort) {

@@ -2,6 +2,8 @@
 
 package dev.kolib.app.ui.library
 
+import androidx.compose.foundation.layout.RowScope
+import dev.kolib.app.ui.components.BarAction
 import dev.kolib.app.ui.components.AtFoot
 import dev.kolib.app.ui.components.FittedText
 import dev.kolib.app.ui.components.WithFoot
@@ -583,76 +585,55 @@ private fun LibraryBrowser(
             SelectionBar(
                 count = browse.picked.size,
                 onSelectAll = { books.forEach { browse.picked[it.id] = true } },
+                onDeselectAll = { browse.deselectAll() },
                 onCancel = { browse.stopSelecting() },
-            ) {
-                val any = browse.picked.isNotEmpty()
-                OutlinedButton(onClick = { confirmRemove = chosen() }, enabled = any, contentPadding = SelectionButtonPadding) {
-                    Icon(Icons.Outlined.Delete, null, Modifier.size(18.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text(tr("Remove"))
-                }
-                OutlinedButton(
-                    onClick = { onMarkUnread(chosen()); browse.stopSelecting() }, enabled = any, contentPadding = SelectionButtonPadding,
-                    modifier = Modifier.testTag("selection-mark-unread"),
-                ) {
-                    Icon(Icons.Outlined.RemoveDone, null, Modifier.size(18.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text(tr("Mark as unread"))
-                }
-                OutlinedButton(
-                    onClick = { onMarkFinished(chosen()); browse.stopSelecting() }, enabled = any, contentPadding = SelectionButtonPadding,
-                    modifier = Modifier.testTag("selection-mark-read"),
-                ) {
-                    Icon(Icons.Outlined.DoneAll, null, Modifier.size(18.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text(tr("Mark as read"))
-                }
-                if (onSyncReading != null) {
-                    OutlinedButton(
-                        onClick = { onSyncReading(chosen()); browse.stopSelecting() },
-                        enabled = any,
-                        contentPadding = SelectionButtonPadding,
-                        modifier = Modifier.testTag("selection-sync-reading"),
-                    ) {
-                        Icon(Icons.Outlined.Sync, null, Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text(tr("Sync with Kobo"))
-                    }
-                }
-                // What's done less often, in a menu, so the bar stays on one line across a tablet held sideways.
-                Box {
-                    var more by remember { mutableStateOf(false) }
-                    OutlinedButton(onClick = { more = true }, enabled = any, contentPadding = SelectionButtonPadding, modifier = Modifier.testTag("selection-more")) {
-                        Icon(Icons.Filled.MoreVert, null, Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text(tr("More"))
-                    }
-                    DropdownMenu(expanded = more, onDismissRequest = { more = false }) {
-                        DropdownMenuItem(text = { Text(tr("Save as files")) }, leadingIcon = { Icon(Icons.Outlined.SaveAlt, null) }, onClick = { more = false; onExport(chosen()) })
-                        DropdownMenuItem(text = { Text(tr("Duplicate")) }, leadingIcon = { Icon(Icons.Outlined.ContentCopy, null) }, onClick = { more = false; onDuplicate(chosen()) })
-                        DropdownMenuItem(
-                            text = { Text(tr("Combine")) }, leadingIcon = { Icon(Icons.Outlined.Merge, null) }, enabled = browse.picked.size >= 2,
-                            onClick = { more = false; onMerge(chosen()) },
-                        )
-                        dev.kolib.app.ui.link.LocalLinkActions.current?.let { link ->
-                            DropdownMenuItem(
-                                text = { Text(tr("Send to device")) }, leadingIcon = { Icon(Icons.AutoMirrored.Outlined.SendToMobile, null) },
-                                onClick = { more = false; link.sendBooks(chosen()) },
-                            )
-                        }
-                    }
-                }
-                Button(onClick = { onSend(chosen()) }, enabled = browse.picked.isNotEmpty(), contentPadding = SelectionButtonPadding) {
-                    Icon(Icons.AutoMirrored.Filled.Send, null, Modifier.size(18.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text(tr("Send to Kobo"))
-                }
-            }
+                moreTag = "selection-more",
+                actions = librarySelectionActions(
+                    count = browse.picked.size, chosen = chosen, stop = { browse.stopSelecting() },
+                    onSend = onSend, onMarkFinished = onMarkFinished, onMarkUnread = onMarkUnread, onSyncReading = onSyncReading,
+                    onExport = onExport, onDuplicate = onDuplicate, onMerge = onMerge, onRemove = { confirmRemove = it },
+                ),
+            )
         }
     }
     confirmRemove?.let { ids ->
         RemoveBooksDialog(ids, onRemove = { onDelete(ids); confirmRemove = null; browse.stopSelecting() }, onDismiss = { confirmRemove = null })
     }
+}
+
+/**
+ * What can be done with books chosen in the library, the same in the bar along the foot of a phone or a wider screen:
+ * where there isn't room for them all, syncing, sending to a device, saving, duplicating and combining go under More.
+ */
+@Composable
+internal fun librarySelectionActions(
+    count: Int,
+    chosen: () -> List<String>,
+    stop: () -> Unit,
+    onSend: (List<String>) -> Unit,
+    onMarkFinished: (List<String>) -> Unit,
+    onMarkUnread: (List<String>) -> Unit,
+    onSyncReading: ((List<String>) -> Unit)?,
+    onExport: (List<String>) -> Unit,
+    onDuplicate: (List<String>) -> Unit,
+    onMerge: (List<String>) -> Unit,
+    onRemove: (List<String>) -> Unit,
+): List<BarAction> {
+    val any = count > 0
+    val link = dev.kolib.app.ui.link.LocalLinkActions.current
+    return listOfNotNull(
+        BarAction(Icons.AutoMirrored.Filled.Send, tr("Send"), { onSend(chosen()) }, enabled = any, main = true, tag = "selection-send", longLabel = tr("Send to Kobo")),
+        BarAction(Icons.Outlined.DoneAll, dev.kolib.app.trc("mark", "Read"), { onMarkFinished(chosen()); stop() }, enabled = any, tag = "selection-mark-read", longLabel = tr("Mark as read")),
+        BarAction(Icons.Outlined.RemoveDone, dev.kolib.app.trc("mark", "Unread"), { onMarkUnread(chosen()); stop() }, enabled = any, tag = "selection-mark-unread", longLabel = tr("Mark as unread")),
+        onSyncReading?.let { sync ->
+            BarAction(Icons.Outlined.Sync, tr("Sync"), { sync(chosen()); stop() }, enabled = any, tag = "selection-sync-reading", canWait = true, longLabel = tr("Sync with Kobo"))
+        },
+        link?.let { BarAction(Icons.AutoMirrored.Outlined.SendToMobile, tr("To device"), { it.sendBooks(chosen()) }, enabled = any, tag = "selection-to-device", canWait = true, longLabel = tr("Send to device")) },
+        BarAction(Icons.Outlined.SaveAlt, tr("Save"), { onExport(chosen()) }, enabled = any, tag = "selection-save", canWait = true, longLabel = tr("Save as files")),
+        BarAction(Icons.Outlined.ContentCopy, tr("Duplicate"), { onDuplicate(chosen()) }, enabled = any, tag = "selection-duplicate", canWait = true),
+        BarAction(Icons.Outlined.Merge, tr("Combine"), { onMerge(chosen()) }, enabled = count >= 2, tag = "selection-combine", canWait = true),
+        BarAction(Icons.Outlined.Delete, tr("Remove"), { onRemove(chosen()) }, enabled = any, destructive = true, tag = "selection-remove"),
+    )
 }
 
 /** A book in the library's grid: its cover, then its title and author, and what it's sorted by when that isn't obvious. */

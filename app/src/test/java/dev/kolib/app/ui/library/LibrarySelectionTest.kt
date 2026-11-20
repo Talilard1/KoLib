@@ -1,5 +1,8 @@
 package dev.kolib.app.ui.library
 
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.assertIsNotEnabled
+import org.junit.Assert.assertTrue
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
@@ -96,10 +99,12 @@ class LibrarySelectionTest {
         compose.runOnIdle { browse.selecting = true; ids.forEach { browse.picked[it] = true } }
         compose.onNode(hasText("Unread") and hasClickAction()).performClick()
         assertEquals(listOf(ids.toSet()), unread.map { it.toSet() })
-        // The rest are a tap away, under More.
+        // As many as fit on a phone's bar, and the rest a tap away, under More.
         compose.runOnIdle { browse.selecting = true; ids.forEach { browse.picked[it] = true } }
+        for (tag in listOf("selection-send", "selection-mark-read", "selection-mark-unread", "selection-sync-reading", "selection-save", "selection-remove")) {
+            compose.onNodeWithTag(tag, useUnmergedTree = true).assertExists()
+        }
         compose.onNode(hasText("More") and hasClickAction()).performClick()
-        compose.onNodeWithText("Save as files").assertExists()
         compose.onNodeWithText("Duplicate").assertExists()
         compose.onNodeWithText("Combine").assertExists()
         compose.onRoot().captureRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/library_choosing_phone_more.png")
@@ -120,14 +125,54 @@ class LibrarySelectionTest {
 
     @Test
     fun theBarIsOneLineAcrossATabletHeldSideways() {
+        everyButtonOnOneLine("library_choosing_tablet.png")
+    }
+
+    @Test
+    // A phone held sideways, less the app's rail of sections down the side.
+    @Config(qualifiers = "w800dp-h411dp-land-xxhdpi")
+    fun theBarIsOneLineOnAPhoneHeldSideways() {
+        everyButtonOnOneLine("library_choosing_phone_sideways.png")
+    }
+
+    /**
+     * With a Kobo plugged in (so Sync's there too), every button's on the bar, in one line, with its label under its
+     * icon, and nothing's left for a More button.
+     */
+    private fun everyButtonOnOneLine(shot: String) {
         val (lib, covers) = library()
         val ids = lib.books.value.map { it.id }
         val browse = LibraryBrowseState().apply { selecting = true; ids.forEach { picked[it] = true } }
         show(browse, lib, covers)
-        // Its title and its last button are on the same line.
-        val title = compose.onNodeWithText("3 books selected").fetchSemanticsNode().boundsInRoot
-        val send = compose.onNodeWithText("Send to Kobo").fetchSemanticsNode().boundsInRoot
-        assert(kotlin.math.abs(title.center.y - send.center.y) < 12f) { "Title at ${title.center.y}, Send to Kobo at ${send.center.y}" }
-        compose.onRoot().captureRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/library_choosing_one_line.png")
+        val bar = compose.onNodeWithTag("selection-bar").fetchSemanticsNode().boundsInRoot
+        compose.onAllNodesWithTag("selection-more", useUnmergedTree = true).assertCountEquals(0)
+        val tags = listOf(
+            "select-all", "deselect-all", "selection-send", "selection-mark-read", "selection-mark-unread", "selection-sync-reading",
+            "selection-save", "selection-duplicate", "selection-combine", "selection-remove",
+        )
+        for (tag in tags) {
+            val b = compose.onNodeWithTag(tag, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+            assert(b.left >= bar.left && b.right <= bar.right + 0.5f && b.top >= bar.top && b.bottom <= bar.bottom + 0.5f) { "$tag at $b, outside the bar at $bar" }
+        }
+        // Each button's label is under its icon.
+        val read = compose.onNodeWithTag("selection-mark-read", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+        assert(read.height > bar.height * 0.7f) { "Read is laid out sideways: $read in $bar" }
+        compose.onRoot().captureRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/$shot")
+    }
+
+    @Test
+    fun deselectAllLeavesNoneChosenButStillChoosing() {
+        val (lib, covers) = library()
+        val ids = lib.books.value.map { it.id }
+        val browse = LibraryBrowseState().apply { selecting = true; picked[ids[0]] = true }
+        show(browse, lib, covers)
+        compose.onNodeWithTag("select-all").performClick()
+        compose.runOnIdle { assertEquals(ids.toSet(), browse.picked.keys.toSet()) }
+        compose.onNodeWithTag("deselect-all").performClick()
+        compose.runOnIdle {
+            assertEquals(emptySet<String>(), browse.picked.keys.toSet())
+            assertTrue(browse.selecting)
+        }
+        compose.onNodeWithTag("deselect-all").assertIsNotEnabled()
     }
 }

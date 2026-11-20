@@ -1,0 +1,176 @@
+@fr
+3266|Dynamique
+3267|Pomme verte
+3268|Crépuscule de minuit
+3269|Daiquiri aux fraises
+3270|Bleu canard et turquoise
+3271|Raz-de-marée
+3272|Yin & Yang
+3273|Monochrome
+3274|Épuré, dans d'autres couleurs
+3275|Une passerelle la nuit, l'espace profond derrière la vitre : bleu glacier, ambre et sarcelle
+3276|Une projection dans une pièce sombre : lumière bleu pâle, lignes de balayage, un faisceau venu d'en bas
+3277|Pont d'envol
+3278|Panneaux anthracite, avec des voyants rouge signal, cyan et ambre
+3279|{0}, sombre
+3280|{0}, clair
+3281|Sobre et calme, sur fond noir, aux couleurs de {0}
+3282|Sobre et lumineux, aux couleurs de {0}
+@de
+3266|Dynamisch
+3267|Grüner Apfel
+3268|Mitternachtsdämmerung
+3269|Erdbeer-Daiquiri
+3270|Blaugrün & Türkis
+3271|Flutwelle
+3272|Yin & Yang
+3273|Monochrom
+3274|Schlicht, in anderen Farben
+3275|Eine Brücke bei Nacht, der tiefe Weltraum hinter dem Glas: Eisblau, Bernstein und Petrol
+3276|Eine Projektion in einem dunklen Raum: blassblaues Licht, Scanlinien, ein Strahl von unten
+3277|Flugdeck
+3278|Anthrazitfarbene Paneele mit signalroten, cyanfarbenen und bernsteinfarbenen Lichtern
+3279|{0}, dunkel
+3280|{0}, hell
+3281|Schlicht und ruhig, auf Schwarz, in den Farben von {0}
+3282|Schlicht und hell, in den Farben von {0}
+@es
+3266|Dinámico
+3267|Manzana verde
+3268|Crepúsculo de medianoche
+3269|Daiquiri de fresa
+3270|Verde azulado y turquesa
+3271|Marea
+3272|Yin y yang
+3273|Monocromo
+3274|Limpio, en otros colores
+3275|Un puente de mando de noche, el espacio profundo tras el cristal: azul hielo, ámbar y verde azulado
+3276|Una proyección en una sala oscura: luz azul pálido, líneas de barrido, un haz desde abajo
+3277|Cubierta de vuelo
+3278|Paneles color carbón con luces rojo señal, cian y ámbar
+3279|{0}, oscuro
+3280|{0}, claro
+3281|Sencillo y tranquilo, sobre negro, con los colores de {0}
+3282|Sencillo y luminoso, con los colores de {0}
+@it
+3266|Dinamico
+3267|Mela verde
+3268|Crepuscolo di mezzanotte
+3269|Daiquiri alla fragola
+3270|Verde acqua e turchese
+3271|Maremoto
+3272|Yin e Yang
+3273|Monocromatico
+3274|Essenziale, in altri colori
+3275|Un ponte di comando di notte, lo spazio profondo oltre il vetro: blu ghiaccio, ambra e verde acqua
+3276|Una proiezione in una stanza buia: luce azzurro pallido, linee di scansione, un fascio dal basso
+3277|Ponte di volo
+3278|Pannelli antracite con luci rosso segnale, ciano e ambra
+3279|{0}, scuro
+3280|{0}, chiaro
+3281|Semplice e tranquillo, su nero, nei colori di {0}
+3282|Semplice e luminoso, nei colori di {0}
+@nl
+3266|Dynamisch
+3267|Groene appel
+3268|Nachtschemering
+3269|Aardbeiendaiquiri
+3270|Blauwgroen & turkoois
+3271|Vloedgolf
+3272|Yin & Yang
+3273|Monochroom
+3274|Strak, in andere kleuren
+3275|Een brug bij nacht, de diepe ruimte achter het glas: ijsblauw, amber en petrol
+3276|Een projectie in een donkere kamer: lichtblauw licht, scanlijnen, een straal van onderen
+3277|Vliegdek
+3278|Antraciet panelen met signaalrode, cyaan en amberkleurige lampjes
+3279|{0}, donker
+3280|{0}, licht
+3281|Eenvoudig en rustig, op zwart, in de kleuren van {0}
+3282|Eenvoudig en helder, in de kleuren van {0}
+@pt
+3266|Dinâmico
+3267|Maçã verde
+3268|Crepúsculo da meia-noite
+3269|Daiquiri de morango
+3270|Azul-petróleo e turquesa
+3271|Maremoto
+3272|Yin e Yang
+3273|Monocromático
+3274|Limpo, noutras cores
+3275|Uma ponte de comando à noite, o espaço profundo atrás do vidro: azul-gelo, âmbar e azul-petróleo
+3276|Uma projeção num quarto escuro: luz azul-pálida, linhas de varrimento, um feixe vindo de baixo
+3277|Convés de voo
+3278|Painéis cor de carvão com luzes vermelho-sinal, ciano e âmbar
+3279|{0}, escuro
+3280|{0}, claro
+3281|Simples e calmo, sobre preto, nas cores de {0}
+3282|Simples e luminoso, nas cores de {0}
+@ru
+3266|Динамическая
+3267|Зелёное яблоко
+3268|Полуночные сумерки
+3269|Клубничный дайкири
+3270|Бирюзовая
+3271|Приливная волна
+3272|Инь и Ян
+3273|Монохром
+3274|Чистая, в других цветах
+3275|Мостик ночью, глубокий космос за стеклом: ледяной синий, янтарный и бирюзовый
+3276|Проекция в тёмной комнате: бледно-голубой свет, строки развёртки, луч снизу
+3277|Лётная палуба
+3278|Угольно-серые панели с сигнально-красными, голубыми и янтарными огнями
+3279|{0}, тёмная
+3280|{0}, светлая
+3281|Просто и спокойно, на чёрном, в цветах «{0}»
+3282|Просто и светло, в цветах «{0}»
+@ja
+3266|ダイナミック
+3267|青りんご
+3268|黄昏
+3269|ストロベリー・ダイキリ
+3270|ティール & ターコイズ
+3271|津波
+3272|陰陽
+3273|モノクロ
+3274|クリーン、ほかの配色
+3275|夜のブリッジ、ガラス越しの深宇宙。アイスブルー、琥珀色、ティール
+3276|暗い部屋の投影。淡い青の光、走査線、下からの光線
+3277|フライトデッキ
+3278|チャコールのパネルに、シグナルレッド、シアン、琥珀のランプ
+3279|{0}（ダーク）
+3280|{0}（ライト）
+3281|{0} の色で、黒地にシンプルで落ち着いた見た目
+3282|{0} の色で、シンプルで明るい見た目
+@fr
+3283|Couvertures générées, et les titres de l'apparence Vaisseau.
+3284|Les palettes des apparences Épuré dans d'autres couleurs.
+3285|Les couleurs de la palette Catppuccin.
+@de
+3283|Erzeugte Cover und die Titel des Raumschiff-Designs.
+3284|Die Paletten der schlichten Designs in anderen Farben.
+3285|Die Farben der Catppuccin-Palette.
+@es
+3283|Portadas generadas y los títulos del aspecto Nave estelar.
+3284|Las paletas de los aspectos Limpio en otros colores.
+3285|Los colores de la paleta Catppuccin.
+@it
+3283|Copertine generate e i titoli dell'aspetto Astronave.
+3284|Le palette degli aspetti Essenziale in altri colori.
+3285|I colori della palette Catppuccin.
+@nl
+3283|Gemaakte omslagen, en de titels van het uiterlijk Sterrenschip.
+3284|De paletten van de strakke uiterlijken in andere kleuren.
+3285|De kleuren van het Catppuccin-palet.
+@pt
+3283|Capas geradas e os títulos do aspeto Nave estelar.
+3284|As paletas dos aspetos Limpo noutras cores.
+3285|As cores da paleta Catppuccin.
+@ru
+3283|Созданные обложки и заголовки в оформлении «Звездолёт».
+3284|Палитры чистых оформлений в других цветах.
+3285|Цвета палитры Catppuccin.
+@ja
+3283|生成された表紙と、「スターシップ」の見た目のタイトル。
+3284|ほかの配色のクリーンな見た目のパレット。
+3285|Catppuccin パレットの色。

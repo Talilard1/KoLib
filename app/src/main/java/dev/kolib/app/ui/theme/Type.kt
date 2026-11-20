@@ -5,6 +5,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.unit.sp
 import dev.kolib.app.R
 
@@ -45,7 +46,7 @@ val KoLibTypography = Typography(
 )
 
 /** The lettering of a look's headings and titles. */
-enum class Lettering { GARAMOND, GARAMOND_ITALIC, SANS, SANS_HEAVY, MONO, CONSOLE }
+enum class Lettering { GARAMOND, GARAMOND_ITALIC, SANS, SANS_HEAVY, MONO, CONSOLE, ORBITRON, AIRY }
 
 /** The device's narrow sans-serif, for the looks of consoles and machines. */
 private val Condensed: FontFamily by lazy {
@@ -83,6 +84,15 @@ private val SansHeavyType = headings(FontFamily.SansSerif, FontWeight.Bold, spac
 // A fixed-width letter is wide: set a little smaller, to take the room the others do.
 private val MonoType = headings(FontFamily.Monospace, FontWeight.Medium, scale = 0.9f)
 private val ConsoleType by lazy { headings(Condensed, FontWeight.Medium, spacing = 0.9f, scale = 1.04f) }
+/** Orbitron (SIL Open Font License), squared and wide: set smaller, to take the room the others do. */
+@OptIn(androidx.compose.ui.text.ExperimentalTextApi::class)
+private val Orbitron = FontFamily(
+    Font(R.font.orbitron_variable, FontWeight.Medium, variationSettings = FontVariation.Settings(FontVariation.weight(500))),
+    Font(R.font.orbitron_variable, FontWeight.SemiBold, variationSettings = FontVariation.Settings(FontVariation.weight(600))),
+)
+private val OrbitronType by lazy { headings(Orbitron, FontWeight.SemiBold, spacing = 0.5f, scale = 0.84f) }
+// Thin and spaced out, like light hanging in the air.
+private val AiryType = headings(FontFamily.SansSerif, FontWeight.Light, spacing = 1.2f, scale = 1.02f)
 
 fun typographyFor(lettering: Lettering): Typography = when (lettering) {
     Lettering.GARAMOND -> KoLibTypography
@@ -91,4 +101,6 @@ fun typographyFor(lettering: Lettering): Typography = when (lettering) {
     Lettering.SANS_HEAVY -> SansHeavyType
     Lettering.MONO -> MonoType
     Lettering.CONSOLE -> ConsoleType
+    Lettering.ORBITRON -> OrbitronType
+    Lettering.AIRY -> AiryType
 }

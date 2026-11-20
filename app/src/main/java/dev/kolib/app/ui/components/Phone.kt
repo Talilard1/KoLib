@@ -32,6 +32,19 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.Immutable
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.ui.platform.testTag
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.ui.unit.Dp
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material.icons.outlined.FlipToBack
+import androidx.compose.material.icons.outlined.SelectAll
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -39,7 +52,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -130,9 +142,9 @@ fun PhoneSearchField(
     )
 }
 
-/** In place of the search box while books are being chosen: how many, and a way to choose them all or stop. */
+/** In place of the search box while books are being chosen: how many, ways to choose them all or none, and to stop. */
 @Composable
-fun PhoneSelectionHeader(count: Int, onSelectAll: () -> Unit, onCancel: () -> Unit, hint: String? = null) {
+fun PhoneSelectionHeader(count: Int, onSelectAll: () -> Unit, onDeselectAll: () -> Unit, onCancel: () -> Unit, hint: String? = null) {
     Surface(color = MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.fillMaxWidth()) {
         Row(
             Modifier
@@ -153,26 +165,106 @@ fun PhoneSelectionHeader(count: Int, onSelectAll: () -> Unit, onCancel: () -> Un
                 )
                 hint?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondaryContainer) }
             }
-            TextButton(onClick = onSelectAll) { Text(tr("Select all")) }
+            SelectAllButtons(onSelectAll, onDeselectAll, anySelected = count > 0, tint = MaterialTheme.colorScheme.onSecondaryContainer)
         }
     }
 }
 
+/** Choose everything shown, or nothing (still choosing): two icon buttons, in every bar for choosing. */
+@Composable
+fun SelectAllButtons(onSelectAll: () -> Unit, onDeselectAll: () -> Unit, anySelected: Boolean, tint: Color = LocalContentColor.current) {
+    IconButton(onClick = onSelectAll, modifier = Modifier.testTag("select-all")) { Icon(Icons.Outlined.SelectAll, tr("Select all"), tint = tint) }
+    IconButton(onClick = onDeselectAll, enabled = anySelected, modifier = Modifier.testTag("deselect-all")) {
+        Icon(Icons.Outlined.FlipToBack, tr("Deselect all"), tint = if (anySelected) tint else tint.copy(alpha = 0.38f))
+    }
+}
+
+/**
+ * How wide one of a bar's buttons may grow. On a phone they share the width between them; in a wider bar they stop
+ * at this, so a bar with only two isn't all gaps.
+ */
+val LocalActionMaxWidth = staticCompositionLocalOf { Dp.Infinity }
+
 /** A bar of labelled buttons along the bottom of a phone's screen, for what can be done with chosen books. */
 @Composable
-fun PhoneActionBar(modifier: Modifier = Modifier, actions: @Composable RowScope.() -> Unit) {
+fun PhoneActionBar(actions: List<BarAction>, modifier: Modifier = Modifier, moreTag: String? = null) {
     Surface(color = MaterialTheme.colorScheme.surfaceContainer, shadowElevation = 8.dp, modifier = modifier.fillMaxWidth()) {
         Column {
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
-            Row(
+            Box(
                 Modifier
                     .windowInsetsPadding(WindowInsets.navigationBars)
                     .height(76.dp)
                     .padding(horizontal = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) { actions() }
+            ) { BarActions(actions, narrowest = 56.dp, moreTag = moreTag) }
         }
     }
+}
+
+/** One of the things a bar for chosen books can do. */
+@Immutable
+class BarAction(
+    val icon: ImageVector,
+    val label: String,
+    val onClick: () -> Unit,
+    val enabled: Boolean = true,
+    val main: Boolean = false,
+    val destructive: Boolean = false,
+    val tag: String? = null,
+    /** Goes under More when the bar hasn't room for it (after those that come before it). */
+    val canWait: Boolean = false,
+    /** Its name under More, where there's room for a longer one. */
+    val longLabel: String = label,
+)
+
+/**
+ * A bar's buttons, each an icon over its label: all of them when they fit at [narrowest] each, and when they don't,
+ * as many as fit with the rest under More (before a last button that removes or deletes, if there is one).
+ */
+@Composable
+fun BarActions(actions: List<BarAction>, narrowest: Dp, moreTag: String? = null) {
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        val slots = (maxWidth / narrowest).toInt().coerceAtLeast(1)
+        val shown: List<BarAction>
+        val under: List<BarAction>
+        if (actions.size <= slots) {
+            shown = actions
+            under = emptyList()
+        } else {
+            // One place for More; those that can't wait first, then as many of the rest as there's room for, in order.
+            val fixed = actions.filter { !it.canWait }
+            val keep = fixed + actions.filter { it.canWait }.take((slots - 1 - fixed.size).coerceAtLeast(0))
+            shown = actions.filter { it in keep }
+            under = actions.filter { it !in keep }
+        }
+        var more by remember { mutableStateOf(false) }
+        val moreBeforeLast = under.isNotEmpty() && shown.lastOrNull()?.destructive == true
+        Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
+            for (a in shown) {
+                if (moreBeforeLast && a === shown.last()) MoreAction(under, more, { more = it }, moreTag)
+                PhoneAction(a.icon, a.label, a.onClick, enabled = a.enabled, main = a.main, destructive = a.destructive, tag = a.tag)
+            }
+            if (under.isNotEmpty() && !moreBeforeLast) MoreAction(under, more, { more = it }, moreTag)
+        }
+    }
+}
+
+/** More, and the menu of what didn't fit on the bar. */
+@Composable
+private fun RowScope.MoreAction(under: List<BarAction>, open: Boolean, onOpen: (Boolean) -> Unit, tag: String?) {
+    PhoneAction(Icons.Filled.MoreVert, tr("More"), { onOpen(true) }, enabled = under.any { it.enabled }, tag = tag, menu = {
+        DropdownMenu(expanded = open, onDismissRequest = { onOpen(false) }) {
+            for (a in under) {
+                DropdownMenuItem(
+                    text = { Text(a.longLabel, color = if (a.destructive && a.enabled) MaterialTheme.colorScheme.error else Color.Unspecified) },
+                    leadingIcon = { Icon(a.icon, null) },
+                    enabled = a.enabled,
+                    onClick = { onOpen(false); a.onClick() },
+                    modifier = if (a.tag != null) Modifier.testTag(a.tag) else Modifier,
+                )
+            }
+        }
+    })
 }
 
 /** One button in a [PhoneActionBar]: an icon over a short label. The [main] one has its icon in a filled pill. */
@@ -186,20 +278,25 @@ fun RowScope.PhoneAction(
     destructive: Boolean = false,
     /** A menu that opens from this button. */
     menu: (@Composable () -> Unit)? = null,
+    tag: String? = null,
 ) {
     val colors = MaterialTheme.colorScheme
+    // In the colours of the bar it's in.
+    val content = LocalContentColor.current
     val tint = when {
-        !enabled -> colors.onSurface.copy(alpha = 0.38f)
+        !enabled -> content.copy(alpha = 0.38f)
         main -> colors.onPrimary
         destructive -> colors.error
-        else -> colors.onSurface
+        else -> content
     }
-    Box(Modifier.weight(1f).fillMaxHeight()) {
+    val most = LocalActionMaxWidth.current
+    Box(Modifier.weight(1f, fill = most == Dp.Infinity).widthIn(max = most).fillMaxHeight()) {
     Column(
         Modifier
             .fillMaxSize()
             .clip(RoundedCornerShape(16.dp))
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+            .then(if (tag != null) Modifier.testTag(tag) else Modifier)
             .padding(vertical = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -207,7 +304,7 @@ fun RowScope.PhoneAction(
         Box(
             Modifier
                 .clip(RoundedCornerShape(16.dp))
-                .then(if (main && enabled) Modifier.background(colors.primary) else if (main) Modifier.background(colors.onSurface.copy(alpha = 0.12f)) else Modifier)
+                .then(if (main && enabled) Modifier.background(colors.primary) else if (main) Modifier.background(content.copy(alpha = 0.12f)) else Modifier)
                 .padding(horizontal = 18.dp, vertical = 4.dp),
             contentAlignment = Alignment.Center,
         ) { Icon(icon, null, tint = tint, modifier = Modifier.size(24.dp)) }
@@ -216,9 +313,9 @@ fun RowScope.PhoneAction(
             label,
             style = MaterialTheme.typography.labelMedium,
             color = when {
-                !enabled -> colors.onSurface.copy(alpha = 0.38f)
+                !enabled -> content.copy(alpha = 0.38f)
                 destructive -> colors.error
-                else -> colors.onSurface
+                else -> content
             },
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 2.dp),

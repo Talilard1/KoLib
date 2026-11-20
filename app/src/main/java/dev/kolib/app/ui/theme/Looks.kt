@@ -15,8 +15,11 @@ import androidx.compose.ui.unit.dp
 @Immutable
 class Look(val scheme: ColorScheme, val style: KoLibStyle, val typography: Typography = KoLibTypography, val shapes: Shapes = Shapes())
 
-/** The look [choice] stands for ([systemDark]: the device is set to dark, for "System default"). */
-fun lookOf(choice: ThemeChoice, systemDark: Boolean): Look = when (choice) {
+/**
+ * The look [choice] stands for ([systemDark]: the device is set to dark, for "System default"; [context]: for the
+ * Dynamic palette's colours, from the wallpaper).
+ */
+fun lookOf(choice: ThemeChoice, systemDark: Boolean, context: android.content.Context? = null): Look = when (choice) {
     ThemeChoice.SYSTEM -> if (systemDark) DarkLook else LightLook
     ThemeChoice.LIGHT -> LightLook
     ThemeChoice.DARK -> DarkLook
@@ -32,6 +35,8 @@ fun lookOf(choice: ThemeChoice, systemDark: Boolean): Look = when (choice) {
     ThemeChoice.STARSHIP -> StarshipLook
     ThemeChoice.HOLOGRAM -> HologramLook
     ThemeChoice.RELIC -> RelicLook
+    ThemeChoice.FLIGHT_DECK -> FlightDeckLook
+    else -> paletteLook(choice.palette!!, choice.paletteDark, context)
 }
 
 private val LightLook = Look(LightScheme, LightStyle)
@@ -51,13 +56,13 @@ private val BookcaseDarkLook = Look(
 
 // ---- Clean: flat white or black with one blue, and nothing drawn behind ---------------------------
 
-private fun softCorners(xs: Int, s: Int, m: Int, l: Int, xl: Int) =
+internal fun softCorners(xs: Int, s: Int, m: Int, l: Int, xl: Int) =
     Shapes(RoundedCornerShape(xs.dp), RoundedCornerShape(s.dp), RoundedCornerShape(m.dp), RoundedCornerShape(l.dp), RoundedCornerShape(xl.dp))
 
 private fun cutCorners(xs: Int, s: Int, m: Int, l: Int, xl: Int) =
     Shapes(CutCornerShape(xs.dp), CutCornerShape(s.dp), CutCornerShape(m.dp), CutCornerShape(l.dp), CutCornerShape(xl.dp))
 
-private val CleanLightLook = Look(
+internal val CleanLightLook = Look(
     lightColorScheme(
         primary = Color(0xFF0F5BD6), onPrimary = Color(0xFFFFFFFF), primaryContainer = Color(0xFFDCE8FF), onPrimaryContainer = Color(0xFF05204F),
         secondary = Color(0xFF55606F), onSecondary = Color(0xFFFFFFFF), secondaryContainer = Color(0xFFE4E7EE), onSecondaryContainer = Color(0xFF1B2028),
@@ -82,7 +87,7 @@ private val CleanLightLook = Look(
     softCorners(8, 10, 14, 18, 26),
 )
 
-private val CleanDarkLook = Look(
+internal val CleanDarkLook = Look(
     darkColorScheme(
         primary = Color(0xFF5B9CFF), onPrimary = Color(0xFF001B45), primaryContainer = Color(0xFF123A7A), onPrimaryContainer = Color(0xFFD8E6FF),
         secondary = Color(0xFFB4BAC6), onSecondary = Color(0xFF20242C), secondaryContainer = Color(0xFF2A2E37), onSecondaryContainer = Color(0xFFDEE2EA),
@@ -218,60 +223,89 @@ private val TerminalLook = Look(
     softCorners(2, 2, 3, 4, 6),
 )
 
-// ---- Starship: a bridge console on the night watch. Slate-blue panels, amber lamps, teal read-outs --
+// ---- Starship: a bridge at night, deep space through the glass. Ice blue, with amber and teal -------
 
 private val StarshipLook = Look(
     darkColorScheme(
-        primary = Color(0xFFFFC46B), onPrimary = Color(0xFF3D2600), primaryContainer = Color(0xFF5A3D0C), onPrimaryContainer = Color(0xFFFFE2B0),
-        secondary = Color(0xFF6FD8D2), onSecondary = Color(0xFF003735), secondaryContainer = Color(0xFF16474A), onSecondaryContainer = Color(0xFFB9F3EF),
-        tertiary = Color(0xFFA9BEFF), onTertiary = Color(0xFF10235E), tertiaryContainer = Color(0xFF26377A), onTertiaryContainer = Color(0xFFDDE4FF),
-        error = Color(0xFFFF9485), onError = Color(0xFF4A0C06), errorContainer = Color(0xFF6E241A), onErrorContainer = Color(0xFFFFDAD5),
-        background = Color(0xFF10151F), onBackground = Color(0xFFE7ECF4), surface = Color(0xFF10151F), onSurface = Color(0xFFE7ECF4),
-        surfaceVariant = Color(0xFF252E3F), onSurfaceVariant = Color(0xFFA7B4C8), surfaceTint = Color(0xFFFFC46B),
-        outline = Color(0xFF66758C), outlineVariant = Color(0xFF27324A),
-        surfaceContainerLowest = Color(0xFF0A0E16), surfaceContainerLow = Color(0xFF151C29), surfaceContainer = Color(0xFF1A2231),
-        surfaceContainerHigh = Color(0xFF202A3B), surfaceContainerHighest = Color(0xFF283349), surfaceBright = Color(0xFF313E57), surfaceDim = Color(0xFF10151F),
-        inverseSurface = Color(0xFFE7ECF4), inverseOnSurface = Color(0xFF1A2231), inversePrimary = Color(0xFF8A5A0A),
+        primary = Color(0xFF8FC2FF), onPrimary = Color(0xFF04203F), primaryContainer = Color(0xFF12345E), onPrimaryContainer = Color(0xFFD6E8FF),
+        secondary = Color(0xFFFFB866), onSecondary = Color(0xFF3A2300), secondaryContainer = Color(0xFF1C2A40), onSecondaryContainer = Color(0xFFDCE7FA),
+        tertiary = Color(0xFF6FE3D0), onTertiary = Color(0xFF00352E), tertiaryContainer = Color(0xFF0E3B3A), onTertiaryContainer = Color(0xFFBDF5EC),
+        error = Color(0xFFFF8E80), onError = Color(0xFF4A0C06), errorContainer = Color(0xFF6E241A), onErrorContainer = Color(0xFFFFDAD5),
+        background = Color(0xFF04060C), onBackground = Color(0xFFE8EEFA), surface = Color(0xFF04060C), onSurface = Color(0xFFE8EEFA),
+        surfaceVariant = Color(0xFF1A2333), onSurfaceVariant = Color(0xFFA3B2CC), surfaceTint = Color(0xFF8FC2FF),
+        outline = Color(0xFF5F7090), outlineVariant = Color(0xFF1E293C),
+        surfaceContainerLowest = Color(0xFF020308), surfaceContainerLow = Color(0xFF0A0F19), surfaceContainer = Color(0xFF0E1420),
+        surfaceContainerHigh = Color(0xFF131B2A), surfaceContainerHighest = Color(0xFF1A2436), surfaceBright = Color(0xFF22304A), surfaceDim = Color(0xFF04060C),
+        inverseSurface = Color(0xFFE8EEFA), inverseOnSurface = Color(0xFF10182A), inversePrimary = Color(0xFF2D63B8),
     ),
     KoLibStyle(
-        dark = true, backdrop = Backdrop.STARS,
-        gold = Color(0xFFFFC46B), onGold = Color(0xFF2E1C00),
-        markGold = listOf(Color(0xFFFFE9C2), Color(0xFFFFC46B), Color(0xFFD98C1F)),
-        hairline = Color(0xFF6FD8D2).copy(alpha = 0.22f),
-        badge = Color(0xFF05080E).copy(alpha = 0.70f), onBadge = Color(0xFFEAF2FF),
+        dark = true, backdrop = Backdrop.SPACE,
+        gold = Color(0xFF4C9DFF), onGold = Color(0xFF001A3D),
+        markGold = listOf(Color(0xFFDCEBFF), Color(0xFF8FC2FF), Color(0xFF2D6FD6)),
+        hairline = Color(0xFF8FC2FF).copy(alpha = 0.20f),
+        badge = Color(0xFF02040A).copy(alpha = 0.72f), onBadge = Color(0xFFEAF2FF),
         shadow = Color.Black,
-        actionShape = RoundedCornerShape(10.dp),
+        // Like a key on a console: two corners rounder than the others.
+        actionShape = RoundedCornerShape(topStart = 14.dp, topEnd = 4.dp, bottomEnd = 14.dp, bottomStart = 4.dp),
     ),
-    typographyFor(Lettering.CONSOLE),
-    softCorners(4, 6, 10, 12, 16),
+    typographyFor(Lettering.ORBITRON),
+    softCorners(4, 6, 10, 12, 18),
 )
 
-// ---- Hologram: light drawn in the air. Cyan on deep navy, a fine grid, corners cut off -------------
+// ---- Hologram: a projection in a dark room. Pale blue light, scan lines, a beam from below -----------
 
 private val HologramLook = Look(
     darkColorScheme(
-        primary = Color(0xFF45DAFF), onPrimary = Color(0xFF00303D), primaryContainer = Color(0xFF064B60), onPrimaryContainer = Color(0xFFB5F0FF),
-        secondary = Color(0xFF8FA8FF), onSecondary = Color(0xFF0B1E66), secondaryContainer = Color(0xFF14325C), onSecondaryContainer = Color(0xFFD3E4FF),
-        tertiary = Color(0xFF7FF5D2), onTertiary = Color(0xFF003829), tertiaryContainer = Color(0xFF0B4D3C), onTertiaryContainer = Color(0xFFB6FBE7),
-        error = Color(0xFFFF9485), onError = Color(0xFF4A0C06), errorContainer = Color(0xFF6E241A), onErrorContainer = Color(0xFFFFDAD5),
-        background = Color(0xFF030A12), onBackground = Color(0xFFD5F3FF), surface = Color(0xFF030A12), onSurface = Color(0xFFD5F3FF),
-        surfaceVariant = Color(0xFF0E2A3A), onSurfaceVariant = Color(0xFF86BFD6), surfaceTint = Color(0xFF45DAFF),
-        outline = Color(0xFF2F7F9A), outlineVariant = Color(0xFF103446),
-        surfaceContainerLowest = Color(0xFF01060B), surfaceContainerLow = Color(0xFF06121C), surfaceContainer = Color(0xFF081824),
-        surfaceContainerHigh = Color(0xFF0B2030), surfaceContainerHighest = Color(0xFF0F2A3E), surfaceBright = Color(0xFF14364E), surfaceDim = Color(0xFF030A12),
-        inverseSurface = Color(0xFFD5F3FF), inverseOnSurface = Color(0xFF06202C), inversePrimary = Color(0xFF00708A),
+        primary = Color(0xFF7CCBFF), onPrimary = Color(0xFF00243D), primaryContainer = Color(0xFF0B3554), onPrimaryContainer = Color(0xFFC9E9FF),
+        secondary = Color(0xFFA5D8FF), onSecondary = Color(0xFF062740), secondaryContainer = Color(0xFF0A2238), onSecondaryContainer = Color(0xFFCFEBFF),
+        tertiary = Color(0xFF78F2E6), onTertiary = Color(0xFF003833), tertiaryContainer = Color(0xFF0A3A3D), onTertiaryContainer = Color(0xFFB8F8F1),
+        error = Color(0xFFFF9D8E), onError = Color(0xFF4A0C06), errorContainer = Color(0xFF6E241A), onErrorContainer = Color(0xFFFFDAD5),
+        background = Color(0xFF01050B), onBackground = Color(0xFFD4EEFF), surface = Color(0xFF01050B), onSurface = Color(0xFFD4EEFF),
+        surfaceVariant = Color(0xFF0C2236), onSurfaceVariant = Color(0xFF8DBFDF), surfaceTint = Color(0xFF7CCBFF),
+        outline = Color(0xFF3A7FAE), outlineVariant = Color(0xFF12324D),
+        surfaceContainerLowest = Color(0xFF000204), surfaceContainerLow = Color(0xFF04101C), surfaceContainer = Color(0xFF061624),
+        surfaceContainerHigh = Color(0xFF091D2F), surfaceContainerHighest = Color(0xFF0D263C), surfaceBright = Color(0xFF12324D), surfaceDim = Color(0xFF01050B),
+        inverseSurface = Color(0xFFD4EEFF), inverseOnSurface = Color(0xFF06182A), inversePrimary = Color(0xFF1E6FA8),
     ),
     KoLibStyle(
-        dark = true, backdrop = Backdrop.GRID,
-        gold = Color(0xFF45DAFF), onGold = Color(0xFF002430),
-        markGold = listOf(Color(0xFFD4F8FF), Color(0xFF45DAFF), Color(0xFF0C8FB3)),
-        hairline = Color(0xFF45DAFF).copy(alpha = 0.30f),
-        badge = Color(0xFF00070D).copy(alpha = 0.72f), onBadge = Color(0xFFE2F8FF),
+        dark = true, backdrop = Backdrop.PROJECTION,
+        gold = Color(0xFF3FAEF0), onGold = Color(0xFF001726),
+        markGold = listOf(Color(0xFFE6F7FF), Color(0xFF7CCBFF), Color(0xFF1F8FD6)),
+        hairline = Color(0xFF7CCBFF).copy(alpha = 0.30f),
+        badge = Color(0xFF000307).copy(alpha = 0.72f), onBadge = Color(0xFFE2F6FF),
         shadow = Color.Black,
-        actionShape = CutCornerShape(9.dp),
+        actionShape = CutCornerShape(8.dp),
+    ),
+    typographyFor(Lettering.AIRY),
+    cutCorners(3, 5, 8, 10, 14),
+)
+
+// ---- Flight deck: charcoal panels on a ship's deck. Signal red, cyan and amber lights, squared corners --
+
+private val FlightDeckLook = Look(
+    darkColorScheme(
+        primary = Color(0xFFFF7A5C), onPrimary = Color(0xFF3A0B00), primaryContainer = Color(0xFF5A1E12), onPrimaryContainer = Color(0xFFFFD9CF),
+        secondary = Color(0xFF6CCDF2), onSecondary = Color(0xFF00303F), secondaryContainer = Color(0xFF26272B), onSecondaryContainer = Color(0xFFE6E6EA),
+        tertiary = Color(0xFFF2B142), onTertiary = Color(0xFF3A2600), tertiaryContainer = Color(0xFF4A3510), onTertiaryContainer = Color(0xFFFFE3B0),
+        error = Color(0xFFFF8E80), onError = Color(0xFF4A0C06), errorContainer = Color(0xFF6E241A), onErrorContainer = Color(0xFFFFDAD5),
+        background = Color(0xFF111214), onBackground = Color(0xFFECECEF), surface = Color(0xFF111214), onSurface = Color(0xFFECECEF),
+        surfaceVariant = Color(0xFF2A2B30), onSurfaceVariant = Color(0xFFA9ABB3), surfaceTint = Color(0xFFFF7A5C),
+        outline = Color(0xFF6E7079), outlineVariant = Color(0xFF2C2D32),
+        surfaceContainerLowest = Color(0xFF0B0B0D), surfaceContainerLow = Color(0xFF18191C), surfaceContainer = Color(0xFF1D1E21),
+        surfaceContainerHigh = Color(0xFF242529), surfaceContainerHighest = Color(0xFF2D2E33), surfaceBright = Color(0xFF393A40), surfaceDim = Color(0xFF111214),
+        inverseSurface = Color(0xFFECECEF), inverseOnSurface = Color(0xFF1D1E21), inversePrimary = Color(0xFFB23A20),
+    ),
+    KoLibStyle(
+        dark = true, backdrop = Backdrop.PANELS,
+        gold = Color(0xFFC93A22), onGold = Color(0xFFFFFFFF),
+        markGold = listOf(Color(0xFFFFB3A3), Color(0xFFFF7A5C), Color(0xFFB8321C)),
+        hairline = Color(0xFFFF7A5C).copy(alpha = 0.24f),
+        badge = Color(0xFF050506).copy(alpha = 0.72f), onBadge = Color(0xFFF2F2F4),
+        shadow = Color.Black,
+        actionShape = RoundedCornerShape(3.dp),
     ),
     typographyFor(Lettering.CONSOLE),
-    cutCorners(3, 5, 8, 10, 14),
+    softCorners(2, 3, 4, 6, 8),
 )
 
 // ---- Relic: an old machine still running. Gunmetal plating, ember orange, aged gold and patina -----

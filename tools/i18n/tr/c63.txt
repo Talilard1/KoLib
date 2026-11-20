@@ -1,0 +1,16 @@
+@fr
+3265|Tout désélectionner
+@de
+3265|Alle abwählen
+@es
+3265|Deseleccionar todo
+@it
+3265|Deseleziona tutto
+@nl
+3265|Alles deselecteren
+@pt
+3265|Desmarcar tudo
+@ru
+3265|Снять выделение
+@ja
+3265|すべて選択解除

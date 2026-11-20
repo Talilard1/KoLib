@@ -80,7 +80,12 @@ class ReaderActivityTest {
     fun aBookThatsGoneClosesTheReader() {
         val intent = Intent(app, ReaderActivity::class.java).putExtra("dev.kolib.app.READ_BOOK", "no-such-book")
         val reader = Robolectric.buildActivity(ReaderActivity::class.java, intent).setup().get()
-        idle()
+        // The library's read from storage first, off the main thread, which can take a while when the tests are busy.
+        val end = System.currentTimeMillis() + 15_000
+        while (!reader.isFinishing && System.currentTimeMillis() < end) {
+            shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(100))
+            Thread.sleep(20)
+        }
         assertTrue(reader.isFinishing)
     }
 

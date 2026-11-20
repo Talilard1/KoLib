@@ -28,8 +28,8 @@ android {
         applicationId = "dev.kolib.app"
         minSdk = 29
         targetSdk = 36
-        versionCode = 99
-        versionName = "2.6 preview"
+        versionCode = 100
+        versionName = "2.7 preview"
     }
 
     // An APK for each kind of processor, a little smaller, and a universal one that runs on any of them.

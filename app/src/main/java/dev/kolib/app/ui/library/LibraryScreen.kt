@@ -89,6 +89,9 @@ import androidx.compose.material3.AssistChip
 import dev.kolib.app.ui.components.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.DoneAll
+import androidx.compose.material.icons.outlined.RemoveDone
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import dev.kolib.app.ui.components.FilledTonalButton
@@ -414,11 +417,12 @@ fun LibraryScreen(
                         LibraryCollectionsTab(books, covers, browse, koboConnected, reading, here, onSend) { book, collection, onBack -> detail(book, onBack, collection) }
                     } else if (twoPanes) {
                         Row(Modifier.fillMaxSize()) {
-                            LibraryBrowser(notComics, visible, covers, browse, selected?.id, onSend, onDelete, Modifier.weight(1.45f), reading, here, onMerge, onExport, onDuplicate, onSyncReading)
+                            LibraryBrowser(notComics, visible, covers, browse, selected?.id, onSend, onDelete, Modifier.weight(1.45f), reading, here, onMerge, onExport, onDuplicate, onSyncReading, onMarkFinished, onMarkUnread)
                             VerticalDivider()
+                            // As the Kobo's and the comics' side panels: the book shown, while books are chosen too (the
+                            // bar along the foot says how many are).
                             Box(Modifier.weight(1f).fillMaxHeight()) {
-                                if (selected != null && !browse.selecting) detail(selected, null, null)
-                                else if (browse.selecting) SelectionHelp(browse.picked.size)
+                                if (selected != null) detail(selected, null, null)
                                 else EmptyState(Icons.Outlined.AutoStories, tr("Tap a book"), tr("Its details appear here. Hold a book to select several, then hold another to select everything between."))
                             }
                         }
@@ -426,7 +430,7 @@ fun LibraryScreen(
                         TabBackHandler { browse.selectedId = null }
                         detail(selected, { browse.selectedId = null }, null)
                     } else {
-                        LibraryBrowser(notComics, visible, covers, browse, null, onSend, onDelete, Modifier.fillMaxSize(), reading, here, onMerge, onExport, onDuplicate, onSyncReading)
+                        LibraryBrowser(notComics, visible, covers, browse, null, onSend, onDelete, Modifier.fillMaxSize(), reading, here, onMerge, onExport, onDuplicate, onSyncReading, onMarkFinished, onMarkUnread)
                     }
                 }
             } }
@@ -436,15 +440,6 @@ fun LibraryScreen(
 
 /** Tighter than usual, so all the buttons for chosen books fit on one line beside them. */
 private val SelectionButtonPadding = PaddingValues(start = 10.dp, end = 14.dp, top = 8.dp, bottom = 8.dp)
-
-@Composable
-private fun SelectionHelp(count: Int) {
-    EmptyState(
-        Icons.Outlined.Checklist,
-        if (count == 0) tr("Select books") else if (count == 1) tr("1 book selected") else tr("{0} books selected", count),
-        tr("Tap books to select them, then use the buttons below the list."),
-    )
-}
 
 @Composable
 internal fun JobStrip(p: JobProgress, onShow: () -> Unit) {
@@ -530,6 +525,8 @@ private fun LibraryBrowser(
     onExport: (List<String>) -> Unit = {},
     onDuplicate: (List<String>) -> Unit = {},
     onSyncReading: ((List<String>) -> Unit)? = null,
+    onMarkFinished: (List<String>) -> Unit = {},
+    onMarkUnread: (List<String>) -> Unit = {},
 ) {
     if (browse.selecting) TabBackHandler { browse.stopSelecting() }
     var confirmRemove by remember { mutableStateOf<List<String>?>(null) }
@@ -588,43 +585,61 @@ private fun LibraryBrowser(
                 onSelectAll = { books.forEach { browse.picked[it.id] = true } },
                 onCancel = { browse.stopSelecting() },
             ) {
-                OutlinedButton(onClick = { confirmRemove = chosen() }, enabled = browse.picked.isNotEmpty(), contentPadding = SelectionButtonPadding) {
+                val any = browse.picked.isNotEmpty()
+                OutlinedButton(onClick = { confirmRemove = chosen() }, enabled = any, contentPadding = SelectionButtonPadding) {
                     Icon(Icons.Outlined.Delete, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
                     Text(tr("Remove"))
                 }
-                OutlinedButton(onClick = { onExport(chosen()) }, enabled = browse.picked.isNotEmpty(), contentPadding = SelectionButtonPadding) {
-                    Icon(Icons.Outlined.SaveAlt, null, Modifier.size(18.dp))
+                OutlinedButton(
+                    onClick = { onMarkUnread(chosen()); browse.stopSelecting() }, enabled = any, contentPadding = SelectionButtonPadding,
+                    modifier = Modifier.testTag("selection-mark-unread"),
+                ) {
+                    Icon(Icons.Outlined.RemoveDone, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text(tr("Save as files"))
+                    Text(tr("Mark as unread"))
                 }
-                OutlinedButton(onClick = { onDuplicate(chosen()) }, enabled = browse.picked.isNotEmpty(), contentPadding = SelectionButtonPadding) {
-                    Icon(Icons.Outlined.ContentCopy, null, Modifier.size(18.dp))
+                OutlinedButton(
+                    onClick = { onMarkFinished(chosen()); browse.stopSelecting() }, enabled = any, contentPadding = SelectionButtonPadding,
+                    modifier = Modifier.testTag("selection-mark-read"),
+                ) {
+                    Icon(Icons.Outlined.DoneAll, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text(tr("Duplicate"))
-                }
-                OutlinedButton(onClick = { onMerge(chosen()) }, enabled = browse.picked.size >= 2, contentPadding = SelectionButtonPadding) {
-                    Icon(Icons.Outlined.Merge, null, Modifier.size(18.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text(tr("Combine"))
-                }
-                dev.kolib.app.ui.link.LocalLinkActions.current?.let { link ->
-                    OutlinedButton(onClick = { link.sendBooks(chosen()) }, enabled = browse.picked.isNotEmpty(), contentPadding = SelectionButtonPadding) {
-                        Icon(Icons.AutoMirrored.Outlined.SendToMobile, null, Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text(tr("Send to device"))
-                    }
+                    Text(tr("Mark as read"))
                 }
                 if (onSyncReading != null) {
                     OutlinedButton(
                         onClick = { onSyncReading(chosen()); browse.stopSelecting() },
-                        enabled = browse.picked.isNotEmpty(),
+                        enabled = any,
                         contentPadding = SelectionButtonPadding,
                         modifier = Modifier.testTag("selection-sync-reading"),
                     ) {
                         Icon(Icons.Outlined.Sync, null, Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
                         Text(tr("Sync with Kobo"))
+                    }
+                }
+                // What's done less often, in a menu, so the bar stays on one line across a tablet held sideways.
+                Box {
+                    var more by remember { mutableStateOf(false) }
+                    OutlinedButton(onClick = { more = true }, enabled = any, contentPadding = SelectionButtonPadding, modifier = Modifier.testTag("selection-more")) {
+                        Icon(Icons.Filled.MoreVert, null, Modifier.size(18.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text(tr("More"))
+                    }
+                    DropdownMenu(expanded = more, onDismissRequest = { more = false }) {
+                        DropdownMenuItem(text = { Text(tr("Save as files")) }, leadingIcon = { Icon(Icons.Outlined.SaveAlt, null) }, onClick = { more = false; onExport(chosen()) })
+                        DropdownMenuItem(text = { Text(tr("Duplicate")) }, leadingIcon = { Icon(Icons.Outlined.ContentCopy, null) }, onClick = { more = false; onDuplicate(chosen()) })
+                        DropdownMenuItem(
+                            text = { Text(tr("Combine")) }, leadingIcon = { Icon(Icons.Outlined.Merge, null) }, enabled = browse.picked.size >= 2,
+                            onClick = { more = false; onMerge(chosen()) },
+                        )
+                        dev.kolib.app.ui.link.LocalLinkActions.current?.let { link ->
+                            DropdownMenuItem(
+                                text = { Text(tr("Send to device")) }, leadingIcon = { Icon(Icons.AutoMirrored.Outlined.SendToMobile, null) },
+                                onClick = { more = false; link.sendBooks(chosen()) },
+                            )
+                        }
                     }
                 }
                 Button(onClick = { onSend(chosen()) }, enabled = browse.picked.isNotEmpty(), contentPadding = SelectionButtonPadding) {

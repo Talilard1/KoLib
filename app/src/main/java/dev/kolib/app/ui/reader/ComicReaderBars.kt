@@ -352,6 +352,8 @@ internal fun <T> ComicChoiceSheet(
     onApply: (T?) -> Unit,
     onDismiss: () -> Unit,
     tag: String,
+    /** Said under the choices. */
+    note: (@Composable () -> Unit)? = null,
 ) {
     val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheet) {
@@ -364,6 +366,7 @@ internal fun <T> ComicChoiceSheet(
                     repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
                 }
             }
+            note?.invoke()
             Row(Modifier.fillMaxWidth().padding(horizontal = 24.dp).padding(top = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                 if (own != null) OutlinedButton(onClick = { onApply(null) }) { Text(tr("Revert to default")) }
                 Spacer(Modifier.weight(1f))

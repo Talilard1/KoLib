@@ -774,6 +774,7 @@ internal fun ComicView(
                     scope.launch { sayIfNotTurned(context, (r ?: s.rotation).orientation) }
                 },
                 onDismiss = { sheet = null }, tag = "comic-rotation-sheet",
+                note = { RotationTip(Modifier.padding(horizontal = 24.dp, vertical = 8.dp)) },
             )
             ComicSheet.SETTINGS -> ComicSettingsSheet(
                 s = s, mode = mode, own = own, inSeries = series != null, hasCutout = hasCutout, onOwn = onOwn, onSettings = onSettings,

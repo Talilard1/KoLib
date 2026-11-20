@@ -70,6 +70,8 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.LocalOffer
 import androidx.compose.material.icons.outlined.Merge
+import androidx.compose.material.icons.outlined.DoneAll
+import androidx.compose.material.icons.outlined.RemoveDone
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.SaveAlt
@@ -426,15 +428,26 @@ internal fun PhoneLibraryScreen(
         }
         if (browse.selecting) {
             val any = browse.picked.isNotEmpty()
+            var more by remember { mutableStateOf(false) }
             PhoneActionBar(Modifier.align(Alignment.BottomCenter)) {
                 PhoneAction(Icons.AutoMirrored.Filled.Send, tr("Send"), { onSend(chosen()) }, enabled = any, main = true)
+                PhoneAction(Icons.Outlined.DoneAll, dev.kolib.app.trc("mark", "Read"), { onMarkFinished(chosen()); browse.stopSelecting() }, enabled = any)
+                PhoneAction(Icons.Outlined.RemoveDone, dev.kolib.app.trc("mark", "Unread"), { onMarkUnread(chosen()); browse.stopSelecting() }, enabled = any)
                 onSyncReading?.let { sync -> PhoneAction(Icons.Outlined.Sync, tr("Sync"), { sync(chosen()); browse.stopSelecting() }, enabled = any) }
                 dev.kolib.app.ui.link.LocalLinkActions.current?.let { link ->
                     PhoneAction(Icons.AutoMirrored.Outlined.SendToMobile, tr("To device"), { link.sendBooks(chosen()) }, enabled = any)
                 }
-                PhoneAction(Icons.Outlined.SaveAlt, tr("Save"), { onExport(chosen()) }, enabled = any)
-                PhoneAction(Icons.Outlined.ContentCopy, tr("Duplicate"), { onDuplicate(chosen()) }, enabled = any)
-                PhoneAction(Icons.Outlined.Merge, tr("Combine"), { onMerge(chosen()) }, enabled = browse.picked.size >= 2)
+                // Less used, so out of the way: saving copies, duplicating and combining.
+                PhoneAction(Icons.Filled.MoreVert, tr("More"), { more = true }, enabled = any, menu = {
+                    DropdownMenu(expanded = more, onDismissRequest = { more = false }) {
+                        DropdownMenuItem(text = { Text(tr("Save as files")) }, leadingIcon = { Icon(Icons.Outlined.SaveAlt, null) }, onClick = { more = false; onExport(chosen()) })
+                        DropdownMenuItem(text = { Text(tr("Duplicate")) }, leadingIcon = { Icon(Icons.Outlined.ContentCopy, null) }, onClick = { more = false; onDuplicate(chosen()) })
+                        DropdownMenuItem(
+                            text = { Text(tr("Combine")) }, leadingIcon = { Icon(Icons.Outlined.Merge, null) }, enabled = browse.picked.size >= 2,
+                            onClick = { more = false; onMerge(chosen()) },
+                        )
+                    }
+                })
                 PhoneAction(Icons.Outlined.Delete, tr("Remove"), { confirmRemove = chosen() }, enabled = any, destructive = true)
             }
         }

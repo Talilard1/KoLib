@@ -64,6 +64,13 @@
         android:localeConfig="@xml/locales_config"
         android:supportsRtl="true"
         android:theme="@style/Theme.KoLib">
+        <!-- Android 16 ignores an app's choice of portrait or landscape on a tablet (smallest width 600dp and up) unless
+             the app opts out, or its aspect ratio is set to App default in Android's settings, which lets Mihon's reader
+             turn the screen. Opted out, the readers can turn it from portrait, and once that setting's made, either way.
+             Without it they can't turn it at all. -->
+        <property
+            android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+            android:value="true" />
 
         <activity
             android:name=".MainActivity"
@@ -72,8 +79,6 @@
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode|density"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize">
-            <!-- No opting out of Android 16's handling of tablets (PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY), as
-                 Mihon doesn't: an app that opts out is open to the tablet maker's own orientation rules. -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -125,8 +130,7 @@
         </activity>
 
         <!-- The readers, on a screen of their own, as Mihon's reader is: turned the way they're to be read as they open,
-             and made anew as they turn (no configChanges). A Samsung tablet held in landscape won't turn for the
-             library's screen when it asks while it's open, but does for Mihon's reader. -->
+             and made anew as they turn (no configChanges). -->
         <activity
             android:name=".ReaderActivity"
             android:exported="false"

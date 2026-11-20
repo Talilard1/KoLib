@@ -112,7 +112,7 @@ fun LogScreen(onBack: () -> Unit, onMessage: (String) -> Unit) {
 
 private fun shareLog(context: Context, onMessage: (String) -> Unit) {
     try {
-        val file = AppLog.exportFile(context)
+        val file = java.io.File(AppLog.exportFile(context).parentFile, "kolib-log.txt").apply { writeText(latestLog(context)) }
         val uri = FileProvider.getUriForFile(context, "${context.packageName}.files", file)
         val send = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
@@ -127,8 +127,22 @@ private fun shareLog(context: Context, onMessage: (String) -> Unit) {
     }
 }
 
+/**
+ * The latest of the log under its heading (the app's version and the device), from the start of a line: no more than a
+ * message can take, so pasted or attached, the newest isn't what's cut off.
+ */
+private fun latestLog(context: Context): String {
+    val all = AppLog.exportFile(context).readText()
+    if (all.length <= LATEST_CHARS) return all
+    val heading = all.lineSequence().take(4).joinToString("\n")
+    val tail = all.takeLast(LATEST_CHARS)
+    return heading + "\n…\n" + tail.substring((tail.indexOf('\n') + 1).coerceAtMost(tail.length))
+}
+
+private const val LATEST_CHARS = 80_000
+
 private fun copyLog(context: Context, onMessage: (String) -> Unit) {
-    val text = AppLog.exportFile(context).readText().takeLast(200_000)
+    val text = latestLog(context)
     val clipboard = context.getSystemService(ClipboardManager::class.java)
     clipboard.setPrimaryClip(ClipData.newPlainText(tr("KoLib log"), text))
     onMessage(tr("Log copied."))

@@ -3261,5 +3261,7 @@
 "Info",
 "The screen didn't turn. Your device's settings may be keeping it this way round.",
 "Tap books to select them, then use the buttons below the list.",
-"This device didn't let the screen turn."
+"This device didn't let the screen turn.",
+"Android didn't turn the screen. Rotation has a tip for this.",
+"Android didn't turn the screen last time. On a tablet with Android 16, it does only once KoLib's aspect ratio is set to App default in Android's settings (search them for “aspect ratio”)."
 ]

@@ -92,6 +92,8 @@ class ReaderActivity : ComponentActivity() {
         // Turned the way it's to be read before it's shown, as Mihon's reader is.
         val wanted = orientationFor(this, app, book)
         if (requestedOrientation != wanted) requestedOrientation = wanted
+        // Made anew turned as it was asked to be: Android turns it, so there's no tip to give about that.
+        if (facesAsAsked(wanted, resources.configuration.orientation)) dev.kolib.app.ui.reader.RotationRefused.set(this, false)
         AppLog.i(
             "Rotation",
             "Reader opened: asks for ${orientationName(wanted)}, showing ${if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) "landscape" else "portrait"}.",
@@ -137,6 +139,19 @@ class ReaderActivity : ComponentActivity() {
 }
 
 private const val KEY_SHOWING = "showing"
+
+/** Whether the screen, [now] (as the configuration has it), faces the way that was [asked] for (as Android was asked). */
+internal fun facesAsAsked(asked: Int, now: Int): Boolean {
+    val portrait = asked in setOf(
+        android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT, android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT,
+        android.content.pm.ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT, android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT,
+    )
+    val landscape = asked in setOf(
+        android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE, android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE,
+        android.content.pm.ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE, android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE,
+    )
+    return (portrait && now == Configuration.ORIENTATION_PORTRAIT) || (landscape && now == Configuration.ORIENTATION_LANDSCAPE)
+}
 
 /** For the log: what the reader asked Android for. */
 internal fun orientationName(o: Int): String = when (o) {

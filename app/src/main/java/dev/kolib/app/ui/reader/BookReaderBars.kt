@@ -333,7 +333,7 @@ internal fun ScreenFacing(wanted: Int) {
 
 /**
  * After a way of holding the screen is chosen ([wanted], as Android is asked for it): says so if it hasn't turned
- * that way in a moment, as some devices keep apps the way they're held.
+ * that way in a moment, as a tablet with Android 16 does unless the app's aspect ratio is App default in its settings.
  */
 internal suspend fun sayIfNotTurned(context: android.content.Context, wanted: Int) {
     kotlinx.coroutines.delay(1_800)
@@ -352,7 +352,8 @@ internal suspend fun sayIfNotTurned(context: android.content.Context, wanted: In
         "Asked for ${dev.kolib.app.orientationName(wanted)}: the screen is ${if (now == android.content.res.Configuration.ORIENTATION_LANDSCAPE) "landscape" else "portrait"} " +
             "(display turned ${(context.getSystemService(android.hardware.display.DisplayManager::class.java)?.getDisplay(android.view.Display.DEFAULT_DISPLAY)?.rotation ?: 0) * 90}°).",
     )
-    if (!turned) android.widget.Toast.makeText(context, tr("This device didn't let the screen turn."), android.widget.Toast.LENGTH_LONG).show()
+    RotationRefused.set(context, !turned)
+    if (!turned) android.widget.Toast.makeText(context, tr("Android didn't turn the screen. Rotation has a tip for this."), android.widget.Toast.LENGTH_LONG).show()
 }
 
 /** Each way of holding the screen's icon. */
@@ -379,6 +380,30 @@ internal fun BookRotationSheet(current: ReaderRotation, onPick: (ReaderRotation)
                 current.help, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
             )
+            RotationTip(Modifier.padding(horizontal = 24.dp, vertical = 4.dp))
         }
     }
+}
+
+/**
+ * Whether Android didn't turn the screen the last time a reader asked it to. On a tablet with Android 16 it turns only
+ * for an app whose aspect ratio is App default in Android's settings, as it does for Mihon's reader (see [RotationTip]).
+ */
+internal object RotationRefused {
+    private fun prefs(context: android.content.Context) = context.getSharedPreferences("reader", android.content.Context.MODE_PRIVATE)
+    fun get(context: android.content.Context): Boolean = prefs(context).getBoolean("rotationRefused", false)
+    fun set(context: android.content.Context, refused: Boolean) {
+        if (get(context) != refused) prefs(context).edit().putBoolean("rotationRefused", refused).apply()
+    }
+}
+
+/** Why the screen didn't turn, and what lets it: with the rotation choices, once Android hasn't turned it. */
+@Composable
+internal fun RotationTip(modifier: Modifier = Modifier) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    if (!remember { RotationRefused.get(context) }) return
+    Text(
+        tr("Android didn't turn the screen last time. On a tablet with Android 16, it does only once KoLib's aspect ratio is set to App default in Android's settings (search them for “aspect ratio”)."),
+        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error, modifier = modifier.testTag("rotation-tip"),
+    )
 }

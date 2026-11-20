@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -183,6 +184,8 @@ fun RowScope.PhoneAction(
     enabled: Boolean = true,
     main: Boolean = false,
     destructive: Boolean = false,
+    /** A menu that opens from this button. */
+    menu: (@Composable () -> Unit)? = null,
 ) {
     val colors = MaterialTheme.colorScheme
     val tint = when {
@@ -191,10 +194,10 @@ fun RowScope.PhoneAction(
         destructive -> colors.error
         else -> colors.onSurface
     }
+    Box(Modifier.weight(1f).fillMaxHeight()) {
     Column(
         Modifier
-            .weight(1f)
-            .fillMaxHeight()
+            .fillMaxSize()
             .clip(RoundedCornerShape(16.dp))
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
             .padding(vertical = 6.dp),
@@ -220,6 +223,8 @@ fun RowScope.PhoneAction(
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 2.dp),
         )
+    }
+    menu?.invoke()
     }
 }
 

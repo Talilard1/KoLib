@@ -206,3 +206,27 @@
 @ja
 3261|本をタップして選び、リストの下のボタンを使います。
 3262|この端末では画面を回転できませんでした。
+@fr
+3263|Android n’a pas tourné l’écran. Rotation donne une astuce à ce sujet.
+3264|Android n’a pas tourné l’écran la dernière fois. Sur une tablette sous Android 16, il ne le fait qu’une fois le format de KoLib réglé sur « Valeur par défaut de l’application » dans les paramètres d’Android (cherchez « format »).
+@de
+3263|Android hat den Bildschirm nicht gedreht. Unter „Drehung“ steht ein Tipp dazu.
+3264|Android hat den Bildschirm beim letzten Mal nicht gedreht. Auf einem Tablet mit Android 16 tut es das erst, wenn das Seitenverhältnis von KoLib in den Android-Einstellungen auf „App-Standard“ steht (dort nach „Seitenverhältnis“ suchen).
+@es
+3263|Android no ha girado la pantalla. En Rotación hay un consejo sobre esto.
+3264|Android no giró la pantalla la última vez. En una tableta con Android 16, solo lo hace cuando la relación de aspecto de KoLib está en «Predeterminado de la app» en los ajustes de Android (búscalo como «relación de aspecto»).
+@it
+3263|Android non ha ruotato lo schermo. In Rotazione c’è un consiglio.
+3264|L’ultima volta Android non ha ruotato lo schermo. Su un tablet con Android 16 lo fa solo quando le proporzioni di KoLib sono impostate su «Predefinito dell’app» nelle impostazioni di Android (cerca «proporzioni»).
+@nl
+3263|Android heeft het scherm niet gedraaid. Bij ‘Draaiing’ staat een tip.
+3264|Android heeft het scherm de vorige keer niet gedraaid. Op een tablet met Android 16 doet het dat pas als de beeldverhouding van KoLib in de instellingen van Android op ‘App-standaard’ staat (zoek op ‘beeldverhouding’).
+@pt
+3263|O Android não girou a tela. Em Rotação há uma dica sobre isso.
+3264|O Android não girou a tela da última vez. Num tablet com Android 16, ele só faz isso quando a proporção do KoLib está como “Padrão do app” nas configurações do Android (procure “proporção”).
+@ru
+3263|Android не повернул экран. В «Повороте» есть подсказка.
+3264|В прошлый раз Android не повернул экран. На планшете с Android 16 он делает это, только если в настройках Android для KoLib выбрано соотношение сторон «По умолчанию для приложения» (найдите «соотношение сторон»).
+@ja
+3263|Android が画面を回転しませんでした。「画面の向き」にヒントがあります。
+3264|前回、Android が画面を回転しませんでした。Android 16 のタブレットでは、Android の設定で KoLib のアスペクト比を「アプリのデフォルト」にした場合だけ回転します（設定で「アスペクト比」を検索してください）。

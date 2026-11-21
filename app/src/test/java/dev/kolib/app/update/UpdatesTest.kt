@@ -219,6 +219,39 @@ class UpdatesTest {
         handedOver(handed, 2)
         u.installResult(PackageInstaller.STATUS_FAILURE_STORAGE, "not enough room")
         assertEquals("The update couldn't be installed: not enough room", (u.state.value as Updater.State.Failed).message)
+        assertTrue((u.state.value as Updater.State.Failed).installing)
+    }
+
+    @Test
+    fun anUpdateDownloadedAlreadyIsntDownloadedAgain() {
+        val handed = ArrayList<File>()
+        var downloads = 0
+        val u = Updater(
+            context, scope, installed = "2.0", abis = listOf("arm64-v8a"), fetch = { release() },
+            open = { _, _ -> downloads++; ModelStore.Answer(200, ByteArray(1009) { 7 }.inputStream()) },
+            verify = { null }, install = { handed += it }, canLookAlone = true,
+        )
+        u.lookNow()
+        val found = wait(u) { it is Updater.State.Available } as Updater.State.Available
+        assertFalse(u.downloaded(found.release))
+        u.update(found.release)
+        wait(u) { it is Updater.State.Installing }
+        handedOver(handed, 1)
+        // Android didn't install it (Auto Blocker on a Samsung stops it, for one): offered again, saying so, and tried
+        // again from the file downloaded already.
+        u.installResult(PackageInstaller.STATUS_FAILURE_ABORTED, null)
+        assertTrue((u.state.value as Updater.State.Available).stopped)
+        assertTrue(u.downloaded(found.release))
+        u.update(found.release)
+        handedOver(handed, 2)
+        assertEquals(1, downloads)
+        assertEquals("KoLib-2.1.apk", handed.last().name)
+        // Kept while KoLib is opened again before it's installed; gone once the update has been.
+        u.installResult(PackageInstaller.STATUS_FAILURE_ABORTED, null)
+        updater(installed = "2.0").lookIfDue()
+        assertTrue(u.downloaded(found.release))
+        updater(installed = "2.1").lookIfDue()
+        assertFalse(u.downloaded(found.release))
     }
 
     @Test

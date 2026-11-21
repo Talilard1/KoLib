@@ -44,6 +44,11 @@ data class LinkSettings(
     val keepPlacesInStep: Boolean = true,
     /** KoLib stays reachable from paired devices when it isn't open (with a notification saying so). */
     val stayReachable: Boolean = false,
+    /**
+     * KoLib looks for other devices (and says where it is) the whole time it's open. Off, as it starts: only while the
+     * Devices screen is open (or while it stays reachable, above); paired devices can still reach it while it's open.
+     */
+    val lookAlways: Boolean = false,
 )
 
 /**
@@ -63,12 +68,12 @@ class LinkStore(private val dir: File) {
         val s = change(_settings.value)
         _settings.value = s
         dir.mkdirs()
-        write(settingsFile, JSONObject().put("keepPlacesInStep", s.keepPlacesInStep).put("stayReachable", s.stayReachable).toString())
+        write(settingsFile, JSONObject().put("keepPlacesInStep", s.keepPlacesInStep).put("stayReachable", s.stayReachable).put("lookAlways", s.lookAlways).toString())
     }
 
     private fun readSettings(): LinkSettings = runCatching {
         val o = JSONObject(settingsFile.readText())
-        LinkSettings(o.optBoolean("keepPlacesInStep", true), o.optBoolean("stayReachable", false))
+        LinkSettings(o.optBoolean("keepPlacesInStep", true), o.optBoolean("stayReachable", false), o.optBoolean("lookAlways", false))
     }.getOrDefault(LinkSettings())
 
     private val _devices = MutableStateFlow(readDevices())

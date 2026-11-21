@@ -201,6 +201,8 @@ class LinkManager(
     private var expiry: Job? = null
     private var checking: Job? = null
     private var users = 0
+    /** Of the [users], those that want other devices looked for too (not only connections taken). */
+    private var lookers = 0
     private val discovery = LinkDiscovery(
         announcement = { if (_port.value > 0) identity.let { LinkDiscovery.announcement(it.id, it.name, _port.value) } else null },
         onHeard = ::heard,
@@ -211,24 +213,33 @@ class LinkManager(
 
     // ---- running ------------------------------------------------------------------------------------------
 
-    /** Takes connections and listens for other devices while anything (a screen, the service) wants it to; [stop] when done. */
+    /**
+     * Takes connections while anything (a screen, the service) wants it to, and with [look], looks for other devices
+     * too (and says where this one is); [stop] with the same [look] when done. Not looking, paired devices that look
+     * can still reach this one where they last found it.
+     */
     @Synchronized
-    fun start() {
+    fun start(look: Boolean = true) {
         users++
-        if (users > 1) return
-        startServer()
-        if (discover) {
-            onRunning(true)
-            discovery.start(scope)
-        }
-        expiry = scope.launch {
-            while (isActive) {
-                delay(2_000)
-                val now = System.currentTimeMillis()
-                _nearby.update { list -> list.filter { it.at >= now - FORGET_AFTER } }
+        if (look) lookers++
+        if (users == 1) {
+            startServer()
+            expiry = scope.launch {
+                while (isActive) {
+                    delay(2_000)
+                    val now = System.currentTimeMillis()
+                    _nearby.update { list -> list.filter { it.at >= now - FORGET_AFTER } }
+                }
             }
         }
-        if (discover) checking = scope.launch(Dispatchers.IO) {
+        if (look && lookers == 1 && discover) startLooking()
+    }
+
+    /** Says where this device is to the others, hears theirs, and looks for paired ones where they were last. */
+    private fun startLooking() {
+        onRunning(true)
+        discovery.start(scope)
+        checking = scope.launch(Dispatchers.IO) {
             // Paired devices are looked for where they were last, every so often: on a network that passes on
             // nobody's announcements (a phone's hotspot, often), that's how they're found. One not there is looked
             // for everywhere on this device's networks, once.
@@ -246,16 +257,19 @@ class LinkManager(
     }
 
     @Synchronized
-    fun stop() {
+    fun stop(look: Boolean = true) {
         if (users == 0) return
         users--
-        if (users > 0) return
-        if (discover) {
-            discovery.stop()
-            onRunning(false)
+        if (look && lookers > 0) {
+            lookers--
+            if (lookers == 0 && discover) {
+                discovery.stop()
+                onRunning(false)
+                checking?.cancel()
+            }
         }
+        if (users > 0) return
         expiry?.cancel()
-        checking?.cancel()
         serverJob?.cancel()
         runCatching { server?.close() }
         server = null

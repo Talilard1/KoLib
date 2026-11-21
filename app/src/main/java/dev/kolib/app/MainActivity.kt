@@ -53,6 +53,8 @@ class MainActivity : ComponentActivity() {
         matchStartingScreen(themes.opening.value)
         // The Kobo is looked for, and the link to other devices kept up, while KoLib is in use: the library or a reader.
         lifecycleScope.launch { app.inUse.collect { inUse(it) } }
+        // Looking for devices the whole time KoLib is open, turned on or off while it is.
+        lifecycleScope.launch { app.link.settings.collect { if (inUseNow && !underTest) holdLink(true, it.lookAlways) } }
         setContent {
             val theme by themes.choice.collectAsStateWithLifecycle()
             val opening by themes.opening.collectAsStateWithLifecycle()
@@ -171,16 +173,33 @@ class MainActivity : ComponentActivity() {
         inUseNow = now
         if (now) {
             vm.onForeground()
-            // KoLib on the user's other devices can find and reach this one while it's open.
+            // KoLib on the user's other devices can reach this one while it's open, and find it too if it's to look
+            // for them all the time (otherwise that's while the Devices screen is open).
             if (!underTest) {
-                app.link.start()
+                holdLink(true)
                 if (app.link.settings.value.stayReachable) dev.kolib.app.link.LinkService.start(this)
             }
         } else {
             vm.onLeft(app.lastTouch)
             vm.onBackground()
-            if (!underTest) app.link.stop()
+            if (!underTest) holdLink(false)
         }
+    }
+
+    /**
+     * How this screen is keeping the link to other devices going (see [inUse]): not at all (null), or taking
+     * connections, and looking for the devices too (true) or not (false).
+     */
+    private var holdingLink: Boolean? = null
+
+    private fun holdLink(hold: Boolean, look: Boolean = app.link.settings.value.lookAlways) {
+        val now = if (hold) look else null
+        if (now == holdingLink) return
+        val before = holdingLink
+        holdingLink = now
+        // The new hold before the old one's let go, so connections aren't dropped in between.
+        now?.let { app.link.start(look = it) }
+        before?.let { app.link.stop(look = it) }
     }
 
     override fun onStart() {

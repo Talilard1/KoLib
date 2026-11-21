@@ -2,6 +2,11 @@
 
 package dev.kolib.app.ui
 
+import dev.kolib.app.ui.components.shortScreen
+import dev.kolib.app.ui.components.TabLabel
+import dev.kolib.app.ui.components.ShortTopRow
+import dev.kolib.app.ui.components.HidingTop
+import androidx.compose.foundation.layout.RowScope
 import dev.kolib.app.ui.tour.tourPlace
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -175,123 +180,126 @@ fun DeviceScreen(
     }
     // While choosing books on a phone, the bar for them takes the place of the Kobo's bar and tabs.
     val choosing = phone && tab == 0 && browse.selecting
+    // On a short screen (a phone held sideways), the name, the tabs and the buttons share a row, and slide away with
+    // the search as the books are scrolled.
+    val short = shortScreen()
+    // Not plugged in: said under the Kobo's name, where a phone has room for it alone.
+    val status = when {
+        !view.live -> tr("Not connected · as of {0}", Fmt.date(view.readAtMillis) ?: "")
+        unplugged -> tr("Unplugged · as of {0}", Fmt.time(view.readAtMillis) ?: "")
+        else -> null
+    }
+    val title: @Composable () -> Unit = {
+        Column {
+            KoboName(
+                view = view,
+                known = state.knownKobos,
+                // The Kobo plugged in is the one shown; another's saved copy can be looked at once it's unplugged.
+                canSwitch = !view.live || unplugged,
+                onShow = onShowKobo,
+                onForget = onForgetSavedKobo,
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (status != null) {
+                    Icon(Icons.Outlined.UsbOff, null, Modifier.size(14.dp).padding(end = 2.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(Modifier.width(4.dp))
+                }
+                Text(
+                    listOfNotNull(
+                        status,
+                        view.info.version?.firmware?.takeIf { !phone && !short && status == null }?.let { tr("Firmware {0}", it) },
+                        Fmt.plural(snapshot.books.size, "book").takeIf { !((phone || short) && status != null) },
+                        Fmt.plural(snapshot.collections.size, "collection").takeIf { !((phone || short) && status != null) },
+                    ).joinToString(" · "),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.testTag("kobo-status"),
+                )
+            }
+        }
+    }
+    val actions: @Composable RowScope.() -> Unit = {
+        if (live) {
+            TextButton(onClick = { if (onEject != null) onEject() else showEject = true }, modifier = Modifier.tourPlace("kobo-eject")) {
+                Icon(Icons.Outlined.Eject, null)
+                Spacer(Modifier.width(6.dp))
+                Text(tr("Eject"))
+            }
+            IconButton(onClick = onReconnect) { Icon(Icons.Filled.Refresh, tr("Refresh")) }
+        } else if (!view.live) {
+            TextButton(onClick = onHowToConnect) {
+                Icon(Icons.Outlined.Usb, null)
+                Spacer(Modifier.width(6.dp))
+                Text(tr("Connect"))
+            }
+        }
+        IconButton(onClick = { menuOpen = true }, modifier = Modifier.tourPlace("kobo-menu")) { Icon(Icons.Filled.MoreVert, tr("More")) }
+        DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+            // On a phone, the book list's own options are here too, so the screen has one menu.
+            if (phone && tab == 0) {
+                DropdownMenuItem(
+                    text = { Text(tr("Select books")) },
+                    leadingIcon = { Icon(Icons.Outlined.Checklist, null) },
+                    onClick = { menuOpen = false; browse.selecting = true },
+                )
+                DropdownMenuItem(
+                    text = { Text(if (browse.grid) tr("Show as list") else tr("Show as grid")) },
+                    leadingIcon = { Icon(if (browse.grid) Icons.AutoMirrored.Filled.ViewList else Icons.Filled.GridView, null) },
+                    onClick = { menuOpen = false; browse.grid = !browse.grid },
+                )
+                HorizontalDivider()
+            }
+            DropdownMenuItem(
+                text = { Text(tr("Back up database now")) },
+                leadingIcon = { Icon(Icons.Outlined.Backup, null) },
+                enabled = live,
+                onClick = { menuOpen = false; onBackupNow() },
+            )
+            DropdownMenuItem(
+                text = { Text(tr("Database backups")) },
+                leadingIcon = { Icon(Icons.Outlined.Restore, null) },
+                onClick = { menuOpen = false; onOpenBackups() },
+            )
+            DropdownMenuItem(
+                text = { Text(tr("Check write access")) },
+                leadingIcon = { Icon(Icons.Outlined.EditNote, null) },
+                enabled = live,
+                onClick = { menuOpen = false; tab = 2; onWriteCheck() },
+            )
+            DropdownMenuItem(
+                text = { Text(tr("Log")) },
+                leadingIcon = { Icon(Icons.AutoMirrored.Outlined.Article, null) },
+                onClick = { menuOpen = false; onOpenLog() },
+            )
+            onSettings?.let { open ->
+                DropdownMenuItem(
+                    text = { Text(tr("Settings")) },
+                    leadingIcon = { Icon(Icons.Outlined.Settings, null) },
+                    onClick = { menuOpen = false; open() },
+                )
+            }
+            HorizontalDivider()
+            DropdownMenuItem(
+                text = { Text(tr("Forget this Kobo")) },
+                leadingIcon = { Icon(Icons.Outlined.LinkOff, null) },
+                onClick = { menuOpen = false; confirmForget = true },
+            )
+        }
+    }
 
     Scaffold(
         containerColor = Color.Transparent,
         contentWindowInsets = if (choosing) WindowInsets(0, 0, 0, 0) else ScaffoldDefaults.contentWindowInsets,
         topBar = {
-            if (!choosing) TopAppBar(
-                title = {
-                    Column {
-                        KoboName(
-                            view = view,
-                            known = state.knownKobos,
-                            // The Kobo plugged in is the one shown; another's saved copy can be looked at once it's unplugged.
-                            canSwitch = !view.live || unplugged,
-                            onShow = onShowKobo,
-                            onForget = onForgetSavedKobo,
-                        )
-                        Text(
-                            listOfNotNull(
-                                view.info.version?.firmware?.takeIf { !phone }?.let { tr("Firmware {0}", it) },
-                                Fmt.plural(snapshot.books.size, "book"),
-                                Fmt.plural(snapshot.collections.size, "collection"),
-                            ).joinToString(" · "),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                },
-                actions = {
-                    if (live) {
-                        TextButton(onClick = { if (onEject != null) onEject() else showEject = true }, modifier = Modifier.tourPlace("kobo-eject")) {
-                            Icon(Icons.Outlined.Eject, null)
-                            Spacer(Modifier.width(6.dp))
-                            Text(tr("Eject"))
-                        }
-                        IconButton(onClick = onReconnect) { Icon(Icons.Filled.Refresh, tr("Refresh")) }
-                    } else if (!view.live) {
-                        TextButton(onClick = onHowToConnect) {
-                            Icon(Icons.Outlined.Usb, null)
-                            Spacer(Modifier.width(6.dp))
-                            Text(tr("Connect"))
-                        }
-                    }
-                    IconButton(onClick = { menuOpen = true }, modifier = Modifier.tourPlace("kobo-menu")) { Icon(Icons.Filled.MoreVert, tr("More")) }
-                    DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-                        // On a phone, the book list's own options are here too, so the screen has one menu.
-                        if (phone && tab == 0) {
-                            DropdownMenuItem(
-                                text = { Text(tr("Select books")) },
-                                leadingIcon = { Icon(Icons.Outlined.Checklist, null) },
-                                onClick = { menuOpen = false; browse.selecting = true },
-                            )
-                            DropdownMenuItem(
-                                text = { Text(if (browse.grid) tr("Show as list") else tr("Show as grid")) },
-                                leadingIcon = { Icon(if (browse.grid) Icons.AutoMirrored.Filled.ViewList else Icons.Filled.GridView, null) },
-                                onClick = { menuOpen = false; browse.grid = !browse.grid },
-                            )
-                            HorizontalDivider()
-                        }
-                        DropdownMenuItem(
-                            text = { Text(tr("Back up database now")) },
-                            leadingIcon = { Icon(Icons.Outlined.Backup, null) },
-                            enabled = live,
-                            onClick = { menuOpen = false; onBackupNow() },
-                        )
-                        DropdownMenuItem(
-                            text = { Text(tr("Database backups")) },
-                            leadingIcon = { Icon(Icons.Outlined.Restore, null) },
-                            onClick = { menuOpen = false; onOpenBackups() },
-                        )
-                        DropdownMenuItem(
-                            text = { Text(tr("Check write access")) },
-                            leadingIcon = { Icon(Icons.Outlined.EditNote, null) },
-                            enabled = live,
-                            onClick = { menuOpen = false; tab = 2; onWriteCheck() },
-                        )
-                        DropdownMenuItem(
-                            text = { Text(tr("Log")) },
-                            leadingIcon = { Icon(Icons.AutoMirrored.Outlined.Article, null) },
-                            onClick = { menuOpen = false; onOpenLog() },
-                        )
-                        onSettings?.let { open ->
-                            DropdownMenuItem(
-                                text = { Text(tr("Settings")) },
-                                leadingIcon = { Icon(Icons.Outlined.Settings, null) },
-                                onClick = { menuOpen = false; open() },
-                            )
-                        }
-                        HorizontalDivider()
-                        DropdownMenuItem(
-                            text = { Text(tr("Forget this Kobo")) },
-                            leadingIcon = { Icon(Icons.Outlined.LinkOff, null) },
-                            onClick = { menuOpen = false; confirmForget = true },
-                        )
-                    }
-                },
+            if (!choosing && !short) TopAppBar(
+                title = title,
+                actions = actions,
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             )
         },
     ) { padding ->
-        Column(
-            Modifier
-                .padding(padding)
-                .fillMaxSize()
-        ) {
-            if (!choosing) {
-                val notOpen = !view.live || unplugged
-                when {
-                    notOpen && (state.usbKobo == UsbKobo.OPENING || state.usbKobo == UsbKobo.SLOW) ->
-                        OpeningBanner(slow = state.usbKobo == UsbKobo.SLOW)
-                    notOpen && state.usbKobo == UsbKobo.UNMOUNTED -> SafeToUnplugBanner()
-                    !view.live -> OfflineBanner(view.readAtMillis, onHowToConnect)
-                    unplugged -> UnpluggedBanner(view.readAtMillis)
-                    state.syncing -> SyncingBanner()
-                }
-            }
             // Swipe left or right for the next tab, or tap one. Books being chosen are let go of on another tab.
             val pager = rememberTabPager(tab, 3) { t ->
                 if (t != 0) browse.stopSelecting()
@@ -299,14 +307,33 @@ fun DeviceScreen(
             }
             LaunchedEffect(browse.selecting) { if (browse.selecting) tab = 0 }
             val goTo = rememberTabTap(pager)
-            if (!choosing) {
-                // A phone has the counts in the bar above, so the tabs fit on one line.
+            // A phone has the counts in the bar above, so the tabs fit on one line.
+            val tabs: @Composable () -> Unit = {
                 PrimaryTabRow(selectedTabIndex = pager.currentPage, containerColor = Color.Transparent, modifier = Modifier.tourPlace("kobo-tabs")) {
-                    Tab(selected = pager.currentPage == 0, onClick = { goTo(0) }, text = { Text(if (phone) tr("Books") else tr("Books ({0})", snapshot.books.size)) })
-                    Tab(selected = pager.currentPage == 1, onClick = { goTo(1) }, text = { Text(if (phone) tr("Collections") else tr("Collections ({0})", snapshot.collections.size)) })
-                    Tab(selected = pager.currentPage == 2, onClick = { goTo(2) }, text = { Text(tr("Device")) })
+                    Tab(selected = pager.currentPage == 0, onClick = { goTo(0) }, text = { TabLabel(if (phone) tr("Books") else tr("Books ({0})", snapshot.books.size)) })
+                    Tab(selected = pager.currentPage == 1, onClick = { goTo(1) }, text = { TabLabel(if (phone) tr("Collections") else tr("Collections ({0})", snapshot.collections.size)) })
+                    Tab(selected = pager.currentPage == 2, onClick = { goTo(2) }, text = { TabLabel(tr("Device")) })
                 }
             }
+        HidingTop(
+            hides = short,
+            top = {
+                Column {
+                    if (!choosing && short) ShortTopRow(title = title, tabs = tabs, actions = actions)
+                    if (!choosing) {
+                        val notOpen = !view.live || unplugged
+                        when {
+                            notOpen && (state.usbKobo == UsbKobo.OPENING || state.usbKobo == UsbKobo.SLOW) ->
+                                OpeningBanner(slow = state.usbKobo == UsbKobo.SLOW)
+                            notOpen && state.usbKobo == UsbKobo.UNMOUNTED -> SafeToUnplugBanner()
+                            state.syncing -> SyncingBanner()
+                        }
+                    }
+                    if (!choosing && !short) tabs()
+                }
+            },
+            modifier = Modifier.padding(padding).fillMaxSize(),
+        ) {
             // The bar for books being chosen goes along the foot, the screen's whole width, under a side panel too.
             WithFoot(Modifier.fillMaxSize()) { TabPages(pager, Modifier.fillMaxSize().tourPlace("kobo-shelf"), swipe = !browse.selecting) { page ->
                 when (page) {
@@ -351,39 +378,6 @@ fun DeviceScreen(
         )
     }
 }
-
-@Composable
-private fun OfflineBanner(readAt: Long, onHowToConnect: () -> Unit) {
-    Surface(color = MaterialTheme.colorScheme.surfaceContainerHigh, modifier = Modifier.fillMaxWidth()) {
-        Row(Modifier.padding(start = 20.dp, end = 12.dp, top = 8.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Outlined.UsbOff, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-            Spacer(Modifier.width(12.dp))
-            Text(
-                tr("Not connected. Showing your Kobo as of {0}.", Fmt.dateTime(readAt)),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(1f),
-            )
-            TextButton(onClick = onHowToConnect) { Text(tr("How to connect")) }
-        }
-    }
-}
-
-
-@Composable
-private fun UnpluggedBanner(readAt: Long) {
-    Surface(color = MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.fillMaxWidth()) {
-        Row(Modifier.padding(horizontal = 20.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Outlined.UsbOff, null, tint = MaterialTheme.colorScheme.onSecondaryContainer)
-            Spacer(Modifier.width(12.dp))
-            Text(
-                tr("Unplugged. Showing data from {0}. To refresh, plug it in and tap Connect on the Kobo.", Fmt.time(readAt)),
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                style = MaterialTheme.typography.bodyMedium,
-            )
-        }
-    }
-}
-
 
 /**
  * The Kobo's name at the top of its window. With more than one Kobo known (someone with two, each with its

@@ -102,14 +102,17 @@ fun CollectionsLayout(
     nothingChosen: @Composable () -> Unit,
     noBookChosen: @Composable () -> Unit,
 ) {
+    // On a phone held sideways, never three panes, so the books have the room.
+    val short = dev.kolib.app.ui.components.shortScreen()
+    val listWidth = ListWidth
     BoxWithConstraints(Modifier.fillMaxSize()) {
         when {
-            maxWidth >= ThreePaneWidth -> {
+            maxWidth >= ThreePaneWidth && !short -> {
                 if (!hasCollection) LaunchedEffect(Unit) { onOpenFirst() }
                 Row(Modifier.fillMaxSize()) {
                     // The list and the books share the room the Books tab's books have, so a book's details are where they are there.
                     Row(Modifier.weight(1.45f).fillMaxHeight()) {
-                        list(Modifier.width(ListWidth).fillMaxHeight(), CollectionPanes.THREE)
+                        list(Modifier.width(listWidth).fillMaxHeight(), CollectionPanes.THREE)
                         VerticalDivider()
                         Box(Modifier.weight(1f).fillMaxHeight()) { if (hasCollection) books(null) else nothingChosen() }
                     }
@@ -121,7 +124,7 @@ fun CollectionsLayout(
                 if (!hasCollection) LaunchedEffect(Unit) { onOpenFirst() }
                 TabBackHandler(enabled = hasCollection && hasBook, onBack = onCloseBook)
                 Row(Modifier.fillMaxSize()) {
-                    list(Modifier.width(ListWidth).fillMaxHeight(), CollectionPanes.LIST_AND_ONE)
+                    list(Modifier.width(listWidth).fillMaxHeight(), CollectionPanes.LIST_AND_ONE)
                     VerticalDivider()
                     Box(Modifier.weight(1f).fillMaxHeight()) {
                         when {

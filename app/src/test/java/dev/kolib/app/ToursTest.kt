@@ -49,6 +49,8 @@ import java.util.UUID
 
 private const val PHONE = "w411dp-h914dp-port-420dpi"
 private const val TABLET = "w1280dp-h800dp-land-xhdpi"
+/** A phone held sideways: the top of each screen in one row, which slides away as the books are scrolled. */
+private const val SIDEWAYS = "w914dp-h387dp-land-420dpi"
 
 /**
  * The tours of the app's screens, each given the first time its screen opens and then not again, and the sample books
@@ -207,6 +209,25 @@ class ToursTest {
         assertTrue(compose.onAllNodesWithTag("tour").fetchSemanticsNodes().isEmpty())
     }
 
+    /** On a phone held sideways, every tour finds its parts in the one-row top, which stays put while it's given. */
+    @Test
+    @Config(qualifiers = SIDEWAYS)
+    fun onAPhoneHeldSidewaysEveryTourFindsItsParts() {
+        withABook()
+        showApp()
+        assertEquals(
+            listOf("Your library", "Books, collections and comics", "Find a book", "Add books", "Reading stats", "Your Kobo", "Your other devices", "Settings"),
+            goThrough("library_sideways"),
+        )
+        compose.onNodeWithText("Kobo").performClick()
+        assertEquals(listOf("Connect your Kobo", "Backups and the log"), goThrough("kobo_connect_sideways"))
+        compose.onNodeWithText("Devices").performClick()
+        assertEquals(listOf("This device", "Paired", "Nearby", "Your Kobo, over Wi-Fi", "Settings"), goThrough("devices_sideways"))
+        // (The rail's Settings, not the Devices screen's heading.)
+        compose.onNode(androidx.compose.ui.test.hasText("Settings") and androidx.compose.ui.test.hasClickAction()).performClick()
+        assertEquals(listOf("Language", "Books folder", "Reading setup", "AI and dictionary", "Covers per row", "Comics", "Look", "Tours"), goThrough("settings_sideways"))
+    }
+
     @Test
     @Config(qualifiers = PHONE)
     fun onAPhoneTheDevicesTourScrollsToTheSettingsAtTheFoot() {
@@ -224,7 +245,7 @@ class ToursTest {
         withABook()
         showApp()
         compose.onNodeWithText("Settings").performClick()
-        assertEquals(listOf("Language", "Books folder", "Reading setup", "AI and dictionary", "Comics", "Look", "Tours"), goThrough("settings"))
+        assertEquals(listOf("Language", "Books folder", "Reading setup", "AI and dictionary", "Covers per row", "Comics", "Look", "Tours"), goThrough("settings"))
         assertTrue(Tours.SETTINGS in seen)
         // Every tour again: Settings close, and the library's tour starts again at once.
         compose.onNodeWithTag("settings-tours").performScrollTo().performClick()

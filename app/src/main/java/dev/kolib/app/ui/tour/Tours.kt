@@ -55,11 +55,11 @@ object Tours {
     fun devices() = listOf(
         TourStop(listOf("devices-me"), tr("This device"), tr("Your other devices find this one on the same Wi-Fi, or when one is on the other's hotspot.")),
         TourStop(listOf("devices-paired"), tr("Paired"), tr("Devices you've paired with. Choose books in your library and tap To device to send them.")),
-        TourStop(listOf("devices-nearby"), tr("Nearby"), tr("Your other phones and tablets with KoLib open on the same network show here. Tap Pair to link one.")),
+        TourStop(listOf("devices-nearby"), tr("Nearby"), tr("Your other phones and tablets on the same network show here while this screen is open on them too. Tap Pair to link one.")),
         TourStop(listOf("devices-kobo-wifi"), tr("Your Kobo, over Wi-Fi"), tr("Send books to your Kobo without the cable, through its web browser.")),
         TourStop(
             listOf("devices-settings"), tr("Settings"),
-            tr("Choose whether your place in a book is shared with your other devices, and whether they can send while KoLib is closed."),
+            tr("Choose whether your place in a book is shared with your other devices, whether KoLib looks for them all the time, and whether they can send while KoLib is closed."),
         ),
     )
 
@@ -69,6 +69,7 @@ object Tours {
         stop("settings-folder", tr("Books folder"), tr("A folder KoLib adds books from. Look in it again to add the new ones."), reveal),
         stop("settings-reading", tr("Reading setup"), tr("Set the page colour, font, text size and how pages turn, on an example book."), reveal),
         stop("settings-ai", tr("AI and dictionary"), tr("Look up words, and get chapter summaries and answers about the book you're reading."), reveal),
+        stop("settings-covers", tr("Covers per row"), tr("How many covers each row of a shelf holds, upright and sideways. Auto fits as many as there's room for."), reveal),
         stop("settings-comics", tr("Comics"), tr("Give comics a tab of their own in the library, with each series as one entry."), reveal),
         stop("settings-look", tr("Look"), tr("Choose how KoLib looks. The opening animation matches the look you choose."), reveal),
         stop("settings-opening", tr("Opening animation"), tr("Turn the animation and its sound on or off, or use a lighter one on a slower device."), reveal),

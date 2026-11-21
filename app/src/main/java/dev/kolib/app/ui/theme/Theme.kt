@@ -1,5 +1,7 @@
 package dev.kolib.app.ui.theme
 
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -278,12 +280,20 @@ internal val LightStyle = KoLibStyle(
 
 val LocalKoLibStyle = staticCompositionLocalOf { LightStyle }
 
+/**
+ * The most the device's font size makes KoLib's own words bigger: much past it, the screens' words no longer fit
+ * them. (The size of a book's text is the reader's own setting.)
+ */
+const val MOST_FONT_SCALE = 1.3f
+
 @Composable
 fun KoLibTheme(choice: ThemeChoice = ThemeChoice.SYSTEM, content: @Composable () -> Unit) {
     val look = lookOf(choice, isSystemInDarkTheme())
+    val density = LocalDensity.current
     CompositionLocalProvider(
         LocalBookcase provides (look.style.shelf != null),
         LocalKoLibStyle provides look.style,
+        LocalDensity provides if (density.fontScale <= MOST_FONT_SCALE) density else Density(density.density, MOST_FONT_SCALE),
     ) {
         MaterialTheme(colorScheme = look.scheme, typography = look.typography, shapes = look.shapes, content = content)
     }

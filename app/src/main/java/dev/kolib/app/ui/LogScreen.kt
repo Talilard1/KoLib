@@ -2,6 +2,20 @@
 
 package dev.kolib.app.ui
 
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.Surface
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.SaveAlt
+import android.net.Uri
+import android.content.ActivityNotFoundException
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.compose.rememberLauncherForActivityResult
 import dev.kolib.app.tr
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.graphics.Color
@@ -54,6 +68,10 @@ fun LogScreen(onBack: () -> Unit, onMessage: (String) -> Unit) {
     val entries = remember(changes) { AppLog.snapshot() }
     val listState = rememberLazyListState()
     var confirmClear by remember { mutableStateOf(false) }
+    // Saved as a file wherever the user chooses on the device.
+    val save = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/plain")) { uri ->
+        if (uri != null) saveLog(context, uri, onMessage)
+    }
 
     LaunchedEffect(entries.size) {
         if (entries.isNotEmpty()) listState.scrollToItem(entries.lastIndex)
@@ -67,6 +85,7 @@ fun LogScreen(onBack: () -> Unit, onMessage: (String) -> Unit) {
                 title = { Text(tr("Log")) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Back")) } },
                 actions = {
+                    IconButton(onClick = { save.launch("KoLib log ${java.time.LocalDate.now()}.txt") }) { Icon(Icons.Outlined.SaveAlt, tr("Save log file")) }
                     IconButton(onClick = { shareLog(context, onMessage) }) { Icon(Icons.Outlined.Share, tr("Share log file")) }
                     IconButton(onClick = { copyLog(context, onMessage) }) { Icon(Icons.Outlined.ContentCopy, tr("Copy log")) }
                     IconButton(onClick = { confirmClear = true }) { Icon(Icons.Outlined.DeleteSweep, tr("Clear log")) }
@@ -76,8 +95,9 @@ fun LogScreen(onBack: () -> Unit, onMessage: (String) -> Unit) {
     ) { padding ->
         if (entries.isEmpty()) {
             EmptyState(Icons.AutoMirrored.Outlined.Article, tr("The log is empty"), tr("KoLib's activity is recorded here."), Modifier.padding(padding))
-        } else {
-            SelectionContainer(Modifier.padding(padding)) {
+        } else Column(Modifier.padding(padding).fillMaxSize()) {
+            ReportLine { emailLog(context, onMessage) }
+            SelectionContainer(Modifier.weight(1f)) {
                 LazyColumn(state = listState, contentPadding = PaddingValues(16.dp), modifier = Modifier.fillMaxSize()) {
                     items(entries, key = { it.id }) { e ->
                         Text(
@@ -107,6 +127,71 @@ fun LogScreen(onBack: () -> Unit, onMessage: (String) -> Unit) {
             confirmButton = { TextButton(onClick = { confirmClear = false; AppLog.clear() }) { Text(tr("Clear")) } },
             dismissButton = { TextButton(onClick = { confirmClear = false }) { Text(tr("Cancel")) } },
         )
+    }
+}
+
+/** Where to send the log, and screenshots, when something's gone wrong. */
+const val REPORT_ADDRESS = "KoLib2505@gmail.com"
+
+/** Something gone wrong: where to send the log (and screenshots), with a way to email it there. */
+@Composable
+private fun ReportLine(onEmail: () -> Unit) {
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 4.dp).testTag("log-report"),
+    ) {
+        Row(Modifier.padding(start = 14.dp, end = 6.dp, top = 6.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Outlined.Email, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+            Text(
+                tr("Something wrong? Email the log, and screenshots if you can, to {0}.", REPORT_ADDRESS),
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.weight(1f).padding(horizontal = 12.dp),
+            )
+            TextButton(onClick = onEmail, modifier = Modifier.testTag("log-email")) { Text(tr("Email")) }
+        }
+    }
+}
+
+/** The log in an email to [REPORT_ADDRESS], in the user's email app, with a line to say what happened. */
+private fun emailLog(context: Context, onMessage: (String) -> Unit) {
+    try {
+        val file = java.io.File(AppLog.exportFile(context).parentFile, "kolib-log.txt").apply { writeText(latestLog(context)) }
+        val uri = FileProvider.getUriForFile(context, "${context.packageName}.files", file)
+        val send = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_EMAIL, arrayOf(REPORT_ADDRESS))
+            putExtra(Intent.EXTRA_SUBJECT, "KoLib ${dev.kolib.app.BuildConfig.VERSION_NAME} log")
+            putExtra(Intent.EXTRA_TEXT, tr("What happened, and what were you doing?") + "\n\n")
+            putExtra(Intent.EXTRA_STREAM, uri)
+            clipData = ClipData.newRawUri("", uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            // Email apps only.
+            selector = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"))
+        }
+        try {
+            context.startActivity(send)
+        } catch (e: ActivityNotFoundException) {
+            // No email app takes it so: any app that sends things, with the address.
+            send.selector = null
+            context.startActivity(Intent.createChooser(send, tr("Email the log")))
+        }
+    } catch (e: Exception) {
+        AppLog.e("Log", "Could not email the log", e)
+        onMessage(tr("Couldn't email the log: {0}", e.message))
+    }
+}
+
+/** The whole log, saved where the user chose ([uri]). */
+private fun saveLog(context: Context, uri: Uri, onMessage: (String) -> Unit) {
+    try {
+        val text = AppLog.exportFile(context).readBytes()
+        val out = context.contentResolver.openOutputStream(uri, "wt") ?: throw java.io.IOException(tr("The file couldn't be written."))
+        out.use { it.write(text) }
+        onMessage(tr("Log saved."))
+    } catch (e: Exception) {
+        AppLog.e("Log", "Could not save the log", e)
+        onMessage(tr("Couldn't save the log: {0}", e.message))
     }
 }
 

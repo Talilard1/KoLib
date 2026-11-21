@@ -1,5 +1,8 @@
 package dev.kolib.app.ui
 
+import dev.kolib.app.ui.components.shelfMinCell
+import dev.kolib.app.ui.components.shelfCells
+import dev.kolib.app.ui.components.chosenPerRow
 import dev.kolib.app.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -188,10 +191,12 @@ private fun CollectionBooks(
             return@Column
         }
         val cellPadding = if (phone) 6.dp else 8.dp
-        ShelfGridBox(minCell = 132.dp, coverPadding = cellPadding, columns = if (phone) 3 else null) {
+        val perRow = chosenPerRow() ?: if (phone) 3 else null
+        val minCell = shelfMinCell()
+        ShelfGridBox(minCell = minCell, coverPadding = cellPadding, columns = perRow) {
             val bookcase = LocalBookcase.current
             LazyVerticalGrid(
-                columns = if (phone) GridCells.Fixed(3) else GridCells.Adaptive(132.dp),
+                columns = shelfCells(perRow, minCell),
                 state = gridState,
                 contentPadding = if (bookcase) PaddingValues(top = 8.dp, bottom = 24.dp)
                 else PaddingValues(start = if (phone) 8.dp else 12.dp, end = if (phone) 8.dp else 12.dp, top = 8.dp, bottom = 24.dp),

@@ -50,11 +50,13 @@ class Updater(
         data object UpToDate : State
         /** Asked, and GitHub couldn't be reached. */
         data object Unreachable : State
-        data class Available(val release: Release) : State
+        /** [stopped]: it was downloaded and handed to Android, and not installed (Android was told no, or stopped it). */
+        data class Available(val release: Release, val stopped: Boolean = false) : State
         data class Downloading(val release: Release, val bytes: Long, val total: Long) : State
         /** Downloaded and checked; Android has it, and may be asking the user. */
         data class Installing(val release: Release) : State
-        data class Failed(val release: Release, val message: String) : State
+        /** [installing]: it was downloaded, and Android couldn't install it. */
+        data class Failed(val release: Release, val message: String, val installing: Boolean = false) : State
     }
 
     private val prefs = context.getSharedPreferences("updates", Context.MODE_PRIVATE)
@@ -71,8 +73,14 @@ class Updater(
 
     /** When the app starts: looks if it's allowed to and hasn't for most of a day. A newer version is offered; anything else is kept quiet. */
     fun lookIfDue(now: Long = System.currentTimeMillis()) {
-        // Nothing left over from an update that's been made.
-        if (_state.value == State.Idle) runCatching { dir.listFiles()?.forEach { it.delete() } }
+        // Nothing left over from an update that's been made, or a download cut short. A newer version downloaded and
+        // not installed yet is kept, so it isn't downloaded again.
+        if (_state.value == State.Idle) runCatching {
+            dir.listFiles()?.forEach { f ->
+                val version = f.name.takeIf { it.startsWith("KoLib-") && it.endsWith(".apk") }?.removePrefix("KoLib-")?.removeSuffix(".apk")
+                if (version == null || !Updates.isNewer(version, installed)) f.delete()
+            }
+        }
         if (!canLookAlone || !auto || _state.value != State.Idle) return
         if (now - prefs.getLong("lookedAt", 0L) < DAY * 3 / 4) return
         look(asked = false, now = now)
@@ -114,21 +122,36 @@ class Updater(
         _state.value = State.Idle
     }
 
-    /** Downloads [release], checks it, and hands it to Android to install. */
+    /** Where [release] is kept once it's downloaded. */
+    private fun fileOf(release: Release) = File(dir, "KoLib-${release.version.replace(Regex("[^0-9A-Za-z.]"), "_")}.apk")
+
+    /** [release] has been downloaded already (all of it), so updating needn't download it again. */
+    fun downloaded(release: Release): Boolean = fileOf(release).let { it.isFile && (release.apkBytes <= 0 || it.length() == release.apkBytes) }
+
+    /**
+     * Downloads [release], checks it, and hands it to Android to install. One downloaded already (an install that was
+     * stopped, tried again) isn't downloaded again.
+     */
     fun update(release: Release) {
         val url = release.apkUrl ?: return
         if (job?.isActive == true) return
-        _state.value = State.Downloading(release, 0, release.apkBytes)
+        val reuse = downloaded(release)
+        _state.value = if (reuse) State.Installing(release) else State.Downloading(release, 0, release.apkBytes)
         job = scope.launch {
+            var installing = false
             try {
                 val file = withContext(Dispatchers.IO) {
                     dir.mkdirs()
+                    val out = fileOf(release)
+                    if (reuse && verify(out) == null) return@withContext out
                     dir.listFiles()?.forEach { it.delete() }
-                    val out = File(dir, "KoLib-${release.version.replace(Regex("[^0-9A-Za-z.]"), "_")}.apk")
+                    // Written under another name until it's all there, so a download cut short is never taken for one that isn't.
+                    val part = File(dir, out.name + ".part")
+                    _state.value = State.Downloading(release, 0, release.apkBytes)
                     val answer = open(url, 0)
                     try {
                         if (answer.code != 200) throw IOException(tr("The download failed (error {0}).", answer.code))
-                        out.outputStream().use { to ->
+                        part.outputStream().use { to ->
                             val buffer = ByteArray(1 shl 16)
                             var have = 0L
                             var told = 0L
@@ -149,6 +172,7 @@ class Updater(
                     } finally {
                         runCatching { answer.close() }
                     }
+                    if (!part.renameTo(out)) throw IOException(tr("The download failed. Check the connection and try again."))
                     verify(out)?.let { problem ->
                         out.delete()
                         throw IOException(problem)
@@ -156,6 +180,7 @@ class Updater(
                     out
                 }
                 _state.value = State.Installing(release)
+                installing = true
                 withContext(Dispatchers.IO) { install(file) }
             } catch (e: ModelStore.StoppedException) {
                 _state.value = State.Available(release)
@@ -164,8 +189,12 @@ class Updater(
                 throw e
             } catch (e: Exception) {
                 AppLog.w("Update", "The update couldn't be downloaded or installed", e)
-                val why = (e as? IOException)?.message?.takeIf { it.isNotBlank() && !it.contains("Exception") } ?: tr("The download failed. Check the connection and try again.")
-                _state.value = State.Failed(release, why)
+                _state.value = if (installing) {
+                    State.Failed(release, tr("The update couldn't be installed: {0}", e.message?.takeIf { it.isNotBlank() } ?: e.javaClass.simpleName), installing = true)
+                } else {
+                    val why = (e as? IOException)?.message?.takeIf { it.isNotBlank() && !it.contains("Exception") } ?: tr("The download failed. Check the connection and try again.")
+                    State.Failed(release, why)
+                }
             }
         }
     }
@@ -180,8 +209,8 @@ class Updater(
         val release = (_state.value as? State.Installing)?.release ?: return
         _state.value = when (status) {
             PackageInstaller.STATUS_SUCCESS -> State.Idle
-            PackageInstaller.STATUS_FAILURE_ABORTED -> State.Available(release)
-            else -> State.Failed(release, tr("The update couldn't be installed: {0}", message?.takeIf { it.isNotBlank() } ?: status.toString()))
+            PackageInstaller.STATUS_FAILURE_ABORTED -> State.Available(release, stopped = true)
+            else -> State.Failed(release, tr("The update couldn't be installed: {0}", message?.takeIf { it.isNotBlank() } ?: status.toString()), installing = true)
         }
     }
 

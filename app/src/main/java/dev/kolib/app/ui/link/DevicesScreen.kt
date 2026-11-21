@@ -113,6 +113,8 @@ class DevicesActions(
     val forget: (PairedDevice) -> Unit,
     val keepPlacesInStep: (Boolean) -> Unit,
     val stayReachable: (Boolean) -> Unit,
+    /** KoLib looks for devices the whole time it's open, or only while this screen is. */
+    val lookAlways: (Boolean) -> Unit = {},
     /** Chooses books in the library to send to the Kobo over Wi-Fi. */
     val koboOverWifi: () -> Unit = {},
     /** Looks for KoLib at every address on the network (a hotspot may pass on no device's announcements). */
@@ -128,6 +130,13 @@ class DevicesActions(
 /** The Devices section: this device, the ones paired with it, the ones nearby to pair with, and how the link behaves. */
 @Composable
 fun DevicesScreen(link: LinkManager, actions: DevicesActions, onEject: (() -> Unit)? = null) {
+    // While this screen is open (and KoLib is in sight), KoLib looks for devices and can be found, even when it's not
+    // to the rest of the time.
+    androidx.lifecycle.compose.LifecycleStartEffect(link) {
+        val hold = android.os.Build.FINGERPRINT != "robolectric"
+        if (hold) link.start()
+        onStopOrDispose { if (hold) link.stop() }
+    }
     val paired by link.paired.collectAsStateWithLifecycle()
     val nearby by link.nearby.collectAsStateWithLifecycle()
     val live by link.transfers.collectAsStateWithLifecycle()
@@ -244,7 +253,7 @@ fun DevicesContent(view: DevicesView, actions: DevicesActions, onEject: (() -> U
             SectionCard(tr("Paired"), Modifier.tourPlace("devices-paired"), icon = Icons.Outlined.Shield) {
                 if (view.paired.isEmpty()) {
                     Text(
-                        tr("None yet. Open KoLib on your other device, on the same Wi-Fi or hotspot, then pair below."),
+                        tr("None yet. Open this screen in KoLib on your other device, on the same Wi-Fi or hotspot, then pair below."),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -320,6 +329,12 @@ fun DevicesContent(view: DevicesView, actions: DevicesActions, onEject: (() -> U
                     tr("Sync reading position"),
                     tr("Each book opens where you last read it on either device."),
                     view.settings.keepPlacesInStep, actions.keepPlacesInStep,
+                )
+                Spacer(Modifier.height(10.dp))
+                SwitchLine(
+                    tr("Always look for devices"),
+                    tr("While KoLib is open, so reading positions sync by themselves. When this is off, KoLib only looks while this screen is open."),
+                    view.settings.lookAlways, actions.lookAlways,
                 )
                 Spacer(Modifier.height(10.dp))
                 SwitchLine(

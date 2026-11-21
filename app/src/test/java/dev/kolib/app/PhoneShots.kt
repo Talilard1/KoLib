@@ -1,5 +1,9 @@
 package dev.kolib.app
 
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.test.swipe
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.onRoot
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -86,6 +90,10 @@ private const val PHONE = "w411dp-h914dp-port-420dpi"
 
 /** A narrow phone, or a large display size setting: 360 dp across. */
 private const val SMALL = "w360dp-h780dp-port-xxhdpi"
+/** The same phone held sideways (the status bar takes a little of its height). */
+private const val SIDEWAYS = "w914dp-h387dp-land-420dpi"
+/** A tablet held sideways. */
+private const val TABLET_SIDEWAYS = "w1280dp-h800dp-land-xhdpi"
 
 private const val STORY = "The Adventures of Sherlock Holmes"
 
@@ -229,9 +237,16 @@ class PhoneShots {
         captureScreenRoboImage(File(out, "$name.png").path)
     }
 
+    /** How many covers a shelf's row holds in the pictures (Settings' choice). */
+    private var perRow = dev.kolib.app.ui.components.CoversPerRow()
+
     private fun shot(name: String, theme: ThemeChoice, content: @Composable () -> Unit) {
         compose.mainClock.autoAdvance = false
-        compose.setContent { AppSurface(theme) { content() } }
+        compose.setContent {
+            AppSurface(theme) {
+                androidx.compose.runtime.CompositionLocalProvider(dev.kolib.app.ui.components.LocalCoversPerRow provides perRow) { content() }
+            }
+        }
         compose.mainClock.advanceTimeBy(1_000)
         capture(name)
     }
@@ -382,7 +397,7 @@ class PhoneShots {
         }
     }
 
-    private fun koboScreen(name: String, tab: Int = 0, collection: String? = null, theme: ThemeChoice = ThemeChoice.BOOKCASE, configure: BrowseState.(KoboSession) -> Unit = {}) {
+    private fun koboScreen(name: String, tab: Int = 0, collection: String? = null, theme: ThemeChoice = ThemeChoice.BOOKCASE, saved: Boolean = false, configure: BrowseState.(KoboSession) -> Unit = {}) {
         val (repo, s) = kobo()
         val after = runBlocking { repo.afterConnect(s) }
         val browse = BrowseState().apply { deviceTab = tab }.apply { configure(s) }
@@ -395,7 +410,9 @@ class PhoneShots {
         shot(name, theme) {
             AppFrame(Section.KOBO, {}, koboConnected = true, onNarrow = {}, onLook = {}) {
                 DeviceScreen(
-                    view = KoboView.of(s), unplugged = false, state = state, browse = browse,
+                    // The saved copy, as when the Kobo isn't plugged in.
+                    view = if (saved) KoboView.of(s).let { v -> KoboView(v.info, v.snapshot, v.covers, 1_795_500_000_000L, v.databaseBytes, v.databaseHadWal, null) } else KoboView.of(s),
+                    unplugged = false, state = state, browse = browse,
                     onReconnect = {}, onWriteCheck = {}, onBackupNow = {}, onForget = {}, onOpenBackups = {}, onOpenLog = {},
                     extras = KoboExtras(), initialCollectionKey = collection,
                 )
@@ -414,6 +431,91 @@ class PhoneShots {
         s.snapshot.books.filter { it.title in setOf("Emma", "Dracula") }.forEach { picked[it.contentId] = true }
     }
     @Test @Config(qualifiers = SMALL) fun koboBooksSmall() = koboScreen("s30_kobo_books")
+
+    // ---- a phone held sideways: the top in one row, sliding away as the books are scrolled ------------------------
+
+    @Test @Config(qualifiers = SIDEWAYS) fun libraryOnItsSide() = libraryIn("p80_library_sideways")
+
+    @Test @Config(qualifiers = SIDEWAYS) fun libraryOnItsSideScrolled() {
+        val (lib, covers) = library()
+        val browse = LibraryBrowseState()
+        compose.mainClock.autoAdvance = false
+        compose.setContent { AppSurface(ThemeChoice.BOOKCASE) { LibraryPage(lib, covers, browse) } }
+        compose.mainClock.advanceTimeBy(1_000)
+        // Scrolled down a row and a half: the bar, the tabs and the search have gone, and come back with a scroll up.
+        compose.onRoot().performTouchInput { swipe(Offset(centerX, bottom - 40f), Offset(centerX, bottom - 520f), durationMillis = 400) }
+        compose.mainClock.advanceTimeBy(1_500)
+        capture("p81_library_sideways_scrolled")
+        compose.onRoot().performTouchInput { swipe(Offset(centerX, centerY), Offset(centerX, centerY + 60f), durationMillis = 300) }
+        compose.mainClock.advanceTimeBy(1_500)
+        capture("p82_library_sideways_back")
+    }
+
+    @Test @Config(qualifiers = SIDEWAYS) fun collectionsOnItsSide() = libraryIn("p83_collections_sideways") { tab = 1 }
+    @Test @Config(qualifiers = SIDEWAYS) fun koboOnItsSide() = koboScreen("p84_kobo_sideways")
+    @Test @Config(qualifiers = SIDEWAYS) fun koboOnItsSideNotConnected() = koboScreen("p85_kobo_sideways_saved", saved = true)
+    @Test @Config(qualifiers = PHONE) fun koboNotConnected() = koboScreen("p86_kobo_saved", saved = true)
+    @Test @Config(qualifiers = TABLET_SIDEWAYS) fun koboNotConnectedOnATablet() = koboScreen("p87_kobo_saved_tablet", saved = true)
+
+    // ---- covers per row, as chosen in Settings; the collections on a phone held sideways ----------------------------
+
+    @Test @Config(qualifiers = PHONE) fun fiveARow() {
+        perRow = dev.kolib.app.ui.components.CoversPerRow(portrait = 5)
+        libraryIn("p88_library_five_a_row")
+    }
+
+    @Test @Config(qualifiers = SIDEWAYS) fun fourARowSideways() {
+        perRow = dev.kolib.app.ui.components.CoversPerRow(portrait = 5, landscape = 4)
+        libraryIn("p89_library_sideways_four_a_row")
+    }
+
+    @Test @Config(qualifiers = SIDEWAYS) fun collectionWithABookSideways() = libraryIn("p90_collections_sideways_book") { lib ->
+        tab = 1
+        val classics = dev.kolib.app.ui.library.libraryCollections(lib.books.value).first { it.name == "Classics" }
+        collectionKey = classics.key
+        collectionBookId = classics.books.first().id
+    }
+
+    @Test @Config(qualifiers = SIDEWAYS) fun collectionSideways() = libraryIn("p91_collections_sideways_classics") { lib ->
+        tab = 1
+        collectionKey = dev.kolib.app.ui.library.libraryCollections(lib.books.value).first { it.name == "Classics" }.key
+    }
+
+    @Test @Config(qualifiers = SIDEWAYS) fun koboCollectionsSideways() = koboScreen("p92_kobo_collections_sideways", tab = 1, collection = "Classics")
+
+    @Test @Config(qualifiers = PHONE) fun coversPerRowSetting() = shot("p93_settings_covers", ThemeChoice.BOOKCASE) {
+        dev.kolib.app.ui.LookDialog(
+            current = ThemeChoice.BOOKCASE, onPick = {}, onDismiss = {},
+            coversPerRow = dev.kolib.app.ui.components.CoversPerRow(portrait = 4), comicsTab = true,
+        )
+    }
+
+    @Test @Config(qualifiers = PHONE) fun logToSend() {
+        dev.kolib.app.log.AppLog.init(context)
+        dev.kolib.app.log.AppLog.i("Library", "Opened with 36 books")
+        dev.kolib.app.log.AppLog.i("Kobo", "Connected: Kobo Clara 2E")
+        dev.kolib.app.log.AppLog.w("Update", "Couldn't look for a newer version")
+        shot("p94_log", ThemeChoice.BOOKCASE) { dev.kolib.app.ui.LogScreen(onBack = {}, onMessage = {}) }
+    }
+
+    /** An update Android didn't install, on a Samsung: what Auto Blocker does, and the way to Settings. */
+    @Test @Config(qualifiers = PHONE) fun updateStoppedOnASamsung() {
+        org.robolectric.shadows.ShadowBuild.setManufacturer("samsung")
+        val json = """{"tag_name":"v3.2","html_url":"https://github.com/Talilard1/KoLib/releases/tag/v3.2","body":"- Covers per row\n- A layout for phones held sideways",
+          "assets":[{"name":"KoLib-3.2-arm64-v8a.apk","size":1009,"browser_download_url":"https://github.com/Talilard1/KoLib/releases/download/v3.2/KoLib-3.2-arm64-v8a.apk"}]}"""
+        val updater = dev.kolib.app.update.Updater(
+            context, CoroutineScope(Dispatchers.Default), installed = "3.1", abis = listOf("arm64-v8a"), fetch = { json },
+            open = { _, _ -> dev.kolib.app.ai.ModelStore.Answer(200, ByteArray(1009).inputStream()) }, verify = { null }, install = {},
+        )
+        updater.lookNow()
+        compose.waitUntil(10_000) { updater.state.value is dev.kolib.app.update.Updater.State.Available }
+        val release = (updater.state.value as dev.kolib.app.update.Updater.State.Available).release
+        updater.update(release)
+        compose.waitUntil(10_000) { updater.state.value is dev.kolib.app.update.Updater.State.Installing }
+        Thread.sleep(200)
+        updater.installResult(android.content.pm.PackageInstaller.STATUS_FAILURE_ABORTED, null)
+        shot("p95_update_stopped_samsung", ThemeChoice.BOOKCASE) { dev.kolib.app.ui.update.UpdateWindow(updater) }
+    }
 
     @Test
     @Config(qualifiers = PHONE)

@@ -1,6 +1,7 @@
 package dev.kolib.app.ui.components
 
 import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -35,3 +36,10 @@ fun FittedText(
         autoSize = if (size.isSp) TextAutoSize.StepBased(minFontSize = size * smallest, maxFontSize = size, stepSize = 0.25.sp) else null,
     )
 }
+
+/**
+ * A tab's name: on one line, a little smaller when it's too long for the tab (a long word, or a big font size set
+ * on the device), rather than wrapped onto a second line.
+ */
+@Composable
+fun TabLabel(text: String, modifier: Modifier = Modifier) = FittedText(text, LocalTextStyle.current, modifier, smallest = 0.7f)

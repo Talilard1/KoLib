@@ -1,5 +1,11 @@
 package dev.kolib.app.ui.components
 
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.foundation.lazy.grid.GridCells
+import android.content.res.Configuration
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.staticCompositionLocalOf
 import dev.kolib.app.tr
 import android.graphics.Bitmap
 import androidx.compose.ui.draw.shadow
@@ -113,9 +119,51 @@ fun CoverImage(
         } else {
             GeneratedCover(title, author, large)
         }
-        overlay()
+        // A small cover (as with many in a row) has room for its badges' dots, not their words.
+        CompositionLocalProvider(LocalSmallCover provides (maxWidth < 88.dp)) { overlay() }
     }
 }
+
+/** The cover being drawn is small: see [CoverImage]. */
+private val LocalSmallCover = staticCompositionLocalOf { false }
+
+/**
+ * How many covers a row of a shelf holds (in the library, the comics and on the Kobo), with the screen upright and
+ * held sideways: 0 for as many as there's room for. Chosen in Settings, as in Mihon.
+ */
+class CoversPerRow(portrait: Int = 0, landscape: Int = 0) {
+    var portrait by mutableIntStateOf(portrait)
+    var landscape by mutableIntStateOf(landscape)
+
+    companion object {
+        /** The most a row can be given. */
+        const val MOST = 10
+    }
+}
+
+val LocalCoversPerRow = compositionLocalOf { CoversPerRow() }
+
+/** The covers in a shelf's row chosen in Settings for the way the screen is held; null for as many as fit. */
+@Composable
+fun chosenPerRow(): Int? {
+    val chosen = LocalCoversPerRow.current
+    val sideways = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+    return (if (sideways) chosen.landscape else chosen.portrait).takeIf { it > 0 }
+}
+
+/**
+ * The narrowest a cover on a shelf is, when as many as fit are shown: smaller on a phone, and on a phone held sideways
+ * (so more than one shelf of them is in view).
+ */
+@Composable
+fun shelfMinCell(): Dp = when {
+    phoneLayout() -> 100.dp
+    shortScreen() -> 112.dp
+    else -> 132.dp
+}
+
+/** A shelf's columns: [count] of them, or as many at least [minCell] wide as there's room for. */
+fun shelfCells(count: Int?, minCell: Dp): GridCells = if (count != null) GridCells.Fixed(count) else GridCells.Adaptive(minCell)
 
 /**
  * The library's covers, for the books on the Kobo that are in the library too: [copyOf] finds a book's library copy.
@@ -274,8 +322,11 @@ private fun BoxScope.ReadHereBadge(percent: Int?, aboveBar: Boolean) {
             tint = if (percent == null) BadgeDots.read else BadgeDots.gold,
             modifier = Modifier.size(if (small) 10.dp else 11.dp),
         )
-        Spacer(Modifier.width(3.dp))
-        Text(if (percent == null) tr("Finished") else "$percent%", color = style.onBadge, fontSize = if (small) 9.sp else 10.sp, fontWeight = FontWeight.SemiBold)
+        // On a small cover, finished is the tick alone.
+        if (percent != null || !LocalSmallCover.current) {
+            Spacer(Modifier.width(3.dp))
+            Text(if (percent == null) tr("Finished") else "$percent%", color = style.onBadge, fontSize = if (small) 9.sp else 10.sp, fontWeight = FontWeight.SemiBold)
+        }
     }
 }
 
@@ -289,19 +340,25 @@ private object BadgeDots {
 @Composable
 private fun BoxScope.CornerBadge(text: String, dot: Color, alignment: Alignment) {
     val small = phoneLayout()
+    val dotOnly = LocalSmallCover.current
     val style = LocalKoLibStyle.current
     Row(
         Modifier
             .align(alignment)
-            .padding(if (small) 4.dp else 5.dp)
+            .padding(if (small || dotOnly) 4.dp else 5.dp)
             .clip(RoundedCornerShape(50))
             .background(style.badge)
-            .padding(start = if (small) 4.dp else 5.dp, end = if (small) 5.dp else 6.dp, top = if (small) 0.5.dp else 1.dp, bottom = if (small) 0.5.dp else 1.dp),
+            .then(
+                if (dotOnly) Modifier.padding(4.dp).semantics { contentDescription = text }
+                else Modifier.padding(start = if (small) 4.dp else 5.dp, end = if (small) 5.dp else 6.dp, top = if (small) 0.5.dp else 1.dp, bottom = if (small) 0.5.dp else 1.dp)
+            ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(Modifier.size(if (small) 5.dp else 6.dp).clip(CircleShape).background(dot))
-        Spacer(Modifier.width(if (small) 3.dp else 4.dp))
-        Text(text, color = style.onBadge, fontSize = if (small) 9.sp else 10.sp, fontWeight = FontWeight.SemiBold)
+        Box(Modifier.size(if (small || dotOnly) 5.dp else 6.dp).clip(CircleShape).background(dot))
+        if (!dotOnly) {
+            Spacer(Modifier.width(if (small) 3.dp else 4.dp))
+            Text(text, color = style.onBadge, fontSize = if (small) 9.sp else 10.sp, fontWeight = FontWeight.SemiBold)
+        }
     }
 }
 
@@ -394,20 +451,37 @@ val SHELF_HEIGHT = 15.dp
  */
 @Composable
 fun ShelfGridBox(minCell: Dp, coverPadding: Dp, columns: Int? = null, content: @Composable () -> Unit) {
-    if (!LocalBookcase.current) {
-        content()
-        return
-    }
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val density = LocalDensity.current
-        val metrics = with(density) {
-            val width = constraints.maxWidth
-            val count = columns ?: (width / minCell.roundToPx()).coerceAtLeast(1)
-            val cell = width / count
-            ShelfMetrics(((cell - 2 * coverPadding.roundToPx()) * 3 / 2).coerceAtLeast(1).toDp(), count, cell)
+        val width = constraints.maxWidth
+        val count = columns ?: with(density) { (width / minCell.roundToPx()).coerceAtLeast(1) }
+        val cell = width / count
+        // Many covers to a row: smaller words under them, so titles aren't cut off after a letter or two.
+        SmallerWords(with(density) { cell.toDp() } < SMALL_CELL) {
+            if (!LocalBookcase.current) content()
+            else {
+                val metrics = with(density) { ShelfMetrics(((cell - 2 * coverPadding.roundToPx()) * 3 / 2).coerceAtLeast(1).toDp(), count, cell) }
+                CompositionLocalProvider(LocalShelf provides metrics) { content() }
+            }
         }
-        CompositionLocalProvider(LocalShelf provides metrics) { content() }
     }
+}
+
+/** A shelf's cells narrower than this have smaller titles and authors under their covers. */
+private val SMALL_CELL = 104.dp
+
+/** With [smaller], the styles of the words under covers (title, author and the like) are made smaller. */
+@Composable
+private fun SmallerWords(smaller: Boolean, content: @Composable () -> Unit) {
+    if (!smaller) return content()
+    val type = MaterialTheme.typography
+    fun TextStyle.shrunk() = copy(fontSize = fontSize * 0.8f, lineHeight = if (lineHeight.isSp) lineHeight * 0.8f else lineHeight)
+    MaterialTheme(
+        colorScheme = MaterialTheme.colorScheme,
+        shapes = MaterialTheme.shapes,
+        typography = type.copy(titleSmall = type.titleSmall.shrunk(), bodySmall = type.bodySmall.shrunk(), labelSmall = type.labelSmall.shrunk()),
+        content = content,
+    )
 }
 
 /**

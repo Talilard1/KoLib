@@ -2,6 +2,8 @@
 
 package dev.kolib.app.ui.library
 
+import dev.kolib.app.ui.components.shelfCells
+import dev.kolib.app.ui.components.chosenPerRow
 import dev.kolib.app.ui.tour.tourPlace
 import dev.kolib.app.ui.components.seriesSearch
 import dev.kolib.app.ui.components.DetailText
@@ -858,10 +860,11 @@ private fun PhoneBooksPage(
     }
     // Room under the last row, so the Add books button (or the bar for chosen books) doesn't cover it.
     val underLast = 104.dp
-    if (browse.grid) ShelfGridBox(minCell = 100.dp, coverPadding = 6.dp, columns = 3) {
+    val perRow = chosenPerRow() ?: 3
+    if (browse.grid) ShelfGridBox(minCell = 100.dp, coverPadding = 6.dp, columns = perRow) {
         val bookcase = LocalBookcase.current
         LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
+            columns = GridCells.Fixed(perRow),
             state = browse.gridState,
             contentPadding = if (bookcase) PaddingValues(top = 4.dp, bottom = underLast)
             else PaddingValues(start = 8.dp, end = 8.dp, top = 4.dp, bottom = underLast),

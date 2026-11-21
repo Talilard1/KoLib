@@ -327,4 +327,25 @@ class LinkManagerTest {
         assertEquals(listOf("phone-odyssey"), phone.host.applied.map { it.id })
         assertEquals(5000L, phone.host.applied.single().state.getLong("finished"))
     }
+
+    /**
+     * Not looking for devices (Always look for devices, off), KoLib still takes connections while it's open, so a paired
+     * device that looks can send to it; it only stops taking them when nothing wants the link at all.
+     */
+    @Test
+    fun notLookingItStillTakesConnections() {
+        val dir = File(base, "Quiet").apply { mkdirs() }
+        val link = LinkManager(LinkStore(File(dir, "link")), FakeHost(dir), { "Quiet" }, scope, port = 0, discover = false)
+        link.start(look = false)
+        assertTrue(link.listeningPort.value > 0)
+        val port = link.listeningPort.value
+        // The Devices screen opened and closed: still the same connections taken, on the same port.
+        link.start(look = true)
+        link.stop(look = true)
+        assertEquals(port, link.listeningPort.value)
+        link.stop(look = false)
+        assertEquals(0, link.listeningPort.value)
+        // As it starts, KoLib doesn't look all the time.
+        assertFalse(LinkStore(File(dir, "link")).settings.value.lookAlways)
+    }
 }

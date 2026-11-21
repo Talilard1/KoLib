@@ -2,6 +2,15 @@
 
 package dev.kolib.app.ui.library
 
+import dev.kolib.app.ui.components.shelfMinCell
+import dev.kolib.app.ui.components.shelfCells
+import dev.kolib.app.ui.components.chosenPerRow
+import dev.kolib.app.ui.components.ShortTopRow
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.foundation.layout.WindowInsets
+import dev.kolib.app.ui.components.TabLabel
+import dev.kolib.app.ui.components.shortScreen
+import dev.kolib.app.ui.components.HidingTop
 import dev.kolib.app.ui.tour.tourPlace
 import androidx.compose.foundation.layout.RowScope
 import dev.kolib.app.ui.components.BarAction
@@ -290,90 +299,104 @@ fun LibraryScreen(
         return
     }
     var addMenu by remember { mutableStateOf(false) }
+    // On a short screen (a phone held sideways), the bar, the tabs and the search slide away as the books are
+    // scrolled, and come back as they're scrolled back.
+    val short = shortScreen()
+    val actions: @Composable RowScope.() -> Unit = {
+        onEject?.let { eject ->
+            TextButton(onClick = eject, modifier = Modifier.testTag("library-eject")) {
+                Icon(Icons.Outlined.Eject, null)
+                Spacer(Modifier.width(6.dp))
+                Text(tr("Eject"))
+            }
+        }
+        dev.kolib.app.ui.ai.LocalOpenAiChat.current?.takeIf { dev.kolib.app.ui.ai.aiButtonShown() }?.let { open ->
+            IconButton(onClick = open, modifier = Modifier.testTag("library-ai")) { dev.kolib.app.ui.ai.AiButtonIcon(tr("AI chat")) }
+        }
+        val onBoth = books.filter { it.koboPath != null && it.canReadFromKoboPlace }
+        if (askSyncAll != null && onBoth.isNotEmpty()) {
+            IconButton(onClick = askSyncAll, modifier = Modifier.testTag("library-sync-reading").tourPlace("library-sync")) { Icon(Icons.Outlined.Sync, tr("Sync reading with the Kobo")) }
+        }
+        IconButton(onClick = onStats, modifier = Modifier.tourPlace("library-stats")) { Icon(Icons.Outlined.BarChart, tr("Reading stats")) }
+        IconButton(onClick = onAbout) { Icon(Icons.Outlined.Info, tr("About and licences")) }
+        Box {
+            // On a short screen, where the tabs share the row, just its sign.
+            if (short) FilledIconButton(onClick = { addMenu = true }, modifier = Modifier.tourPlace("library-add")) {
+                Icon(Icons.Filled.Add, tr("Add books"))
+            } else GoldButton(onClick = { addMenu = true }, modifier = Modifier.tourPlace("library-add")) {
+                Icon(Icons.Filled.Add, null, Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text(tr("Add books"))
+            }
+            DropdownMenu(expanded = addMenu, onDismissRequest = { addMenu = false }) {
+                DropdownMenuItem(
+                    text = { Text(tr("Files from this device")) },
+                    leadingIcon = { Icon(Icons.Outlined.FileOpen, null) },
+                    onClick = { addMenu = false; onAddFiles() },
+                )
+                DropdownMenuItem(
+                    text = { Text(tr("A folder of books")) },
+                    leadingIcon = { Icon(Icons.Outlined.FolderOpen, null) },
+                    onClick = { addMenu = false; onAddFolder() },
+                )
+                DropdownMenuItem(
+                    text = { Text(if (koboConnected) tr("Books from the Kobo") else tr("Books from the Kobo (connect it first)")) },
+                    leadingIcon = { Icon(Icons.Outlined.Usb, null) },
+                    onClick = { addMenu = false; onAddFromKobo() },
+                )
+                HorizontalDivider()
+                DropdownMenuItem(
+                    text = { Text(tr("Write a new book")) },
+                    leadingIcon = { Icon(Icons.AutoMirrored.Outlined.NoteAdd, null) },
+                    onClick = { addMenu = false; onNewBook() },
+                )
+                onAddSamples?.let { add ->
+                    DropdownMenuItem(
+                        text = { Text(tr("Sample books")) },
+                        leadingIcon = { Icon(Icons.Outlined.AutoStories, null) },
+                        onClick = { addMenu = false; add() },
+                        modifier = Modifier.testTag("library-add-samples-menu"),
+                    )
+                }
+            }
+        }
+        Spacer(Modifier.width(8.dp))
+    }
+    val topBar: @Composable (WindowInsets) -> Unit = { insets ->
+        TopAppBar(
+            title = {
+                Column {
+                    Text(tr("Library"))
+                    Text(
+                        if (books.size == 1) tr("1 book on this device") else tr("{0} books on this device", books.size),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            },
+            actions = actions,
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+            windowInsets = insets,
+        )
+    }
 
     Scaffold(
         containerColor = Color.Transparent,
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(tr("Library"))
-                        Text(
-                            if (books.size == 1) tr("1 book on this device") else tr("{0} books on this device", books.size),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                },
-                actions = {
-                    onEject?.let { eject ->
-                        TextButton(onClick = eject, modifier = Modifier.testTag("library-eject")) {
-                            Icon(Icons.Outlined.Eject, null)
-                            Spacer(Modifier.width(6.dp))
-                            Text(tr("Eject"))
-                        }
-                    }
-                    dev.kolib.app.ui.ai.LocalOpenAiChat.current?.takeIf { dev.kolib.app.ui.ai.aiButtonShown() }?.let { open ->
-                        IconButton(onClick = open, modifier = Modifier.testTag("library-ai")) { dev.kolib.app.ui.ai.AiButtonIcon(tr("AI chat")) }
-                    }
-                    val onBoth = books.filter { it.koboPath != null && it.canReadFromKoboPlace }
-                    if (askSyncAll != null && onBoth.isNotEmpty()) {
-                        IconButton(onClick = askSyncAll, modifier = Modifier.testTag("library-sync-reading").tourPlace("library-sync")) { Icon(Icons.Outlined.Sync, tr("Sync reading with the Kobo")) }
-                    }
-                    IconButton(onClick = onStats, modifier = Modifier.tourPlace("library-stats")) { Icon(Icons.Outlined.BarChart, tr("Reading stats")) }
-                    IconButton(onClick = onAbout) { Icon(Icons.Outlined.Info, tr("About and licences")) }
-                    Box {
-                        GoldButton(onClick = { addMenu = true }, modifier = Modifier.tourPlace("library-add")) {
-                            Icon(Icons.Filled.Add, null, Modifier.size(18.dp))
-                            Spacer(Modifier.width(8.dp))
-                            Text(tr("Add books"))
-                        }
-                        DropdownMenu(expanded = addMenu, onDismissRequest = { addMenu = false }) {
-                            DropdownMenuItem(
-                                text = { Text(tr("Files from this device")) },
-                                leadingIcon = { Icon(Icons.Outlined.FileOpen, null) },
-                                onClick = { addMenu = false; onAddFiles() },
-                            )
-                            DropdownMenuItem(
-                                text = { Text(tr("A folder of books")) },
-                                leadingIcon = { Icon(Icons.Outlined.FolderOpen, null) },
-                                onClick = { addMenu = false; onAddFolder() },
-                            )
-                            DropdownMenuItem(
-                                text = { Text(if (koboConnected) tr("Books from the Kobo") else tr("Books from the Kobo (connect it first)")) },
-                                leadingIcon = { Icon(Icons.Outlined.Usb, null) },
-                                onClick = { addMenu = false; onAddFromKobo() },
-                            )
-                            HorizontalDivider()
-                            DropdownMenuItem(
-                                text = { Text(tr("Write a new book")) },
-                                leadingIcon = { Icon(Icons.AutoMirrored.Outlined.NoteAdd, null) },
-                                onClick = { addMenu = false; onNewBook() },
-                            )
-                            onAddSamples?.let { add ->
-                                DropdownMenuItem(
-                                    text = { Text(tr("Sample books")) },
-                                    leadingIcon = { Icon(Icons.Outlined.AutoStories, null) },
-                                    onClick = { addMenu = false; add() },
-                                    modifier = Modifier.testTag("library-add-samples-menu"),
-                                )
-                            }
-                        }
-                    }
-                    Spacer(Modifier.width(8.dp))
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
-            )
-        },
+        topBar = { if (!short) topBar(TopAppBarDefaults.windowInsets) },
     ) { padding ->
-        Column(Modifier.padding(padding).fillMaxSize()) {
-            KoboNoticeBar(koboNotice)
-            dev.kolib.app.ui.link.TransferStrip(transfers)
-            if (job != null && !job.finished) JobStrip(job, onShowJob)
-            dev.kolib.app.ui.ocr.OcrStrip(onShow = { id -> browse.selectedId = id })
+            val notices: @Composable () -> Unit = {
+                KoboNoticeBar(koboNotice)
+                dev.kolib.app.ui.link.TransferStrip(transfers)
+                if (job != null && !job.finished) JobStrip(job, onShowJob)
+                dev.kolib.app.ui.ocr.OcrStrip(onShow = { id -> browse.selectedId = id })
+            }
             if (books.isEmpty()) {
-                EmptyLibrary(koboConnected, onAddFiles, onAddFromKobo, onNewBook, onAddSamples)
-                return@Column
+                Column(Modifier.padding(padding).fillMaxSize()) {
+                    if (short) ShortTopRow(tr("Library"), tabs = {}, actions = actions)
+                    notices()
+                    EmptyLibrary(koboConnected, onAddFiles, onAddFromKobo, onNewBook, onAddSamples)
+                }
+                return@Scaffold
             }
             val collectionCount = remember(books) { libraryCollectionCount(books) }
             val seriesCount = remember(comics) { dev.kolib.app.library.ComicSeries.entries(comics).size }
@@ -390,11 +413,24 @@ fun LibraryScreen(
             }
             LaunchedEffect(browse.selecting) { if (browse.selecting) browse.tab = 0 }
             val goTo = rememberTabTap(pager)
-            PrimaryTabRow(selectedTabIndex = pager.currentPage.coerceAtMost(tabCount - 1), containerColor = Color.Transparent, modifier = Modifier.tourPlace("library-tabs")) {
-                Tab(selected = pager.currentPage == 0, onClick = { goTo(0) }, text = { Text(tr("Books ({0})", notComics.size)) })
-                Tab(selected = pager.currentPage == 1, onClick = { goTo(1) }, text = { Text(tr("Collections ({0})", collectionCount)) })
-                if (tabCount == 3) Tab(selected = pager.currentPage == 2, onClick = { goTo(2) }, text = { Text(tr("Comics ({0})", seriesCount)) }, modifier = Modifier.testTag("tab-comics"))
-            }
+            HidingTop(
+                hides = short,
+                top = {
+                    val tabs: @Composable (Modifier) -> Unit = { m ->
+                        PrimaryTabRow(selectedTabIndex = pager.currentPage.coerceAtMost(tabCount - 1), containerColor = Color.Transparent, modifier = m.tourPlace("library-tabs")) {
+                            Tab(selected = pager.currentPage == 0, onClick = { goTo(0) }, text = { TabLabel(tr("Books ({0})", notComics.size)) })
+                            Tab(selected = pager.currentPage == 1, onClick = { goTo(1) }, text = { TabLabel(tr("Collections ({0})", collectionCount)) })
+                            if (tabCount == 3) Tab(selected = pager.currentPage == 2, onClick = { goTo(2) }, text = { TabLabel(tr("Comics ({0})", seriesCount)) }, modifier = Modifier.testTag("tab-comics"))
+                        }
+                    }
+                    Column {
+                        if (short) ShortTopRow(tr("Library"), tabs = { tabs(Modifier) }, actions = actions)
+                        notices()
+                        if (!short) tabs(Modifier)
+                    }
+                },
+                modifier = Modifier.padding(padding).fillMaxSize(),
+            ) {
             // The bar for what's chosen goes along the foot, the screen's whole width, under a side panel too.
             WithFoot(Modifier.fillMaxSize()) { BoxWithConstraints(Modifier.fillMaxSize()) {
                 val twoPanes = maxWidth >= TwoPaneWidth
@@ -470,7 +506,7 @@ fun LibraryScreen(
                     }
                 }
             } }
-        }
+            }
     }
 }
 
@@ -583,16 +619,19 @@ private fun LibraryBrowser(
     // Holding a book chooses it, and every book from the one chosen last to it.
     val onHold: (LibraryBook) -> Unit = { b -> browse.holdPick(b.id, books.map { it.id }) }
     Column(modifier.fillMaxHeight()) {
-        Box(Modifier.tourPlace("library-search")) { LibraryControls(all, browse, books.size) }
+        // On a short screen, the search and filters slide away as the books are scrolled, once the bar and tabs have.
+        HidingTop(top = { Box(Modifier.tourPlace("library-search")) { LibraryControls(all, browse, books.size) } }, modifier = Modifier.weight(1f).fillMaxWidth()) {
         // The books, and while some are being chosen, the bar for them along the foot of the screen, its whole width.
-        Column(Modifier.weight(1f).fillMaxWidth().tourPlace("library-shelf")) {
+        Column(Modifier.fillMaxSize().tourPlace("library-shelf")) {
             if (books.isEmpty()) {
                 EmptyState(Icons.Outlined.SearchOff, tr("No matching books"), tr("Try a different search, or clear the filters."))
                 return@Column
             }
-            if (browse.grid) ShelfGridBox(minCell = 132.dp, coverPadding = 8.dp) {
+            val perRow = chosenPerRow()
+            val minCell = shelfMinCell()
+            if (browse.grid) ShelfGridBox(minCell = minCell, coverPadding = 8.dp, columns = perRow) {
                 LazyVerticalGrid(
-                    columns = GridCells.Adaptive(132.dp),
+                    columns = shelfCells(perRow, minCell),
                     state = browse.gridState,
                     // In the Bookcase look the covers stand on shelves that run edge to edge.
                     contentPadding = if (LocalBookcase.current) PaddingValues(top = 8.dp, bottom = 24.dp)
@@ -626,6 +665,7 @@ private fun LibraryBrowser(
                     }
                 }
             }
+        }
         }
         if (browse.selecting) AtFoot {
             val chosen = { books.filter { browse.picked.containsKey(it.id) }.map { it.id } }
@@ -803,7 +843,7 @@ internal fun sortDetail(book: LibraryBook, sort: LibrarySort, reading: KoboBook?
 }
 
 @Composable
-private fun LibraryControls(all: List<LibraryBook>, browse: LibraryBrowseState, shown: Int) {
+private fun LibraryControls(all: List<LibraryBook>, browse: LibraryBrowseState, shown: Int, compact: Boolean = shortScreen()) {
     val collections = remember(all) { all.flatMap { it.collections }.distinctBy { it.lowercase() }.sortedWith(String.CASE_INSENSITIVE_ORDER) }
     val tagCounts = remember(all) {
         all.flatMap { b -> b.meta.tags.distinctBy { it.lowercase() } }.groupingBy { it }.eachCount()
@@ -811,8 +851,7 @@ private fun LibraryControls(all: List<LibraryBook>, browse: LibraryBrowseState, 
     }
     var showHelp by remember { mutableStateOf(false) }
     var showTags by remember { mutableStateOf(false) }
-    Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+    val search: @Composable (Modifier) -> Unit = { m ->
             OutlinedTextField(
                 value = browse.query,
                 onValueChange = { browse.query = it },
@@ -826,9 +865,10 @@ private fun LibraryControls(all: List<LibraryBook>, browse: LibraryBrowseState, 
                 },
                 singleLine = true,
                 shape = RoundedCornerShape(28.dp),
-                modifier = Modifier.weight(1f),
+                modifier = m,
             )
-            Spacer(Modifier.width(4.dp))
+    }
+    val buttons: @Composable () -> Unit = {
             if (!browse.selecting) {
                 // Labelled, so it's clear how to send or remove several books at once.
                 TextButton(onClick = { browse.selecting = true }) {
@@ -868,14 +908,8 @@ private fun LibraryControls(all: List<LibraryBook>, browse: LibraryBrowseState, 
             IconButton(onClick = { browse.grid = !browse.grid }) {
                 if (browse.grid) Icon(Icons.AutoMirrored.Filled.ViewList, tr("Show as list")) else Icon(Icons.Filled.GridView, tr("Show as grid"))
             }
-        }
-        // Wraps onto a second line rather than hiding filters off the edge.
-        FlowRow(
-            Modifier.fillMaxWidth().padding(top = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-            itemVerticalAlignment = Alignment.CenterVertically,
-        ) {
+    }
+    val chips: @Composable () -> Unit = {
             LibraryFilter.entries.forEach { f ->
                 FilterChip(selected = browse.filter == f, onClick = { browse.filter = f }, label = { Text(f.label) })
             }
@@ -920,6 +954,35 @@ private fun LibraryControls(all: List<LibraryBook>, browse: LibraryBrowseState, 
                     trailingIcon = { Icon(Icons.Filled.ArrowDropDown, null, Modifier.size(18.dp)) },
                 )
             }
+    }
+    if (compact) {
+        // A short screen (a phone held sideways): the search, the filters (scrolled along) and the buttons on one row.
+        Row(Modifier.fillMaxWidth().padding(start = 12.dp, end = 4.dp, top = 4.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+            search(Modifier.widthIn(min = 180.dp, max = 300.dp).weight(1f, fill = false))
+            Row(
+                Modifier.weight(1f).horizontalScroll(rememberScrollState()).padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                chips()
+                if (browse.narrowed) TextButton(onClick = { browse.clearFilters() }) { Text(tr("Clear search and filters")) }
+            }
+            buttons()
+        }
+    } else Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            search(Modifier.weight(1f))
+            Spacer(Modifier.width(4.dp))
+            buttons()
+        }
+        // Wraps onto a second line rather than hiding filters off the edge.
+        FlowRow(
+            Modifier.fillMaxWidth().padding(top = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+            itemVerticalAlignment = Alignment.CenterVertically,
+        ) {
+            chips()
         }
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
             Text(
@@ -1122,7 +1185,7 @@ fun LibraryDetailPane(
             Spacer(Modifier.height(8.dp))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-            LibraryCover(book, covers, large = true, modifier = Modifier.width(if (onBack != null) 200.dp else 160.dp))
+            LibraryCover(book, covers, large = true, modifier = Modifier.width(if (dev.kolib.app.ui.components.shortScreen()) 120.dp else if (onBack != null) 200.dp else 160.dp))
             Column(Modifier.weight(1f)) {
                 // A tap on the title, author or series copies it; holding it, a search for it here or on the internet.
                 DetailText(meta.title, MaterialTheme.typography.headlineSmall, tr("Title copied"), inApp = titleSearch(meta.title), onSearch = onSearch)

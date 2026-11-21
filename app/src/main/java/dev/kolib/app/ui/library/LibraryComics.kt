@@ -1,5 +1,8 @@
 package dev.kolib.app.ui.library
 
+import dev.kolib.app.ui.components.shelfMinCell
+import dev.kolib.app.ui.components.shelfCells
+import dev.kolib.app.ui.components.chosenPerRow
 import dev.kolib.app.ui.components.BarAction
 import androidx.compose.foundation.layout.RowScope
 import dev.kolib.app.ui.components.SelectAllButtons
@@ -254,6 +257,8 @@ private fun ComicShelf(
         Column(Modifier.fillMaxSize()) {
             val chosenCount = browse.comicPicked.size
             val title = if (chosenCount == 0) tr("Tap series to select them") else if (chosenCount == 1) tr("1 series selected") else tr("{0} series selected", chosenCount)
+            // On a short screen, the search slides away as the shelf is scrolled, once the bar and tabs have.
+            dev.kolib.app.ui.components.HidingTop(top = {
             if (choosing && phone) {
                 ComicChoosingHeader(title, onSelectAll = { shown.forEach { browse.comicPicked[it.key] = true } }, onDeselectAll = { browse.comicPicked.clear() },
                     anySelected = browse.comicPicked.isNotEmpty(), onCancel = done)
@@ -262,18 +267,21 @@ private fun ComicShelf(
             } else {
                 ComicSortRow(browse, shown.size, entries.sumOf { it.issues.size })
             }
+            }, modifier = Modifier.weight(1f).fillMaxWidth()) {
             // The shelf, and while series are being chosen, the bar for them along the foot of the screen, its whole width.
-            Column(Modifier.weight(1f).fillMaxWidth()) {
+            Column(Modifier.fillMaxSize()) {
                 if (shown.isEmpty()) {
                     if (browse.comicQuery.isBlank()) EmptyState(Icons.Outlined.AutoStories, tr("No comics"), tr("Comics you add show here, one entry for each series."))
                     else EmptyState(Icons.Outlined.Search, tr("No comics match"), tr("Nothing in the Comics tab has “{0}” in its name.", browse.comicQuery.trim()))
                     return@Column
                 }
                 val cellPadding = if (phone) 6.dp else 8.dp
-                ShelfGridBox(minCell = if (phone) 100.dp else 132.dp, coverPadding = cellPadding, columns = if (phone) 3 else null) {
+                val perRow = chosenPerRow() ?: if (phone) 3 else null
+                val minCell = shelfMinCell()
+                ShelfGridBox(minCell = minCell, coverPadding = cellPadding, columns = perRow) {
                     val bookcase = LocalBookcase.current
                     LazyVerticalGrid(
-                        columns = if (phone) GridCells.Fixed(3) else GridCells.Adaptive(132.dp),
+                        columns = shelfCells(perRow, minCell),
                         state = browse.comicGrid,
                         contentPadding = if (bookcase) PaddingValues(top = 8.dp, bottom = if (phone) 104.dp else 24.dp)
                         else PaddingValues(start = if (phone) 8.dp else 12.dp, end = if (phone) 8.dp else 12.dp, top = 8.dp, bottom = if (phone) 104.dp else 24.dp),
@@ -312,6 +320,7 @@ private fun ComicShelf(
                         }
                     }
                 }
+            }
             }
             if (choosing && !phone) AtFoot {
                 SelectionBar(
@@ -753,7 +762,7 @@ internal fun ComicSeriesPage(
                 if (grid) {
                     // Each comic an entry of its own, as the series are on the shelf.
                     LazyVerticalGrid(
-                        columns = GridCells.Adaptive(132.dp),
+                        columns = shelfCells(chosenPerRow(), shelfMinCell()),
                         state = browse.comicIssueGrid,
                         contentPadding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 24.dp),
                         horizontalArrangement = Arrangement.spacedBy(4.dp),

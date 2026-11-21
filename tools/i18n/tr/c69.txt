@@ -1,0 +1,274 @@
+@fr
+3410|Couvertures par rangée
+3411|Auto en affiche autant qu’il y a de place.
+3412|Auto
+3413|Non connectée · au {0}
+3414|Débranchée · à {0}
+3415|Enregistrer le fichier journal
+3416|Un problème ? Envoyez le journal par e-mail, avec des captures d’écran si possible, à {0}.
+3417|E-mail
+3418|Que s’est-il passé, et que faisiez-vous ?
+3419|Envoyer le journal par e-mail
+3420|Impossible d’envoyer le journal par e-mail : {0}
+3421|Le fichier n’a pas pu être écrit.
+3422|Journal enregistré.
+3423|Impossible d’enregistrer le journal : {0}
+3424|La mise à jour n’a pas été installée.
+3425|Installer
+3426|Auto Blocker de Samsung l’a peut-être bloquée.
+3427|Désactivez-le dans Paramètres > Sécurité et confidentialité > Auto Blocker, puis réessayez. Vous pourrez le réactiver ensuite.
+3428|Ouvrir les Paramètres
+3429|Toujours chercher les appareils
+3430|Tant que KoLib est ouvert, pour que les positions de lecture se synchronisent toutes seules. Désactivé, KoLib ne cherche que lorsque cet écran est ouvert.
+3431|Choisissez si votre position dans un livre est partagée avec vos autres appareils, si KoLib les cherche tout le temps, et s’ils peuvent envoyer quand KoLib est fermé.
+3432|Le nombre de couvertures par rangée d’étagère, en portrait et en paysage. Auto en affiche autant qu’il y a de place.
+
+@de
+3410|Cover pro Reihe
+3411|Auto zeigt so viele, wie Platz haben.
+3412|Auto
+3413|Nicht verbunden · Stand {0}
+3414|Nicht angeschlossen · Stand {0}
+3415|Protokolldatei speichern
+3416|Stimmt etwas nicht? Schick das Protokoll per E-Mail an {0}, wenn möglich mit Screenshots.
+3417|E-Mail
+3418|Was ist passiert, und was hast du gerade gemacht?
+3419|Protokoll per E-Mail senden
+3420|Das Protokoll konnte nicht per E-Mail gesendet werden: {0}
+3421|Die Datei konnte nicht geschrieben werden.
+3422|Protokoll gespeichert.
+3423|Das Protokoll konnte nicht gespeichert werden: {0}
+3424|Das Update wurde nicht installiert.
+3425|Installieren
+3426|Möglicherweise hat Samsungs Auto Blocker es gestoppt.
+3427|Schalte ihn unter Einstellungen > Sicherheit und Datenschutz > Auto Blocker aus und versuche es noch einmal. Danach kannst du ihn wieder einschalten.
+3428|Einstellungen öffnen
+3429|Immer nach Geräten suchen
+3430|Solange KoLib geöffnet ist, damit sich Lesepositionen von selbst abgleichen. Wenn das aus ist, sucht KoLib nur, solange dieser Bildschirm offen ist.
+3431|Wähle, ob deine Leseposition mit deinen anderen Geräten geteilt wird, ob KoLib die ganze Zeit nach ihnen sucht und ob sie senden können, während KoLib geschlossen ist.
+3432|Wie viele Cover in eine Regalreihe passen, im Hoch- und im Querformat. Auto zeigt so viele, wie Platz haben.
+
+@es
+3410|Portadas por fila
+3411|Auto pone tantas como quepan.
+3412|Auto
+3413|Sin conexión · del {0}
+3414|Desconectado · a las {0}
+3415|Guardar el archivo de registro
+3416|¿Algo va mal? Envía el registro por correo a {0}, con capturas de pantalla si puedes.
+3417|Correo
+3418|¿Qué pasó y qué estabas haciendo?
+3419|Enviar el registro por correo
+3420|No se pudo enviar el registro por correo: {0}
+3421|No se pudo escribir el archivo.
+3422|Registro guardado.
+3423|No se pudo guardar el registro: {0}
+3424|La actualización no se instaló.
+3425|Instalar
+3426|Puede que Auto Blocker de Samsung la haya bloqueado.
+3427|Desactívalo en Ajustes > Seguridad y privacidad > Auto Blocker y vuelve a intentarlo. Después puedes volver a activarlo.
+3428|Abrir Ajustes
+3429|Buscar dispositivos siempre
+3430|Mientras KoLib está abierto, para que las posiciones de lectura se sincronicen solas. Si está desactivado, KoLib solo busca con esta pantalla abierta.
+3431|Elige si tu posición en un libro se comparte con tus otros dispositivos, si KoLib los busca todo el tiempo y si pueden enviar con KoLib cerrado.
+3432|Cuántas portadas caben en cada fila de un estante, en vertical y en horizontal. Auto pone tantas como quepan.
+
+@it
+3410|Copertine per riga
+3411|Auto ne mette quante ne entrano.
+3412|Auto
+3413|Non collegato · al {0}
+3414|Scollegato · alle {0}
+3415|Salva il file di registro
+3416|Qualcosa non va? Invia il registro via email a {0}, con degli screenshot se puoi.
+3417|Email
+3418|Cos’è successo, e cosa stavi facendo?
+3419|Invia il registro via email
+3420|Impossibile inviare il registro via email: {0}
+3421|Impossibile scrivere il file.
+3422|Registro salvato.
+3423|Impossibile salvare il registro: {0}
+3424|L’aggiornamento non è stato installato.
+3425|Installa
+3426|Potrebbe averlo bloccato Auto Blocker di Samsung.
+3427|Disattivalo in Impostazioni > Sicurezza e privacy > Auto Blocker, poi riprova. Dopo puoi riattivarlo.
+3428|Apri Impostazioni
+3429|Cerca sempre i dispositivi
+3430|Finché KoLib è aperto, così le posizioni di lettura si sincronizzano da sole. Se è disattivato, KoLib cerca solo quando questa schermata è aperta.
+3431|Scegli se il punto in cui sei in un libro viene condiviso con gli altri dispositivi, se KoLib li cerca sempre, e se possono inviare quando KoLib è chiuso.
+3432|Quante copertine entrano in ogni riga di uno scaffale, in verticale e in orizzontale. Auto ne mette quante ne entrano.
+
+@nl
+3410|Omslagen per rij
+3411|Auto zet er zoveel neer als er passen.
+3412|Auto
+3413|Niet verbonden · stand van {0}
+3414|Losgekoppeld · stand van {0}
+3415|Logbestand opslaan
+3416|Gaat er iets mis? Mail het logboek naar {0}, met schermafbeeldingen als het kan.
+3417|Mailen
+3418|Wat gebeurde er, en wat was je aan het doen?
+3419|Logboek mailen
+3420|Kan het logboek niet mailen: {0}
+3421|Het bestand kon niet worden geschreven.
+3422|Logboek opgeslagen.
+3423|Kan het logboek niet opslaan: {0}
+3424|De update is niet geïnstalleerd.
+3425|Installeren
+3426|Misschien heeft Samsungs Auto Blocker de update tegengehouden.
+3427|Zet hem uit via Instellingen > Beveiliging en privacy > Auto Blocker en probeer het opnieuw. Daarna kun je hem weer aanzetten.
+3428|Instellingen openen
+3429|Altijd naar apparaten zoeken
+3430|Zolang KoLib open is, zodat leesposities vanzelf synchroniseren. Staat dit uit, dan zoekt KoLib alleen als dit scherm open is.
+3431|Kies of je plek in een boek wordt gedeeld met je andere apparaten, of KoLib er de hele tijd naar zoekt, en of ze kunnen sturen terwijl KoLib dicht is.
+3432|Hoeveel omslagen er op elke rij van een plank staan, staand en liggend. Auto zet er zoveel neer als er passen.
+
+@pt
+3410|Capas por fileira
+3411|Auto coloca quantas couberem.
+3412|Auto
+3413|Não conectado · em {0}
+3414|Desconectado · às {0}
+3415|Salvar o arquivo de registro
+3416|Algo errado? Envie o registro por e-mail para {0}, com capturas de tela se puder.
+3417|E-mail
+3418|O que aconteceu, e o que você estava fazendo?
+3419|Enviar o registro por e-mail
+3420|Não foi possível enviar o registro por e-mail: {0}
+3421|Não foi possível gravar o arquivo.
+3422|Registro salvo.
+3423|Não foi possível salvar o registro: {0}
+3424|A atualização não foi instalada.
+3425|Instalar
+3426|Talvez o Auto Blocker da Samsung a tenha bloqueado.
+3427|Desative-o em Configurações > Segurança e privacidade > Auto Blocker e tente de novo. Depois você pode ativá-lo outra vez.
+3428|Abrir Configurações
+3429|Sempre procurar dispositivos
+3430|Enquanto o KoLib está aberto, para que as posições de leitura se sincronizem sozinhas. Desativado, o KoLib só procura com esta tela aberta.
+3431|Escolha se o ponto onde você parou num livro é compartilhado com seus outros dispositivos, se o KoLib os procura o tempo todo e se eles podem enviar com o KoLib fechado.
+3432|Quantas capas cabem em cada fileira de uma estante, na vertical e na horizontal. Auto coloca quantas couberem.
+
+@ro
+3410|Coperte pe rând
+3411|Auto pune câte încap.
+3412|Auto
+3413|Neconectat · la {0}
+3414|Deconectat · la {0}
+3415|Salvează fișierul jurnal
+3416|Ceva nu merge? Trimite jurnalul pe e-mail la {0}, cu capturi de ecran dacă poți.
+3417|E-mail
+3418|Ce s-a întâmplat și ce făceai?
+3419|Trimite jurnalul pe e-mail
+3420|Jurnalul nu a putut fi trimis pe e-mail: {0}
+3421|Fișierul nu a putut fi scris.
+3422|Jurnal salvat.
+3423|Jurnalul nu a putut fi salvat: {0}
+3424|Actualizarea nu a fost instalată.
+3425|Instalează
+3426|Poate că Auto Blocker de la Samsung a oprit-o.
+3427|Dezactivează-l din Setări > Securitate și confidențialitate > Auto Blocker, apoi încearcă din nou. Îl poți reactiva după aceea.
+3428|Deschide Setările
+3429|Caută mereu dispozitive
+3430|Cât timp KoLib e deschis, ca pozițiile de citire să se sincronizeze singure. Când e dezactivat, KoLib caută doar cât acest ecran e deschis.
+3431|Alege dacă locul unde ai ajuns într-o carte e împărțit cu celelalte dispozitive, dacă KoLib le caută tot timpul și dacă pot trimite când KoLib e închis.
+3432|Câte coperte încap pe fiecare rând al unui raft, în portret și în peisaj. Auto pune câte încap.
+
+@ru
+3410|Обложек в ряду
+3411|«Авто» — столько, сколько поместится.
+3412|Авто
+3413|Не подключён · на {0}
+3414|Отключён · на {0}
+3415|Сохранить файл журнала
+3416|Что-то не так? Отправьте журнал на {0}, по возможности со снимками экрана.
+3417|Отправить
+3418|Что случилось и что вы делали?
+3419|Отправить журнал по почте
+3420|Не удалось отправить журнал: {0}
+3421|Не удалось записать файл.
+3422|Журнал сохранён.
+3423|Не удалось сохранить журнал: {0}
+3424|Обновление не установлено.
+3425|Установить
+3426|Возможно, его заблокировал Auto Blocker от Samsung.
+3427|Отключите его в «Настройки» > «Безопасность и конфиденциальность» > Auto Blocker и попробуйте ещё раз. Потом его можно снова включить.
+3428|Открыть настройки
+3429|Всегда искать устройства
+3430|Пока KoLib открыт, чтобы места чтения синхронизировались сами. Если выключено, KoLib ищет устройства, только пока открыт этот экран.
+3431|Выберите, делиться ли местом в книге с другими вашими устройствами, искать ли их всё время и могут ли они отправлять, когда KoLib закрыт.
+3432|Сколько обложек в каждом ряду полки — в книжной и альбомной ориентации. «Авто» — столько, сколько поместится.
+
+@ja
+3410|1 行の表紙の数
+3411|「自動」では入るだけ並べます。
+3412|自動
+3413|未接続 · {0} 時点
+3414|取り外し済み · {0} 時点
+3415|ログファイルを保存
+3416|問題がありましたか？ログを、できればスクリーンショットも添えて {0} にメールしてください。
+3417|メール
+3418|何が起きましたか？そのとき何をしていましたか？
+3419|ログをメールで送る
+3420|ログをメールで送れませんでした: {0}
+3421|ファイルに書き込めませんでした。
+3422|ログを保存しました。
+3423|ログを保存できませんでした: {0}
+3424|アップデートはインストールされませんでした。
+3425|インストール
+3426|Samsung の自動ブロッカー（Auto Blocker）が止めた可能性があります。
+3427|設定 > セキュリティおよびプライバシー > 自動ブロッカー でオフにしてから、もう一度お試しください。あとでまたオンにできます。
+3428|設定を開く
+3429|常にデバイスを探す
+3430|KoLib を開いている間ずっと探すので、読書位置が自動で同期されます。オフにすると、この画面を開いている間だけ探します。
+3431|本の読んでいる位置をほかのデバイスと共有するか、KoLib が常にデバイスを探すか、KoLib を閉じているときにも受け取るかを選べます。
+3432|棚の 1 行に並べる表紙の数（縦向きと横向き）。「自動」では入るだけ並べます。
+
+@ko
+3410|한 줄에 놓을 표지 수
+3411|'자동'은 들어가는 만큼 놓아요.
+3412|자동
+3413|연결 안 됨 · {0} 기준
+3414|분리됨 · {0} 기준
+3415|로그 파일 저장
+3416|문제가 있나요? 로그를, 가능하면 스크린샷과 함께 {0}로 이메일로 보내 주세요.
+3417|이메일
+3418|무슨 일이 있었고, 그때 무엇을 하고 있었나요?
+3419|로그를 이메일로 보내기
+3420|로그를 이메일로 보내지 못했어요: {0}
+3421|파일을 쓰지 못했어요.
+3422|로그를 저장했어요.
+3423|로그를 저장하지 못했어요: {0}
+3424|업데이트가 설치되지 않았어요.
+3425|설치
+3426|삼성의 자동 차단(Auto Blocker)이 막았을 수 있어요.
+3427|설정 > 보안 및 개인정보 보호 > 자동 차단에서 끈 다음 다시 시도하세요. 나중에 다시 켤 수 있어요.
+3428|설정 열기
+3429|항상 기기 찾기
+3430|KoLib이 열려 있는 동안 계속 찾아서 읽던 위치가 저절로 동기화돼요. 끄면 이 화면이 열려 있을 때만 찾아요.
+3431|책에서 읽던 위치를 다른 기기와 나눌지, KoLib이 항상 기기를 찾을지, KoLib이 닫혀 있을 때도 보낼 수 있게 할지 골라요.
+3432|책장 한 줄에 놓을 표지 수예요. 세로와 가로를 따로 정해요. '자동'은 들어가는 만큼 놓아요.
+
+@zh
+3410|每行封面数
+3411|“自动”会放下尽可能多的封面。
+3412|自动
+3413|未连接 · 截至 {0}
+3414|已拔出 · 截至 {0}
+3415|保存日志文件
+3416|遇到问题？请把日志发邮件到 {0}，可以的话附上截图。
+3417|发邮件
+3418|发生了什么？你当时在做什么？
+3419|通过邮件发送日志
+3420|无法通过邮件发送日志：{0}
+3421|无法写入文件。
+3422|已保存日志。
+3423|无法保存日志：{0}
+3424|更新没有安装。
+3425|安装
+3426|可能是三星的 Auto Blocker 拦下了它。
+3427|在“设置 > 安全和隐私 > Auto Blocker”中将其关闭，然后再试一次。之后可以重新打开。
+3428|打开设置
+3429|始终查找设备
+3430|在 KoLib 打开期间一直查找，阅读进度会自动同步。关闭后，KoLib 只在此页面打开时查找。
+3431|选择是否与你的其他设备共享书中的阅读进度、KoLib 是否一直查找它们，以及 KoLib 关闭时它们能否发送。
+3432|书架每一行放多少个封面，竖屏和横屏分别设置。“自动”会放下尽可能多的封面。

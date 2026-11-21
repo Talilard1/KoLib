@@ -1,0 +1,43 @@
+@fr
+3433|Aucun pour l’instant. Ouvrez cet écran dans KoLib sur votre autre appareil, sur le même Wi-Fi ou point d’accès, puis associez-les ci-dessous.
+3434|Vos autres téléphones et tablettes sur le même réseau s’affichent ici quand cet écran est ouvert sur eux aussi. Touchez Associer pour en lier un.
+
+@de
+3433|Noch keine. Öffne diesen Bildschirm in KoLib auf deinem anderen Gerät, im selben WLAN oder Hotspot, und kopple sie unten.
+3434|Deine anderen Handys und Tablets im selben Netzwerk erscheinen hier, wenn dieser Bildschirm auch auf ihnen geöffnet ist. Tippe auf Koppeln, um eines zu verbinden.
+
+@es
+3433|Ninguno todavía. Abre esta pantalla de KoLib en tu otro dispositivo, en la misma wifi o punto de acceso, y vincúlalos abajo.
+3434|Tus otros móviles y tabletas de la misma red aparecen aquí cuando también tienen abierta esta pantalla. Toca Vincular para enlazar uno.
+
+@it
+3433|Ancora nessuno. Apri questa schermata di KoLib sull’altro dispositivo, sulla stessa rete Wi-Fi o hotspot, poi associali qui sotto.
+3434|Gli altri tuoi telefoni e tablet sulla stessa rete compaiono qui quando anche su di loro è aperta questa schermata. Tocca Associa per collegarne uno.
+
+@nl
+3433|Nog geen. Open dit scherm in KoLib op je andere apparaat, op dezelfde wifi of hotspot, en koppel ze hieronder.
+3434|Je andere telefoons en tablets op hetzelfde netwerk verschijnen hier als dit scherm ook op hen open is. Tik op Koppelen om er een te verbinden.
+
+@pt
+3433|Nenhum ainda. Abra esta tela do KoLib no outro dispositivo, no mesmo Wi-Fi ou ponto de acesso, e pareie abaixo.
+3434|Seus outros celulares e tablets na mesma rede aparecem aqui quando esta tela também está aberta neles. Toque em Parear para conectar um.
+
+@ro
+3433|Niciunul încă. Deschide acest ecran în KoLib pe celălalt dispozitiv, în aceeași rețea Wi-Fi sau pe același hotspot, apoi asociază-l mai jos.
+3434|Celelalte telefoane și tablete ale tale din aceeași rețea apar aici când acest ecran e deschis și pe ele. Atinge Asociază ca să legi unul.
+
+@ru
+3433|Пока нет. Откройте этот экран KoLib на другом устройстве в той же сети Wi-Fi или точке доступа, затем выполните сопряжение ниже.
+3434|Здесь появляются другие ваши телефоны и планшеты в той же сети, когда на них тоже открыт этот экран. Нажмите «Сопрячь», чтобы связать устройство.
+
+@ja
+3433|まだありません。同じ Wi-Fi かテザリングにつないだ別のデバイスで KoLib のこの画面を開き、下でペアリングしてください。
+3434|同じネットワークにある、ほかのスマートフォンやタブレットでもこの画面を開くと、ここに表示されます。「ペアリング」をタップするとつながります。
+
+@ko
+3433|아직 없어요. 같은 Wi-Fi나 핫스팟에 연결된 다른 기기에서 KoLib의 이 화면을 연 다음 아래에서 페어링하세요.
+3434|같은 네트워크의 다른 휴대폰과 태블릿에서도 이 화면을 열면 여기 나와요. 페어링을 탭해서 연결하세요.
+
+@zh
+3433|还没有。在另一台设备上打开 KoLib 的这个页面，连接同一个 Wi-Fi 或热点，然后在下方配对。
+3434|同一网络上的其他手机和平板也打开这个页面时，会显示在这里。点按“配对”即可连接。

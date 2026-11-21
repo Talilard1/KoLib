@@ -1,5 +1,6 @@
 package dev.kolib.app.ui
 
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.material.icons.outlined.Explore
 import dev.kolib.app.ui.tour.Tours
@@ -218,8 +219,9 @@ fun AppRoot(
     // Each list sorted and shown as it was last time.
     val browse = remember { BrowseState().also { ListLooks.restore(listContext, kobo = it) } }
     val libraryBrowse = remember { LibraryBrowseState().also { ListLooks.restore(listContext, library = it) } }
+    val coversPerRow = remember { dev.kolib.app.ui.components.CoversPerRow().also { ListLooks.restore(listContext, covers = it) } }
     LaunchedEffect(Unit) {
-        androidx.compose.runtime.snapshotFlow { ListLooks.Now(libraryBrowse, browse) }.collect { ListLooks.save(listContext, it) }
+        androidx.compose.runtime.snapshotFlow { ListLooks.Now(libraryBrowse, browse, coversPerRow) }.collect { ListLooks.save(listContext, it) }
     }
     var localMessage by remember { mutableStateOf<String?>(null) }
 
@@ -358,6 +360,7 @@ fun AppRoot(
             syncPlaces = { d -> link.syncPlaces(d) },
             forget = { d -> link.forget(d.id) },
             keepPlacesInStep = { on -> link.changeSettings { it.copy(keepPlacesInStep = on) } },
+            lookAlways = { on -> link.changeSettings { it.copy(lookAlways = on) } },
             stayReachable = { on ->
                 link.changeSettings { it.copy(stayReachable = on) }
                 if (on) {
@@ -516,7 +519,7 @@ fun AppRoot(
         Section.DEVICES -> Tours.DEVICES
     }?.takeIf { it !in seenTours }
 
-    CompositionLocalProvider(dev.kolib.app.ui.ai.LocalAiHost provides aiHost) {
+    CompositionLocalProvider(dev.kolib.app.ui.ai.LocalAiHost provides aiHost, dev.kolib.app.ui.components.LocalCoversPerRow provides coversPerRow) {
     Box(
         Modifier
             .fillMaxSize()
@@ -1087,6 +1090,7 @@ fun AppRoot(
             onComicsTab = { libraryBrowse.comicsTab = it },
             seriesInPlace = libraryBrowse.seriesInPlace,
             onSeriesInPlace = { libraryBrowse.openSeriesInPlace(it) },
+            coversPerRow = coversPerRow,
             tour = !toursOff && toursSeen?.let { Tours.SETTINGS !in it } == true,
             onTourDone = { onTourSeen(Tours.SETTINGS) },
             onShowTours = onShowToursAgain?.let { again -> { showLook = false; again() } },
@@ -1210,13 +1214,15 @@ internal fun AppFrame(
         if (wide) {
             Row(Modifier.fillMaxSize()) {
                 // The rail lies on the screen's backdrop, set off from the page by a fine gold line.
+                // On a short screen (a phone held sideways), without KoLib's mark at the top, so Settings fits at the foot.
+                val short = dev.kolib.app.ui.components.shortScreen()
                 NavigationRail(
                     containerColor = Color.Transparent,
-                    header = {
+                    header = if (short) null else ({
                         Spacer(Modifier.height(10.dp))
                         KoLibMark(Modifier.size(40.dp).semantics { contentDescription = tr("KoLib") }, glow = true)
                         Spacer(Modifier.height(18.dp))
-                    },
+                    }),
                 ) {
                     val itemColors = NavigationRailItemDefaults.colors(
                         selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -1357,6 +1363,8 @@ fun LookDialog(
     /** On a wide screen, a series opens in place of the comics' shelf rather than beside it. */
     seriesInPlace: Boolean = false,
     onSeriesInPlace: (Boolean) -> Unit = {},
+    /** How many covers a shelf's row holds (null: not offered here). */
+    coversPerRow: dev.kolib.app.ui.components.CoversPerRow? = null,
     /** The tour of Settings is given: it's the first time they're opened. */
     tour: Boolean = false,
     onTourDone: () -> Unit = {},
@@ -1455,6 +1463,10 @@ fun LookDialog(
                 }
                 FileManagerLine()
                 UpdateLines()
+                if (coversPerRow != null) {
+                    Box(Modifier.tourPlace("settings-covers")) { CoversPerRowLines(coversPerRow) }
+                    HorizontalDivider(Modifier.padding(vertical = 10.dp))
+                }
                 if (comicsTab != null) Column(Modifier.tourPlace("settings-comics")) {
                     SwitchLine(tr("Comics tab"), tr("Comics get a tab of their own, with each series as one entry. When this is off, they're with your books."), comicsTab, onComicsTab)
                     if (comicsTab && androidx.compose.ui.platform.LocalConfiguration.current.smallestScreenWidthDp >= 600) {
@@ -1581,6 +1593,38 @@ private fun SwitchLine(title: String, detail: String, on: Boolean, onChange: (Bo
         }
         Spacer(Modifier.width(12.dp))
         Switch(checked = on, onCheckedChange = null, enabled = enabled)
+    }
+}
+
+/** How many covers a shelf's row holds, upright and sideways: Auto (as many as there's room for) or a number. */
+@Composable
+private fun CoversPerRowLines(perRow: dev.kolib.app.ui.components.CoversPerRow) {
+    Column(Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp).testTag("settings-covers-per-row")) {
+        Text(tr("Covers per row"), style = MaterialTheme.typography.titleSmall)
+        Text(tr("Auto fits as many as there's room for."), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        PerRowSlider(tr("Portrait"), perRow.portrait, Modifier.testTag("covers-portrait")) { perRow.portrait = it }
+        PerRowSlider(tr("Landscape"), perRow.landscape, Modifier.testTag("covers-landscape")) { perRow.landscape = it }
+    }
+}
+
+@Composable
+private fun PerRowSlider(label: String, value: Int, modifier: Modifier = Modifier, onChange: (Int) -> Unit) {
+    val most = dev.kolib.app.ui.components.CoversPerRow.MOST
+    Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(label, style = MaterialTheme.typography.bodyMedium, maxLines = 2, modifier = Modifier.width(92.dp))
+        androidx.compose.material3.Slider(
+            value = value.toFloat(),
+            onValueChange = { onChange(kotlin.math.round(it).toInt().coerceIn(0, most)) },
+            valueRange = 0f..most.toFloat(),
+            steps = most - 1,
+            modifier = Modifier.weight(1f),
+        )
+        Text(
+            if (value == 0) tr("Auto") else "$value",
+            style = MaterialTheme.typography.labelLarge,
+            textAlign = androidx.compose.ui.text.style.TextAlign.End,
+            modifier = Modifier.widthIn(min = 48.dp),
+        )
     }
 }
 

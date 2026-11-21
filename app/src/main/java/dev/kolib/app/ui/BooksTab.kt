@@ -2,6 +2,11 @@
 
 package dev.kolib.app.ui
 
+import dev.kolib.app.ui.components.shelfMinCell
+import dev.kolib.app.ui.components.shelfCells
+import dev.kolib.app.ui.components.chosenPerRow
+import dev.kolib.app.ui.components.shortScreen
+import dev.kolib.app.ui.components.HidingTop
 import androidx.compose.ui.platform.testTag
 import androidx.compose.runtime.CompositionLocalProvider
 import dev.kolib.app.ui.components.BarAction
@@ -230,9 +235,11 @@ private fun BookBrowser(
     if (browse.selecting) TabBackHandler { browse.stopSelecting() }
     var confirmDelete by remember { mutableStateOf<List<KoboBook>?>(null) }
     Column(modifier.fillMaxHeight()) {
-        BrowserControls(browse, books.size, view.snapshot, extras, readingTags)
-        // The books, and while some are being chosen, the bar for them along the foot of the screen, its whole width.
-        Box(Modifier.weight(1f).fillMaxWidth()) { KoboBookList(view, browse, books, selectedId, extras, inLibrary) }
+        // On a short screen, the search and filters slide away as the books are scrolled, once the bar and tabs have.
+        HidingTop(top = { BrowserControls(browse, books.size, view.snapshot, extras, readingTags) }, modifier = Modifier.weight(1f).fillMaxWidth()) {
+            // The books, and while some are being chosen, the bar for them along the foot of the screen, its whole width.
+            Box(Modifier.fillMaxSize()) { KoboBookList(view, browse, books, selectedId, extras, inLibrary) }
+        }
         if (browse.selecting) AtFoot {
             val chosen = { books.filter { browse.picked.containsKey(it.contentId) } }
             SelectionBar(
@@ -298,9 +305,11 @@ private fun KoboBookList(
         }
         // Holding a book picks it, and every book from the one picked last to it.
         val onLongPress: (KoboBook) -> Unit = { book -> browse.holdPick(book.contentId, books.map { it.contentId }) }
-        if (browse.grid) ShelfGridBox(minCell = 132.dp, coverPadding = 8.dp) {
+        val perRow = chosenPerRow()
+        val minCell = shelfMinCell()
+        if (browse.grid) ShelfGridBox(minCell = minCell, coverPadding = 8.dp, columns = perRow) {
             LazyVerticalGrid(
-                columns = GridCells.Adaptive(132.dp),
+                columns = shelfCells(perRow, minCell),
                 state = browse.gridState,
                 // In the Bookcase look the covers stand on shelves that run edge to edge.
                 contentPadding = if (LocalBookcase.current) PaddingValues(top = 8.dp, bottom = 24.dp)
@@ -411,7 +420,7 @@ internal fun koboSortDetail(book: KoboBook, sort: KoboSort, extras: KoboExtras):
 }
 
 @Composable
-private fun BrowserControls(browse: BrowseState, shown: Int, snapshot: KoboSnapshot, extras: KoboExtras, readingTags: Pair<Int, Int>?) {
+private fun BrowserControls(browse: BrowseState, shown: Int, snapshot: KoboSnapshot, extras: KoboExtras, readingTags: Pair<Int, Int>?, compact: Boolean = shortScreen()) {
     val total = snapshot.books.size
     val collections = remember(snapshot) {
         snapshot.collections.filter { c -> c.memberIds.any { id -> snapshot.booksById[id]?.isOnDevice == true } }
@@ -423,8 +432,7 @@ private fun BrowserControls(browse: BrowseState, shown: Int, snapshot: KoboSnaps
     }
     var showHelp by remember { mutableStateOf(false) }
     var showTags by remember { mutableStateOf(false) }
-    Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+    val search: @Composable (Modifier) -> Unit = { m ->
             OutlinedTextField(
                 value = browse.query,
                 onValueChange = { browse.query = it },
@@ -438,9 +446,10 @@ private fun BrowserControls(browse: BrowseState, shown: Int, snapshot: KoboSnaps
                 },
                 singleLine = true,
                 shape = RoundedCornerShape(28.dp),
-                modifier = Modifier.weight(1f),
+                modifier = m,
             )
-            Spacer(Modifier.width(4.dp))
+    }
+    val buttons: @Composable () -> Unit = {
             if (!browse.selecting) {
                 TextButton(onClick = { browse.selecting = true }) {
                     Icon(Icons.Outlined.Checklist, null, Modifier.size(20.dp))
@@ -480,14 +489,8 @@ private fun BrowserControls(browse: BrowseState, shown: Int, snapshot: KoboSnaps
                 if (browse.grid) Icon(Icons.AutoMirrored.Filled.ViewList, tr("Show as list"))
                 else Icon(Icons.Filled.GridView, tr("Show as grid"))
             }
-        }
-        // Wraps onto a second line rather than hiding filters off the edge.
-        FlowRow(
-            Modifier.fillMaxWidth().padding(top = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-            itemVerticalAlignment = Alignment.CenterVertically,
-        ) {
+    }
+    val chips: @Composable () -> Unit = {
             SourceFilter.entries.forEach { f ->
                 FilterChip(selected = browse.source == f, onClick = { browse.source = f }, label = { Text(f.label) })
             }
@@ -548,6 +551,35 @@ private fun BrowserControls(browse: BrowseState, shown: Int, snapshot: KoboSnaps
                     trailingIcon = { Icon(Icons.Filled.ArrowDropDown, null, Modifier.size(18.dp)) },
                 )
             }
+    }
+    if (compact) {
+        // A short screen (a phone held sideways): the search, the filters (scrolled along) and the buttons on one row.
+        Row(Modifier.fillMaxWidth().padding(start = 12.dp, end = 4.dp, top = 4.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+            search(Modifier.widthIn(min = 180.dp, max = 300.dp).weight(1f, fill = false))
+            Row(
+                Modifier.weight(1f).horizontalScroll(rememberScrollState()).padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                chips()
+                if (browse.narrowed) TextButton(onClick = { browse.clearFilters() }) { Text(tr("Clear search and filters")) }
+            }
+            buttons()
+        }
+    } else Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            search(Modifier.weight(1f))
+            Spacer(Modifier.width(4.dp))
+            buttons()
+        }
+        // Wraps onto a second line rather than hiding filters off the edge.
+        FlowRow(
+            Modifier.fillMaxWidth().padding(top = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+            itemVerticalAlignment = Alignment.CenterVertically,
+        ) {
+            chips()
         }
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
             Text(
@@ -756,7 +788,7 @@ fun BookDetailPane(
             Spacer(Modifier.height(8.dp))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-            BookCover(book, covers, CoverSize.FULL, Modifier.width(if (onBack != null) 200.dp else 160.dp), showProgress = false)
+            BookCover(book, covers, CoverSize.FULL, Modifier.width(if (dev.kolib.app.ui.components.shortScreen()) 120.dp else if (onBack != null) 200.dp else 160.dp), showProgress = false)
             Column(Modifier.weight(1f)) {
                 // A tap on the title, author or series copies it; holding it, a search for it here or on the internet.
                 DetailText(book.title, MaterialTheme.typography.headlineSmall, tr("Title copied"), inApp = titleSearch(book.title), onSearch = onSearch)

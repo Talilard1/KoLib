@@ -1,5 +1,7 @@
 package dev.kolib.app.ui.library
 
+import androidx.compose.ui.test.longClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.assertIsNotEnabled
 import org.junit.Assert.assertTrue
@@ -190,5 +192,73 @@ class LibrarySelectionTest {
         compose.runOnIdle { assertEquals(ids.drop(1).toSet(), browse.picked.keys.toSet()) }
         compose.onNodeWithTag("invert-selection").performClick()
         compose.runOnIdle { assertEquals(setOf(ids[0]), browse.picked.keys.toSet()) }
+    }
+
+    /**
+     * The row of books being read: held there, a book's chosen, as on the shelf; then a tap chooses another, and they're
+     * marked unread together.
+     */
+    @Test
+    fun booksInTheContinueReadingRowAreChosenByHolding() {
+        val (lib, covers) = library()
+        val ids = lib.books.value.map { it.id }
+        val browse = LibraryBrowseState()
+        compose.setContent {
+            AppSurface {
+                LibraryScreen(
+                    books = lib.books.value, covers = covers, browse = browse, job = null, koboConnected = true,
+                    onAddFiles = {}, onAddFromKobo = {}, onShowJob = {}, onEditDetails = {}, onChangeCover = {}, onDelete = {}, onSend = {},
+                    onMarkFinished = { read += it }, onMarkUnread = { unread += it }, onSyncReading = {},
+                    onRead = {},
+                    readingHere = mapOf(ids[0] to dev.kolib.app.reader.ReadHere(0.3f, 100L), ids[1] to dev.kolib.app.reader.ReadHere(0.6f, 200L)),
+                )
+            }
+        }
+        compose.waitForIdle()
+        compose.onAllNodesWithTag("continue-book").assertCountEquals(2)
+        compose.onAllNodesWithTag("continue-book")[0].performTouchInput { longClick() }
+        compose.waitForIdle()
+        assertTrue(browse.selecting)
+        // Still there while choosing, a tap chooses another.
+        compose.onAllNodesWithTag("continue-book")[1].performClick()
+        compose.runOnIdle { assertEquals(setOf(ids[0], ids[1]), browse.picked.keys.toSet()) }
+        compose.onNodeWithTag("selection-mark-unread").performClick()
+        compose.runOnIdle { assertEquals(setOf(ids[0], ids[1]), unread.single().toSet()) }
+    }
+
+    /**
+     * On a wide screen, a book's details open beside the shelf, narrowing it: the book tapped stays on the screen, and
+     * closed, the shelf is back where it was.
+     */
+    @Test
+    fun theShelfKeepsTheBookTappedOnScreenAndGoesBackWhenClosed() {
+        val name = "keep-" + UUID.randomUUID()
+        val lib = Library(context, File(context.filesDir, name), "$name.db").apply { runBlocking { load() } }
+        runBlocking {
+            for (n in 1..80) {
+                val t = "Book %02d".format(n)
+                val f = FakeKobo.epub(File(context.cacheDir, "$name-$n.epub"), FakeKobo.Book(t, "Author", mime = "application/epub+zip"))
+                lib.import("$t.epub", { f.inputStream() }, BookSource.FILE)
+            }
+        }
+        val browse = LibraryBrowseState()
+        show(browse, lib, LibraryCovers(lib))
+        compose.runOnIdle { runBlocking { browse.gridState.scrollToItem(30) } }
+        compose.waitForIdle()
+        val before = browse.gridState.firstVisibleItemIndex to browse.gridState.firstVisibleItemScrollOffset
+        // The last book wholly on the screen, at the end of a row: furthest from where it'll be with fewer to a row.
+        val info = browse.gridState.layoutInfo
+        val last = info.visibleItemsInfo.last { it.offset.y + it.size.height <= info.viewportEndOffset }
+        val id = last.key as String
+        compose.runOnIdle { browse.selectedId = id }
+        compose.waitForIdle()
+        val after = browse.gridState.layoutInfo
+        assertTrue(
+            "the book tapped is on the screen",
+            after.visibleItemsInfo.any { it.key == id && it.offset.y >= after.viewportStartOffset && it.offset.y + it.size.height <= after.viewportEndOffset },
+        )
+        compose.onNodeWithTag("side-pane-close").performClick()
+        compose.waitForIdle()
+        assertEquals(before, browse.gridState.firstVisibleItemIndex to browse.gridState.firstVisibleItemScrollOffset)
     }
 }

@@ -137,6 +137,54 @@ ${pages.entries.joinToString("\n") { (id, p) -> """<item id="$id" href="${p.firs
 
     private fun ReaderController.target(): JSONObject = JSONObject(startState).getJSONObject("target")
 
+    /**
+     * Opened and scrolled down through its cover, title page and contents, a book isn't started (it doesn't show as 1%
+     * read, nor among those being read); into its first chapter, it is, and stays so going back to its contents.
+     */
+    @Test
+    fun aBookIsNotStartedTillItsReadPastItsFrontPages() {
+        val dir = File(context.cacheDir, "front-${UUID.randomUUID()}").apply { mkdirs() }
+        EpubFile.open(book()).use { epub ->
+            val files = EpubFileFiles(epub)
+            val c = ReaderController(files, BookStructure(files), "The Sea", "en", ReaderStore(dir), ReaderSettings(flow = ReaderFlow.SCROLL), context.assets)
+            settle { c.lengthsCounted }
+            val at = { name: String -> c.index("$name.xhtml") }
+            c.open(at("cover"), JSONObject().put("type", "start"))
+            reported(c, null, part = at("cover"))
+            reported(c, "@kl-part-${at("title")}/0/0:3", part = at("title"))
+            reported(c, "0/0:5", part = at("contents"))
+            c.saveNow()
+            org.junit.Assert.assertNull("not started in the front pages", ReaderStore.readHereOf(dir))
+            // Into the first chapter.
+            c.open(at("ch1"), JSONObject().put("type", "start"))
+            reported(c, "0/1:10")
+            c.saveNow()
+            assertTrue(ReaderStore.readHereOf(dir)!!.started)
+            // Back to the contents: still being read.
+            c.open(at("contents"), JSONObject().put("type", "start"))
+            reported(c, "0/0:5", part = at("contents"))
+            c.saveNow()
+            assertTrue(ReaderStore.readHereOf(dir)!!.started)
+        }
+        dir.deleteRecursively()
+    }
+
+    /** A place kept before 3.4 on one of the front pages (an old "1%"): not started. */
+    @Test
+    fun anOldPlaceOnAFrontPageIsNotStarted() {
+        val dir = File(context.cacheDir, "old-front-${UUID.randomUUID()}").apply { mkdirs() }
+        File(dir, "reader.json").writeText(
+            JSONObject().put("position", JSONObject().put("path", "text/contents.xhtml").put("progress", 0.1).put("book", 0.004).put("chapter", "Contents").put("at", 5L)).toString()
+        )
+        org.junit.Assert.assertNull(ReaderStore.readHereOf(dir))
+        // One in a chapter is.
+        File(dir, "reader.json").writeText(
+            JSONObject().put("position", JSONObject().put("path", "text/ch1.xhtml").put("progress", 0.1).put("book", 0.004).put("chapter", "Chapter One").put("at", 5L)).toString()
+        )
+        assertTrue(ReaderStore.readHereOf(dir)!!.started)
+        dir.deleteRecursively()
+    }
+
     @Test
     fun aPlaceInAPageOfASectionIsKeptAsAPlaceInThatPage() {
         EpubFile.open(book()).use { epub ->

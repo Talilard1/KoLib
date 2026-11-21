@@ -325,6 +325,12 @@ class ReaderController(
     private var deletedMarks: Map<String, Long> = emptyMap()
     private var koboMarks: JSONObject? = null
 
+    /**
+     * Read past the pages before the book's chapters (its cover, title page, contents and the like), now or before:
+     * only then is it being read, and shows how far.
+     */
+    private var readPastFront = false
+
     init {
         store?.load()?.let { s ->
             annotations = s.annotations
@@ -334,6 +340,8 @@ class ReaderController(
             deletedMarks = s.deleted
             koboMarks = s.kobo
         }
+        // Left past the pages before its chapters, it's being read, wherever it goes now.
+        readPastFront = position?.pastFront == true
         scope.launch {
             val stamp = java.util.zip.CRC32()
             val counted = withContext(Dispatchers.IO) {
@@ -1792,8 +1800,24 @@ class ReaderController(
 
     fun saveNow() {
         val s = store ?: return
-        // Not started, it's kept with no place: not read yet (or still finished, if it was).
-        s.save(ReaderState(position.takeUnless { notStarted }, bookmarks, annotations, deletedMarks, koboMarks))
+        // Not started, it's kept with no place: not read yet (or still finished, if it was). Kept, it's been begun.
+        s.save(ReaderState(position.takeUnless { notStarted }?.copy(begun = true), bookmarks, annotations, deletedMarks, koboMarks))
+    }
+
+    /**
+     * The last of the pages before the book's chapters: the cover, title page, contents and the like, one after
+     * another from its start, or its contents page, if that's among its first pages (-1 if it has none of them).
+     */
+    private val frontEnd: Int by lazy {
+        runCatching {
+            val linear = chapters.indices.filter { chapters[it].linear }
+            val firstPages = linear.take(FRONT_PAGES_AT_MOST)
+            val run = firstPages.takeWhile { isMatter(it) }
+            // Every one of its first pages like that (a book of pictures, say): none of them count as before its chapters.
+            val runEnd = if (run.size == firstPages.size) -1 else run.lastOrNull() ?: -1
+            val contents = firstPages.lastOrNull { CONTENTS_TITLE.matches(chapters[it].title.trim()) } ?: -1
+            maxOf(runEnd, contents).takeIf { it < (linear.lastOrNull() ?: -1) } ?: -1
+        }.getOrDefault(-1)
     }
 
     /** It hadn't been read when it was opened, and opened at its start. */
@@ -1813,6 +1837,8 @@ class ReaderController(
             val first = chapters.indexOfFirst { it.linear }.takeIf { it >= 0 } ?: 0
             val i = chapters.indexOfFirst { it.path == p.path }
             if (i in 0..first && p.progress <= 0.001f && p.bookProgress <= 0.0005f) return true
+            // Not read past the pages before its chapters yet: still not started, scrolled through or not.
+            if (!readPastFront && i in 0..frontEnd) return true
             val f = freshPlace ?: return false
             return f.path == p.path && f.anchor == p.anchor && abs(f.progress - p.progress) < 0.001f
         }
@@ -1977,6 +2003,8 @@ class ReaderController(
                 chapterTitle = chapterTitle,
             )
             if (openedFresh && freshPlace == null) freshPlace = position
+            // Into the book's chapters: it's being read from here on, even going back to its contents.
+            if (!readPastFront && chapters.indexOfFirst { it.path == position?.path } > frontEnd) readPastFront = true
             saveSoon()
         }
     }
@@ -2088,6 +2116,9 @@ class ReaderController(
 
         /** The name of a book's contents page. */
         internal val CONTENTS_TITLE = Regex("(?i)^\\W*(table of )?contents\\W*$")
+
+        /** How far into the book its contents page may be and still count as one of the pages before its chapters. */
+        private const val FRONT_PAGES_AT_MOST = 12
 
         /** The names of the pages a printed book has no headings on: its cover, title page, copyright page and the like. */
         internal val NO_HEAD_TITLE = Regex(

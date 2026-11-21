@@ -19,7 +19,20 @@ data class ReaderPosition(
     val at: Long = System.currentTimeMillis(),
     /** A bookmark's id, the same on every device and on the Kobo (see [markId]); a place has none. */
     val id: String? = null,
+    /**
+     * A place: read past the pages before the book's chapters (its cover, title page, contents and the like), so it's
+     * being read. Null for a bookmark, and for a place saved before this was kept (see [pastFront]).
+     */
+    val begun: Boolean? = null,
 ) {
+    /**
+     * Past the pages before the book's chapters: as it was saved, or, for a place saved before that was kept, unless
+     * it's near the start, on a page named as one of them (cover, title page, contents…), or on one with no name at
+     * its very start.
+     */
+    val pastFront: Boolean
+        get() = begun ?: !(bookProgress < 0.05f && FRONT_PAGE.matches(chapterTitle.trim()) || bookProgress < 0.01f && chapterTitle.isBlank())
+
     /** A bookmark's id: its own, or for one from before bookmarks had them, one made from its place (the same everywhere). */
     val markId: String get() = id ?: markIdOf(path, anchor)
 
@@ -32,6 +45,7 @@ data class ReaderPosition(
         put("snippet", snippet)
         put("chapter", chapterTitle)
         put("at", at)
+        begun?.let { put("begun", it) }
     }
 
     companion object {
@@ -47,8 +61,12 @@ data class ReaderPosition(
                 chapterTitle = o.optString("chapter"),
                 at = o.optLong("at"),
                 id = o.optString("id").takeIf { it.isNotEmpty() },
+                begun = if (o.has("begun")) o.optBoolean("begun") else null,
             )
         }
+
+        /** The names of the pages before a book's chapters: its cover, title page, contents and the like. */
+        private val FRONT_PAGE = Regex(ReaderController.CONTENTS_TITLE.pattern + "|" + ReaderController.NO_HEAD_TITLE.pattern)
 
         fun markIdOf(path: String, anchor: String?): String =
             java.util.UUID.nameUUIDFromBytes("$path|${anchor.orEmpty()}".toByteArray()).toString()
@@ -124,11 +142,15 @@ class ReaderStore(
     fun save(state: ReaderState) {
         try {
             bookDir.mkdirs()
-            // With no place (left on its first page), a book marked as finished stays finished: it wasn't read again.
-            val wasFinished = if (state.position != null) null else runCatching { JSONObject(file.readText()) }.getOrNull()?.takeIf { it.optBoolean("finished") }
+            // With no place (not started: left on its cover, say), a book marked as finished stays finished, and one marked
+            // unread stays so, with when it was (for other devices): it wasn't read again.
+            val before = if (state.position != null) null else runCatching { JSONObject(file.readText()) }.getOrNull()
+            val wasFinished = before?.takeIf { it.optBoolean("finished") }
+            val unreadAt = before?.optLong("unreadAt")?.takeIf { it > 0 && wasFinished == null }
             val o = JSONObject().apply {
                 state.position?.let { put("position", it.toJson()) }
                 wasFinished?.let { put("finished", true).put("finishedAt", it.optLong("finishedAt")) }
+                unreadAt?.let { put("unreadAt", it) }
                 put("bookmarks", JSONArray().apply { state.bookmarks.forEach { put(it.toJson()) } })
                 put("annotations", JSONArray().apply { state.annotations.forEach { put(it.toJson()) } })
                 if (state.deleted.isNotEmpty()) put("deleted", deletionsJson(state.deleted))
@@ -297,6 +319,8 @@ class ReaderStore(
                     val p = o.optJSONObject("position")
                     when {
                         o.optBoolean("finished") -> return ReadHere(1f, o.optLong("finishedAt").takeIf { t -> t > 0 } ?: f.lastModified(), finished = true)
+                        // Still in the pages before its chapters (a book opened, but not read yet): not started.
+                        p != null && ReaderPosition.from(p)?.pastFront == false -> null
                         else -> p?.let { ReadHere(it.optDouble("book", 0.0).toFloat(), it.optLong("at").takeIf { t -> t > 0 } ?: f.lastModified()) }
                     }
                 }
@@ -374,11 +398,22 @@ class ReaderStore(
             return readHereOf(bookDir)
         }
 
-        /** Marks the book as not started: its place is let go (it opens at the beginning); bookmarks and highlights are kept. */
-        fun markUnread(bookDir: File) = rewrite(bookDir.also { forgetPdfPage(it) }) { o ->
+        /**
+         * Marks the book as not started: its place is let go (it opens at the beginning); bookmarks and highlights are
+         * kept. When it was is kept too, so it goes to other devices as the last word on the book: a place left there
+         * before doesn't bring it back (see dev.kolib.app.link.ReadingData).
+         */
+        fun markUnread(bookDir: File, now: Long = System.currentTimeMillis()) = rewrite(bookDir.also { forgetPdfPage(it) }) { o ->
             o.remove("position")
             o.remove("finished")
             o.remove("finishedAt")
+            o.put("unreadAt", now)
+        }
+
+        /** The place in the PDF (or comic) is let go if it was left before [time] (when the book was marked unread or finished elsewhere). */
+        internal fun forgetPdfPageBefore(bookDir: File, time: Long) {
+            val place = pdfPlace(bookDir) ?: return
+            if (place.at < time) forgetPdfPage(bookDir)
         }
 
         /** The PDF opens at its start again; whether it's read as text is kept. */

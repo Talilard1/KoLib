@@ -532,7 +532,13 @@ fun AppRoot(
         Section.MORE -> null
     }?.takeIf { it !in seenTours }
 
-    CompositionLocalProvider(dev.kolib.app.ui.ai.LocalAiHost provides aiHost, dev.kolib.app.ui.components.LocalCoversPerRow provides coversPerRow) {
+    // The look, to be changed in the Display tab over a shelf as well as in Settings.
+    val lookChoosing = remember(theme, onTheme) { dev.kolib.app.ui.components.LookChoosing(theme, onTheme) }
+    CompositionLocalProvider(
+        dev.kolib.app.ui.ai.LocalAiHost provides aiHost,
+        dev.kolib.app.ui.components.LocalCoversPerRow provides coversPerRow,
+        dev.kolib.app.ui.components.LocalLook provides lookChoosing,
+    ) {
     Box(
         Modifier
             .fillMaxSize()

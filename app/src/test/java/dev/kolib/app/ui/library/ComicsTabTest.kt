@@ -69,10 +69,13 @@ class ComicsTabTest {
     private val deleted = mutableListOf<List<String>>()
     private val browse = LibraryBrowseState()
 
+    private val unread = mutableListOf<List<String>>()
+
     private fun show(here: Map<String, ReadHere> = mapOf("Saga 001.cbz" to ReadHere(1f, 10))) {
         val actions = ComicActions(
             onRead = { read += it },
             onMarkFinished = { finished += it },
+            onMarkUnread = { unread += it },
             onGroup = { ids, name -> grouped += ids to name },
             onTakeOut = { takenOut += it },
             onDelete = { deleted += it },
@@ -518,5 +521,34 @@ class ComicsTabTest {
         assertNull(browse.comicKey)
         compose.onNodeWithTag("comic-shelf").assertExists()
         compose.onAllNodesWithTag("comic-series-page").assertCountEquals(0)
+    }
+
+    /**
+     * Comics being read, in the row over the shelf: held, one's chosen (a comic, not its series), and a tap chooses
+     * another; they're marked unread together, and the rest of their series is left as it was.
+     */
+    @Test
+    fun comicsInTheContinueReadingRowAreChosenByHolding() {
+        show(mapOf("Saga 002.cbz" to ReadHere(0.4f, 20), "Watchmen.cbz" to ReadHere(0.3f, 10)))
+        compose.onAllNodesWithTag("continue-book").assertCountEquals(2)
+        compose.onAllNodesWithTag("continue-book")[0].performTouchInput { longClick() }
+        compose.waitForIdle()
+        assertEquals(ComicSelecting.ISSUES, browse.comicSelecting)
+        compose.onAllNodesWithTag("continue-book")[1].performClick()
+        compose.waitForIdle()
+        assertEquals(setOf("Saga 002.cbz", "Watchmen.cbz"), browse.comicPicked.keys.toSet())
+        // A series tapped meanwhile isn't chosen, nor opened.
+        compose.onNodeWithText("Saga").performClick()
+        compose.waitForIdle()
+        assertNull(browse.comicKey)
+        assertEquals(2, browse.comicPicked.size)
+        if (compose.onAllNodesWithTag("comic-issues-mark-unread").fetchSemanticsNodes().isEmpty()) {
+            compose.onNodeWithTag("comics-reading-more").performClick()
+            compose.waitForIdle()
+        }
+        compose.onNodeWithTag("comic-issues-mark-unread").performClick()
+        compose.waitForIdle()
+        assertEquals(setOf("Saga 002.cbz", "Watchmen.cbz"), unread.single().toSet())
+        assertNull(browse.comicSelecting)
     }
 }

@@ -29,7 +29,7 @@ android {
         minSdk = 29
         // Keep at 36: from 37, Android drops the opt-out in the manifest that lets the readers turn a tablet's screen.
         targetSdk = 36
-        versionCode = 109
+        versionCode = 110
         versionName = "3.4"
     }
 

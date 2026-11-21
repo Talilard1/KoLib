@@ -2,6 +2,7 @@
 
 package dev.kolib.app.ui.library
 
+import dev.kolib.app.ui.components.shelfScroll
 import dev.kolib.app.ui.components.hasAll
 import dev.kolib.app.ui.filterWords
 import dev.kolib.app.ui.components.UnderCover
@@ -491,13 +492,14 @@ fun LibraryScreen(
                         LibraryCollectionsTab(books, covers, browse, koboConnected, reading, here, onSend) { book, collection, onBack -> detail(book, onBack, collection) }
                     } else if (twoPanes) {
                         // The books have the whole width till one's tapped; its details then open beside them (while books
-                        // are chosen too: the bar along the foot says how many are), closed with ✕ or Back.
+                        // are chosen too: the bar along the foot says how many are), closed with ✕ or Back. The book
+                        // tapped stays on the screen, and closed, the books are back where they were (see KeepsItsPlace).
                         if (selected != null) TabBackHandler { browse.selectedId = null }
                         Row(Modifier.fillMaxSize()) {
                             LibraryBrowser(notComics, visible, covers, browse, selected?.id, onSend, onDelete, Modifier.weight(1f), reading, here, onMerge, onExport, onDuplicate, askSync, onMarkFinished, onMarkUnread, onContinue = { onRead(it.id) })
                             if (selected != null) {
                                 VerticalDivider()
-                                dev.kolib.app.ui.components.SidePane(onClose = { browse.selectedId = null }, modifier = Modifier.width(this@BoxWithConstraints.maxWidth * 0.41f).fillMaxHeight()) {
+                                dev.kolib.app.ui.components.SidePane(onClose = { browse.selectedId = null }, modifier = Modifier.width(this@BoxWithConstraints.maxWidth * SIDE_SHARE).fillMaxHeight()) {
                                     detail(selected, null, null)
                                 }
                             }
@@ -620,11 +622,18 @@ private fun LibraryBrowser(
     onContinue: ((LibraryBook) -> Unit)? = null,
 ) {
     if (browse.selecting) TabBackHandler { browse.stopSelecting() }
-    // The books being read, along the top of the shelf while it isn't narrowed or being chosen from.
-    val continuing = if (onContinue != null && !browse.selecting && !browse.narrowed && dev.kolib.app.ui.components.LocalCoversPerRow.current.showContinue) beingRead(all, here) else emptyList()
+    // The books being read, along the top of the shelf while it isn't narrowed (and while books are chosen, so they can
+    // be chosen there too).
+    val continuing = if (onContinue != null && !browse.narrowed && dev.kolib.app.ui.components.LocalCoversPerRow.current.showContinue) beingRead(all, here) else emptyList()
     val continueRow: @Composable () -> Unit = {
-        // Smaller on a short screen (a phone held sideways), so the shelf still shows under it.
-        ContinueReadingRow(continuing, covers, here, onRead = { onContinue?.invoke(it) }, onOpen = { browse.selectedId = it.id }, sidePadding = 4.dp, coverWidth = if (shortScreen()) 52.dp else 92.dp)
+        // Smaller on a short screen (a phone held sideways), so the shelf still shows under it. Held, a book's chosen,
+        // as on the shelf; while choosing, a tap chooses one (or lets it go).
+        ContinueReadingRow(
+            continuing, covers, here,
+            onTap = { b -> if (browse.selecting) browse.togglePicked(b.id) else onContinue?.invoke(b) },
+            onHold = { b -> browse.holdPick(b.id, continuing.map { it.id }) },
+            picked = if (browse.selecting) ({ b -> browse.picked.containsKey(b.id) }) else null,
+            sidePadding = 4.dp, coverWidth = if (shortScreen()) 52.dp else 92.dp)
     }
     var confirmRemove by remember { mutableStateOf<List<String>?>(null) }
     val onTap: (LibraryBook) -> Unit = { b -> if (browse.selecting) browse.togglePicked(b.id) else browse.selectedId = b.id }
@@ -641,6 +650,11 @@ private fun LibraryBrowser(
             }
             val perRow = chosenPerRow()
             val minCell = shelfMinCell()
+            // Narrowed by a book's details opening beside it, the shelf keeps the book on the screen; closed, it's back.
+            val lead = if (continuing.isNotEmpty()) 1 else 0
+            dev.kolib.app.ui.components.KeepsItsPlace(if (browse.grid) browse.gridState.shelfScroll() else browse.listState.shelfScroll(), selectedId) { id ->
+                books.indexOfFirst { it.id == id }.takeIf { it >= 0 }?.plus(lead)
+            }
             if (browse.grid) ShelfGridBox(minCell = minCell, coverPadding = 8.dp, columns = perRow, mode = browse.mode) {
                 LazyVerticalGrid(
                     columns = shelfCells(perRow, minCell),

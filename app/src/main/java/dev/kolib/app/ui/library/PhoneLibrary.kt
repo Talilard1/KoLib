@@ -888,10 +888,18 @@ private fun PhoneBooksPage(
     /** Opens a book being read where it was left (from the row of them at the top). */
     onContinue: (LibraryBook) -> Unit = {},
 ) {
-    // The books being read, along the top of the shelf while it isn't narrowed or being chosen from.
-    val continuing = if (!browse.selecting && !browse.narrowed && dev.kolib.app.ui.components.LocalCoversPerRow.current.showContinue) beingRead(books, here) else emptyList()
+    // The books being read, along the top of the shelf while it isn't narrowed (and while books are chosen, so they can
+    // be chosen there too).
+    val continuing = if (!browse.narrowed && dev.kolib.app.ui.components.LocalCoversPerRow.current.showContinue) beingRead(books, here) else emptyList()
     val continueRow: @Composable () -> Unit = {
-        ContinueReadingRow(continuing, covers, here, onRead = onContinue, onOpen = { browse.selectedId = it.id }, sidePadding = 8.dp)
+        // Held, a book's chosen, as on the shelf; while choosing, a tap chooses one (or lets it go).
+        ContinueReadingRow(
+            continuing, covers, here,
+            onTap = { b -> if (browse.selecting) browse.togglePicked(b.id) else onContinue(b) },
+            onHold = { b -> browse.holdPick(b.id, continuing.map { it.id }) },
+            picked = if (browse.selecting) ({ b -> browse.picked.containsKey(b.id) }) else null,
+            sidePadding = 8.dp,
+        )
     }
     // Where the filters' chips were: what's showing and in what order (they're chosen with the button at the top).
     dev.kolib.app.ui.ShelfLine(

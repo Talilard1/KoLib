@@ -30,7 +30,8 @@ class ReadingHereIndex {
     }
 
     fun update(id: String, position: ReaderPosition?) {
-        _books.update { m -> if (position == null) m - id else m + (id to ReadHere(position.bookProgress, position.at)) }
+        // A place still in the pages before the book's chapters (from the Kobo, say) isn't reading it yet.
+        _books.update { m -> if (position == null || !position.pastFront) m - id else m + (id to ReadHere(position.bookProgress, position.at)) }
     }
 
     /** A book marked as finished. */

@@ -199,4 +199,59 @@ class ReadingDataTest {
         assertEquals(listOf("m1"), forThem.map { it.id })
         assertEquals(100L, ReadingData.textAt(forThem[0].state))
     }
+
+    /**
+     * Marked unread on one device (the phone) after it was read on the other (the tablet): when they meet, the tablet
+     * comes to unread too, rather than the phone getting the tablet's place back. The last thing done wins.
+     */
+    @Test
+    fun markedUnreadAfterItWasReadElsewhereStaysUnreadOnBoth() {
+        val phone = dir("phone")
+        val tablet = dir("tablet")
+        ReaderStore.rewrite(phone) { it.put("position", position(1000)) }
+        ReaderStore.rewrite(tablet) { it.put("position", position(1000)) }
+        ReaderStore.markUnread(phone, now = 2000)
+        val (forPhone, forTablet) = BookPlace.sync(
+            listOf(BookPlace("b", "Dune", "Frank Herbert", ReadingData.placeOf(phone))),
+            listOf(BookPlace("b", "Dune", "Frank Herbert", ReadingData.placeOf(tablet))),
+        )
+        assertTrue("nothing changes on the phone", forPhone.isEmpty())
+        ReadingData.applyPlace(tablet, forTablet.single().state)
+        assertNull(ReaderStore.readHereOf(tablet))
+        assertNull(ReaderStore.readHereOf(phone))
+        // And it stays so the next time they meet.
+        assertTrue(ReadingData.samePlace(ReadingData.placeOf(phone), ReadingData.placeOf(tablet)))
+    }
+
+    /** Read again after it was marked unread: the later reading wins, wherever it was. */
+    @Test
+    fun readAgainAfterBeingMarkedUnreadTheReadingWins() {
+        val phone = dir("phone2")
+        val tablet = dir("tablet2")
+        ReaderStore.markUnread(phone, now = 2000)
+        ReaderStore.rewrite(tablet) { it.put("position", position(3000, "c4.xhtml")) }
+        val merged = ReadingData.mergePlace(ReadingData.placeOf(phone), ReadingData.placeOf(tablet))
+        assertEquals("c4.xhtml", merged.getJSONObject("text").getString("path"))
+        ReadingData.applyPlace(phone, merged)
+        assertEquals(0.5f, ReaderStore.readHereOf(phone)!!.progress, 0.001f)
+    }
+
+    /** A comic (a PDF's page) marked unread after its page was left on the other device: that page goes there too. */
+    @Test
+    fun aPageInAComicLeftBeforeItWasMarkedUnreadGoes() {
+        val phone = dir("phone3")
+        val tablet = dir("tablet3")
+        ReaderStore.savePdfPlace(tablet, dev.kolib.app.reader.PdfPlace(page = 20, pages = 40, at = 1000))
+        ReaderStore.savePdfPlace(phone, dev.kolib.app.reader.PdfPlace(page = 20, pages = 40, at = 1000))
+        ReaderStore.markUnread(phone, now = 2000)
+        assertNull(ReaderStore.readHereOf(phone))
+        val merged = ReadingData.mergePlace(ReadingData.placeOf(tablet), ReadingData.placeOf(phone))
+        assertFalse("the page goes", merged.has("pdf"))
+        ReadingData.applyPlace(tablet, merged)
+        assertNull(ReaderStore.readHereOf(tablet))
+        // A page turned after it was marked unread is kept.
+        ReaderStore.savePdfPlace(tablet, dev.kolib.app.reader.PdfPlace(page = 3, pages = 40, at = 3000))
+        val again = ReadingData.mergePlace(ReadingData.placeOf(tablet), ReadingData.placeOf(phone))
+        assertEquals(3, again.getJSONObject("pdf").getInt("page"))
+    }
 }

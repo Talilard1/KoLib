@@ -2,6 +2,7 @@
 
 package dev.kolib.app.ui
 
+import dev.kolib.app.ui.components.shelfScroll
 import dev.kolib.app.ui.components.hasAll
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import dev.kolib.app.ui.tour.tourPlace
@@ -207,12 +208,13 @@ fun BooksTab(
         }
         if (twoPanes) {
             // The books have the whole width till one's tapped; its details then open beside them, closed with ✕ or Back.
+            // The book tapped stays on the screen, and closed, the books are back where they were (see KeepsItsPlace).
             if (selected != null) TabBackHandler { browse.selectedBookId = null }
             Row(Modifier.fillMaxSize()) {
                 BookBrowser(view, live, browse, visible, selected?.contentId, extras, onAddToLibrary, onDeleteFromKobo, Modifier.weight(1f), readingTags)
                 if (selected != null) {
                     VerticalDivider()
-                    dev.kolib.app.ui.components.SidePane(onClose = { browse.selectedBookId = null }, modifier = Modifier.width(this@BoxWithConstraints.maxWidth * 0.41f).fillMaxHeight()) {
+                    dev.kolib.app.ui.components.SidePane(onClose = { browse.selectedBookId = null }, modifier = Modifier.width(this@BoxWithConstraints.maxWidth * dev.kolib.app.ui.library.SIDE_SHARE).fillMaxHeight()) {
                         detail(selected, null)
                     }
                 }
@@ -318,6 +320,11 @@ private fun KoboBookList(
         val onLongPress: (KoboBook) -> Unit = { book -> browse.holdPick(book.contentId, books.map { it.contentId }) }
         val perRow = chosenPerRow()
         val minCell = shelfMinCell()
+        // Narrowed by a book's details opening beside it, the shelf keeps the book on the screen; closed, it's back.
+        val lead = if (!browse.whereNoteSeen && !browse.selecting) 1 else 0
+        dev.kolib.app.ui.components.KeepsItsPlace(if (browse.grid) browse.gridState.shelfScroll() else browse.listState.shelfScroll(), selectedId) { id ->
+            books.indexOfFirst { it.contentId == id }.takeIf { it >= 0 }?.plus(lead)
+        }
         if (browse.grid) ShelfGridBox(minCell = minCell, coverPadding = 8.dp, columns = perRow, mode = browse.mode) {
             LazyVerticalGrid(
                 columns = shelfCells(perRow, minCell),

@@ -13,8 +13,9 @@ import java.io.File
  * when both have the book.
  *
  * A book's place has two parts, each kept with the time it was left: the place in the text (or that the book was
- * marked as finished, which lets that place go), and the page in its PDF or comic. Putting two devices' together takes
- * the later of each part. Bookmarks and highlights from both are kept (a highlight changed on both, as it was changed
+ * marked as finished, or as unread, either of which lets that place go), and the page in its PDF or comic. Putting two
+ * devices' together takes the later of each part: the last thing done to the book, on either, is what both come to. A
+ * book marked finished or unread after its page in the PDF was left lets that page go too. Bookmarks and highlights from both are kept (a highlight changed on both, as it was changed
  * last), except those deleted on either: deletions are kept, by id, and go everywhere. So do the notes of which have been
  * on a Kobo (see dev.kolib.app.kobo.ReadingSync).
  */
@@ -36,8 +37,8 @@ internal object ReadingData {
     }
 
     /**
-     * Where the book was left, from what [readingOf] gives: `{"text": position}` or `{"finished": when}`, and `{"pdf": place}`;
-     * with its bookmarks, highlights and notes, and those deleted, as `{"marks": …}` (see [marksOf]).
+     * Where the book was left, from what [readingOf] gives: `{"text": position}`, `{"finished": when}` or `{"unread": when}`,
+     * and `{"pdf": place}`; with its bookmarks, highlights and notes, and those deleted, as `{"marks": …}` (see [marksOf]).
      */
     fun placeOf(reading: JSONObject): JSONObject {
         val o = JSONObject()
@@ -45,6 +46,7 @@ internal object ReadingData {
             when {
                 r.optBoolean("finished") -> o.put("finished", r.optLong("finishedAt"))
                 r.optJSONObject("position") != null -> o.put("text", r.getJSONObject("position"))
+                r.optLong("unreadAt") > 0 -> o.put("unread", r.optLong("unreadAt"))
             }
             marksOf(r)?.let { o.put("marks", it) }
         }
@@ -140,7 +142,11 @@ internal object ReadingData {
                 else -> textKey(a) >= textKey(b)
             }
             val src = if (fromA) a else b
-            src.optJSONObject("text")?.let { out.put("text", it) } ?: out.put("finished", src.optLong("finished"))
+            when {
+                src.optJSONObject("text") != null -> out.put("text", src.getJSONObject("text"))
+                src.has("finished") -> out.put("finished", src.optLong("finished"))
+                else -> out.put("unread", src.optLong("unread"))
+            }
         }
         val pa = a.optJSONObject("pdf")
         val pb = b.optJSONObject("pdf")
@@ -150,7 +156,8 @@ internal object ReadingData {
             pa.optLong("at") != pb.optLong("at") -> if (pa.optLong("at") > pb.optLong("at")) pa else pb
             else -> if (pdfKey(pa) >= pdfKey(pb)) pa else pb
         }
-        pdf?.let { out.put("pdf", it) }
+        // Marked finished or unread after the page was left: the page goes.
+        pdf?.takeIf { it.optLong("at") >= (endedAt(out) ?: Long.MIN_VALUE) }?.let { out.put("pdf", it) }
         mergeMarks(a.optJSONObject("marks"), b.optJSONObject("marks"))?.let { out.put("marks", it) }
         return out
     }
@@ -161,15 +168,23 @@ internal object ReadingData {
             a.optJSONObject("pdf")?.let(::pdfKey) == b.optJSONObject("pdf")?.let(::pdfKey) &&
             marksKey(a.optJSONObject("marks")) == marksKey(b.optJSONObject("marks"))
 
-    /** The place a book was left at: in the text, or finished, and when (null if neither). */
+    /** The place a book was left at: in the text, or finished, or marked unread, and when (null if none of them). */
     fun textAt(place: JSONObject): Long? =
-        place.optJSONObject("text")?.optLong("at") ?: if (place.has("finished")) place.optLong("finished") else null
+        place.optJSONObject("text")?.optLong("at") ?: endedAt(place)
+
+    /** When the book was marked finished or unread, if that's where it was left (which lets its place go). */
+    private fun endedAt(place: JSONObject): Long? = when {
+        place.has("finished") -> place.optLong("finished")
+        place.has("unread") -> place.optLong("unread")
+        else -> null
+    }
 
     /** When the book was last left, in any part of its place (0 if it never was). */
     fun latest(place: JSONObject): Long = maxOf(textAt(place) ?: 0L, place.optJSONObject("pdf")?.optLong("at") ?: 0L)
 
     private fun textKey(place: JSONObject): String =
-        place.optJSONObject("text")?.let { "t|" + it.optString("path") + "|" + it.optString("anchor") + "|" + it.optDouble("progress", 0.0) } ?: if (place.has("finished")) "f" else ""
+        place.optJSONObject("text")?.let { "t|" + it.optString("path") + "|" + it.optString("anchor") + "|" + it.optDouble("progress", 0.0) }
+            ?: if (place.has("finished")) "f" else if (place.has("unread")) "u" else ""
 
     private fun pdfKey(p: JSONObject): String = "${p.optLong("at")}|${p.optInt("page")}|${p.optInt("pages")}|${p.optBoolean("asText")}"
 
@@ -180,16 +195,24 @@ internal object ReadingData {
     fun applyPlace(dir: File, place: JSONObject) {
         val text = place.optJSONObject("text")
         val finished = if (place.has("finished")) place.optLong("finished") else null
+        val unread = if (place.has("unread")) place.optLong("unread") else null
         val marks = place.optJSONObject("marks")
-        if (text != null || finished != null || marks != null) ReaderStore.rewrite(dir) { o ->
+        if (text != null || finished != null || unread != null || marks != null) ReaderStore.rewrite(dir) { o ->
             if (text != null) {
                 o.put("position", text)
                 o.remove("finished")
                 o.remove("finishedAt")
+                o.remove("unreadAt")
             } else if (finished != null) {
                 o.remove("position")
                 o.put("finished", true)
                 o.put("finishedAt", finished)
+                o.remove("unreadAt")
+            } else if (unread != null) {
+                o.remove("position")
+                o.remove("finished")
+                o.remove("finishedAt")
+                o.put("unreadAt", unread)
             }
             if (marks != null) {
                 // What this device has now, with what came: anything changed here since is kept too.
@@ -200,7 +223,10 @@ internal object ReadingData {
                 }
             }
         }
-        place.optJSONObject("pdf")?.let { ReaderStore.writePdfPlace(dir, it) }
+        val pdf = place.optJSONObject("pdf")
+        if (pdf != null) ReaderStore.writePdfPlace(dir, pdf)
+        // Finished or unread with no page that's later: this device's page, left before, goes (see [mergePlace]).
+        else endedAt(place)?.let { ReaderStore.forgetPdfPageBefore(dir, it) }
     }
 
     /**
@@ -224,14 +250,17 @@ internal object ReadingData {
             o.remove("position")
             o.remove("finished")
             o.remove("finishedAt")
+            o.remove("unreadAt")
             place.optJSONObject("text")?.let { o.put("position", it) }
             if (place.has("finished")) {
                 o.put("finished", true)
                 o.put("finishedAt", place.optLong("finished"))
             }
+            if (place.has("unread")) o.put("unreadAt", place.optLong("unread"))
             write(File(dir, READER), o)
         }
-        place.optJSONObject("pdf")?.let { ReaderStore.writePdfPlace(dir, it) }
+        val pdf = place.optJSONObject("pdf")
+        if (pdf != null) ReaderStore.writePdfPlace(dir, pdf) else endedAt(place)?.let { ReaderStore.forgetPdfPageBefore(dir, it) }
     }
 
     /** A bookmark's id: its own, or one made from its place, as [ReaderPosition.markId] makes it. */

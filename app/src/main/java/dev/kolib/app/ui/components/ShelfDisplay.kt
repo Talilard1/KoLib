@@ -1,5 +1,7 @@
 package dev.kolib.app.ui.components
 
+import kotlinx.coroutines.launch
+import androidx.compose.animation.animateContentSize
 import android.content.res.Configuration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,7 +14,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -24,13 +25,11 @@ import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
@@ -38,7 +37,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -116,13 +114,19 @@ fun DisplayButton(
     if (open) ShelfDisplaySheet(mode, onMode, extras = extras, tab = tab, onTab = { tab = it }) { open = false }
 }
 
+/** The app's look and the way to change it, for the end of the Display tab (as in Settings). */
+class LookChoosing(val current: dev.kolib.app.ui.theme.ThemeChoice, val onPick: (dev.kolib.app.ui.theme.ThemeChoice) -> Unit)
+
+val LocalLook = androidx.compose.runtime.compositionLocalOf<LookChoosing?> { null }
+
 /**
  * How a shelf shows its books, chosen over the shelf itself, so each choice is seen as it's made: as covers (with their
  * words under them, on them, or none) or a list, and with covers, how many to a row with the screen held the way it is
  * (Auto: as many as there's room for). With [extras], its filters and its order too, each on a tab: Filter, Sort,
- * Display. A sheet from the foot of the screen, as Mihon's is.
+ * Display, swiped between as Mihon's are. In a sheet as Mihon's: up from the foot of the screen, or in its middle on a
+ * big tablet.
  */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ShelfDisplaySheet(
     mode: ShelfMode,
@@ -135,36 +139,57 @@ fun ShelfDisplaySheet(
     val display: @Composable ColumnScope.() -> Unit = {
         DisplayChoices(mode, onMode, marks = extras?.marks ?: false)
         extras?.display?.invoke(this)
+        LookChoices()
     }
     val parts = buildList {
         extras?.filter?.let { add(Triple("filter", tr("Filter"), it)) }
         extras?.sort?.let { add(Triple("sort", tr("Sort"), it)) }
         add(Triple("display", tr("Display"), display))
     }
-    val shown = tab.coerceIn(0, parts.size - 1)
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        modifier = Modifier.testTag("display-sheet"),
-    ) {
-        if (parts.size > 1) {
-            PrimaryTabRow(selectedTabIndex = shown, containerColor = Color.Transparent) {
-                parts.forEachIndexed { i, (key, name, _) ->
-                    Tab(selected = i == shown, onClick = { onTab(i) }, text = { Text(name) }, modifier = Modifier.testTag("display-tab-$key"))
+    val pager = androidx.compose.foundation.pager.rememberPagerState(initialPage = tab.coerceIn(0, parts.size - 1)) { parts.size }
+    // The tab looked at last, for the next time it's opened.
+    androidx.compose.runtime.LaunchedEffect(pager) { androidx.compose.runtime.snapshotFlow { pager.settledPage }.collect { onTab(it) } }
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    AdaptiveSheet(onDismiss, Modifier.testTag("display-sheet")) {
+        Column {
+            if (parts.size > 1) {
+                PrimaryTabRow(selectedTabIndex = pager.currentPage, containerColor = MaterialTheme.colorScheme.surfaceContainerHigh) {
+                    parts.forEachIndexed { i, (key, name, _) ->
+                        Tab(
+                            selected = pager.currentPage == i,
+                            onClick = { scope.launch { pager.animateScrollToPage(i) } },
+                            text = { Text(name, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis) },
+                            unselectedContentColor = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.testTag("display-tab-$key"),
+                        )
+                    }
+                }
+            }
+            // Each tab as tall as what's in it, the sheet growing and shrinking to it as the tabs are swiped.
+            androidx.compose.foundation.pager.HorizontalPager(
+                state = pager,
+                modifier = Modifier.animateContentSize(),
+                verticalAlignment = Alignment.Top,
+            ) { page ->
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                        .padding(start = 24.dp, end = 24.dp, top = if (parts.size > 1) 16.dp else 24.dp, bottom = 24.dp)
+                ) {
+                    parts[page].third(this)
                 }
             }
         }
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .heightIn(min = if (parts.size > 1) 300.dp else 0.dp)
-                .verticalScroll(rememberScrollState())
-                .navigationBarsPadding()
-                .padding(start = 24.dp, end = 24.dp, top = if (parts.size > 1) 16.dp else 0.dp, bottom = 24.dp)
-        ) {
-            parts[shown].third(this)
-        }
     }
+}
+
+/** The app's look, as in Settings: at the end of the Display tab. */
+@Composable
+private fun LookChoices() {
+    val look = LocalLook.current ?: return
+    SheetHeading(tr("Look"))
+    dev.kolib.app.ui.theme.ThemePicker(look.current, look.onPick, Modifier.testTag("display-look"))
 }
 
 /** A heading in the shelf's sheet. */

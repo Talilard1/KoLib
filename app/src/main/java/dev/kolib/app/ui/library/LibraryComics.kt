@@ -1,5 +1,6 @@
 package dev.kolib.app.ui.library
 
+import dev.kolib.app.ui.components.shelfScroll
 import dev.kolib.app.ui.components.invertPicks
 import dev.kolib.app.ui.components.hasAll
 import androidx.compose.material.icons.outlined.SearchOff
@@ -191,11 +192,12 @@ internal fun LibraryComicsTab(
                 if (open != null && book != null) TabBackHandler { browse.comicBookId = null }
                 else if (open != null && browse.comicSelecting == null) TabBackHandler { closeSeries() }
                 // The shelf has the whole width till a series is tapped; it then opens beside the shelf, closed with ✕ or Back.
+                // The series tapped stays on the screen, and closed, the shelf is back where it was (see KeepsItsPlace).
                 Row(Modifier.fillMaxSize()) {
                     ComicShelf(entries, covers, browse, here, open?.key, actions, Modifier.weight(1f), wide = true)
                     if (open != null) {
                         VerticalDivider()
-                        dev.kolib.app.ui.components.SidePane(onClose = closeSeries, modifier = Modifier.width(this@BoxWithConstraints.maxWidth * 0.41f).fillMaxHeight()) {
+                        dev.kolib.app.ui.components.SidePane(onClose = closeSeries, modifier = Modifier.width(this@BoxWithConstraints.maxWidth * SIDE_SHARE).fillMaxHeight()) {
                             if (book != null) detail(book, open.title) { browse.comicBookId = null }
                             else ComicSeriesPage(open, covers, browse, koboConnected, here, actions, onBack = null, others = entries, infoAtTop = true)
                         }
@@ -251,6 +253,9 @@ private fun ComicShelf(
         }
     }
     val choosing = browse.comicSelecting == ComicSelecting.SERIES
+    // Comics held in the row of those being read: chosen there, a comic each (not their series), to be marked unread or
+    // the like together.
+    val pickingReading = browse.comicSelecting == ComicSelecting.ISSUES && browse.comicKey == null
     // The comics being read, along the top of the shelf while it isn't searched, filtered or chosen from.
     val continuing = if (!choosing && browse.comicQuery.isBlank() && !browse.comicsFiltered && dev.kolib.app.ui.components.LocalCoversPerRow.current.showContinue)
         beingRead(entries.flatMap { it.issues }, here) else emptyList()
@@ -264,10 +269,11 @@ private fun ComicShelf(
         val picked = chosenEntriesOf(shown, browse)
         if (picked.any { it.isSeries }) removingSeries = picked else confirmRemove = picked.flatMap { e -> e.issues.map { it.id } }
     }
-    if (choosing) {
+    if (choosing || pickingReading) {
         TabBackHandler { browse.stopComicSelecting() }
         if (phone) HideBottomBar()
     }
+    val readingChosen = { continuing.filter { browse.comicPicked.containsKey(it.id) }.map { it.id } }
     val chosenEntries = { shown.filter { browse.comicPicked.containsKey(it.key) } }
     // A series opens in place of the shelf (chosen so, or there's no room beside it): a comic on its own is opened to
     // read when it's tapped, and what's held has its details (or its series' page) from Info in the bar for it.
@@ -279,16 +285,31 @@ private fun ComicShelf(
     }
     val chosen = { chosenEntries().flatMap { e -> e.issues.map { it.id } } }
     val done = { browse.stopComicSelecting() }
+    // A comic's details, from Info for one chosen in the row: its series, with them.
+    val openComic = { id: String ->
+        entries.firstOrNull { e -> e.issues.any { it.id == id } }?.let { e ->
+            done()
+            browse.comicKey = e.key
+            browse.comicBookId = id
+        }
+    }
     Box(modifier) {
         Column(Modifier.fillMaxSize()) {
             val chosenCount = browse.comicPicked.size
-            val title = if (chosenCount == 0) tr("Tap series to select them") else if (chosenCount == 1) tr("1 series selected") else tr("{0} series selected", chosenCount)
+            val title = when {
+                pickingReading -> if (chosenCount == 0) tr("Tap comics to select them") else if (chosenCount == 1) tr("1 comic selected") else tr("{0} comics selected", chosenCount)
+                chosenCount == 0 -> tr("Tap series to select them")
+                chosenCount == 1 -> tr("1 series selected")
+                else -> tr("{0} series selected", chosenCount)
+            }
+            // What Select all and Invert go over: the series, or the comics in the row.
+            val pickable = if (pickingReading) continuing.map { it.id } else shown.map { it.key }
             // On a short screen, the search slides away as the shelf is scrolled, once the bar and tabs have.
             dev.kolib.app.ui.components.HidingTop(top = {
-            if (choosing && phone) {
-                ComicChoosingHeader(title, onSelectAll = { shown.forEach { browse.comicPicked[it.key] = true } }, onDeselectAll = { browse.comicPicked.clear() },
+            if ((choosing || pickingReading) && phone) {
+                ComicChoosingHeader(title, onSelectAll = { pickable.forEach { browse.comicPicked[it] = true } }, onDeselectAll = { browse.comicPicked.clear() },
                     anySelected = browse.comicPicked.isNotEmpty(), onCancel = done,
-                    onInvert = { browse.comicPicked.invertPicks(shown.map { it.key }) }, allSelected = browse.comicPicked.hasAll(shown.map { it.key }))
+                    onInvert = { browse.comicPicked.invertPicks(pickable) }, allSelected = browse.comicPicked.hasAll(pickable))
             } else if (!phone) {
                 ComicSearchRow(browse, shown.size, shown.sumOf { it.issues.size }, wide)
             } else {
@@ -306,13 +327,29 @@ private fun ComicShelf(
                 val continueRow: @Composable () -> Unit = {
                     ContinueReadingRow(
                         continuing, covers, here,
-                        onRead = { actions.onRead(it.id) },
-                        onOpen = { c -> entries.firstOrNull { e -> e.issues.any { it.id == c.id } }?.let { e -> browse.comicKey = e.key; browse.comicBookId = null } },
+                        onTap = { c ->
+                            if (!pickingReading) actions.onRead(c.id)
+                            else if (browse.comicPicked.remove(c.id) == null) browse.comicPicked[c.id] = true
+                        },
+                        // Held, a comic's chosen, with any others held there since.
+                        onHold = { c ->
+                            if (!pickingReading) {
+                                // A series open beside the shelf closes: it's the row's comics being chosen.
+                                browse.stopComicSelecting()
+                                browse.comicKey = null
+                                browse.comicBookId = null
+                                browse.comicSelecting = ComicSelecting.ISSUES
+                            }
+                            browse.comicPicked[c.id] = true
+                        },
+                        picked = if (pickingReading) ({ c -> browse.comicPicked.containsKey(c.id) }) else null,
                         sidePadding = if (phone) 8.dp else 4.dp,
                     )
                 }
                 val tapEntry = { entry: ComicEntry ->
-                    if (choosing) {
+                    if (pickingReading) {
+                        // Comics are being chosen in the row over the shelf: a series isn't one of them.
+                    } else if (choosing) {
                         if (browse.comicPicked.remove(entry.key) == null) browse.comicPicked[entry.key] = true
                     } else if (inPlace && !entry.isSeries) {
                         actions.onRead(entry.issues.first().id)
@@ -322,13 +359,20 @@ private fun ComicShelf(
                         if (browse.comicSelecting == ComicSelecting.ISSUES) browse.stopComicSelecting()
                     }
                 }
-                val holdEntry = { entry: ComicEntry ->
+                val holdEntry = holdEntry@{ entry: ComicEntry ->
+                    if (pickingReading) return@holdEntry
                     if (!choosing) {
                         browse.stopComicSelecting()
                         browse.comicSelecting = ComicSelecting.SERIES
                     }
                     browse.comicPicked[entry.key] = true
                 }
+                // Narrowed by a series opening beside it, the shelf keeps the series on the screen; closed, it's back.
+                val lead = if (continuing.isNotEmpty()) 1 else 0
+                dev.kolib.app.ui.components.KeepsItsPlace(
+                    if (browse.comicMode == dev.kolib.app.ui.components.ShelfMode.LIST) browse.comicList.shelfScroll() else browse.comicGrid.shelfScroll(),
+                    if (wide) highlighted else null,
+                ) { key -> shown.indexOfFirst { it.key == key }.takeIf { it >= 0 }?.plus(lead) }
                 if (browse.comicMode == dev.kolib.app.ui.components.ShelfMode.LIST) {
                     // The series as a list: each with its cover, name, and how many of its comics are read.
                     LazyColumn(
@@ -381,6 +425,15 @@ private fun ComicShelf(
                 }
             }
             }
+            if (pickingReading && !phone) AtFoot {
+                SelectionBar(
+                    count = 0, title = title, anySelected = chosenCount > 0,
+                    onSelectAll = { pickable.forEach { browse.comicPicked[it] = true } }, onDeselectAll = { browse.comicPicked.clear() }, onCancel = done,
+                    onInvert = { browse.comicPicked.invertPicks(pickable) }, allSelected = browse.comicPicked.hasAll(pickable),
+                    moreTag = "comics-reading-more",
+                    actions = readingActions(chosenCount, readingChosen, actions, done, onRemove = { confirmRemove = readingChosen() }) { id -> openComic(id) },
+                )
+            }
             if (choosing && !phone) AtFoot {
                 SelectionBar(
                     count = 0, title = title, anySelected = chosenCount > 0,
@@ -392,6 +445,13 @@ private fun ComicShelf(
                         onInfo = if (inPlace && chosenCount == 1) ({ chosenEntries().firstOrNull()?.let(showInfo) }) else null),
                 )
             }
+        }
+        if (pickingReading && phone) {
+            PhoneActionBar(
+                readingActions(browse.comicPicked.size, readingChosen, actions, done, onRemove = { confirmRemove = readingChosen() }) { id -> openComic(id) },
+                Modifier.align(Alignment.BottomCenter),
+                moreTag = "comics-reading-more",
+            )
         }
         if (choosing && phone) {
             val count = browse.comicPicked.size
@@ -443,6 +503,24 @@ private fun ComicShelf(
         RemoveBooksDialog(ids, onRemove = { actions.onDelete(ids); confirmRemove = null; done() }, onDismiss = { confirmRemove = null })
     }
 }
+
+/** What can be done with comics chosen in the row of those being read: as with a series' comics, but none taken out of one. */
+private fun readingActions(
+    count: Int,
+    chosen: () -> List<String>,
+    actions: ComicActions,
+    done: () -> Unit,
+    onRemove: () -> Unit,
+    onInfo: (String) -> Unit,
+) = comicIssueActions(
+    count, inSeries = false,
+    onSend = { actions.onSend(chosen()); done() },
+    onRead = { actions.onMarkFinished(chosen()); done() },
+    onUnread = { actions.onMarkUnread(chosen()); done() },
+    onTakeOut = {},
+    onRemove = onRemove,
+    onInfo = if (count == 1) ({ chosen().firstOrNull()?.let(onInfo) }) else null,
+)
 
 /** The entries chosen on the shelf, of those [shown]. */
 private fun chosenEntriesOf(shown: List<ComicEntry>, browse: LibraryBrowseState) = shown.filter { browse.comicPicked.containsKey(it.key) }

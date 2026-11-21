@@ -1,5 +1,6 @@
 package dev.kolib.app
 
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.swipe
@@ -869,13 +870,17 @@ class PhoneShots {
 
     // ---- 3.4's layout: the one button's panel, the More tab, the Kobo's note, on phones and tablets --------------------
 
-    private fun planSheet(name: String, tab: String, configure: LibraryBrowseState.(Library) -> Unit = {}) {
+    private fun planSheet(name: String, tab: String, scrollTo: String? = null, configure: LibraryBrowseState.(Library) -> Unit = {}) {
         val (lib, covers) = library()
         val browse = LibraryBrowseState().apply { configure(lib) }
         compose.mainClock.autoAdvance = false
         compose.setContent {
             AppSurface(ThemeChoice.BOOKCASE) {
-                androidx.compose.runtime.CompositionLocalProvider(dev.kolib.app.ui.components.LocalCoversPerRow provides perRow) { LibraryPage(lib, covers, browse) }
+                androidx.compose.runtime.CompositionLocalProvider(
+                    dev.kolib.app.ui.components.LocalCoversPerRow provides perRow,
+                    // The look, as the app gives it: at the end of the Display tab.
+                    dev.kolib.app.ui.components.LocalLook provides dev.kolib.app.ui.components.LookChoosing(ThemeChoice.BOOKCASE) {},
+                ) { LibraryPage(lib, covers, browse) }
             }
         }
         compose.mainClock.advanceTimeBy(1_000)
@@ -884,6 +889,7 @@ class PhoneShots {
         compose.waitForIdle()
         compose.onNodeWithTag("display-tab-$tab").performClick()
         compose.waitForIdle()
+        scrollTo?.let { compose.onNodeWithTag(it, useUnmergedTree = true).performScrollTo() }
         Thread.sleep(500)
         compose.waitForIdle()
         capture(name)
@@ -906,6 +912,7 @@ class PhoneShots {
     }
     @Test @Config(qualifiers = PHONE) fun plan04Sort() = planSheet("plan04_sheet_sort", "sort")
     @Test @Config(qualifiers = PHONE) fun plan05Display() = planSheet("plan05_sheet_display", "display")
+    @Test @Config(qualifiers = PHONE) fun plan05DisplayLook() = planSheet("plan05b_sheet_display_look", "display", scrollTo = "display-look")
     @Test @Config(qualifiers = PHONE) fun plan06Filtered() = libraryIn("plan06_library_filtered") {
         filter = dev.kolib.app.ui.library.LibraryFilter.entries.first { it.name == "ON_KOBO" }
         collection = "Classics"

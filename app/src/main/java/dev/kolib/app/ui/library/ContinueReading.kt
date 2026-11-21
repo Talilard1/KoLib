@@ -26,6 +26,9 @@ import dev.kolib.app.reader.ReadHere
 import dev.kolib.app.tr
 import dev.kolib.app.ui.components.LibraryCover
 
+/** How much of a wide screen the place beside a shelf takes, for a book's details or a series. */
+internal const val SIDE_SHARE = 0.41f
+
 /** The books started but not finished in KoLib's reader, the last read first. */
 internal fun beingRead(books: List<LibraryBook>, here: (LibraryBook) -> ReadHere?, most: Int = 12): List<LibraryBook> =
     books.mapNotNull { b -> here(b)?.takeIf { it.started && it.percent < 100 }?.let { b to it.at } }
@@ -35,7 +38,9 @@ internal fun beingRead(books: List<LibraryBook>, here: (LibraryBook) -> ReadHere
 
 /**
  * The books being read, along the top of the Books tab (as Apple Books opens on Continue, and Mihon's covers have a
- * button to carry on): tapped, one opens in the reader where it was left; held, its details.
+ * button to carry on): tapped, one opens in the reader where it was left; held, it's chosen, as on the shelf, so
+ * several can be marked unread (or the like) together. While choosing, a tap chooses one, or lets it go: [picked]
+ * says which are.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -43,8 +48,9 @@ internal fun ContinueReadingRow(
     books: List<LibraryBook>,
     covers: LibraryCovers,
     here: (LibraryBook) -> ReadHere?,
-    onRead: (LibraryBook) -> Unit,
-    onOpen: (LibraryBook) -> Unit,
+    onTap: (LibraryBook) -> Unit,
+    onHold: (LibraryBook) -> Unit,
+    picked: ((LibraryBook) -> Boolean)? = null,
     sidePadding: Dp = 16.dp,
     coverWidth: Dp = 84.dp,
 ) {
@@ -60,10 +66,10 @@ internal fun ContinueReadingRow(
                 Column(
                     Modifier
                         .width(coverWidth)
-                        .combinedClickable(onClick = { onRead(book) }, onLongClick = { onOpen(book) })
+                        .combinedClickable(onClick = { onTap(book) }, onLongClick = { onHold(book) })
                         .testTag("continue-book"),
                 ) {
-                    LibraryCover(book, covers, large = false, readHere = here(book), modifier = Modifier.width(coverWidth))
+                    LibraryCover(book, covers, large = false, picked = picked?.invoke(book), readHere = here(book), modifier = Modifier.width(coverWidth))
                     Spacer(Modifier.height(6.dp))
                     Text(book.title, style = MaterialTheme.typography.labelMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     here(book)?.let { r ->

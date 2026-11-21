@@ -56,7 +56,10 @@ class BrowseState {
     var tagsMatchAll by mutableStateOf(true)
     var sort by mutableStateOf(KoboSort.TITLE)
     var descending by mutableStateOf(false)
-    var grid by mutableStateOf(true)
+    /** How the books show: as covers (with their words under them, on them, or none) or a list. */
+    var mode by mutableStateOf(dev.kolib.app.ui.components.ShelfMode.COMFORTABLE)
+    /** The books show as covers, not a list. */
+    val grid: Boolean get() = mode != dev.kolib.app.ui.components.ShelfMode.LIST
     var selectedBookId by mutableStateOf<String?>(null)
 
     /** Which of the Kobo's tabs is showing: books, collections or device. */

@@ -119,10 +119,40 @@ fun CoverImage(
         } else {
             GeneratedCover(title, author, large)
         }
-        // A small cover (as with many in a row) has room for its badges' dots, not their words.
-        CompositionLocalProvider(LocalSmallCover provides (maxWidth < 88.dp)) { overlay() }
+        // On a compact shelf, the title is on the cover, along its foot (and the badges that would be there go to its top).
+        val compact = !large && LocalShelfMode.current == ShelfMode.COMPACT
+        if (compact) CompactCaption(title, small = maxWidth < 104.dp)
+        // A small cover (as with many in a row) has room for its badges' dots, not their words; with the title on it, where
+        // the badges share its top, a smaller one than that too.
+        CompositionLocalProvider(LocalSmallCover provides (maxWidth < if (compact) 120.dp else 88.dp), LocalCompactCover provides compact) { overlay() }
     }
 }
+
+/** The cover's title along its foot, over a shade that darkens towards the bottom, as Mihon's compact grid has it. */
+@Composable
+private fun BoxScope.CompactCaption(title: String, small: Boolean) {
+    Box(
+        Modifier
+            .align(Alignment.BottomCenter)
+            .fillMaxWidth()
+            // Dark enough at the foot that a title printed on the cover doesn't show through this one.
+            .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f), Color.Black.copy(alpha = 0.92f))))
+            .padding(start = 6.dp, end = 6.dp, top = 24.dp, bottom = 6.dp)
+    ) {
+        Text(
+            title,
+            color = Color.White,
+            fontSize = if (small) 11.sp else 12.sp,
+            lineHeight = if (small) 13.sp else 15.sp,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+/** The cover being drawn has its title along its foot: see [CoverImage]. */
+private val LocalCompactCover = staticCompositionLocalOf { false }
 
 /** The cover being drawn is small: see [CoverImage]. */
 private val LocalSmallCover = staticCompositionLocalOf { false }
@@ -307,10 +337,13 @@ private fun BoxScope.ReadHereBadge(percent: Int?, aboveBar: Boolean) {
     // A phone's covers are smaller, so their badges are too.
     val small = phoneLayout()
     val style = LocalKoLibStyle.current
+    // With the title along the cover's foot, at its top instead.
+    val top = LocalCompactCover.current
+    val edge = if (small) 4.dp else 5.dp
     Row(
         Modifier
-            .align(Alignment.BottomStart)
-            .padding(start = if (small) 4.dp else 5.dp, bottom = if (aboveBar) 9.dp else if (small) 4.dp else 5.dp)
+            .align(if (top) Alignment.TopStart else Alignment.BottomStart)
+            .padding(start = edge, top = if (top) edge else 0.dp, bottom = if (top) 0.dp else if (aboveBar) 9.dp else edge)
             .clip(RoundedCornerShape(50))
             .background(style.badge)
             .padding(start = if (small) 4.dp else 5.dp, end = if (small) 5.dp else 6.dp, top = 1.dp, bottom = 1.dp)
@@ -342,9 +375,11 @@ private fun BoxScope.CornerBadge(text: String, dot: Color, alignment: Alignment)
     val small = phoneLayout()
     val dotOnly = LocalSmallCover.current
     val style = LocalKoLibStyle.current
+    // With the title along the cover's foot, one at the foot goes to the top.
+    val at = if (alignment == Alignment.BottomStart && LocalCompactCover.current) Alignment.TopStart else alignment
     Row(
         Modifier
-            .align(alignment)
+            .align(at)
             .padding(if (small || dotOnly) 4.dp else 5.dp)
             .clip(RoundedCornerShape(50))
             .background(style.badge)
@@ -450,20 +485,20 @@ val SHELF_HEIGHT = 15.dp
  * narrowest cell's, which keeps the shelves straight.
  */
 @Composable
-fun ShelfGridBox(minCell: Dp, coverPadding: Dp, columns: Int? = null, content: @Composable () -> Unit) {
+fun ShelfGridBox(minCell: Dp, coverPadding: Dp, columns: Int? = null, mode: ShelfMode = ShelfMode.COMFORTABLE, content: @Composable () -> Unit) {
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val density = LocalDensity.current
         val width = constraints.maxWidth
         val count = columns ?: with(density) { (width / minCell.roundToPx()).coerceAtLeast(1) }
         val cell = width / count
         // Many covers to a row: smaller words under them, so titles aren't cut off after a letter or two.
-        SmallerWords(with(density) { cell.toDp() } < SMALL_CELL) {
+        CompositionLocalProvider(LocalShelfMode provides mode) { SmallerWords(with(density) { cell.toDp() } < SMALL_CELL) {
             if (!LocalBookcase.current) content()
             else {
                 val metrics = with(density) { ShelfMetrics(((cell - 2 * coverPadding.roundToPx()) * 3 / 2).coerceAtLeast(1).toDp(), count, cell) }
                 CompositionLocalProvider(LocalShelf provides metrics) { content() }
             }
-        }
+        } }
     }
 }
 

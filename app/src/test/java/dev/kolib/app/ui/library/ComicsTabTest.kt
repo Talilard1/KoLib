@@ -1,5 +1,6 @@
 package dev.kolib.app.ui.library
 
+import androidx.compose.ui.test.swipeDown
 import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -299,10 +300,14 @@ class ComicsTabTest {
         compose.waitForIdle()
         compose.onAllNodesWithTag("comic-shelf").assertCountEquals(0)
         compose.onAllNodesWithTag("comic-issue").assertCountEquals(3)
-        // As covers, each an entry of its own.
+        // As covers, each an entry of its own: chosen in the sheet for how they show, as for the shelf.
         compose.onNodeWithTag("comic-series-layout").performClick()
         compose.waitForIdle()
+        compose.onNodeWithTag("display-comfortable").performClick()
+        compose.waitForIdle()
         assertTrue(browse.seriesGrid)
+        compose.onNodeWithTag("display-sheet").performTouchInput { swipeDown() }
+        compose.waitForIdle()
         compose.onNodeWithTag("comic-issue-grid").assertExists()
         compose.onAllNodesWithTag("comic-issue").assertCountEquals(3)
         // A comic's details: no button on each, but held, then Info in the bar; back to its series as it was, then back to
@@ -322,7 +327,11 @@ class ComicsTabTest {
         compose.waitForIdle()
         compose.onNodeWithTag("comic-series-layout").performClick()
         compose.waitForIdle()
+        compose.onNodeWithTag("display-list").performClick()
+        compose.waitForIdle()
         assertFalse(browse.seriesGrid)
+        compose.onNodeWithTag("display-sheet").performTouchInput { swipeDown() }
+        compose.waitForIdle()
         compose.onAllNodesWithTag("comic-issue-grid").assertCountEquals(0)
     }
 

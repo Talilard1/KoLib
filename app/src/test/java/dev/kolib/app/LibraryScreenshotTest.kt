@@ -271,7 +271,7 @@ class LibraryScreenshotTest {
     @Test
     @Config(qualifiers = PORTRAIT)
     fun libraryListPortrait() = libraryScreen("19_library_list_portrait") {
-        grid = false
+        mode = dev.kolib.app.ui.components.ShelfMode.LIST
         sort = LibrarySort.AUTHOR
     }
 
@@ -500,7 +500,7 @@ class LibraryScreenshotTest {
     fun searchingWithTags() = libraryScreen("35_library_search") {
         query = "tag:history and not tag:greece or series:holmes"
         sortBy(LibrarySort.SERIES)
-        grid = false
+        mode = dev.kolib.app.ui.components.ShelfMode.LIST
     }
 
     @Test

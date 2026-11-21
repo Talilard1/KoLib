@@ -98,16 +98,33 @@ class ComicsShots {
         captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/$name.png")
     }
 
-    private fun screen(lib: Library, covers: LibraryCovers, browse: LibraryBrowseState) {
+    private fun screen(lib: Library, covers: LibraryCovers, browse: LibraryBrowseState, perRow: dev.kolib.app.ui.components.CoversPerRow = dev.kolib.app.ui.components.CoversPerRow()) {
         compose.setContent {
-            AppSurface(ThemeChoice.SYSTEM) {
+            AppSurface(ThemeChoice.SYSTEM) { androidx.compose.runtime.CompositionLocalProvider(dev.kolib.app.ui.components.LocalCoversPerRow provides perRow) {
                 LibraryScreen(
                     books = lib.books.value, covers = covers, browse = browse, job = null, koboConnected = true,
                     onAddFiles = {}, onAddFromKobo = {}, onShowJob = {}, onEditDetails = {}, onChangeCover = {}, onDelete = {}, onSend = {},
                     readingHere = here(lib),
                 )
-            }
+            } }
         }
+    }
+
+    /** A series in place of the shelf, as covers: as many to a row as chosen, as the shelf has. */
+    @Test
+    @Config(qualifiers = "w1280dp-h800dp-land-mdpi")
+    fun tabletSeriesInPlaceThreeToARow() {
+        val (lib, covers) = library()
+        screen(lib, covers, LibraryBrowseState().apply { tab = 2; comicKey = "s:saga"; seriesInPlace = true; seriesGrid = true }, dev.kolib.app.ui.components.CoversPerRow(landscape = 3))
+        shot("comics_tablet_inplace_grid_three")
+    }
+
+    @Test
+    @Config(qualifiers = "w1280dp-h800dp-land-mdpi")
+    fun tabletShelfInPlaceThreeToARow() {
+        val (lib, covers) = library()
+        screen(lib, covers, LibraryBrowseState().apply { tab = 2; seriesInPlace = true }, dev.kolib.app.ui.components.CoversPerRow(landscape = 3))
+        shot("comics_tablet_shelf_inplace_three")
     }
 
     @Test

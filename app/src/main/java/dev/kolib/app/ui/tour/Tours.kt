@@ -22,9 +22,10 @@ object Tours {
         TourStop(listOf("library-shelf"), tr("Your library"), tr("Tap a book to see it, read it or send it to your Kobo. Hold one to choose several at once.")),
         TourStop(listOf("library-tabs"), tr("Books, collections and comics"), tr("Switch between your books, your collections and your comics. You can swipe between them too.")),
         TourStop(listOf("library-search"), tr("Find a book"), tr("Search titles, authors, series and tags. Tap ? to see all the ways you can search.")),
+        TourStop(listOf("library-display"), tr("How books show"), tr("As covers or a list. With covers, choose whether titles show under them, on them or not at all, and how many fit in a row.")),
         TourStop(
             listOf("library-menu"), tr("More"),
-            tr("Choose books, switch between covers and a list, or open Settings and Reading stats. You can turn off the opening animation in Settings."),
+            tr("Choose books, or open Settings and Reading stats. You can turn off the opening animation in Settings."),
         ),
         TourStop(listOf("library-add"), tr("Add books"), tr("Add books and comics from this device, a folder or your Kobo. You can write a new book here too.")),
         TourStop(
@@ -48,6 +49,7 @@ object Tours {
     fun kobo() = listOf(
         TourStop(listOf("kobo-shelf"), tr("What's on your Kobo"), tr("Every book on your Kobo. Tap one to see it, or hold one to choose several to add to your library or delete.")),
         TourStop(listOf("kobo-tabs"), tr("Books, collections and the device"), tr("The Device tab has the Kobo's details, its free space and its database backups.")),
+        TourStop(listOf("kobo-display"), tr("How books show"), tr("As covers or a list. With covers, choose whether titles show under them, on them or not at all, and how many fit in a row.")),
         TourStop(listOf("kobo-eject"), tr("Eject"), tr("Tap this before you unplug the Kobo, so it can add the books you've sent.")),
         TourStop(listOf("kobo-menu"), tr("More"), tr("Back up the Kobo's database, see the log, open Settings, or forget this Kobo.")),
     )
@@ -69,7 +71,6 @@ object Tours {
         stop("settings-folder", tr("Books folder"), tr("A folder KoLib adds books from. Look in it again to add the new ones."), reveal),
         stop("settings-reading", tr("Reading setup"), tr("Set the page colour, font, text size and how pages turn, on an example book."), reveal),
         stop("settings-ai", tr("AI and dictionary"), tr("Look up words, and get chapter summaries and answers about the book you're reading."), reveal),
-        stop("settings-covers", tr("Covers per row"), tr("How many covers each row of a shelf holds, upright and sideways. Auto fits as many as there's room for."), reveal),
         stop("settings-comics", tr("Comics"), tr("Give comics a tab of their own in the library, with each series as one entry."), reveal),
         stop("settings-look", tr("Look"), tr("Choose how KoLib looks. The opening animation matches the look you choose."), reveal),
         stop("settings-opening", tr("Opening animation"), tr("Turn the animation and its sound on or off, or use a lighter one on a slower device."), reveal),

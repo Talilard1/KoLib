@@ -155,7 +155,7 @@ class ScreenshotTest {
     @Test
     @Config(qualifiers = LANDSCAPE)
     fun booksListSortedByAuthor() = deviceScreen("04_books_list_landscape", configure = {
-        grid = false
+        mode = dev.kolib.app.ui.components.ShelfMode.LIST
         sort = dev.kolib.app.ui.KoboSort.AUTHOR
         selectedBookId = FakeKobo.books.first { it.title == "The Sign of the Four" }.contentId
     })

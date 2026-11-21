@@ -2,6 +2,7 @@
 
 package dev.kolib.app.ui.library
 
+import dev.kolib.app.ui.components.DisplayButton
 import dev.kolib.app.ui.components.shelfCells
 import dev.kolib.app.ui.components.chosenPerRow
 import dev.kolib.app.ui.tour.tourPlace
@@ -376,10 +377,10 @@ internal fun PhoneLibraryScreen(
                     dev.kolib.app.ui.ai.LocalOpenAiChat.current?.takeIf { dev.kolib.app.ui.ai.aiButtonShown() }?.let { open ->
                         IconButton(onClick = open, modifier = Modifier.size(40.dp).testTag("library-ai")) { dev.kolib.app.ui.ai.AiButtonIcon(tr("AI chat")) }
                     }
+                    // How the books show and how many covers to a row, as Mihon's button beside its menu.
+                    DisplayButton(browse.mode, { browse.mode = it }, Modifier.size(40.dp).tourPlace("library-display"))
                     Box(Modifier.tourPlace("library-menu")) { PhoneListMenu(
-                        grid = browse.grid,
                         onSelect = { browse.selecting = true },
-                        onGrid = { browse.grid = it },
                         more = listOfNotNull(
                             onSyncAll?.takeIf { onBoth.isNotEmpty() }?.let { MenuEntry(tr("Sync reading with the Kobo"), Icons.Outlined.Sync, it) },
                             onTheme?.let { MenuEntry(tr("Settings"), Icons.Outlined.Settings, it) },
@@ -861,7 +862,7 @@ private fun PhoneBooksPage(
     // Room under the last row, so the Add books button (or the bar for chosen books) doesn't cover it.
     val underLast = 104.dp
     val perRow = chosenPerRow() ?: 3
-    if (browse.grid) ShelfGridBox(minCell = 100.dp, coverPadding = 6.dp, columns = perRow) {
+    if (browse.grid) ShelfGridBox(minCell = 100.dp, coverPadding = 6.dp, columns = perRow, mode = browse.mode) {
         val bookcase = LocalBookcase.current
         LazyVerticalGrid(
             columns = GridCells.Fixed(perRow),

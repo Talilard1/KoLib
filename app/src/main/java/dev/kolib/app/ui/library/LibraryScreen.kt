@@ -2,6 +2,8 @@
 
 package dev.kolib.app.ui.library
 
+import dev.kolib.app.ui.components.UnderCover
+import dev.kolib.app.ui.components.DisplayButton
 import dev.kolib.app.ui.components.shelfMinCell
 import dev.kolib.app.ui.components.shelfCells
 import dev.kolib.app.ui.components.chosenPerRow
@@ -629,7 +631,7 @@ private fun LibraryBrowser(
             }
             val perRow = chosenPerRow()
             val minCell = shelfMinCell()
-            if (browse.grid) ShelfGridBox(minCell = minCell, coverPadding = 8.dp, columns = perRow) {
+            if (browse.grid) ShelfGridBox(minCell = minCell, coverPadding = 8.dp, columns = perRow, mode = browse.mode) {
                 LazyVerticalGrid(
                     columns = shelfCells(perRow, minCell),
                     state = browse.gridState,
@@ -755,13 +757,14 @@ internal fun LibraryGridItem(
     ) {
         LibraryCover(book, covers, large = false, modifier = Modifier.gridCover(), onKobo = book.koboPath != null, picked = picked, reading = reading, readHere = here)
         ShelfSpace()
-        Spacer(Modifier.height(8.dp))
-        Text(book.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
-        book.authorLine?.let {
-            Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        }
-        sortDetail(book, sort, reading, here)?.let {
-            Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        UnderCover {
+            Text(book.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            book.authorLine?.let {
+                Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+            sortDetail(book, sort, reading, here)?.let {
+                Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
         }
     }
 }
@@ -905,9 +908,8 @@ private fun LibraryControls(all: List<LibraryBook>, browse: LibraryBrowseState, 
                     }
                 }
             }
-            IconButton(onClick = { browse.grid = !browse.grid }) {
-                if (browse.grid) Icon(Icons.AutoMirrored.Filled.ViewList, tr("Show as list")) else Icon(Icons.Filled.GridView, tr("Show as grid"))
-            }
+            // How the books show (covers, and how, or a list) and how many covers to a row, chosen over the shelf.
+            DisplayButton(browse.mode, { browse.mode = it }, Modifier.tourPlace("library-display"))
     }
     val chips: @Composable () -> Unit = {
             LibraryFilter.entries.forEach { f ->

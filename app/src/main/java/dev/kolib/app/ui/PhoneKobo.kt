@@ -2,6 +2,9 @@
 
 package dev.kolib.app.ui
 
+import androidx.compose.ui.platform.testTag
+import dev.kolib.app.ui.tour.tourPlace
+import dev.kolib.app.ui.components.DisplayButton
 import dev.kolib.app.ui.components.shelfCells
 import dev.kolib.app.ui.components.chosenPerRow
 import dev.kolib.app.tr
@@ -137,16 +140,17 @@ internal fun PhoneKoboBrowser(
                     hint = if (!live) tr("Connect your Kobo to add or delete books") else null,
                 )
             } else {
-                // Choosing several books and grid or list are in the menu at the top, with the Kobo's own items.
-                PhoneSearchField(
-                    query = browse.query,
-                    onQuery = { browse.query = it },
-                    placeholder = tr("Search {0}", Fmt.plural(snapshot.books.size, "book")),
-                    onHelp = { showHelp = true },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 4.dp),
-                )
+                // Choosing several books is in the menu at the top, with the Kobo's own items; how the books show, beside the search.
+                Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 10.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                    PhoneSearchField(
+                        query = browse.query,
+                        onQuery = { browse.query = it },
+                        placeholder = tr("Search {0}", Fmt.plural(snapshot.books.size, "book")),
+                        onHelp = { showHelp = true },
+                        modifier = Modifier.weight(1f),
+                    )
+                    DisplayButton(browse.mode, { browse.mode = it }, Modifier.tourPlace("kobo-display"))
+                }
             }
             PhoneKoboFilters(browse, view, extras)
             if (browse.narrowed) PhoneNarrowedLine(books.size, snapshot.books.size) { browse.clearFilters() }
@@ -165,7 +169,7 @@ internal fun PhoneKoboBrowser(
             }
             val underLast = if (browse.selecting) 104.dp else 24.dp
             val perRow = chosenPerRow() ?: 3
-            if (browse.grid) ShelfGridBox(minCell = 100.dp, coverPadding = 6.dp, columns = perRow) {
+            if (browse.grid) ShelfGridBox(minCell = 100.dp, coverPadding = 6.dp, columns = perRow, mode = browse.mode) {
                 val bookcase = LocalBookcase.current
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(perRow),
@@ -398,18 +402,25 @@ internal fun PhoneKoboBookPage(
                     Spacer(Modifier.width(8.dp))
                     Text(tr("In your library"), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
                 }
-                book.isSideloaded && onAddToLibrary != null -> Button(onClick = onAddToLibrary, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) {
-                    Icon(Icons.Filled.LibraryAdd, null, Modifier.size(18.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text(tr("Add to library"))
+                // Not plugged in, the book can't be copied from the Kobo: the button's there, greyed out, saying why.
+                book.isSideloaded && (onAddToLibrary != null || !live) -> Column(Modifier.fillMaxWidth()) {
+                    Button(
+                        onClick = { onAddToLibrary?.invoke() },
+                        enabled = onAddToLibrary != null,
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp).testTag("kobo-book-add"),
+                    ) {
+                        Icon(Icons.Filled.LibraryAdd, null, Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text(tr("Add to library"))
+                    }
+                    if (onAddToLibrary == null) Text(
+                        tr("Connect your Kobo to add this book to your library."),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    )
                 }
-                book.isSideloaded && !live -> Text(
-                    tr("Connect your Kobo to add this book to your library."),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth(),
-                )
             }
 
             Spacer(Modifier.height(24.dp))

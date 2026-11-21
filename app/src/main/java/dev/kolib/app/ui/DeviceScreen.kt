@@ -244,11 +244,6 @@ fun DeviceScreen(
                     leadingIcon = { Icon(Icons.Outlined.Checklist, null) },
                     onClick = { menuOpen = false; browse.selecting = true },
                 )
-                DropdownMenuItem(
-                    text = { Text(if (browse.grid) tr("Show as list") else tr("Show as grid")) },
-                    leadingIcon = { Icon(if (browse.grid) Icons.AutoMirrored.Filled.ViewList else Icons.Filled.GridView, null) },
-                    onClick = { menuOpen = false; browse.grid = !browse.grid },
-                )
                 HorizontalDivider()
             }
             DropdownMenuItem(

@@ -2,6 +2,9 @@
 
 package dev.kolib.app.ui
 
+import dev.kolib.app.ui.tour.tourPlace
+import dev.kolib.app.ui.components.UnderCover
+import dev.kolib.app.ui.components.DisplayButton
 import dev.kolib.app.ui.components.shelfMinCell
 import dev.kolib.app.ui.components.shelfCells
 import dev.kolib.app.ui.components.chosenPerRow
@@ -307,7 +310,7 @@ private fun KoboBookList(
         val onLongPress: (KoboBook) -> Unit = { book -> browse.holdPick(book.contentId, books.map { it.contentId }) }
         val perRow = chosenPerRow()
         val minCell = shelfMinCell()
-        if (browse.grid) ShelfGridBox(minCell = minCell, coverPadding = 8.dp, columns = perRow) {
+        if (browse.grid) ShelfGridBox(minCell = minCell, coverPadding = 8.dp, columns = perRow, mode = browse.mode) {
             LazyVerticalGrid(
                 columns = shelfCells(perRow, minCell),
                 state = browse.gridState,
@@ -485,10 +488,8 @@ private fun BrowserControls(browse: BrowseState, shown: Int, snapshot: KoboSnaps
                     }
                 }
             }
-            IconButton(onClick = { browse.grid = !browse.grid }) {
-                if (browse.grid) Icon(Icons.AutoMirrored.Filled.ViewList, tr("Show as list"))
-                else Icon(Icons.Filled.GridView, tr("Show as grid"))
-            }
+            // How the books show (covers, and how, or a list) and how many covers to a row, chosen over the shelf.
+            DisplayButton(browse.mode, { browse.mode = it }, Modifier.tourPlace("kobo-display"))
     }
     val chips: @Composable () -> Unit = {
             SourceFilter.entries.forEach { f ->
@@ -635,25 +636,26 @@ fun BookGridItem(
     ) {
         BookCover(book, covers, CoverSize.THUMBNAIL, Modifier.gridCover(), selected = picked, inLibrary = inLibrary)
         ShelfSpace()
-        Spacer(Modifier.height(8.dp))
-        Text(book.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
-        book.author?.let {
-            Text(
-                it,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-        (detail ?: book.seriesLabel)?.let {
-            Text(
-                it,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.secondary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+        UnderCover {
+            Text(book.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            book.author?.let {
+                Text(
+                    it,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            (detail ?: book.seriesLabel)?.let {
+                Text(
+                    it,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.secondary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
     }
 }
@@ -836,10 +838,19 @@ fun BookDetailPane(
                         Spacer(Modifier.width(8.dp))
                         Text(tr("In your library"), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
                     }
-                    book.isSideloaded && onAddToLibrary != null -> FilledTonalButton(onClick = onAddToLibrary) {
-                        Icon(Icons.Filled.LibraryAdd, null, Modifier.size(18.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text(tr("Add to library"))
+                    // Not plugged in, the book can't be copied from the Kobo: the button's there, greyed out, saying why.
+                    book.isSideloaded -> Column {
+                        FilledTonalButton(onClick = { onAddToLibrary?.invoke() }, enabled = onAddToLibrary != null, modifier = Modifier.testTag("kobo-book-add")) {
+                            Icon(Icons.Filled.LibraryAdd, null, Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(tr("Add to library"))
+                        }
+                        if (onAddToLibrary == null) Text(
+                            tr("Connect your Kobo to add this book to your library."),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 6.dp),
+                        )
                     }
                 }
                 if (onDeleteFromKobo != null) {

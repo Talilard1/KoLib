@@ -192,9 +192,7 @@ class MenuEntry(val label: String, val icon: ImageVector, val onClick: () -> Uni
 /** The menu beside a phone's search box: choosing several books, grid or list, and anything else the screen adds. */
 @Composable
 fun PhoneListMenu(
-    grid: Boolean,
     onSelect: () -> Unit,
-    onGrid: (Boolean) -> Unit,
     more: List<MenuEntry> = emptyList(),
 ) {
     var open by remember { mutableStateOf(false) }
@@ -205,11 +203,6 @@ fun PhoneListMenu(
                 text = { Text(tr("Select books")) },
                 leadingIcon = { Icon(Icons.Outlined.Checklist, null) },
                 onClick = { open = false; onSelect() },
-            )
-            DropdownMenuItem(
-                text = { Text(if (grid) tr("Show as list") else tr("Show as grid")) },
-                leadingIcon = { Icon(if (grid) Icons.AutoMirrored.Filled.ViewList else Icons.Filled.GridView, null) },
-                onClick = { open = false; onGrid(!grid) },
             )
             if (more.isNotEmpty()) {
                 HorizontalDivider()

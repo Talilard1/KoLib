@@ -1,5 +1,6 @@
 package dev.kolib.app.ui.library
 
+import dev.kolib.app.ui.components.UnderCover
 import dev.kolib.app.ui.components.shelfMinCell
 import dev.kolib.app.ui.components.shelfCells
 import dev.kolib.app.ui.components.chosenPerRow
@@ -205,7 +206,7 @@ internal fun LibraryComicsTab(
                 TabBackHandler { closeSeries() }
                 ComicSeriesPage(
                     open, covers, browse, koboConnected, here, actions, onBack = closeSeries,
-                    grid = browse.seriesGrid, onGrid = { browse.seriesGrid = it }, others = entries, infoAtTop = true,
+                    mode = browse.seriesMode, onMode = { browse.seriesMode = it }, others = entries, infoAtTop = true,
                 )
             }
         }
@@ -278,7 +279,8 @@ private fun ComicShelf(
                 val cellPadding = if (phone) 6.dp else 8.dp
                 val perRow = chosenPerRow() ?: if (phone) 3 else null
                 val minCell = shelfMinCell()
-                ShelfGridBox(minCell = minCell, coverPadding = cellPadding, columns = perRow) {
+                // The series are covers whichever way the books show: as a list, the comfortable grid.
+                ShelfGridBox(minCell = minCell, coverPadding = cellPadding, columns = perRow, mode = browse.mode.takeIf { browse.grid } ?: dev.kolib.app.ui.components.ShelfMode.COMFORTABLE) {
                     val bookcase = LocalBookcase.current
                     LazyVerticalGrid(
                         columns = shelfCells(perRow, minCell),
@@ -590,15 +592,16 @@ private fun ComicSeriesItem(
     ) {
         ComicSeriesCover(entry.cover, covers, unread = unread, onKobo = entry.issues.all { it.koboPath != null }, modifier = Modifier.gridCover(), picked = picked)
         ShelfSpace()
-        Spacer(Modifier.height(8.dp))
-        Text(entry.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
-        Text(
-            if (entry.isSeries) comicsLabel(entry.issues.size) else entry.cover.authorLine ?: comicsLabel(1),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
+        UnderCover {
+            Text(entry.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(
+                if (entry.isSeries) comicsLabel(entry.issues.size) else entry.cover.authorLine ?: comicsLabel(1),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
     }
 }
 
@@ -617,10 +620,10 @@ internal fun ComicSeriesPage(
     here: (LibraryBook) -> ReadHere?,
     actions: ComicActions,
     onBack: (() -> Unit)?,
-    /** Its comics as a grid of covers, each as an entry of its own, rather than a list. */
-    grid: Boolean = false,
-    /** Switches between the grid and the list, where the series has the screen's width. */
-    onGrid: ((Boolean) -> Unit)? = null,
+    /** How its comics show: as covers (each an entry of its own, with its words under it, on it, or none), or a list. */
+    mode: dev.kolib.app.ui.components.ShelfMode = dev.kolib.app.ui.components.ShelfMode.LIST,
+    /** Chooses how its comics show (and how many covers to a row), where the series has the screen's width. */
+    onMode: ((dev.kolib.app.ui.components.ShelfMode) -> Unit)? = null,
     /** The library's other series and comics: this one's comics can be put in one of them. */
     others: List<ComicEntry> = emptyList(),
     /** A comic's details are had by holding it, then Info in the bar for it, rather than from a button on each. */
@@ -658,14 +661,8 @@ internal fun ComicSeriesPage(
                 ) {
                     if (onBack != null) IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Back to the comics")) }
                     Text(entry.title, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f).padding(start = 4.dp))
-                    if (onGrid != null) {
-                        IconButton(onClick = { onGrid(!grid) }, modifier = Modifier.testTag("comic-series-layout")) {
-                            Icon(
-                                if (grid) Icons.AutoMirrored.Outlined.ViewList else Icons.Outlined.GridView,
-                                if (grid) tr("Show the comics as a list") else tr("Show the comics as covers"),
-                            )
-                        }
-                    }
+                    // How the comics show and how many covers to a row, chosen over them, as for the shelf.
+                    if (onMode != null) dev.kolib.app.ui.components.DisplayButton(mode, onMode, tag = "comic-series-layout")
                     SeriesMenu(entry, menu, { menu = it }, actions, onRename = { naming = true }, onAddTo = { adding = true }, onRemove = { removing = true })
                 }
             }
@@ -759,8 +756,9 @@ internal fun ComicSeriesPage(
             }
             // The comics, and while some are being chosen, the bar for them along the foot of the screen, its whole width.
             Box(Modifier.weight(1f).fillMaxWidth()) {
-                if (grid) {
+                if (mode != dev.kolib.app.ui.components.ShelfMode.LIST) {
                     // Each comic an entry of its own, as the series are on the shelf.
+                    androidx.compose.runtime.CompositionLocalProvider(dev.kolib.app.ui.components.LocalShelfMode provides mode) {
                     LazyVerticalGrid(
                         columns = shelfCells(chosenPerRow(), shelfMinCell()),
                         state = browse.comicIssueGrid,
@@ -779,6 +777,7 @@ internal fun ComicSeriesPage(
                                 onDetails = if (infoAtTop) null else ({ browse.comicBookId = issue.id }),
                             )
                         }
+                    }
                     }
                 } else LazyColumn(Modifier.fillMaxSize(), state = browse.comicIssues, contentPadding = PaddingValues(bottom = if (phone) 104.dp else 24.dp)) {
                     item(key = "head") { head(0.dp) }
@@ -994,7 +993,8 @@ private fun ComicIssueTile(
             issue, covers, large = false, onKobo = issue.koboPath != null, picked = picked, readHere = readHere,
             modifier = Modifier.gridCover().alpha(if (read && picked != true) 0.55f else 1f),
         )
-        Row(Modifier.padding(top = 6.dp), verticalAlignment = Alignment.Top) {
+        // Its number and how far it's been read, under it in the comfortable grid only.
+        if (dev.kolib.app.ui.components.LocalShelfMode.current == dev.kolib.app.ui.components.ShelfMode.COMFORTABLE) Row(Modifier.padding(top = 6.dp), verticalAlignment = Alignment.Top) {
             Column(Modifier.weight(1f).padding(top = 2.dp)) {
                 Text(issueName(entry, issue), style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 Text(

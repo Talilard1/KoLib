@@ -1,0 +1,175 @@
+@fr
+3436|Quand vous touchez une série
+3437|L’afficher en plein écran
+3438|L’afficher à côté de vos BD
+3439|Elle remplit l’écran, avec ses BD en couvertures ou en liste. Revenez en arrière pour retrouver vos BD.
+3440|Ses BD s’ouvrent dans un panneau à droite, le reste de vos BD restant à gauche.
+3441|Grille compacte
+3442|Grille confortable
+3443|Couvertures seules
+3444|Liste
+3445|Affichage
+3446|Mode d’affichage
+3447|Affichage des livres
+3448|En couvertures ou en liste. Avec les couvertures, choisissez si les titres s’affichent dessous, dessus ou pas du tout, et combien tiennent sur une rangée.
+3449|Choisissez des livres, ou ouvrez Réglages et Statistiques de lecture. Vous pouvez désactiver l’animation d’ouverture dans les Réglages.
+
+@de
+3436|Wenn du auf eine Reihe tippst
+3437|Im Vollbild zeigen
+3438|Neben deinen Comics zeigen
+3439|Sie füllt den Bildschirm, mit ihren Comics als Cover oder als Liste. Geh zurück, um wieder zu deinen Comics zu kommen.
+3440|Ihre Comics öffnen sich rechts in einem eigenen Bereich, die übrigen Comics bleiben links.
+3441|Kompaktes Raster
+3442|Komfortables Raster
+3443|Nur Cover
+3444|Liste
+3445|Anzeige
+3446|Anzeigemodus
+3447|So erscheinen Bücher
+3448|Als Cover oder als Liste. Bei Covern wählst du, ob die Titel darunter, darauf oder gar nicht stehen und wie viele in eine Reihe passen.
+3449|Wähle Bücher oder öffne Einstellungen und Lesestatistik. In den Einstellungen kannst du die Startanimation ausschalten.
+
+@es
+3436|Al tocar una serie
+3437|Mostrarla a pantalla completa
+3438|Mostrarla junto a tus cómics
+3439|Ocupa toda la pantalla, con sus cómics como portadas o como lista. Vuelve atrás para ver de nuevo tus cómics.
+3440|Sus cómics se abren en un panel a la derecha, y el resto de tus cómics sigue a la izquierda.
+3441|Cuadrícula compacta
+3442|Cuadrícula cómoda
+3443|Solo portadas
+3444|Lista
+3445|Vista
+3446|Modo de vista
+3447|Cómo se ven los libros
+3448|Como portadas o como lista. Con portadas, elige si los títulos van debajo, encima o no aparecen, y cuántas caben en una fila.
+3449|Elige libros, o abre Ajustes y Estadísticas de lectura. En Ajustes puedes desactivar la animación de inicio.
+
+@it
+3436|Quando tocchi una serie
+3437|Mostrala a schermo intero
+3438|Mostrala accanto ai tuoi fumetti
+3439|Riempie lo schermo, con i suoi fumetti come copertine o come elenco. Torna indietro per rivedere i tuoi fumetti.
+3440|I suoi fumetti si aprono in un pannello a destra, mentre gli altri restano a sinistra.
+3441|Griglia compatta
+3442|Griglia comoda
+3443|Solo copertine
+3444|Elenco
+3445|Visualizzazione
+3446|Modalità di visualizzazione
+3447|Come si vedono i libri
+3448|Come copertine o come elenco. Con le copertine, scegli se i titoli stanno sotto, sopra o non compaiono, e quante ne stanno in una riga.
+3449|Scegli i libri, oppure apri Impostazioni e Statistiche di lettura. Nelle Impostazioni puoi disattivare l’animazione di apertura.
+
+@nl
+3436|Als je op een reeks tikt
+3437|Schermvullend tonen
+3438|Naast je strips tonen
+3439|Hij vult het scherm, met de strips als omslagen of als lijst. Ga terug om weer naar je strips te gaan.
+3440|De strips openen rechts in een eigen vak, terwijl de rest van je strips links blijft.
+3441|Compact raster
+3442|Ruim raster
+3443|Alleen omslagen
+3444|Lijst
+3445|Weergave
+3446|Weergavemodus
+3447|Hoe boeken eruitzien
+3448|Als omslagen of als lijst. Bij omslagen kies je of de titels eronder, erop of helemaal niet staan, en hoeveel er op een rij passen.
+3449|Kies boeken, of open Instellingen en Leesstatistieken. In Instellingen kun je de openingsanimatie uitzetten.
+
+@pt
+3436|Ao tocar numa série
+3437|Mostrar em tela cheia
+3438|Mostrar ao lado dos seus quadrinhos
+3439|Ela ocupa a tela inteira, com os quadrinhos como capas ou em lista. Volte para ver seus quadrinhos de novo.
+3440|Os quadrinhos dela abrem num painel à direita, e o resto dos seus quadrinhos fica à esquerda.
+3441|Grade compacta
+3442|Grade confortável
+3443|Só capas
+3444|Lista
+3445|Exibição
+3446|Modo de exibição
+3447|Como os livros aparecem
+3448|Como capas ou em lista. Com capas, escolha se os títulos ficam embaixo, em cima ou não aparecem, e quantas cabem numa fileira.
+3449|Escolha livros, ou abra Configurações e Estatísticas de leitura. Em Configurações você pode desativar a animação de abertura.
+
+@ro
+3436|Când atingi o serie
+3437|Afișeaz-o pe tot ecranul
+3438|Afișeaz-o lângă benzile tale desenate
+3439|Ocupă tot ecranul, cu benzile ei desenate ca coperți sau ca listă. Mergi înapoi ca să revii la benzile tale desenate.
+3440|Benzile ei desenate se deschid într-un panou în dreapta, iar restul rămân în stânga.
+3441|Grilă compactă
+3442|Grilă comodă
+3443|Doar coperți
+3444|Listă
+3445|Afișare
+3446|Mod de afișare
+3447|Cum apar cărțile
+3448|Ca coperți sau ca listă. Cu coperți, alege dacă titlurile apar dedesubt, pe ele sau deloc și câte încap pe un rând.
+3449|Alege cărți sau deschide Setări și Statistici de citire. Din Setări poți opri animația de pornire.
+
+@ru
+3436|Когда вы нажимаете на серию
+3437|Показать на весь экран
+3438|Показать рядом с комиксами
+3439|Серия занимает весь экран, а её комиксы показаны обложками или списком. Вернитесь назад, чтобы снова увидеть свои комиксы.
+3440|Её комиксы открываются на панели справа, а остальные комиксы остаются слева.
+3441|Компактная сетка
+3442|Удобная сетка
+3443|Только обложки
+3444|Список
+3445|Вид
+3446|Режим отображения
+3447|Как показаны книги
+3448|Обложками или списком. Для обложек выберите, где показывать названия — под ними, на них или нигде, — и сколько обложек помещается в ряд.
+3449|Выбирайте книги или открывайте «Настройки» и «Статистику чтения». В настройках можно выключить анимацию при запуске.
+
+@ja
+3436|シリーズをタップしたとき
+3437|全画面で表示
+3438|コミックの横に表示
+3439|シリーズが画面いっぱいに開き、コミックを表紙かリストで表示します。戻るとコミックの一覧に戻ります。
+3440|右側のパネルにシリーズのコミックが開き、左側にはほかのコミックが残ります。
+3441|コンパクトグリッド
+3442|ゆったりグリッド
+3443|表紙のみ
+3444|リスト
+3445|表示
+3446|表示モード
+3447|本の表示
+3448|表紙かリストで表示します。表紙のときは、タイトルを下に出すか、表紙の上に出すか、出さないか、1 行に何冊並べるかを選べます。
+3449|本を選んだり、設定や読書の記録を開いたりできます。起動アニメーションは設定でオフにできます。
+
+@ko
+3436|시리즈를 탭하면
+3437|전체 화면으로 보기
+3438|만화 옆에 보기
+3439|시리즈가 화면 전체를 차지하고, 만화가 표지나 목록으로 보여요. 뒤로 가면 만화 목록으로 돌아가요.
+3440|시리즈의 만화가 오른쪽 창에 열리고, 나머지 만화는 왼쪽에 그대로 있어요.
+3441|컴팩트 격자
+3442|넉넉한 격자
+3443|표지만
+3444|목록
+3445|보기
+3446|보기 방식
+3447|책 보기 방식
+3448|표지나 목록으로 보여요. 표지일 때는 제목을 아래에 둘지, 표지 위에 둘지, 안 보일지와 한 줄에 몇 권을 놓을지 고를 수 있어요.
+3449|책을 고르거나, 설정과 읽기 통계를 열어요. 설정에서 시작 애니메이션을 끌 수 있어요.
+
+@zh
+3436|点按系列时
+3437|全屏显示
+3438|在漫画旁边显示
+3439|系列占满整个屏幕，其中的漫画以封面或列表显示。返回即可回到你的漫画。
+3440|系列中的漫画在右侧面板中打开，其余漫画仍在左侧。
+3441|紧凑网格
+3442|宽松网格
+3443|仅封面
+3444|列表
+3445|显示
+3446|显示模式
+3447|书籍的显示方式
+3448|以封面或列表显示。显示封面时，可以选择标题显示在封面下方、封面上或不显示，以及每行放几本。
+3449|选择书籍，或打开设置和阅读统计。可以在设置中关闭开场动画。

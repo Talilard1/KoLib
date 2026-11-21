@@ -1,5 +1,7 @@
 package dev.kolib.app.ui
 
+import androidx.compose.ui.semantics.heading
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material3.IconButton
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.ui.graphics.luminance
@@ -1095,7 +1097,6 @@ fun AppRoot(
             onComicsTab = { libraryBrowse.comicsTab = it },
             seriesInPlace = libraryBrowse.seriesInPlace,
             onSeriesInPlace = { libraryBrowse.openSeriesInPlace(it) },
-            coversPerRow = coversPerRow,
             tour = !toursOff && toursSeen?.let { Tours.SETTINGS !in it } == true,
             onTourDone = { onTourSeen(Tours.SETTINGS) },
             onShowTours = onShowToursAgain?.let { again -> { showLook = false; again() } },
@@ -1368,8 +1369,6 @@ fun LookDialog(
     /** On a wide screen, a series opens in place of the comics' shelf rather than beside it. */
     seriesInPlace: Boolean = false,
     onSeriesInPlace: (Boolean) -> Unit = {},
-    /** How many covers a shelf's row holds (null: not offered here). */
-    coversPerRow: dev.kolib.app.ui.components.CoversPerRow? = null,
     /** The tour of Settings is given: it's the first time they're opened. */
     tour: Boolean = false,
     onTourDone: () -> Unit = {},
@@ -1390,34 +1389,13 @@ fun LookDialog(
     ) {
         SettingsPage(onBack = onDismiss) {
             CompositionLocalProvider(dev.kolib.app.ui.tour.LocalTourPlaces provides places.takeIf { touring }) {
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .tourPlace("settings-view")
-                    .verticalScroll(scroll)
-                    .navigationBarsPadding()
-                    .padding(start = 12.dp, end = 12.dp, top = 4.dp, bottom = 24.dp)
-            ) {
+            val context = androidx.compose.ui.platform.LocalContext.current
+            val hasFileManager = remember { dev.kolib.app.ui.components.FileManagers.chosenName(context) != null }
+            // What's in each part of Settings (null where there's nothing to show here: the reader's have fewer).
+            val general: (@Composable ColumnScope.() -> Unit)? = if (onLanguage == null && onChangeFolder == null && !hasFileManager) null else ({
                 if (onLanguage != null) {
-                    val context = androidx.compose.ui.platform.LocalContext.current
                     val language = remember { dev.kolib.app.AppLanguage.nativeName(dev.kolib.app.AppLanguage.current(context)) }
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable(onClick = onLanguage)
-                            .padding(vertical = 10.dp, horizontal = 4.dp)
-                            .tourPlace("settings-language"),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Icon(Icons.Outlined.Language, null, Modifier.padding(horizontal = 10.dp))
-                        Spacer(Modifier.width(4.dp))
-                        Column(Modifier.weight(1f)) {
-                            Text(tr("Language"), style = MaterialTheme.typography.titleSmall)
-                            Text(language, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
-                    HorizontalDivider(Modifier.padding(vertical = 10.dp))
+                    SettingsLink(Icons.Outlined.Language, tr("Language"), language, onLanguage, Modifier.tourPlace("settings-language"))
                 }
                 if (onChangeFolder != null) {
                     Column(Modifier.tourPlace("settings-folder")) {
@@ -1434,60 +1412,28 @@ fun LookDialog(
                             if (booksFolder != null && onRescanFolder != null) TextButton(onClick = onRescanFolder) { Text(tr("Look for new books")) }
                         }
                     }
-                    HorizontalDivider(Modifier.padding(vertical = 10.dp))
-                }
-                if (onReadingSetup != null) {
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable(onClick = onReadingSetup)
-                            .padding(vertical = 10.dp, horizontal = 4.dp)
-                            .tourPlace("settings-reading"),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Icon(Icons.AutoMirrored.Outlined.MenuBook, null, Modifier.padding(horizontal = 10.dp))
-                        Spacer(Modifier.width(4.dp))
-                        Column(Modifier.weight(1f)) {
-                            Text(tr("Reading setup"), style = MaterialTheme.typography.titleSmall)
-                            Text(tr("Page colour, font, text size and how the reader works"), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
-                    HorizontalDivider(Modifier.padding(vertical = 10.dp))
-                }
-                if (onAi != null) {
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable(onClick = onAi)
-                            .padding(vertical = 10.dp, horizontal = 4.dp)
-                            .testTag("settings-ai")
-                            .tourPlace("settings-ai"),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Icon(Icons.Outlined.AutoAwesome, null, Modifier.padding(horizontal = 10.dp))
-                        Spacer(Modifier.width(4.dp))
-                        Column(Modifier.weight(1f)) {
-                            Text(tr("AI and dictionary"), style = MaterialTheme.typography.titleSmall)
-                            Text(tr("Meanings of words, chapter summaries and questions about a book"), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
-                    HorizontalDivider(Modifier.padding(vertical = 10.dp))
                 }
                 FileManagerLine()
-                UpdateLines()
-                if (coversPerRow != null) {
-                    Box(Modifier.tourPlace("settings-covers")) { CoversPerRowLines(coversPerRow) }
-                    HorizontalDivider(Modifier.padding(vertical = 10.dp))
-                }
-                if (comicsTab != null) Column(Modifier.tourPlace("settings-comics")) {
+            })
+            val reading: (@Composable ColumnScope.() -> Unit)? = if (onReadingSetup == null && onAi == null) null else ({
+                if (onReadingSetup != null) SettingsLink(
+                    Icons.AutoMirrored.Outlined.MenuBook, tr("Reading setup"), tr("Page colour, font, text size and how the reader works"), onReadingSetup,
+                    Modifier.tourPlace("settings-reading"),
+                )
+                if (onAi != null) SettingsLink(
+                    Icons.Outlined.AutoAwesome, tr("AI and dictionary"), tr("Meanings of words, chapter summaries and questions about a book"), onAi,
+                    Modifier.testTag("settings-ai").tourPlace("settings-ai"),
+                )
+            })
+            val library: (@Composable ColumnScope.() -> Unit)? = if (comicsTab == null) null else ({
+                Column(Modifier.tourPlace("settings-comics")) {
                     SwitchLine(tr("Comics tab"), tr("Comics get a tab of their own, with each series as one entry. When this is off, they're with your books."), comicsTab, onComicsTab)
+                    // Only where there's room for a series beside the comics: a tablet.
                     if (comicsTab && androidx.compose.ui.platform.LocalConfiguration.current.smallestScreenWidthDp >= 600) {
                         Text(
-                            tr("On a wide screen, a series opens"),
+                            tr("When you tap a series"),
                             style = MaterialTheme.typography.titleSmall,
-                            modifier = Modifier.padding(start = 4.dp, top = 8.dp, bottom = 2.dp),
+                            modifier = Modifier.padding(start = 4.dp, top = 12.dp, bottom = 2.dp),
                         )
                         for (inPlace in listOf(false, true)) {
                             Row(
@@ -1498,9 +1444,10 @@ fun LookDialog(
                             ) {
                                 RadioButton(selected = seriesInPlace == inPlace, onClick = null, modifier = Modifier.padding(horizontal = 10.dp))
                                 Column(Modifier.weight(1f).padding(vertical = 6.dp)) {
-                                    Text(if (inPlace) tr("In place of the shelf") else tr("Beside the shelf"), style = MaterialTheme.typography.bodyLarge)
+                                    Text(if (inPlace) tr("Show it full screen") else tr("Show it beside your comics"), style = MaterialTheme.typography.bodyLarge)
                                     Text(
-                                        if (inPlace) tr("The series takes the whole screen, with its comics as covers or a list.") else tr("Its comics are listed beside the shelf."),
+                                        if (inPlace) tr("It fills the screen, with its comics as covers or a list. Go back to return to your comics.")
+                                        else tr("Its comics open in a panel on the right, with the rest of your comics still on the left."),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
@@ -1508,11 +1455,11 @@ fun LookDialog(
                             }
                         }
                     }
-                    HorizontalDivider(Modifier.padding(vertical = 10.dp))
                 }
-                Box(Modifier.tourPlace("settings-look")) { dev.kolib.app.ui.theme.ThemePicker(current, onPick) }
-                if (onOpening != null) Column(Modifier.tourPlace("settings-opening")) {
-                    HorizontalDivider(Modifier.padding(vertical = 10.dp))
+            })
+            val look: @Composable ColumnScope.() -> Unit = {
+                Box(Modifier.tourPlace("settings-look").padding(4.dp)) { dev.kolib.app.ui.theme.ThemePicker(current, onPick) }
+                if (onOpening != null) Column(Modifier.tourPlace("settings-opening").padding(top = 8.dp)) {
                     SwitchLine(tr("Opening animation"), tr("Plays when KoLib starts. Tap it to skip."), opening, onOpening)
                     SwitchLine(
                         tr("Opening sound"), tr("Uses your media volume."),
@@ -1525,29 +1472,43 @@ fun LookDialog(
                         )
                     }
                 }
-                if (onShowTours != null || toursOn != null) Column(Modifier.tourPlace("settings-tours")) {
-                    HorizontalDivider(Modifier.padding(vertical = 10.dp))
+            }
+            val tours: (@Composable ColumnScope.() -> Unit)? = if (onShowTours == null && toursOn == null) null else ({
+                Column(Modifier.tourPlace("settings-tours")) {
                     if (toursOn != null) {
                         Box(Modifier.testTag("settings-tours-on")) {
                             SwitchLine(tr("Tours"), tr("A short tour of each screen, the first time you open it."), toursOn, onToursOn)
                         }
                     }
-                    if (onShowTours != null) Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable(onClick = onShowTours)
-                            .padding(vertical = 10.dp, horizontal = 4.dp)
-                            .testTag("settings-tours"),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Icon(Icons.Outlined.Explore, null, Modifier.padding(horizontal = 10.dp))
-                        Spacer(Modifier.width(4.dp))
-                        Column(Modifier.weight(1f)) {
-                            Text(tr("Show the tours again"), style = MaterialTheme.typography.titleSmall)
-                            Text(tr("Each screen's tour shows the next time you open it."), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
+                    if (onShowTours != null) SettingsLink(
+                        Icons.Outlined.Explore, tr("Show the tours again"), tr("Each screen's tour shows the next time you open it."), onShowTours,
+                        Modifier.testTag("settings-tours"),
+                    )
+                }
+            })
+            BoxWithConstraints(Modifier.fillMaxSize()) {
+                // Where there's room (a tablet, a phone held sideways), two columns: the looks beside the rest.
+                val twoColumns = maxWidth >= 720.dp
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .tourPlace("settings-view")
+                        .verticalScroll(scroll)
+                        .navigationBarsPadding()
+                        .padding(start = 16.dp, end = 16.dp, bottom = 24.dp)
+                ) {
+                    val rest: @Composable ColumnScope.() -> Unit = {
+                        general?.let { SettingsSection(tr("General"), it) }
+                        reading?.let { SettingsSection(tr("Reading"), it) }
+                        library?.let { SettingsSection(tr("Library"), it) }
+                        if (!twoColumns) SettingsSection(tr("Look"), look)
+                        SettingsSection(tr("Updates")) { UpdateLines() }
+                        tours?.let { SettingsSection(tr("Tours"), it) }
                     }
+                    if (twoColumns) Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                        Column(Modifier.weight(1f), content = rest)
+                        Column(Modifier.weight(1f)) { SettingsSection(tr("Look"), look) }
+                    } else Column(Modifier.widthIn(max = 680.dp).align(Alignment.CenterHorizontally), content = rest)
                 }
             }
             }
@@ -1611,7 +1572,7 @@ private fun SwitchLine(title: String, detail: String, on: Boolean, onChange: (Bo
 
 /**
  * Settings as a page: the whole screen, its bars the colours of the look, with a way back and the title at the top, and
- * [content] under them; on a wide screen, in a column down the middle, so lines aren't too long to read.
+ * [content] under them, no wider than lines are easy to read across.
  */
 @Composable
 private fun SettingsPage(onBack: () -> Unit, content: @Composable () -> Unit) {
@@ -1636,42 +1597,46 @@ private fun SettingsPage(onBack: () -> Unit, content: @Composable () -> Unit) {
                     Text(tr("Settings"), style = MaterialTheme.typography.titleLarge)
                 }
                 Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.TopCenter) {
-                    Box(Modifier.widthIn(max = 680.dp).fillMaxSize()) { content() }
+                    Box(Modifier.widthIn(max = 1200.dp).fillMaxSize()) { content() }
                 }
             }
         }
     }
 }
 
-/** How many covers a shelf's row holds, upright and sideways: Auto (as many as there's room for) or a number. */
+/** A part of Settings: its heading, and its settings together on a card under it. */
 @Composable
-private fun CoversPerRowLines(perRow: dev.kolib.app.ui.components.CoversPerRow) {
-    Column(Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp).testTag("settings-covers-per-row")) {
-        Text(tr("Covers per row"), style = MaterialTheme.typography.titleSmall)
-        Text(tr("Auto fits as many as there's room for."), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        PerRowSlider(tr("Portrait"), perRow.portrait, Modifier.testTag("covers-portrait")) { perRow.portrait = it }
-        PerRowSlider(tr("Landscape"), perRow.landscape, Modifier.testTag("covers-landscape")) { perRow.landscape = it }
+private fun SettingsSection(title: String, content: @Composable ColumnScope.() -> Unit) {
+    Column(Modifier.fillMaxWidth().padding(top = 16.dp)) {
+        Text(
+            title,
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(start = 12.dp, bottom = 8.dp).semantics { heading() },
+        )
+        Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainerLow, modifier = Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(horizontal = 8.dp, vertical = 6.dp), content = content)
+        }
     }
 }
 
+/** A setting that opens something of its own (the language, the reading setup): its icon, name and a line about it. */
 @Composable
-private fun PerRowSlider(label: String, value: Int, modifier: Modifier = Modifier, onChange: (Int) -> Unit) {
-    val most = dev.kolib.app.ui.components.CoversPerRow.MOST
-    Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Text(label, style = MaterialTheme.typography.bodyMedium, maxLines = 2, modifier = Modifier.width(92.dp))
-        androidx.compose.material3.Slider(
-            value = value.toFloat(),
-            onValueChange = { onChange(kotlin.math.round(it).toInt().coerceIn(0, most)) },
-            valueRange = 0f..most.toFloat(),
-            steps = most - 1,
-            modifier = Modifier.weight(1f),
-        )
-        Text(
-            if (value == 0) tr("Auto") else "$value",
-            style = MaterialTheme.typography.labelLarge,
-            textAlign = androidx.compose.ui.text.style.TextAlign.End,
-            modifier = Modifier.widthIn(min = 48.dp),
-        )
+private fun SettingsLink(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, detail: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Row(
+        modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
+            .padding(vertical = 10.dp, horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(icon, null, Modifier.padding(horizontal = 10.dp))
+        Spacer(Modifier.width(4.dp))
+        Column(Modifier.weight(1f)) {
+            Text(title, style = MaterialTheme.typography.titleSmall)
+            Text(detail, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
     }
 }
 
@@ -1697,7 +1662,6 @@ private fun UpdateLines() {
         }
     }
     SwitchLine(tr("Check for updates automatically"), tr("Asks GitHub for the newest version when KoLib starts, once a day."), auto, { auto = it; updater.auto = it })
-    HorizontalDivider(Modifier.padding(vertical = 10.dp))
 }
 
 /** The file manager chosen to add books with, once one has been, with a way to choose another. */
@@ -1718,5 +1682,4 @@ private fun FileManagerLine() {
             name = null
         }) { Text(tr("Ask again")) }
     }
-    HorizontalDivider(Modifier.padding(vertical = 10.dp))
 }

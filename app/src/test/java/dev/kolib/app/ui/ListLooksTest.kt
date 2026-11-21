@@ -27,7 +27,7 @@ class ListLooksTest {
         val library = LibraryBrowseState().apply {
             sortBy(LibrarySort.SERIES)
             sortBy(LibrarySort.SERIES)
-            grid = false
+            mode = dev.kolib.app.ui.components.ShelfMode.LIST
         }
         val kobo = BrowseState().apply { sortBy(KoboSort.ADDED) }
         ListLooks.save(context, ListLooks.Now(library, kobo))
@@ -41,5 +41,10 @@ class ListLooksTest {
         // Date added starts newest first.
         assertTrue(koboAgain.descending)
         assertTrue(koboAgain.grid)
+        assertEquals(dev.kolib.app.ui.components.ShelfMode.COMFORTABLE, koboAgain.mode)
+        // The compact grid, say, is kept too.
+        library.mode = dev.kolib.app.ui.components.ShelfMode.COMPACT
+        ListLooks.save(context, ListLooks.Now(library, kobo))
+        assertEquals(dev.kolib.app.ui.components.ShelfMode.COMPACT, LibraryBrowseState().also { ListLooks.restore(context, library = it) }.mode)
     }
 }

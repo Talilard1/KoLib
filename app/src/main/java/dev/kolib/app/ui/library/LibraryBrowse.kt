@@ -57,7 +57,10 @@ class LibraryBrowseState {
     var tagsMatchAll by mutableStateOf(true)
     var sort by mutableStateOf(LibrarySort.TITLE)
     var descending by mutableStateOf(false)
-    var grid by mutableStateOf(true)
+    /** How the books show: as covers (with their words under them, on them, or none) or a list. */
+    var mode by mutableStateOf(dev.kolib.app.ui.components.ShelfMode.COMFORTABLE)
+    /** The books show as covers, not a list. */
+    val grid: Boolean get() = mode != dev.kolib.app.ui.components.ShelfMode.LIST
     var selectedId by mutableStateOf<String?>(null)
     /** Which tab is showing: the books (0), the collections (1) or the comics (2). */
     var tab by mutableIntStateOf(0)
@@ -87,8 +90,12 @@ class LibraryBrowseState {
     var comicsTab by mutableStateOf(true)
     /** On a wide screen, a series opens in place of the shelf (with no side panel), rather than beside it. */
     var seriesInPlace by mutableStateOf(false)
+    /** How a series open in place of the shelf shows its comics: as covers (and how), or a list. */
+    var seriesMode by mutableStateOf(dev.kolib.app.ui.components.ShelfMode.LIST)
     /** A series open in place of the shelf shows its comics as a grid of covers, rather than a list. */
-    var seriesGrid by mutableStateOf(false)
+    var seriesGrid: Boolean
+        get() = seriesMode != dev.kolib.app.ui.components.ShelfMode.LIST
+        set(value) { seriesMode = if (value) dev.kolib.app.ui.components.ShelfMode.COMFORTABLE else dev.kolib.app.ui.components.ShelfMode.LIST }
 
     fun stopComicSelecting() {
         comicSelecting = null

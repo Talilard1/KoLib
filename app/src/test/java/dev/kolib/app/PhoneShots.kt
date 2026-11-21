@@ -1,5 +1,6 @@
 package dev.kolib.app
 
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.performTouchInput
@@ -283,7 +284,7 @@ class PhoneShots {
 
     @Test @Config(qualifiers = PHONE) fun libraryGrid() = libraryIn("p01_library")
     @Test @Config(qualifiers = PHONE) fun libraryLight() = libraryIn("p02_library_light", ThemeChoice.LIGHT)
-    @Test @Config(qualifiers = PHONE) fun libraryList() = libraryIn("p03_library_list") { grid = false }
+    @Test @Config(qualifiers = PHONE) fun libraryList() = libraryIn("p03_library_list") { mode = dev.kolib.app.ui.components.ShelfMode.LIST }
     @Test @Config(qualifiers = PHONE) fun libraryFiltered() = libraryIn("p04_library_filtered") { collection = "Classics"; sortBy(LibrarySort.LAST_READ) }
     @Test @Config(qualifiers = PHONE) fun book() = libraryIn("p05_book") { selectedId = it.titled("Moby Dick").id }
     @Test @Config(qualifiers = PHONE) fun bookLight() = libraryIn("p05_book_light", ThemeChoice.LIGHT) { selectedId = it.titled("Moby Dick").id }
@@ -457,6 +458,42 @@ class PhoneShots {
     @Test @Config(qualifiers = PHONE) fun koboNotConnected() = koboScreen("p86_kobo_saved", saved = true)
     @Test @Config(qualifiers = TABLET_SIDEWAYS) fun koboNotConnectedOnATablet() = koboScreen("p87_kobo_saved_tablet", saved = true)
 
+    // ---- how books show: the display sheet, the compact and cover-only grids; Add to library with no Kobo plugged in ----
+
+    @Test @Config(qualifiers = PHONE) fun displaySheet() = displaySheetShot("p100_display_sheet")
+    @Test @Config(qualifiers = SIDEWAYS) fun displaySheetSideways() = displaySheetShot("p104_display_sheet_sideways")
+    @Test @Config(qualifiers = PHONE) fun libraryCompact() = libraryIn("p101_library_compact") { mode = dev.kolib.app.ui.components.ShelfMode.COMPACT }
+    @Test @Config(qualifiers = PHONE) fun libraryCoversOnly() = libraryIn("p102_library_covers") { mode = dev.kolib.app.ui.components.ShelfMode.COVERS }
+    @Test @Config(qualifiers = SIDEWAYS) fun libraryCompactSideways() = libraryIn("p103_library_compact_sideways") { mode = dev.kolib.app.ui.components.ShelfMode.COMPACT }
+    @Test @Config(qualifiers = PHONE) fun libraryCompactLight() = libraryIn("p108_library_compact_light", ThemeChoice.LIGHT) { mode = dev.kolib.app.ui.components.ShelfMode.COMPACT }
+    @Test @Config(qualifiers = PHONE) fun koboCompact() = koboScreen("p107_kobo_compact") { mode = dev.kolib.app.ui.components.ShelfMode.COMPACT }
+    @Test @Config(qualifiers = PHONE) fun koboBookNotConnected() = koboScreen("p105_kobo_book_saved", saved = true) { s ->
+        selectedBookId = s.snapshot.books.first { it.title == "The Odyssey" }.contentId
+    }
+    @Test @Config(qualifiers = TABLET_SIDEWAYS) fun koboBookNotConnectedOnATablet() = koboScreen("p106_kobo_book_saved_tablet", saved = true) { s ->
+        selectedBookId = s.snapshot.books.first { it.title == "The Odyssey" }.contentId
+    }
+
+    /** The library in the compact grid, four to a row upright, with the sheet for how its books show opened over it. */
+    private fun displaySheetShot(name: String) {
+        val (lib, covers) = library()
+        val browse = LibraryBrowseState().apply { mode = dev.kolib.app.ui.components.ShelfMode.COMPACT }
+        perRow = dev.kolib.app.ui.components.CoversPerRow(portrait = 4)
+        compose.mainClock.autoAdvance = false
+        compose.setContent {
+            AppSurface(ThemeChoice.BOOKCASE) {
+                androidx.compose.runtime.CompositionLocalProvider(dev.kolib.app.ui.components.LocalCoversPerRow provides perRow) { LibraryPage(lib, covers, browse) }
+            }
+        }
+        compose.mainClock.advanceTimeBy(1_000)
+        compose.mainClock.autoAdvance = true
+        compose.onNodeWithTag("display-button").performClick()
+        compose.waitForIdle()
+        Thread.sleep(500)
+        compose.waitForIdle()
+        capture(name)
+    }
+
     // ---- covers per row, as chosen in Settings; the collections on a phone held sideways ----------------------------
 
     @Test @Config(qualifiers = PHONE) fun fiveARow() {
@@ -486,7 +523,7 @@ class PhoneShots {
     @Test @Config(qualifiers = PHONE) fun coversPerRowSetting() = shot("p93_settings_covers", ThemeChoice.BOOKCASE) {
         dev.kolib.app.ui.LookDialog(
             current = ThemeChoice.BOOKCASE, onPick = {}, onDismiss = {},
-            coversPerRow = dev.kolib.app.ui.components.CoversPerRow(portrait = 4), comicsTab = true,
+            comicsTab = true,
         )
     }
 
@@ -498,7 +535,7 @@ class PhoneShots {
     private fun settingsShot(name: String, theme: ThemeChoice = ThemeChoice.BOOKCASE) = shot(name, theme) {
         dev.kolib.app.ui.LookDialog(
             current = theme, onPick = {}, onDismiss = {}, onLanguage = {}, onReadingSetup = {}, onAi = {},
-            coversPerRow = dev.kolib.app.ui.components.CoversPerRow(portrait = 4), comicsTab = true,
+            comicsTab = true,
         )
     }
 

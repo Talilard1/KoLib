@@ -510,7 +510,7 @@ class PhoneShots {
         shot("p94_log", ThemeChoice.BOOKCASE) { dev.kolib.app.ui.LogScreen(onBack = {}, onMessage = {}) }
     }
 
-    /** An update Android didn't install, on a Samsung: what Auto Blocker does, and the way to Settings. */
+    /** An update Android didn't install (on a Samsung, as Auto Blocker stops them): the download page offered too. */
     @Test @Config(qualifiers = PHONE) fun updateStoppedOnASamsung() {
         org.robolectric.shadows.ShadowBuild.setManufacturer("samsung")
         val json = """{"tag_name":"v3.2","html_url":"https://github.com/Talilard1/KoLib/releases/tag/v3.2","body":"- Covers per row\n- A layout for phones held sideways",

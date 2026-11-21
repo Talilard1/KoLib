@@ -1,6 +1,5 @@
 package dev.kolib.app.ui.update
 
-import android.os.Build
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
@@ -91,7 +90,6 @@ fun UpdateWindow(updater: Updater) {
                 is Updater.State.Available -> {
                     if (s.stopped) {
                         Text(tr("The update wasn't installed."), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
-                        AutoBlockerNote()
                     } else {
                         Text(tr("You have {0}.", updater.installed), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
@@ -100,7 +98,9 @@ fun UpdateWindow(updater: Updater) {
                         Text(tr("There's no download for this device in that version yet."), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp))
                     }
                     Buttons {
-                        TextButton(onClick = { updater.skip(s.release) }) { Text(tr("Skip this version")) }
+                        // Not installed (the phone may only let some apps install): the file from its page instead.
+                        if (s.stopped) TextButton(onClick = { page(s.release.page) }) { Text(tr("Open the download page")) }
+                        else TextButton(onClick = { updater.skip(s.release) }) { Text(tr("Skip this version")) }
                         TextButton(onClick = { updater.dismiss() }, modifier = Modifier.testTag("update-later")) { Text(tr("Not now")) }
                         if (s.release.apkUrl != null) Button(onClick = { updater.update(s.release) }, modifier = Modifier.testTag("update-go")) {
                             // Downloaded already: it's only installed.
@@ -136,7 +136,6 @@ fun UpdateWindow(updater: Updater) {
                 }
                 is Updater.State.Failed -> {
                     Text(s.message, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
-                    if (s.installing) AutoBlockerNote()
                     Buttons {
                         TextButton(onClick = { updater.dismiss() }) { Text(tr("Close")) }
                         TextButton(onClick = { page(s.release.page) }) { Text(tr("Open the download page")) }
@@ -144,30 +143,6 @@ fun UpdateWindow(updater: Updater) {
                     }
                 }
             }
-        }
-    }
-}
-
-/**
- * On a Samsung, why an update may not have installed: Auto Blocker lets only apps from the Galaxy Store and Play Store
- * be installed, updates to KoLib included. It's only said: KoLib doesn't open the phone's security settings or tell
- * anyone to turn a protection off.
- */
-@Composable
-private fun AutoBlockerNote(samsung: Boolean = Build.MANUFACTURER.equals("samsung", ignoreCase = true)) {
-    if (!samsung) return
-    Surface(
-        color = MaterialTheme.colorScheme.surfaceContainerLowest,
-        shape = RoundedCornerShape(12.dp),
-        modifier = Modifier.fillMaxWidth().padding(top = 10.dp).testTag("update-auto-blocker"),
-    ) {
-        Column(Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
-            Text(tr("Samsung's Auto Blocker may have stopped it."), style = MaterialTheme.typography.titleSmall)
-            Text(
-                tr("It only lets apps from the Galaxy Store and Play Store be installed."),
-                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 4.dp),
-            )
         }
     }
 }

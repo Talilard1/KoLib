@@ -13,7 +13,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.SaveAlt
 import android.net.Uri
-import android.content.ActivityNotFoundException
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.rememberLauncherForActivityResult
 import dev.kolib.app.tr
@@ -96,7 +95,10 @@ fun LogScreen(onBack: () -> Unit, onMessage: (String) -> Unit) {
         if (entries.isEmpty()) {
             EmptyState(Icons.AutoMirrored.Outlined.Article, tr("The log is empty"), tr("KoLib's activity is recorded here."), Modifier.padding(padding))
         } else Column(Modifier.padding(padding).fillMaxSize()) {
-            ReportLine { emailLog(context, onMessage) }
+            ReportLine {
+                context.getSystemService(ClipboardManager::class.java).setPrimaryClip(ClipData.newPlainText(REPORT_ADDRESS, REPORT_ADDRESS))
+                onMessage(tr("Copied."))
+            }
             SelectionContainer(Modifier.weight(1f)) {
                 LazyColumn(state = listState, contentPadding = PaddingValues(16.dp), modifier = Modifier.fillMaxSize()) {
                     items(entries, key = { it.id }) { e ->
@@ -133,9 +135,12 @@ fun LogScreen(onBack: () -> Unit, onMessage: (String) -> Unit) {
 /** Where to send the log, and screenshots, when something's gone wrong. */
 const val REPORT_ADDRESS = "KoLib2505@gmail.com"
 
-/** Something gone wrong: where to send the log (and screenshots), with a way to email it there. */
+/**
+ * Something gone wrong: where to send the log (and screenshots), with the address to copy. The log goes with Share, in
+ * whichever app the user sends it with: KoLib doesn't make out the email itself.
+ */
 @Composable
-private fun ReportLine(onEmail: () -> Unit) {
+private fun ReportLine(onCopy: () -> Unit) {
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainerLow,
         shape = RoundedCornerShape(12.dp),
@@ -148,37 +153,8 @@ private fun ReportLine(onEmail: () -> Unit) {
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.weight(1f).padding(horizontal = 12.dp),
             )
-            TextButton(onClick = onEmail, modifier = Modifier.testTag("log-email")) { Text(tr("Email")) }
+            TextButton(onClick = onCopy, modifier = Modifier.testTag("log-copy-address")) { Text(tr("Copy")) }
         }
-    }
-}
-
-/** The log in an email to [REPORT_ADDRESS], in the user's email app, with a line to say what happened. */
-private fun emailLog(context: Context, onMessage: (String) -> Unit) {
-    try {
-        val file = java.io.File(AppLog.exportFile(context).parentFile, "kolib-log.txt").apply { writeText(latestLog(context)) }
-        val uri = FileProvider.getUriForFile(context, "${context.packageName}.files", file)
-        val send = Intent(Intent.ACTION_SEND).apply {
-            type = "text/plain"
-            putExtra(Intent.EXTRA_EMAIL, arrayOf(REPORT_ADDRESS))
-            putExtra(Intent.EXTRA_SUBJECT, "KoLib ${dev.kolib.app.BuildConfig.VERSION_NAME} log")
-            putExtra(Intent.EXTRA_TEXT, tr("What happened, and what were you doing?") + "\n\n")
-            putExtra(Intent.EXTRA_STREAM, uri)
-            clipData = ClipData.newRawUri("", uri)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            // Email apps only.
-            selector = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"))
-        }
-        try {
-            context.startActivity(send)
-        } catch (e: ActivityNotFoundException) {
-            // No email app takes it so: any app that sends things, with the address.
-            send.selector = null
-            context.startActivity(Intent.createChooser(send, tr("Email the log")))
-        }
-    } catch (e: Exception) {
-        AppLog.e("Log", "Could not email the log", e)
-        onMessage(tr("Couldn't email the log: {0}", e.message))
     }
 }
 

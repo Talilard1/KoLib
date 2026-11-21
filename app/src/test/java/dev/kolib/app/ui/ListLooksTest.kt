@@ -47,4 +47,15 @@ class ListLooksTest {
         ListLooks.save(context, ListLooks.Now(library, kobo))
         assertEquals(dev.kolib.app.ui.components.ShelfMode.COMPACT, LibraryBrowseState().also { ListLooks.restore(context, library = it) }.mode)
     }
+
+    @Test
+    fun theComicsShowAsTheyWereLeftApartFromTheBooks() {
+        val library = LibraryBrowseState().apply { comicMode = dev.kolib.app.ui.components.ShelfMode.LIST }
+        ListLooks.save(context, ListLooks.Now(library, BrowseState()))
+        val again = LibraryBrowseState().also { ListLooks.restore(context, library = it) }
+        assertEquals(dev.kolib.app.ui.components.ShelfMode.LIST, again.comicMode)
+        assertEquals(dev.kolib.app.ui.components.ShelfMode.COMFORTABLE, again.mode)
+        // Nothing kept: covers.
+        assertEquals(dev.kolib.app.ui.components.ShelfMode.COMFORTABLE, LibraryBrowseState().comicMode)
+    }
 }

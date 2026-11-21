@@ -336,6 +336,64 @@ class ComicsTabTest {
     }
 
     @Test
+    fun theComicsShelfHasADisplayButtonOfItsOwn() {
+        show()
+        compose.onNodeWithTag("comic-display").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("display-list").performClick()
+        compose.waitForIdle()
+        assertEquals(dev.kolib.app.ui.components.ShelfMode.LIST, browse.comicMode)
+        // The books show as they did.
+        assertEquals(dev.kolib.app.ui.components.ShelfMode.COMFORTABLE, browse.mode)
+        compose.onNodeWithTag("display-sheet").performTouchInput { swipeDown() }
+        compose.waitForIdle()
+        // A line for each series, saying how many of its comics are read; tapped, it opens.
+        compose.onAllNodesWithTag("comic-series").assertCountEquals(2)
+        compose.onNodeWithText("3 comics · 2 not read yet").assertExists()
+        compose.onNodeWithText("Saga").performClick()
+        compose.waitForIdle()
+        assertEquals("s:saga", browse.comicKey)
+        // Covers again.
+        compose.onNodeWithTag("comic-display").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("display-compact").performClick()
+        compose.waitForIdle()
+        assertEquals(dev.kolib.app.ui.components.ShelfMode.COMPACT, browse.comicMode)
+    }
+
+    @Test
+    @Config(qualifiers = "w400dp-h800dp-mdpi")
+    fun onAPhoneTheDisplayButtonInTheComicsTabIsForTheComics() {
+        val book = comic("The Histories.epub", title = "The Histories").copy(sourceFormat = null)
+        compose.setContent {
+            AppSurface {
+                LibraryScreen(
+                    books = listOf(book) + comics, covers = covers, browse = browse, job = null, koboConnected = false,
+                    onAddFiles = {}, onAddFromKobo = {}, onShowJob = {}, onEditDetails = {}, onChangeCover = {}, onDelete = {}, onSend = {},
+                )
+            }
+        }
+        compose.waitForIdle()
+        compose.onNodeWithTag("tab-comics").performClick()
+        compose.mainClock.advanceTimeBy(1_000)
+        compose.waitForIdle()
+        compose.onNodeWithTag("display-button").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("display-list").performClick()
+        compose.waitForIdle()
+        assertEquals(dev.kolib.app.ui.components.ShelfMode.LIST, browse.comicMode)
+        assertEquals(dev.kolib.app.ui.components.ShelfMode.COMFORTABLE, browse.mode)
+        compose.onNodeWithTag("display-sheet").performTouchInput { swipeDown() }
+        compose.waitForIdle()
+        // None read yet here.
+        compose.onNodeWithText("3 comics").assertExists()
+        // A series' page has one too, for its comics.
+        compose.onNodeWithText("Saga").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("comic-series-layout").assertExists()
+    }
+
+    @Test
     fun theComicsTabCanBeHiddenFromItsMenu() {
         val book = comic("The Histories.epub", title = "The Histories").copy(sourceFormat = null)
         compose.setContent {

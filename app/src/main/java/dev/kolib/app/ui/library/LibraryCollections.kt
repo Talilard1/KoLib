@@ -1,5 +1,6 @@
 package dev.kolib.app.ui.library
 
+import androidx.compose.foundation.lazy.items
 import dev.kolib.app.ui.components.shelfMinCell
 import dev.kolib.app.ui.components.shelfCells
 import dev.kolib.app.ui.components.chosenPerRow
@@ -180,6 +181,7 @@ private fun CollectionShelf(
                     Text(sendLabel)
                 }
             }) else null,
+            display = { dev.kolib.app.ui.components.DisplayButton(browse.mode, { browse.mode = it }) },
         )
         if (books.isEmpty()) {
             EmptyState(
@@ -192,7 +194,21 @@ private fun CollectionShelf(
         val cellPadding = if (phone) 6.dp else 8.dp
         val perRow = chosenPerRow() ?: if (phone) 3 else null
         val minCell = shelfMinCell()
-        ShelfGridBox(minCell = minCell, coverPadding = cellPadding, columns = perRow) {
+        if (browse.mode == dev.kolib.app.ui.components.ShelfMode.LIST) {
+            // As a list, as the Books tab's is.
+            val listState = androidx.compose.runtime.key(collection.key) { androidx.compose.foundation.lazy.rememberLazyListState() }
+            androidx.compose.foundation.lazy.LazyColumn(state = listState, contentPadding = PaddingValues(bottom = if (phone) 104.dp else 24.dp), modifier = Modifier.fillMaxSize()) {
+                items(books, key = { it.id }) { book ->
+                    LibraryListItem(
+                        book, covers, picked = null, highlighted = book.id == selectedId,
+                        sort = browse.sort, reading = reading(book), here = here(book),
+                        onTap = { browse.collectionBookId = book.id }, onHold = { browse.collectionBookId = book.id }, onToggle = {},
+                    )
+                }
+            }
+            return@Column
+        }
+        ShelfGridBox(minCell = minCell, coverPadding = cellPadding, columns = perRow, mode = browse.mode) {
             val bookcase = LocalBookcase.current
             LazyVerticalGrid(
                 columns = shelfCells(perRow, minCell),

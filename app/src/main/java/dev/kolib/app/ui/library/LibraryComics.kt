@@ -1,5 +1,8 @@
 package dev.kolib.app.ui.library
 
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItem
 import dev.kolib.app.ui.components.UnderCover
 import dev.kolib.app.ui.components.shelfMinCell
 import dev.kolib.app.ui.components.shelfCells
@@ -276,11 +279,47 @@ private fun ComicShelf(
                     else EmptyState(Icons.Outlined.Search, tr("No comics match"), tr("Nothing in the Comics tab has “{0}” in its name.", browse.comicQuery.trim()))
                     return@Column
                 }
+                val tapEntry = { entry: ComicEntry ->
+                    if (choosing) {
+                        if (browse.comicPicked.remove(entry.key) == null) browse.comicPicked[entry.key] = true
+                    } else if (inPlace && !entry.isSeries) {
+                        actions.onRead(entry.issues.first().id)
+                    } else {
+                        browse.comicKey = entry.key
+                        browse.comicBookId = null
+                        if (browse.comicSelecting == ComicSelecting.ISSUES) browse.stopComicSelecting()
+                    }
+                }
+                val holdEntry = { entry: ComicEntry ->
+                    if (!choosing) {
+                        browse.stopComicSelecting()
+                        browse.comicSelecting = ComicSelecting.SERIES
+                    }
+                    browse.comicPicked[entry.key] = true
+                }
+                if (browse.comicMode == dev.kolib.app.ui.components.ShelfMode.LIST) {
+                    // The series as a list: each with its cover, name, and how many of its comics are read.
+                    LazyColumn(
+                        state = browse.comicList,
+                        contentPadding = PaddingValues(bottom = if (phone) 104.dp else 24.dp),
+                        modifier = Modifier.fillMaxSize().testTag("comic-shelf"),
+                    ) {
+                        items(shown, key = { it.key }) { entry ->
+                            ComicSeriesRow(
+                                entry, covers, here,
+                                picked = if (choosing) browse.comicPicked.containsKey(entry.key) else null,
+                                highlighted = entry.key == highlighted,
+                                onTap = { tapEntry(entry) },
+                                onHold = { holdEntry(entry) },
+                            )
+                        }
+                    }
+                    return@Column
+                }
                 val cellPadding = if (phone) 6.dp else 8.dp
                 val perRow = chosenPerRow() ?: if (phone) 3 else null
                 val minCell = shelfMinCell()
-                // The series are covers whichever way the books show: as a list, the comfortable grid.
-                ShelfGridBox(minCell = minCell, coverPadding = cellPadding, columns = perRow, mode = browse.mode.takeIf { browse.grid } ?: dev.kolib.app.ui.components.ShelfMode.COMFORTABLE) {
+                ShelfGridBox(minCell = minCell, coverPadding = cellPadding, columns = perRow, mode = browse.comicMode) {
                     val bookcase = LocalBookcase.current
                     LazyVerticalGrid(
                         columns = shelfCells(perRow, minCell),
@@ -300,24 +339,8 @@ private fun ComicShelf(
                                 picked = if (choosing) browse.comicPicked.containsKey(entry.key) else null,
                                 highlighted = entry.key == highlighted,
                                 padding = cellPadding,
-                                onTap = {
-                                    if (choosing) {
-                                        if (browse.comicPicked.remove(entry.key) == null) browse.comicPicked[entry.key] = true
-                                    } else if (inPlace && !entry.isSeries) {
-                                        actions.onRead(entry.issues.first().id)
-                                    } else {
-                                        browse.comicKey = entry.key
-                                        browse.comicBookId = null
-                                        if (browse.comicSelecting == ComicSelecting.ISSUES) browse.stopComicSelecting()
-                                    }
-                                },
-                                onHold = {
-                                    if (!choosing) {
-                                        browse.stopComicSelecting()
-                                        browse.comicSelecting = ComicSelecting.SERIES
-                                    }
-                                    browse.comicPicked[entry.key] = true
-                                },
+                                onTap = { tapEntry(entry) },
+                                onHold = { holdEntry(entry) },
                             )
                         }
                     }
@@ -498,6 +521,8 @@ private fun ComicSearchRow(browse: LibraryBrowseState, series: Int, comics: Int,
         )
         Spacer(Modifier.width(8.dp))
         ComicSortButton(browse, series, comics, wide)
+        // How the series show and how many covers to a row, as over every shelf.
+        dev.kolib.app.ui.components.DisplayButton(browse.comicMode, { browse.comicMode = it }, tag = "comic-display")
     }
 }
 
@@ -541,10 +566,10 @@ private fun ComicSortButton(browse: LibraryBrowseState, series: Int?, comics: In
             }
             if (wide) {
                 HorizontalDivider()
-                Text(tr("A series opens"), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+                Text(tr("When you tap a series"), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
                 for (inPlace in listOf(false, true)) {
                     DropdownMenuItem(
-                        text = { Text(if (inPlace) tr("In place of the shelf") else tr("Beside the shelf")) },
+                        text = { Text(if (inPlace) tr("Show it full screen") else tr("Show it beside your comics")) },
                         leadingIcon = { RadioButton(selected = browse.seriesInPlace == inPlace, onClick = null) },
                         onClick = { browse.openSeriesInPlace(inPlace); open = false },
                         modifier = Modifier.testTag(if (inPlace) "series-in-place" else "series-beside"),
@@ -564,6 +589,43 @@ private fun ComicSortButton(browse: LibraryBrowseState, series: Int?, comics: In
             )
         }
     }
+}
+
+/** A series in the Comics tab's list: its cover, name, and how many comics it has and how many are read. */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun ComicSeriesRow(
+    entry: ComicEntry,
+    covers: LibraryCovers,
+    here: (LibraryBook) -> ReadHere?,
+    picked: Boolean?,
+    highlighted: Boolean,
+    onTap: () -> Unit,
+    onHold: () -> Unit,
+) {
+    val unread = entry.unread(here).size
+    ListItem(
+        headlineContent = { Text(entry.title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+        supportingContent = {
+            Text(
+                if (!entry.isSeries) entry.cover.authorLine ?: comicsLabel(1)
+                else comicsLabel(entry.issues.size) + when (unread) {
+                    0 -> tr(" · all read")
+                    entry.issues.size -> ""
+                    else -> tr(" · {0} not read yet", unread)
+                },
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        },
+        leadingContent = {
+            ComicSeriesCover(entry.cover, covers, unread = unread, onKobo = entry.issues.all { it.koboPath != null }, modifier = Modifier.width(44.dp), picked = picked)
+        },
+        colors = ListItemDefaults.colors(
+            containerColor = if (highlighted && picked == null) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
+        ),
+        modifier = Modifier.combinedClickable(onClick = onTap, onLongClick = onHold).testTag("comic-series"),
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)

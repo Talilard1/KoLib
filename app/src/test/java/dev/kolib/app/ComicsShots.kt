@@ -225,6 +225,22 @@ class ComicsShots {
     }
 
     @Test
+    @Config(qualifiers = "w1280dp-h800dp-land-mdpi")
+    fun tabletComicsAsAList() {
+        val (lib, covers) = library()
+        screen(lib, covers, LibraryBrowseState().apply { tab = 2; comicMode = dev.kolib.app.ui.components.ShelfMode.LIST })
+        shot("comics_tablet_list")
+    }
+
+    @Test
+    @Config(qualifiers = "w411dp-h914dp-port-xxhdpi")
+    fun phoneComicsAsAList() {
+        val (lib, covers) = library()
+        screen(lib, covers, LibraryBrowseState().apply { tab = 2; comicMode = dev.kolib.app.ui.components.ShelfMode.LIST })
+        shot("comics_phone_list")
+    }
+
+    @Test
     @Config(qualifiers = "w411dp-h914dp-port-xxhdpi")
     fun phoneSeriesPage() {
         val (lib, covers) = library()

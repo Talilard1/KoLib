@@ -226,7 +226,11 @@ internal fun PhoneLibraryScreen(
     if (open == null && openSeries != null) {
         // A series opens on a page of its own.
         BackHandler { if (browse.comicSelecting != null) browse.stopComicSelecting() else browse.comicKey = null }
-        ComicSeriesPage(openSeries, covers, browse, koboConnected, here, comicActions, onBack = { browse.comicKey = null; browse.stopComicSelecting() }, others = comicEntries)
+        ComicSeriesPage(
+            openSeries, covers, browse, koboConnected, here, comicActions, onBack = { browse.comicKey = null; browse.stopComicSelecting() }, others = comicEntries,
+            // Its comics as covers or a list, as on a wide screen when a series has the screen to itself.
+            mode = browse.seriesMode, onMode = { browse.seriesMode = it },
+        )
         return
     }
     if (open != null) {
@@ -378,7 +382,11 @@ internal fun PhoneLibraryScreen(
                         IconButton(onClick = open, modifier = Modifier.size(40.dp).testTag("library-ai")) { dev.kolib.app.ui.ai.AiButtonIcon(tr("AI chat")) }
                     }
                     // How the books show and how many covers to a row, as Mihon's button beside its menu.
-                    DisplayButton(browse.mode, { browse.mode = it }, Modifier.size(40.dp).tourPlace("library-display"))
+                    DisplayButton(
+                        if (browse.tab == 2) browse.comicMode else browse.mode,
+                        { if (browse.tab == 2) browse.comicMode = it else browse.mode = it },
+                        Modifier.size(40.dp).tourPlace("library-display"),
+                    )
                     Box(Modifier.tourPlace("library-menu")) { PhoneListMenu(
                         onSelect = { browse.selecting = true },
                         more = listOfNotNull(

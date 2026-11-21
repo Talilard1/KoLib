@@ -520,6 +520,21 @@ class PhoneShots {
 
     @Test @Config(qualifiers = SIDEWAYS) fun koboCollectionsSideways() = koboScreen("p92_kobo_collections_sideways", tab = 1, collection = "Classics")
 
+    /** The display button before the sort where both are buttons of a symbol only; the collections as lists. */
+    @Test @Config(qualifiers = TABLET_SIDEWAYS) fun libraryTabletRow() = libraryIn("p109_library_tablet")
+    @Test @Config(qualifiers = TABLET_SIDEWAYS) fun koboTabletRow() = koboScreen("p110_kobo_tablet")
+    @Test @Config(qualifiers = PHONE) fun collectionAsAList() = libraryIn("p111_collection_list") { lib ->
+        tab = 1
+        mode = dev.kolib.app.ui.components.ShelfMode.LIST
+        collectionKey = dev.kolib.app.ui.library.libraryCollections(lib.books.value).first { it.name == "Classics" }.key
+    }
+    @Test @Config(qualifiers = PHONE) fun koboCollectionAsAList() = koboScreen("p112_kobo_collection_list", tab = 1, collection = "Classics") { mode = dev.kolib.app.ui.components.ShelfMode.LIST }
+    @Test @Config(qualifiers = TABLET_SIDEWAYS) fun collectionAsAListOnATablet() = libraryIn("p113_collection_list_tablet") { lib ->
+        tab = 1
+        mode = dev.kolib.app.ui.components.ShelfMode.LIST
+        collectionKey = dev.kolib.app.ui.library.libraryCollections(lib.books.value).first { it.name == "Classics" }.key
+    }
+
     @Test @Config(qualifiers = PHONE) fun coversPerRowSetting() = shot("p93_settings_covers", ThemeChoice.BOOKCASE) {
         dev.kolib.app.ui.LookDialog(
             current = ThemeChoice.BOOKCASE, onPick = {}, onDismiss = {},

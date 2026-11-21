@@ -16,7 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.GridView
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -67,7 +67,7 @@ fun ColumnScope.UnderCover(content: @Composable ColumnScope.() -> Unit) {
 @Composable
 fun DisplayButton(mode: ShelfMode, onMode: (ShelfMode) -> Unit, modifier: Modifier = Modifier, tag: String = "display-button") {
     var open by rememberSaveable { mutableStateOf(false) }
-    IconButton(onClick = { open = true }, modifier = modifier.testTag(tag)) { Icon(Icons.Outlined.GridView, tr("Display")) }
+    IconButton(onClick = { open = true }, modifier = modifier.testTag(tag)) { Icon(Icons.Filled.FilterList, tr("Display")) }
     if (open) ShelfDisplaySheet(mode, onMode) { open = false }
 }
 

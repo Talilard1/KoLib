@@ -880,6 +880,8 @@ private fun LibraryControls(all: List<LibraryBook>, browse: LibraryBrowseState, 
                     Text(tr("Select"))
                 }
             }
+            // How the books show (covers, and how, or a list) and how many covers to a row, chosen over the shelf.
+            DisplayButton(browse.mode, { browse.mode = it }, Modifier.tourPlace("library-display"))
             var sortOpen by remember { mutableStateOf(false) }
             Box {
                 IconButton(onClick = { sortOpen = true }) { Icon(Icons.AutoMirrored.Filled.Sort, tr("Sort")) }
@@ -908,8 +910,6 @@ private fun LibraryControls(all: List<LibraryBook>, browse: LibraryBrowseState, 
                     }
                 }
             }
-            // How the books show (covers, and how, or a list) and how many covers to a row, chosen over the shelf.
-            DisplayButton(browse.mode, { browse.mode = it }, Modifier.tourPlace("library-display"))
     }
     val chips: @Composable () -> Unit = {
             LibraryFilter.entries.forEach { f ->

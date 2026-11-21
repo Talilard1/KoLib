@@ -90,6 +90,9 @@ class LibraryBrowseState {
     var comicsTab by mutableStateOf(true)
     /** On a wide screen, a series opens in place of the shelf (with no side panel), rather than beside it. */
     var seriesInPlace by mutableStateOf(false)
+    /** How the Comics tab shows its series: as covers (and how), or a list. */
+    var comicMode by mutableStateOf(dev.kolib.app.ui.components.ShelfMode.COMFORTABLE)
+    val comicList = androidx.compose.foundation.lazy.LazyListState()
     /** How a series open in place of the shelf shows its comics: as covers (and how), or a list. */
     var seriesMode by mutableStateOf(dev.kolib.app.ui.components.ShelfMode.LIST)
     /** A series open in place of the shelf shows its comics as a grid of covers, rather than a list. */

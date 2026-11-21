@@ -28,6 +28,7 @@ object ListLooks {
             s.mode = modeOf(p, "library")
             s.comicsTab = p.getBoolean("library_comics_tab", true)
             s.seriesInPlace = p.getBoolean("library_series_in_place", false)
+            s.comicMode = ShelfMode.entries.firstOrNull { it.name == p.getString("library_comic_mode", null) } ?: ShelfMode.COMFORTABLE
             s.seriesMode = ShelfMode.entries.firstOrNull { it.name == p.getString("library_series_mode", null) }
                 ?: if (p.getBoolean("library_series_grid", false)) ShelfMode.COMFORTABLE else ShelfMode.LIST
         }
@@ -49,11 +50,12 @@ object ListLooks {
     data class Now(
         val librarySort: LibrarySort, val libraryDescending: Boolean, val libraryMode: ShelfMode, val koboSort: KoboSort, val koboDescending: Boolean, val koboMode: ShelfMode,
         val comicsTab: Boolean = true, val seriesInPlace: Boolean = false, val seriesMode: ShelfMode = ShelfMode.LIST,
+        val comicMode: ShelfMode = ShelfMode.COMFORTABLE,
         val coversPortrait: Int = 0, val coversLandscape: Int = 0,
     ) {
         constructor(library: LibraryBrowseState, kobo: BrowseState, covers: CoversPerRow? = null) : this(
             library.sort, library.descending, library.mode, kobo.sort, kobo.descending, kobo.mode,
-            library.comicsTab, library.seriesInPlace, library.seriesMode,
+            library.comicsTab, library.seriesInPlace, library.seriesMode, library.comicMode,
             covers?.portrait ?: 0, covers?.landscape ?: 0,
         )
     }
@@ -69,6 +71,7 @@ object ListLooks {
             .putBoolean("library_comics_tab", now.comicsTab)
             .putBoolean("library_series_in_place", now.seriesInPlace)
             .putString("library_series_mode", now.seriesMode.name)
+            .putString("library_comic_mode", now.comicMode.name)
             .putInt("covers_portrait", now.coversPortrait)
             .putInt("covers_landscape", now.coversLandscape)
             .apply()

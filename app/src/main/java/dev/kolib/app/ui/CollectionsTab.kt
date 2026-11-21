@@ -1,5 +1,7 @@
 package dev.kolib.app.ui
 
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyColumn
 import dev.kolib.app.ui.components.shelfMinCell
 import dev.kolib.app.ui.components.shelfCells
 import dev.kolib.app.ui.components.chosenPerRow
@@ -106,6 +108,7 @@ fun CollectionsTab(
                 CollectionBooks(
                     view, live, entry, extras, book?.contentId, onBack, browse.collectionScroll.grid(entry.key),
                     onOpenBook = { browse.collectionBookId = it }, onAddToLibrary = onAddToLibrary,
+                    mode = browse.mode, onMode = { browse.mode = it },
                 )
             }
         },
@@ -149,6 +152,8 @@ private fun CollectionBooks(
     gridState: LazyGridState,
     onOpenBook: (String) -> Unit,
     onAddToLibrary: (List<KoboBook>) -> Unit,
+    mode: dev.kolib.app.ui.components.ShelfMode = dev.kolib.app.ui.components.ShelfMode.COMFORTABLE,
+    onMode: (dev.kolib.app.ui.components.ShelfMode) -> Unit = {},
 ) {
     val notInLibrary = entry.books.filter { it.isSideloaded && !extras.inLibrary(it) }
     val phone = phoneLayout()
@@ -162,6 +167,7 @@ private fun CollectionBooks(
                     Text(entry.name, style = MaterialTheme.typography.titleLarge, maxLines = 2, overflow = TextOverflow.Ellipsis)
                     Text(Fmt.plural(entry.books.size, "book"), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
+                dev.kolib.app.ui.components.DisplayButton(mode, onMode)
             }
             if (live && notInLibrary.isNotEmpty()) {
                 FilledTonalButton(onClick = { onAddToLibrary(notInLibrary) }, modifier = Modifier.fillMaxWidth().padding(start = 12.dp, top = 8.dp)) {
@@ -181,6 +187,7 @@ private fun CollectionBooks(
                     Text(if (notInLibrary.size == entry.books.size) tr("Add all to library") else tr("Add {0} to library", notInLibrary.size))
                 }
             }) else null,
+            display = { dev.kolib.app.ui.components.DisplayButton(mode, onMode) },
         )
         if (entry.books.isEmpty()) {
             EmptyState(
@@ -190,10 +197,23 @@ private fun CollectionBooks(
             )
             return@Column
         }
+        if (mode == dev.kolib.app.ui.components.ShelfMode.LIST) {
+            // As a list, as the Books tab's is.
+            LazyColumn(contentPadding = PaddingValues(bottom = 24.dp), modifier = Modifier.fillMaxSize()) {
+                items(entry.books, key = { it.contentId }) { book ->
+                    BookListRow(
+                        book, view.covers, view.snapshot.collectionsByBook[book.contentId]?.size ?: 0,
+                        detail = null, highlighted = book.contentId == selectedId, picked = null, inLibrary = extras.inLibrary(book),
+                        onClick = { onOpenBook(book.contentId) }, onLongClick = { onOpenBook(book.contentId) },
+                    )
+                }
+            }
+            return@Column
+        }
         val cellPadding = if (phone) 6.dp else 8.dp
         val perRow = chosenPerRow() ?: if (phone) 3 else null
         val minCell = shelfMinCell()
-        ShelfGridBox(minCell = minCell, coverPadding = cellPadding, columns = perRow) {
+        ShelfGridBox(minCell = minCell, coverPadding = cellPadding, columns = perRow, mode = mode) {
             val bookcase = LocalBookcase.current
             LazyVerticalGrid(
                 columns = shelfCells(perRow, minCell),
@@ -228,7 +248,7 @@ private fun CollectionBooks(
  * sending them), or under the name where there isn't the room beside it (between the collections and a book's details).
  */
 @Composable
-fun CollectionHeader(name: String, count: Int, onBack: (() -> Unit)?, action: (@Composable () -> Unit)?) {
+fun CollectionHeader(name: String, count: Int, onBack: (() -> Unit)?, action: (@Composable () -> Unit)?, display: (@Composable () -> Unit)? = null) {
     BoxWithConstraints {
         val under = action != null && maxWidth < 600.dp
         Column(Modifier.padding(start = 12.dp, end = 20.dp, top = 12.dp, bottom = 4.dp)) {
@@ -251,6 +271,8 @@ fun CollectionHeader(name: String, count: Int, onBack: (() -> Unit)?, action: (@
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+                // How the books show, as over every shelf.
+                display?.invoke()
                 if (!under) action?.invoke()
             }
             if (under) Box(Modifier.padding(start = 8.dp, top = 8.dp)) { action() }

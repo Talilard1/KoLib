@@ -460,6 +460,8 @@ private fun BrowserControls(browse: BrowseState, shown: Int, snapshot: KoboSnaps
                     Text(tr("Select"))
                 }
             }
+            // How the books show (covers, and how, or a list) and how many covers to a row, chosen over the shelf.
+            DisplayButton(browse.mode, { browse.mode = it }, Modifier.tourPlace("kobo-display"))
             var sortOpen by remember { mutableStateOf(false) }
             Box {
                 IconButton(onClick = { sortOpen = true }) { Icon(Icons.AutoMirrored.Filled.Sort, tr("Sort")) }
@@ -488,8 +490,6 @@ private fun BrowserControls(browse: BrowseState, shown: Int, snapshot: KoboSnaps
                     }
                 }
             }
-            // How the books show (covers, and how, or a list) and how many covers to a row, chosen over the shelf.
-            DisplayButton(browse.mode, { browse.mode = it }, Modifier.tourPlace("kobo-display"))
     }
     val chips: @Composable () -> Unit = {
             SourceFilter.entries.forEach { f ->

@@ -1,5 +1,7 @@
 package dev.kolib.app.ui
 
+import androidx.compose.material.icons.outlined.MoreHoriz
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.ui.semantics.heading
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material3.IconButton
@@ -135,7 +137,7 @@ import dev.kolib.app.ui.components.FrameBars
 import dev.kolib.app.ui.components.LocalFrameBars
 import dev.kolib.app.ui.components.phoneLayout
 
-enum class Section { LIBRARY, KOBO, DEVICES }
+enum class Section { LIBRARY, KOBO, DEVICES, MORE }
 
 @Composable
 fun AppRoot(
@@ -150,6 +152,9 @@ fun AppRoot(
     onOpeningSound: ((Boolean) -> Unit)? = null,
     openingLight: Boolean = false,
     onOpeningLight: ((Boolean) -> Unit)? = null,
+    /** The opening plays each time KoLib starts, not just after an update. */
+    openingEveryTime: Boolean = false,
+    onOpeningEveryTime: ((Boolean) -> Unit)? = null,
     /** The introduction shown the first time KoLib starts has been gone through. */
     introSeen: Boolean = true,
     onIntroSeen: (Boolean) -> Unit = {},
@@ -524,6 +529,7 @@ fun AppRoot(
         Section.LIBRARY -> Tours.LIBRARY.takeIf { books.isNotEmpty() && Tours.SAMPLES in seenTours }
         Section.KOBO -> if (koboShowing) Tours.KOBO else Tours.KOBO_CONNECT
         Section.DEVICES -> Tours.DEVICES
+        Section.MORE -> null
     }?.takeIf { it !in seenTours }
 
     CompositionLocalProvider(dev.kolib.app.ui.ai.LocalAiHost provides aiHost, dev.kolib.app.ui.components.LocalCoversPerRow provides coversPerRow) {
@@ -679,7 +685,15 @@ fun AppRoot(
             }
             else -> CompositionLocalProvider(dev.kolib.app.ui.tour.LocalTourPlaces provides tourPlaces.takeIf { sectionTour != null }) { AppFrame(
                 section = section,
-                onSection = { section = it },
+                // A tap on the tab that's showing takes it back to its shelf, or the shelf to its top.
+                onSection = { tapped ->
+                    if (tapped != section) section = tapped
+                    else when (tapped) {
+                        Section.LIBRARY -> linkScope.launch { libraryBrowse.backToTop() }
+                        Section.KOBO -> linkScope.launch { browse.backToTop() }
+                        else -> {}
+                    }
+                },
                 koboConnected = liveSession != null,
                 onNarrow = { narrow = it },
                 onLook = { showLook = true },
@@ -687,6 +701,19 @@ fun AppRoot(
             ) {
                 CompositionLocalProvider(dev.kolib.app.ui.link.LocalLinkActions provides linkActions, dev.kolib.app.ui.ai.LocalOpenAiChat provides { aiPanel.toggle() }) {
                 when (section) {
+                    Section.MORE -> MoreScreen(
+                        version = tr("Version {0}", dev.kolib.app.BuildConfig.VERSION_NAME),
+                        onSettings = { showLook = true },
+                        onStats = { overlay = "stats" },
+                        // The tours start again from the library, which has the first.
+                        onTours = onShowToursAgain?.let { again -> { section = Section.LIBRARY; again() } },
+                        onLog = { overlay = "log" },
+                        onBackups = {
+                            vm.refreshBackups()
+                            overlay = "backups"
+                        },
+                        onAbout = { overlay = "about" },
+                    )
                     Section.DEVICES -> dev.kolib.app.ui.link.DevicesScreen(link, devicesActions, onEject = if (liveSession != null) ({ showEject = true }) else null)
                     Section.LIBRARY -> CompositionLocalProvider(dev.kolib.app.ui.ocr.LocalOcrActions provides ocrActions) { LibraryScreen(
                         onAddSamples = { libraryVm.addSamples() },
@@ -744,7 +771,20 @@ fun AppRoot(
                         onGroupComics = { ids, name -> libraryVm.groupComics(ids, name) },
                         onTakeOutOfSeries = { ids -> libraryVm.takeComicsOutOfSeries(ids) },
                     ) }
-                    Section.KOBO -> CompositionLocalProvider(dev.kolib.app.ui.components.LocalKoboLibraryCovers provides koboLibraryCovers) { when {
+                    Section.KOBO -> CompositionLocalProvider(
+                        dev.kolib.app.ui.components.LocalKoboLibraryCovers provides koboLibraryCovers,
+                        dev.kolib.app.ui.components.LocalReadHere provides { book ->
+                            val open = { id: String ->
+                                libraryVm.readerSettings.startReading()
+                                overlay = "read:$id"
+                            }
+                            val copy = koboExtras.libraryCopy(book)
+                            when {
+                                copy != null -> open(copy.id)
+                                liveSession != null -> libraryVm.readFromKobo(liveSession, book, open)
+                            }
+                        },
+                    ) { when {
                         connection is Connection.Connected && koboView != null -> DeviceScreen(
                             view = koboView,
                             unplugged = connection.unplugged,
@@ -1074,6 +1114,7 @@ fun AppRoot(
             current = theme, onPick = onTheme, onDismiss = { showLook = false },
             opening = opening, onOpening = onOpening, openingSound = openingSound, onOpeningSound = onOpeningSound,
             openingLight = openingLight, onOpeningLight = onOpeningLight,
+            openingEveryTime = openingEveryTime, onOpeningEveryTime = onOpeningEveryTime,
             onLanguage = {
                 showLook = false
                 showLanguage = true
@@ -1099,7 +1140,7 @@ fun AppRoot(
             onSeriesInPlace = { libraryBrowse.openSeriesInPlace(it) },
             tour = !toursOff && toursSeen?.let { Tours.SETTINGS !in it } == true,
             onTourDone = { onTourSeen(Tours.SETTINGS) },
-            onShowTours = onShowToursAgain?.let { again -> { showLook = false; again() } },
+            onShowTours = onShowToursAgain?.let { again -> { showLook = false; if (section == Section.MORE) section = Section.LIBRARY; again() } },
             toursOn = if (toursSeen != null) !toursOff else null,
             onToursOn = { on -> onToursOff(!on) },
         )
@@ -1214,6 +1255,9 @@ internal fun AppFrame(
             Icon(if (section == Section.KOBO) Icons.Filled.Usb else Icons.Outlined.Usb, null)
         }
     }
+    val moreIcon: @Composable () -> Unit = {
+        Icon(if (section == Section.MORE) Icons.Filled.MoreHoriz else Icons.Outlined.MoreHoriz, null)
+    }
     Box(Modifier.fillMaxSize()) {
         val wide = !phoneLayout()
         LaunchedEffect(wide) { onNarrow(!wide) }
@@ -1259,18 +1303,17 @@ internal fun AppFrame(
                         label = { Text(tr("Devices")) },
                         colors = itemColors,
                     )
-                    if (onLook != null) {
-                        Spacer(Modifier.weight(1f))
-                        NavigationRailItem(
-                            selected = false,
-                            onClick = onLook,
-                            modifier = Modifier.tourPlace("nav-settings"),
-                            icon = { Icon(Icons.Outlined.Settings, null) },
-                            label = { dev.kolib.app.ui.components.FittedText(tr("Settings"), style = MaterialTheme.typography.labelMedium, smallest = 0.7f) },
-                            colors = itemColors,
-                        )
-                        Spacer(Modifier.height(12.dp))
-                    }
+                    // Settings, stats, the log and the rest: the More tab, at the rail's foot.
+                    Spacer(Modifier.weight(1f))
+                    NavigationRailItem(
+                        selected = section == Section.MORE,
+                        onClick = { onSection(Section.MORE) },
+                        modifier = Modifier.tourPlace("nav-settings").testTag("nav-more"),
+                        icon = moreIcon,
+                        label = { Text(tr("More")) },
+                        colors = itemColors,
+                    )
+                    Spacer(Modifier.height(12.dp))
                 }
                 VerticalDivider(color = LocalKoLibStyle.current.hairline)
                 Box(
@@ -1331,6 +1374,14 @@ internal fun AppFrame(
                                 label = { Text(tr("Devices")) },
                                 colors = itemColors,
                             )
+                            NavigationBarItem(
+                                selected = section == Section.MORE,
+                                onClick = { onSection(Section.MORE) },
+                                modifier = Modifier.tourPlace("nav-settings").testTag("nav-more"),
+                                icon = moreIcon,
+                                label = { Text(tr("More")) },
+                                colors = itemColors,
+                            )
                         }
                     }
                 }
@@ -1351,6 +1402,8 @@ fun LookDialog(
     onOpeningSound: ((Boolean) -> Unit)? = null,
     openingLight: Boolean = false,
     onOpeningLight: ((Boolean) -> Unit)? = null,
+    openingEveryTime: Boolean = false,
+    onOpeningEveryTime: ((Boolean) -> Unit)? = null,
     /** Opens the choice of language. */
     onLanguage: (() -> Unit)? = null,
     /** The folder of books chosen to add books from, by name; null if none has been. */
@@ -1460,7 +1513,11 @@ fun LookDialog(
             val look: @Composable ColumnScope.() -> Unit = {
                 Box(Modifier.tourPlace("settings-look").padding(4.dp)) { dev.kolib.app.ui.theme.ThemePicker(current, onPick) }
                 if (onOpening != null) Column(Modifier.tourPlace("settings-opening").padding(top = 8.dp)) {
-                    SwitchLine(tr("Opening animation"), tr("Plays when KoLib starts. Tap it to skip."), opening, onOpening)
+                    SwitchLine(tr("Opening animation"), tr("Plays after each update. Tap it to skip."), opening, onOpening)
+                    if (onOpeningEveryTime != null) SwitchLine(
+                        tr("Play every time"), tr("Plays each time KoLib starts."),
+                        opening && openingEveryTime, onOpeningEveryTime, enabled = opening,
+                    )
                     SwitchLine(
                         tr("Opening sound"), tr("Uses your media volume."),
                         opening && openingSound, { onOpeningSound?.invoke(it) }, enabled = opening,

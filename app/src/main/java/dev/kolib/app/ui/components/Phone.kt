@@ -1,5 +1,6 @@
 package dev.kolib.app.ui.components
 
+import androidx.compose.material.icons.outlined.Deselect
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.material3.LocalTextStyle
 import dev.kolib.app.tr
@@ -144,7 +145,15 @@ fun PhoneSearchField(
 
 /** In place of the search box while books are being chosen: how many, ways to choose them all or none, and to stop. */
 @Composable
-fun PhoneSelectionHeader(count: Int, onSelectAll: () -> Unit, onDeselectAll: () -> Unit, onCancel: () -> Unit, hint: String? = null) {
+fun PhoneSelectionHeader(
+    count: Int,
+    onSelectAll: () -> Unit,
+    onDeselectAll: () -> Unit,
+    onCancel: () -> Unit,
+    hint: String? = null,
+    onInvert: (() -> Unit)? = null,
+    allSelected: Boolean = false,
+) {
     Surface(color = MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.fillMaxWidth()) {
         Row(
             Modifier
@@ -165,19 +174,43 @@ fun PhoneSelectionHeader(count: Int, onSelectAll: () -> Unit, onDeselectAll: () 
                 )
                 hint?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondaryContainer) }
             }
-            SelectAllButtons(onSelectAll, onDeselectAll, anySelected = count > 0, tint = MaterialTheme.colorScheme.onSecondaryContainer)
+            SelectAllButtons(onSelectAll, onDeselectAll, anySelected = count > 0, tint = MaterialTheme.colorScheme.onSecondaryContainer, onInvert = onInvert, allSelected = allSelected)
         }
     }
 }
 
-/** Choose everything shown, or nothing (still choosing): two icon buttons, in every bar for choosing. */
+/**
+ * In every bar for choosing: choose everything shown (or, with everything chosen, nothing, still choosing), and swap
+ * what's chosen for what isn't, as Mihon does.
+ */
 @Composable
-fun SelectAllButtons(onSelectAll: () -> Unit, onDeselectAll: () -> Unit, anySelected: Boolean, tint: Color = LocalContentColor.current) {
-    IconButton(onClick = onSelectAll, modifier = Modifier.testTag("select-all")) { Icon(Icons.Outlined.SelectAll, tr("Select all"), tint = tint) }
-    IconButton(onClick = onDeselectAll, enabled = anySelected, modifier = Modifier.testTag("deselect-all")) {
-        Icon(Icons.Outlined.FlipToBack, tr("Deselect all"), tint = if (anySelected) tint else tint.copy(alpha = 0.38f))
+fun SelectAllButtons(
+    onSelectAll: () -> Unit,
+    onDeselectAll: () -> Unit,
+    anySelected: Boolean,
+    tint: Color = LocalContentColor.current,
+    onInvert: (() -> Unit)? = null,
+    allSelected: Boolean = false,
+) {
+    if (onInvert == null) {
+        IconButton(onClick = onSelectAll, modifier = Modifier.testTag("select-all")) { Icon(Icons.Outlined.SelectAll, tr("Select all"), tint = tint) }
+        IconButton(onClick = onDeselectAll, enabled = anySelected, modifier = Modifier.testTag("deselect-all")) {
+            Icon(Icons.Outlined.Deselect, tr("Deselect all"), tint = if (anySelected) tint else tint.copy(alpha = 0.38f))
+        }
+        return
     }
+    if (allSelected) IconButton(onClick = onDeselectAll, modifier = Modifier.testTag("deselect-all")) { Icon(Icons.Outlined.Deselect, tr("Deselect all"), tint = tint) }
+    else IconButton(onClick = onSelectAll, modifier = Modifier.testTag("select-all")) { Icon(Icons.Outlined.SelectAll, tr("Select all"), tint = tint) }
+    IconButton(onClick = onInvert, modifier = Modifier.testTag("invert-selection")) { Icon(Icons.Outlined.FlipToBack, tr("Invert selection"), tint = tint) }
 }
+
+/** Each of [shown] chosen becomes unchosen, and each unchosen becomes chosen. */
+fun <K> MutableMap<K, Boolean>.invertPicks(shown: Iterable<K>) {
+    for (k in shown) if (containsKey(k)) remove(k) else put(k, true)
+}
+
+/** Every one of [shown] is chosen (and there's one at least). */
+fun <K> Map<K, Boolean>.hasAll(shown: Collection<K>): Boolean = shown.isNotEmpty() && shown.all { containsKey(it) }
 
 /**
  * How wide one of a bar's buttons may grow. On a phone they share the width between them; in a wider bar they stop

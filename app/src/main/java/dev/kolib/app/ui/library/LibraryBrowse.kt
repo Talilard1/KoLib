@@ -1,5 +1,6 @@
 package dev.kolib.app.ui.library
 
+import dev.kolib.app.ui.components.invertPicks
 import dev.kolib.app.ui.PickRange
 
 import dev.kolib.app.tr
@@ -42,6 +43,12 @@ enum class ComicSort(val label: String) {
     TITLE(tr("Title")),
     READ(tr("Last read on this device")),
     ADDED(tr("Date added")),
+}
+
+/** Which series the Comics tab shows: all of them, or by how far they've been read. */
+enum class ComicShow(val label: String) {
+    // In the words the Kobo's books are filtered by: a series being read is one started with comics still unread.
+    ALL(tr("All")), UNREAD(tr("Unread")), STARTED(tr("Reading")), READ(tr("Finished"))
 }
 
 /** What's being chosen in the Comics tab: series, or comics of the series open. */
@@ -90,6 +97,10 @@ class LibraryBrowseState {
     var comicsTab by mutableStateOf(true)
     /** On a wide screen, a series opens in place of the shelf (with no side panel), rather than beside it. */
     var seriesInPlace by mutableStateOf(false)
+    /** Which series the Comics tab shows, by how far they've been read, and by whether they're on the Kobo. */
+    var comicShow by mutableStateOf(ComicShow.ALL)
+    var comicOnKobo by mutableStateOf<Boolean?>(null)
+    val comicsFiltered: Boolean get() = comicShow != ComicShow.ALL || comicOnKobo != null
     /** How the Comics tab shows its series: as covers (and how), or a list. */
     var comicMode by mutableStateOf(dev.kolib.app.ui.components.ShelfMode.COMFORTABLE)
     val comicList = androidx.compose.foundation.lazy.LazyListState()
@@ -139,6 +150,12 @@ class LibraryBrowseState {
     /** Nothing chosen, still choosing. */
     fun deselectAll() {
         picked.clear()
+        range.reset()
+    }
+
+    /** What's chosen of [shown] isn't, and what isn't is. */
+    fun invertPicks(shown: List<String>) {
+        picked.invertPicks(shown)
         range.reset()
     }
 

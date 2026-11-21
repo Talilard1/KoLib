@@ -611,7 +611,7 @@ class AdvertShots {
 
     private fun fontPanel(font: ReaderFont, file: String, at: Int, pages: Int, scale: Float) = reader(
         "rd_font_$file", paged(ReaderTheme.PAPER, font, scale), if (file == "garamond") "sh_paper_6" else "sh_font_${file}_6", at, pages,
-        controls = true, panel = Panel.LOOK, prepare = { it.lookTab = 0 },
+        controls = true, panel = Panel.LOOK, prepare = { it.lookTab = -1 },
     )
     @Test @Config(qualifiers = TAB) fun rdFontLiterata() = fontPanel(ReaderFont.LITERATA, "literata", 5, 14, 1.0f)
     @Test @Config(qualifiers = TAB) fun rdFontGaramond() = fontPanel(ReaderFont.GARAMOND, "garamond", 5, 13, 1.1f)

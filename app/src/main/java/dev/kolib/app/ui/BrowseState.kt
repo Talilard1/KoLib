@@ -1,5 +1,6 @@
 package dev.kolib.app.ui
 
+import dev.kolib.app.ui.components.invertPicks
 import dev.kolib.app.tr
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState
@@ -64,6 +65,8 @@ class BrowseState {
 
     /** Which of the Kobo's tabs is showing: books, collections or device. */
     var deviceTab by mutableIntStateOf(0)
+    /** The note over the Kobo's books (they're on the Kobo, not here) has been read and put away. */
+    var whereNoteSeen by mutableStateOf(false)  // kept between launches (see ListLooks)
 
     /** The Collections tab: the collection open in it, and the book of it open beside it. */
     var collectionKey by mutableStateOf<String?>(null)
@@ -93,6 +96,12 @@ class BrowseState {
     /** Nothing chosen, still choosing. */
     fun deselectAll() {
         picked.clear()
+        range.reset()
+    }
+
+    /** What's chosen of [shown] isn't, and what isn't is. */
+    fun invertPicks(shown: List<String>) {
+        picked.invertPicks(shown)
         range.reset()
     }
 

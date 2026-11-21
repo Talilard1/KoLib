@@ -2,6 +2,8 @@
 
 package dev.kolib.app.ui
 
+import dev.kolib.app.ui.components.hasAll
+import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import dev.kolib.app.ui.tour.tourPlace
 import dev.kolib.app.ui.components.UnderCover
 import dev.kolib.app.ui.components.DisplayButton
@@ -204,12 +206,15 @@ fun BooksTab(
             )
         }
         if (twoPanes) {
+            // The books have the whole width till one's tapped; its details then open beside them, closed with ✕ or Back.
+            if (selected != null) TabBackHandler { browse.selectedBookId = null }
             Row(Modifier.fillMaxSize()) {
-                BookBrowser(view, live, browse, visible, selected?.contentId, extras, onAddToLibrary, onDeleteFromKobo, Modifier.weight(1.45f), readingTags)
-                VerticalDivider()
-                Box(Modifier.weight(1f).fillMaxHeight()) {
-                    if (selected != null) detail(selected, null)
-                    else EmptyState(Icons.Outlined.AutoStories, tr("Tap a book"), tr("Its details appear here."))
+                BookBrowser(view, live, browse, visible, selected?.contentId, extras, onAddToLibrary, onDeleteFromKobo, Modifier.weight(1f), readingTags)
+                if (selected != null) {
+                    VerticalDivider()
+                    dev.kolib.app.ui.components.SidePane(onClose = { browse.selectedBookId = null }, modifier = Modifier.width(this@BoxWithConstraints.maxWidth * 0.41f).fillMaxHeight()) {
+                        detail(selected, null)
+                    }
                 }
             }
         } else if (selected != null && !browse.selecting) {
@@ -245,10 +250,13 @@ private fun BookBrowser(
         }
         if (browse.selecting) AtFoot {
             val chosen = { books.filter { browse.picked.containsKey(it.contentId) } }
+            val choosable = books.filter { it.isSideloaded && !inLibrary(it) }.map { it.contentId }
             SelectionBar(
                 count = browse.picked.size,
-                onSelectAll = { books.filter { it.isSideloaded && !inLibrary(it) }.forEach { browse.picked[it.contentId] = true } },
+                onSelectAll = { choosable.forEach { browse.picked[it] = true } },
                 onDeselectAll = { browse.deselectAll() },
+                onInvert = { browse.invertPicks(choosable) },
+                allSelected = browse.picked.hasAll(choosable),
                 onCancel = { browse.stopSelecting() },
                 hint = if (!live) tr("Connect your Kobo to add or delete books") else null,
                 actions = koboSelectionActions(
@@ -299,7 +307,7 @@ private fun KoboBookList(
             if (view.snapshot.books.isEmpty()) {
                 EmptyState(Icons.Outlined.AutoStories, tr("No books on this Kobo"), tr("Books you add to the Kobo will appear here."))
             } else {
-                EmptyState(Icons.Outlined.SearchOff, tr("No matching books"), tr("Try a different search or clear the filters."))
+                EmptyState(Icons.Outlined.SearchOff, tr("No matching books"), tr("Try a different search, or clear the filters."))
             }
             return@Column
         }
@@ -323,6 +331,10 @@ private fun KoboBookList(
                     .fillMaxSize()
                     .then(if (LocalBookcase.current) Modifier.background((LocalKoLibStyle.current.shelf ?: ShelfColors).back) else Modifier),
             ) {
+                // Over the books till it's put away: they're on the Kobo, and the library is for having them here.
+                if (!browse.whereNoteSeen && !browse.selecting) item(key = "where", span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) {
+                    dev.kolib.app.ui.components.KoboWhereNote(onDismiss = { browse.whereNoteSeen = true }, Modifier.padding(start = 4.dp, end = 4.dp, bottom = 8.dp).widthIn(max = 720.dp))
+                }
                 itemsIndexed(books, key = { _, b -> b.contentId }) { index, book ->
                     BookGridItem(
                         book,
@@ -340,6 +352,9 @@ private fun KoboBookList(
             }
         } else {
             LazyColumn(state = browse.listState, contentPadding = PaddingValues(bottom = 24.dp), modifier = Modifier.fillMaxSize()) {
+                if (!browse.whereNoteSeen && !browse.selecting) item(key = "where") {
+                    dev.kolib.app.ui.components.KoboWhereNote(onDismiss = { browse.whereNoteSeen = true }, Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp).widthIn(max = 720.dp))
+                }
                 items(books, key = { it.contentId }) { book ->
                     BookListRow(
                         book,
@@ -376,6 +391,8 @@ fun SelectionBar(
     anySelected: Boolean = count > 0,
     moreTag: String? = null,
     actions: List<BarAction>,
+    onInvert: (() -> Unit)? = null,
+    allSelected: Boolean = false,
 ) {
     Surface(color = MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.fillMaxWidth().testTag("selection-bar")) {
         Row(Modifier.fillMaxWidth().height(76.dp).padding(start = 4.dp, end = 8.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -390,7 +407,7 @@ fun SelectionBar(
                 )
                 hint?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondaryContainer, maxLines = 2, overflow = TextOverflow.Ellipsis) }
             }
-            SelectAllButtons(onSelectAll, onDeselectAll, anySelected = anySelected)
+            SelectAllButtons(onSelectAll, onDeselectAll, anySelected = anySelected, onInvert = onInvert, allSelected = allSelected)
             Spacer(Modifier.width(8.dp))
             // The buttons share what's left, up to a width each, gathered at the end: all of them, where there's room.
             Box(Modifier.weight(1f).fillMaxHeight()) {
@@ -425,16 +442,7 @@ internal fun koboSortDetail(book: KoboBook, sort: KoboSort, extras: KoboExtras):
 @Composable
 private fun BrowserControls(browse: BrowseState, shown: Int, snapshot: KoboSnapshot, extras: KoboExtras, readingTags: Pair<Int, Int>?, compact: Boolean = shortScreen()) {
     val total = snapshot.books.size
-    val collections = remember(snapshot) {
-        snapshot.collections.filter { c -> c.memberIds.any { id -> snapshot.booksById[id]?.isOnDevice == true } }
-            .map { it.name }.sortedWith(String.CASE_INSENSITIVE_ORDER)
-    }
-    val tagCounts = remember(snapshot, extras) {
-        snapshot.books.flatMap { b -> extras.tags(b).distinctBy { it.lowercase() } }.groupingBy { it }.eachCount()
-            .entries.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.key }).map { it.key to it.value }
-    }
     var showHelp by remember { mutableStateOf(false) }
-    var showTags by remember { mutableStateOf(false) }
     val search: @Composable (Modifier) -> Unit = { m ->
             OutlinedTextField(
                 value = browse.query,
@@ -460,112 +468,24 @@ private fun BrowserControls(browse: BrowseState, shown: Int, snapshot: KoboSnaps
                     Text(tr("Select"))
                 }
             }
-            // How the books show (covers, and how, or a list) and how many covers to a row, chosen over the shelf.
-            DisplayButton(browse.mode, { browse.mode = it }, Modifier.tourPlace("kobo-display"))
-            var sortOpen by remember { mutableStateOf(false) }
-            Box {
-                IconButton(onClick = { sortOpen = true }) { Icon(Icons.AutoMirrored.Filled.Sort, tr("Sort")) }
-                DropdownMenu(expanded = sortOpen, onDismissRequest = { sortOpen = false }) {
-                    KoboSort.entries.forEach { order ->
-                        val current = order == browse.sort
-                        DropdownMenuItem(
-                            text = {
-                                Column {
-                                    Text(order.label)
-                                    if (current) {
-                                        Text(
-                                            if (browse.descending) order.descending else order.ascending,
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        )
-                                    }
-                                }
-                            },
-                            leadingIcon = { if (current) Icon(Icons.Filled.Check, null) else Spacer(Modifier.size(24.dp)) },
-                            trailingIcon = {
-                                if (current) Icon(if (browse.descending) Icons.Filled.ArrowDownward else Icons.Filled.ArrowUpward, tr("Reverse order"))
-                            },
-                            onClick = { browse.sortBy(order); sortOpen = false },
-                        )
-                    }
-                }
-            }
+            // Filter, Sort and Display, all from the one button over the shelf, as Mihon's.
+            DisplayButton(browse.mode, { browse.mode = it }, Modifier.tourPlace("kobo-display"), extras = koboShelfExtras(snapshot, extras, browse))
     }
-    val chips: @Composable () -> Unit = {
-            SourceFilter.entries.forEach { f ->
-                FilterChip(selected = browse.source == f, onClick = { browse.source = f }, label = { Text(f.label) })
-            }
-            VerticalDivider(Modifier.height(24.dp).padding(horizontal = 4.dp))
-            StatusFilter.entries.forEach { f ->
-                FilterChip(
-                    selected = browse.status == f,
-                    onClick = { browse.status = if (browse.status == f) null else f },
-                    label = { Text(f.label) },
-                )
-            }
-            VerticalDivider(Modifier.height(24.dp).padding(horizontal = 4.dp))
-            InLibraryFilter.entries.forEach { f ->
-                FilterChip(
-                    selected = browse.inLibrary == f,
-                    onClick = { browse.inLibrary = if (browse.inLibrary == f) null else f },
-                    label = { Text(f.label) },
-                )
-            }
-            if (collections.isNotEmpty() || tagCounts.isNotEmpty()) VerticalDivider(Modifier.height(24.dp).padding(horizontal = 4.dp))
-            if (collections.isNotEmpty()) {
-                var open by remember { mutableStateOf(false) }
-                Box {
-                    FilterChip(
-                        selected = browse.collection != null,
-                        onClick = { open = true },
-                        label = { Text(browse.collection ?: tr("Collection")) },
-                        leadingIcon = { Icon(Icons.Outlined.CollectionsBookmark, null, Modifier.size(18.dp)) },
-                        trailingIcon = { Icon(Icons.Filled.ArrowDropDown, null, Modifier.size(18.dp)) },
-                    )
-                    DropdownMenu(expanded = open, onDismissRequest = { open = false }, modifier = Modifier.heightIn(max = 420.dp)) {
-                        DropdownMenuItem(text = { Text(tr("All collections")) }, onClick = { browse.collection = null; open = false })
-                        HorizontalDivider()
-                        collections.forEach { c ->
-                            DropdownMenuItem(
-                                text = { Text(c) },
-                                leadingIcon = { if (c == browse.collection) Icon(Icons.Filled.Check, null) else Spacer(Modifier.size(24.dp)) },
-                                onClick = { browse.collection = c; open = false },
-                            )
-                        }
-                    }
-                }
-            }
-            if (tagCounts.isNotEmpty()) {
-                FilterChip(
-                    selected = browse.tags.isNotEmpty(),
-                    onClick = { showTags = true },
-                    label = {
-                        Text(
-                            when (browse.tags.size) {
-                                0 -> tr("Tags")
-                                1 -> browse.tags.first()
-                                else -> if (browse.tagsMatchAll) tr("{0} tags (all)", browse.tags.size) else tr("{0} tags (any)", browse.tags.size)
-                            }
-                        )
-                    },
-                    leadingIcon = { Icon(Icons.Outlined.LocalOffer, null, Modifier.size(18.dp)) },
-                    trailingIcon = { Icon(Icons.Filled.ArrowDropDown, null, Modifier.size(18.dp)) },
-                )
-            }
+    val line: @Composable (Modifier) -> Unit = { m ->
+        ShelfLine(
+            shown, total, browse.narrowed, browse.filterWords(), tr("sorted by {0}", browse.sortDescription),
+            onClear = { browse.clearFilters() }, modifier = m,
+            extra = readingTags?.let { (done, all) -> tr("reading tags from book files: {0} of {1}", done, all) },
+        )
     }
     if (compact) {
-        // A short screen (a phone held sideways): the search, the filters (scrolled along) and the buttons on one row.
-        Row(Modifier.fillMaxWidth().padding(start = 12.dp, end = 4.dp, top = 4.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            search(Modifier.widthIn(min = 180.dp, max = 300.dp).weight(1f, fill = false))
-            Row(
-                Modifier.weight(1f).horizontalScroll(rememberScrollState()).padding(horizontal = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                chips()
-                if (browse.narrowed) TextButton(onClick = { browse.clearFilters() }) { Text(tr("Clear search and filters")) }
+        // A short screen (a phone held sideways): the search and the buttons on one row, the line under them.
+        Column(Modifier.padding(start = 12.dp, end = 4.dp, top = 4.dp, bottom = 2.dp)) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                search(Modifier.weight(1f))
+                buttons()
             }
-            buttons()
+            if (browse.narrowed) line(Modifier)
         }
     } else Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -573,40 +493,9 @@ private fun BrowserControls(browse: BrowseState, shown: Int, snapshot: KoboSnaps
             Spacer(Modifier.width(4.dp))
             buttons()
         }
-        // Wraps onto a second line rather than hiding filters off the edge.
-        FlowRow(
-            Modifier.fillMaxWidth().padding(top = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-            itemVerticalAlignment = Alignment.CenterVertically,
-        ) {
-            chips()
-        }
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
-            Text(
-                (if (shown == total) Fmt.plural(total, "book") else tr("{0} of {1}", shown, Fmt.plural(total, "book"))) + tr(" · sorted by {0}", browse.sortDescription) +
-                    (readingTags?.let { (done, all) -> tr(" · reading tags from book files: {0} of {1}", done, all) } ?: ""),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 4.dp).weight(1f, fill = false),
-            )
-            if (browse.narrowed) TextButton(onClick = { browse.clearFilters() }) { Text(tr("Clear search and filters")) }
-        }
+        line(Modifier.padding(top = 4.dp))
     }
     if (showHelp) SearchHelpDialog(onPick = { browse.query = it; showHelp = false }, onDismiss = { showHelp = false }, forKobo = true)
-    if (showTags) {
-        TagPickerDialog(
-            tags = tagCounts,
-            chosen = browse.tags,
-            matchAll = browse.tagsMatchAll,
-            onApply = { chosen, all ->
-                browse.tags = chosen
-                browse.tagsMatchAll = all
-                showTags = false
-            },
-            onDismiss = { showTags = false },
-        )
-    }
 }
 
 @Composable
@@ -832,21 +721,38 @@ fun BookDetailPane(
                     )
                 }
                 Spacer(Modifier.height(16.dp))
+                val readHere = dev.kolib.app.ui.components.LocalReadHere.current
                 when {
-                    inLibrary -> Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.CheckCircle, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text(tr("In your library"), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-                    }
-                    // Not plugged in, the book can't be copied from the Kobo: the button's there, greyed out, saying why.
-                    book.isSideloaded -> Column {
-                        FilledTonalButton(onClick = { onAddToLibrary?.invoke() }, enabled = onAddToLibrary != null, modifier = Modifier.testTag("kobo-book-add")) {
-                            Icon(Icons.Filled.LibraryAdd, null, Modifier.size(18.dp))
+                    // In the library: read here opens the library's copy, Kobo plugged in or not.
+                    inLibrary -> Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                        if (readHere != null) dev.kolib.app.ui.components.GoldButton(onClick = { readHere(book) }, modifier = Modifier.testTag("kobo-book-read")) {
+                            Icon(Icons.AutoMirrored.Outlined.MenuBook, null, Modifier.size(18.dp))
                             Spacer(Modifier.width(8.dp))
-                            Text(tr("Add to library"))
+                            Text(tr("Read here"))
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Filled.CheckCircle, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(tr("In library"), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                        }
+                    }
+                    // Not plugged in, the book can't be copied from the Kobo: the buttons are there, greyed out, saying why.
+                    book.isSideloaded -> Column {
+                        // A book on the Kobo isn't on this tablet: reading it here adds it to the library first.
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            dev.kolib.app.ui.components.GoldButton(onClick = { readHere?.invoke(book) }, enabled = onAddToLibrary != null && readHere != null, modifier = Modifier.testTag("kobo-book-read")) {
+                                Icon(Icons.AutoMirrored.Outlined.MenuBook, null, Modifier.size(18.dp))
+                                Spacer(Modifier.width(8.dp))
+                                Text(tr("Read here"))
+                            }
+                            FilledTonalButton(onClick = { onAddToLibrary?.invoke() }, enabled = onAddToLibrary != null, modifier = Modifier.testTag("kobo-book-add")) {
+                                Icon(Icons.Filled.LibraryAdd, null, Modifier.size(18.dp))
+                                Spacer(Modifier.width(8.dp))
+                                Text(tr("Add to library"))
+                            }
                         }
                         if (onAddToLibrary == null) Text(
-                            tr("Connect your Kobo to add this book to your library."),
+                            tr("Connect your Kobo to read this book here or add it to your library."),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(top = 6.dp),

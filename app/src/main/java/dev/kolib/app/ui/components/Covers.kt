@@ -164,6 +164,12 @@ private val LocalSmallCover = staticCompositionLocalOf { false }
 class CoversPerRow(portrait: Int = 0, landscape: Int = 0) {
     var portrait by mutableIntStateOf(portrait)
     var landscape by mutableIntStateOf(landscape)
+    /** The marks on covers for where a book is: on the Kobo, in the library, changed since sent. */
+    var showWhere by mutableStateOf(true)
+    /** The marks on covers for how far a book's been read, here and on the Kobo. */
+    var showProgress by mutableStateOf(true)
+    /** The row of books being read, at the top of the library's Books tab. */
+    var showContinue by mutableStateOf(true)
 
     companion object {
         /** The most a row can be given. */
@@ -226,7 +232,8 @@ fun BookCover(
         large = large,
         modifier = modifier,
     ) {
-        if (showProgress) {
+        val marks = LocalCoversPerRow.current
+        if (showProgress && marks.showProgress) {
             when (book.readStatus) {
                 ReadStatus.READING -> LinearProgressIndicator(
                     progress = { book.percentRead / 100f },
@@ -238,7 +245,7 @@ fun BookCover(
                 ReadStatus.UNREAD -> Unit
             }
         }
-        if (inLibrary) CornerBadge(tr("In library"), BadgeDots.gold, Alignment.BottomStart)
+        if (inLibrary && marks.showWhere) CornerBadge(tr("In library"), BadgeDots.gold, Alignment.BottomStart)
         if (selected != null) SelectionMark(selected)
     }
 }
@@ -266,14 +273,15 @@ fun LibraryCover(
         large = large,
         modifier = modifier,
     ) {
-        if (onKobo && !large) {
+        val marks = LocalCoversPerRow.current
+        if (onKobo && !large && marks.showWhere) {
             when {
                 book.changedSinceOnKobo -> CornerBadge(tr("Changed"), BadgeDots.changed, Alignment.TopEnd)
                 reading?.readStatus == ReadStatus.FINISHED -> CornerBadge(dev.kolib.app.trc("badge", "Read"), BadgeDots.read, Alignment.TopEnd)
                 else -> CornerBadge(tr("On Kobo"), BadgeDots.gold, Alignment.TopEnd)
             }
         }
-        val koboBar = reading?.readStatus == ReadStatus.READING
+        val koboBar = reading?.readStatus == ReadStatus.READING && marks.showProgress
         if (koboBar) {
             LinearProgressIndicator(
                 progress = { reading!!.percentRead / 100f },
@@ -282,8 +290,8 @@ fun LibraryCover(
                 gapSize = 0.dp,
             )
         }
-        if (!large && readHere != null && readHere.started) ReadHereBadge(readHere.percent, aboveBar = koboBar)
-        if (!large && readHere != null && readHere.finished) ReadHereBadge(null, aboveBar = koboBar)
+        if (!large && readHere != null && readHere.started && marks.showProgress) ReadHereBadge(readHere.percent, aboveBar = koboBar)
+        if (!large && readHere != null && readHere.finished && marks.showProgress) ReadHereBadge(null, aboveBar = koboBar)
         if (picked != null) SelectionMark(picked)
     }
 }
@@ -310,7 +318,7 @@ fun ComicSeriesCover(
         large = false,
         modifier = modifier,
     ) {
-        if (onKobo) CornerBadge(tr("On Kobo"), BadgeDots.gold, Alignment.TopEnd)
+        if (onKobo && LocalCoversPerRow.current.showWhere) CornerBadge(tr("On Kobo"), BadgeDots.gold, Alignment.TopEnd)
         if (picked != null) SelectionMark(picked)
         else if (unread > 0) {
             val small = phoneLayout()
@@ -325,7 +333,7 @@ fun ComicSeriesCover(
                     .clip(RoundedCornerShape(4.dp))
                     .background(MaterialTheme.colorScheme.primary)
                     .padding(horizontal = if (small) 4.dp else 5.dp, vertical = 1.dp)
-                    .semantics { contentDescription = if (unread == 1) tr("1 not read yet") else tr("{0} not read yet", unread) },
+                    .semantics { contentDescription = if (unread == 1) tr("1 unread") else tr("{0} unread", unread) },
             )
         }
     }

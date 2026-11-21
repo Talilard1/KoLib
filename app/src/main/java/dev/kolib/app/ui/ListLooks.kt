@@ -19,6 +19,9 @@ object ListLooks {
         covers?.let { c ->
             c.portrait = p.getInt("covers_portrait", 0).coerceIn(0, CoversPerRow.MOST)
             c.landscape = p.getInt("covers_landscape", 0).coerceIn(0, CoversPerRow.MOST)
+            c.showWhere = p.getBoolean("covers_where", true)
+            c.showProgress = p.getBoolean("covers_progress", true)
+            c.showContinue = p.getBoolean("continue_row", true)
         }
         library?.let { s ->
             LibrarySort.entries.firstOrNull { it.name == p.getString("library_sort", null) }?.let { order ->
@@ -38,6 +41,7 @@ object ListLooks {
                 s.descending = p.getBoolean("kobo_descending", order.startsDescending)
             }
             s.mode = modeOf(p, "kobo")
+            s.whereNoteSeen = p.getBoolean("kobo_where_seen", false)
         }
     }
 
@@ -52,11 +56,15 @@ object ListLooks {
         val comicsTab: Boolean = true, val seriesInPlace: Boolean = false, val seriesMode: ShelfMode = ShelfMode.LIST,
         val comicMode: ShelfMode = ShelfMode.COMFORTABLE,
         val coversPortrait: Int = 0, val coversLandscape: Int = 0,
+        val coversWhere: Boolean = true, val coversProgress: Boolean = true, val continueRow: Boolean = true,
+        val whereNoteSeen: Boolean = false,
     ) {
         constructor(library: LibraryBrowseState, kobo: BrowseState, covers: CoversPerRow? = null) : this(
             library.sort, library.descending, library.mode, kobo.sort, kobo.descending, kobo.mode,
             library.comicsTab, library.seriesInPlace, library.seriesMode, library.comicMode,
             covers?.portrait ?: 0, covers?.landscape ?: 0,
+            covers?.showWhere ?: true, covers?.showProgress ?: true, covers?.showContinue ?: true,
+            kobo.whereNoteSeen,
         )
     }
 
@@ -74,6 +82,10 @@ object ListLooks {
             .putString("library_comic_mode", now.comicMode.name)
             .putInt("covers_portrait", now.coversPortrait)
             .putInt("covers_landscape", now.coversLandscape)
+            .putBoolean("covers_where", now.coversWhere)
+            .putBoolean("covers_progress", now.coversProgress)
+            .putBoolean("continue_row", now.continueRow)
+            .putBoolean("kobo_where_seen", now.whereNoteSeen)
             .apply()
     }
 }

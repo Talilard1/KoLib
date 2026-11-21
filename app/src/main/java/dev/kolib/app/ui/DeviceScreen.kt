@@ -208,7 +208,7 @@ fun DeviceScreen(
                     listOfNotNull(
                         status,
                         view.info.version?.firmware?.takeIf { !phone && !short && status == null }?.let { tr("Firmware {0}", it) },
-                        Fmt.plural(snapshot.books.size, "book").takeIf { !((phone || short) && status != null) },
+                        tr("{0} on your Kobo", Fmt.plural(snapshot.books.size, "book")).takeIf { !((phone || short) && status != null) },
                         Fmt.plural(snapshot.collections.size, "collection").takeIf { !((phone || short) && status != null) },
                     ).joinToString(" · "),
                     style = MaterialTheme.typography.bodySmall,
@@ -263,18 +263,6 @@ fun DeviceScreen(
                 enabled = live,
                 onClick = { menuOpen = false; tab = 2; onWriteCheck() },
             )
-            DropdownMenuItem(
-                text = { Text(tr("Log")) },
-                leadingIcon = { Icon(Icons.AutoMirrored.Outlined.Article, null) },
-                onClick = { menuOpen = false; onOpenLog() },
-            )
-            onSettings?.let { open ->
-                DropdownMenuItem(
-                    text = { Text(tr("Settings")) },
-                    leadingIcon = { Icon(Icons.Outlined.Settings, null) },
-                    onClick = { menuOpen = false; open() },
-                )
-            }
             HorizontalDivider()
             DropdownMenuItem(
                 text = { Text(tr("Forget this Kobo")) },
@@ -307,7 +295,7 @@ fun DeviceScreen(
                 PrimaryTabRow(selectedTabIndex = pager.currentPage, containerColor = Color.Transparent, modifier = Modifier.tourPlace("kobo-tabs")) {
                     Tab(selected = pager.currentPage == 0, onClick = { goTo(0) }, text = { TabLabel(if (phone) tr("Books") else tr("Books ({0})", snapshot.books.size)) })
                     Tab(selected = pager.currentPage == 1, onClick = { goTo(1) }, text = { TabLabel(if (phone) tr("Collections") else tr("Collections ({0})", snapshot.collections.size)) })
-                    Tab(selected = pager.currentPage == 2, onClick = { goTo(2) }, text = { TabLabel(tr("Device")) })
+                    Tab(selected = pager.currentPage == 2, onClick = { goTo(2) }, text = { TabLabel(dev.kolib.app.trc("kobo tab", "About")) })
                 }
             }
         HidingTop(

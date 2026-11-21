@@ -1,5 +1,9 @@
 package dev.kolib.app.ui.library
 
+import dev.kolib.app.ui.components.invertPicks
+import dev.kolib.app.ui.components.hasAll
+import androidx.compose.material.icons.outlined.SearchOff
+import dev.kolib.app.ui.comicFilterWords
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.ListItem
@@ -186,14 +190,14 @@ internal fun LibraryComicsTab(
                 // Back from a comic's details is its series again; from a series, the shelf on its own.
                 if (open != null && book != null) TabBackHandler { browse.comicBookId = null }
                 else if (open != null && browse.comicSelecting == null) TabBackHandler { closeSeries() }
+                // The shelf has the whole width till a series is tapped; it then opens beside the shelf, closed with ✕ or Back.
                 Row(Modifier.fillMaxSize()) {
-                    ComicShelf(entries, covers, browse, here, open?.key, actions, Modifier.weight(1.45f), wide = true)
-                    VerticalDivider()
-                    Box(Modifier.weight(1f).fillMaxHeight()) {
-                        when {
-                            open != null && book != null -> detail(book, open.title) { browse.comicBookId = null }
-                            open != null -> ComicSeriesPage(open, covers, browse, koboConnected, here, actions, onBack = null, others = entries)
-                            else -> EmptyState(Icons.Outlined.AutoStories, tr("Tap a series"), tr("Its comics show here, in order. Hold a series to select several."))
+                    ComicShelf(entries, covers, browse, here, open?.key, actions, Modifier.weight(1f), wide = true)
+                    if (open != null) {
+                        VerticalDivider()
+                        dev.kolib.app.ui.components.SidePane(onClose = closeSeries, modifier = Modifier.width(this@BoxWithConstraints.maxWidth * 0.41f).fillMaxHeight()) {
+                            if (book != null) detail(book, open.title) { browse.comicBookId = null }
+                            else ComicSeriesPage(open, covers, browse, koboConnected, here, actions, onBack = null, others = entries, infoAtTop = true)
                         }
                     }
                 }
@@ -230,8 +234,26 @@ private fun ComicShelf(
     wide: Boolean = false,
 ) {
     val phone = phoneLayout()
-    val shown = remember(entries, browse.comicQuery, browse.comicSort, here) { shownComicSeries(entries, browse.comicQuery, browse.comicSort, here) }
+    val shown = remember(entries, browse.comicQuery, browse.comicSort, here, browse.comicShow, browse.comicOnKobo) {
+        shownComicSeries(entries, browse.comicQuery, browse.comicSort, here).filter { e ->
+            val unread = e.unread(here).size
+            val shows = when (browse.comicShow) {
+                ComicShow.ALL -> true
+                ComicShow.UNREAD -> unread > 0
+                ComicShow.STARTED -> unread > 0 && e.started(here)
+                ComicShow.READ -> unread == 0
+            }
+            shows && when (browse.comicOnKobo) {
+                null -> true
+                true -> e.issues.all { it.koboPath != null }
+                false -> e.issues.any { it.koboPath == null }
+            }
+        }
+    }
     val choosing = browse.comicSelecting == ComicSelecting.SERIES
+    // The comics being read, along the top of the shelf while it isn't searched, filtered or chosen from.
+    val continuing = if (!choosing && browse.comicQuery.isBlank() && !browse.comicsFiltered && dev.kolib.app.ui.components.LocalCoversPerRow.current.showContinue)
+        beingRead(entries.flatMap { it.issues }, here) else emptyList()
     var confirmRemove by remember { mutableStateOf<List<String>?>(null) }
     var naming by remember { mutableStateOf<List<String>?>(null) }
     // The comics chosen, to put in a series there is (or a new one).
@@ -265,19 +287,29 @@ private fun ComicShelf(
             dev.kolib.app.ui.components.HidingTop(top = {
             if (choosing && phone) {
                 ComicChoosingHeader(title, onSelectAll = { shown.forEach { browse.comicPicked[it.key] = true } }, onDeselectAll = { browse.comicPicked.clear() },
-                    anySelected = browse.comicPicked.isNotEmpty(), onCancel = done)
+                    anySelected = browse.comicPicked.isNotEmpty(), onCancel = done,
+                    onInvert = { browse.comicPicked.invertPicks(shown.map { it.key }) }, allSelected = browse.comicPicked.hasAll(shown.map { it.key }))
             } else if (!phone) {
-                ComicSearchRow(browse, shown.size, entries.sumOf { it.issues.size }, wide)
+                ComicSearchRow(browse, shown.size, shown.sumOf { it.issues.size }, wide)
             } else {
-                ComicSortRow(browse, shown.size, entries.sumOf { it.issues.size })
+                ComicLine(browse, shown.size, shown.sumOf { it.issues.size }, Modifier.padding(start = 16.dp, end = 8.dp))
             }
             }, modifier = Modifier.weight(1f).fillMaxWidth()) {
             // The shelf, and while series are being chosen, the bar for them along the foot of the screen, its whole width.
             Column(Modifier.fillMaxSize()) {
                 if (shown.isEmpty()) {
-                    if (browse.comicQuery.isBlank()) EmptyState(Icons.Outlined.AutoStories, tr("No comics"), tr("Comics you add show here, one entry for each series."))
-                    else EmptyState(Icons.Outlined.Search, tr("No comics match"), tr("Nothing in the Comics tab has “{0}” in its name.", browse.comicQuery.trim()))
+                    if (entries.isEmpty()) EmptyState(Icons.Outlined.AutoStories, tr("No comics"), tr("Comics you add show here, one entry for each series."))
+                    else if (browse.comicQuery.isNotBlank()) EmptyState(Icons.Outlined.Search, tr("No comics match"), tr("Nothing in the Comics tab has “{0}” in its name.", browse.comicQuery.trim()))
+                    else EmptyState(Icons.Outlined.SearchOff, tr("No matching comics"), tr("Try other filters, or clear them."))
                     return@Column
+                }
+                val continueRow: @Composable () -> Unit = {
+                    ContinueReadingRow(
+                        continuing, covers, here,
+                        onRead = { actions.onRead(it.id) },
+                        onOpen = { c -> entries.firstOrNull { e -> e.issues.any { it.id == c.id } }?.let { e -> browse.comicKey = e.key; browse.comicBookId = null } },
+                        sidePadding = if (phone) 8.dp else 4.dp,
+                    )
                 }
                 val tapEntry = { entry: ComicEntry ->
                     if (choosing) {
@@ -304,6 +336,7 @@ private fun ComicShelf(
                         contentPadding = PaddingValues(bottom = if (phone) 104.dp else 24.dp),
                         modifier = Modifier.fillMaxSize().testTag("comic-shelf"),
                     ) {
+                        if (continuing.isNotEmpty()) item(key = "continue") { continueRow() }
                         items(shown, key = { it.key }) { entry ->
                             ComicSeriesRow(
                                 entry, covers, here,
@@ -333,6 +366,7 @@ private fun ComicShelf(
                             .testTag("comic-shelf")
                             .then(if (bookcase) Modifier.background((dev.kolib.app.ui.theme.LocalKoLibStyle.current.shelf ?: ShelfColors).back) else Modifier),
                     ) {
+                        if (continuing.isNotEmpty()) item(key = "continue", span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) { continueRow() }
                         itemsIndexed(shown, key = { _, e -> e.key }) { index, entry ->
                             ComicSeriesItem(
                                 entry, covers, here, index, shown.size,
@@ -351,6 +385,7 @@ private fun ComicShelf(
                 SelectionBar(
                     count = 0, title = title, anySelected = chosenCount > 0,
                     onSelectAll = { shown.forEach { browse.comicPicked[it.key] = true } }, onDeselectAll = { browse.comicPicked.clear() }, onCancel = done,
+                    onInvert = { browse.comicPicked.invertPicks(shown.map { it.key }) }, allSelected = browse.comicPicked.hasAll(shown.map { it.key }),
                     moreTag = "comics-more",
                     actions = comicShelfActions(chosenCount, onSend = { actions.onSend(chosen()); done() }, onRead = { actions.onMarkFinished(chosen()); done() },
                         onUnread = { actions.onMarkUnread(chosen()); done() }, onAddTo = { adding = chosen() }, onRemove = remove,
@@ -494,13 +529,21 @@ private fun comicIssueActions(
 
 /** On a phone, the top of the screen while choosing: what's chosen, Select all and Deselect all, and a way out. */
 @Composable
-private fun ComicChoosingHeader(title: String, onSelectAll: () -> Unit, onDeselectAll: () -> Unit, anySelected: Boolean, onCancel: () -> Unit) {
+private fun ComicChoosingHeader(
+    title: String,
+    onSelectAll: () -> Unit,
+    onDeselectAll: () -> Unit,
+    anySelected: Boolean,
+    onCancel: () -> Unit,
+    onInvert: (() -> Unit)? = null,
+    allSelected: Boolean = false,
+) {
     Surface(color = MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.fillMaxWidth()) {
         Row(Modifier.heightIn(min = 56.dp).padding(start = 4.dp, end = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onCancel) { Icon(Icons.Filled.Close, tr("Stop selecting"), tint = MaterialTheme.colorScheme.onSecondaryContainer) }
             Spacer(Modifier.width(4.dp))
             Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSecondaryContainer, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
-            SelectAllButtons(onSelectAll, onDeselectAll, anySelected = anySelected, tint = MaterialTheme.colorScheme.onSecondaryContainer)
+            SelectAllButtons(onSelectAll, onDeselectAll, anySelected = anySelected, tint = MaterialTheme.colorScheme.onSecondaryContainer, onInvert = onInvert, allSelected = allSelected)
         }
     }
 }
@@ -508,88 +551,58 @@ private fun ComicChoosingHeader(title: String, onSelectAll: () -> Unit, onDesele
 /** On a tablet: the search, how many there are, and the order. */
 @Composable
 private fun ComicSearchRow(browse: LibraryBrowseState, series: Int, comics: Int, wide: Boolean) {
-    Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-        OutlinedTextField(
-            value = browse.comicQuery,
-            onValueChange = { browse.comicQuery = it },
-            singleLine = true,
-            placeholder = { Text(tr("Search the comics")) },
-            leadingIcon = { Icon(Icons.Outlined.Search, null) },
-            trailingIcon = if (browse.comicQuery.isNotEmpty()) ({ IconButton(onClick = { browse.comicQuery = "" }) { Icon(Icons.Filled.Close, tr("Clear the search")) } }) else null,
-            shape = RoundedCornerShape(28.dp),
-            modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("comic-search"),
-        )
-        Spacer(Modifier.width(8.dp))
-        ComicSortButton(browse, series, comics, wide)
-        // How the series show and how many covers to a row, as over every shelf.
-        dev.kolib.app.ui.components.DisplayButton(browse.comicMode, { browse.comicMode = it }, tag = "comic-display")
+    Column(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 2.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            OutlinedTextField(
+                value = browse.comicQuery,
+                onValueChange = { browse.comicQuery = it },
+                singleLine = true,
+                placeholder = { Text(tr("Search comics")) },
+                leadingIcon = { Icon(Icons.Outlined.Search, null) },
+                trailingIcon = if (browse.comicQuery.isNotEmpty()) ({ IconButton(onClick = { browse.comicQuery = "" }) { Icon(Icons.Filled.Close, tr("Clear the search")) } }) else null,
+                shape = RoundedCornerShape(28.dp),
+                modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("comic-search"),
+            )
+            Spacer(Modifier.width(4.dp))
+            // Filter, Sort and Display (and where a series opens), all from the one button, as for books.
+            dev.kolib.app.ui.components.DisplayButton(
+                browse.comicMode, { browse.comicMode = it }, tag = "comic-display",
+                extras = dev.kolib.app.ui.comicShelfExtras(browse, wide),
+            )
+        }
+        ComicLine(browse, series, comics, Modifier.padding(top = 4.dp))
     }
 }
 
-/** On a phone (the library's search looks for comics here): how many there are, and the order. */
+/**
+ * Over the shelf: how many series and comics are showing, what's narrowing them and their order, and while searching
+ * or filtering, a way back to them all.
+ */
 @Composable
-private fun ComicSortRow(browse: LibraryBrowseState, series: Int, comics: Int) {
-    Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+internal fun ComicLine(browse: LibraryBrowseState, series: Int, comics: Int, modifier: Modifier = Modifier) {
+    val narrowed = browse.comicQuery.isNotBlank() || browse.comicsFiltered
+    Row(modifier.fillMaxWidth().heightIn(min = 32.dp), verticalAlignment = Alignment.CenterVertically) {
         Text(
-            countLine(series, comics),
-            style = MaterialTheme.typography.bodySmall,
+            listOfNotNull(
+                countLine(series, comics),
+                browse.comicFilterWords(),
+                tr("sorted by {0}", dev.kolib.app.L10n.midSentence(browse.comicSort.label)),
+            ).joinToString(" · "),
+            style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.weight(1f),
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(start = 4.dp).weight(1f).testTag("comic-line"),
         )
-        ComicSortButton(browse, null, null)
+        if (narrowed) TextButton(onClick = {
+            browse.comicQuery = ""
+            browse.comicShow = ComicShow.ALL
+            browse.comicOnKobo = null
+        }) { Text(tr("Clear")) }
     }
 }
 
 private fun countLine(series: Int, comics: Int) = (if (series == 1) tr("1 series") else tr("{0} series", series)) + " · " + comicsLabel(comics)
-
-/**
- * The order of the series; on a wide screen, where a series opens (beside the shelf, or in its place); and a way to
- * hide the Comics tab.
- */
-@Composable
-private fun ComicSortButton(browse: LibraryBrowseState, series: Int?, comics: Int?, wide: Boolean = false) {
-    var open by remember { mutableStateOf(false) }
-    val context = androidx.compose.ui.platform.LocalContext.current
-    Box {
-        TextButton(onClick = { open = true }, modifier = Modifier.testTag("comic-sort")) {
-            Icon(Icons.AutoMirrored.Filled.Sort, null, Modifier.size(18.dp))
-            Spacer(Modifier.width(6.dp))
-            Text(if (series != null && comics != null) countLine(series, comics) else browse.comicSort.label, maxLines = 1)
-        }
-        DropdownMenu(open, onDismissRequest = { open = false }) {
-            ComicSort.entries.forEach { s ->
-                DropdownMenuItem(
-                    text = { Text(s.label) },
-                    leadingIcon = { RadioButton(selected = s == browse.comicSort, onClick = null) },
-                    onClick = { browse.comicSort = s; open = false },
-                )
-            }
-            if (wide) {
-                HorizontalDivider()
-                Text(tr("When you tap a series"), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
-                for (inPlace in listOf(false, true)) {
-                    DropdownMenuItem(
-                        text = { Text(if (inPlace) tr("Show it full screen") else tr("Show it beside your comics")) },
-                        leadingIcon = { RadioButton(selected = browse.seriesInPlace == inPlace, onClick = null) },
-                        onClick = { browse.openSeriesInPlace(inPlace); open = false },
-                        modifier = Modifier.testTag(if (inPlace) "series-in-place" else "series-beside"),
-                    )
-                }
-            }
-            HorizontalDivider()
-            DropdownMenuItem(
-                text = { Text(tr("Hide the Comics tab")) },
-                leadingIcon = { Icon(Icons.Outlined.VisibilityOff, null) },
-                onClick = {
-                    open = false
-                    browse.comicsTab = false
-                    android.widget.Toast.makeText(context, tr("Comics are with your books now. You can bring the tab back in Settings."), android.widget.Toast.LENGTH_LONG).show()
-                },
-                modifier = Modifier.testTag("comics-hide-tab"),
-            )
-        }
-    }
-}
 
 /** A series in the Comics tab's list: its cover, name, and how many comics it has and how many are read. */
 @OptIn(ExperimentalFoundationApi::class)
@@ -612,7 +625,7 @@ private fun ComicSeriesRow(
                 else comicsLabel(entry.issues.size) + when (unread) {
                     0 -> tr(" · all read")
                     entry.issues.size -> ""
-                    else -> tr(" · {0} not read yet", unread)
+                    else -> tr(" · {0} unread", unread)
                 },
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -714,7 +727,8 @@ internal fun ComicSeriesPage(
             val title = if (chosenCount == 0) tr("Tap comics to select them") else if (chosenCount == 1) tr("1 comic selected") else tr("{0} comics selected", chosenCount)
             if (choosing && phone) {
                 Box(Modifier.windowInsetsPadding(TopInsets)) { ComicChoosingHeader(title, onSelectAll = { issues.forEach { browse.comicPicked[it.id] = true } }, onDeselectAll = { browse.comicPicked.clear() },
-                    anySelected = browse.comicPicked.isNotEmpty(), onCancel = done) }
+                    anySelected = browse.comicPicked.isNotEmpty(), onCancel = done,
+                    onInvert = { browse.comicPicked.invertPicks(issues.map { it.id }) }, allSelected = browse.comicPicked.hasAll(issues.map { it.id })) }
             } else if (phone || onBack != null) {
                 // A bar with the way back, and the series' menu.
                 Row(
@@ -751,7 +765,7 @@ internal fun ComicSeriesPage(
                                 comicsLabel(entry.issues.size) + when (unread) {
                                     0 -> tr(" · all read")
                                     entry.issues.size -> ""
-                                    else -> tr(" · {0} not read yet", unread)
+                                    else -> tr(" · {0} unread", unread)
                                 },
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -762,7 +776,7 @@ internal fun ComicSeriesPage(
                                     Icon(Icons.Filled.PlayArrow, null, Modifier.size(18.dp))
                                     Spacer(Modifier.width(6.dp))
                                     Text(
-                                        if (!entry.started(here)) tr("Start reading") else if (entry.isSeries) tr("Carry on: {0}", issueName(entry, next)) else tr("Carry on"),
+                                        if (!entry.started(here)) tr("Start reading") else if (entry.isSeries) tr("Continue {0}", issueName(entry, next)) else tr("Continue"),
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis,
                                     )
@@ -858,6 +872,7 @@ internal fun ComicSeriesPage(
                 SelectionBar(
                     count = 0, title = title, anySelected = browse.comicPicked.isNotEmpty(),
                     onSelectAll = { issues.forEach { browse.comicPicked[it.id] = true } }, onDeselectAll = { browse.comicPicked.clear() }, onCancel = done,
+                    onInvert = { browse.comicPicked.invertPicks(issues.map { it.id }) }, allSelected = browse.comicPicked.hasAll(issues.map { it.id }),
                     moreTag = "comic-issues-more",
                     actions = browse.comicPicked.size.let { count2 ->
                         comicIssueActions(
@@ -879,6 +894,8 @@ internal fun ComicSeriesPage(
                     onSend = { actions.onSend(chosen()); done() }, onRead = { actions.onMarkFinished(chosen()); done() },
                     onUnread = { actions.onMarkUnread(chosen()); done() }, onTakeOut = { actions.onTakeOut(chosen()); done() },
                     onRemove = { confirmRemove = chosen() },
+                    // A comic's details: held, then Info here (as on a wider screen).
+                    onInfo = if (infoAtTop && count == 1) ({ chosen().firstOrNull()?.let { id -> done(); browse.comicBookId = id } }) else null,
                 ),
                 Modifier.align(Alignment.BottomCenter),
                 moreTag = "comic-issues-more",
@@ -1006,7 +1023,7 @@ private fun ComicIssueRow(
             val state = when {
                 read -> dev.kolib.app.trc("badge", "Read")
                 readHere?.started == true -> tr("{0}% read", readHere.percent)
-                else -> tr("Not read yet")
+                else -> tr("Unread")
             }
             Text(
                 state + if (issue.koboPath != null) tr(" · on the Kobo") else "",
@@ -1063,7 +1080,7 @@ private fun ComicIssueTile(
                     when {
                         read -> dev.kolib.app.trc("badge", "Read")
                         readHere?.started == true -> tr("{0}% read", readHere.percent)
-                        else -> tr("Not read yet")
+                        else -> tr("Unread")
                     },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

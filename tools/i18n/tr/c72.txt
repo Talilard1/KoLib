@@ -1,0 +1,648 @@
+@fr
+3450|Les livres de la Boutique Kobo ne peuvent pas être lus ici, seulement ceux que vous y avez copiés.
+3451|Pas assez d’espace libre sur cet appareil pour ce livre.
+3452|Se joue après chaque mise à jour. Touchez-la pour la passer.
+3453|Jouer à chaque fois
+3454|Se joue à chaque démarrage de KoLib.
+3455|tri : {0}
+3456|lecture des étiquettes des fichiers : {0} sur {1}
+3457|Lire ici
+3458|Connectez votre Kobo pour lire ce livre ici ou l’ajouter à votre bibliothèque.
+3459|{0} sur votre Kobo
+3460|Apparence, lecture, bibliothèque et mises à jour
+3461|Temps de lecture, ici et sur la Kobo
+3462|Copies de la bibliothèque de la Kobo, faites avant chaque modification
+3463|Ce que KoLib a fait, à envoyer en cas de problème
+3464|Version, licences et comment obtenir de l’aide
+3465|Collection et étiquettes
+3466|1 non lue
+3467|{0} non lues
+3468|Inverser la sélection
+3469|Filtrer, trier et afficher (filtré)
+3470|Filtrer, trier et afficher
+3471|Filtrer
+3472|Où se trouve chaque livre
+3473|Signale les livres qui sont sur la Kobo, dans la bibliothèque, ou modifiés depuis leur envoi.
+3474|Progression de lecture
+3475|Montre où vous en êtes, ici et sur la Kobo.
+3476|Continuer la lecture
+3477|Montre vos lectures en cours en haut de l’étagère.
+3478|cette tablette
+3479|ce téléphone
+3480|Voici les livres de votre Kobo. C’est dans votre bibliothèque que vous lisez, modifiez et envoyez les livres. Pour en ajouter un d’ici, touchez-le, puis Ajouter à la bibliothèque.
+3481|Compris
+3482|Commencés
+3483|Aucune BD correspondante
+3484|Essayez d’autres filtres, ou effacez-les.
+3485|Chercher des BD
+3486| · {0} non lues
+3487|Continuer {0}
+3488|{0} sur {1}
+3489|Rechercher dans la bibliothèque
+3490|Interligne, marges, alignement et titres de chapitre
+3491|Luminosité, plein écran, images et liens
+3492|Deux pages, tourne-page, titres courants et barre de progression
+3493|Touchers, touches de volume, balayages et dictionnaire
+3494|Vitesse, et ce qui se passe en fin de chapitre
+3495|Met le numéro (« Prologue », « Chapitre 1 ») en capitales espacées, avec le titre en italique dessous.
+3496|Glissez depuis le bord gauche pour la table des matières, ou depuis le droit pour les réglages.
+3497|Choisissez quels livres s’affichent, leur ordre et leur présentation : couvertures ou liste, et combien par rangée.
+3498|Sélectionner et synchroniser
+3499|Choisissez plusieurs livres à la fois, ou synchronisez votre lecture avec la Kobo.
+3500|Réglages, statistiques de lecture, ces visites à revoir, les sauvegardes de la Kobo, le journal et les détails de KoLib.
+3501|Tous les livres de votre Kobo. Touchez-en un pour le lire ici ou l’ajouter à votre bibliothèque, où vous modifiez et envoyez les livres. Maintenez-en un pour en choisir plusieurs.
+3502|Livres, collections et infos
+3503|L’onglet Infos montre les détails de la Kobo, son espace libre et ses sauvegardes.
+3504|Sauvegardez maintenant la base de données de la Kobo, vérifiez que KoLib peut y écrire, ou oubliez cette Kobo.
+3505|Choisissez quand l’animation se joue, si elle a du son, et une version plus légère pour les appareils lents.
+3506|Infos
+
+@de
+3450|Bücher aus dem Kobo Store lassen sich hier nicht lesen, nur selbst kopierte.
+3451|Nicht genug freier Speicher auf diesem Gerät für dieses Buch.
+3452|Läuft nach jedem Update. Tippe darauf, um sie zu überspringen.
+3453|Jedes Mal abspielen
+3454|Läuft bei jedem Start von KoLib.
+3455|sortiert nach {0}
+3456|Schlagwörter aus den Dateien: {0} von {1}
+3457|Hier lesen
+3458|Verbinde deinen Kobo, um dieses Buch hier zu lesen oder deiner Bibliothek hinzuzufügen.
+3459|{0} auf deinem Kobo
+3460|Aussehen, Lesen, Bibliothek und Updates
+3461|Lesezeit, hier und auf dem Kobo
+3462|Kopien der Bibliothek des Kobo, vor jeder Änderung gesichert
+3463|Was KoLib getan hat, zum Mitschicken, wenn etwas schiefgeht
+3464|Version, Lizenzen und wie du Hilfe bekommst
+3465|Sammlung und Schlagwörter
+3466|1 ungelesen
+3467|{0} ungelesen
+3468|Auswahl umkehren
+3469|Filtern, sortieren und anzeigen (gefiltert)
+3470|Filtern, sortieren und anzeigen
+3471|Filtern
+3472|Wo jedes Buch ist
+3473|Markiert Bücher, die auf dem Kobo oder in der Bibliothek sind oder seit dem Senden geändert wurden.
+3474|Lesefortschritt
+3475|Zeigt, wie weit du gelesen hast, hier und auf dem Kobo.
+3476|Weiterlesen
+3477|Zeigt oben im Regal, was du gerade liest.
+3478|diesem Tablet
+3479|diesem Handy
+3480|Das sind die Bücher auf deinem Kobo. In deiner Bibliothek liest, bearbeitest und sendest du Bücher. Um eines von hier hinzuzufügen, tippe darauf und dann auf „Zur Bibliothek hinzufügen“.
+3481|Verstanden
+3482|Angefangen
+3483|Keine passenden Comics
+3484|Versuche andere Filter oder lösche sie.
+3485|Comics durchsuchen
+3486| · {0} ungelesen
+3487|{0} weiterlesen
+3488|{0} auf {1}
+3489|Bibliothek durchsuchen
+3490|Zeilenabstand, Ränder, Ausrichtung und Kapitelüberschriften
+3491|Helligkeit, Vollbild, Bilder und Links
+3492|Zwei Seiten, Blättern, Kolumnentitel und Fortschrittsbalken
+3493|Tippen, Lautstärketasten, Wischen und Wörterbuch
+3494|Tempo und was am Ende eines Kapitels passiert
+3495|Setzt die Nummer („Prolog“, „Kapitel 1“) in gesperrten Großbuchstaben, mit dem Titel kursiv darunter.
+3496|Wische vom linken Rand für den Inhalt oder vom rechten für die Einstellungen.
+3497|Wähle, welche Bücher erscheinen, ihre Reihenfolge und wie sie aussehen: Cover oder Liste, und wie viele in einer Reihe.
+3498|Auswählen und abgleichen
+3499|Wähle mehrere Bücher auf einmal oder gleiche deinen Lesestand mit dem Kobo ab.
+3500|Einstellungen, Lesestatistik, diese Touren noch einmal, die Sicherungen des Kobo, das Protokoll und Infos zu KoLib.
+3501|Alle Bücher auf deinem Kobo. Tippe auf eines, um es hier zu lesen oder deiner Bibliothek hinzuzufügen, wo du Bücher bearbeitest und sendest. Halte eines gedrückt, um mehrere zu wählen.
+3502|Bücher, Sammlungen und Info
+3503|Der Tab „Info“ zeigt die Details des Kobo, seinen freien Speicher und seine Sicherungen.
+3504|Sichere jetzt die Datenbank des Kobo, prüfe, ob KoLib darauf schreiben kann, oder vergiss diesen Kobo.
+3505|Wähle, wann die Animation läuft, ob mit Ton, und eine leichtere für langsamere Geräte.
+3506|Info
+
+@es
+3450|Los libros de la Tienda Kobo no se pueden leer aquí, solo los que copiaste tú.
+3451|No hay espacio libre suficiente en este dispositivo para este libro.
+3452|Se reproduce tras cada actualización. Tócala para saltarla.
+3453|Reproducir siempre
+3454|Se reproduce cada vez que abres KoLib.
+3455|ordenados por {0}
+3456|leyendo etiquetas de los archivos: {0} de {1}
+3457|Leer aquí
+3458|Conecta tu Kobo para leer este libro aquí o añadirlo a tu biblioteca.
+3459|{0} en tu Kobo
+3460|Aspecto, lectura, biblioteca y actualizaciones
+3461|Tiempo de lectura, aquí y en el Kobo
+3462|Copias de la biblioteca del Kobo, guardadas antes de cada cambio
+3463|Un registro de lo que hizo KoLib, para enviarlo si algo falla
+3464|Versión, licencias y cómo pedir ayuda
+3465|Colección y etiquetas
+3466|1 sin leer
+3467|{0} sin leer
+3468|Invertir selección
+3469|Filtrar, ordenar y mostrar (filtrado)
+3470|Filtrar, ordenar y mostrar
+3471|Filtrar
+3472|Dónde está cada libro
+3473|Marca los libros que están en el Kobo, en la biblioteca, o que cambiaron desde que se enviaron.
+3474|Progreso de lectura
+3475|Muestra cuánto has leído, aquí y en el Kobo.
+3476|Seguir leyendo
+3477|Muestra lo que estás leyendo arriba de la estantería.
+3478|esta tableta
+3479|este teléfono
+3480|Estos son los libros de tu Kobo. En tu biblioteca es donde lees, editas y envías libros. Para añadir uno desde aquí, tócalo y luego toca Añadir a la biblioteca.
+3481|Entendido
+3482|Empezados
+3483|No hay cómics que coincidan
+3484|Prueba otros filtros o bórralos.
+3485|Buscar cómics
+3486| · {0} sin leer
+3487|Seguir con {0}
+3488|{0} en {1}
+3489|Buscar en la biblioteca
+3490|Interlineado, márgenes, alineación y títulos de capítulo
+3491|Brillo, pantalla completa, imágenes y enlaces
+3492|Dos páginas, paso de página, encabezados de página y barra de progreso
+3493|Toques, teclas de volumen, gestos y diccionario
+3494|Velocidad y qué pasa al final de un capítulo
+3495|Pone el número («Prólogo», «Capítulo 1») en mayúsculas espaciadas, con el título en cursiva debajo.
+3496|Desliza desde el borde izquierdo para el índice, o desde el derecho para los ajustes.
+3497|Elige qué libros se muestran, su orden y cómo se ven: portadas o lista, y cuántas por fila.
+3498|Seleccionar y sincronizar
+3499|Elige varios libros a la vez, o sincroniza tu lectura con el Kobo.
+3500|Ajustes, estadísticas de lectura, estos recorridos otra vez, las copias del Kobo, el registro y los datos de KoLib.
+3501|Todos los libros de tu Kobo. Toca uno para leerlo aquí o añadirlo a tu biblioteca, donde editas y envías libros. Mantén pulsado uno para elegir varios.
+3502|Libros, colecciones e información
+3503|La pestaña Información tiene los datos del Kobo, su espacio libre y sus copias de seguridad.
+3504|Haz ahora una copia de la base de datos del Kobo, comprueba que KoLib puede escribir en él u olvida este Kobo.
+3505|Elige cuándo se reproduce la animación, si tiene sonido, y una más ligera para dispositivos lentos.
+3506|Información
+
+@it
+3450|I libri del Kobo Store non si possono leggere qui, solo quelli caricati da te.
+3451|Spazio libero insufficiente su questo dispositivo per questo libro.
+3452|Parte dopo ogni aggiornamento. Toccala per saltarla.
+3453|Riproduci ogni volta
+3454|Parte a ogni avvio di KoLib.
+3455|ordinati per {0}
+3456|lettura dei tag dai file: {0} di {1}
+3457|Leggi qui
+3458|Collega il tuo Kobo per leggere questo libro qui o aggiungerlo alla tua libreria.
+3459|{0} sul tuo Kobo
+3460|Aspetto, lettura, libreria e aggiornamenti
+3461|Tempo di lettura, qui e sul Kobo
+3462|Copie della libreria del Kobo, salvate prima di ogni modifica
+3463|Cosa ha fatto KoLib, da inviare quando qualcosa va storto
+3464|Versione, licenze e come ottenere aiuto
+3465|Raccolta e tag
+3466|1 da leggere
+3467|{0} da leggere
+3468|Inverti selezione
+3469|Filtra, ordina e visualizza (filtrato)
+3470|Filtra, ordina e visualizza
+3471|Filtra
+3472|Dove si trova ogni libro
+3473|Segna i libri che sono sul Kobo, nella libreria, o modificati da quando sono stati inviati.
+3474|Avanzamento della lettura
+3475|Mostra fin dove hai letto, qui e sul Kobo.
+3476|Continua a leggere
+3477|Mostra cosa stai leggendo in cima allo scaffale.
+3478|questo tablet
+3479|questo telefono
+3480|Questi sono i libri del tuo Kobo. È nella tua libreria che leggi, modifichi e invii i libri. Per aggiungerne uno da qui, toccalo, poi tocca Aggiungi alla libreria.
+3481|Ho capito
+3482|Iniziati
+3483|Nessun fumetto corrispondente
+3484|Prova altri filtri o cancellali.
+3485|Cerca fumetti
+3486| · {0} da leggere
+3487|Continua {0}
+3488|{0} su {1}
+3489|Cerca nella libreria
+3490|Interlinea, margini, allineamento e titoli dei capitoli
+3491|Luminosità, schermo intero, immagini e link
+3492|Due pagine, cambio pagina, titoli correnti e barra di avanzamento
+3493|Tocchi, tasti del volume, scorrimenti e dizionario
+3494|Velocità e cosa succede alla fine di un capitolo
+3495|Mette il numero («Prologo», «Capitolo 1») in maiuscole spaziate, con il titolo in corsivo sotto.
+3496|Scorri dal bordo sinistro per l’indice, o dal destro per le impostazioni.
+3497|Scegli quali libri mostrare, il loro ordine e come appaiono: copertine o elenco, e quante per riga.
+3498|Seleziona e sincronizza
+3499|Scegli più libri insieme, o sincronizza la lettura con il Kobo.
+3500|Impostazioni, statistiche di lettura, di nuovo queste guide, i backup del Kobo, il registro e le informazioni su KoLib.
+3501|Tutti i libri del tuo Kobo. Toccane uno per leggerlo qui o aggiungerlo alla libreria, dove modifichi e invii i libri. Tienine premuto uno per sceglierne diversi.
+3502|Libri, raccolte e info
+3503|La scheda Info mostra i dettagli del Kobo, lo spazio libero e i backup.
+3504|Fai ora il backup del database del Kobo, controlla che KoLib possa scriverci o dimentica questo Kobo.
+3505|Scegli quando parte l’animazione, se ha l’audio, e una più leggera per i dispositivi lenti.
+3506|Info
+
+@nl
+3450|Boeken uit de Kobo Store kun je hier niet lezen, alleen boeken die je er zelf op hebt gezet.
+3451|Niet genoeg vrije ruimte op dit apparaat voor dit boek.
+3452|Speelt af na elke update. Tik erop om hem over te slaan.
+3453|Elke keer afspelen
+3454|Speelt af telkens als KoLib start.
+3455|gesorteerd op {0}
+3456|labels uit bestanden lezen: {0} van {1}
+3457|Hier lezen
+3458|Verbind je Kobo om dit boek hier te lezen of aan je bibliotheek toe te voegen.
+3459|{0} op je Kobo
+3460|Uiterlijk, lezen, bibliotheek en updates
+3461|Leestijd, hier en op de Kobo
+3462|Kopieën van de bibliotheek van de Kobo, bewaard vóór elke wijziging
+3463|Wat KoLib heeft gedaan, om mee te sturen als er iets misgaat
+3464|Versie, licenties en hoe je hulp krijgt
+3465|Collectie en labels
+3466|1 ongelezen
+3467|{0} ongelezen
+3468|Selectie omkeren
+3469|Filteren, sorteren en weergeven (gefilterd)
+3470|Filteren, sorteren en weergeven
+3471|Filteren
+3472|Waar elk boek staat
+3473|Markeert boeken die op de Kobo of in de bibliotheek staan, of die zijn gewijzigd sinds ze zijn verstuurd.
+3474|Leesvoortgang
+3475|Laat zien hoe ver je bent, hier en op de Kobo.
+3476|Verder lezen
+3477|Laat bovenaan de plank zien wat je aan het lezen bent.
+3478|deze tablet
+3479|deze telefoon
+3480|Dit zijn de boeken op je Kobo. In je bibliotheek lees, bewerk en verstuur je boeken. Wil je er hier een toevoegen, tik er dan op en daarna op Toevoegen aan bibliotheek.
+3481|Begrepen
+3482|Begonnen
+3483|Geen strips gevonden
+3484|Probeer andere filters of wis ze.
+3485|Strips doorzoeken
+3486| · {0} ongelezen
+3487|Verder met {0}
+3488|{0} op {1}
+3489|Bibliotheek doorzoeken
+3490|Regelafstand, marges, uitlijning en hoofdstukkoppen
+3491|Helderheid, volledig scherm, afbeeldingen en links
+3492|Twee pagina’s, omslaan, paginakoppen en voortgangsbalk
+3493|Tikken, volumeknoppen, vegen en woordenboek
+3494|Snelheid, en wat er aan het eind van een hoofdstuk gebeurt
+3495|Zet het nummer (‘Proloog’, ‘Hoofdstuk 1’) in gespatieerde hoofdletters, met de titel cursief eronder.
+3496|Veeg vanaf de linkerrand voor de inhoud, of vanaf de rechterrand voor de instellingen.
+3497|Kies welke boeken je ziet, de volgorde en hoe ze eruitzien: omslagen of een lijst, en hoeveel op een rij.
+3498|Selecteren en synchroniseren
+3499|Kies meerdere boeken tegelijk, of synchroniseer je lezen met de Kobo.
+3500|Instellingen, leesstatistieken, deze rondleidingen opnieuw, de back-ups van de Kobo, het logboek en info over KoLib.
+3501|Alle boeken op je Kobo. Tik op een boek om het hier te lezen of aan je bibliotheek toe te voegen, waar je boeken bewerkt en verstuurt. Houd er een vast om er meerdere te kiezen.
+3502|Boeken, collecties en info
+3503|Het tabblad Info toont de gegevens van de Kobo, de vrije ruimte en de back-ups.
+3504|Maak nu een back-up van de database van de Kobo, controleer of KoLib erop kan schrijven, of vergeet deze Kobo.
+3505|Kies wanneer de animatie afspeelt, of er geluid bij is, en een lichtere voor tragere apparaten.
+3506|Info
+
+@pt
+3450|Livros da Loja Kobo não podem ser lidos aqui, só os que você mesmo copiou.
+3451|Não há espaço livre suficiente neste dispositivo para este livro.
+3452|Toca depois de cada atualização. Toque nela para pular.
+3453|Tocar sempre
+3454|Toca sempre que o KoLib abre.
+3455|ordenados por {0}
+3456|lendo tags dos arquivos: {0} de {1}
+3457|Ler aqui
+3458|Conecte seu Kobo para ler este livro aqui ou adicioná-lo à sua biblioteca.
+3459|{0} no seu Kobo
+3460|Aparência, leitura, biblioteca e atualizações
+3461|Tempo de leitura, aqui e no Kobo
+3462|Cópias da biblioteca do Kobo, salvas antes de cada alteração
+3463|Um registro do que o KoLib fez, para enviar quando algo der errado
+3464|Versão, licenças e como obter ajuda
+3465|Coleção e tags
+3466|1 não lido
+3467|{0} não lidos
+3468|Inverter seleção
+3469|Filtrar, ordenar e exibir (filtrado)
+3470|Filtrar, ordenar e exibir
+3471|Filtrar
+3472|Onde cada livro está
+3473|Marca os livros que estão no Kobo, na biblioteca, ou que mudaram desde que foram enviados.
+3474|Progresso de leitura
+3475|Mostra até onde você leu, aqui e no Kobo.
+3476|Continuar lendo
+3477|Mostra o que você está lendo no topo da estante.
+3478|neste tablet
+3479|neste celular
+3480|Estes são os livros do seu Kobo. É na sua biblioteca que você lê, edita e envia livros. Para adicionar um daqui, toque nele e depois em Adicionar à biblioteca.
+3481|Entendi
+3482|Começados
+3483|Nenhum quadrinho encontrado
+3484|Tente outros filtros ou limpe-os.
+3485|Pesquisar quadrinhos
+3486| · {0} não lidos
+3487|Continuar {0}
+3488|{0} {1}
+3489|Pesquisar na biblioteca
+3490|Espaçamento entre linhas, margens, alinhamento e títulos de capítulo
+3491|Brilho, tela cheia, imagens e links
+3492|Duas páginas, virada de página, cabeçalhos de página e barra de progresso
+3493|Toques, teclas de volume, gestos e dicionário
+3494|Velocidade e o que acontece no fim de um capítulo
+3495|Põe o número (“Prólogo”, “Capítulo 1”) em maiúsculas espaçadas, com o título em itálico abaixo.
+3496|Deslize da borda esquerda para o sumário, ou da direita para as configurações.
+3497|Escolha quais livros aparecem, a ordem e como eles ficam: capas ou lista, e quantas por fileira.
+3498|Selecionar e sincronizar
+3499|Escolha vários livros de uma vez ou sincronize sua leitura com o Kobo.
+3500|Configurações, estatísticas de leitura, estes tours de novo, os backups do Kobo, o registro e os detalhes do KoLib.
+3501|Todos os livros do seu Kobo. Toque em um para lê-lo aqui ou adicioná-lo à biblioteca, onde você edita e envia livros. Toque e segure um para escolher vários.
+3502|Livros, coleções e informações
+3503|A aba Informações mostra os detalhes do Kobo, o espaço livre e os backups.
+3504|Faça agora o backup do banco de dados do Kobo, verifique se o KoLib consegue gravar nele ou esqueça este Kobo.
+3505|Escolha quando a animação toca, se tem som, e uma mais leve para aparelhos mais lentos.
+3506|Informações
+
+@ro
+3450|Cărțile din Kobo Store nu pot fi citite aici, doar cele adăugate manual.
+3451|Nu e destul spațiu liber pe acest dispozitiv pentru această carte.
+3452|Rulează după fiecare actualizare. Atinge-o ca s-o sari.
+3453|Rulează de fiecare dată
+3454|Rulează de fiecare dată când pornește KoLib.
+3455|sortate după {0}
+3456|se citesc etichetele din fișiere: {0} din {1}
+3457|Citește aici
+3458|Conectează Kobo-ul ca să citești această carte aici sau s-o adaugi în bibliotecă.
+3459|{0} pe Kobo
+3460|Aspect, citire, bibliotecă și actualizări
+3461|Timp de citire, aici și pe Kobo
+3462|Copii ale bibliotecii Kobo-ului, salvate înainte de fiecare schimbare
+3463|Ce a făcut KoLib, de trimis când ceva nu merge
+3464|Versiune, licențe și cum primești ajutor
+3465|Colecție și etichete
+3466|Una necitită
+3467|{0} necitite
+3468|Inversează selecția
+3469|Filtrează, sortează și afișează (filtrat)
+3470|Filtrează, sortează și afișează
+3471|Filtrează
+3472|Unde se află fiecare carte
+3473|Marchează cărțile care sunt pe Kobo, în bibliotecă sau modificate de când au fost trimise.
+3474|Progresul citirii
+3475|Arată cât ai citit, aici și pe Kobo.
+3476|Continuă lectura
+3477|Arată ce citești în partea de sus a raftului.
+3478|această tabletă
+3479|acest telefon
+3480|Acestea sunt cărțile de pe Kobo. În bibliotecă citești, editezi și trimiți cărți. Ca să adaugi una de aici, atinge-o, apoi Adaugă în bibliotecă.
+3481|Am înțeles
+3482|Începute
+3483|Nicio bandă desenată potrivită
+3484|Încearcă alte filtre sau șterge-le.
+3485|Caută benzi desenate
+3486| · {0} necitite
+3487|Continuă {0}
+3488|{0} pe {1}
+3489|Caută în bibliotecă
+3490|Spațiere, margini, aliniere și titlurile capitolelor
+3491|Luminozitate, ecran complet, imagini și linkuri
+3492|Două pagini, întoarcerea paginii, antetele paginii și bara de progres
+3493|Atingeri, tastele de volum, glisări și dicționarul
+3494|Viteza și ce se întâmplă la sfârșitul unui capitol
+3495|Pune numărul („Prolog”, „Capitolul 1”) cu majuscule rărite, cu titlul cu italice dedesubt.
+3496|Glisează de pe marginea stângă pentru cuprins sau de pe cea dreaptă pentru setări.
+3497|Alege ce cărți apar, ordinea lor și cum arată: coperți sau listă și câte pe rând.
+3498|Selectează și sincronizează
+3499|Alege mai multe cărți deodată sau sincronizează citirea cu Kobo.
+3500|Setări, statistici de citire, aceste tururi din nou, copiile de rezervă ale Kobo-ului, jurnalul și detaliile KoLib.
+3501|Toate cărțile de pe Kobo. Atinge una ca s-o citești aici sau s-o adaugi în bibliotecă, unde editezi și trimiți cărți. Ține apăsat pe una ca să alegi mai multe.
+3502|Cărți, colecții și informații
+3503|Fila Informații arată detaliile Kobo-ului, spațiul liber și copiile de rezervă.
+3504|Fă acum copia de rezervă a bazei de date a Kobo-ului, verifică dacă KoLib poate scrie pe el sau uită acest Kobo.
+3505|Alege când rulează animația, dacă are sunet și una mai ușoară pentru dispozitivele lente.
+3506|Informații
+
+@ru
+3450|Книги из Магазина Kobo здесь читать нельзя, только загруженные вручную.
+3451|На этом устройстве не хватает места для этой книги.
+3452|Играет после каждого обновления. Нажмите на неё, чтобы пропустить.
+3453|Показывать каждый раз
+3454|Играет при каждом запуске KoLib.
+3455|сортировка: {0}
+3456|чтение тегов из файлов: {0} из {1}
+3457|Читать здесь
+3458|Подключите Kobo, чтобы читать эту книгу здесь или добавить её в библиотеку.
+3459|{0} на Kobo
+3460|Вид, чтение, библиотека и обновления
+3461|Время чтения здесь и на Kobo
+3462|Копии библиотеки Kobo, сохранённые перед каждым изменением
+3463|Что делал KoLib — пригодится, если что-то пойдёт не так
+3464|Версия, лицензии и где получить помощь
+3465|Коллекция и теги
+3466|Не прочитано: 1
+3467|Не прочитано: {0}
+3468|Обратить выбор
+3469|Фильтр, сортировка и вид (фильтр включён)
+3470|Фильтр, сортировка и вид
+3471|Фильтр
+3472|Где каждая книга
+3473|Отмечает книги, которые есть на Kobo или в библиотеке, или изменились после отправки.
+3474|Прогресс чтения
+3475|Показывает, сколько вы прочитали, здесь и на Kobo.
+3476|Продолжить чтение
+3477|Показывает, что вы читаете, в начале полки.
+3478|этом планшете
+3479|этом телефоне
+3480|Это книги на вашем Kobo. Читать, редактировать и отправлять книги можно в библиотеке. Чтобы добавить книгу отсюда, нажмите на неё, затем «Добавить в библиотеку».
+3481|Понятно
+3482|Начатые
+3483|Подходящих комиксов нет
+3484|Попробуйте другие фильтры или сбросьте их.
+3485|Поиск комиксов
+3486| · не прочитано: {0}
+3487|Продолжить: {0}
+3488|{0} на {1}
+3489|Поиск в библиотеке
+3490|Межстрочный интервал, поля, выравнивание и заголовки глав
+3491|Яркость, весь экран, картинки и ссылки
+3492|Две страницы, перелистывание, колонтитулы и полоса прогресса
+3493|Нажатия, кнопки громкости, смахивания и словарь
+3494|Скорость и что происходит в конце главы
+3495|Номер («Пролог», «Глава 1») набирается прописными вразрядку, а название — курсивом под ним.
+3496|Смахните от левого края, чтобы открыть содержание, или от правого — настройки.
+3497|Выберите, какие книги показывать, в каком порядке и как: обложками или списком и сколько в ряд.
+3498|Выбор и синхронизация
+3499|Выберите сразу несколько книг или синхронизируйте чтение с Kobo.
+3500|Настройки, статистика чтения, эти обзоры заново, резервные копии Kobo, журнал и сведения о KoLib.
+3501|Все книги на вашем Kobo. Нажмите на книгу, чтобы читать её здесь или добавить в библиотеку, где книги редактируют и отправляют. Удерживайте, чтобы выбрать несколько.
+3502|Книги, коллекции и сведения
+3503|На вкладке «Сведения» — данные о Kobo, свободное место и резервные копии.
+3504|Создайте резервную копию базы Kobo, проверьте, может ли KoLib записывать на него, или забудьте этот Kobo.
+3505|Выберите, когда показывать анимацию, со звуком ли, и облегчённую для медленных устройств.
+3506|Сведения
+
+@ja
+3450|Kobo ストアの本はここでは読めません。自分で入れた本のみ読めます。
+3451|この端末にはこの本を入れる空き容量がありません。
+3452|アップデートのたびに再生されます。タップするとスキップできます。
+3453|毎回再生する
+3454|KoLib を起動するたびに再生されます。
+3455|並べ替え: {0}
+3456|ファイルからタグを読み込み中: {0}/{1}
+3457|ここで読む
+3458|この本をここで読んだりライブラリに追加したりするには、Kobo を接続してください。
+3459|Kobo に {0}
+3460|見た目、読書、ライブラリ、アップデート
+3461|ここと Kobo での読書時間
+3462|変更のたびに前もって保存した、Kobo のライブラリのコピー
+3463|KoLib の動作の記録。問題があったときに送れます
+3464|バージョン、ライセンス、ヘルプの受け方
+3465|コレクションとタグ
+3466|未読 1 冊
+3467|未読 {0} 冊
+3468|選択を反転
+3469|絞り込み・並べ替え・表示 (絞り込み中)
+3470|絞り込み・並べ替え・表示
+3471|絞り込み
+3472|本の場所
+3473|Kobo にある本、ライブラリにある本、送ったあとに変更した本に印を付けます。
+3474|読書の進み具合
+3475|ここと Kobo でどこまで読んだかを表示します。
+3476|続きを読む
+3477|読んでいる本を棚の上に表示します。
+3478|このタブレット
+3479|このスマホ
+3480|Kobo にある本です。本を読んだり、編集したり、送ったりするのはライブラリです。ここから追加するには、本をタップして「ライブラリに追加」をタップします。
+3481|OK
+3482|読みかけ
+3483|一致するコミックがありません
+3484|別の絞り込みを試すか、解除してください。
+3485|コミックを検索
+3486| · 未読 {0} 冊
+3487|{0} の続きを読む
+3488|{1}に {0}
+3489|ライブラリを検索
+3490|行間、余白、配置、章の見出し
+3491|明るさ、全画面表示、画像、リンク
+3492|2 ページ表示、ページめくり、ページの柱、進み具合のバー
+3493|タップ、音量キー、スワイプ、辞書
+3494|速さと、章の終わりでの動作
+3495|番号（「プロローグ」「第 1 章」）を字間を空けた大文字にし、その下にタイトルを斜体で表示します。
+3496|左端からスワイプで目次、右端からスワイプで設定を開きます。
+3497|表示する本、並び順、見た目 (表紙かリストか、1 行に何冊か) を選べます。
+3498|選択と同期
+3499|何冊かまとめて選んだり、Kobo と読書を同期したりできます。
+3500|設定、読書の記録、このツアーをもう一度、Kobo のバックアップ、ログ、KoLib の情報。
+3501|Kobo にあるすべての本です。タップすると、ここで読んだり、ライブラリに追加したりできます。本の編集や送信はライブラリで行います。長押しすると何冊か選べます。
+3502|本、コレクション、情報
+3503|「情報」タブには、Kobo の詳細、空き容量、バックアップがあります。
+3504|今すぐ Kobo のデータベースをバックアップしたり、KoLib が書き込めるか確認したり、この Kobo を削除したりできます。
+3505|アニメーションを再生するタイミング、音の有無、遅い端末向けの軽い版を選べます。
+3506|情報
+
+@ko
+3450|Kobo Store 책은 여기서 읽을 수 없어요. 직접 넣은 책만 읽을 수 있어요.
+3451|이 기기에 이 책을 넣을 저장 공간이 부족해요.
+3452|업데이트할 때마다 재생돼요. 탭하면 건너뛰어요.
+3453|매번 재생
+3454|KoLib이 시작될 때마다 재생돼요.
+3455|정렬: {0}
+3456|파일에서 태그 읽는 중: {0}/{1}
+3457|여기서 읽기
+3458|이 책을 여기서 읽거나 서재에 추가하려면 Kobo를 연결하세요.
+3459|Kobo에 {0}
+3460|모양, 읽기, 서재, 업데이트
+3461|여기와 Kobo에서 읽은 시간
+3462|변경할 때마다 미리 저장한 Kobo 서재의 사본
+3463|KoLib이 한 일의 기록. 문제가 생겼을 때 보내요
+3464|버전, 라이선스, 도움 받는 방법
+3465|컬렉션과 태그
+3466|1권 안 읽음
+3467|{0}권 안 읽음
+3468|선택 반전
+3469|필터, 정렬, 보기 (필터 적용됨)
+3470|필터, 정렬, 보기
+3471|필터
+3472|책이 있는 곳
+3473|Kobo나 서재에 있는 책, 보낸 뒤 바뀐 책을 표시해요.
+3474|읽기 진행률
+3475|여기와 Kobo에서 얼마나 읽었는지 보여줘요.
+3476|이어 읽기
+3477|읽고 있는 책을 선반 맨 위에 보여줘요.
+3478|이 태블릿
+3479|이 휴대폰
+3480|Kobo에 있는 책이에요. 책을 읽고, 편집하고, 보내는 곳은 서재예요. 여기서 추가하려면 책을 탭한 다음 서재에 추가를 탭하세요.
+3481|확인
+3482|읽는 중
+3483|일치하는 만화가 없어요
+3484|다른 필터를 쓰거나 필터를 지워 보세요.
+3485|만화 검색
+3486| · {0}권 안 읽음
+3487|{0} 이어 읽기
+3488|{1}에 {0}
+3489|서재 검색
+3490|줄 간격, 여백, 정렬, 장 제목
+3491|밝기, 전체 화면, 그림, 링크
+3492|두 페이지, 페이지 넘김, 페이지 머리글, 진행 막대
+3493|탭, 볼륨 키, 밀기, 사전
+3494|속도, 장이 끝날 때의 동작
+3495|번호(“프롤로그”, “1장”)를 자간을 띄운 대문자로, 제목을 그 아래 기울임꼴로 표시해요.
+3496|왼쪽 가장자리에서 밀면 목차, 오른쪽에서 밀면 설정이 열려요.
+3497|어떤 책을 보일지, 순서, 모양(표지나 목록, 한 줄에 몇 권)을 골라요.
+3498|선택과 동기화
+3499|여러 권을 한 번에 고르거나 Kobo와 읽기를 동기화해요.
+3500|설정, 읽기 통계, 이 둘러보기 다시 보기, Kobo 백업, 로그, KoLib 정보.
+3501|Kobo에 있는 모든 책이에요. 탭하면 여기서 읽거나 서재에 추가할 수 있어요. 편집하고 보내는 건 서재에서 해요. 길게 누르면 여러 권을 고를 수 있어요.
+3502|책, 컬렉션, 정보
+3503|정보 탭에는 Kobo의 정보, 남은 공간, 백업이 있어요.
+3504|지금 Kobo의 데이터베이스를 백업하거나, KoLib이 쓸 수 있는지 확인하거나, 이 Kobo를 잊을 수 있어요.
+3505|애니메이션을 언제 재생할지, 소리를 낼지, 느린 기기용 가벼운 버전을 쓸지 골라요.
+3506|정보
+
+@zh
+3450|Kobo Store 的书无法在这里阅读，只能阅读你侧载的书。
+3451|此设备上的可用空间不足以存放这本书。
+3452|每次更新后播放。点按即可跳过。
+3453|每次都播放
+3454|每次启动 KoLib 时播放。
+3455|排序：{0}
+3456|正在从文件读取标签：{0}/{1}
+3457|在此阅读
+3458|连接你的 Kobo，才能在此阅读这本书或将它添加到书库。
+3459|Kobo 上有 {0}
+3460|外观、阅读、书库和更新
+3461|在这里和 Kobo 上的阅读时间
+3462|每次更改前保存的 Kobo 书库副本
+3463|KoLib 的操作记录，出问题时可以发送
+3464|版本、许可证和获取帮助的方式
+3465|书单和标签
+3466|1 本未读
+3467|{0} 本未读
+3468|反选
+3469|筛选、排序和显示（已筛选）
+3470|筛选、排序和显示
+3471|筛选
+3472|每本书的位置
+3473|标记在 Kobo 上、在书库中，或发送后有改动的书。
+3474|阅读进度
+3475|显示你在这里和 Kobo 上读到哪里。
+3476|继续阅读
+3477|在书架顶部显示你正在读的书。
+3478|这台平板
+3479|这部手机
+3480|这些是你 Kobo 上的书。阅读、编辑和发送书都在书库中进行。要从这里添加，点按一本书，然后点按“添加到书库”。
+3481|知道了
+3482|已开始
+3483|没有匹配的漫画
+3484|试试其他筛选条件，或清除筛选条件。
+3485|搜索漫画
+3486| · {0} 本未读
+3487|继续读 {0}
+3488|{1}上有 {0}
+3489|搜索书库
+3490|行距、页边距、对齐和章节标题
+3491|亮度、全屏、图片和链接
+3492|双页、翻页、页眉页脚和进度条
+3493|点按、音量键、滑动和词典
+3494|速度，以及章节结尾时怎么做
+3495|编号（“序章”“第 1 章”）用加宽间距的大写字母，标题用斜体放在下方。
+3496|从左边缘滑入打开目录，从右边缘滑入打开设置。
+3497|选择显示哪些书、它们的顺序和样子：封面或列表，以及每行几本。
+3498|选择和同步
+3499|一次选择多本书，或与 Kobo 同步阅读。
+3500|设置、阅读统计、再看一遍这些导览、Kobo 的备份、日志和 KoLib 的信息。
+3501|你的 Kobo 上的所有书籍。点按一本即可在此阅读或添加到书库，编辑和发送书都在书库中进行。长按可以选择多本。
+3502|书籍、书单和信息
+3503|“信息”标签页显示 Kobo 的详细信息、剩余空间和备份。
+3504|立即备份 Kobo 的数据库、检查 KoLib 能否写入，或忘记这台 Kobo。
+3505|选择动画何时播放、是否有声音，以及在较慢的设备上使用轻量版。
+3506|信息

@@ -22,20 +22,19 @@ object Tours {
         TourStop(listOf("library-shelf"), tr("Your library"), tr("Tap a book to see it, read it or send it to your Kobo. Hold one to choose several at once.")),
         TourStop(listOf("library-tabs"), tr("Books, collections and comics"), tr("Switch between your books, your collections and your comics. You can swipe between them too.")),
         TourStop(listOf("library-search"), tr("Find a book"), tr("Search titles, authors, series and tags. Tap ? to see all the ways you can search.")),
-        TourStop(listOf("library-display"), tr("How books show"), tr("As covers or a list. With covers, choose whether titles show under them, on them or not at all, and how many fit in a row.")),
         TourStop(
-            listOf("library-menu"), tr("More"),
-            tr("Choose books, or open Settings and Reading stats. You can turn off the opening animation in Settings."),
+            listOf("library-display"), tr("Filter, sort and display"),
+            tr("Choose which books show, their order, and how they look: covers or a list, and how many in a row."),
         ),
+        TourStop(listOf("library-menu"), tr("Select and sync"), tr("Choose several books at once, or sync your reading with the Kobo.")),
         TourStop(listOf("library-add"), tr("Add books"), tr("Add books and comics from this device, a folder or your Kobo. You can write a new book here too.")),
         TourStop(
             listOf("library-sync"), tr("Sync reading with the Kobo"),
             tr("Your place, bookmarks, highlights and notes, between KoLib and your Kobo. You choose which way each goes."),
         ),
-        TourStop(listOf("library-stats"), tr("Reading stats"), tr("See how much you read, in KoLib and on your Kobo.")),
         TourStop(listOf("nav-kobo"), tr("Your Kobo"), tr("Plug in your Kobo to see what's on it, send it books and back it up.")),
         TourStop(listOf("nav-devices"), tr("Your other devices"), tr("Send books to KoLib on your other phones and tablets over Wi-Fi, or to your Kobo without the cable.")),
-        TourStop(listOf("nav-settings"), tr("Settings"), tr("Change how KoLib looks, its language, and how books are read. You can turn off the opening animation here too.")),
+        TourStop(listOf("nav-settings"), tr("More"), tr("Settings, reading stats, these tours again, the Kobo's backups, the log and KoLib's details.")),
     )
 
     fun koboConnect() = listOf(
@@ -47,11 +46,17 @@ object Tours {
     )
 
     fun kobo() = listOf(
-        TourStop(listOf("kobo-shelf"), tr("What's on your Kobo"), tr("Every book on your Kobo. Tap one to see it, or hold one to choose several to add to your library or delete.")),
-        TourStop(listOf("kobo-tabs"), tr("Books, collections and the device"), tr("The Device tab has the Kobo's details, its free space and its database backups.")),
-        TourStop(listOf("kobo-display"), tr("How books show"), tr("As covers or a list. With covers, choose whether titles show under them, on them or not at all, and how many fit in a row.")),
+        TourStop(
+            listOf("kobo-shelf"), tr("What's on your Kobo"),
+            tr("Every book on your Kobo. Tap one to read it here or add it to your library, where you edit and send books. Hold one to choose several."),
+        ),
+        TourStop(listOf("kobo-tabs"), tr("Books, collections and About"), tr("The About tab has the Kobo's details, its free space and its backups.")),
+        TourStop(
+            listOf("kobo-display"), tr("Filter, sort and display"),
+            tr("Choose which books show, their order, and how they look: covers or a list, and how many in a row."),
+        ),
         TourStop(listOf("kobo-eject"), tr("Eject"), tr("Tap this before you unplug the Kobo, so it can add the books you've sent.")),
-        TourStop(listOf("kobo-menu"), tr("More"), tr("Back up the Kobo's database, see the log, open Settings, or forget this Kobo.")),
+        TourStop(listOf("kobo-menu"), tr("More"), tr("Back up the Kobo's database now, check KoLib can write to it, or forget this Kobo.")),
     )
 
     fun devices() = listOf(
@@ -73,7 +78,7 @@ object Tours {
         stop("settings-ai", tr("AI and dictionary"), tr("Look up words, and get chapter summaries and answers about the book you're reading."), reveal),
         stop("settings-comics", tr("Comics"), tr("Give comics a tab of their own in the library, with each series as one entry."), reveal),
         stop("settings-look", tr("Look"), tr("Choose how KoLib looks. The opening animation matches the look you choose."), reveal),
-        stop("settings-opening", tr("Opening animation"), tr("Turn the animation and its sound on or off, or use a lighter one on a slower device."), reveal),
+        stop("settings-opening", tr("Opening animation"), tr("Choose when the animation plays, whether it has sound, and a lighter one for slower devices."), reveal),
         stop("settings-tours", tr("Tours"), tr("Turn these tours on or off, or see them all again."), reveal),
     )
 

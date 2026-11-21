@@ -1,5 +1,6 @@
 package dev.kolib.app.ui.reader
 
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.CompositionLocalProvider
 import dev.kolib.app.ui.tour.tourPlace
@@ -511,12 +512,17 @@ internal fun ReaderScreen(
         // The page headings, as a printed book has them, and the time and the rest, each where it's been put.
         // When scrolling, they sit on strips of the page's colour that the text scrolls under.
         if (!controller.controlsVisible) {
-            if (s.scrolling) ScrollBands(s, pageColor, cut)
-            if (s.headsShown) PageHeads(controller, s, inkColor)
-            if (s.scrolling && s.runningHeads != RunningHeads.OFF) ScrollHead(controller, s, inkColor)
-            // As the headings are coloured.
-            Margins(controller, s, inkColor.copy(alpha = 0.72f))
-            if (s.progressLine != ProgressLine.OFF) ProgressLineBar(controller, s)
+            // They're set in rows of a height kept for them round the text, so in the reader's own sizes: not made
+            // bigger by the phone's font size, which would push them over the text or the progress bar.
+            val density = LocalDensity.current
+            CompositionLocalProvider(LocalDensity provides androidx.compose.ui.unit.Density(density.density, fontScale = 1f)) {
+                if (s.scrolling) ScrollBands(s, pageColor, cut)
+                if (s.headsShown) PageHeads(controller, s, inkColor)
+                if (s.scrolling && s.runningHeads != RunningHeads.OFF) ScrollHead(controller, s, inkColor)
+                // As the headings are coloured.
+                Margins(controller, s, inkColor.copy(alpha = 0.72f))
+                if (s.progressLine != ProgressLine.OFF) ProgressLineBar(controller, s)
+            }
         }
       }
 
@@ -1228,13 +1234,13 @@ internal fun HitRow(hit: ReaderHit, onClick: () -> Unit) {
     )
 }
 
-/** The reading settings, in groups: a tab for each. */
-internal enum class LookTab(val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector) {
-    TEXT(tr("Text"), Icons.Outlined.TextFields),
-    PAGE(tr("Page"), Icons.Outlined.Palette),
-    LAYOUT(tr("Layout"), Icons.Outlined.AutoStories),
-    CONTROLS(tr("Controls"), Icons.Outlined.TouchApp),
-    AUTOSCROLL(dev.kolib.app.trc("tab", "Autoscroll"), Icons.Outlined.Speed),
+/** The reading settings past the first page, in groups: what each is called, what's in it, and its sign. */
+internal enum class LookTab(val title: String, val detail: String, val icon: androidx.compose.ui.graphics.vector.ImageVector) {
+    TEXT(tr("Text"), tr("Line spacing, margins, alignment and chapter headings"), Icons.Outlined.TextFields),
+    PAGE(tr("Screen"), tr("Brightness, full screen, pictures and links"), Icons.Outlined.Palette),
+    LAYOUT(tr("Layout"), tr("Two pages, page turns, page headings and the progress bar"), Icons.Outlined.AutoStories),
+    CONTROLS(tr("Controls"), tr("Taps, volume keys, swipes and the dictionary"), Icons.Outlined.TouchApp),
+    AUTOSCROLL(dev.kolib.app.trc("tab", "Autoscroll"), tr("Speed, and what happens at the end of a chapter"), Icons.Outlined.Speed),
 }
 
 @Composable
@@ -1250,55 +1256,82 @@ private fun LookPanel(
     /** The screen has a camera in it, at its top or bottom. */
     camera: Boolean = false,
 ) {
-    val tabs = LookTab.entries
-    val pager = rememberPagerState(initialPage = tab.coerceIn(0, tabs.size - 1)) { tabs.size }
-    SwipedTabs(pager, tab, onTab)
-    Column(Modifier.fillMaxSize()) {
-        // The app's own settings, a step away: its theme, language and books folder.
-        val appSettings: @Composable () -> Unit = {
-            if (onAppSettings != null) AppSettingsLink(onAppSettings, Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
-        }
-        if (wide) {
-            appSettings()
-            PrimaryTabRow(selectedTabIndex = pager.currentPage) {
-                val scope = rememberCoroutineScope()
-                tabs.forEachIndexed { i, t ->
-                    // Tighter than a standard tab, so all five names fit across the panel.
-                    Tab(
-                        selected = i == pager.currentPage,
-                        onClick = { scope.launch { pager.animateScrollToPage(i) } },
-                        selectedContentColor = MaterialTheme.colorScheme.primary,
-                        unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.height(48.dp),
-                    ) {
-                        FittedText(
-                            t.label,
-                            style = MaterialTheme.typography.labelLarge.copy(letterSpacing = 0.sp),
-                            modifier = Modifier.padding(horizontal = 2.dp),
-                            textAlign = TextAlign.Center,
-                        )
-                    }
+    // The group open: none (the panel's first page, with the settings changed most), or one of the groups after it.
+    val group = LookTab.entries.getOrNull(tab)
+    if (group != null) BackHandler { onTab(-1) }
+    // Each time the settings open, they open on their first page.
+    DisposableEffect(Unit) { onDispose { onTab(-1) } }
+    Column(Modifier.fillMaxSize().testTag("reader-settings-panel")) {
+        val g = group
+        if (g == null) {
+            if (!wide) DrawerHeader(tr("Reading settings"), onClose = onClose)
+            Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 12.dp)) {
+                if (bookLook != null) BookLookNote(bookLook)
+                LookBasics(s, onChange)
+                Spacer(Modifier.height(18.dp))
+                HorizontalDivider()
+                LookTab.entries.forEach { t -> LookGroupRow(t) { onTab(t.ordinal) } }
+                if (onAppSettings != null) {
+                    HorizontalDivider()
+                    Spacer(Modifier.height(12.dp))
+                    AppSettingsLink(onAppSettings)
                 }
             }
         } else {
-            DrawerHeader(tr("Reading settings"), onClose = onClose)
-            appSettings()
-            DrawerTabs(tabs.map { DrawerTab(it.label, it.icon) }, pager)
-        }
-        // Swipe left or right for the next tab; each starts at its top.
-        HorizontalPager(pager, Modifier.fillMaxSize(), verticalAlignment = Alignment.Top) { page ->
-            Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 16.dp)) {
-                if (bookLook != null && tabs[page] in BOOK_LOOK_TABS) BookLookNote(bookLook)
-                when (tabs[page]) {
-                    LookTab.TEXT -> TextSettings(s, onChange)
-                    LookTab.PAGE -> PageSettings(s, onChange, camera)
-                    LookTab.LAYOUT -> LayoutSettings(s, onChange)
+            // One group, with the way back to the first page.
+            Row(
+                Modifier.fillMaxWidth().padding(start = 4.dp, end = 8.dp, top = if (wide) 4.dp else 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                IconButton(onClick = { onTab(-1) }, modifier = Modifier.testTag("reader-settings-back")) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Back")) }
+                Text(g.title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+                if (!wide) IconButton(onClick = onClose) { Icon(Icons.Filled.Close, tr("Close")) }
+            }
+            Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 12.dp)) {
+                if (bookLook != null && g in BOOK_LOOK_TABS) BookLookNote(bookLook)
+                when (g) {
+                    LookTab.TEXT -> TextSettings(s, onChange, basics = false)
+                    LookTab.PAGE -> PageSettings(s, onChange, camera, basics = false)
+                    LookTab.LAYOUT -> LayoutSettings(s, onChange, basics = false)
                     LookTab.CONTROLS -> ControlSettings(s, onChange)
                     LookTab.AUTOSCROLL -> AutoscrollSettings(s, onChange)
                 }
             }
         }
     }
+}
+
+/** A group of the reading settings, on the panel's first page: its name, what's in it, and the way to it. */
+@Composable
+private fun LookGroupRow(t: LookTab, onClick: () -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().heightIn(min = 60.dp).clickable(onClick = onClick).padding(vertical = 8.dp).testTag("reader-group-${t.name.lowercase()}"),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(t.icon, null, tint = MaterialTheme.colorScheme.primary)
+        Spacer(Modifier.width(16.dp))
+        Column(Modifier.weight(1f)) {
+            Text(t.title, style = MaterialTheme.typography.titleMedium)
+            Text(t.detail, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+/** What's changed most while reading, at the top of the panel: the text's size, the page's colour, the font, pages or scrolling, and brightness. */
+@Composable
+private fun LookBasics(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) {
+    Heading(tr("Text size"), first = true)
+    TextSizeRow(s, onChange)
+    Heading(tr("Page colour"))
+    Spacer(Modifier.height(10.dp))
+    PageColours(s, onChange)
+    Heading(tr("Font"))
+    FontChips(s, onChange)
+    Heading(tr("Reading mode"))
+    Choices(ReaderFlow.entries, s.flow, { it.label }) { onChange(s.copy(flow = it)) }
+    Heading(tr("Brightness"))
+    BrightnessRow(s, onChange)
 }
 
 /**
@@ -1371,16 +1404,32 @@ private fun Help(text: String) {
 /** Font, size, spacing and the shape of the text, and how chapters' headings are set. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun TextSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) {
-    Heading(tr("Font"), first = true)
+private fun TextSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit, basics: Boolean = true) {
+    if (basics) {
+        Heading(tr("Font"), first = true)
+        FontChips(s, onChange)
+        Heading(tr("Text size"))
+        TextSizeRow(s, onChange)
+    }
+    Heading(tr("Line spacing"), first = !basics)
+    TextSettingsRest(s, onChange)
+}
+
+/** The fonts: the book's own, KoLib's, and any added. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun FontChips(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) {
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp)) {
         ReaderFont.entries.forEach { f ->
             FilterChip(selected = s.userFont.isEmpty() && s.font == f, onClick = { onChange(s.copy(font = f, userFont = "")) }, label = { Text(f.label) })
         }
         UserFontChips(s, onChange)
     }
+}
 
-    Heading(tr("Text size"))
+/** The text's size: smaller, a slider, bigger, and the size now. */
+@Composable
+private fun TextSizeRow(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) {
     val scales = ReaderSettings.FONT_SCALES
     val at = scales.indexOfFirst { it >= s.fontScale - 0.001f }.let { if (it < 0) scales.size - 1 else it }
     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1395,8 +1444,12 @@ private fun TextSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) 
         IconButton(onClick = { onChange(s.copy(fontScale = scales[(at + 1).coerceAtMost(scales.size - 1)])) }, enabled = at < scales.size - 1) { Icon(Icons.Outlined.Add, tr("Bigger")) }
         Text("${(s.fontScale * 100).roundToInt()}%", style = MaterialTheme.typography.labelLarge, modifier = Modifier.width(48.dp), textAlign = TextAlign.End)
     }
+}
 
-    Heading(tr("Line spacing"))
+/** Line spacing, margins, the shape of the text, and how chapters' headings are set. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun TextSettingsRest(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) {
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp)) {
         ReaderSettings.LINE_SPACINGS.forEach { v ->
             FilterChip(
@@ -1423,16 +1476,28 @@ private fun TextSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) 
 
     Heading(tr("Chapter headings"))
     SwitchRow(tr("Print-style chapter headings"), s.printHeads) { onChange(s.copy(printHeads = it)) }
-    Help(tr("The number (“Prologue”, “Chapter 1”) in spaced capitals with the title in italics below. Off, the book's own style is used."))
+    Help(tr("Sets the number (“Prologue”, “Chapter 1”) in spaced capitals, with the title in italics below."))
     SwitchRow(tr("Large first letter"), s.dropCaps) { onChange(s.copy(dropCaps = it)) }
     Help(tr("The first letter of each chapter spans three lines."))
 }
 
 /** The page's colour and brightness, the screen it's on, and how its pictures and links look. */
 @Composable
-internal fun PageSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit, camera: Boolean = false) {
-    Heading(tr("Page colour"), first = true)
-    Spacer(Modifier.height(10.dp))
+internal fun PageSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit, camera: Boolean = false, basics: Boolean = true) {
+    if (basics) {
+        Heading(tr("Page colour"), first = true)
+        Spacer(Modifier.height(10.dp))
+        PageColours(s, onChange)
+    }
+    Heading(tr("Brightness"), first = !basics)
+    if (basics) BrightnessRow(s, onChange)
+    BrightnessSwitches(s, onChange)
+    PageSettingsRest(s, onChange, camera)
+}
+
+/** The page's colours, each a circle with "Aa" in its text colour. */
+@Composable
+private fun PageColours(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) {
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         ReaderTheme.entries.forEach { t ->
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
@@ -1451,8 +1516,11 @@ internal fun PageSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit,
             }
         }
     }
+}
 
-    Heading(tr("Brightness"))
+/** The brightness: a slider, from extra dim to full. */
+@Composable
+private fun BrightnessRow(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) {
     // With the tablet's own brightness, the slider starts from it.
     val context = LocalContext.current
     val screenNow = remember(s.level == null) { systemBrightness(context) }
@@ -1467,15 +1535,25 @@ internal fun PageSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit,
         Icon(Icons.Outlined.BrightnessHigh, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
     }
     Help(tr("Slide fully left for extra dim. Swiping up or down the left edge of the page also works."))
+}
+
+/** Following the system's brightness, now and when a book opens. */
+@Composable
+private fun BrightnessSwitches(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) {
+    val context = LocalContext.current
+    val screenNow = remember(s.level == null) { systemBrightness(context) }
     SwitchRow(tr("Use the system brightness"), s.level == null) { system ->
         onChange(if (system) s.copy(brightness = -1f, dim = 0f) else s.copy(brightness = screenNow, dim = 0f))
     }
     SwitchRow(tr("Open books at the system brightness"), s.brightnessFromScreen) { onChange(s.copy(brightnessFromScreen = it)) }
-    Help(tr("Off, books open at the brightness you last set here."))
+}
 
+/** The screen the page is on, and how its pictures and links look. */
+@Composable
+private fun PageSettingsRest(s: ReaderSettings, onChange: (ReaderSettings) -> Unit, camera: Boolean) {
     Heading(tr("Screen"))
     SwitchRow(tr("Full screen"), s.fullscreen) { onChange(s.copy(fullscreen = it)) }
-    Help(if (s.fullscreen) tr("The status bar hides while you read, and comes back with the menu.") else tr("The status bar stays, and the page sits below it."))
+    Help(tr("The status bar hides while you read, and comes back with the menu."))
     if (camera && s.fullscreen) {
         Heading(tr("The page and the camera"))
         Choices(CameraRoom.entries, s.cameraRoom, { it.label }) { onChange(s.withCameraRoom(it)) }
@@ -1488,7 +1566,6 @@ internal fun PageSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit,
 
     Heading(tr("Links"))
     SwitchRow(tr("Colour links"), s.colourLinks) { onChange(s.copy(colourLinks = it)) }
-    Help(tr("Off, links look like normal text but still work."))
 }
 
 /**
@@ -1496,16 +1573,18 @@ internal fun PageSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit,
  * and the progress bar.
  */
 @Composable
-internal fun LayoutSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) {
-    Heading(tr("Reading mode"), first = true)
-    Choices(ReaderFlow.entries, s.flow, { it.label }) { onChange(s.copy(flow = it)) }
-    Help(
-        if (s.scrolling) tr("Scroll down through each chapter. At the end, tap Next chapter or keep pulling up.")
-        else tr("Turn pages, like a printed book.")
-    )
+internal fun LayoutSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit, basics: Boolean = true) {
+    if (basics) {
+        Heading(tr("Reading mode"), first = true)
+        Choices(ReaderFlow.entries, s.flow, { it.label }) { onChange(s.copy(flow = it)) }
+        Help(
+            if (s.scrolling) tr("Scroll down through each chapter. At the end, tap Next chapter or keep pulling up.")
+            else tr("Turn pages, like a printed book.")
+        )
+    }
 
     if (!s.scrolling) {
-        Heading(tr("Pages side by side"))
+        Heading(tr("Pages side by side"), first = !basics)
         Choices(ReaderSpread.entries, s.spread, { it.label }) { onChange(s.copy(spread = it)) }
         if (s.spread != ReaderSpread.ONE) {
             SwitchRow(tr("Start chapters on a right-hand page"), s.rectoOpenings) { onChange(s.copy(rectoOpenings = it)) }
@@ -1595,10 +1674,7 @@ private fun ControlSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Uni
     SwitchRow(tr("Volume keys turn pages"), s.volumeKeys) { onChange(s.copy(volumeKeys = it)) }
     SwitchRow(tr("Keep screen on"), s.keepScreenOn) { onChange(s.copy(keepScreenOn = it)) }
     SwitchRow(tr("Edge swipes open panels"), s.edgePanels) { onChange(s.copy(edgePanels = it)) }
-    Help(
-        if (s.edgePanels) tr("Swipe from the left edge for contents, or the right for settings. Off, both edges go back.")
-        else tr("Both edges go back. Contents and settings are in the menu.")
-    )
+    Help(tr("Swipe in from the left edge for contents, or from the right for settings."))
     if (!s.edgePanels) {
         SwitchRow(tr("KoLib's back gesture"), s.edgeBack) { onChange(s.copy(edgeBack = it)) }
         Help(

@@ -1635,8 +1635,11 @@ class ReaderController(
     /** The contents panel's tab (contents, bookmarks, highlights), kept while the book is open. */
     var contentsTab by mutableStateOf(0)
 
-    /** The reading settings' tab (text, page, layout, controls, autoscroll), kept while the book is open. */
-    var lookTab by mutableStateOf(0)
+    /**
+     * The group of reading settings open (text, screen, layout, turning pages, autoscroll, by number), or -1 for the
+     * settings' first page. Back to the first page each time the settings close.
+     */
+    var lookTab by mutableStateOf(-1)
 
     /** For pictures of the reading screen in tests. */
     internal fun showAnnotationsForPreview(list: List<Annotation>) {

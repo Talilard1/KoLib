@@ -146,8 +146,9 @@ class LibrarySelectionTest {
         show(browse, lib, covers)
         val bar = compose.onNodeWithTag("selection-bar").fetchSemanticsNode().boundsInRoot
         compose.onAllNodesWithTag("selection-more", useUnmergedTree = true).assertCountEquals(0)
+        // All chosen: Deselect all in Select all's place, and Invert beside it.
         val tags = listOf(
-            "select-all", "deselect-all", "selection-send", "selection-mark-read", "selection-mark-unread", "selection-sync-reading",
+            "deselect-all", "invert-selection", "selection-send", "selection-mark-read", "selection-mark-unread", "selection-sync-reading",
             "selection-save", "selection-duplicate", "selection-combine", "selection-remove",
         )
         for (tag in tags) {
@@ -173,6 +174,21 @@ class LibrarySelectionTest {
             assertEquals(emptySet<String>(), browse.picked.keys.toSet())
             assertTrue(browse.selecting)
         }
-        compose.onNodeWithTag("deselect-all").assertIsNotEnabled()
+        // None chosen, it's Select all again.
+        compose.onAllNodesWithTag("deselect-all").assertCountEquals(0)
+        compose.onNodeWithTag("select-all").assertExists()
+    }
+
+    /** As in Mihon: what's chosen isn't, and what isn't is. */
+    @Test
+    fun invertSwapsWhatsChosen() {
+        val (lib, covers) = library()
+        val ids = lib.books.value.map { it.id }
+        val browse = LibraryBrowseState().apply { selecting = true; picked[ids[0]] = true }
+        show(browse, lib, covers)
+        compose.onNodeWithTag("invert-selection").performClick()
+        compose.runOnIdle { assertEquals(ids.drop(1).toSet(), browse.picked.keys.toSet()) }
+        compose.onNodeWithTag("invert-selection").performClick()
+        compose.runOnIdle { assertEquals(setOf(ids[0]), browse.picked.keys.toSet()) }
     }
 }

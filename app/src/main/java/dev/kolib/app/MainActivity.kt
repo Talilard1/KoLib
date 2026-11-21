@@ -37,20 +37,40 @@ class MainActivity : ComponentActivity() {
         super.attachBaseContext(AppLanguage.wrap(newBase))
     }
 
+    /** The screen last written to the log, so a change (turned, folded, resized) is noted once. */
+    private var screenLogged: String? = null
+
+    private fun logScreen(why: String) {
+        val c = resources.configuration
+        val now = "${c.screenWidthDp}x${c.screenHeightDp} ${c.orientation} ${c.fontScale} ${resources.displayMetrics.densityDpi} ${c.locales[0]}"
+        if (now == screenLogged) return
+        screenLogged = now
+        dev.kolib.app.log.AppLog.screen(this, why)
+    }
+
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        super.onConfigurationChanged(newConfig)
+        logScreen("Screen changed")
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         // The starting theme's dark was only for while the app starts.
         setTheme(R.style.Theme_KoLib)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        logScreen("Screen")
         // After a restart Android hands back the same intent; its books were already added. So it does when the app
         // is opened again from the recent apps, after it was closed with Back.
         val fromRecents = ((intent?.flags ?: 0) and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0
         if (savedInstanceState == null && !fromRecents) handleIncoming(intent)
         val themes = app.themeSettings
-        // The opening plays when the app is started from its icon: not after a restart, nor when it's sent a book.
-        val playOpening = savedInstanceState == null && themes.opening.value &&
+        // The opening plays when the app is started from its icon (not after a restart, nor when it's sent a book): the
+        // first time, and after each update, or each time if that's chosen.
+        val playOpening = savedInstanceState == null && themes.openingDue(BuildConfig.VERSION_CODE) &&
             (intent?.action == null || intent?.action == Intent.ACTION_MAIN)
-        matchStartingScreen(themes.opening.value)
+        if (playOpening) themes.openingPlayed(BuildConfig.VERSION_CODE)
+        // The starting screen is for the next start: the opening's own, when it's to play each time.
+        matchStartingScreen(themes.opening.value && themes.openingEveryTime.value)
         // The Kobo is looked for, and the link to other devices kept up, while KoLib is in use: the library or a reader.
         lifecycleScope.launch { app.inUse.collect { inUse(it) } }
         // Looking for devices the whole time KoLib is open, turned on or off while it is.
@@ -60,6 +80,7 @@ class MainActivity : ComponentActivity() {
             val opening by themes.opening.collectAsStateWithLifecycle()
             val openingSound by themes.openingSound.collectAsStateWithLifecycle()
             val openingLight by themes.openingLight.collectAsStateWithLifecycle()
+            val openingEveryTime by themes.openingEveryTime.collectAsStateWithLifecycle()
             val introSeen by themes.introSeen.collectAsStateWithLifecycle()
             val editorTourSeen by themes.editorTourSeen.collectAsStateWithLifecycle()
             val toursSeen by themes.toursSeen.collectAsStateWithLifecycle()
@@ -75,7 +96,12 @@ class MainActivity : ComponentActivity() {
                         opening = opening,
                         onOpening = { on ->
                             themes.setOpening(on)
-                            matchStartingScreen(on)
+                            matchStartingScreen(on && openingEveryTime)
+                        },
+                        openingEveryTime = openingEveryTime,
+                        onOpeningEveryTime = { on ->
+                            themes.setOpeningEveryTime(on)
+                            matchStartingScreen(opening && on)
                         },
                         openingSound = openingSound,
                         onOpeningSound = themes::setOpeningSound,

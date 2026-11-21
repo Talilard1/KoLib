@@ -2,6 +2,9 @@
 
 package dev.kolib.app.ui
 
+import dev.kolib.app.ui.components.hasAll
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.ui.platform.testTag
 import dev.kolib.app.ui.tour.tourPlace
 import dev.kolib.app.ui.components.DisplayButton
@@ -132,10 +135,13 @@ internal fun PhoneKoboBrowser(
         Column(Modifier.fillMaxSize()) {
             if (browse.selecting) {
                 // The Kobo's own bar and tabs are hidden meanwhile, so this goes at the top of the screen.
+                val choosable = books.filter { it.isSideloaded && !inLibrary(it) }.map { it.contentId }
                 PhoneSelectionHeader(
                     count = browse.picked.size,
-                    onSelectAll = { books.filter { it.isSideloaded && !inLibrary(it) }.forEach { browse.picked[it.contentId] = true } },
+                    onSelectAll = { choosable.forEach { browse.picked[it] = true } },
                     onDeselectAll = { browse.deselectAll() },
+                    onInvert = { browse.invertPicks(choosable) },
+                    allSelected = browse.picked.hasAll(choosable),
                     onCancel = { browse.stopSelecting() },
                     hint = if (!live) tr("Connect your Kobo to add or delete books") else null,
                 )
@@ -149,11 +155,15 @@ internal fun PhoneKoboBrowser(
                         onHelp = { showHelp = true },
                         modifier = Modifier.weight(1f),
                     )
-                    DisplayButton(browse.mode, { browse.mode = it }, Modifier.tourPlace("kobo-display"))
+                    // Filter, Sort and Display, all from the one button, as Mihon's.
+                    DisplayButton(browse.mode, { browse.mode = it }, Modifier.tourPlace("kobo-display"), extras = koboShelfExtras(snapshot, extras, browse))
                 }
             }
-            PhoneKoboFilters(browse, view, extras)
-            if (browse.narrowed) PhoneNarrowedLine(books.size, snapshot.books.size) { browse.clearFilters() }
+            // Where the filters' chips were: what's showing and in what order (they're chosen with the button at the top).
+            ShelfLine(
+                books.size, snapshot.books.size, browse.narrowed, browse.filterWords(), tr("sorted by {0}", browse.sortDescription),
+                onClear = { browse.clearFilters() }, modifier = Modifier.padding(start = 16.dp, end = 8.dp),
+            )
             readingTags?.let { (done, all) ->
                 Text(
                     tr("Reading tags from the book files: {0} of {1}", done, all),
@@ -164,7 +174,7 @@ internal fun PhoneKoboBrowser(
             }
             if (books.isEmpty()) {
                 if (snapshot.books.isEmpty()) EmptyState(Icons.Outlined.AutoStories, tr("No books on this Kobo"), tr("Books you add to the Kobo will appear here."))
-                else EmptyState(Icons.Outlined.SearchOff, tr("No matching books"), tr("Try a different search or clear the filters."))
+                else EmptyState(Icons.Outlined.SearchOff, tr("No matching books"), tr("Try a different search, or clear the filters."))
                 return@Column
             }
             val underLast = if (browse.selecting) 104.dp else 24.dp
@@ -181,6 +191,10 @@ internal fun PhoneKoboBrowser(
                         .fillMaxSize()
                         .then(if (bookcase) Modifier.background((dev.kolib.app.ui.theme.LocalKoLibStyle.current.shelf ?: ShelfColors).back) else Modifier),
                 ) {
+                    // Over the books till it's put away: they're on the Kobo, and the library is for having them here.
+                    if (!browse.whereNoteSeen && !browse.selecting) item(key = "where", span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) {
+                        dev.kolib.app.ui.components.KoboWhereNote(onDismiss = { browse.whereNoteSeen = true }, Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp))
+                    }
                     itemsIndexed(books, key = { _, b -> b.contentId }) { index, book ->
                         BookGridItem(
                             book,
@@ -199,6 +213,9 @@ internal fun PhoneKoboBrowser(
                 }
             } else {
                 LazyColumn(state = browse.listState, contentPadding = PaddingValues(bottom = underLast), modifier = Modifier.fillMaxSize()) {
+                    if (!browse.whereNoteSeen && !browse.selecting) item(key = "where") {
+                        dev.kolib.app.ui.components.KoboWhereNote(onDismiss = { browse.whereNoteSeen = true }, Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp))
+                    }
                     items(books, key = { it.contentId }) { book ->
                         BookListRow(
                             book,
@@ -234,44 +251,6 @@ internal fun PhoneKoboBrowser(
             confirmDelete = null
             browse.stopSelecting()
         }, onDismiss = { confirmDelete = null })
-    }
-}
-
-/** The Kobo's sort order and filters, in one line that scrolls sideways. */
-@Composable
-private fun PhoneKoboFilters(browse: BrowseState, view: KoboView, extras: KoboExtras) {
-    val snapshot = view.snapshot
-    val collections = remember(snapshot) {
-        snapshot.collections.filter { c -> c.memberIds.any { id -> snapshot.booksById[id]?.isOnDevice == true } }
-            .map { it.name }.sortedWith(String.CASE_INSENSITIVE_ORDER)
-    }
-    val tagCounts = remember(snapshot, extras) {
-        snapshot.books.flatMap { b -> extras.tags(b).distinctBy { it.lowercase() } }.groupingBy { it }.eachCount()
-            .entries.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.key }).map { it.key to it.value }
-    }
-    PhoneChipRow {
-        PhoneSortChip(
-            orders = KoboSort.entries,
-            current = browse.sort,
-            descending = browse.descending,
-            label = { it.label },
-            direction = { order, down -> if (down) order.descending else order.ascending },
-            onPick = { browse.sortBy(it) },
-        )
-        PhoneCollectionChip(collections, browse.collection) { browse.collection = it }
-        PhoneTagsChip(tagCounts, browse.tags, browse.tagsMatchAll) { chosen, all ->
-            browse.tags = chosen
-            browse.tagsMatchAll = all
-        }
-        InLibraryFilter.entries.forEach { f ->
-            PhoneToggleChip(f.label, browse.inLibrary == f) { browse.inLibrary = if (browse.inLibrary == f) null else f }
-        }
-        StatusFilter.entries.forEach { f ->
-            PhoneToggleChip(f.label, browse.status == f) { browse.status = if (browse.status == f) null else f }
-        }
-        SourceFilter.entries.filter { it != SourceFilter.ALL }.forEach { f ->
-            PhoneToggleChip(f.label, browse.source == f) { browse.source = if (browse.source == f) SourceFilter.ALL else f }
-        }
     }
 }
 
@@ -396,25 +375,49 @@ internal fun PhoneKoboBookPage(
                 )
             }
             Spacer(Modifier.height(20.dp))
+            val readHere = dev.kolib.app.ui.components.LocalReadHere.current
             when {
-                inLibrary -> Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Filled.CheckCircle, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text(tr("In your library"), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-                }
-                // Not plugged in, the book can't be copied from the Kobo: the button's there, greyed out, saying why.
-                book.isSideloaded && (onAddToLibrary != null || !live) -> Column(Modifier.fillMaxWidth()) {
-                    Button(
-                        onClick = { onAddToLibrary?.invoke() },
-                        enabled = onAddToLibrary != null,
-                        modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp).testTag("kobo-book-add"),
+                // In the library: read here opens the library's copy, Kobo plugged in or not.
+                inLibrary -> Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally), verticalAlignment = Alignment.CenterVertically) {
+                    if (readHere != null) dev.kolib.app.ui.components.GoldButton(
+                        onClick = { readHere(book) },
+                        modifier = Modifier.weight(1f).heightIn(min = 52.dp).testTag("kobo-book-read"),
                     ) {
-                        Icon(Icons.Filled.LibraryAdd, null, Modifier.size(18.dp))
+                        Icon(Icons.AutoMirrored.Outlined.MenuBook, null, Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text(tr("Add to library"))
+                        Text(tr("Read here"))
+                    }
+                    Row(Modifier.weight(1f), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.CheckCircle, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text(tr("In library"), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                    }
+                }
+                // Not plugged in, the book can't be copied from the Kobo: the buttons are there, greyed out, saying why.
+                book.isSideloaded && (onAddToLibrary != null || !live) -> Column(Modifier.fillMaxWidth()) {
+                    // A book on the Kobo isn't on this phone: reading it here adds it to the library first.
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        dev.kolib.app.ui.components.GoldButton(
+                            onClick = { readHere?.invoke(book) },
+                            enabled = onAddToLibrary != null && readHere != null,
+                            modifier = Modifier.weight(1f).heightIn(min = 52.dp).testTag("kobo-book-read"),
+                        ) {
+                            Icon(Icons.AutoMirrored.Outlined.MenuBook, null, Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(tr("Read here"))
+                        }
+                        FilledTonalButton(
+                            onClick = { onAddToLibrary?.invoke() },
+                            enabled = onAddToLibrary != null,
+                            modifier = Modifier.weight(1f).heightIn(min = 52.dp).testTag("kobo-book-add"),
+                        ) {
+                            Icon(Icons.Filled.LibraryAdd, null, Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(tr("Add to library"))
+                        }
                     }
                     if (onAddToLibrary == null) Text(
-                        tr("Connect your Kobo to add this book to your library."),
+                        tr("Connect your Kobo to read this book here or add it to your library."),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,

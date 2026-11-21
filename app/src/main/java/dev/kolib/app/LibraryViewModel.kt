@@ -510,6 +510,45 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     /**
+     * Reads a book from the Kobo here: it's added to the library (unless it's there already), then [onReady] opens the
+     * library's copy, by its id.
+     */
+    fun readFromKobo(session: KoboSession, book: KoboBook, onReady: (String) -> Unit) {
+        val path = book.relativePath
+        if (!book.isSideloaded || path == null) {
+            _message.value = tr("Kobo Store books can't be read here, only ones you sideloaded.")
+            return
+        }
+        library.byKoboPath(path)?.let { onReady(it.id); return }
+        val needed = book.fileSize ?: 0L
+        if (needed > 0 && needed > library.freeSpaceBytes() - 200L * 1024 * 1024) {
+            _message.value = tr("Not enough free space on this device for this book.")
+            return
+        }
+        if (runningJob?.isActive == true) {
+            _message.value = tr("Another task is running. Try again when it's done.")
+            return
+        }
+        var ready: String? = null
+        startJob(JobKind.ADD_FROM_KOBO, tr("Adding books from the Kobo"), 1) { report ->
+            report(book.title) { _ ->
+                val outcome = library.importFromKobo(session, book)
+                ready = when (outcome) {
+                    is ImportOutcome.Added -> outcome.book.id
+                    is ImportOutcome.AlreadyThere -> outcome.existing.id
+                    is ImportOutcome.Failed -> null
+                }
+                outcome.toStep()
+            }
+        }
+        val job = runningJob ?: return
+        viewModelScope.launch {
+            job.join()
+            ready?.let(onReady)
+        }
+    }
+
+    /**
      * Copies library books to the Kobo as [format]. Books already there are replaced in place
      * (in their new format if it changed). While books are being sent, more can be added: they join
      * the same send.

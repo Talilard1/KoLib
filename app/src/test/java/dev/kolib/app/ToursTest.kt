@@ -115,7 +115,7 @@ class ToursTest {
         withABook()
         showApp()
         assertEquals(
-            listOf("Your library", "Books, collections and comics", "Find a book", "How books show", "More", "Add books", "Your Kobo", "Your other devices"),
+            listOf("Your library", "Books, collections and comics", "Find a book", "Filter, sort and display", "Select and sync", "Add books", "Your Kobo", "Your other devices", "More"),
             goThrough("library_phone"),
         )
         assertTrue(Tours.LIBRARY in seen)
@@ -130,7 +130,7 @@ class ToursTest {
         withABook()
         showApp()
         assertEquals(
-            listOf("Your library", "Books, collections and comics", "Find a book", "How books show", "Add books", "Reading stats", "Your Kobo", "Your other devices", "Settings"),
+            listOf("Your library", "Books, collections and comics", "Find a book", "Filter, sort and display", "Add books", "Your Kobo", "Your other devices", "More"),
             goThrough("library_tablet"),
         )
         assertTrue(Tours.LIBRARY in seen)
@@ -175,18 +175,19 @@ class ToursTest {
         compose.mainClock.advanceTimeBy(900)
         compose.waitForIdle()
         assertTrue(compose.onAllNodesWithTag("tour").fetchSemanticsNodes().isEmpty())
-        // On again in Settings (a phone's are in the library's menu): the library's tour is given once it shows again.
-        compose.onNodeWithText("Library").performClick()
+        // On again in Settings (in More): the library's tour is given once it shows again.
+        compose.onNodeWithTag("nav-more").performClick()
         compose.waitForIdle()
-        compose.onNodeWithContentDescription("More options").performClick()
-        compose.onNodeWithText("Settings").performClick()
+        compose.onNodeWithTag("more-settings").performClick()
         compose.waitForIdle()
         assertTrue("no Settings tour while they're off", compose.onAllNodesWithTag("tour").fetchSemanticsNodes().isEmpty())
         compose.onNodeWithTag("settings-tours-on").performScrollTo().performClick()
         compose.waitForIdle()
         assertTrue("tours are on", !off)
-        // Back from the Settings page.
+        // Back from the Settings page, and to the library.
         compose.onNodeWithTag("settings-back").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Library").performClick()
         compose.mainClock.advanceTimeBy(900)
         compose.waitForIdle()
         compose.onNodeWithTag("tour-card").assertIsDisplayed()
@@ -217,15 +218,17 @@ class ToursTest {
         withABook()
         showApp()
         assertEquals(
-            listOf("Your library", "Books, collections and comics", "Find a book", "How books show", "Add books", "Reading stats", "Your Kobo", "Your other devices", "Settings"),
+            listOf("Your library", "Books, collections and comics", "Find a book", "Filter, sort and display", "Add books", "Your Kobo", "Your other devices", "More"),
             goThrough("library_sideways"),
         )
         compose.onNodeWithText("Kobo").performClick()
         assertEquals(listOf("Connect your Kobo", "Backups and the log"), goThrough("kobo_connect_sideways"))
         compose.onNodeWithText("Devices").performClick()
         assertEquals(listOf("This device", "Paired", "Nearby", "Your Kobo, over Wi-Fi", "Settings"), goThrough("devices_sideways"))
-        // (The rail's Settings, not the Devices screen's heading.)
-        compose.onNode(androidx.compose.ui.test.hasText("Settings") and androidx.compose.ui.test.hasClickAction()).performClick()
+        // Settings is in More.
+        compose.onNodeWithTag("nav-more").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("more-settings").performClick()
         assertEquals(listOf("Language", "Books folder", "Reading setup", "AI and dictionary", "Comics", "Look", "Tours"), goThrough("settings_sideways"))
     }
 
@@ -245,7 +248,9 @@ class ToursTest {
         seen = setOf(Tours.SAMPLES, Tours.LIBRARY)
         withABook()
         showApp()
-        compose.onNodeWithText("Settings").performClick()
+        compose.onNodeWithTag("nav-more").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("more-settings").performClick()
         assertEquals(listOf("Language", "Books folder", "Reading setup", "AI and dictionary", "Comics", "Look", "Tours"), goThrough("settings"))
         assertTrue(Tours.SETTINGS in seen)
         // Every tour again: Settings close, and the library's tour starts again at once.

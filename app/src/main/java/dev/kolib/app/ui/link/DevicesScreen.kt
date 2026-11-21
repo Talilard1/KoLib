@@ -1,5 +1,6 @@
 package dev.kolib.app.ui.link
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import dev.kolib.app.ui.tour.tourPlace
 import androidx.compose.material.icons.outlined.Eject
 import androidx.compose.ui.platform.testTag
@@ -291,14 +292,20 @@ fun DevicesContent(view: DevicesView, actions: DevicesActions, onEject: (() -> U
                     }
                 }
                 Spacer(Modifier.height(4.dp))
+                // While it's searching, the line above says so: the button just waits. Rounded corners rather than a pill,
+                // with room inside, so a long label in a big font wraps without being cut off.
+                val linkShape = RoundedCornerShape(12.dp)
+                val linkPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 8.dp)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     TextButton(
                         onClick = actions.lookAgain,
                         enabled = !view.looking && view.addresses.isNotEmpty(),
-                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 4.dp),
-                    ) { Text(if (view.looking) tr("Scanning the network…") else tr("Scan again")) }
-                    TextButton(onClick = { connecting = true }, contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 4.dp)) {
-                        Text(tr("Not found? Connect by address"))
+                        shape = linkShape,
+                        contentPadding = linkPadding,
+                        modifier = Modifier.testTag("devices-scan-again"),
+                    ) { Text(tr("Scan again"), textAlign = androidx.compose.ui.text.style.TextAlign.Center) }
+                    TextButton(onClick = { connecting = true }, shape = linkShape, contentPadding = linkPadding, modifier = Modifier.testTag("devices-by-address")) {
+                        Text(tr("Connect by address"), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                     }
                 }
                 // Or with a QR code: one device shows it, the other scans it, and they're paired.

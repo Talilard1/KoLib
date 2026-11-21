@@ -1,5 +1,7 @@
 package dev.kolib.app
 
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.onAllNodesWithText
 import android.content.Context
 import org.junit.Assert.assertEquals
 import androidx.compose.foundation.background
@@ -425,39 +427,59 @@ class ReaderEditorScreenshotTest {
         c.controlsVisible = true
         compose.mainClock.autoAdvance = true
         compose.setContent { AppSurface(ThemeChoice.SYSTEM) { ReaderScreen(c, onSettings = {}, onClose = {}, onEdit = {}, pagePreview = { FakePage(ReaderTheme.PAPER, 2) }, initialPanel = Panel.LOOK) } }
+        // The first page, with what's changed most; then each group.
+        compose.waitForIdle()
+        captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/77_reader_settings_0_first.png")
         dev.kolib.app.ui.reader.LookTab.entries.forEachIndexed { i, tab ->
             c.lookTab = i
             compose.waitForIdle()
             captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/77_reader_settings_${i + 1}_${tab.name.lowercase()}.png")
         }
-        compose.onNodeWithText(tr("Controls")).performClick()
+        c.lookTab = -1
+        compose.waitForIdle()
+        compose.onNodeWithTag("reader-group-controls").performScrollTo().performClick()
         compose.waitForIdle()
         assertEquals(dev.kolib.app.ui.reader.LookTab.CONTROLS.ordinal, c.lookTab)
     }
 
-    /** A swipe across either side panel goes to its next tab, as a tap on the tab does. */
+    /**
+     * The settings open on their first page: what's changed most, then a row for each group. A group opens on a tap,
+     * and Back (or its arrow) goes back to the first page; closed, they open on the first page again.
+     */
     @Test
     @Config(qualifiers = LANDSCAPE)
-    fun readerSettingsTabsSwipe() {
+    fun readerSettingsGroups() {
         val (files, structure) = garden()
         val c = ReaderController(files, structure, "The Garden", "en", null, ReaderSettings(theme = ReaderTheme.PAPER), context.assets)
         c.showForPreview(1, 3, 12)
         c.controlsVisible = true
         compose.mainClock.autoAdvance = true
-        compose.setContent { AppSurface(ThemeChoice.SYSTEM) { ReaderScreen(c, onSettings = {}, onClose = {}, onEdit = {}, pagePreview = { FakePage(ReaderTheme.PAPER, 2) }, initialPanel = Panel.LOOK) } }
+        var back: androidx.activity.OnBackPressedDispatcher? = null
+        compose.setContent {
+            back = androidx.activity.compose.LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
+            AppSurface(ThemeChoice.SYSTEM) { ReaderScreen(c, onSettings = {}, onClose = {}, onEdit = {}, pagePreview = { FakePage(ReaderTheme.PAPER, 2) }, initialPanel = Panel.LOOK) }
+        }
         compose.waitForIdle()
-        assertEquals(0, c.lookTab)
-        // The settings come in from the right: swipe from right to left across them.
-        compose.onRoot().performTouchInput { swipe(androidx.compose.ui.geometry.Offset(1220f, 450f), androidx.compose.ui.geometry.Offset(900f, 450f), 250) }
-        compose.waitForIdle()
-        assertEquals("on to Page", 1, c.lookTab)
-        compose.onRoot().performTouchInput { swipe(androidx.compose.ui.geometry.Offset(1220f, 450f), androidx.compose.ui.geometry.Offset(900f, 450f), 250) }
-        compose.waitForIdle()
-        assertEquals("and Layout", 2, c.lookTab)
-        compose.onRoot().performTouchInput { swipe(androidx.compose.ui.geometry.Offset(900f, 450f), androidx.compose.ui.geometry.Offset(1220f, 450f), 250) }
-        compose.waitForIdle()
-        assertEquals("and back", 1, c.lookTab)
+        assertEquals(-1, c.lookTab)
+        compose.onNodeWithText(tr("Text size")).assertExists()
         compose.onNodeWithText(tr("Page colour")).assertExists()
+        compose.onNodeWithTag("reader-group-page").performScrollTo().performClick()
+        compose.waitForIdle()
+        assertEquals(dev.kolib.app.ui.reader.LookTab.PAGE.ordinal, c.lookTab)
+        compose.onNodeWithText(tr("Full screen")).assertExists()
+        // What's on the first page isn't again in the group.
+        compose.onAllNodesWithText(tr("Page colour")).assertCountEquals(0)
+        compose.onNodeWithTag("reader-settings-back").performClick()
+        compose.waitForIdle()
+        assertEquals(-1, c.lookTab)
+        compose.onNodeWithTag("reader-group-layout").performScrollTo().performClick()
+        compose.waitForIdle()
+        assertEquals(dev.kolib.app.ui.reader.LookTab.LAYOUT.ordinal, c.lookTab)
+        compose.runOnIdle { back!!.onBackPressed() }
+        compose.waitForIdle()
+        assertEquals(-1, c.lookTab)
+        // Back on the first page, the settings are still open.
+        compose.onNodeWithTag("reader-settings-panel").assertExists()
     }
 
     @Test

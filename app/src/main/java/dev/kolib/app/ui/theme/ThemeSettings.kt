@@ -50,6 +50,23 @@ class ThemeSettings(context: Context) {
     /** The lighter opening, which does far less work each frame: for phones and slower devices. */
     val openingLight: StateFlow<Boolean> = _openingLight.asStateFlow()
 
+    private val _openingEveryTime = MutableStateFlow(prefs.getBoolean(OPENING_EVERY_TIME, false))
+    /** The opening plays each time KoLib starts; otherwise, the first time and after each update. */
+    val openingEveryTime: StateFlow<Boolean> = _openingEveryTime.asStateFlow()
+
+    fun setOpeningEveryTime(on: Boolean) {
+        prefs.edit().putBoolean(OPENING_EVERY_TIME, on).apply()
+        _openingEveryTime.value = on
+    }
+
+    /** The opening is to play as [version] starts: each time, or the first time that version does. */
+    fun openingDue(version: Int): Boolean = _opening.value && (_openingEveryTime.value || prefs.getInt(OPENING_PLAYED, -1) != version)
+
+    /** The opening has played for [version]. */
+    fun openingPlayed(version: Int) {
+        prefs.edit().putInt(OPENING_PLAYED, version).apply()
+    }
+
     private val _openingSound = MutableStateFlow(prefs.getBoolean(OPENING_SOUND, true))
     /** The opening animation plays its sound. */
     val openingSound: StateFlow<Boolean> = _openingSound.asStateFlow()
@@ -128,6 +145,8 @@ class ThemeSettings(context: Context) {
         const val OPENING = "opening"
         const val OPENING_SOUND = "openingSound"
         const val OPENING_LIGHT = "openingLight"
+        const val OPENING_EVERY_TIME = "openingEveryTime"
+        const val OPENING_PLAYED = "openingPlayedFor"
         const val INTRO_SEEN = "introSeen"
         const val EDITOR_TOUR_SEEN = "editorTourSeen"
         const val TOURS_SEEN = "toursSeen"

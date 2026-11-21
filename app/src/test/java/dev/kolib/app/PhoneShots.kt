@@ -268,6 +268,7 @@ class PhoneShots {
                 readingHere = if (books.isEmpty()) emptyMap() else mapOf(
                     lib.titled("Moby Dick").id to ReadHere(0.36f, 1_794_400_000_000L),
                     lib.titled("Alice's Adventures in Wonderland").id to ReadHere(0.62f, 1_794_300_000_000L),
+                    lib.titled("Jane Eyre").id to ReadHere(0.14f, 1_794_350_000_000L),
                     lib.titled("The Aeneid").id to ReadHere(1f, 1_794_200_000_000L, finished = true),
                 ),
             )
@@ -327,7 +328,10 @@ class PhoneShots {
         compose.mainClock.autoAdvance = true
         compose.setContent { AppSurface(ThemeChoice.BOOKCASE) { LibraryPage(lib, covers, LibraryBrowseState()) } }
         compose.waitForIdle()
-        compose.onNodeWithContentDescription(tr("Sort")).performClick()
+        // The order is in the one button over the shelf, in its Sort tab.
+        compose.onNodeWithTag("display-button").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("display-tab-sort").performClick()
         compose.waitForIdle()
         compose.mainClock.autoAdvance = false
         compose.mainClock.advanceTimeBy(800)
@@ -714,7 +718,7 @@ class PhoneShots {
         }
     }
 
-    private fun reader(name: String, controls: Boolean, panel: Panel = Panel.NONE, lookTab: Int = 0) {
+    private fun reader(name: String, controls: Boolean, panel: Panel = Panel.NONE, lookTab: Int = -1) {
         val f = File(art, "books/herman-melville_moby-dick.epub")
         val pageNow = File(home, "pages/moby_now_1.png")
         assumeTrue(f.exists() && pageNow.exists())
@@ -809,7 +813,7 @@ class PhoneShots {
         }
     }
 
-    @Test @Config(qualifiers = PHONE) fun readerLook() = reader("p41_reader_look", controls = true, panel = Panel.LOOK, lookTab = 0)
+    @Test @Config(qualifiers = PHONE) fun readerLook() = reader("p41_reader_look", controls = true, panel = Panel.LOOK, lookTab = -1)
     @Test @Config(qualifiers = PHONE) fun readerLookPage() = reader("p42_reader_look_page", controls = true, panel = Panel.LOOK, lookTab = 1)
     @Test @Config(qualifiers = PHONE) fun readerLookControls() = reader("p47_reader_look_controls", controls = true, panel = Panel.LOOK, lookTab = 3)
     @Test @Config(qualifiers = PHONE) fun readerContents() = reader("p43_reader_contents", controls = true, panel = Panel.CONTENTS)
@@ -854,7 +858,7 @@ class PhoneShots {
 
     // ---- a narrow phone ------------------------------------------------------------------------------
 
-    @Test @Config(qualifiers = SMALL) fun readerLookSmall() = reader("s41_reader_look", controls = true, panel = Panel.LOOK, lookTab = 0)
+    @Test @Config(qualifiers = SMALL) fun readerLookSmall() = reader("s41_reader_look", controls = true, panel = Panel.LOOK, lookTab = -1)
     @Test @Config(qualifiers = SMALL) fun readerControlsSmall() = reader("s40_reader_controls", controls = true)
     @Test @Config(qualifiers = SMALL) fun librarySmall() = libraryIn("s01_library")
     @Test @Config(qualifiers = SMALL) fun bookSmall() = libraryIn("s05_book") { selectedId = it.titled(STORY).id }
@@ -862,4 +866,128 @@ class PhoneShots {
         selecting = true
         listOf("Moby Dick", "Emma").forEach { t -> picked[it.titled(t).id] = true }
     }
+
+    // ---- 3.4's layout: the one button's panel, the More tab, the Kobo's note, on phones and tablets --------------------
+
+    private fun planSheet(name: String, tab: String, configure: LibraryBrowseState.(Library) -> Unit = {}) {
+        val (lib, covers) = library()
+        val browse = LibraryBrowseState().apply { configure(lib) }
+        compose.mainClock.autoAdvance = false
+        compose.setContent {
+            AppSurface(ThemeChoice.BOOKCASE) {
+                androidx.compose.runtime.CompositionLocalProvider(dev.kolib.app.ui.components.LocalCoversPerRow provides perRow) { LibraryPage(lib, covers, browse) }
+            }
+        }
+        compose.mainClock.advanceTimeBy(1_000)
+        compose.mainClock.autoAdvance = true
+        compose.onNodeWithTag("display-button").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("display-tab-$tab").performClick()
+        compose.waitForIdle()
+        Thread.sleep(500)
+        compose.waitForIdle()
+        capture(name)
+    }
+
+    @Test @Config(qualifiers = PHONE) fun plan01Library() = libraryIn("plan01_library")
+    @Test @Config(qualifiers = PHONE) fun plan02LibraryScrolled() {
+        val (lib, covers) = library()
+        val browse = LibraryBrowseState()
+        compose.mainClock.autoAdvance = false
+        compose.setContent { AppSurface(ThemeChoice.BOOKCASE) { LibraryPage(lib, covers, browse) } }
+        compose.mainClock.advanceTimeBy(1_000)
+        compose.onRoot().performTouchInput { swipe(Offset(centerX, bottom - 300f), Offset(centerX, bottom - 1100f), durationMillis = 400) }
+        compose.mainClock.advanceTimeBy(1_500)
+        capture("plan02_library_scrolled")
+    }
+    @Test @Config(qualifiers = PHONE) fun plan03Filter() = planSheet("plan03_sheet_filter", "filter") { lib ->
+        filter = dev.kolib.app.ui.library.LibraryFilter.entries.first { it.name == "ON_KOBO" }
+        collection = "Classics"
+    }
+    @Test @Config(qualifiers = PHONE) fun plan04Sort() = planSheet("plan04_sheet_sort", "sort")
+    @Test @Config(qualifiers = PHONE) fun plan05Display() = planSheet("plan05_sheet_display", "display")
+    @Test @Config(qualifiers = PHONE) fun plan06Filtered() = libraryIn("plan06_library_filtered") {
+        filter = dev.kolib.app.ui.library.LibraryFilter.entries.first { it.name == "ON_KOBO" }
+        collection = "Classics"
+    }
+    @Test @Config(qualifiers = PHONE) fun plan07Book() {
+        val (lib, covers) = library()
+        val browse = LibraryBrowseState().apply { selectedId = lib.titled("Moby Dick").id }
+        compose.mainClock.autoAdvance = false
+        compose.setContent { AppSurface(ThemeChoice.BOOKCASE) { LibraryPage(lib, covers, browse) } }
+        compose.mainClock.advanceTimeBy(1_000)
+        capture("plan07_book")
+        compose.mainClock.autoAdvance = true
+        compose.onNodeWithContentDescription(tr("More options")).performClick()
+        compose.waitForIdle()
+        Thread.sleep(400)
+        compose.waitForIdle()
+        capture("plan08_book_menu")
+    }
+    @Test @Config(qualifiers = PHONE) fun plan09More() = shot("plan09_more", ThemeChoice.BOOKCASE) {
+        AppFrame(Section.MORE, {}, koboConnected = true, onNarrow = {}, onLook = {}) {
+            dev.kolib.app.ui.MoreScreen(
+                version = "Version 3.4", onSettings = {}, onStats = {}, onTours = {}, onLog = {}, onBackups = {}, onAbout = {},
+            )
+        }
+    }
+    @Test @Config(qualifiers = PHONE) fun plan10Kobo() = koboScreen("plan10_kobo")
+    @Test @Config(qualifiers = TABLET_SIDEWAYS) fun plan11LibraryTablet() = libraryIn("plan11_library_tablet")
+    @Test @Config(qualifiers = TABLET_SIDEWAYS) fun plan12LibraryTabletBook() = libraryIn("plan12_library_tablet_book") { selectedId = it.titled("Moby Dick").id }
+    @Test @Config(qualifiers = TABLET_SIDEWAYS) fun plan13LibraryTabletFiltered() = libraryIn("plan13_library_tablet_filtered") {
+        filter = dev.kolib.app.ui.library.LibraryFilter.entries.first { it.name == "ON_KOBO" }
+        collection = "Classics"
+    }
+    @Test @Config(qualifiers = TABLET_SIDEWAYS) fun plan14KoboTablet() = koboScreen("plan14_kobo_tablet")
+    @Test @Config(qualifiers = TABLET_SIDEWAYS) fun plan15MoreTablet() = shot("plan15_more_tablet", ThemeChoice.BOOKCASE) {
+        AppFrame(Section.MORE, {}, koboConnected = true, onNarrow = {}, onLook = {}) {
+            dev.kolib.app.ui.MoreScreen(
+                version = "Version 3.4", onSettings = {}, onStats = {}, onTours = {}, onLog = {}, onBackups = {}, onAbout = {},
+            )
+        }
+    }
+    @Test @Config(qualifiers = SIDEWAYS) fun plan16Sideways() = libraryIn("plan16_library_sideways")
+    @Test @Config(qualifiers = PHONE) fun plan17KoboBook() = koboScreen("plan17_kobo_book") { s -> selectedBookId = s.snapshot.books.first { it.title == "The Odyssey" }.contentId }
+
+    // ---- the page headings with the phone's font size turned up: they keep the reader's own size --------------------
+
+    private fun headsAt(name: String, fontScale: Float, heads: dev.kolib.app.reader.RunningHeads, textScale: Float = 1f) {
+        org.robolectric.RuntimeEnvironment.setFontScale(fontScale)
+        val f = File(art, "books/herman-melville_moby-dick.epub")
+        val pageNow = File(home, "pages/moby_now_1.png")
+        assumeTrue(f.exists() && pageNow.exists())
+        EpubFile.open(f).use { epub ->
+            val files = EpubFileFiles(epub)
+            val structure = BookStructure(files)
+            val settings = ReaderSettings(fontScale = textScale).withHeads(heads)
+            val c = ReaderController(files, structure, "Moby Dick", "en", null, settings, context.assets, "Herman Melville")
+            val at = c.chapters.indexOfFirst { it.path.endsWith("chapter-1.xhtml") }
+            counted(c)
+            c.showForPreview(at, 3, 12)
+            c.controlsVisible = false
+            val img = BitmapFactory.decodeFile(pageNow.path).asImageBitmap()
+            compose.mainClock.autoAdvance = false
+            compose.setContent {
+                AppSurface(ThemeChoice.BOOKCASE) {
+                    ReaderScreen(
+                        c, onSettings = {}, onClose = {}, onEdit = {},
+                        pagePreview = { Image(img, null, Modifier.fillMaxSize(), contentScale = ContentScale.FillBounds) },
+                        onAppSettings = {},
+                    )
+                }
+            }
+            compose.mainClock.advanceTimeBy(50)
+            c.showForPreview(at, 3, 12)
+            compose.mainClock.advanceTimeBy(900)
+            capture(name)
+        }
+    }
+
+    @Test @Config(qualifiers = PHONE) fun heads100() = headsAt("h00_heads_top_font100", 1f, dev.kolib.app.reader.RunningHeads.TOP)
+    @Test @Config(qualifiers = PHONE) fun heads130() = headsAt("h01_heads_top_font130", 1.3f, dev.kolib.app.reader.RunningHeads.TOP)
+    @Test @Config(qualifiers = PHONE) fun headsBottom130() = headsAt("h02_heads_bottom_font130", 1.3f, dev.kolib.app.reader.RunningHeads.BOTTOM)
+    @Test @Config(qualifiers = SIDEWAYS) fun headsSideways130() = headsAt("h03_heads_sideways_font130", 1.3f, dev.kolib.app.reader.RunningHeads.TOP)
+    @Test @Config(qualifiers = PHONE) fun headsBig() = headsAt("h04_heads_top_font130_text145", 1.3f, dev.kolib.app.reader.RunningHeads.TOP, textScale = 1.45f)
+    @Test @Config(qualifiers = PHONE) fun headsBigBottom() = headsAt("h05_heads_bottom_font130_text145", 1.3f, dev.kolib.app.reader.RunningHeads.BOTTOM, textScale = 1.45f)
+    @Test @Config(qualifiers = SIDEWAYS) fun headsBigSideways() = headsAt("h06_heads_sideways_font130_text145", 1.3f, dev.kolib.app.reader.RunningHeads.TOP, textScale = 1.45f)
 }

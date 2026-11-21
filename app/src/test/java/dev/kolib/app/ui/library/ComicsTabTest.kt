@@ -1,5 +1,6 @@
 package dev.kolib.app.ui.library
 
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.swipeDown
 import android.content.Context
 import androidx.compose.runtime.getValue
@@ -86,8 +87,8 @@ class ComicsTabTest {
     fun aSeriesIsOneEntryWithItsComicsInOrder() {
         show()
         compose.onAllNodesWithTag("comic-series").assertCountEquals(2)
-        // Saga's two not read yet show on its cover.
-        compose.onNodeWithContentDescription("2 not read yet").assertExists()
+        // Saga's two unread show on its cover.
+        compose.onNodeWithContentDescription("2 unread").assertExists()
         compose.onNodeWithText("Saga").performClick()
         compose.waitForIdle()
         assertEquals("s:saga", browse.comicKey)
@@ -95,7 +96,7 @@ class ComicsTabTest {
         assertEquals(3, issues.size)
         compose.onNodeWithText("#1").assertExists()
         // On from the first not read.
-        compose.onNodeWithText("Carry on: #2").assertExists()
+        compose.onNodeWithText("Continue #2").assertExists()
         compose.onNodeWithTag("comic-continue").performClick()
         assertEquals(listOf("Saga 002.cbz"), read)
         // A comic tapped opens it.
@@ -196,9 +197,8 @@ class ComicsTabTest {
         compose.onAllNodesWithTag("tab-comics").assertCountEquals(0)
         compose.onNodeWithTag("comic-continue").performClick()
         assertEquals(listOf("Saga 001.cbz"), read)
-        // A comic's details, and back to its series, then to the shelf.
-        compose.onAllNodesWithContentDescription("Details")[1].performClick()
-        compose.waitForIdle()
+        // A comic's details (held, then Info), and back to its series, then to the shelf.
+        comicInfo(1)
         assertEquals("Saga 002.cbz", browse.comicBookId)
         compose.onAllNodesWithTag("comic-series-page").assertCountEquals(0)
         browse.comicBookId = null
@@ -264,6 +264,18 @@ class ComicsTabTest {
         compose.waitForIdle()
     }
 
+    /** A comic of the series open, by its place: held, then Info in the bar (in its More, if it's there). */
+    private fun comicInfo(index: Int) {
+        compose.onAllNodesWithTag("comic-issue")[index].performTouchInput { longClick() }
+        compose.waitForIdle()
+        if (compose.onAllNodesWithTag("comic-issue-info").fetchSemanticsNodes().isEmpty()) {
+            compose.onNodeWithTag("comic-issues-more").performClick()
+            compose.waitForIdle()
+        }
+        compose.onNodeWithTag("comic-issue-info").performClick()
+        compose.waitForIdle()
+    }
+
     /** The tab, with a comic's details shown as a line saying whose they are. */
     private fun showWithDetails(actions: ComicActions = ComicActions(onRead = { read += it })) {
         compose.setContent {
@@ -278,8 +290,7 @@ class ComicsTabTest {
         showWithDetails()
         compose.onNodeWithText("Saga").performClick()
         compose.waitForIdle()
-        compose.onAllNodesWithContentDescription("Details")[1].performClick()
-        compose.waitForIdle()
+        comicInfo(1)
         compose.onNodeWithText("Details of Saga 002").assertExists()
         pressBack()
         compose.onAllNodesWithText("Details of Saga 002").assertCountEquals(0)
@@ -340,6 +351,8 @@ class ComicsTabTest {
         show()
         compose.onNodeWithTag("comic-display").performClick()
         compose.waitForIdle()
+        compose.onNodeWithTag("display-tab-display").performClick()
+        compose.waitForIdle()
         compose.onNodeWithTag("display-list").performClick()
         compose.waitForIdle()
         assertEquals(dev.kolib.app.ui.components.ShelfMode.LIST, browse.comicMode)
@@ -349,7 +362,7 @@ class ComicsTabTest {
         compose.waitForIdle()
         // A line for each series, saying how many of its comics are read; tapped, it opens.
         compose.onAllNodesWithTag("comic-series").assertCountEquals(2)
-        compose.onNodeWithText("3 comics · 2 not read yet").assertExists()
+        compose.onNodeWithText("3 comics · 2 unread").assertExists()
         compose.onNodeWithText("Saga").performClick()
         compose.waitForIdle()
         assertEquals("s:saga", browse.comicKey)
@@ -379,6 +392,8 @@ class ComicsTabTest {
         compose.waitForIdle()
         compose.onNodeWithTag("display-button").performClick()
         compose.waitForIdle()
+        compose.onNodeWithTag("display-tab-display").performClick()
+        compose.waitForIdle()
         compose.onNodeWithTag("display-list").performClick()
         compose.waitForIdle()
         assertEquals(dev.kolib.app.ui.components.ShelfMode.LIST, browse.comicMode)
@@ -393,8 +408,9 @@ class ComicsTabTest {
         compose.onNodeWithTag("comic-series-layout").assertExists()
     }
 
+    /** Hidden (in Settings), the comics are with the books again. */
     @Test
-    fun theComicsTabCanBeHiddenFromItsMenu() {
+    fun withTheComicsTabHiddenTheComicsAreWithTheBooks() {
         val book = comic("The Histories.epub", title = "The Histories").copy(sourceFormat = null)
         compose.setContent {
             AppSurface {
@@ -408,9 +424,9 @@ class ComicsTabTest {
         compose.onNodeWithText("Comics (2)").performClick()
         compose.mainClock.advanceTimeBy(1_000)
         compose.waitForIdle()
-        compose.onNodeWithTag("comic-sort").performClick()
-        compose.waitForIdle()
-        compose.onNodeWithTag("comics-hide-tab").performClick()
+        // The shelf's own options don't hide it: that's in Settings.
+        compose.onAllNodesWithTag("comics-hide-tab").assertCountEquals(0)
+        compose.runOnIdle { browse.comicsTab = false; browse.tab = 0 }
         compose.mainClock.advanceTimeBy(1_000)
         compose.waitForIdle()
         assertFalse(browse.comicsTab)
@@ -491,8 +507,12 @@ class ComicsTabTest {
         compose.onNodeWithText("Saga").performClick()
         compose.waitForIdle()
         assertEquals("s:saga", browse.comicKey)
-        compose.onNodeWithTag("comic-sort").performClick()
-        compose.onNodeWithTag("series-in-place").performClick()
+        // Where a series opens is with how the comics show, in the one button over the shelf.
+        compose.onNodeWithTag("comic-display").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("display-tab-display").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("series-in-place").performScrollTo().performClick()
         compose.waitForIdle()
         assertTrue(browse.seriesInPlace)
         assertNull(browse.comicKey)

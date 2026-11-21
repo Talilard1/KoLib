@@ -1,5 +1,6 @@
 package dev.kolib.app
 
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -168,7 +169,7 @@ class DevicesScreenshotTest {
                 DevicesContent(view().copy(paired = emptyList(), nearby = emptyList()), actions)
             }
         }
-        compose.onNodeWithText(tr("Not found? Connect by address")).performClick()
+        compose.onNodeWithTag("devices-by-address").performClick()
         compose.mainClock.advanceTimeBy(1_000)
         captureScreenRoboImage("${TestLanguage.folder("build/outputs/roborazzi")}/devicesConnectByAddress.png")
     }

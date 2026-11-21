@@ -710,7 +710,7 @@ class AdvertShots140 {
     private fun readerNow(
         name: String, book: String, title: String, author: String, chapterFile: String, settings: ReaderSettings,
         page: String, screen: Int, screens: Int, columns: Int, twoUp: Boolean = true, controls: Boolean = false,
-        panel: Panel = Panel.NONE, lookTab: Int = 0, prepare: (ReaderController) -> Unit = {}, blankFirst: Boolean = twoUp,
+        panel: Panel = Panel.NONE, lookTab: Int = -1, prepare: (ReaderController) -> Unit = {}, blankFirst: Boolean = twoUp,
         into: File = five,
     ) = withBook(book) { files, structure ->
         out = into

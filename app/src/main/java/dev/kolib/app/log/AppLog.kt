@@ -62,6 +62,29 @@ object AppLog {
         )
     }
 
+    /**
+     * The screen as KoLib sees it: its size, which way round it is, the text and display sizes set in Android, the
+     * language, and the layout KoLib uses for it. For when something looks wrong on someone's device.
+     */
+    fun screen(context: Context, why: String) {
+        val c = context.resources.configuration
+        val m = context.resources.displayMetrics
+        val sideways = c.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+        // Android's display size: how far the screen's density is from the one it came with.
+        val stable = if (Build.VERSION.SDK_INT >= 24) android.util.DisplayMetrics.DENSITY_DEVICE_STABLE else m.densityDpi
+        val layout = buildList {
+            add(if (c.screenWidthDp < dev.kolib.app.ui.components.PHONE_WIDTH_DP) "phone" else "tablet")
+            if (c.screenHeightDp < dev.kolib.app.ui.components.SHORT_SCREEN_DP) add("short")
+        }.joinToString(", ")
+        i(
+            "Screen",
+            "$why: ${c.screenWidthDp}×${c.screenHeightDp} dp, ${if (sideways) "landscape" else "portrait"}, " +
+                "smallest width ${c.smallestScreenWidthDp} dp, font size ${"%.2f".format(Locale.US, c.fontScale)}×, " +
+                "display size ${"%.2f".format(Locale.US, m.densityDpi.toFloat() / stable)}× (${m.densityDpi} dpi), " +
+                "language ${c.locales[0].toLanguageTag()}, layout: $layout"
+        )
+    }
+
     fun d(tag: String, message: String) = log(Level.DEBUG, tag, message, null)
     fun i(tag: String, message: String) = log(Level.INFO, tag, message, null)
     fun w(tag: String, message: String, t: Throwable? = null) = log(Level.WARN, tag, message, t)

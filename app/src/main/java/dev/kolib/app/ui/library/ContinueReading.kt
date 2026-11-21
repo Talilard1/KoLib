@@ -1,0 +1,76 @@
+package dev.kolib.app.ui.library
+
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import dev.kolib.app.library.LibraryBook
+import dev.kolib.app.library.LibraryCovers
+import dev.kolib.app.reader.ReadHere
+import dev.kolib.app.tr
+import dev.kolib.app.ui.components.LibraryCover
+
+/** The books started but not finished in KoLib's reader, the last read first. */
+internal fun beingRead(books: List<LibraryBook>, here: (LibraryBook) -> ReadHere?, most: Int = 12): List<LibraryBook> =
+    books.mapNotNull { b -> here(b)?.takeIf { it.started && it.percent < 100 }?.let { b to it.at } }
+        .sortedByDescending { it.second }
+        .take(most)
+        .map { it.first }
+
+/**
+ * The books being read, along the top of the Books tab (as Apple Books opens on Continue, and Mihon's covers have a
+ * button to carry on): tapped, one opens in the reader where it was left; held, its details.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+internal fun ContinueReadingRow(
+    books: List<LibraryBook>,
+    covers: LibraryCovers,
+    here: (LibraryBook) -> ReadHere?,
+    onRead: (LibraryBook) -> Unit,
+    onOpen: (LibraryBook) -> Unit,
+    sidePadding: Dp = 16.dp,
+    coverWidth: Dp = 84.dp,
+) {
+    Column(Modifier.fillMaxWidth().padding(bottom = 12.dp).testTag("continue-reading")) {
+        Text(
+            tr("Continue reading"),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = sidePadding, top = 8.dp, bottom = 8.dp),
+        )
+        LazyRow(contentPadding = PaddingValues(horizontal = sidePadding), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            items(books, key = { it.id }) { book ->
+                Column(
+                    Modifier
+                        .width(coverWidth)
+                        .combinedClickable(onClick = { onRead(book) }, onLongClick = { onOpen(book) })
+                        .testTag("continue-book"),
+                ) {
+                    LibraryCover(book, covers, large = false, readHere = here(book), modifier = Modifier.width(coverWidth))
+                    Spacer(Modifier.height(6.dp))
+                    Text(book.title, style = MaterialTheme.typography.labelMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    here(book)?.let { r ->
+                        Text(tr("{0}% read", r.percent), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            }
+        }
+    }
+}

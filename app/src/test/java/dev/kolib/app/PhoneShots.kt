@@ -490,6 +490,18 @@ class PhoneShots {
         )
     }
 
+    /** Settings: a page of their own on a phone held sideways and on a tablet, as on a phone upright. */
+    @Test @Config(qualifiers = SIDEWAYS) fun settingsSideways() = settingsShot("p96_settings_sideways")
+    @Test @Config(qualifiers = TABLET_SIDEWAYS) fun settingsOnATablet() = settingsShot("p97_settings_tablet")
+    @Test @Config(qualifiers = PHONE) fun settingsLight() = settingsShot("p98_settings_light", ThemeChoice.LIGHT)
+
+    private fun settingsShot(name: String, theme: ThemeChoice = ThemeChoice.BOOKCASE) = shot(name, theme) {
+        dev.kolib.app.ui.LookDialog(
+            current = theme, onPick = {}, onDismiss = {}, onLanguage = {}, onReadingSetup = {}, onAi = {},
+            coversPerRow = dev.kolib.app.ui.components.CoversPerRow(portrait = 4), comicsTab = true,
+        )
+    }
+
     @Test @Config(qualifiers = PHONE) fun logToSend() {
         dev.kolib.app.log.AppLog.init(context)
         dev.kolib.app.log.AppLog.i("Library", "Opened with 36 books")

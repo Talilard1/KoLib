@@ -1,6 +1,5 @@
 package dev.kolib.app.ui.update
 
-import android.provider.Settings
 import android.os.Build
 import android.content.Intent
 import android.net.Uri
@@ -150,33 +149,25 @@ fun UpdateWindow(updater: Updater) {
 }
 
 /**
- * On a Samsung, why an update may not have installed: Auto Blocker stops apps from outside the Galaxy Store and Play
- * Store being installed, updates to KoLib included. How to turn it off, and a way to Settings.
+ * On a Samsung, why an update may not have installed: Auto Blocker lets only apps from the Galaxy Store and Play Store
+ * be installed, updates to KoLib included. It's only said: KoLib doesn't open the phone's security settings or tell
+ * anyone to turn a protection off.
  */
 @Composable
 private fun AutoBlockerNote(samsung: Boolean = Build.MANUFACTURER.equals("samsung", ignoreCase = true)) {
     if (!samsung) return
-    val context = LocalContext.current
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainerLowest,
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier.fillMaxWidth().padding(top = 10.dp).testTag("update-auto-blocker"),
     ) {
-        Column(Modifier.padding(start = 14.dp, end = 8.dp, top = 12.dp, bottom = 4.dp)) {
+        Column(Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
             Text(tr("Samsung's Auto Blocker may have stopped it."), style = MaterialTheme.typography.titleSmall)
             Text(
-                tr("Turn it off in Settings > Security and privacy > Auto Blocker, then try again. You can turn it back on afterwards."),
+                tr("It only lets apps from the Galaxy Store and Play Store be installed."),
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 4.dp, end = 6.dp),
+                modifier = Modifier.padding(top = 4.dp),
             )
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                TextButton(onClick = {
-                    // Security and privacy, where Auto Blocker is; or Settings itself, if that can't be opened.
-                    listOf(Settings.ACTION_SECURITY_SETTINGS, Settings.ACTION_SETTINGS).firstOrNull { action ->
-                        runCatching { context.startActivity(Intent(action).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }.isSuccess
-                    }
-                }) { Text(tr("Open Settings")) }
-            }
         }
     }
 }

@@ -1,5 +1,10 @@
 package dev.kolib.app.ui
 
+import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.material.icons.outlined.Explore
@@ -1377,13 +1382,22 @@ fun LookDialog(
     val scroll = rememberScrollState()
     val places = remember { dev.kolib.app.ui.tour.TourPlaces() }
     var touring by remember { mutableStateOf(tour) }
-    AlertDialog(
+    // A page of their own over the whole screen, on any device and either way up (a dialog is too small for them on a
+    // phone held sideways), with a way back at the top.
+    androidx.compose.ui.window.Dialog(
         onDismissRequest = onDismiss,
-        icon = { Icon(Icons.Outlined.Settings, null) },
-        title = { Text(tr("Settings")) },
-        text = {
+        properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false),
+    ) {
+        SettingsPage(onBack = onDismiss) {
             CompositionLocalProvider(dev.kolib.app.ui.tour.LocalTourPlaces provides places.takeIf { touring }) {
-            Column(Modifier.tourPlace("settings-view").verticalScroll(scroll)) {
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .tourPlace("settings-view")
+                    .verticalScroll(scroll)
+                    .navigationBarsPadding()
+                    .padding(start = 12.dp, end = 12.dp, top = 4.dp, bottom = 24.dp)
+            ) {
                 if (onLanguage != null) {
                     val context = androidx.compose.ui.platform.LocalContext.current
                     val language = remember { dev.kolib.app.AppLanguage.nativeName(dev.kolib.app.AppLanguage.current(context)) }
@@ -1537,9 +1551,8 @@ fun LookDialog(
                 }
             }
             }
-        },
-        confirmButton = { TextButton(onClick = onDismiss) { Text(tr("Done")) } },
-    )
+        }
+    }
     // The tour, over the window: a window of its own, the whole screen, lighting the settings where they are.
     if (touring) {
         val density = androidx.compose.ui.platform.LocalDensity.current
@@ -1593,6 +1606,40 @@ private fun SwitchLine(title: String, detail: String, on: Boolean, onChange: (Bo
         }
         Spacer(Modifier.width(12.dp))
         Switch(checked = on, onCheckedChange = null, enabled = enabled)
+    }
+}
+
+/**
+ * Settings as a page: the whole screen, its bars the colours of the look, with a way back and the title at the top, and
+ * [content] under them; on a wide screen, in a column down the middle, so lines aren't too long to read.
+ */
+@Composable
+private fun SettingsPage(onBack: () -> Unit, content: @Composable () -> Unit) {
+    val view = androidx.compose.ui.platform.LocalView.current
+    val window = (view.parent as? androidx.compose.ui.window.DialogWindowProvider)?.window
+    // Dark icons on the bars over a light look, light ones over a dark look.
+    val light = MaterialTheme.colorScheme.background.luminance() > 0.5f
+    androidx.compose.runtime.SideEffect {
+        window?.let { w ->
+            androidx.core.view.WindowCompat.getInsetsController(w, view).apply {
+                isAppearanceLightStatusBars = light
+                isAppearanceLightNavigationBars = light
+            }
+        }
+    }
+    Box(Modifier.fillMaxSize().appBackdrop().testTag("settings-page")) {
+        CompositionLocalProvider(androidx.compose.material3.LocalContentColor provides MaterialTheme.colorScheme.onBackground) {
+            Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))) {
+                Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = onBack, modifier = Modifier.testTag("settings-back")) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Back")) }
+                    Spacer(Modifier.width(8.dp))
+                    Text(tr("Settings"), style = MaterialTheme.typography.titleLarge)
+                }
+                Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.TopCenter) {
+                    Box(Modifier.widthIn(max = 680.dp).fillMaxSize()) { content() }
+                }
+            }
+        }
     }
 }
 

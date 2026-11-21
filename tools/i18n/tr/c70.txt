@@ -41,3 +41,36 @@
 @zh
 3433|还没有。在另一台设备上打开 KoLib 的这个页面，连接同一个 Wi-Fi 或热点，然后在下方配对。
 3434|同一网络上的其他手机和平板也打开这个页面时，会显示在这里。点按“配对”即可连接。
+
+@fr
+3435|Il ne laisse installer que les applis du Galaxy Store et du Play Store.
+
+@de
+3435|Er lässt nur Apps aus dem Galaxy Store und dem Play Store installieren.
+
+@es
+3435|Solo deja instalar apps de Galaxy Store y Play Store.
+
+@it
+3435|Lascia installare solo le app del Galaxy Store e del Play Store.
+
+@nl
+3435|Hij laat alleen apps uit de Galaxy Store en de Play Store installeren.
+
+@pt
+3435|Ele só deixa instalar apps da Galaxy Store e da Play Store.
+
+@ro
+3435|Lasă să fie instalate doar aplicații din Galaxy Store și Play Store.
+
+@ru
+3435|Он разрешает устанавливать только приложения из Galaxy Store и Play Маркета.
+
+@ja
+3435|Galaxy Store と Play ストアのアプリしかインストールできないようにする機能です。
+
+@ko
+3435|Galaxy Store와 Play 스토어의 앱만 설치할 수 있게 해요.
+
+@zh
+3435|它只允许安装来自 Galaxy Store 和 Play 商店的应用。

@@ -185,7 +185,8 @@ class ToursTest {
         compose.onNodeWithTag("settings-tours-on").performScrollTo().performClick()
         compose.waitForIdle()
         assertTrue("tours are on", !off)
-        compose.onNodeWithText("Done").performClick()
+        // Back from the Settings page.
+        compose.onNodeWithTag("settings-back").performClick()
         compose.mainClock.advanceTimeBy(900)
         compose.waitForIdle()
         compose.onNodeWithTag("tour-card").assertIsDisplayed()

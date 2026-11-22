@@ -53,6 +53,10 @@ import kotlin.math.roundToInt
 /** How long the sheet takes to come up, go down and fade, as Mihon's. */
 private val SheetMotion = tween<Float>(durationMillis = 350)
 
+/** Pulled down this far, the sheet closes; less, it comes back up. A flick down faster than [CLOSE_FLICK] (a second) closes it too. */
+private val CLOSE_PULL = 56.dp
+private val CLOSE_FLICK = 125.dp
+
 /** At least this wide (its shorter side), a screen has the sheet in its middle, faded in, as Mihon does on big tablets. */
 private const val CENTRED_FROM_DP = 720
 
@@ -103,18 +107,27 @@ private fun FootSheet(onDismiss: () -> Unit, modifier: Modifier, content: @Compo
     val scope = rememberCoroutineScope()
     // Up (0) or down out of sight (1): it starts down, and comes up.
     val state = remember { AnchoredDraggableState(initialValue = 1) }
-    val fling = AnchoredDraggableDefaults.flingBehavior(state, positionalThreshold = { with(density) { 56.dp.toPx() } }, animationSpec = SheetMotion)
+    // Pulled down this far, or flicked down, it goes; less, it comes back up (as Mihon's).
+    val closeAt = with(density) { CLOSE_PULL.toPx() }
+    val flickAt = with(density) { CLOSE_FLICK.toPx() }
+    val fling = AnchoredDraggableDefaults.flingBehavior(state, positionalThreshold = { closeAt }, animationSpec = SheetMotion)
     val close: () -> Unit = { if (state.settledValue == 0) scope.launch { state.animateTo(1, SheetMotion) } }
+    // Let go after what's in it was pulled down with it: by how far it's come down and how fast it was going.
+    val settle: (Float) -> Unit = { velocity ->
+        scope.launch {
+            val target = when {
+                velocity > flickAt -> 1
+                velocity < -flickAt -> 0
+                state.offset > closeAt -> 1
+                else -> 0
+            }
+            state.animateTo(target, SheetMotion)
+        }
+    }
     Box(
         Modifier
             .fillMaxSize()
-            .clickable(interactionSource = null, indication = null, onClick = close)
-            .onSizeChanged { size ->
-                state.updateAnchors(DraggableAnchors {
-                    0 at 0f
-                    1 at size.height.toFloat()
-                })
-            },
+            .clickable(interactionSource = null, indication = null, onClick = close),
         contentAlignment = Alignment.BottomCenter,
     ) {
         Surface(
@@ -122,8 +135,15 @@ private fun FootSheet(onDismiss: () -> Unit, modifier: Modifier, content: @Compo
                 .widthIn(max = 460.dp)
                 .clickable(interactionSource = null, indication = null, onClick = {})
                 // Scrolled to the top of what's in it, a drag down takes the sheet down with it.
-                .nestedScroll(remember(state) { state.sheetScrolling { scope.launch { state.animateTo(state.targetValue, SheetMotion) } } })
+                .nestedScroll(remember(state) { state.sheetScrolling(settle) })
                 .then(modifier)
+                // Down by its own height, it's out of sight.
+                .onSizeChanged { size ->
+                    state.updateAnchors(DraggableAnchors {
+                        0 at 0f
+                        1 at size.height.toFloat()
+                    })
+                }
                 .offset { IntOffset(0, state.offset.takeIf { it.isFinite() }?.roundToInt() ?: 0) }
                 .anchoredDraggable(state, Orientation.Vertical, flingBehavior = fling)
                 .navigationBarsPadding()
@@ -148,7 +168,7 @@ private fun FootSheet(onDismiss: () -> Unit, modifier: Modifier, content: @Compo
  * What's in the sheet scrolls first; at its top, a drag down moves the sheet (and a drag up brings it back up before
  * what's in it scrolls). Let go, it settles up or down.
  */
-private fun AnchoredDraggableState<Int>.sheetScrolling(settle: () -> Unit) = object : NestedScrollConnection {
+private fun AnchoredDraggableState<Int>.sheetScrolling(settle: (Float) -> Unit) = object : NestedScrollConnection {
     override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset =
         if (available.y < 0 && source == NestedScrollSource.UserInput) Offset(0f, dispatchRawDelta(available.y)) else Offset.Zero
 
@@ -157,12 +177,14 @@ private fun AnchoredDraggableState<Int>.sheetScrolling(settle: () -> Unit) = obj
 
     override suspend fun onPreFling(available: Velocity): Velocity =
         if (available.y < 0 && offset > anchors.minPosition()) {
-            settle()
+            settle(available.y)
             available
         } else Velocity.Zero
 
+    // Only once the sheet's been pulled down: a fling of what's in it, up to its top, doesn't close it.
     override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-        settle()
-        return if (targetValue != settledValue) available else Velocity.Zero
+        if (!(offset > anchors.minPosition())) return Velocity.Zero
+        settle(available.y)
+        return available
     }
 }

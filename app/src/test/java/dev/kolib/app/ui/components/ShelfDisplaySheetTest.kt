@@ -1,5 +1,6 @@
 package dev.kolib.app.ui.components
 
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Text
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -68,5 +69,24 @@ class ShelfDisplaySheetTest {
         compose.onNodeWithTag("display-sheet").performTouchInput { swipeDown() }
         compose.waitForIdle()
         assertTrue(closed)
+    }
+
+    /** A short, slow pull down on what's in it closes it, as Mihon's does; a smaller one lets it come back up. */
+    @Test
+    fun aShortPullClosesItAndASmallerOneDoesNot() {
+        show()
+        val pull = { dp: Float ->
+            compose.onNodeWithTag("display-sheet").performTouchInput {
+                down(center)
+                repeat(20) { moveBy(androidx.compose.ui.geometry.Offset(0f, dp.dp.toPx() / 20), delayMillis = 50) }
+                up()
+            }
+            compose.waitForIdle()
+        }
+        pull(30f)
+        assertTrue("a small pull doesn't close it", !closed)
+        compose.onNodeWithText("What shows").assertExists()
+        pull(90f)
+        assertTrue("a short pull does", closed)
     }
 }

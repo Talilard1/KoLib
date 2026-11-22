@@ -1,5 +1,6 @@
 package dev.kolib.app.ui.components
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Text
 import androidx.compose.runtime.CompositionLocalProvider
@@ -14,6 +15,7 @@ import androidx.compose.ui.test.swipeLeft
 import dev.kolib.app.ui.theme.AppSurface
 import dev.kolib.app.ui.theme.ThemeChoice
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -71,22 +73,36 @@ class ShelfDisplaySheetTest {
         assertTrue(closed)
     }
 
-    /** A short, slow pull down on what's in it closes it, as Mihon's does; a smaller one lets it come back up. */
+    /**
+     * Held by its tabs or by what's in it: pulled a little way down, it comes back up; pulled well down but let go
+     * moving up, it comes back up; let go well down, it closes.
+     */
     @Test
-    fun aShortPullClosesItAndASmallerOneDoesNot() {
+    fun itClosesWhenLetGoWellDownButNotALittleOrMovingUp() {
         show()
-        val pull = { dp: Float ->
-            compose.onNodeWithTag("display-sheet").performTouchInput {
-                down(center)
-                repeat(20) { moveBy(androidx.compose.ui.geometry.Offset(0f, dp.dp.toPx() / 20), delayMillis = 50) }
+        val sheet = compose.onNodeWithTag("display-sheet")
+        val h = sheet.fetchSemanticsNode().size.height.toFloat()
+        fun top() = compose.onNodeWithText("What shows").fetchSemanticsNode().boundsInRoot.top
+        val open = top()
+        // From [from] of the way down it, pulled slowly by [slow], then quickly by [quick].
+        fun drag(from: Float, slow: Float, quick: Float = 0f) {
+            sheet.performTouchInput {
+                down(Offset(centerX, h * from))
+                repeat(20) { moveBy(Offset(0f, slow / 20), delayMillis = 50) }
+                if (quick != 0f) repeat(5) { moveBy(Offset(0f, quick / 5), delayMillis = 10) }
                 up()
             }
             compose.waitForIdle()
         }
-        pull(30f)
-        assertTrue("a small pull doesn't close it", !closed)
-        compose.onNodeWithText("What shows").assertExists()
-        pull(90f)
-        assertTrue("a short pull does", closed)
+        for (from in listOf(0.1f, 0.75f)) {
+            drag(from, h * 0.25f)
+            assertFalse("a little way down, held at $from, it closed", closed)
+            assertEquals("a little way down, held at $from, it came back up", open, top(), 1f)
+            drag(from, h * 0.75f, -h * 0.15f)
+            assertFalse("let go moving up, held at $from, it closed", closed)
+            assertEquals("let go moving up, held at $from, it came back up", open, top(), 1f)
+        }
+        drag(0.75f, h * 0.6f)
+        assertTrue("let go well down, it closes", closed)
     }
 }

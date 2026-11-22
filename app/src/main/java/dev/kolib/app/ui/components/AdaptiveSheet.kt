@@ -4,12 +4,13 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
+import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.animateTo
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -53,9 +54,12 @@ import kotlin.math.roundToInt
 /** How long the sheet takes to come up, go down and fade, as Mihon's. */
 private val SheetMotion = tween<Float>(durationMillis = 350)
 
-/** Pulled down this far, the sheet closes; less, it comes back up. A flick down faster than [CLOSE_FLICK] (a second) closes it too. */
-private val CLOSE_PULL = 56.dp
-private val CLOSE_FLICK = 125.dp
+/**
+ * Let go once it's come down this much of its height, the sheet closes; less, it comes back up. A flick down faster
+ * than [CLOSE_FLICK] (a second) closes it too, and let go moving up, it always comes back up.
+ */
+private const val CLOSE_SHARE = 0.4f
+private val CLOSE_FLICK = 700.dp
 
 /** At least this wide (its shorter side), a screen has the sheet in its middle, faded in, as Mihon does on big tablets. */
 private const val CENTRED_FROM_DP = 720
@@ -107,23 +111,23 @@ private fun FootSheet(onDismiss: () -> Unit, modifier: Modifier, content: @Compo
     val scope = rememberCoroutineScope()
     // Up (0) or down out of sight (1): it starts down, and comes up.
     val state = remember { AnchoredDraggableState(initialValue = 1) }
-    // Pulled down this far, or flicked down, it goes; less, it comes back up (as Mihon's).
-    val closeAt = with(density) { CLOSE_PULL.toPx() }
+    // Let go moving up, it goes back up; flicked down, or let go a good way down, it closes; otherwise back up it comes.
     val flickAt = with(density) { CLOSE_FLICK.toPx() }
-    val fling = AnchoredDraggableDefaults.flingBehavior(state, positionalThreshold = { closeAt }, animationSpec = SheetMotion)
     val close: () -> Unit = { if (state.settledValue == 0) scope.launch { state.animateTo(1, SheetMotion) } }
-    // Let go after what's in it was pulled down with it: by how far it's come down and how fast it was going.
+    // Let go after what's in it was pulled down with it: by which way it was going, how fast, and how far it's come down.
     val settle: (Float) -> Unit = { velocity ->
         scope.launch {
             val target = when {
+                velocity < 0f -> 0
                 velocity > flickAt -> 1
-                velocity < -flickAt -> 0
-                state.offset > closeAt -> 1
+                state.offset > state.anchors.maxPosition() * CLOSE_SHARE -> 1
                 else -> 0
             }
             state.animateTo(target, SheetMotion)
         }
     }
+    // Held by its tabs or its edge, it's dragged the same way, and let go, it settles by the same rule.
+    val dragging = rememberDraggableState { delta -> state.dispatchRawDelta(delta) }
     Box(
         Modifier
             .fillMaxSize()
@@ -145,7 +149,14 @@ private fun FootSheet(onDismiss: () -> Unit, modifier: Modifier, content: @Compo
                     })
                 }
                 .offset { IntOffset(0, state.offset.takeIf { it.isFinite() }?.roundToInt() ?: 0) }
-                .anchoredDraggable(state, Orientation.Vertical, flingBehavior = fling)
+                .draggable(
+                    dragging,
+                    Orientation.Vertical,
+                    startDragImmediately = state.isAnimationRunning,
+                    // Caught as it moves, it stops where it is.
+                    onDragStarted = { state.anchoredDrag(MutatePriority.UserInput) {} },
+                    onDragStopped = { velocity -> settle(velocity) },
+                )
                 .navigationBarsPadding()
                 .statusBarsPadding(),
             shape = MaterialTheme.shapes.extraLarge,
@@ -175,16 +186,11 @@ private fun AnchoredDraggableState<Int>.sheetScrolling(settle: (Float) -> Unit) 
     override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset =
         if (source == NestedScrollSource.UserInput) Offset(0f, dispatchRawDelta(available.y)) else Offset.Zero
 
+    // Let go once the sheet's been pulled down, it settles (just the once) and what's in it doesn't fling; let go with
+    // the sheet up, what's in it flings as it would, and a fling up to its top doesn't close it.
     override suspend fun onPreFling(available: Velocity): Velocity =
-        if (available.y < 0 && offset > anchors.minPosition()) {
+        if (offset > anchors.minPosition()) {
             settle(available.y)
             available
         } else Velocity.Zero
-
-    // Only once the sheet's been pulled down: a fling of what's in it, up to its top, doesn't close it.
-    override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-        if (!(offset > anchors.minPosition())) return Velocity.Zero
-        settle(available.y)
-        return available
-    }
 }

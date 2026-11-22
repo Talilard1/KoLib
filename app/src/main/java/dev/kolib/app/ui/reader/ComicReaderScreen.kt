@@ -790,6 +790,9 @@ internal fun ComicView(
             ComicSheet.MODE -> ComicChoiceSheet(
                 title = tr("Reading mode"), options = ComicMode.entries, own = own.mode, icon = { it.icon() }, label = { it.label() },
                 onApply = { m -> onOwn(own.copy(mode = m)); sheet = null }, onDismiss = { sheet = null }, tag = "comic-mode-sheet",
+                // A tap changes the mode there and then, with nothing else to press. The mode now is shown chosen.
+                applyOnTap = true,
+                current = own.mode ?: mode,
             )
             ComicSheet.ROTATION -> ComicChoiceSheet(
                 title = tr("Rotation"), options = ComicRotation.entries, own = own.rotation, icon = { it.icon() }, label = { it.label() },
@@ -1069,7 +1072,10 @@ private fun PagedComic(
     }
     val itemsNow by rememberUpdatedState(items)
     val startIndex = remember { items.indexOfFirst { it is ReadItem.Page && it.comic.id == current.id && it.page == startPage }.coerceAtLeast(0) }
-    val pager = rememberPagerState(initialPage = startIndex) { itemsNow.size }
+    // Not kept over the screen turning (the app made again): its place then was among the pages of the comic before
+    // this one too, which aren't there yet, so it would land that many pages on (the last page, in the last comic of a
+    // series). It starts again from the page reached instead, which is kept.
+    val pager = remember { androidx.compose.foundation.pager.PagerState(currentPage = startIndex) { itemsNow.size } }
     // Pages come and go before the one showing (the comic before, opened after this one, or let go as reading goes on
     // into the next): the pager stays on its page. Its own keeping by key looks only so far, and past a long comic's
     // pages it loses the page and keeps its number, which is then in another comic.
@@ -1712,7 +1718,8 @@ private fun StripComic(
         }
         val itemsNow by rememberUpdatedState(items)
         val startIndex = remember { items.indexOfFirst { it is ReadItem.Page && it.comic.id == current.id && it.page == startPage }.coerceAtLeast(0) }
-        val list = rememberLazyListState(initialFirstVisibleItemIndex = startIndex)
+        // Not kept over the screen turning, as the pager isn't: it starts again from the page reached.
+        val list = remember { androidx.compose.foundation.lazy.LazyListState(firstVisibleItemIndex = startIndex) }
         // The strip stays where it is as pages come and go before it, as the pager does.
         val lastItems = remember { arrayOfNulls<List<ReadItem<*>>>(1) }
         SideEffect {

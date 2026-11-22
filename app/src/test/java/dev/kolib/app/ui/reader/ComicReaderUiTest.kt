@@ -135,23 +135,19 @@ class ComicReaderUiTest {
         assertEquals(6, ReaderStore.pdfPlace(dir)!!.page)
     }
 
+    /** A tap on a reading mode is the one used for the series, there and then: no Apply, and no Revert to default. */
     @Test
-    fun theReadingModeIsChosenForTheSeriesAndCanBePutBack() {
+    fun theReadingModeIsChosenForTheSeriesWithATap() {
         open()
         compose.onNodeWithTag("comic-mode-button").performClick()
         settle()
         compose.onNodeWithTag("comic-mode-sheet").assertExists()
-        // Nothing of its own yet: nothing to put back.
+        compose.onAllNodesWithText("Apply").assertCountEquals(0)
         compose.onAllNodesWithText("Revert to default").assertCountEquals(0)
         compose.onNodeWithText("Long strip").performClick()
-        compose.onNodeWithText("Apply").performClick()
         settle()
         assertEquals(ComicMode.STRIP, own.mode)
-        compose.onNodeWithTag("comic-mode-button").performClick()
-        settle()
-        compose.onNodeWithText("Revert to default").performClick()
-        settle()
-        assertNull(own.mode)
+        compose.onAllNodesWithTag("comic-mode-sheet").assertCountEquals(0)
     }
 
     @Test

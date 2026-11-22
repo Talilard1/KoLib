@@ -721,15 +721,17 @@ internal fun ComicView(
             Modifier.fillMaxSize().windowInsetsPadding(insets).tourPlace("comic-page")
                 .then(if (s.colourFilter && s.blend != ComicBlend.DEFAULT) Modifier.graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen) else Modifier),
         ) {
+            // Changed from turning pages to a strip (or back), it carries on from the page reached, not the one it opened on.
+            val from = remember(generation, mode.paged) { page }
             key(generation) {
                 if (mode.paged) {
                     PagedComic(
-                        current = comic, before = before, after = after, s = s, mode = mode, startPage = start, series = series, ink = ink,
+                        current = comic, before = before, after = after, s = s, mode = mode, startPage = from, series = series, ink = ink,
                         matrix = matrix, onAt = onAt, onMenu = toggleMenu, onLongPress = longPress, onClose = onClose, nudges = nudges, jumps = jumps,
                     )
                 } else {
                     StripComic(
-                        current = comic, before = before, after = after, s = s, mode = mode, startPage = start, series = series, ink = ink,
+                        current = comic, before = before, after = after, s = s, mode = mode, startPage = from, series = series, ink = ink,
                         matrix = matrix, onAt = onAt, onGapShown = onGapShown, onMenu = toggleMenu, onLongPress = longPress, onMoved = moved,
                         onClose = onClose, nudges = nudges, jumps = jumps,
                     )

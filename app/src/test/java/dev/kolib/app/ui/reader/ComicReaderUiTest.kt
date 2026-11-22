@@ -150,6 +150,22 @@ class ComicReaderUiTest {
         compose.onAllNodesWithTag("comic-mode-sheet").assertCountEquals(0)
     }
 
+    /** Changed from turning pages to a long strip, and back, it stays on the page reached, not the one it opened on. */
+    @Test
+    fun changingTheReadingModeKeepsThePageReached() {
+        open(pages = 12)
+        compose.onNodeWithTag("comic-slider").performSemanticsAction(SemanticsActions.SetProgress) { it(7f) }
+        settle()
+        assertEquals(6, ReaderStore.pdfPlace(dir)!!.page)
+        for (pick in listOf("Long strip", "Paged (right to left)")) {
+            compose.onNodeWithTag("comic-mode-button").performClick()
+            settle()
+            compose.onNodeWithText(pick).performClick()
+            settle()
+            assertEquals("after $pick", 6, ReaderStore.pdfPlace(dir)!!.page)
+        }
+    }
+
     @Test
     fun theRotationIsChosenForTheSeriesWithATap() {
         open()

@@ -11,7 +11,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.animateTo
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
@@ -67,7 +67,7 @@ private const val CENTRED_FROM_DP = 720
 /**
  * A sheet as Mihon's, at most 460 dp wide: from the foot of the screen, sliding up as it opens; or, on a big tablet, in
  * the middle of the screen, fading in. Either way it's dragged down to close (or a tap beside it, or Back), sliding
- * down as it goes, and in the middle fading out too.
+ * down out of sight as it goes.
  */
 @Composable
 fun AdaptiveSheet(onDismiss: () -> Unit, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
@@ -81,9 +81,10 @@ fun AdaptiveSheet(onDismiss: () -> Unit, modifier: Modifier = Modifier, content:
 private fun Sheet(centred: Boolean, onDismiss: () -> Unit, modifier: Modifier, content: @Composable () -> Unit) {
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
-    // Where it rests (0), or down by its own height and gone (1). At the foot of the screen it starts down out of sight
-    // and comes up; in the middle it starts where it rests, and fades in.
+    // Where it rests (0), or down out of sight (1). At the foot of the screen it starts down out of sight and comes up;
+    // in the middle it starts where it rests, and fades in.
     val state = remember { AnchoredDraggableState(initialValue = if (centred) 0 else 1) }
+    var sheetHeight by remember { mutableFloatStateOf(0f) }
     var shown by remember { mutableFloatStateOf(if (centred) 0f else 1f) }
     val fade by animateFloatAsState(shown, SheetMotion, label = "sheet")
     // Let go moving up, it goes back up; flicked down, or let go a good way down, it closes; otherwise back up it comes.
@@ -95,7 +96,7 @@ private fun Sheet(centred: Boolean, onDismiss: () -> Unit, modifier: Modifier, c
             val target = when {
                 velocity < 0f -> 0
                 velocity > flickAt -> 1
-                state.offset > state.anchors.maxPosition() * CLOSE_SHARE -> 1
+                state.offset > sheetHeight * CLOSE_SHARE -> 1
                 else -> 0
             }
             state.animateTo(target, SheetMotion)
@@ -103,12 +104,13 @@ private fun Sheet(centred: Boolean, onDismiss: () -> Unit, modifier: Modifier, c
     }
     // Held by its tabs or its edge, it's dragged the same way, and let go, it settles by the same rule.
     val dragging = rememberDraggableState { delta -> state.dispatchRawDelta(delta) }
-    Box(
+    BoxWithConstraints(
         Modifier
             .fillMaxSize()
             .clickable(interactionSource = null, indication = null, onClick = close),
         contentAlignment = if (centred) Alignment.Center else Alignment.BottomCenter,
     ) {
+        val screen = constraints.maxHeight.toFloat()
         Surface(
             modifier = Modifier
                 .then(if (centred) Modifier.requiredWidthIn(max = 460.dp) else Modifier.widthIn(max = 460.dp))
@@ -116,22 +118,18 @@ private fun Sheet(centred: Boolean, onDismiss: () -> Unit, modifier: Modifier, c
                 // Scrolled to the top of what's in it, a drag down takes the sheet down with it.
                 .nestedScroll(remember(state) { state.sheetScrolling(settle) })
                 .then(modifier)
-                // Down by its own height, it's out of sight (or, in the middle, faded out).
+                // Down by its own height (or, in the middle, by half of the screen and itself), it's out of sight.
                 .onSizeChanged { size ->
+                    sheetHeight = size.height.toFloat()
                     state.updateAnchors(DraggableAnchors {
                         0 at 0f
-                        1 at size.height.toFloat()
+                        1 at if (centred) (screen + size.height) / 2f else size.height.toFloat()
                     })
                 }
                 .offset { IntOffset(0, state.offset.takeIf { it.isFinite() }?.roundToInt() ?: 0) }
                 .then(
-                    if (centred) {
-                        Modifier.graphicsLayer {
-                            val most = state.anchors.maxPosition()
-                            val down = if (most > 0f && state.offset.isFinite()) (state.offset / most).coerceIn(0f, 1f) else 0f
-                            alpha = fade * (1f - down)
-                        }
-                    } else Modifier,
+                    // In the middle, it fades in as it opens (and slides away, as at the foot, as it closes).
+                    if (centred) Modifier.graphicsLayer { alpha = fade } else Modifier,
                 )
                 .draggable(
                     dragging,

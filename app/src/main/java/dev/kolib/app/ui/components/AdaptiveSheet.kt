@@ -32,8 +32,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -65,56 +65,31 @@ private val CLOSE_FLICK = 700.dp
 private const val CENTRED_FROM_DP = 720
 
 /**
- * A sheet as Mihon's: from the foot of the screen, at most 460 dp wide, sliding up as it opens and down (dragged, or a
- * tap beside it, or Back) as it closes; or, on a big tablet, in the middle of the screen, fading in.
+ * A sheet as Mihon's, at most 460 dp wide: from the foot of the screen, sliding up as it opens; or, on a big tablet, in
+ * the middle of the screen, fading in. Either way it's dragged down to close (or a tap beside it, or Back), sliding
+ * down as it goes, and in the middle fading out too.
  */
 @Composable
 fun AdaptiveSheet(onDismiss: () -> Unit, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     val centred = LocalConfiguration.current.smallestScreenWidthDp >= CENTRED_FROM_DP
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = true)) {
-        if (centred) CentredSheet(onDismiss, modifier, content) else FootSheet(onDismiss, modifier, content)
+        Sheet(centred, onDismiss, modifier, content)
     }
 }
 
 @Composable
-private fun CentredSheet(onDismiss: () -> Unit, modifier: Modifier, content: @Composable () -> Unit) {
-    var shown by remember { mutableFloatStateOf(0f) }
-    val alpha by animateFloatAsState(shown, SheetMotion, label = "sheet")
-    val close = {
-        shown = 0f
-        onDismiss()
-    }
-    Box(
-        Modifier.fillMaxSize().clickable(interactionSource = null, indication = null, onClick = close).alpha(alpha),
-        contentAlignment = Alignment.Center,
-    ) {
-        Surface(
-            modifier = Modifier
-                .requiredWidthIn(max = 460.dp)
-                .clickable(interactionSource = null, indication = null, onClick = {})
-                .systemBarsPadding()
-                .padding(vertical = 16.dp)
-                .then(modifier),
-            shape = MaterialTheme.shapes.extraLarge,
-            color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        ) {
-            BackHandler(enabled = alpha > 0f, onBack = close)
-            content()
-        }
-        LaunchedEffect(Unit) { shown = 1f }
-    }
-}
-
-@Composable
-private fun FootSheet(onDismiss: () -> Unit, modifier: Modifier, content: @Composable () -> Unit) {
+private fun Sheet(centred: Boolean, onDismiss: () -> Unit, modifier: Modifier, content: @Composable () -> Unit) {
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
-    // Up (0) or down out of sight (1): it starts down, and comes up.
-    val state = remember { AnchoredDraggableState(initialValue = 1) }
+    // Where it rests (0), or down by its own height and gone (1). At the foot of the screen it starts down out of sight
+    // and comes up; in the middle it starts where it rests, and fades in.
+    val state = remember { AnchoredDraggableState(initialValue = if (centred) 0 else 1) }
+    var shown by remember { mutableFloatStateOf(if (centred) 0f else 1f) }
+    val fade by animateFloatAsState(shown, SheetMotion, label = "sheet")
     // Let go moving up, it goes back up; flicked down, or let go a good way down, it closes; otherwise back up it comes.
     val flickAt = with(density) { CLOSE_FLICK.toPx() }
     val close: () -> Unit = { if (state.settledValue == 0) scope.launch { state.animateTo(1, SheetMotion) } }
-    // Let go after what's in it was pulled down with it: by which way it was going, how fast, and how far it's come down.
+    // Let go after it (or what's in it) was dragged: by which way it was going, how fast, and how far it's come down.
     val settle: (Float) -> Unit = { velocity ->
         scope.launch {
             val target = when {
@@ -132,16 +107,16 @@ private fun FootSheet(onDismiss: () -> Unit, modifier: Modifier, content: @Compo
         Modifier
             .fillMaxSize()
             .clickable(interactionSource = null, indication = null, onClick = close),
-        contentAlignment = Alignment.BottomCenter,
+        contentAlignment = if (centred) Alignment.Center else Alignment.BottomCenter,
     ) {
         Surface(
             modifier = Modifier
-                .widthIn(max = 460.dp)
+                .then(if (centred) Modifier.requiredWidthIn(max = 460.dp) else Modifier.widthIn(max = 460.dp))
                 .clickable(interactionSource = null, indication = null, onClick = {})
                 // Scrolled to the top of what's in it, a drag down takes the sheet down with it.
                 .nestedScroll(remember(state) { state.sheetScrolling(settle) })
                 .then(modifier)
-                // Down by its own height, it's out of sight.
+                // Down by its own height, it's out of sight (or, in the middle, faded out).
                 .onSizeChanged { size ->
                     state.updateAnchors(DraggableAnchors {
                         0 at 0f
@@ -149,6 +124,15 @@ private fun FootSheet(onDismiss: () -> Unit, modifier: Modifier, content: @Compo
                     })
                 }
                 .offset { IntOffset(0, state.offset.takeIf { it.isFinite() }?.roundToInt() ?: 0) }
+                .then(
+                    if (centred) {
+                        Modifier.graphicsLayer {
+                            val most = state.anchors.maxPosition()
+                            val down = if (most > 0f && state.offset.isFinite()) (state.offset / most).coerceIn(0f, 1f) else 0f
+                            alpha = fade * (1f - down)
+                        }
+                    } else Modifier,
+                )
                 .draggable(
                     dragging,
                     Orientation.Vertical,
@@ -157,8 +141,10 @@ private fun FootSheet(onDismiss: () -> Unit, modifier: Modifier, content: @Compo
                     onDragStarted = { state.anchoredDrag(MutatePriority.UserInput) {} },
                     onDragStopped = { velocity -> settle(velocity) },
                 )
-                .navigationBarsPadding()
-                .statusBarsPadding(),
+                .then(
+                    if (centred) Modifier.systemBarsPadding().padding(vertical = 16.dp)
+                    else Modifier.navigationBarsPadding().statusBarsPadding(),
+                ),
             shape = MaterialTheme.shapes.extraLarge,
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
         ) {
@@ -167,9 +153,13 @@ private fun FootSheet(onDismiss: () -> Unit, modifier: Modifier, content: @Compo
         }
     }
     LaunchedEffect(state) {
-        // Once its height is known, up it comes; down again, it's gone.
+        // Once its height is known, up it comes (or, in the middle, in it fades); down again, it's gone.
         snapshotFlow { state.anchors.size }.first { it > 0 }
-        launch { state.animateTo(0, SheetMotion) }
+        if (centred) {
+            shown = 1f
+        } else {
+            launch { state.animateTo(0, SheetMotion) }
+        }
         snapshotFlow { state.settledValue }.drop(1).filter { it == 1 }.first()
         onDismiss()
     }

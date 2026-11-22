@@ -73,6 +73,21 @@ class ShelfDisplaySheetTest {
         assertTrue(closed)
     }
 
+    /** From [from] of the way down the sheet, it's pulled slowly by [slow] of its height, then quickly by [quick]. */
+    private fun drag(from: Float, slow: Float, quick: Float = 0f) {
+        val sheet = compose.onNodeWithTag("display-sheet")
+        val h = sheet.fetchSemanticsNode().size.height.toFloat()
+        sheet.performTouchInput {
+            down(Offset(centerX, h * from))
+            repeat(20) { moveBy(Offset(0f, h * slow / 20), delayMillis = 50) }
+            if (quick != 0f) repeat(5) { moveBy(Offset(0f, h * quick / 5), delayMillis = 10) }
+            up()
+        }
+        compose.waitForIdle()
+    }
+
+    private fun top() = compose.onNodeWithText("What shows").fetchSemanticsNode().boundsInRoot.top
+
     /**
      * Held by its tabs or by what's in it: pulled a little way down, it comes back up; pulled well down but let go
      * moving up, it comes back up; let go well down, it closes.
@@ -80,29 +95,33 @@ class ShelfDisplaySheetTest {
     @Test
     fun itClosesWhenLetGoWellDownButNotALittleOrMovingUp() {
         show()
-        val sheet = compose.onNodeWithTag("display-sheet")
-        val h = sheet.fetchSemanticsNode().size.height.toFloat()
-        fun top() = compose.onNodeWithText("What shows").fetchSemanticsNode().boundsInRoot.top
         val open = top()
-        // From [from] of the way down it, pulled slowly by [slow], then quickly by [quick].
-        fun drag(from: Float, slow: Float, quick: Float = 0f) {
-            sheet.performTouchInput {
-                down(Offset(centerX, h * from))
-                repeat(20) { moveBy(Offset(0f, slow / 20), delayMillis = 50) }
-                if (quick != 0f) repeat(5) { moveBy(Offset(0f, quick / 5), delayMillis = 10) }
-                up()
-            }
-            compose.waitForIdle()
-        }
         for (from in listOf(0.1f, 0.75f)) {
-            drag(from, h * 0.25f)
+            drag(from, 0.25f)
             assertFalse("a little way down, held at $from, it closed", closed)
             assertEquals("a little way down, held at $from, it came back up", open, top(), 1f)
-            drag(from, h * 0.75f, -h * 0.15f)
+            drag(from, 0.75f, -0.15f)
             assertFalse("let go moving up, held at $from, it closed", closed)
             assertEquals("let go moving up, held at $from, it came back up", open, top(), 1f)
         }
-        drag(0.75f, h * 0.6f)
+        drag(0.75f, 0.6f)
+        assertTrue("let go well down, it closes", closed)
+    }
+
+    /** On a big tablet (800 high) the sheet's in the middle of the screen, and it's dragged down to close just the same. */
+    @Test
+    @Config(qualifiers = "sw800dp-w1280dp-h800dp-land")
+    fun onABigTabletItsInTheMiddleAndDraggedDownToCloseToo() {
+        show()
+        assertTrue("it's in the middle", compose.onNodeWithTag("display-sheet").fetchSemanticsNode().boundsInRoot.bottom < 650f)
+        val open = top()
+        drag(0.75f, 0.25f)
+        assertFalse("a little way down, it closed", closed)
+        assertEquals("a little way down, it came back", open, top(), 1f)
+        drag(0.75f, 0.75f, -0.15f)
+        assertFalse("let go moving up, it closed", closed)
+        assertEquals("let go moving up, it came back", open, top(), 1f)
+        drag(0.75f, 0.6f)
         assertTrue("let go well down, it closes", closed)
     }
 }

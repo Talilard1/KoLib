@@ -91,7 +91,9 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.FileOpen
 import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
+import androidx.compose.material.icons.outlined.AddPhotoAlternate
 import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.LocalOffer
@@ -219,6 +221,7 @@ fun LibraryScreen(
     koboLive: Boolean = false,
     /** Making books: a new one to write, one from several picked, several from one. */
     onNewBook: () -> Unit = {},
+    onNewComic: () -> Unit = {},
     onMerge: (List<String>) -> Unit = {},
     onSplit: (String) -> Unit = {},
     /** Saving copies of books as files, somewhere chosen in Android's pickers. */
@@ -254,8 +257,8 @@ fun LibraryScreen(
     // (With the Comics tab hidden, comics are books like the rest.)
     val comics = remember(books, browse.comicsTab) { if (browse.comicsTab) libraryComics(books) else emptyList() }
     val notComics = remember(books, comics) { if (comics.isEmpty()) books else books.filterNot { it.isComic } }
-    val comicActions = remember(onRead, onSend, onDelete, onMarkFinished, onMarkUnread, onGroupComics, onTakeOutOfSeries) {
-        ComicActions(onRead, onSend, onDelete, onMarkFinished, onMarkUnread, onGroupComics, onTakeOutOfSeries)
+    val comicActions = remember(onRead, onSend, onDelete, onMarkFinished, onMarkUnread, onGroupComics, onTakeOutOfSeries, onDuplicate, onExport) {
+        ComicActions(onRead, onSend, onDelete, onMarkFinished, onMarkUnread, onGroupComics, onTakeOutOfSeries, onDuplicate, onExport)
     }
     val reading: (LibraryBook) -> KoboBook? = remember(onKobo) {
         { b -> b.koboPath?.let { onKobo[KoboPaths.contentId(it)] } }
@@ -296,7 +299,7 @@ fun LibraryScreen(
             koboConnected = koboConnected, reading = reading, here = here, readingHere = readingHere, koboLive = koboLive,
             onAddFiles = onAddFiles, onAddFromKobo = onAddFromKobo, onAddFolder = onAddFolder, onShowJob = onShowJob, onEditDetails = onEditDetails,
             onChangeCover = onChangeCover, onDelete = onDelete, onSend = onSend, onRead = onRead, onEditText = onEditText,
-            onNewBook = onNewBook, onMerge = onMerge, onSplit = onSplit, onExport = onExport, onDuplicate = onDuplicate,
+            onNewBook = onNewBook, onNewComic = onNewComic, onMerge = onMerge, onSplit = onSplit, onExport = onExport, onDuplicate = onDuplicate,
             onAbout = onAbout, onStats = onStats, onEject = onEject, onAddSamples = onAddSamples, onTheme = onTheme, onMarkFinished = onMarkFinished, onMarkUnread = onMarkUnread,
             onContinueFromKobo = onContinueFromKobo, onSyncReading = askSync, onSyncAll = askSyncAll, koboNotice = koboNotice, transfers = transfers,
             comics = comics, comicActions = comicActions,
@@ -352,6 +355,12 @@ fun LibraryScreen(
                     text = { Text(tr("Write a new book")) },
                     leadingIcon = { Icon(Icons.AutoMirrored.Outlined.NoteAdd, null) },
                     onClick = { addMenu = false; onNewBook() },
+                )
+                DropdownMenuItem(
+                    text = { Text(tr("Make a comic from pictures")) },
+                    leadingIcon = { Icon(Icons.Outlined.AddPhotoAlternate, null) },
+                    onClick = { addMenu = false; onNewComic() },
+                    modifier = Modifier.testTag("library-add-comic"),
                 )
                 onAddSamples?.let { add ->
                     DropdownMenuItem(
@@ -1177,9 +1186,12 @@ fun LibraryDetailPane(
                     }
                     DropdownMenuItem(text = { Text(tr("Save as file")) }, leadingIcon = { Icon(Icons.Outlined.SaveAlt, null) }, onClick = { more = false; onExport() })
                     DropdownMenuItem(text = { Text(tr("Duplicate")) }, leadingIcon = { Icon(Icons.Outlined.ContentCopy, null) }, onClick = { more = false; onDuplicate() })
-                    if (!book.isComic) DropdownMenuItem(
-                        text = { Text(tr("Split into books")) }, leadingIcon = { Icon(Icons.AutoMirrored.Outlined.CallSplit, null) },
+                    // A comic is split in the comic editor, at the pages its parts start on.
+                    DropdownMenuItem(
+                        text = { Text(if (book.isComic) tr("Split into comics") else tr("Split into books")) },
+                        leadingIcon = { Icon(Icons.AutoMirrored.Outlined.CallSplit, null) },
                         onClick = { more = false; onSplit() },
+                        modifier = Modifier.testTag("book-split"),
                     )
                     HorizontalDivider()
                     DropdownMenuItem(
@@ -1202,11 +1214,11 @@ fun LibraryDetailPane(
                 Spacer(Modifier.width(8.dp))
                 Text(tr("Change cover"))
             }
-            // A comic's pages are pictures in its comic file: there's no text to edit.
-            if (!book.isComic) OutlinedButton(onClick = onEditText) {
-                Icon(Icons.Outlined.EditNote, null, Modifier.size(18.dp))
+            // A comic's pages are pictures: they're edited in the comic editor, not as text.
+            OutlinedButton(onClick = onEditText, modifier = Modifier.testTag(if (book.isComic) "book-edit-pages" else "book-edit-text")) {
+                Icon(if (book.isComic) Icons.Outlined.PhotoLibrary else Icons.Outlined.EditNote, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text(tr("Edit text"))
+                Text(if (book.isComic) tr("Edit pages") else tr("Edit text"))
             }
         }
         reading?.let { k ->

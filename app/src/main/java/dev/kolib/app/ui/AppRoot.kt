@@ -245,6 +245,49 @@ fun AppRoot(
     var goBackId by remember { mutableStateOf<String?>(null) }
     val appContext = androidx.compose.ui.platform.LocalContext.current
     val notifications = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
+    // A comic made from pictures: those picked, kept as files, for the comic editor (see "comic-new").
+    var newComicFiles by remember { mutableStateOf<List<java.io.File>?>(null) }
+    val comicScope = androidx.compose.runtime.rememberCoroutineScope()
+    val pickComicPictures = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
+        if (uris.isNotEmpty()) comicScope.launch {
+            newComicFiles = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { dev.kolib.app.ui.comicedit.copyPictures(appContext, uris) }
+            overlay = "comic-new"
+        }
+    }
+    // What the comic editor saves: the comic's pages again, or new comics (its parts, or one made from pictures).
+    val saveComicEdit: (dev.kolib.app.library.LibraryBook?, dev.kolib.app.ui.comicedit.ComicPictures, dev.kolib.app.ui.comicedit.ComicEdit) -> Unit = { book, pictures, edit ->
+        val finish = {
+            pictures.close()
+            java.io.File(appContext.cacheDir, dev.kolib.app.ui.comicedit.PICTURES_FOLDER).deleteRecursively()
+            newComicFiles = null
+            overlay = null
+        }
+        val parts = edit.parts
+        if (book != null && parts.size == 1) {
+            libraryVm.saveComicPages(book.id, { f -> dev.kolib.app.comic.ComicWriter.write(parts[0], pictures::bytes, pictures.comicInfo, f) }) { finish() }
+        } else {
+            val base = book?.meta ?: dev.kolib.app.epub.BookMetadata(title = edit.title ?: tr("New comic"))
+            val title = edit.title ?: base.title
+            val series = edit.series ?: book?.meta?.series ?: (if (parts.size > 1) title else null)
+            val metas = parts.indices.map { k ->
+                if (parts.size == 1) base.copy(title = title, series = series, seriesIndex = edit.number?.toDoubleOrNull())
+                else base.copy(title = tr("{0} (part {1})", title, k + 1), series = series, seriesIndex = (k + 1).toDouble(), identifier = null, isbn = null)
+            }
+            libraryVm.addComics(
+                names = metas.map { "${it.title}.cbz" },
+                collections = book?.collections.orEmpty(),
+                write = { k, f -> dev.kolib.app.comic.ComicWriter.write(parts[k], pictures::bytes, dev.kolib.app.comic.ComicWriter.info(metas[k], pictures.rightToLeft), f) },
+                removing = if (book != null && !edit.keepOriginal) book.id else null,
+                said = { n ->
+                    when {
+                        book != null -> tr("Split “{0}” into {1} comics.", book.title, n)
+                        n == 1 -> tr("Made “{0}”.", metas[0].title)
+                        else -> tr("Made {0} comics.", n)
+                    }
+                },
+            ) { finish() }
+        }
+    }
     val askToNotify = {
         // The notification says how far it's got; it goes on without one if it's not allowed.
         if (android.os.Build.VERSION.SDK_INT >= 33 &&
@@ -333,7 +376,7 @@ fun AppRoot(
         val d = link.paired.value.firstOrNull { it.id == id } ?: return@LaunchedEffect
         booksFor = d.id
         // Out of anything open over the library, but not a book or an editor, which may have changes to keep.
-        if (listOf("edit:", "cover:", "text:", "read:").none { overlay?.startsWith(it) == true }) overlay = null
+        if (listOf("edit:", "cover:", "text:", "read:", "comic-edit:", "comic-new").none { overlay?.startsWith(it) == true }) overlay = null
         section = Section.LIBRARY
         libraryBrowse.tab = 0
         libraryBrowse.selectedId = null
@@ -444,7 +487,7 @@ fun AppRoot(
             showJob = true
             if (p.kind == JobKind.ADD_FILES) {
                 section = Section.LIBRARY
-                if (listOf("edit:", "cover:", "text:", "read:").none { overlay?.startsWith(it) == true }) overlay = null
+                if (listOf("edit:", "cover:", "text:", "read:", "comic-edit:", "comic-new").none { overlay?.startsWith(it) == true }) overlay = null
             }
         }
     }
@@ -637,6 +680,37 @@ fun AppRoot(
                     )
                 }
             }
+            current?.startsWith("comic-edit:") == true -> {
+                val id = current.removePrefix("comic-edit:").substringBefore('|')
+                val book = books.firstOrNull { it.id == id }
+                if (book == null) LaunchedEffect(id) { overlay = null }
+                else dev.kolib.app.ui.comicedit.ComicEditorScreen(
+                    title = book.title,
+                    open = {
+                        val app = appContext.applicationContext as dev.kolib.app.KoLibApp
+                        val file = app.library.sourceFile(id) ?: throw java.io.IOException(tr("The comic isn't in the library any more."))
+                        dev.kolib.app.ui.comicedit.ComicPictures.of(dev.kolib.app.comic.ComicArchives.open(file), book.originalName ?: file.name)
+                    },
+                    splitting = current.endsWith("|split"),
+                    onSave = { pictures, edit -> saveComicEdit(book, pictures, edit) },
+                    onClose = { overlay = null },
+                )
+            }
+            current == "comic-new" -> {
+                val files = newComicFiles
+                if (files == null) LaunchedEffect(Unit) { overlay = null }
+                else dev.kolib.app.ui.comicedit.ComicEditorScreen(
+                    title = tr("New comic"),
+                    open = { dev.kolib.app.ui.comicedit.ComicPictures.of(files) },
+                    isNew = true,
+                    onSave = { pictures, edit -> saveComicEdit(null, pictures, edit) },
+                    onClose = {
+                        java.io.File(appContext.cacheDir, dev.kolib.app.ui.comicedit.PICTURES_FOLDER).deleteRecursively()
+                        newComicFiles = null
+                        overlay = null
+                    },
+                )
+            }
             current?.startsWith("text:") == true -> {
                 val id = current.removePrefix("text:").substringBefore('|')
                 val path = current.substringAfter('|', "").ifEmpty { null }
@@ -744,7 +818,8 @@ fun AppRoot(
                             libraryVm.readerSettings.startReading()
                             overlay = "read:$it"
                         },
-                        onEditText = { overlay = "text:$it" },
+                        // A comic's pages are edited in the comic editor; a book's text in the text editor.
+                        onEditText = { id -> overlay = if (books.firstOrNull { it.id == id }?.isComic == true) "comic-edit:$id" else "text:$id" },
                         readingHere = readingHere,
                         onDelete = { ids ->
                             if (libraryBrowse.selectedId in ids) libraryBrowse.selectedId = null
@@ -757,7 +832,8 @@ fun AppRoot(
                         onStats = { overlay = "stats" },
                         onEject = if (liveSession != null) ({ showEject = true }) else null,
                         onMerge = { ids -> mergeIds = ids },
-                        onSplit = { id -> splitId = id },
+                        onSplit = { id -> if (books.firstOrNull { it.id == id }?.isComic == true) overlay = "comic-edit:$id|split" else splitId = id },
+                        onNewComic = { pickComicPictures.launch("image/*") },
                         onExport = { ids -> exportIds = ids },
                         onDuplicate = { ids ->
                             libraryVm.duplicate(ids) { made ->

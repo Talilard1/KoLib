@@ -1,0 +1,396 @@
+@fr
+3538|Enregistrement de la BD
+3539|Création de la BD
+3540|Création des BD
+3541|« {0} » n’a pas pu être ajouté.
+3542|Nouvelle BD
+3543|« {0} » divisée en {1} BD.
+3544|« {0} » créée.
+3545|{0} BD créées.
+3546|Créer une BD à partir d’images
+3547|Diviser en plusieurs BD
+3548|Modifier les pages
+3549|Impossible d’ouvrir la BD.
+3550|Ajouter des images
+3551|Tourner à gauche
+3552|Tourner à droite
+3553|Recadrer
+3554|Moitiés
+3555|Couper une double page en deux
+3556|Déplacer
+3557|Déplacer vers la page…
+3558|En faire la couverture
+3559|Une nouvelle BD commence ici
+3560|Touchez la page où commence une nouvelle BD, puis « Nouvelle BD » dans la barre.
+3561|Touchez des pages pour les choisir. Maintenez-en une et faites-la glisser pour la déplacer.
+3562|1 page choisie
+3563|{0} pages choisies
+3564|Aucune page. Ajoutez des images pour créer une BD.
+3565|Déplacer vers la page
+3566|Page (1 à {0})
+3567|Diviser en {0} BD ?
+3568|Chaque partie devient une BD à part entière, dans une même série.
+3569|Garder aussi la BD telle quelle
+3570|{0} nouvelles BD
+3571|L’image d’une page n’a pas pu être lue.
+3572|Cette BD n’est plus dans la bibliothèque.
+@de
+3538|Comic wird gespeichert
+3539|Comic wird erstellt
+3540|Comics werden erstellt
+3541|„{0}“ konnte nicht hinzugefügt werden.
+3542|Neuer Comic
+3543|„{0}“ in {1} Comics geteilt.
+3544|„{0}“ erstellt.
+3545|{0} Comics erstellt.
+3546|Comic aus Bildern erstellen
+3547|In Comics aufteilen
+3548|Seiten bearbeiten
+3549|Der Comic konnte nicht geöffnet werden.
+3550|Bilder hinzufügen
+3551|Nach links drehen
+3552|Nach rechts drehen
+3553|Zuschneiden
+3554|Hälften
+3555|Doppelseite teilen
+3556|Verschieben
+3557|Auf Seite verschieben…
+3558|Als Cover verwenden
+3559|Hier beginnt ein neuer Comic
+3560|Tippe auf die Seite, mit der ein neuer Comic beginnt, dann auf „Neuer Comic“ in der Leiste.
+3561|Tippe auf Seiten, um sie auszuwählen. Halte eine gedrückt und ziehe sie, um sie zu verschieben.
+3562|1 Seite ausgewählt
+3563|{0} Seiten ausgewählt
+3564|Keine Seiten. Füge Bilder hinzu, um einen Comic zu erstellen.
+3565|Auf Seite verschieben
+3566|Seite (1 bis {0})
+3567|In {0} Comics aufteilen?
+3568|Jeder Teil wird ein eigener Comic, alle in einer Reihe.
+3569|Den Comic auch unverändert behalten
+3570|{0} neue Comics
+3571|Das Bild einer Seite konnte nicht gelesen werden.
+3572|Dieser Comic ist nicht mehr in der Bibliothek.
+@es
+3538|Guardando el cómic
+3539|Creando el cómic
+3540|Creando los cómics
+3541|No se ha podido añadir «{0}».
+3542|Nuevo cómic
+3543|Se ha dividido «{0}» en {1} cómics.
+3544|Se ha creado «{0}».
+3545|Se han creado {0} cómics.
+3546|Crear un cómic con imágenes
+3547|Dividir en cómics
+3548|Editar páginas
+3549|No se ha podido abrir el cómic.
+3550|Añadir imágenes
+3551|Girar a la izquierda
+3552|Girar a la derecha
+3553|Recortar
+3554|Mitades
+3555|Dividir una doble página
+3556|Mover
+3557|Mover a la página…
+3558|Usar como portada
+3559|Aquí empieza un nuevo cómic
+3560|Toca la página donde empieza un nuevo cómic y después «Nuevo cómic» en la barra.
+3561|Toca las páginas para elegirlas. Mantén pulsada una y arrástrala para moverla.
+3562|1 página elegida
+3563|{0} páginas elegidas
+3564|No hay páginas. Añade imágenes para crear un cómic.
+3565|Mover a la página
+3566|Página (1 a {0})
+3567|¿Dividir en {0} cómics?
+3568|Cada parte se convierte en un cómic propio, dentro de una misma serie.
+3569|Conservar también el cómic tal como estaba
+3570|{0} cómics nuevos
+3571|No se ha podido leer la imagen de una página.
+3572|Ese cómic ya no está en la biblioteca.
+@it
+3538|Salvataggio del fumetto
+3539|Creazione del fumetto
+3540|Creazione dei fumetti
+3541|Impossibile aggiungere «{0}».
+3542|Nuovo fumetto
+3543|«{0}» diviso in {1} fumetti.
+3544|«{0}» creato.
+3545|{0} fumetti creati.
+3546|Crea un fumetto da immagini
+3547|Dividi in fumetti
+3548|Modifica pagine
+3549|Impossibile aprire il fumetto.
+3550|Aggiungi immagini
+3551|Ruota a sinistra
+3552|Ruota a destra
+3553|Ritaglia
+3554|Metà
+3555|Dividi una doppia pagina
+3556|Sposta
+3557|Sposta alla pagina…
+3558|Usa come copertina
+3559|Qui inizia un nuovo fumetto
+3560|Tocca la pagina da cui inizia un nuovo fumetto, poi «Nuovo fumetto» nella barra.
+3561|Tocca le pagine per sceglierle. Tieni premuta una pagina e trascinala per spostarla.
+3562|1 pagina scelta
+3563|{0} pagine scelte
+3564|Nessuna pagina. Aggiungi immagini per creare un fumetto.
+3565|Sposta alla pagina
+3566|Pagina (da 1 a {0})
+3567|Dividere in {0} fumetti?
+3568|Ogni parte diventa un fumetto a sé, in un’unica serie.
+3569|Mantieni anche il fumetto com’era
+3570|{0} nuovi fumetti
+3571|Impossibile leggere l’immagine di una pagina.
+3572|Quel fumetto non è più nella libreria.
+@nl
+3538|Strip opslaan
+3539|Strip maken
+3540|Strips maken
+3541|‘{0}’ kon niet worden toegevoegd.
+3542|Nieuwe strip
+3543|‘{0}’ gesplitst in {1} strips.
+3544|‘{0}’ gemaakt.
+3545|{0} strips gemaakt.
+3546|Strip maken van afbeeldingen
+3547|Opsplitsen in strips
+3548|Pagina’s bewerken
+3549|De strip kon niet worden geopend.
+3550|Afbeeldingen toevoegen
+3551|Linksom draaien
+3552|Rechtsom draaien
+3553|Bijsnijden
+3554|Helften
+3555|Dubbele pagina splitsen
+3556|Verplaatsen
+3557|Naar pagina verplaatsen…
+3558|Als omslag gebruiken
+3559|Hier begint een nieuwe strip
+3560|Tik op de pagina waar een nieuwe strip begint en daarna op ‘Nieuwe strip’ in de balk.
+3561|Tik op pagina’s om ze te kiezen. Houd er een vast en sleep hem om hem te verplaatsen.
+3562|1 pagina gekozen
+3563|{0} pagina’s gekozen
+3564|Geen pagina’s. Voeg afbeeldingen toe om een strip te maken.
+3565|Naar pagina verplaatsen
+3566|Pagina (1 tot {0})
+3567|Opsplitsen in {0} strips?
+3568|Elk deel wordt een eigen strip, in één reeks.
+3569|De strip ook houden zoals hij was
+3570|{0} nieuwe strips
+3571|De afbeelding van een pagina kon niet worden gelezen.
+3572|Die strip staat niet meer in de bibliotheek.
+@pt
+3538|Salvando o quadrinho
+3539|Criando o quadrinho
+3540|Criando os quadrinhos
+3541|Não foi possível adicionar “{0}”.
+3542|Novo quadrinho
+3543|“{0}” foi dividido em {1} quadrinhos.
+3544|“{0}” foi criado.
+3545|{0} quadrinhos criados.
+3546|Criar um quadrinho com imagens
+3547|Dividir em quadrinhos
+3548|Editar páginas
+3549|Não foi possível abrir o quadrinho.
+3550|Adicionar imagens
+3551|Girar para a esquerda
+3552|Girar para a direita
+3553|Cortar
+3554|Metades
+3555|Dividir uma página dupla
+3556|Mover
+3557|Mover para a página…
+3558|Usar como capa
+3559|Um novo quadrinho começa aqui
+3560|Toque na página onde começa um novo quadrinho e depois em “Novo quadrinho” na barra.
+3561|Toque nas páginas para escolhê-las. Segure uma e arraste para movê-la.
+3562|1 página escolhida
+3563|{0} páginas escolhidas
+3564|Nenhuma página. Adicione imagens para criar um quadrinho.
+3565|Mover para a página
+3566|Página (1 a {0})
+3567|Dividir em {0} quadrinhos?
+3568|Cada parte vira um quadrinho próprio, numa mesma série.
+3569|Manter também o quadrinho como estava
+3570|{0} novos quadrinhos
+3571|Não foi possível ler a imagem de uma página.
+3572|Esse quadrinho não está mais na biblioteca.
+@ro
+3538|Se salvează banda desenată
+3539|Se creează banda desenată
+3540|Se creează benzile desenate
+3541|Nu s-a putut adăuga „{0}”.
+3542|Bandă desenată nouă
+3543|„{0}” a fost împărțită în {1} {1:bandă desenată|benzi desenate|de benzi desenate}.
+3544|S-a creat „{0}”.
+3545|S-au creat {0} {0:bandă desenată|benzi desenate|de benzi desenate}.
+3546|Creează o bandă desenată din imagini
+3547|Împarte în benzi desenate
+3548|Editează paginile
+3549|Banda desenată nu a putut fi deschisă.
+3550|Adaugă imagini
+3551|Rotește la stânga
+3552|Rotește la dreapta
+3553|Decupează
+3554|Jumătăți
+3555|Împarte o pagină dublă
+3556|Mută
+3557|Mută la pagina…
+3558|Folosește drept copertă
+3559|Aici începe o bandă desenată nouă
+3560|Atinge pagina cu care începe o bandă desenată nouă, apoi „Bandă desenată nouă” din bară.
+3561|Atinge paginile ca să le alegi. Ține apăsat pe una și trage-o ca s-o muți.
+3562|O pagină aleasă
+3563|{0} {0:pagină aleasă|pagini alese|de pagini alese}
+3564|Nicio pagină. Adaugă imagini ca să creezi o bandă desenată.
+3565|Mută la pagina
+3566|Pagina (de la 1 la {0})
+3567|Împarți în {0} {0:bandă desenată|benzi desenate|de benzi desenate}?
+3568|Fiecare parte devine o bandă desenată separată, în aceeași serie.
+3569|Păstrează și banda desenată așa cum era
+3570|{0} {0:bandă desenată nouă|benzi desenate noi|de benzi desenate noi}
+3571|Imaginea unei pagini nu a putut fi citită.
+3572|Banda desenată nu mai e în bibliotecă.
+@ru
+3538|Сохранение комикса
+3539|Создание комикса
+3540|Создание комиксов
+3541|Не удалось добавить «{0}».
+3542|Новый комикс
+3543|Комикс «{0}» разделён на {1} {1:комикс|комикса|комиксов}.
+3544|Комикс «{0}» создан.
+3545|{0:Создан|Создано|Создано} {0} {0:комикс|комикса|комиксов}.
+3546|Создать комикс из картинок
+3547|Разделить на комиксы
+3548|Изменить страницы
+3549|Не удалось открыть комикс.
+3550|Добавить картинки
+3551|Повернуть влево
+3552|Повернуть вправо
+3553|Обрезать
+3554|Половины
+3555|Разделить разворот
+3556|Переместить
+3557|Переместить на страницу…
+3558|Сделать обложкой
+3559|Отсюда начинается новый комикс
+3560|Нажмите на страницу, с которой начинается новый комикс, затем на «Новый комикс» на панели.
+3561|Нажимайте на страницы, чтобы выбрать их. Удерживайте страницу и перетащите её, чтобы переместить.
+3562|Выбрана 1 страница
+3563|{0:Выбрана|Выбрано|Выбрано} {0} {0:страница|страницы|страниц}
+3564|Нет страниц. Добавьте картинки, чтобы создать комикс.
+3565|Переместить на страницу
+3566|Страница (от 1 до {0})
+3567|Разделить на {0} {0:комикс|комикса|комиксов}?
+3568|Каждая часть станет отдельным комиксом в одной серии.
+3569|Сохранить и исходный комикс
+3570|{0} {0:новый комикс|новых комикса|новых комиксов}
+3571|Не удалось прочитать картинку одной из страниц.
+3572|Этого комикса больше нет в библиотеке.
+@ja
+3538|コミックを保存中
+3539|コミックを作成中
+3540|コミックを作成中
+3541|「{0}」を追加できませんでした。
+3542|新しいコミック
+3543|「{0}」を {1} 冊のコミックに分割しました。
+3544|「{0}」を作成しました。
+3545|{0} 冊のコミックを作成しました。
+3546|画像からコミックを作成
+3547|複数のコミックに分割
+3548|ページを編集
+3549|コミックを開けませんでした。
+3550|画像を追加
+3551|左に回転
+3552|右に回転
+3553|切り抜き
+3554|半分に
+3555|見開きを分割
+3556|移動
+3557|ページへ移動…
+3558|表紙にする
+3559|ここから新しいコミック
+3560|新しいコミックが始まるページをタップし、バーの「新しいコミック」をタップします。
+3561|ページをタップして選びます。長押ししてドラッグすると移動できます。
+3562|1 ページを選択中
+3563|{0} ページを選択中
+3564|ページがありません。画像を追加してコミックを作成しましょう。
+3565|ページへ移動
+3566|ページ（1〜{0}）
+3567|{0} 冊のコミックに分割しますか？
+3568|各パートは同じシリーズの別々のコミックになります。
+3569|元のコミックも残す
+3570|新しいコミック {0} 冊
+3571|ページの画像を読み込めませんでした。
+3572|そのコミックはもうライブラリにありません。
+@ko
+3538|만화 저장 중
+3539|만화 만드는 중
+3540|만화 만드는 중
+3541|“{0}”을(를) 추가하지 못했어요.
+3542|새 만화
+3543|“{0}”을(를) 만화 {1}권으로 나눴어요.
+3544|“{0}”을(를) 만들었어요.
+3545|만화 {0}권을 만들었어요.
+3546|그림으로 만화 만들기
+3547|여러 권으로 나누기
+3548|페이지 편집
+3549|만화를 열 수 없어요.
+3550|그림 추가
+3551|왼쪽으로 회전
+3552|오른쪽으로 회전
+3553|자르기
+3554|반으로
+3555|양면 펼침 나누기
+3556|이동
+3557|페이지로 이동…
+3558|표지로 만들기
+3559|여기서 새 만화 시작
+3560|새 만화가 시작되는 페이지를 탭한 다음 바에서 ‘새 만화’를 탭하세요.
+3561|페이지를 탭해 선택하세요. 길게 누른 채 끌면 옮길 수 있어요.
+3562|1쪽 선택됨
+3563|{0}쪽 선택됨
+3564|페이지가 없어요. 그림을 추가해 만화를 만들어 보세요.
+3565|페이지로 이동
+3566|페이지 (1~{0})
+3567|만화 {0}권으로 나눌까요?
+3568|각 부분은 한 시리즈 안의 별도 만화가 돼요.
+3569|원래 만화도 그대로 두기
+3570|새 만화 {0}권
+3571|페이지 그림을 읽을 수 없어요.
+3572|그 만화는 더 이상 서재에 없어요.
+@zh
+3538|正在保存漫画
+3539|正在制作漫画
+3540|正在制作漫画
+3541|无法添加“{0}”。
+3542|新漫画
+3543|已将“{0}”拆分为 {1} 本漫画。
+3544|已制作“{0}”。
+3545|已制作 {0} 本漫画。
+3546|用图片制作漫画
+3547|拆分成多本漫画
+3548|编辑页面
+3549|无法打开这本漫画。
+3550|添加图片
+3551|向左旋转
+3552|向右旋转
+3553|裁剪
+3554|对半
+3555|拆分跨页
+3556|移动
+3557|移到指定页…
+3558|设为封面
+3559|新漫画从这里开始
+3560|点按新漫画开始的那一页，然后点按栏中的“新漫画”。
+3561|点按页面即可选择。按住某页并拖动即可移动。
+3562|已选择 1 页
+3563|已选择 {0} 页
+3564|没有页面。添加图片来制作漫画。
+3565|移到指定页
+3566|页码（1 到 {0}）
+3567|要拆分成 {0} 本漫画吗？
+3568|每个部分都会成为同一系列中的一本漫画。
+3569|同时保留原漫画
+3570|{0} 本新漫画
+3571|无法读取某一页的图片。
+3572|那本漫画已不在书库中。

@@ -1042,6 +1042,55 @@ class LibraryViewModel(app: Application) : AndroidViewModel(app) {
         onDone(made.map { it.id })
     }
 
+    // ---- comics: their pages edited, split, or made from pictures ----------------------------------------
+
+    /** Comic [id]'s pages, as edited: its file's made again from them ([write] puts them in a file). */
+    fun saveComicPages(id: String, write: (java.io.File) -> Unit, onDone: () -> Unit) = making(tr("Saving the comic")) {
+        val title = library.book(id)?.title ?: return@making
+        val file = java.io.File(getApplication<Application>().cacheDir, "comic-edit-${System.nanoTime()}.cbz")
+        try {
+            withContext(Dispatchers.IO) { write(file) }
+            library.replaceComic(id, file)
+            _message.value = tr("Saved “{0}”.", title)
+            onDone()
+        } finally {
+            file.delete()
+        }
+    }
+
+    /**
+     * New comics in the library, one for each of [names] ([write] puts the [k]th, with its details, in a file), in
+     * [collections]. [removing] goes once they're in (the comic they were split from, when it isn't kept). [said] is
+     * what's said once they're made, given how many.
+     */
+    fun addComics(
+        names: List<String>,
+        collections: List<String>,
+        write: (Int, java.io.File) -> Unit,
+        removing: String?,
+        said: (Int) -> String,
+        onDone: (List<String>) -> Unit,
+    ) = making(if (names.size == 1) tr("Making the comic") else tr("Making the comics")) {
+        val made = ArrayList<String>()
+        for (k in names.indices) {
+            val file = java.io.File(getApplication<Application>().cacheDir, "comic-part-${System.nanoTime()}.cbz")
+            try {
+                withContext(Dispatchers.IO) { write(k, file) }
+                val outcome = library.import(names[k], { file.inputStream() }, dev.kolib.app.library.BookSource.FILE, collections = collections, made = true)
+                if (outcome is dev.kolib.app.library.ImportOutcome.Added) made += outcome.book.id
+                else throw java.io.IOException(tr("“{0}” couldn't be added.", names[k]))
+            } finally {
+                file.delete()
+            }
+        }
+        removing?.let {
+            library.delete(listOf(it))
+            koboApp.readingHere.forget(listOf(it))
+        }
+        _message.value = said(made.size)
+        onDone(made)
+    }
+
     // ---- saving copies elsewhere ---------------------------------------------------------------------
 
     /** The name a book is saved under: "Title - Author.epub", ".kepub.epub", or (null) the ending of the file it was added as. */

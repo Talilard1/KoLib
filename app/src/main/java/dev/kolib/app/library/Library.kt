@@ -394,6 +394,34 @@ class Library(context: Context, val root: File = File(context.filesDir, "library
         }
     }
 
+    /**
+     * Puts [cbz] (the comic's pages, edited) in place of comic [id]'s file. Its details stay as they are, and its cover
+     * is its first page again; it keeps its collections, its place on the Kobo (so it shows as changed since it was
+     * sent) and where it was left in the reader.
+     */
+    suspend fun replaceComic(id: String, cbz: File): LibraryBook = withContext(Dispatchers.IO) {
+        lock.withLock {
+            val book = book(id) ?: throw IOException(tr("That comic is no longer in the library."))
+            val dir = bookDir(id)
+            val target = File(dir, "$SOURCE.cbz")
+            // (Not named "source.…" while it's written, so it's never taken for the comic's file.)
+            val writing = File(dir, "edited.cbz")
+            try {
+                cbz.copyTo(writing, overwrite = true)
+                sourceFile(id)?.delete()
+                target.delete()
+                if (!writing.renameTo(target)) throw IOException(tr("Couldn't replace the file."))
+            } finally {
+                writing.delete()
+            }
+            dev.kolib.app.comic.ComicArchives.open(target).use {
+                dev.kolib.app.convert.ComicConverter.standIn(it, book.originalName ?: "${book.title}.cbz", epubFile(id))
+            }
+            EpubEditor.writeMetadata(epubFile(id), book.meta)
+            refreshFromFile(id, "Edited the pages of") { it.copy(meta = book.meta, sourceFormat = "CBZ", coverAsIs = false) }
+        }
+    }
+
     /** Adds [file] (a book being added: [ImportOutcome.AlreadyThere.held]) as a book of its own, beside the one it matched. */
     suspend fun addAnyway(file: File, name: String): LibraryBook =
         when (val r = import(name, { file.inputStream() }, BookSource.FILE, made = true, attach = heldSource(file))) {

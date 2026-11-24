@@ -61,6 +61,7 @@ import androidx.compose.material.icons.automirrored.outlined.NoteAdd
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.AddPhotoAlternate
 import androidx.compose.material.icons.outlined.AutoStories
 import androidx.compose.material.icons.outlined.Eject
 import androidx.compose.material.icons.outlined.Sync
@@ -194,6 +195,7 @@ internal fun PhoneLibraryScreen(
     onRead: (String) -> Unit,
     onEditText: (String) -> Unit,
     onNewBook: () -> Unit,
+    onNewComic: () -> Unit = {},
     onMerge: (List<String>) -> Unit,
     onSplit: (String) -> Unit,
     onExport: (List<String>) -> Unit,
@@ -497,6 +499,7 @@ internal fun PhoneLibraryScreen(
             onAddFromKobo = onAddFromKobo,
             onAddFolder = onAddFolder,
             onNewBook = onNewBook,
+            onNewComic = onNewComic,
             onAddSamples = onAddSamples,
         )
     }
@@ -519,6 +522,7 @@ private fun AddBooksSheet(
     onAddFromKobo: () -> Unit,
     onAddFolder: () -> Unit,
     onNewBook: () -> Unit,
+    onNewComic: () -> Unit = {},
     onAddSamples: (() -> Unit)? = null,
 ) {
     val state = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -528,6 +532,7 @@ private fun AddBooksSheet(
         SheetItem(Icons.Outlined.FolderOpen, tr("A folder of books"), tr("Every book in it, and in the folders inside it")) { onDismiss(); onAddFolder() }
         SheetItem(Icons.Outlined.Usb, tr("Books from the Kobo"), if (koboConnected) null else tr("Connect your Kobo first")) { onDismiss(); onAddFromKobo() }
         SheetItem(Icons.AutoMirrored.Outlined.NoteAdd, tr("Write a new book")) { onDismiss(); onNewBook() }
+        SheetItem(Icons.Outlined.AddPhotoAlternate, tr("Make a comic from pictures")) { onDismiss(); onNewComic() }
         onAddSamples?.let { add -> SheetItem(Icons.Outlined.AutoStories, tr("Sample books")) { onDismiss(); add() } }
         Spacer(Modifier.height(16.dp))
         Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))

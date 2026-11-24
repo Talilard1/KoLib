@@ -102,8 +102,7 @@ private sealed interface Dict {
 /**
  * Looking words up without leaving the book, in a window floating by them: what they mean (from the AI model, if one is
  * set up), with what they mean in the sentence they're in a tap away; their dictionary entry (Wiktionary); and Google,
- * Wikipedia and the dictionary apps installed for more. With an app chosen to always look things up in, that app
- * opens straight away instead.
+ * Wikipedia and the dictionary apps installed for more.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -111,14 +110,6 @@ fun LookUpSheet(controller: ReaderController, settings: ReaderSettings, onSettin
     val text = controller.lookUpText ?: return
     val context = LocalContext.current
     val apps = remember { LookUp.apps(context) }
-    val chosen = apps.firstOrNull { it.key == settings.dictionary }
-    if (chosen != null) {
-        LaunchedEffect(text) {
-            LookUp.open(context, chosen, text)
-            controller.lookUpText = null
-        }
-        return
-    }
     val hub = (context.applicationContext as KoLibApp).ai
     val ai by hub.settings.collectAsState()
     val files by hub.filesChanged.collectAsState()
@@ -126,7 +117,6 @@ fun LookUpSheet(controller: ReaderController, settings: ReaderSettings, onSettin
     val phrase = remember(word) { BookAi.isPhrase(word) }
     var setup by remember { mutableStateOf(false) }
     var web by remember { mutableStateOf<Pair<String, String>?>(null) }
-    var always by remember { mutableStateOf(false) }
 
     var dict by remember(word) { mutableStateOf<Dict>(Dict.Off) }
     LaunchedEffect(word, ai.dictionary) {
@@ -330,18 +320,11 @@ fun LookUpSheet(controller: ReaderController, settings: ReaderSettings, onSettin
             }
             apps.forEach { app ->
                 Pill(app.label, picture = app.icon) {
-                    if (always) onSettings(settings.copy(dictionary = app.key))
                     LookUp.open(context, app, text)
                     controller.lookUpText = null
                 }
             }
             IconButton(onClick = { setup = true }, modifier = Modifier.size(44.dp)) { Icon(Icons.Outlined.Settings, tr("AI and dictionary settings"), Modifier.size(20.dp)) }
-        }
-        if (apps.isNotEmpty()) {
-            Row(Modifier.fillMaxWidth().clickable { always = !always }.padding(start = 6.dp, end = 12.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(checked = always, onCheckedChange = { always = it })
-                Text(tr("Always open the app I choose"), style = MaterialTheme.typography.bodySmall)
-            }
         }
     }
     if (setup) AiSetupDialog(onDismiss = { setup = false })

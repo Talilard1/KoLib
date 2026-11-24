@@ -115,14 +115,20 @@ import dev.kolib.app.ui.reader.GuideSpace
 import dev.kolib.app.ui.reader.ReaderGuide
 import dev.kolib.app.ui.reader.ReaderScreen
 import kotlin.math.roundToInt
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import dev.kolib.app.reader.TapWidth
 
 /** The reading setup's steps, in order. */
-internal enum class SetupStep { COLOUR, FONT, SIZE, SPACING, ROTATION, TURNING, EDGES, MENU, DONE }
+internal enum class SetupStep { COLOUR, FONT, SIZE, SPACING, ROTATION, TURNING, CONTROLS, EDGES, MENU, DONE }
 
 /**
  * The reading setup: the reader itself, open at an example book, with a card over the page that goes
  * through the choices that matter most (the page's colour, the font, its size, the spacing, which way the
- * screen is held, how pages turn) and then shows how the reader works (turning a page, its menu). Each choice
+ * screen is held, how pages turn, the controls) and then shows how the reader works (turning a page, its menu). Each choice
  * changes the page under it there and then, so what's seen is what books will look like. It's laid out for
  * the screen as it's held, upright or on its side, on a phone or a tablet.
  *
@@ -369,6 +375,7 @@ private fun BoxScope.SetupGuide(
                                 SetupStep.SPACING -> SpacingStep(s, c, change)
                                 SetupStep.ROTATION -> RotationStep(s, c, change)
                                 SetupStep.TURNING -> TurningStep(s, c, turns, tapBack, choices = !madeWay, change)
+                                SetupStep.CONTROLS -> ControlsStep(s, c, change)
                                 SetupStep.EDGES -> EdgesStep(s, c, change)
                                 SetupStep.MENU -> MenuStep(c, menuOpen)
                                 SetupStep.DONE -> DoneStep(s, c)
@@ -527,6 +534,109 @@ private fun TurningStep(s: ReaderSettings, c: SetupColours, turns: Int, tapBack:
                 }
             }
         }
+    }
+}
+
+/**
+ * How the reader is worked: what a tap on the page does and how much of the page it's on, and the rest (the volume
+ * keys, the screen staying on, swipes in from its edges), as in the reading settings' Controls.
+ */
+@Composable
+private fun ControlsStep(s: ReaderSettings, c: SetupColours, change: (ReaderSettings) -> Unit) {
+    StepTitle(tr("Controls"), tr("Choose how you turn pages and get around."), c)
+    Spacer(Modifier.height(16.dp))
+    GroupName(tr("Tap to turn pages"), c)
+    ChoiceList(TapZones.entries, s.taps, c, "taps", describe = { it.label }, modifier = Modifier.padding(horizontal = Edge)) { change(s.copy(taps = it)) }
+    val help = listOf(s.taps.help, tr("Tap the middle of the page to open the menu.")).filter { it.isNotEmpty() }.joinToString(" ")
+    Text(help, color = c.soft, style = SetupLabel.copy(fontWeight = FontWeight.Normal), modifier = Modifier.padding(start = Edge + 2.dp, end = Edge, top = 7.dp))
+    AnimatedVisibility(s.taps != TapZones.OFF, enter = expandVertically() + fadeIn(), exit = shrinkVertically() + fadeOut()) {
+        Column {
+            Spacer(Modifier.height(16.dp))
+            GroupName(tr("Tap zone size"), c)
+            Segments(
+                TapWidth.entries, s.tapWidth, c, "tapzone", describe = { it.label }, modifier = Modifier.padding(horizontal = Edge),
+                onPick = { change(s.copy(tapWidth = it)) },
+            ) { w, chosen -> SegmentWords(w.label, chosen, c) }
+        }
+    }
+    Spacer(Modifier.height(10.dp))
+    SetupSwitch(tr("Volume keys turn pages"), null, s.volumeKeys, c, "setup-volume-keys") { change(s.copy(volumeKeys = it)) }
+    SetupSwitch(tr("Keep screen on"), null, s.keepScreenOn, c, "setup-keep-on") { change(s.copy(keepScreenOn = it)) }
+    SetupSwitch(
+        tr("Edge swipes open panels"), tr("Swipe in from the left edge for contents, or from the right for settings."),
+        s.edgePanels, c, "setup-edge-panels",
+    ) { change(s.copy(edgePanels = it)) }
+    AnimatedVisibility(!s.edgePanels, enter = expandVertically() + fadeIn(), exit = shrinkVertically() + fadeOut()) {
+        SetupSwitch(
+            tr("KoLib's back gesture"),
+            if (s.edgeBack) tr("Swipe from either edge and let go when the arrow fills in.") else tr("Android's back gesture is used."),
+            s.edgeBack, c, "setup-edge-back",
+        ) { change(s.copy(edgeBack = it)) }
+    }
+}
+
+/** Choices one under another, for those too long to sit side by side: the chosen one raised, its dot filled. */
+@Composable
+private fun <T> ChoiceList(
+    options: List<T>,
+    selected: T?,
+    c: SetupColours,
+    tag: String,
+    describe: (T) -> String,
+    modifier: Modifier = Modifier,
+    onPick: (T) -> Unit,
+) {
+    val haptics = LocalHapticFeedback.current
+    val shape = RoundedCornerShape(10.dp)
+    Column(modifier.fillMaxWidth().clip(RoundedCornerShape(13.dp)).background(c.fill).padding(3.dp).selectableGroup()) {
+        options.forEach { o ->
+            val chosen = o == selected
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 44.dp)
+                    .then(if (chosen) Modifier.shadow(2.dp, shape, clip = false).background(c.pill, shape) else Modifier)
+                    .clip(shape)
+                    .selectable(selected = chosen, role = Role.RadioButton) {
+                        if (!chosen) haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        onPick(o)
+                    }
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                    .testTag("$tag-${describe(o)}"),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(Modifier.size(18.dp).border(2.dp, if (chosen) c.ring else c.soft, CircleShape).padding(4.dp)) {
+                    if (chosen) Box(Modifier.fillMaxSize().background(c.ring, CircleShape))
+                }
+                Spacer(Modifier.width(12.dp))
+                Text(
+                    describe(o), color = if (chosen) c.text else c.soft,
+                    style = SetupLabel.copy(fontSize = 14.sp, fontWeight = if (chosen) FontWeight.SemiBold else FontWeight.Medium),
+                )
+            }
+        }
+    }
+}
+
+/** A setting that's on or off, in the card's colours: its name (and a line about it) and a switch. */
+@Composable
+private fun SetupSwitch(text: String, about: String?, on: Boolean, c: SetupColours, tag: String, onChange: (Boolean) -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().toggleable(value = on, role = Role.Switch, onValueChange = onChange).padding(horizontal = Edge, vertical = 7.dp).testTag(tag),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(text, color = c.text, style = SetupBody)
+            if (about != null) Text(about, color = c.soft, style = SetupLabel.copy(fontWeight = FontWeight.Normal), modifier = Modifier.padding(top = 2.dp))
+        }
+        Spacer(Modifier.width(12.dp))
+        androidx.compose.material3.Switch(
+            checked = on, onCheckedChange = null,
+            colors = androidx.compose.material3.SwitchDefaults.colors(
+                checkedThumbColor = c.onButton, checkedTrackColor = c.button, checkedBorderColor = c.button,
+                uncheckedThumbColor = c.soft, uncheckedTrackColor = c.fill, uncheckedBorderColor = c.soft,
+            ),
+        )
     }
 }
 

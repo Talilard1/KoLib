@@ -116,14 +116,12 @@ class ReaderPanelTest {
     }
 
     @Test
-    fun theContentsTopHasTheBooksNameAndAButtonToCloseItButNoWayOutOfTheBook() {
-        var closed = 0
-        compose.setContent { DrawerHeader("The Sea", subtitle = "40% read", onClose = { closed++ }) }
+    fun theContentsTopHasTheBooksNameAndNoButtons() {
+        compose.setContent { DrawerHeader("The Sea", subtitle = "40% read") }
         compose.onNodeWithText("The Sea").assertExists()
-        // Leaving the book is the bar over the page's: the panel's top only closes the panel.
+        // Leaving the book is the bar over the page's; a tap beside the drawer closes it, so it has no button to.
         compose.onNodeWithTag("contents-leave").assertDoesNotExist()
         compose.onNodeWithContentDescription("Close the book").assertDoesNotExist()
-        compose.onNodeWithContentDescription("Close").performClick()
-        assertEquals(1, closed)
+        compose.onNodeWithContentDescription("Close").assertDoesNotExist()
     }
 }

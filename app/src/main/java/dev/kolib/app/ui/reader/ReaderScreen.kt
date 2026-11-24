@@ -431,6 +431,8 @@ internal fun ReaderScreen(
     fun goBack() {
         when {
             controller.openAnnotation != null -> controller.openAnnotation = null
+            // In one of the reading settings' groups: back to their first page, not out of them.
+            panel == Panel.LOOK && controller.lookTab >= 0 -> controller.lookTab = -1
             panel != Panel.NONE -> panel = Panel.NONE
             controller.note != null -> controller.note = null
             controller.browsing != null -> controller.browsing = null
@@ -656,7 +658,7 @@ internal fun ReaderScreen(
                 Panel.CONTENTS -> ContentsPanel(controller, wide, onPicked = { panel = Panel.NONE; controller.controlsVisible = false }, onClose = dismiss)
                 Panel.SEARCH -> SearchPanel(controller, wide, onPicked = { panel = Panel.NONE; controller.controlsVisible = false }, onClose = dismiss)
                 Panel.LOOK -> LookPanel(s, onSettings, controller.lookTab, wide, onTab = { controller.lookTab = it }, onClose = dismiss, onAppSettings = onAppSettings, bookLook = bookLook, camera = camera)
-                Panel.STATS -> ReadingStatsPanel(controller, onClose = dismiss) { title, subtitle, close -> DrawerHeader(title, subtitle, close) }
+                Panel.STATS -> ReadingStatsPanel(controller, onClose = dismiss) { title, subtitle, _ -> DrawerHeader(title, subtitle) }
                 Panel.NONE -> Unit
             }
         }
@@ -812,8 +814,8 @@ private fun androidx.compose.foundation.layout.BoxScope.ScrollBands(s: ReaderSet
 /**
  * A panel over the page that slides in from the edge it's swiped in from (the contents from the left, the
  * rest from the right), over a shade. A tap on the shade closes it; a finger dragged across the shade slides it
- * closed, and it springs back open if let go short of half way without a flick. On a tablet it's a plain 420dp side
- * panel; on a phone, a drawer with its inner corners rounded.
+ * closed, and it springs back open if let go short of half way without a flick. On a tablet it's a 420dp side panel;
+ * on a phone, the drawer's width. Either way it's square, and closed by a tap beside it (it has no close button).
  */
 @Composable
 internal fun ReaderPanel(visible: Boolean, wide: Boolean, width: androidx.compose.ui.unit.Dp, onDismiss: () -> Unit, fromLeft: Boolean = false, content: @Composable () -> Unit) {
@@ -867,11 +869,9 @@ internal fun ReaderPanel(visible: Boolean, wide: Boolean, width: androidx.compos
                 Box(Modifier.windowInsetsPadding(WindowInsets.safeDrawing)) { content() }
             }
         } else {
-            val corner = 28.dp
             Surface(
                 color = MaterialTheme.colorScheme.surfaceContainerLow,
                 shadowElevation = 12.dp,
-                shape = if (fromLeft) RoundedCornerShape(topEnd = corner, bottomEnd = corner) else RoundedCornerShape(topStart = corner, bottomStart = corner),
                 modifier = Modifier
                     .align(if (fromLeft) Alignment.CenterStart else Alignment.CenterEnd)
                     .then(slide)
@@ -887,22 +887,17 @@ internal fun ReaderPanel(visible: Boolean, wide: Boolean, width: androidx.compos
     }
 }
 
-/** The top of a drawer: its name, a line under it, and a button to close it. (Leaving the book is the bar over the page's.) */
+/**
+ * The top of a drawer: its name and a line under it. (A tap beside the drawer closes it; leaving the book is the bar
+ * over the page's.)
+ */
 @Composable
-internal fun DrawerHeader(title: String, subtitle: String? = null, onClose: () -> Unit) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(start = 24.dp, end = 8.dp, top = 14.dp, bottom = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.titleLarge, maxLines = 2, overflow = TextOverflow.Ellipsis)
-            subtitle?.let {
-                Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            }
+internal fun DrawerHeader(title: String, subtitle: String? = null) {
+    Column(Modifier.fillMaxWidth().padding(start = 24.dp, end = 16.dp, top = 16.dp, bottom = 6.dp)) {
+        Text(title, style = MaterialTheme.typography.titleLarge, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        subtitle?.let {
+            Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
-        IconButton(onClick = onClose) { Icon(Icons.Filled.Close, tr("Close")) }
     }
 }
 
@@ -955,7 +950,6 @@ private fun ContentsPanel(controller: ReaderController, wide: Boolean, onPicked:
             DrawerHeader(
                 controller.bookTitle,
                 subtitle = controller.bookAuthor?.takeIf { it.isNotBlank() } ?: tr("{0}% read", (controller.bookProgress * 100).roundToInt()),
-                onClose = onClose,
             )
         }
         // Four tabs, each an icon over its name (with how many it holds), so they fit side by side on any screen.
@@ -1169,7 +1163,7 @@ private fun SearchPanel(controller: ReaderController, wide: Boolean, onPicked: (
     }
     Column(Modifier.fillMaxSize().padding(top = if (wide) 12.dp else 0.dp)) {
         if (!wide) {
-            DrawerHeader(tr("Search"), subtitle = controller.bookTitle, onClose = onClose)
+            DrawerHeader(tr("Search"), subtitle = controller.bookTitle)
             Spacer(Modifier.height(6.dp))
         }
         OutlinedTextField(
@@ -1239,7 +1233,7 @@ internal enum class LookTab(val title: String, val detail: String, val icon: and
     TEXT(tr("Text"), tr("Line spacing, margins, alignment and chapter headings"), Icons.Outlined.TextFields),
     PAGE(tr("Screen"), tr("Brightness, full screen, pictures and links"), Icons.Outlined.Palette),
     LAYOUT(tr("Layout"), tr("Two pages, page turns, page headings and the progress bar"), Icons.Outlined.AutoStories),
-    CONTROLS(tr("Controls"), tr("Taps, volume keys, swipes and the dictionary"), Icons.Outlined.TouchApp),
+    CONTROLS(tr("Controls"), tr("Taps, volume keys and swipes"), Icons.Outlined.TouchApp),
     AUTOSCROLL(dev.kolib.app.trc("tab", "Autoscroll"), tr("Speed, and what happens at the end of a chapter"), Icons.Outlined.Speed),
 }
 
@@ -1264,7 +1258,7 @@ private fun LookPanel(
     Column(Modifier.fillMaxSize().testTag("reader-settings-panel")) {
         val g = group
         if (g == null) {
-            if (!wide) DrawerHeader(tr("Reading settings"), onClose = onClose)
+            if (!wide) DrawerHeader(tr("Reading settings"))
             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 12.dp)) {
                 if (bookLook != null) BookLookNote(bookLook)
                 LookBasics(s, onChange)
@@ -1278,16 +1272,9 @@ private fun LookPanel(
                 }
             }
         } else {
-            // One group, with the way back to the first page.
-            Row(
-                Modifier.fillMaxWidth().padding(start = 4.dp, end = 8.dp, top = if (wide) 4.dp else 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                IconButton(onClick = { onTab(-1) }, modifier = Modifier.testTag("reader-settings-back")) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Back")) }
-                Text(g.title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
-                if (!wide) IconButton(onClick = onClose) { Icon(Icons.Filled.Close, tr("Close")) }
-            }
-            Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 12.dp)) {
+            // One group: its name at the top, and the way back to the first page at the foot, in reach of a thumb.
+            Text(g.title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(start = 24.dp, end = 16.dp, top = 16.dp, bottom = 2.dp))
+            Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 12.dp)) {
                 if (bookLook != null && g in BOOK_LOOK_TABS) BookLookNote(bookLook)
                 when (g) {
                     LookTab.TEXT -> TextSettings(s, onChange, basics = false)
@@ -1296,6 +1283,16 @@ private fun LookPanel(
                     LookTab.CONTROLS -> ControlSettings(s, onChange)
                     LookTab.AUTOSCROLL -> AutoscrollSettings(s, onChange)
                 }
+            }
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
+            TextButton(
+                onClick = { onTab(-1) },
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp).testTag("reader-settings-back"),
+            ) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, null, Modifier.size(20.dp))
+                Spacer(Modifier.width(10.dp))
+                Text(tr("Back"), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
             }
         }
     }
@@ -1659,7 +1656,7 @@ internal fun LayoutSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Uni
     Help(tr("Dimmed helps prevent burn-in on OLED screens."))
 }
 
-/** Taps, buttons, the screen staying on, and looking words up. (Rotation is a button in the controls.) */
+/** Taps, buttons, the screen staying on, and swipes in from the edges. (Rotation is a button in the controls.) */
 @Composable
 private fun ControlSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) {
     Heading(tr("Tap to turn pages"), first = true)
@@ -1681,23 +1678,6 @@ private fun ControlSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Uni
             if (s.edgeBack) tr("Swipe from either edge and let go when the arrow fills in.")
             else tr("Android's back gesture is used.")
         )
-    }
-
-    Heading(tr("Dictionary"))
-    val key = s.dictionary
-    if (key == null) {
-        Help(tr("You'll be asked which app to use each time."))
-    } else {
-        val context = LocalContext.current
-        val app = remember(key) { dev.kolib.app.reader.LookUp.app(context, key) }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                if (app != null) tr("Words are looked up in {0}.", app.label) else tr("The dictionary app you chose is no longer installed."),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(1f),
-            )
-            TextButton(onClick = { onChange(s.copy(dictionary = null)) }) { Text(tr("Ask each time")) }
-        }
     }
 }
 

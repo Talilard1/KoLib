@@ -1,0 +1,33 @@
+@fr
+3653|Appuis, touches de volume et balayages
+3654|Choisissez comment tourner les pages et vous déplacer.
+@de
+3653|Tippen, Lautstärketasten und Wischen
+3654|Wähle, wie du umblätterst und dich im Buch bewegst.
+@es
+3653|Toques, botones de volumen y deslizamientos
+3654|Elige cómo pasar las páginas y moverte por el libro.
+@it
+3653|Tocchi, tasti del volume e scorrimenti
+3654|Scegli come girare le pagine e muoverti nel libro.
+@nl
+3653|Tikken, volumeknoppen en vegen
+3654|Kies hoe je bladzijden omslaat en door het boek gaat.
+@pt
+3653|Toques, botões de volume e deslizes
+3654|Escolha como virar as páginas e se mover pelo livro.
+@ro
+3653|Atingeri, butoane de volum și glisări
+3654|Alege cum întorci paginile și cum te miști prin carte.
+@ru
+3653|Касания, кнопки громкости и свайпы
+3654|Выберите, как листать страницы и перемещаться по книге.
+@ja
+3653|タップ、音量ボタン、スワイプ
+3654|ページのめくり方と本の中の移動方法を選びます。
+@ko
+3653|탭, 볼륨 버튼, 스와이프
+3654|페이지를 넘기는 방법과 책 안에서 이동하는 방법을 고르세요.
+@zh
+3653|点按、音量键和滑动
+3654|选择翻页和在书中移动的方式。

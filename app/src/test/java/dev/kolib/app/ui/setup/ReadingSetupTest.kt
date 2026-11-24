@@ -29,6 +29,9 @@ import dev.kolib.app.reader.ReaderTheme
 import dev.kolib.app.ui.theme.AppSurface
 import dev.kolib.app.ui.theme.ThemeChoice
 import org.junit.After
+import dev.kolib.app.reader.TapZones
+import dev.kolib.app.reader.TapWidth
+import androidx.compose.ui.test.performScrollTo
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -147,6 +150,26 @@ class ReadingSetupTest {
         compose.onNodeWithText("Try the other page turns too.").assertIsDisplayed()
         tap("setup-next")
 
+        // How the reader is worked: taps, how much of the page they're on, and the rest.
+        compose.onNodeWithText("Controls").assertIsDisplayed()
+        tap("taps-Both sides go forward")
+        assertEquals(TapZones.FORWARD, c.settings.taps)
+        compose.onNodeWithTag("tapzone-Large", useUnmergedTree = true).performScrollTo()
+        tap("tapzone-Large")
+        assertEquals(TapWidth.WIDE, c.settings.tapWidth)
+        val volume = c.settings.volumeKeys
+        compose.onNodeWithTag("setup-volume-keys").performScrollTo()
+        tap("setup-volume-keys")
+        assertEquals(!volume, c.settings.volumeKeys)
+        // With edge swipes off, KoLib's own back gesture can be chosen.
+        compose.onNodeWithTag("setup-edge-back").assertDoesNotExist()
+        compose.onNodeWithTag("setup-edge-panels").performScrollTo()
+        tap("setup-edge-panels")
+        assertFalse(c.settings.edgePanels)
+        compose.onNodeWithTag("setup-edge-back").assertExists()
+        tap("setup-edge-panels")
+        tap("setup-next")
+
         // What shows round the page: the headings, the time and battery, and the progress bar.
         compose.onNodeWithText("Around the page").assertIsDisplayed()
         // A chapter's first page has no heading over it, so this step isn't shown on one: it turns to the next page.
@@ -195,10 +218,12 @@ class ReadingSetupTest {
         assertEquals(PageTurn.FADE, chosen.pageTurn)
         assertEquals(ReaderSettings.PHONE.aroundCamera().runningHeads to ReaderSettings.PHONE.aroundCamera().marginItems, chosen.runningHeads to chosen.marginItems)
         assertEquals(ProgressLine.CHAPTER, chosen.progressLine)
+        assertEquals(TapZones.FORWARD to TapWidth.WIDE, chosen.taps to chosen.tapWidth)
         // What wasn't asked about is as it was.
         assertEquals(ReaderSettings.PHONE.copy(theme = chosen.theme, font = chosen.font, lineSpacing = chosen.lineSpacing, margins = chosen.margins,
             rotation = chosen.rotation, spread = chosen.spread, pageTurn = chosen.pageTurn, runningHeads = chosen.runningHeads,
-            marginItems = chosen.marginItems, progressLine = chosen.progressLine), chosen)
+            marginItems = chosen.marginItems, progressLine = chosen.progressLine, taps = chosen.taps, tapWidth = chosen.tapWidth,
+            volumeKeys = chosen.volumeKeys), chosen)
     }
 
     @Test

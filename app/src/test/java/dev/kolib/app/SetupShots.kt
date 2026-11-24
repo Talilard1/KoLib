@@ -146,6 +146,8 @@ class SetupShots {
     @Test @Config(qualifiers = PHONE) fun phone5Turned() = shot("phone_5_turned", "phone", SetupStep.TURNING, page = 1)
     @Test @Config(qualifiers = PHONE) fun phone5Scrolling() = shot("phone_5_scrolling", "phone_scroll", SetupStep.TURNING)
     @Test @Config(qualifiers = PHONE) fun phone5Edges() = shot("phone_5b_edges", "phone", SetupStep.EDGES)
+    @Test @Config(qualifiers = PHONE) fun phone5Controls() = shot("phone_5c_controls", "phone", SetupStep.CONTROLS)
+    @Test @Config(qualifiers = TABLET) fun tablet5Controls() = shot("tablet_5c_controls", "tablet", SetupStep.CONTROLS)
     @Test @Config(qualifiers = PHONE) fun phone6Menu() = shot("phone_6_menu", "phone", SetupStep.MENU)
     @Test @Config(qualifiers = PHONE) fun phone6MenuOpen() = shot("phone_6_menu_open", "phone", SetupStep.MENU) { it.controlsVisible = true }
     @Test @Config(qualifiers = PHONE) fun phone7Done() = shot("phone_7_done", "phone", SetupStep.DONE)

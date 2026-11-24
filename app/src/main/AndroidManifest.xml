@@ -9,6 +9,8 @@
     <uses-permission android:name="android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION" />
     <!-- Scanning another device's pairing QR code. Asked for only when Scan QR code is tapped; KoLib works without it. -->
     <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Asked for when KoLib's first opened: sending books and keeping devices in step aren't cut off. -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.camera.any" android:required="false" />
     <!-- So the Wi-Fi hands KoLib the "here I am" other devices with KoLib send to everyone on the network. -->

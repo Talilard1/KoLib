@@ -3505,5 +3505,18 @@
 "The About tab has the Kobo's details, its free space and its backups.",
 "Back up the Kobo's database now, check KoLib can write to it, or forget this Kobo.",
 "Choose when the animation plays, whether it has sound, and a lighter one for slower devices.",
-"kobo tab|About"
+"kobo tab|About",
+"Before you start",
+"KoLib asks for these now, so nothing stops it partway later. You can change them any time in Android's settings.",
+"Notifications",
+"See how sending, syncing and updates are going.",
+"Camera",
+"Scan the code on another device to link it.",
+"Run in the background",
+"So sending books and keeping devices in step aren't cut off.",
+"Install updates",
+"So KoLib can update itself.",
+"Allow all",
+"Allowed",
+"Allow"
 ]

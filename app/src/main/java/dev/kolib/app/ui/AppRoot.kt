@@ -158,6 +158,8 @@ fun AppRoot(
     /** The introduction shown the first time KoLib starts has been gone through. */
     introSeen: Boolean = true,
     onIntroSeen: (Boolean) -> Unit = {},
+    asksSeen: Boolean = true,
+    onAsksSeen: () -> Unit = {},
     /** The text editor's tour has been given: it is the first time the editor is opened. */
     editorTourSeen: Boolean = true,
     onEditorTourSeen: () -> Unit = {},
@@ -525,7 +527,7 @@ fun AppRoot(
     val tourPlaces = remember { dev.kolib.app.ui.tour.TourPlaces() }
     val seenTours = toursSeen
     val koboShowing = koboView != null && (connection is Connection.Connected || connection is Connection.Waiting)
-    val sectionTour = if (seenTours == null || toursOff || !introSeen || readingSetup || overlay != null || showLook) null else when (section) {
+    val sectionTour = if (seenTours == null || toursOff || !introSeen || !asksSeen || readingSetup || overlay != null || showLook) null else when (section) {
         Section.LIBRARY -> Tours.LIBRARY.takeIf { books.isNotEmpty() && Tours.SAMPLES in seenTours }
         Section.KOBO -> if (koboShowing) Tours.KOBO else Tours.KOBO_CONNECT
         Section.DEVICES -> Tours.DEVICES
@@ -1231,6 +1233,9 @@ fun AppRoot(
                 onSetUpReading = { readingSetup = true },
                 startAt = introAt,
             )
+        } else if (!asksSeen) {
+            // Then, once: what KoLib needs Android to allow, asked for together.
+            dev.kolib.app.ui.onboarding.FirstAsks(onDone = onAsksSeen)
         }
     }
     }

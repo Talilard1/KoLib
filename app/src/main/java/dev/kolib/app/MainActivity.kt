@@ -82,6 +82,7 @@ class MainActivity : ComponentActivity() {
             val openingLight by themes.openingLight.collectAsStateWithLifecycle()
             val openingEveryTime by themes.openingEveryTime.collectAsStateWithLifecycle()
             val introSeen by themes.introSeen.collectAsStateWithLifecycle()
+            val asksSeen by themes.asksSeen.collectAsStateWithLifecycle()
             val editorTourSeen by themes.editorTourSeen.collectAsStateWithLifecycle()
             val toursSeen by themes.toursSeen.collectAsStateWithLifecycle()
             val toursOff by themes.toursOff.collectAsStateWithLifecycle()
@@ -109,6 +110,8 @@ class MainActivity : ComponentActivity() {
                         onOpeningLight = themes::setOpeningLight,
                         introSeen = introSeen,
                         onIntroSeen = themes::setIntroSeen,
+                        asksSeen = asksSeen,
+                        onAsksSeen = { themes.setAsksSeen(true) },
                         editorTourSeen = editorTourSeen,
                         onEditorTourSeen = { themes.setEditorTourSeen(true) },
                         toursSeen = toursSeen,

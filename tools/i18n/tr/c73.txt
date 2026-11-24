@@ -1,0 +1,154 @@
+@fr
+3507|Avant de commencer
+3508|KoLib vous les demande maintenant pour que rien ne l'arrête en cours de route. Vous pouvez les modifier à tout moment dans les paramètres d'Android.
+3509|Notifications
+3510|Suivez l'avancement des envois, de la synchronisation et des mises à jour.
+3511|Appareil photo
+3512|Scannez le code d'un autre appareil pour le relier.
+3513|Fonctionner en arrière-plan
+3514|Pour que l'envoi de livres et la synchronisation des appareils ne soient pas interrompus.
+3515|Installer les mises à jour
+3516|Pour que KoLib puisse se mettre à jour lui-même.
+3517|Tout autoriser
+3518|Autorisé
+3519|Autoriser
+@de
+3507|Bevor du loslegst
+3508|KoLib fragt jetzt danach, damit später nichts mittendrin abbricht. Du kannst das jederzeit in den Android-Einstellungen ändern.
+3509|Benachrichtigungen
+3510|Sieh, wie Senden, Abgleich und Updates vorankommen.
+3511|Kamera
+3512|Scanne den Code auf einem anderen Gerät, um es zu verbinden.
+3513|Im Hintergrund laufen
+3514|Damit das Senden von Büchern und der Abgleich zwischen Geräten nicht abbrechen.
+3515|Updates installieren
+3516|Damit KoLib sich selbst aktualisieren kann.
+3517|Alle erlauben
+3518|Erlaubt
+3519|Erlauben
+@es
+3507|Antes de empezar
+3508|KoLib te los pide ahora para que nada lo detenga a medias más adelante. Puedes cambiarlos cuando quieras en los ajustes de Android.
+3509|Notificaciones
+3510|Mira cómo van los envíos, la sincronización y las actualizaciones.
+3511|Cámara
+3512|Escanea el código de otro dispositivo para vincularlo.
+3513|Funcionar en segundo plano
+3514|Para que el envío de libros y la sincronización entre dispositivos no se corten.
+3515|Instalar actualizaciones
+3516|Para que KoLib pueda actualizarse solo.
+3517|Permitir todo
+3518|Permitido
+3519|Permitir
+@it
+3507|Prima di iniziare
+3508|KoLib te li chiede ora, così più avanti niente lo interrompe a metà. Puoi cambiarli quando vuoi nelle impostazioni di Android.
+3509|Notifiche
+3510|Guarda come procedono invii, sincronizzazione e aggiornamenti.
+3511|Fotocamera
+3512|Scansiona il codice su un altro dispositivo per collegarlo.
+3513|Funzionare in background
+3514|Così l'invio dei libri e la sincronizzazione tra dispositivi non si interrompono.
+3515|Installare aggiornamenti
+3516|Così KoLib può aggiornarsi da solo.
+3517|Consenti tutto
+3518|Consentito
+3519|Consenti
+@nl
+3507|Voordat je begint
+3508|KoLib vraagt hier nu om, zodat later niets halverwege stopt. Je kunt ze altijd wijzigen in de instellingen van Android.
+3509|Meldingen
+3510|Zie hoe versturen, synchroniseren en updates verlopen.
+3511|Camera
+3512|Scan de code op een ander apparaat om het te koppelen.
+3513|Op de achtergrond werken
+3514|Zodat het versturen van boeken en het synchroniseren van apparaten niet wordt afgebroken.
+3515|Updates installeren
+3516|Zodat KoLib zichzelf kan bijwerken.
+3517|Alles toestaan
+3518|Toegestaan
+3519|Toestaan
+@pt
+3507|Antes de começar
+3508|O KoLib pede isso agora para que nada o interrompa no meio do caminho depois. Você pode mudar isso a qualquer momento nas configurações do Android.
+3509|Notificações
+3510|Veja como vão os envios, a sincronização e as atualizações.
+3511|Câmera
+3512|Leia o código em outro dispositivo para vinculá-lo.
+3513|Funcionar em segundo plano
+3514|Para que o envio de livros e a sincronização entre dispositivos não sejam interrompidos.
+3515|Instalar atualizações
+3516|Para que o KoLib possa se atualizar sozinho.
+3517|Permitir tudo
+3518|Permitido
+3519|Permitir
+@ro
+3507|Înainte să începi
+3508|KoLib le cere acum, ca nimic să nu-l oprească la jumătatea drumului mai târziu. Le poți schimba oricând în setările Android.
+3509|Notificări
+3510|Vezi cum merg trimiterea, sincronizarea și actualizările.
+3511|Cameră
+3512|Scanează codul de pe alt dispozitiv ca să-l conectezi.
+3513|Rulare în fundal
+3514|Ca trimiterea cărților și sincronizarea dispozitivelor să nu fie întrerupte.
+3515|Instalare actualizări
+3516|Ca KoLib să se poată actualiza singur.
+3517|Permite tot
+3518|Permis
+3519|Permite
+@ru
+3507|Прежде чем начать
+3508|KoLib просит об этом сейчас, чтобы потом ничто не прерывало его на полпути. Это можно изменить в любой момент в настройках Android.
+3509|Уведомления
+3510|Следите за отправкой, синхронизацией и обновлениями.
+3511|Камера
+3512|Отсканируйте код на другом устройстве, чтобы связать его.
+3513|Работа в фоне
+3514|Чтобы отправка книг и синхронизация устройств не прерывались.
+3515|Установка обновлений
+3516|Чтобы KoLib мог обновляться сам.
+3517|Разрешить всё
+3518|Разрешено
+3519|Разрешить
+@ja
+3507|はじめる前に
+3508|後で途中で止まらないように、KoLib は今これらを確認します。Android の設定でいつでも変更できます。
+3509|通知
+3510|送信、同期、アップデートの進み具合を確認できます。
+3511|カメラ
+3512|別の端末のコードをスキャンして接続します。
+3513|バックグラウンドで動作
+3514|本の送信や端末間の同期が途中で止まらないようにします。
+3515|アップデートのインストール
+3516|KoLib が自分でアップデートできるようにします。
+3517|すべて許可
+3518|許可済み
+3519|許可
+@ko
+3507|시작하기 전에
+3508|나중에 도중에 멈추지 않도록 KoLib이 지금 이것들을 요청해요. Android 설정에서 언제든지 바꿀 수 있어요.
+3509|알림
+3510|보내기, 동기화, 업데이트가 어떻게 진행되는지 볼 수 있어요.
+3511|카메라
+3512|다른 기기의 코드를 스캔해 연결해요.
+3513|백그라운드에서 실행
+3514|책 보내기와 기기 간 동기화가 끊기지 않도록 해요.
+3515|업데이트 설치
+3516|KoLib이 스스로 업데이트할 수 있어요.
+3517|모두 허용
+3518|허용됨
+3519|허용
+@zh
+3507|开始之前
+3508|KoLib 现在就请求这些权限，以免之后中途被打断。你可以随时在 Android 设置中更改。
+3509|通知
+3510|查看发送、同步和更新的进度。
+3511|相机
+3512|扫描另一台设备上的二维码来关联它。
+3513|在后台运行
+3514|这样发送图书和设备间同步就不会被中断。
+3515|安装更新
+3516|这样 KoLib 就能自行更新。
+3517|全部允许
+3518|已允许
+3519|允许

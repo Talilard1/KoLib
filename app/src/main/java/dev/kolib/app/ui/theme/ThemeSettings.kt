@@ -80,6 +80,15 @@ class ThemeSettings(context: Context) {
         _introSeen.value = seen
     }
 
+    private val _asksSeen = MutableStateFlow(prefs.getBoolean(ASKS_SEEN, false))
+    /** What KoLib needs Android to allow has been asked for (or put off): it's asked once, after the introduction. */
+    val asksSeen: StateFlow<Boolean> = _asksSeen.asStateFlow()
+
+    fun setAsksSeen(seen: Boolean) {
+        prefs.edit().putBoolean(ASKS_SEEN, seen).apply()
+        _asksSeen.value = seen
+    }
+
     private val _editorTourSeen = MutableStateFlow(prefs.getBoolean(EDITOR_TOUR_SEEN, false))
     /** The text editor's tour has been gone through (or skipped): it's given the first time the editor is opened. */
     val editorTourSeen: StateFlow<Boolean> = _editorTourSeen.asStateFlow()
@@ -148,6 +157,7 @@ class ThemeSettings(context: Context) {
         const val OPENING_EVERY_TIME = "openingEveryTime"
         const val OPENING_PLAYED = "openingPlayedFor"
         const val INTRO_SEEN = "introSeen"
+        const val ASKS_SEEN = "asksSeen"
         const val EDITOR_TOUR_SEEN = "editorTourSeen"
         const val TOURS_SEEN = "toursSeen"
         const val TOURS_OFF = "toursOff"

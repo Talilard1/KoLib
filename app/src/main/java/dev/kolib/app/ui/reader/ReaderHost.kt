@@ -125,8 +125,6 @@ fun ReaderHost(
                 showLanguage = true
             },
             onAi = { showAi = true },
-            tour = !toursOff && Tours.SETTINGS !in seenTours,
-            onTourDone = { themes.setTourSeen(Tours.SETTINGS) },
             onShowTours = {
                 showLook = false
                 themes.showToursAgain()

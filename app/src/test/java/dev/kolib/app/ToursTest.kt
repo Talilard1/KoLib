@@ -181,7 +181,7 @@ class ToursTest {
         compose.waitForIdle()
         compose.onNodeWithTag("more-settings").performClick()
         compose.waitForIdle()
-        assertTrue("no Settings tour while they're off", compose.onAllNodesWithTag("tour").fetchSemanticsNodes().isEmpty())
+        assertTrue("no tour over Settings", compose.onAllNodesWithTag("tour").fetchSemanticsNodes().isEmpty())
         compose.onNodeWithTag("settings-tours-on").performScrollTo().performClick()
         compose.waitForIdle()
         assertTrue("tours are on", !off)
@@ -226,11 +226,6 @@ class ToursTest {
         assertEquals(listOf("Connect your Kobo", "Backups and the log"), goThrough("kobo_connect_sideways"))
         compose.onNodeWithText("Devices").performClick()
         assertEquals(listOf("This device", "Paired", "Nearby", "Your Kobo, over Wi-Fi", "Settings"), goThrough("devices_sideways"))
-        // Settings is in More.
-        compose.onNodeWithTag("nav-more").performClick()
-        compose.waitForIdle()
-        compose.onNodeWithTag("more-settings").performClick()
-        assertEquals(listOf("Language", "Books folder", "Reading setup", "AI and dictionary", "Comics", "Look", "Tours"), goThrough("settings_sideways"))
     }
 
     @Test
@@ -245,15 +240,16 @@ class ToursTest {
 
     @Test
     @Config(qualifiers = TABLET)
-    fun settingsHaveATourAndCanGiveEveryTourAgain() {
+    fun settingsHaveNoTourAndCanGiveEveryTourAgain() {
         seen = setOf(Tours.SAMPLES, Tours.LIBRARY)
         withABook()
         showApp()
         compose.onNodeWithTag("nav-more").performClick()
         compose.waitForIdle()
         compose.onNodeWithTag("more-settings").performClick()
-        assertEquals(listOf("Language", "Books folder", "Reading setup", "AI and dictionary", "Comics", "Look", "Tours"), goThrough("settings"))
-        assertTrue(Tours.SETTINGS in seen)
+        compose.mainClock.advanceTimeBy(900)
+        compose.waitForIdle()
+        assertTrue("no tour of Settings", compose.onAllNodesWithTag("tour").fetchSemanticsNodes().isEmpty())
         // Every tour again: Settings close, and the library's tour starts again at once.
         compose.onNodeWithTag("settings-tours").performScrollTo().performClick()
         compose.waitForIdle()

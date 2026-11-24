@@ -1250,8 +1250,6 @@ fun AppRoot(
             onAi = { showAi = true },
             comicsTab = libraryBrowse.comicsTab,
             onComicsTab = { libraryBrowse.comicsTab = it },
-            tour = !toursOff && toursSeen?.let { Tours.SETTINGS !in it } == true,
-            onTourDone = { onTourSeen(Tours.SETTINGS) },
             onShowTours = onShowToursAgain?.let { again -> { showLook = false; if (section == Section.MORE) section = Section.LIBRARY; again() } },
             toursOn = if (toursSeen != null) !toursOff else null,
             onToursOn = { on -> onToursOff(!on) },
@@ -1534,10 +1532,6 @@ fun LookDialog(
     /** Comics have a tab of their own in the library (null: not offered here). */
     comicsTab: Boolean? = null,
     onComicsTab: (Boolean) -> Unit = {},
-    /** On a wide screen, a series opens in place of the comics' shelf rather than beside it. */
-    /** The tour of Settings is given: it's the first time they're opened. */
-    tour: Boolean = false,
-    onTourDone: () -> Unit = {},
     /** Gives every tour again, each the next time its screen opens (null: not offered here). */
     onShowTours: (() -> Unit)? = null,
     /** Tours are given, the first time each screen opens (null: not offered here). */
@@ -1545,8 +1539,6 @@ fun LookDialog(
     onToursOn: (Boolean) -> Unit = {},
 ) {
     val scroll = rememberScrollState()
-    val places = remember { dev.kolib.app.ui.tour.TourPlaces() }
-    var touring by remember { mutableStateOf(tour) }
     // A page of their own over the whole screen, on any device and either way up (a dialog is too small for them on a
     // phone held sideways), with a way back at the top.
     androidx.compose.ui.window.Dialog(
@@ -1554,17 +1546,16 @@ fun LookDialog(
         properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false),
     ) {
         SettingsPage(onBack = onDismiss) {
-            CompositionLocalProvider(dev.kolib.app.ui.tour.LocalTourPlaces provides places.takeIf { touring }) {
             val context = androidx.compose.ui.platform.LocalContext.current
             val hasFileManager = remember { dev.kolib.app.ui.components.FileManagers.chosenName(context) != null }
             // What's in each part of Settings (null where there's nothing to show here: the reader's have fewer).
             val general: (@Composable ColumnScope.() -> Unit)? = if (onLanguage == null && onChangeFolder == null && !hasFileManager) null else ({
                 if (onLanguage != null) {
                     val language = remember { dev.kolib.app.AppLanguage.nativeName(dev.kolib.app.AppLanguage.current(context)) }
-                    SettingsLink(Icons.Outlined.Language, tr("Language"), language, onLanguage, Modifier.tourPlace("settings-language"))
+                    SettingsLink(Icons.Outlined.Language, tr("Language"), language, onLanguage, Modifier)
                 }
                 if (onChangeFolder != null) {
-                    Column(Modifier.tourPlace("settings-folder")) {
+                    Column {
                         Row(Modifier.fillMaxWidth().padding(vertical = 4.dp, horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Outlined.Folder, null, Modifier.padding(horizontal = 10.dp))
                             Spacer(Modifier.width(4.dp))
@@ -1584,21 +1575,21 @@ fun LookDialog(
             val reading: (@Composable ColumnScope.() -> Unit)? = if (onReadingSetup == null && onAi == null) null else ({
                 if (onReadingSetup != null) SettingsLink(
                     Icons.AutoMirrored.Outlined.MenuBook, tr("Reading setup"), tr("Page colour, font, text size and how the reader works"), onReadingSetup,
-                    Modifier.tourPlace("settings-reading"),
+                    Modifier,
                 )
                 if (onAi != null) SettingsLink(
                     Icons.Outlined.AutoAwesome, tr("AI and dictionary"), tr("Meanings of words, chapter summaries and questions about a book"), onAi,
-                    Modifier.testTag("settings-ai").tourPlace("settings-ai"),
+                    Modifier.testTag("settings-ai"),
                 )
             })
             val library: (@Composable ColumnScope.() -> Unit)? = if (comicsTab == null) null else ({
-                Column(Modifier.tourPlace("settings-comics")) {
+                Column {
                     SwitchLine(tr("Comics tab"), tr("Comics get a tab of their own, with each series as one entry. When this is off, they're with your books."), comicsTab, onComicsTab)
                 }
             })
             val look: @Composable ColumnScope.() -> Unit = {
-                Box(Modifier.tourPlace("settings-look").padding(4.dp)) { dev.kolib.app.ui.theme.ThemePicker(current, onPick) }
-                if (onOpening != null) Column(Modifier.tourPlace("settings-opening").padding(top = 8.dp)) {
+                Box(Modifier.padding(4.dp)) { dev.kolib.app.ui.theme.ThemePicker(current, onPick) }
+                if (onOpening != null) Column(Modifier.padding(top = 8.dp)) {
                     SwitchLine(tr("Opening animation"), tr("Plays after each update. Tap it to skip."), opening, onOpening)
                     if (onOpeningEveryTime != null) SwitchLine(
                         tr("Play every time"), tr("Plays each time KoLib starts."),
@@ -1617,7 +1608,7 @@ fun LookDialog(
                 }
             }
             val tours: (@Composable ColumnScope.() -> Unit)? = if (onShowTours == null && toursOn == null) null else ({
-                Column(Modifier.tourPlace("settings-tours")) {
+                Column {
                     if (toursOn != null) {
                         Box(Modifier.testTag("settings-tours-on")) {
                             SwitchLine(tr("Tours"), tr("A short tour of each screen, the first time you open it."), toursOn, onToursOn)
@@ -1635,7 +1626,6 @@ fun LookDialog(
                 Column(
                     Modifier
                         .fillMaxSize()
-                        .tourPlace("settings-view")
                         .verticalScroll(scroll)
                         .navigationBarsPadding()
                         .padding(start = 16.dp, end = 16.dp, bottom = 24.dp)
@@ -1654,40 +1644,6 @@ fun LookDialog(
                     } else Column(Modifier.widthIn(max = 680.dp).align(Alignment.CenterHorizontally), content = rest)
                 }
             }
-            }
-        }
-    }
-    // The tour, over the window: a window of its own, the whole screen, lighting the settings where they are.
-    if (touring) {
-        val density = androidx.compose.ui.platform.LocalDensity.current
-        val stops = remember {
-            dev.kolib.app.ui.tour.Tours.settings { name ->
-                {
-                    val view = places.rectOf(listOf("settings-view"))
-                    val item = places.rectOf(listOf(name))
-                    if (view != null && item != null) {
-                        val margin = with(density) { 12.dp.toPx() }
-                        when {
-                            item.top < view.top + margin -> scroll.animateScrollBy(item.top - view.top - margin)
-                            item.bottom > view.bottom - margin -> scroll.animateScrollBy(minOf(item.bottom - view.bottom + margin, item.top - view.top - margin))
-                        }
-                    }
-                }
-            }
-        }
-        androidx.compose.ui.window.Dialog(
-            onDismissRequest = {},
-            properties = androidx.compose.ui.window.DialogProperties(
-                dismissOnBackPress = false, dismissOnClickOutside = false, usePlatformDefaultWidth = false, decorFitsSystemWindows = false,
-            ),
-        ) {
-            // No dimming of its own: the tour darkens all but what it lights.
-            val window = (androidx.compose.ui.platform.LocalView.current.parent as? androidx.compose.ui.window.DialogWindowProvider)?.window
-            androidx.compose.runtime.SideEffect { window?.setDimAmount(0f) }
-            dev.kolib.app.ui.tour.Tour(stops, places, onDone = {
-                touring = false
-                onTourDone()
-            }, onTurnOff = if (toursOn != null) ({ touring = false; onToursOn(false) }) else null)
         }
     }
 }

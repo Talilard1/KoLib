@@ -12,7 +12,6 @@ object Tours {
     const val KOBO_CONNECT = "kobo-connect"
     const val KOBO = "kobo"
     const val DEVICES = "devices"
-    const val SETTINGS = "settings"
     const val BOOK_READER = "book-reader"
     const val COMIC_READER = "comic-reader"
     /** Kept with the tours seen: the sample books were offered (added to a library with none, the first time KoLib starts). */
@@ -106,21 +105,6 @@ object Tours {
             tr("Choose whether your place in a book is shared with your other devices, whether KoLib looks for them all the time, and whether they can send while KoLib is closed."),
         ),
     )
-
-    /** The Settings window's tour: [reveal] scrolls the window to the setting named before it's lit. */
-    fun settings(reveal: (String) -> (suspend () -> Unit)) = listOf(
-        stop("settings-language", tr("Language"), tr("Choose the language KoLib uses."), reveal),
-        stop("settings-folder", tr("Books folder"), tr("A folder KoLib adds books from. Look in it again to add the new ones."), reveal),
-        stop("settings-reading", tr("Reading setup"), tr("Set the page colour, font, text size and how pages turn, on an example book."), reveal),
-        stop("settings-ai", tr("AI and dictionary"), tr("Look up words, and get chapter summaries and answers about the book you're reading."), reveal),
-        stop("settings-comics", tr("Comics"), tr("Give comics a tab of their own in the library, with each series as one entry."), reveal),
-        stop("settings-look", tr("Look"), tr("Choose how KoLib looks. The opening animation matches the look you choose."), reveal),
-        stop("settings-opening", tr("Opening animation"), tr("Choose when the animation plays, whether it has sound, and a lighter one for slower devices."), reveal),
-        stop("settings-tours", tr("Tours"), tr("Turn these tours on or off, or see them all again."), reveal),
-    )
-
-    private fun stop(place: String, title: String, text: String, reveal: (String) -> (suspend () -> Unit)) =
-        TourStop(listOf(place), title, text, reveal = reveal(place))
 
     fun bookReader() = listOf(
         TourStop(listOf("reader-page"), tr("Turn the page"), tr("Tap the edges of the page or swipe to turn it. Tap the middle to show or hide these bars.")),

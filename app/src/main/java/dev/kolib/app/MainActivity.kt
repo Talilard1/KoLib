@@ -115,6 +115,7 @@ class MainActivity : ComponentActivity() {
                         asksSeen = asksSeen,
                         onAsksSeen = { themes.setAsksSeen(true) },
                         newsDue = newsSeen < BuildConfig.VERSION_CODE,
+                        openingPlaying = showOpening,
                         onNewsSeen = { themes.setNewsSeen(BuildConfig.VERSION_CODE) },
                         editorTourSeen = editorTourSeen,
                         onEditorTourSeen = { themes.setEditorTourSeen(true) },

@@ -439,14 +439,6 @@ fun ChaptersPane(
                             }
                         }
                         .then(if (dragging == null) Modifier.animateItem() else Modifier)
-                        // Held, it's chosen there and then; chapters are moved by their handles alone, so the list scrolls
-                        // under a finger anywhere else.
-                        .pointerInput(path) {
-                            holdToChoose {
-                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                                hold(path)
-                            }
-                        }
                         .semantics { onLongClick(tr("Select")) { hold(path); true } },
                 )
             }
@@ -511,11 +503,15 @@ private suspend fun PointerInputScope.dragAtOnce(onStart: () -> Unit, onDrag: (F
 
 /**
  * A chapter's row held down: it's [onHold] as soon as it's been held long enough, not when it's let go, so it's plain
- * it's been chosen. The rest of the press is taken before the row sees it, so it doesn't count as a tap too.
+ * it's been chosen. The rest of the press is taken before the row sees it, so it doesn't count as a tap too. A press
+ * that started on the handle or the menu button (they set [onControl] as they're pressed) isn't a hold on the row.
  */
-private suspend fun PointerInputScope.holdToChoose(onHold: () -> Unit) {
+private suspend fun PointerInputScope.holdToChoose(onControl: BooleanArray, onHold: () -> Unit) {
     awaitEachGesture {
         val down = awaitFirstDown(requireUnconsumed = false)
+        val onOne = onControl[0]
+        onControl[0] = false
+        if (onOne) return@awaitEachGesture
         val held = awaitLongPressOrCancellation(down.id) ?: return@awaitEachGesture
         onHold()
         while (true) {
@@ -553,6 +549,16 @@ private fun ChapterRow(
     modifier: Modifier,
 ) {
     var menu by remember { mutableStateOf(false) }
+    val haptics = LocalHapticFeedback.current
+    // A hold on the handle or the menu button isn't a hold on the chapter: it doesn't choose it. They hear of a press
+    // before the row does, and say so here.
+    val onControl = remember { booleanArrayOf(false) }
+    val control = Modifier.pointerInput(Unit) {
+        awaitEachGesture {
+            awaitFirstDown(requireUnconsumed = false)
+            onControl[0] = true
+        }
+    }
     Surface(
         color = when {
             dragged -> MaterialTheme.colorScheme.surfaceContainerHighest
@@ -566,6 +572,14 @@ private fun ChapterRow(
             .padding(horizontal = 6.dp, vertical = 1.dp)
             .then(if (dragged) Modifier.shadow(6.dp, RoundedCornerShape(12.dp)) else Modifier)
             .clip(RoundedCornerShape(12.dp))
+            // Held, it's chosen there and then; chapters are moved by their handles alone, so the list scrolls under a
+            // finger anywhere else.
+            .pointerInput(Unit) {
+                holdToChoose(onControl) {
+                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onHold()
+                }
+            }
             .clickable(onClick = onTap),
     ) {
         Row(Modifier.padding(start = 2.dp, top = 6.dp, bottom = 6.dp, end = if (selecting) 8.dp else 0.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -574,7 +588,7 @@ private fun ChapterRow(
                     Checkbox(checked = picked, onCheckedChange = { onTap() })
                 }
             } else {
-                Box(handle.size(40.dp), contentAlignment = Alignment.Center) {
+                Box(handle.then(control).size(40.dp), contentAlignment = Alignment.Center) {
                     Icon(Icons.Filled.DragIndicator, tr("Drag to reorder"), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
@@ -599,7 +613,7 @@ private fun ChapterRow(
                     color = if (isStart) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            if (!selecting) Box {
+            if (!selecting) Box(control) {
                 IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, tr("Options for “{0}”", chapter.title)) }
                 DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                     DropdownMenuItem(text = { Text(tr("Rename…")) }, leadingIcon = { Icon(Icons.Outlined.DriveFileRenameOutline, null) },

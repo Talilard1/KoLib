@@ -3,6 +3,7 @@ package dev.kolib.app.ui
 import android.app.Application
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.core.app.ApplicationProvider
@@ -29,7 +30,7 @@ class MoreScreenTest {
         var storage = 0
         compose.setContent {
             MoreScreen(
-                version = "Version 3.4", onSettings = {}, onStats = {}, onTours = null, onLog = {}, onBackups = {}, onAbout = {},
+                version = "Version 3.4", onSettings = {}, onStats = {}, onLog = {}, onBackups = {}, onAbout = {},
                 onUpdates = { asked++ }, onStorage = { storage++ },
             )
         }
@@ -43,5 +44,31 @@ class MoreScreenTest {
         compose.onNodeWithTag("more-releases").performScrollTo().performClick()
         val opened = shadowOf(ApplicationProvider.getApplicationContext<Application>()).nextStartedActivity
         assertEquals(Updates.PAGE, opened?.dataString)
+    }
+
+    /** The AI's settings are in More (not Settings), and the tours are turned on again in Settings alone. */
+    @Test
+    fun theAiSettingsAreInMoreAndTheToursAreNot() {
+        var ai = 0
+        compose.setContent {
+            MoreScreen(
+                version = "Version 3.5", onSettings = {}, onStats = {}, onLog = {}, onBackups = {}, onAbout = {},
+                onAi = { ai++ },
+            )
+        }
+        compose.onNodeWithTag("more-ai").performScrollTo().performClick()
+        assertEquals("the AI's settings open", 1, ai)
+        compose.onNodeWithTag("more-tours").assertDoesNotExist()
+        compose.onNodeWithText("Show the tours again").assertDoesNotExist()
+    }
+
+    /** About's cat opens KoLib's page on GitHub, its front page (More's opens the newest release). */
+    @Test
+    fun aboutsCatOpensTheFrontPageOnGitHub() {
+        compose.setContent { AboutScreen(onBack = {}) }
+        compose.onNodeWithTag("about-releases").performScrollTo().performClick()
+        val opened = shadowOf(ApplicationProvider.getApplicationContext<Application>()).nextStartedActivity
+        assertEquals("https://github.com/Talilard1/KoLib", opened?.dataString)
+        assertEquals(Updates.HOME, opened?.dataString)
     }
 }

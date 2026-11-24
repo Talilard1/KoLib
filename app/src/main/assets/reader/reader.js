@@ -2225,8 +2225,8 @@
   // ---- the end of a scrolled chapter --------------------------------------------------------------
 
   /**
-   * Under a scrolled chapter: where it ends, and the way on to the next one. It's tall enough for the
-   * last lines to be scrolled up to where the eye reads. Outside the body, so the chapter is unchanged.
+   * Under a scrolled chapter: where it ends, and that pulling up goes on to the next one. A little room under
+   * it, and no more. Outside the body, so the chapter is unchanged.
    */
   /** The reader's own words, in the language KoLib is in (sent with the chapter), or the English. */
   var words = {};
@@ -2241,15 +2241,9 @@
     label.textContent = isLast ? word('endOfBook', 'End of book') : word('endOfChapter', 'End of chapter');
     box.appendChild(label);
     if (!isLast) {
-      var go = document.createElementNS(XHTML, 'div');
-      go.id = 'kl-end-go';
-      go.textContent = nextTitle
-        ? word('nextChapterTitled', 'Next chapter: {0}').replace('{0}', function () { return nextTitle; })
-        : word('nextChapter', 'Next chapter');
-      box.appendChild(go);
       var hint = document.createElementNS(XHTML, 'div');
       hint.className = 'kl-end-hint';
-      hint.textContent = word('keepReading', 'Tap the button or pull up to keep reading');
+      hint.textContent = word('pullNext', 'Pull up for the next chapter');
       box.appendChild(hint);
     }
     root.appendChild(box);
@@ -2270,12 +2264,15 @@
       var d = t.clientY - pull.from;
       pull.dir = d < 0 ? 1 : -1;
       pull.dist = Math.abs(d);
+    } else if (pull && pull.dir !== 0) {
+      // A pull under way goes on from where it started, whether or not the page has come back a little under the
+      // finger: let off, it lessens (and the ring empties), till it's gone.
+      pull.dist = Math.max(0, (pull.from - t.clientY) * pull.dir);
+      if (pull.dist <= 0) pull = null;
     } else if (atEnd) {
-      if (!pull || pull.dir !== 1) pull = { dir: 1, from: t.clientY, dist: 0 };
-      pull.dist = Math.max(0, pull.from - t.clientY);
-    } else if (scroller.scrollTop <= 1 && hasPrev) {
-      if (!pull || pull.dir !== -1) pull = { dir: -1, from: t.clientY, dist: 0 };
-      pull.dist = Math.max(0, t.clientY - pull.from);
+      pull = { dir: 1, from: t.clientY, dist: 0 };
+    } else if (atStart) {
+      pull = { dir: -1, from: t.clientY, dist: 0 };
     } else pull = null;
     showPull();
   }
@@ -2287,22 +2284,48 @@
     if (p && p.dist >= pullThreshold()) KL.edge(p.dir);
   }
 
+  /**
+   * While a scrolled chapter is pulled on past its end (or back past its start): a ring at that end of the screen, as
+   * a loading circle is, that fills clockwise from the top as the pull goes on and empties as it's let off. Full,
+   * letting go opens the next chapter (or the one before).
+   */
+  var SVG = 'http://www.w3.org/2000/svg';
+  var RING = 2 * Math.PI * 19;
+  function pullRing() {
+    var svg = document.createElementNS(SVG, 'svg');
+    svg.setAttribute('viewBox', '0 0 46 46');
+    function circle(cls, r) {
+      var c = document.createElementNS(SVG, 'circle');
+      c.setAttribute('cx', '23');
+      c.setAttribute('cy', '23');
+      c.setAttribute('r', String(r));
+      c.setAttribute('class', cls);
+      svg.appendChild(c);
+      return c;
+    }
+    circle('kl-pull-disc', 22);
+    circle('kl-pull-track', 19);
+    var ring = circle('kl-pull-ring', 19);
+    ring.setAttribute('transform', 'rotate(-90 23 23)');
+    ring.setAttribute('stroke-dasharray', RING.toFixed(2));
+    return svg;
+  }
+
   function showPull() {
     var el = document.getElementById('kl-pull');
-    if (!pull || pull.dist < 14) {
+    var full = pull ? Math.min(1, pull.dist / pullThreshold()) : 0;
+    if (!pull || pull.dist < 6) {
       if (el) el.classList.remove('kl-on');
       return;
     }
     if (!el) {
       el = document.createElementNS(XHTML, 'div');
       el.id = 'kl-pull';
+      el.appendChild(pullRing());
       root.appendChild(el);
     }
-    var far = pull.dist >= pullThreshold();
-    el.className = 'kl-on ' + (pull.dir > 0 ? 'kl-bottom' : 'kl-top');
-    el.textContent = pull.dir > 0
-      ? (far ? word('letGoNext', 'Let go to open the next chapter') : word('pullNext', 'Pull up for the next chapter'))
-      : (far ? word('letGoPrevious', 'Let go to open the previous chapter') : word('pullPrevious', 'Pull down for the previous chapter'));
+    el.setAttribute('class', 'kl-on ' + (pull.dir > 0 ? 'kl-bottom' : 'kl-top') + (full >= 1 ? ' kl-full' : ''));
+    el.querySelector('.kl-pull-ring').setAttribute('stroke-dashoffset', (RING * (1 - full)).toFixed(2));
   }
 
   /** Runs [done] once the WebView has a size (it can load a page before it's been laid out). */
@@ -2719,11 +2742,6 @@
     if (hit && !selectionActive()) {
       e.preventDefault();
       try { KL.annotation(JSON.stringify({ id: hit.id, rect: rectJson(hit.range.getBoundingClientRect()) })); } catch (er) { log(er); }
-      return;
-    }
-    if (t && t.closest && t.closest('#kl-end-go')) {
-      e.preventDefault();
-      KL.edge(1);
       return;
     }
     var img = t && t.closest ? t.closest('img, image') : null;

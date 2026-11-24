@@ -493,8 +493,8 @@ class ReaderEditorScreenshotTest {
         compose.setContent { AppSurface(ThemeChoice.SYSTEM) { ReaderScreen(c, onSettings = {}, onClose = {}, onEdit = {}, pagePreview = { FakePage(ReaderTheme.PAPER, 2) }, initialPanel = Panel.CONTENTS) } }
         compose.waitForIdle()
         assertEquals(0, c.contentsTab)
-        // The contents come in from the left.
-        compose.onRoot().performTouchInput { swipe(androidx.compose.ui.geometry.Offset(380f, 450f), androidx.compose.ui.geometry.Offset(60f, 450f), 250) }
+        // The contents come in from the left. Swiped across its top part, it goes to the next tab.
+        compose.onRoot().performTouchInput { swipe(androidx.compose.ui.geometry.Offset(380f, 150f), androidx.compose.ui.geometry.Offset(60f, 150f), 250) }
         compose.waitForIdle()
         assertEquals("on to the bookmarks", 1, c.contentsTab)
         compose.onNodeWithText(tr("No bookmarks yet. Tap the middle of a page, then the bookmark icon."), substring = true).assertExists()
@@ -502,6 +502,11 @@ class ReaderEditorScreenshotTest {
         compose.onNodeWithText(tr("Contents")).performClick()
         compose.waitForIdle()
         assertEquals(0, c.contentsTab)
+        // Lower down, a swipe across closes the panel instead (the tab stays as it was).
+        compose.onRoot().performTouchInput { swipe(androidx.compose.ui.geometry.Offset(380f, 600f), androidx.compose.ui.geometry.Offset(20f, 600f), 250) }
+        compose.waitForIdle()
+        assertEquals(0, c.contentsTab)
+        compose.onNodeWithTag("reader-panel").assertDoesNotExist()
     }
 
     @Test

@@ -1,6 +1,13 @@
 package dev.kolib.app.ui.reader
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.Slider
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
@@ -26,8 +33,9 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /**
- * The reader's side panels: a tap beside one closes it; a finger dragged beside it slides it closed if thrown or taken
- * most of the way, and it springs back open otherwise. The contents panel's top has a button to leave the book, at the left.
+ * The reader's side panels: a tap beside one closes it; a finger dragged beside it or on it slides it closed if thrown
+ * or taken most of the way, and it springs back open otherwise (a slider in it keeps its own drags). Pulled out from the
+ * edge, it follows the finger. In the contents panel, a swipe across its top part goes to the next tab.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35], qualifiers = "w400dp-h700dp-mdpi")
@@ -113,6 +121,116 @@ class ReaderPanelTest {
         assertEquals(0f, panelLeft(), 0.5f)
         letGo()
         assertEquals(0, dismissed)
+    }
+
+    @Test
+    fun aDragOnThePanelItselfClosesIt() {
+        open()
+        compose.onNodeWithTag("inside").performTouchInput {
+            down(Offset(250f, 350f))
+            repeat(30) { moveBy(Offset(-200f / 30, 0f), 16) }
+            up()
+        }
+        compose.mainClock.advanceTimeBy(2_000)
+        compose.waitForIdle()
+        assertEquals(1, dismissed)
+    }
+
+    @Test
+    fun aSliderInThePanelKeepsItsDrag() {
+        var value by mutableStateOf(0.2f)
+        compose.setContent {
+            Box(Modifier.fillMaxSize()) {
+                ReaderPanel(true, wide = false, width = 300.dp, onDismiss = { dismissed++ }, fromLeft = true) {
+                    Box(Modifier.fillMaxSize().testTag("inside")) {
+                        Slider(value, { value = it }, Modifier.padding(top = 200.dp, start = 20.dp, end = 20.dp).testTag("slider"))
+                    }
+                }
+            }
+        }
+        compose.waitForIdle()
+        compose.onNodeWithTag("slider").performTouchInput {
+            down(center)
+            repeat(20) { moveBy(Offset(-6f, 0f), 16) }
+            up()
+        }
+        compose.mainClock.advanceTimeBy(2_000)
+        compose.waitForIdle()
+        assertEquals("the panel stays", 0, dismissed)
+        assertTrue("the slider moved: $value", value < 0.2f || value == 0f)
+        assertEquals(0f, panelLeft(), 0.5f)
+    }
+
+    @Test
+    fun pulledOutFromTheEdgeItFollowsTheFingerThenOpens() {
+        var pulled by mutableStateOf<Float?>(0f)
+        compose.setContent {
+            Box(Modifier.fillMaxSize()) {
+                ReaderPanel(true, wide = false, width = 300.dp, onDismiss = { dismissed++ }, fromLeft = true, pulled = pulled) {
+                    Box(Modifier.fillMaxSize().testTag("inside")) { Text("Contents") }
+                }
+            }
+        }
+        compose.waitForIdle()
+        assertEquals("not out yet", -300f, panelLeft(), 0.5f)
+        pulled = 0.3f
+        compose.waitForIdle()
+        assertEquals("a third of the way out, under the finger", -210f, panelLeft(), 0.5f)
+        pulled = 0.8f
+        compose.waitForIdle()
+        assertEquals(-60f, panelLeft(), 0.5f)
+        // Let go: the rest of the way out.
+        pulled = null
+        compose.waitForIdle()
+        assertEquals(0f, panelLeft(), 0.5f)
+    }
+
+    /** Four tabs in a panel, as the contents panel has them. */
+    private fun tabs(): PagerState {
+        lateinit var pager: PagerState
+        compose.setContent {
+            pager = rememberPagerState { 4 }
+            Box(Modifier.fillMaxSize()) {
+                ReaderPanel(true, wide = false, width = 300.dp, onDismiss = { dismissed++ }, fromLeft = true) {
+                    Column(Modifier.fillMaxSize().swipesTabs(pager).testTag("inside")) {
+                        HorizontalPager(pager, Modifier.fillMaxSize(), userScrollEnabled = false) { page ->
+                            LazyColumn(Modifier.fillMaxSize()) { items(40) { Text("Tab $page row $it") } }
+                        }
+                    }
+                }
+            }
+        }
+        compose.waitForIdle()
+        return pager
+    }
+
+    private fun swipeAcross(y: Float, dx: Float) {
+        compose.onNodeWithTag("inside").performTouchInput {
+            down(Offset(220f, y))
+            repeat(20) { moveBy(Offset(dx / 20, 0f), 16) }
+            up()
+        }
+        compose.mainClock.advanceTimeBy(2_000)
+        compose.waitForIdle()
+    }
+
+    @Test
+    fun aSwipeAcrossTheTopOfTheContentsGoesToTheNextTab() {
+        val pager = tabs()
+        swipeAcross(100f, -200f)
+        assertEquals("the next tab", 1, pager.currentPage)
+        assertEquals("the panel stays", 0, dismissed)
+        swipeAcross(100f, 200f)
+        assertEquals("and back", 0, pager.currentPage)
+        assertEquals(0, dismissed)
+    }
+
+    @Test
+    fun aSwipeAcrossLowerDownClosesThePanelInstead() {
+        val pager = tabs()
+        swipeAcross(500f, -200f)
+        assertEquals(1, dismissed)
+        assertEquals("the tab stays", 0, pager.currentPage)
     }
 
     @Test

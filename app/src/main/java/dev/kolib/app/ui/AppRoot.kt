@@ -97,7 +97,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.SystemUpdate
 import androidx.compose.ui.platform.testTag
 import androidx.compose.material.icons.outlined.Folder
@@ -162,6 +161,8 @@ fun AppRoot(
     onAsksSeen: () -> Unit = {},
     /** KoLib was updated since What's new was last shown: it's shown (once the first screens are done with). */
     newsDue: Boolean = false,
+    /** The opening animation is playing over the app: What's new, and the tours, wait till it's done. */
+    openingPlaying: Boolean = false,
     onNewsSeen: () -> Unit = {},
     /** The text editor's tour has been given: it is the first time the editor is opened. */
     editorTourSeen: Boolean = true,
@@ -576,8 +577,8 @@ fun AppRoot(
     // What's new, after an update (or from More): over the library, before any tour.
     val newsNotes = remember { WhatsNew.notes(dev.kolib.app.BuildConfig.VERSION_NAME) }
     var newsAsked by remember { mutableStateOf(false) }
-    val showNews = newsNotes != null && introSeen && asksSeen && !readingSetup && overlay == null && (newsDue || newsAsked)
-    val sectionTour = if (seenTours == null || toursOff || !introSeen || !asksSeen || readingSetup || overlay != null || showLook || showNews) null else when (section) {
+    val showNews = newsNotes != null && introSeen && asksSeen && !openingPlaying && !readingSetup && overlay == null && (newsDue || newsAsked)
+    val sectionTour = if (seenTours == null || toursOff || openingPlaying || !introSeen || !asksSeen || readingSetup || overlay != null || showLook || showNews) null else when (section) {
         // The library's own tour first; then, as they first show, a book's details, the Comics tab, and a series of comics.
         Section.LIBRARY -> when {
             books.isEmpty() || Tours.SAMPLES !in seenTours -> null
@@ -807,8 +808,6 @@ fun AppRoot(
                         version = tr("Version {0}", dev.kolib.app.BuildConfig.VERSION_NAME),
                         onSettings = { showLook = true },
                         onStats = { overlay = "stats" },
-                        // The tours start again from the library, which has the first.
-                        onTours = onShowToursAgain?.let { again -> { section = Section.LIBRARY; again() } },
                         onLog = { overlay = "log" },
                         onBackups = {
                             vm.refreshBackups()
@@ -818,6 +817,7 @@ fun AppRoot(
                         onUpdates = { (appContext.applicationContext as dev.kolib.app.KoLibApp).updater.lookNow() },
                         onStorage = { overlay = "storage" },
                         onWhatsNew = newsNotes?.let { { newsAsked = true } },
+                        onAi = { showAi = true },
                     )
                     Section.DEVICES -> dev.kolib.app.ui.link.DevicesScreen(link, devicesActions, onEject = if (liveSession != null) ({ showEject = true }) else null)
                     Section.LIBRARY -> CompositionLocalProvider(dev.kolib.app.ui.ocr.LocalOcrActions provides ocrActions) { LibraryScreen(
@@ -1247,7 +1247,6 @@ fun AppRoot(
                 showLook = false
                 readingSetup = true
             }) else null,
-            onAi = { showAi = true },
             comicsTab = libraryBrowse.comicsTab,
             onComicsTab = { libraryBrowse.comicsTab = it },
             onShowTours = onShowToursAgain?.let { again -> { showLook = false; if (section == Section.MORE) section = Section.LIBRARY; again() } },
@@ -1527,8 +1526,6 @@ fun LookDialog(
     onRescanFolder: (() -> Unit)? = null,
     /** Opens the reading setup: the reader's main choices, on an example book. */
     onReadingSetup: (() -> Unit)? = null,
-    /** Opens the AI settings: the model that explains words, summarises and answers questions. */
-    onAi: (() -> Unit)? = null,
     /** Comics have a tab of their own in the library (null: not offered here). */
     comicsTab: Boolean? = null,
     onComicsTab: (Boolean) -> Unit = {},
@@ -1572,14 +1569,10 @@ fun LookDialog(
                 }
                 FileManagerLine()
             })
-            val reading: (@Composable ColumnScope.() -> Unit)? = if (onReadingSetup == null && onAi == null) null else ({
-                if (onReadingSetup != null) SettingsLink(
+            val reading: (@Composable ColumnScope.() -> Unit)? = if (onReadingSetup == null) null else ({
+                SettingsLink(
                     Icons.AutoMirrored.Outlined.MenuBook, tr("Reading setup"), tr("Page colour, font, text size and how the reader works"), onReadingSetup,
                     Modifier,
-                )
-                if (onAi != null) SettingsLink(
-                    Icons.Outlined.AutoAwesome, tr("AI and dictionary"), tr("Meanings of words, chapter summaries and questions about a book"), onAi,
-                    Modifier.testTag("settings-ai"),
                 )
             })
             val library: (@Composable ColumnScope.() -> Unit)? = if (comicsTab == null) null else ({

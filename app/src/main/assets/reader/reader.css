@@ -103,13 +103,13 @@ html.kl-paged.kl-scroll body {
   pointer-events: none !important;
 }
 
-/* The end of a scrolled chapter, and the way on: tall enough for the last lines to come up to where
-   the eye reads. Only when scrolling. */
+/* The end of a scrolled chapter, and that pulling up goes on: a little room under it, and no more. Only when
+   scrolling. */
 #kl-end, #kl-pull, #kl-autobar { display: none; }
 html.kl-scroll #kl-end {
   display: block;
   max-width: var(--kl-measure, 46em);
-  min-height: calc(var(--kl-vh, 100vh) * 0.62);
+  min-height: calc(var(--kl-vh, 100vh) * 0.2);
   margin: 2.5em auto 0;
   padding: 1.4em 0 0;
   border-top: 1px solid rgba(127, 127, 127, 0.35);
@@ -121,37 +121,31 @@ html.kl-scroll #kl-end {
   box-sizing: border-box;
 }
 #kl-end .kl-end-label { opacity: 0.6; letter-spacing: 0.04em; }
-#kl-end-go {
-  display: inline-block;
-  margin-top: 0.9em;
-  padding: 0.55em 1.3em;
-  border-radius: 999px;
-  border: 1px solid rgba(127, 127, 127, 0.45);
-  color: var(--kl-link);
-  font-weight: 500;
-  cursor: pointer;
-}
-#kl-end .kl-end-hint { margin-top: 0.7em; font-size: 13px; opacity: 0.5; }
-/* Pulling past either end of a scrolled chapter. */
+#kl-end .kl-end-hint { margin-top: 0.5em; font-size: 13px; opacity: 0.5; }
+/* Pulling past either end of a scrolled chapter: a ring, as a loading circle is, that fills clockwise as it's pulled
+   and empties as it's let off; full, letting go opens the next chapter (or the one before), and it swells a little. */
 html.kl-scroll #kl-pull {
   display: block;
   position: fixed;
   left: 50%;
-  transform: translateX(-50%);
+  width: 46px;
+  height: 46px;
+  margin-left: -23px;
   z-index: 20;
-  padding: 9px 18px;
-  border-radius: 999px;
-  background: rgba(32, 32, 32, 0.86);
-  color: #fff;
-  font: 500 14px Roboto, 'Noto Sans', sans-serif;
-  white-space: nowrap;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.12s;
+  transform: scale(0.6);
+  transition: opacity 0.12s, transform 0.12s;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.22));
 }
-html.kl-scroll #kl-pull.kl-on { opacity: 1; }
-html.kl-scroll #kl-pull.kl-bottom { bottom: calc(var(--kl-band-bottom, 0px) + 18px); }
-html.kl-scroll #kl-pull.kl-top { top: calc(var(--kl-band-top, 0px) + 18px); }
+html.kl-scroll #kl-pull.kl-on { opacity: 1; transform: scale(1); }
+html.kl-scroll #kl-pull.kl-on.kl-full { transform: scale(1.12); }
+html.kl-scroll #kl-pull.kl-bottom { bottom: calc(var(--kl-band-bottom, 0px) + 22px); }
+html.kl-scroll #kl-pull.kl-top { top: calc(var(--kl-band-top, 0px) + 22px); }
+#kl-pull svg { display: block; width: 46px; height: 46px; overflow: visible; }
+#kl-pull .kl-pull-disc { fill: var(--kl-bg); }
+#kl-pull .kl-pull-track { fill: none; stroke: var(--kl-fg); stroke-opacity: 0.16; stroke-width: 3.5; }
+#kl-pull .kl-pull-ring { fill: none; stroke: var(--kl-fg); stroke-width: 3.5; stroke-linecap: round; }
 /* Autoscroll on pages: a thin line right along the foot of the page fills until the page turns. It's
    in the reading progress bar's colour, and below it: the progress bar (drawn by the app) is 5px up
    from the bottom and 3px thick, so this one, 2px thick at the very bottom, leaves a gap between them. */

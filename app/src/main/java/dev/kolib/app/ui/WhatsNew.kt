@@ -14,7 +14,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.outlined.AutoStories
+import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material.icons.outlined.Devices
 import androidx.compose.material.icons.outlined.EditNote
 import androidx.compose.material.icons.outlined.Lightbulb
@@ -49,10 +51,18 @@ object WhatsNew {
     fun notes(version: String): List<Note>? = when (version.substringBefore('-').substringBefore(' ').trim()) {
         "3.5" -> listOf(
             Note(
+                Icons.Outlined.Dashboard, tr("A simpler layout"),
+                tr("One button to filter, sort and choose how books show, a More tab, the reading settings you change most up front, and a layout for phones held sideways."),
+            ),
+            Note(
                 Icons.Outlined.PhotoLibrary, tr("Comic editor"),
                 tr("Put a comic's pages in order, turn and crop them, split two-page spreads, or split it into several comics. You can make a comic from pictures too."),
             ),
             Note(Icons.Outlined.EditNote, tr("More in the text editor"), tr("Links, tables, lists, quotes and footnotes, underline and more, special characters and a word count.")),
+            Note(
+                Icons.AutoMirrored.Outlined.MenuBook, tr("The book reader"),
+                tr("Pages and scrolling keep their own settings. Choose where the brightness swipe works, swipe the side panels in and out with your finger, and pull up at a chapter's end for the next."),
+            ),
             Note(
                 Icons.Outlined.AutoStories, tr("Comics"),
                 tr("A series opens beside the shelf. Send comics to another device, duplicate them or save them as files from the bar. The reader's menu stays up when you swipe to turn a page."),

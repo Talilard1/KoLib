@@ -59,6 +59,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.awaitHorizontalTouchSlopOrCancellation
+import androidx.compose.foundation.gestures.horizontalDrag
+import androidx.compose.ui.composed
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
@@ -157,6 +163,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import dev.kolib.app.reader.PictureBlend
 import dev.kolib.app.reader.TapWidth
+import dev.kolib.app.reader.LevelStart
+import dev.kolib.app.reader.LevelSide
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.foundation.pager.HorizontalPager
@@ -252,6 +260,10 @@ internal enum class Panel { NONE, CONTENTS, SEARCH, LOOK, STATS }
 internal class ReaderGuide(
     /** A tap in the middle brings up the controls, and a swipe in from a side its panel. */
     val menu: Boolean,
+    /** A swipe in from a side opens its panel (as it does with [menu] too), for the swipes to be tried. */
+    val panels: Boolean = menu,
+    /** KoLib's back swipe with nothing of the reader's own open: the guide's own back, not out of the book. */
+    val onBack: (() -> Unit)? = null,
     /** Shown over the page; told what of the reader's own is over it. */
     val content: @Composable BoxScope.(over: GuideSpace) -> Unit,
 )
@@ -300,6 +312,8 @@ internal fun ReaderScreen(
     val view = LocalView.current
     val s = controller.settings
     var panel by remember { mutableStateOf(initialPanel) }
+    // A side panel being pulled out by a swipe in from its edge: how far out it is (0 to 1), as the finger goes.
+    var pulling by remember { mutableStateOf<Float?>(null) }
     // The AI, about this book: its chapter summary, its notes on the book (written as it's read, when they're
     // kept), and the chat, which goes on from wherever it was. Its window is the app's, over this screen.
     val app = context.applicationContext as dev.kolib.app.KoLibApp
@@ -348,12 +362,11 @@ internal fun ReaderScreen(
     }
     // Led by the reading setup, the controls and panels stay away until it gets to them (and go away if it goes back).
     val menuAllowed = guide?.menu ?: true
+    val panelsAllowed = guide?.let { it.menu || it.panels } ?: true
     SideEffect { controller.menuLocked = !menuAllowed }
-    LaunchedEffect(menuAllowed) {
-        if (!menuAllowed) {
-            controller.controlsVisible = false
-            panel = Panel.NONE
-        }
+    LaunchedEffect(menuAllowed, panelsAllowed) {
+        if (!menuAllowed) controller.controlsVisible = false
+        if (!panelsAllowed) panel = Panel.NONE
     }
     val scope = rememberCoroutineScope()
 
@@ -437,7 +450,7 @@ internal fun ReaderScreen(
             controller.note != null -> controller.note = null
             controller.browsing != null -> controller.browsing = null
             controller.image != null -> controller.image = null
-            else -> onClose()
+            else -> guide?.onBack?.let { it() } ?: onClose()
         }
     }
     BackHandler { goBack() }
@@ -465,6 +478,10 @@ internal fun ReaderScreen(
     CompositionLocalProvider(LocalTourPlaces provides tourPlaces.takeIf { touring }) {
     BoxWithConstraints(Modifier.fillMaxSize().background(stripColor).edgeBackSwipe(edgeBack, backSwipe) { goBack() }.padding(horizontal = cutSide.dp)) {
         val wide = maxWidth >= 720.dp
+        // On a phone, a panel is a drawer that leaves a strip of the page to tap to close it; on a tablet, a side panel.
+        val drawerWidth = (maxWidth - 56.dp).coerceIn(280.dp, 360.dp)
+        val panelWidthPx = with(LocalDensity.current) { (if (wide) 420.dp else drawerWidth).toPx() }
+        val flingPx = with(LocalDensity.current) { 700.dp.toPx() }
       // The page itself, inside the strips.
       BoxWithConstraints(Modifier.fillMaxSize().padding(top = stripTop, bottom = stripBottom).background(pageColor).tourPlace("reader-page")) {
         // Inside a strip, the camera isn't over the page.
@@ -498,10 +515,20 @@ internal fun ReaderScreen(
                         controller.levelHint = v
                     }
                     frame.currentLevel = { controller.settings.level ?: systemBrightness(context) }
-                    // A swipe in from the left edge opens the contents, from the right the reading settings;
-                    // with that turned off, or something else over the page, Android's back swipe is left as it is.
-                    frame.sideSwipes = s.edgePanels && pageClear() && menuAllowed
-                    frame.onSideSwipe = { side -> panel = if (side < 0) Panel.CONTENTS else Panel.LOOK }
+                    // A swipe in from the left edge pulls out the contents, from the right the reading settings: the
+                    // panel follows the finger, and opens when let go past half way or thrown in (else it goes back).
+                    // With that turned off, or something else over the page, Android's back swipe is left as it is.
+                    frame.sideSwipes = s.edgePanels && pageClear() && panelsAllowed
+                    frame.onSideSwipe = { side ->
+                        pulling = 0f
+                        panel = if (side < 0) Panel.CONTENTS else Panel.LOOK
+                    }
+                    frame.onSidePull = { px -> if (pulling != null) pulling = (px / panelWidthPx).coerceIn(0f, 1f) }
+                    frame.onSideLetGo = { speed ->
+                        val out = pulling ?: 0f
+                        pulling = null
+                        if (speed < -flingPx || (out < 0.5f && speed < flingPx)) panel = Panel.NONE
+                    }
                 },
                 modifier = Modifier.fillMaxSize(),
                 onRelease = { frame ->
@@ -540,7 +567,7 @@ internal fun ReaderScreen(
         // Darker than the screen goes: a shade over the page.
         if (s.dim > 0f) Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = s.dim)))
 
-        // While a swipe down the left edge sets the brightness.
+        // While a swipe up or down a side sets the brightness.
         controller.levelHint?.let { v ->
             LaunchedEffect(v) {
                 delay(900)
@@ -650,9 +677,7 @@ internal fun ReaderScreen(
         val lastPanel = remember { mutableStateOf(Panel.NONE) }
         SideEffect { if (panel != Panel.NONE) lastPanel.value = panel }
         val fromLeft = (if (panel != Panel.NONE) panel else lastPanel.value) == Panel.CONTENTS
-        // On a phone, the drawer leaves a strip of the page to tap to close it.
-        val drawerWidth = (maxWidth - 56.dp).coerceIn(280.dp, 360.dp)
-        ReaderPanel(panel != Panel.NONE, wide, drawerWidth, dismiss, fromLeft = fromLeft) {
+        ReaderPanel(panel != Panel.NONE, wide, drawerWidth, dismiss, fromLeft = fromLeft, pulled = pulling) {
             // A panel sliding shut still shows what it held.
             when (if (panel != Panel.NONE) panel else lastPanel.value) {
                 Panel.CONTENTS -> ContentsPanel(controller, wide, onPicked = { panel = Panel.NONE; controller.controlsVisible = false }, onClose = dismiss)
@@ -738,7 +763,7 @@ internal fun ReaderScreen(
         // The sides are kept from Android's own swipes while the reader uses them: for its back swipe, the swipes in for
         // the side panels, and dragging beside an open panel to close it. (With the bars hidden, Android would show
         // them for a swipe in from a side.) KoLib's back swipe arrow shows over everything.
-        if (backSwipe || (s.edgePanels && menuAllowed) || panel != Panel.NONE) {
+        if (backSwipe || (s.edgePanels && panelsAllowed) || panel != Panel.NONE) {
             Box(Modifier.align(Alignment.CenterStart).width(48.dp).fillMaxHeight().systemGestureExclusion().testTag("edge-kept-left"))
             Box(Modifier.align(Alignment.CenterEnd).width(48.dp).fillMaxHeight().systemGestureExclusion().testTag("edge-kept-right"))
         }
@@ -813,17 +838,29 @@ private fun androidx.compose.foundation.layout.BoxScope.ScrollBands(s: ReaderSet
 
 /**
  * A panel over the page that slides in from the edge it's swiped in from (the contents from the left, the
- * rest from the right), over a shade. A tap on the shade closes it; a finger dragged across the shade slides it
- * closed, and it springs back open if let go short of half way without a flick. On a tablet it's a 420dp side panel;
- * on a phone, the drawer's width. Either way it's square, and closed by a tap beside it (it has no close button).
+ * rest from the right), over a shade. Pulled out by a swipe in from its edge, it follows the finger ([pulled], how far
+ * out it is). A tap on the shade closes it; a finger dragged the way it closes, on the shade or on the panel itself,
+ * slides it shut, and it springs back open if let go short of half way without a flick. (On the panel, only a drag
+ * that nothing in it takes: a slider, or a row that scrolls across.) On a tablet it's a 420dp side panel; on a phone,
+ * the drawer's width. Either way it's square, and has no close button.
  */
 @Composable
-internal fun ReaderPanel(visible: Boolean, wide: Boolean, width: androidx.compose.ui.unit.Dp, onDismiss: () -> Unit, fromLeft: Boolean = false, content: @Composable () -> Unit) {
+internal fun ReaderPanel(
+    visible: Boolean,
+    wide: Boolean,
+    width: androidx.compose.ui.unit.Dp,
+    onDismiss: () -> Unit,
+    fromLeft: Boolean = false,
+    pulled: Float? = null,
+    content: @Composable () -> Unit,
+) {
     // How open it is: 1 open, 0 closed.
     val open = remember { androidx.compose.animation.core.Animatable(0f) }
     val scope = rememberCoroutineScope()
-    LaunchedEffect(visible) {
-        open.animateTo(if (visible) 1f else 0f, androidx.compose.animation.core.tween(if (visible) 260 else 220, easing = androidx.compose.animation.core.FastOutSlowInEasing))
+    val pulledNow by rememberUpdatedState(pulled)
+    LaunchedEffect(visible, pulled != null) {
+        if (pulled != null) snapshotFlow { pulledNow }.collect { p -> if (p != null) open.snapTo(p) }
+        else open.animateTo(if (visible) 1f else 0f, androidx.compose.animation.core.tween(if (visible) 260 else 220, easing = androidx.compose.animation.core.FastOutSlowInEasing))
     }
     if (!visible && open.value <= 0f) return
     val panelWidth = if (wide) 420.dp else width
@@ -831,7 +868,32 @@ internal fun ReaderPanel(visible: Boolean, wide: Boolean, width: androidx.compos
     val widthPx = with(density) { panelWidth.toPx() }
     // Which way a drag closes it: left for one on the left.
     val closing = if (fromLeft) -1f else 1f
-    Box(Modifier.fillMaxSize().testTag("reader-panel")) {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .testTag("reader-panel")
+            // Here, round the shade and the panel both (where it stays put as the panel moves under the finger): what's
+            // in the panel hears of a drag first, and takes it if it's theirs.
+            .pointerInput(visible, widthPx, fromLeft) {
+                if (!visible) return@pointerInput
+                val tracker = androidx.compose.ui.input.pointer.util.VelocityTracker()
+                detectHorizontalDragGestures(
+                    onDragStart = { tracker.resetTracking() },
+                    onHorizontalDrag = { change, amount ->
+                        change.consume()
+                        tracker.addPosition(change.uptimeMillis, change.position)
+                        scope.launch { open.snapTo((open.value - amount * closing / widthPx).coerceIn(0f, 1f)) }
+                    },
+                    onDragEnd = {
+                        // Positive: thrown the way that closes it.
+                        val thrown = tracker.calculateVelocity().x * closing
+                        if (thrown > with(density) { 700.dp.toPx() } || open.value < 0.5f) onDismiss()
+                        else scope.launch { open.animateTo(1f, androidx.compose.animation.core.spring(stiffness = androidx.compose.animation.core.Spring.StiffnessMediumLow)) }
+                    },
+                    onDragCancel = { scope.launch { open.animateTo(1f) } },
+                )
+            },
+    ) {
         Box(
             Modifier
                 .fillMaxSize()
@@ -839,32 +901,14 @@ internal fun ReaderPanel(visible: Boolean, wide: Boolean, width: androidx.compos
                 .background(Color.Black.copy(alpha = if (wide) 0.32f else 0.4f))
                 .testTag("reader-panel-shade")
                 .pointerInput(visible) { if (visible) detectTapGestures { onDismiss() } }
-                .pointerInput(visible, widthPx, fromLeft) {
-                    if (!visible) return@pointerInput
-                    val tracker = androidx.compose.ui.input.pointer.util.VelocityTracker()
-                    detectHorizontalDragGestures(
-                        onDragStart = { tracker.resetTracking() },
-                        onHorizontalDrag = { change, amount ->
-                            change.consume()
-                            tracker.addPosition(change.uptimeMillis, change.position)
-                            scope.launch { open.snapTo((open.value - amount * closing / widthPx).coerceIn(0f, 1f)) }
-                        },
-                        onDragEnd = {
-                            // Positive: thrown the way that closes it.
-                            val thrown = tracker.calculateVelocity().x * closing
-                            if (thrown > with(density) { 700.dp.toPx() } || open.value < 0.5f) onDismiss()
-                            else scope.launch { open.animateTo(1f, androidx.compose.animation.core.spring(stiffness = androidx.compose.animation.core.Spring.StiffnessMediumLow)) }
-                        },
-                        onDragCancel = { scope.launch { open.animateTo(1f) } },
-                    )
-                }
         )
         val slide = Modifier.graphicsLayer { translationX = (1f - open.value) * widthPx * closing }
         if (wide) {
             Surface(
                 color = MaterialTheme.colorScheme.surfaceContainerLow,
                 shadowElevation = 8.dp,
-                modifier = Modifier.align(if (fromLeft) Alignment.CenterStart else Alignment.CenterEnd).then(slide).width(420.dp).fillMaxHeight(),
+                modifier = Modifier.align(if (fromLeft) Alignment.CenterStart else Alignment.CenterEnd).then(slide).width(420.dp).fillMaxHeight()
+                    .testTag("reader-panel-body"),
             ) {
                 Box(Modifier.windowInsetsPadding(WindowInsets.safeDrawing)) { content() }
             }
@@ -877,6 +921,7 @@ internal fun ReaderPanel(visible: Boolean, wide: Boolean, width: androidx.compos
                     .then(slide)
                     .width(width)
                     .fillMaxHeight()
+                    .testTag("reader-panel-body")
                     // Taps inside the drawer stay in it.
                     .pointerInput(Unit) { detectTapGestures { } },
             ) {
@@ -945,7 +990,7 @@ private fun ContentsPanel(controller: ReaderController, wide: Boolean, onPicked:
     LaunchedEffect(controller) { controller.findPictures() }
     val pictureCount = controller.pictures?.size ?: 0
     SwipedTabs(pager, controller.contentsTab) { controller.contentsTab = it }
-    Column(Modifier.fillMaxSize()) {
+    Column(Modifier.fillMaxSize().swipesTabs(pager).testTag("contents-panel")) {
         if (!wide) {
             DrawerHeader(
                 controller.bookTitle,
@@ -962,14 +1007,53 @@ private fun ContentsPanel(controller: ReaderController, wide: Boolean, onPicked:
             ),
             pager,
         )
-        // Swipe left or right for the next tab.
-        HorizontalPager(pager, Modifier.fillMaxSize(), verticalAlignment = Alignment.Top) { page ->
+        // The tabs are swiped between across the panel's top part (see [swipesTabs]); lower down, a swipe closes it.
+        HorizontalPager(pager, Modifier.fillMaxSize(), verticalAlignment = Alignment.Top, userScrollEnabled = false) { page ->
             when (page) {
                 0 -> ContentsList(controller, onPicked)
                 1 -> BookmarksList(controller, onPicked)
                 2 -> HighlightsList(controller, onPicked)
                 else -> PicturesList(controller)
             }
+        }
+    }
+}
+
+/** How much of a panel, from its top, a swipe across goes to the next tab or back (below, it closes the panel). */
+internal const val TAB_SWIPE_ZONE = 0.35f
+
+/**
+ * A swipe across the top part of this ([TAB_SWIPE_ZONE] of it) moves [pager] to the next tab or back, following the
+ * finger; one that starts lower down is left alone (for the panel to be dragged shut). What's in it hears of a drag
+ * first, so a list scrolled up or down keeps it.
+ */
+internal fun Modifier.swipesTabs(pager: PagerState): Modifier = composed {
+    val scope = rememberCoroutineScope()
+    val flick = with(LocalDensity.current) { 400.dp.toPx() }
+    pointerInput(pager) {
+        awaitEachGesture {
+            val down = awaitFirstDown(requireUnconsumed = false)
+            if (down.position.y > size.height * TAB_SWIPE_ZONE) return@awaitEachGesture
+            val tracker = androidx.compose.ui.input.pointer.util.VelocityTracker()
+            tracker.addPosition(down.uptimeMillis, down.position)
+            val from = pager.settledPage
+            val drag = awaitHorizontalTouchSlopOrCancellation(down.id) { change, over ->
+                change.consume()
+                pager.dispatchRawDelta(-over)
+            } ?: return@awaitEachGesture
+            tracker.addPosition(drag.uptimeMillis, drag.position)
+            horizontalDrag(drag.id) { change ->
+                tracker.addPosition(change.uptimeMillis, change.position)
+                pager.dispatchRawDelta(-change.positionChange().x)
+                change.consume()
+            }
+            val speed = tracker.calculateVelocity().x
+            val to = when {
+                speed < -flick -> from + 1
+                speed > flick -> from - 1
+                else -> pager.currentPage
+            }.coerceIn(0, pager.pageCount - 1)
+            scope.launch { pager.animateScrollToPage(to) }
         }
     }
 }
@@ -1260,7 +1344,7 @@ private fun LookPanel(
         if (g == null) {
             if (!wide) DrawerHeader(tr("Reading settings"))
             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 12.dp)) {
-                if (bookLook != null) BookLookNote(bookLook)
+                if (bookLook != null) BookLookNote(bookLook, s.scrolling)
                 LookBasics(s, onChange)
                 Spacer(Modifier.height(18.dp))
                 HorizontalDivider()
@@ -1275,7 +1359,7 @@ private fun LookPanel(
             // One group: its name at the top, and the way back to the first page at the foot, in reach of a thumb.
             Text(g.title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(start = 24.dp, end = 16.dp, top = 16.dp, bottom = 2.dp))
             Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 12.dp)) {
-                if (bookLook != null && g in BOOK_LOOK_TABS) BookLookNote(bookLook)
+                if (bookLook != null && g in BOOK_LOOK_TABS) BookLookNote(bookLook, s.scrolling)
                 when (g) {
                     LookTab.TEXT -> TextSettings(s, onChange, basics = false)
                     LookTab.PAGE -> PageSettings(s, onChange, camera, basics = false)
@@ -1326,7 +1410,7 @@ private fun LookBasics(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) {
     Heading(tr("Font"))
     FontChips(s, onChange)
     Heading(tr("Reading mode"))
-    Choices(ReaderFlow.entries, s.flow, { it.label }) { onChange(s.copy(flow = it)) }
+    Choices(ReaderFlow.entries, s.flow, { it.label }) { onChange(s.withFlow(it)) }
     Heading(tr("Brightness"))
     BrightnessRow(s, onChange)
 }
@@ -1342,7 +1426,7 @@ private val BOOK_LOOK_TABS = setOf(LookTab.TEXT, LookTab.PAGE, LookTab.LAYOUT)
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun BookLookNote(look: BookLook) {
+private fun BookLookNote(look: BookLook, scrolling: Boolean) {
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
         shape = RoundedCornerShape(12.dp),
@@ -1360,6 +1444,14 @@ private fun BookLookNote(look: BookLook) {
             Text(
                 if (look.landscape) tr("Portrait and landscape have separate settings. These are landscape's.")
                 else tr("Portrait and landscape have separate settings. These are portrait's."),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(end = 6.dp, top = 2.dp),
+            )
+            // And pages and scrolling: which these are.
+            Text(
+                if (scrolling) tr("Pages and scrolling have separate settings too. These are for scrolling.")
+                else tr("Pages and scrolling have separate settings too. These are for pages."),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(end = 6.dp, top = 2.dp),
@@ -1573,7 +1665,7 @@ private fun PageSettingsRest(s: ReaderSettings, onChange: (ReaderSettings) -> Un
 internal fun LayoutSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit, basics: Boolean = true) {
     if (basics) {
         Heading(tr("Reading mode"), first = true)
-        Choices(ReaderFlow.entries, s.flow, { it.label }) { onChange(s.copy(flow = it)) }
+        Choices(ReaderFlow.entries, s.flow, { it.label }) { onChange(s.withFlow(it)) }
         Help(
             if (s.scrolling) tr("Scroll down through each chapter. At the end, tap Next chapter or keep pulling up.")
             else tr("Turn pages, like a printed book.")
@@ -1678,6 +1770,18 @@ private fun ControlSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Uni
             if (s.edgeBack) tr("Swipe from either edge and let go when the arrow fills in.")
             else tr("Android's back gesture is used.")
         )
+    }
+
+    // Which side a swipe up or down sets the brightness on, and where up it the swipe starts.
+    Heading(tr("Brightness swipe"))
+    Choices(LevelSide.entries, s.levelSide, { it.label }) { onChange(s.copy(levelSide = it)) }
+    if (s.levelSide != LevelSide.OFF) {
+        Help(tr("Swipe up or down that side of the page to change the brightness."))
+        Heading(tr("Start the swipe from"))
+        Choices(LevelStart.entries, s.levelStart, { it.label }) { onChange(s.copy(levelStart = it)) }
+        Help(tr("Keep it clear of where your thumb rests to scroll."))
+    } else {
+        Help(tr("Change the brightness in the Screen settings instead."))
     }
 }
 

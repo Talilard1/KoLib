@@ -896,13 +896,7 @@ class ReaderController(
     private fun wordsJs(): JSONObject = JSONObject()
         .put("endOfBook", tr("End of book"))
         .put("endOfChapter", tr("End of chapter"))
-        .put("nextChapterTitled", tr("Next chapter: {0}"))
-        .put("nextChapter", tr("Next chapter"))
-        .put("keepReading", tr("Tap the button or pull up to keep reading"))
-        .put("letGoNext", tr("Let go to open the next chapter"))
         .put("pullNext", tr("Pull up for the next chapter"))
-        .put("letGoPrevious", tr("Let go to open the previous chapter"))
-        .put("pullPrevious", tr("Pull down for the previous chapter"))
 
     fun nextPage() = js("KLR.next()")
     fun previousPage() = js("KLR.prev()")

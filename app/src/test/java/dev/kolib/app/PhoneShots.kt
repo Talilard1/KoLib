@@ -554,7 +554,7 @@ class PhoneShots {
 
     private fun settingsShot(name: String, theme: ThemeChoice = ThemeChoice.BOOKCASE) = shot(name, theme) {
         dev.kolib.app.ui.LookDialog(
-            current = theme, onPick = {}, onDismiss = {}, onLanguage = {}, onReadingSetup = {}, onAi = {},
+            current = theme, onPick = {}, onDismiss = {}, onLanguage = {}, onReadingSetup = {},
             comicsTab = true,
         )
     }
@@ -934,7 +934,7 @@ class PhoneShots {
     @Test @Config(qualifiers = PHONE) fun plan09More() = shot("plan09_more", ThemeChoice.BOOKCASE) {
         AppFrame(Section.MORE, {}, koboConnected = true, onNarrow = {}, onLook = {}) {
             dev.kolib.app.ui.MoreScreen(
-                version = "Version 3.4", onSettings = {}, onStats = {}, onTours = {}, onLog = {}, onBackups = {}, onAbout = {},
+                version = "Version 3.4", onSettings = {}, onStats = {}, onLog = {}, onBackups = {}, onAbout = {},
             )
         }
     }
@@ -949,7 +949,7 @@ class PhoneShots {
     @Test @Config(qualifiers = TABLET_SIDEWAYS) fun plan15MoreTablet() = shot("plan15_more_tablet", ThemeChoice.BOOKCASE) {
         AppFrame(Section.MORE, {}, koboConnected = true, onNarrow = {}, onLook = {}) {
             dev.kolib.app.ui.MoreScreen(
-                version = "Version 3.4", onSettings = {}, onStats = {}, onTours = {}, onLog = {}, onBackups = {}, onAbout = {},
+                version = "Version 3.4", onSettings = {}, onStats = {}, onLog = {}, onBackups = {}, onAbout = {},
             )
         }
     }

@@ -147,7 +147,7 @@ fun AboutScreen(onBack: () -> Unit, onShowIntro: (() -> Unit)? = null) {
                         Text(tr("A library for your Kobo e-reader"), style = MaterialTheme.typography.bodyMedium)
                         androidx.compose.foundation.layout.Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(tr("Version {0}", BuildConfig.VERSION_NAME), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            ReleasesButton(Modifier.testTag("about-releases"))
+                            ReleasesButton(Modifier.testTag("about-releases"), home = true)
                         }
                     }
                     Text(

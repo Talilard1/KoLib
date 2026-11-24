@@ -25,11 +25,11 @@ class ReaderFrameTest {
 
     private val context: Context = ApplicationProvider.getApplicationContext()
 
-    private fun withFrame(block: (ReaderFrame) -> Unit) {
+    private fun withFrame(settings: ReaderSettings = ReaderSettings(), block: (ReaderFrame) -> Unit) {
         val f = TestBooks.garden(File(context.cacheDir, "g-${UUID.randomUUID()}.epub"))
         EpubFile.open(f).use { epub ->
             val files = EpubFileFiles(epub)
-            val c = ReaderController(files, BookStructure(files), "The Garden", "en", null, ReaderSettings(), context.assets)
+            val c = ReaderController(files, BookStructure(files), "The Garden", "en", null, settings, context.assets)
             val frame = ReaderFrame(context, c)
             frame.measure(View.MeasureSpec.makeMeasureSpec(1280, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(800, View.MeasureSpec.EXACTLY))
             frame.layout(0, 0, 1280, 800)
@@ -82,6 +82,50 @@ class ReaderFrameTest {
         frame.drag(200f, 400f, 600f, 400f)
         frame.drag(1275f, 400f, 1275f, 400f)
         assertEquals(listOf(-1, 1), sides)
+    }
+
+    /** Pulled in from the edge, the panel is told where the finger is as it goes, and how fast it was let go. */
+    @Test
+    fun thePanelFollowsTheFingerAndHearsHowItWasLetGo() = withFrame { frame ->
+        val pulls = mutableListOf<Float>()
+        val letGo = mutableListOf<Float>()
+        frame.onSideSwipe = {}
+        frame.onSidePull = { pulls += it }
+        frame.onSideLetGo = { letGo += it }
+        frame.sideSwipes = true
+        frame.drag(4f, 400f, 300f, 405f)
+        assertTrue("told as it went: $pulls", pulls.size >= 4)
+        assertEquals("in step with the finger", pulls.sorted(), pulls)
+        assertEquals(300f, pulls.last(), 1f)
+        assertEquals("let go once, going in", 1, letGo.size)
+        assertTrue("going in: ${letGo.single()}", letGo.single() > 0f)
+
+        // From the right: how far in from that edge.
+        pulls.clear()
+        frame.drag(1276f, 300f, 1080f, 298f)
+        assertEquals(200f, pulls.last(), 1f)
+    }
+
+    /** The brightness is set from the side chosen, starting in the part of it chosen; elsewhere, nothing. */
+    @Test
+    fun theBrightnessSwipeIsOnTheSideAndPartChosen() = withFrame(ReaderSettings(levelSide = LevelSide.RIGHT, levelStart = LevelStart.BOTTOM)) { frame ->
+        var levels = 0
+        frame.onLevel = { levels++ }
+        frame.drag(6f, 600f, 8f, 780f)
+        assertEquals("not on the left", 0, levels)
+        frame.drag(1275f, 100f, 1274f, 300f)
+        assertEquals("not from the top of the right", 0, levels)
+        frame.drag(1275f, 600f, 1274f, 780f)
+        assertTrue("from the foot of the right", levels > 0)
+    }
+
+    @Test
+    fun withTheBrightnessSwipeOffTheSidesDontSetIt() = withFrame(ReaderSettings(levelSide = LevelSide.OFF)) { frame ->
+        var levels = 0
+        frame.onLevel = { levels++ }
+        frame.drag(6f, 200f, 8f, 500f)
+        frame.drag(1275f, 200f, 1274f, 500f)
+        assertEquals(0, levels)
     }
 
     @Test

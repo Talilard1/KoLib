@@ -1,0 +1,33 @@
+@fr
+3686|Pages et défilement gardent chacun leurs réglages. Choisissez où le balayage règle la luminosité, faites glisser les panneaux latéraux du doigt, et tirez vers le haut à la fin d’un chapitre pour passer au suivant.
+3687|Le lecteur de livres
+@de
+3686|Seiten und Scrollen behalten eigene Einstellungen. Wähle, wo das Wischen die Helligkeit ändert, zieh die Seitenleisten mit dem Finger herein und heraus, und zieh am Kapitelende nach oben für das nächste.
+3687|Der Buchleser
+@es
+3686|Páginas y desplazamiento guardan sus propios ajustes. Elige dónde funciona el deslizamiento de brillo, desliza los paneles laterales con el dedo y tira hacia arriba al final de un capítulo para pasar al siguiente.
+3687|El lector de libros
+@it
+3686|Pagine e scorrimento hanno impostazioni proprie. Scegli dove funziona lo scorrimento per la luminosità, fai scorrere i pannelli laterali con il dito e tira su alla fine di un capitolo per passare al successivo.
+3687|Il lettore di libri
+@nl
+3686|Pagina’s en scrollen houden hun eigen instellingen. Kies waar vegen de helderheid wijzigt, veeg de zijpanelen met je vinger in en uit, en trek aan het eind van een hoofdstuk omhoog voor het volgende.
+3687|De boekenlezer
+@pt
+3686|Páginas e rolagem guardam configurações próprias. Escolha onde o deslize muda o brilho, deslize os painéis laterais com o dedo e puxe para cima no fim de um capítulo para ir ao próximo.
+3687|O leitor de livros
+@ro
+3686|Paginile și derularea își păstrează propriile setări. Alege unde funcționează glisarea pentru luminozitate, trage panourile laterale cu degetul și trage în sus la sfârșitul unui capitol pentru următorul.
+3687|Cititorul de cărți
+@ru
+3686|У страниц и прокрутки свои настройки. Выберите, где смахивание меняет яркость, вытягивайте боковые панели пальцем и тяните вверх в конце главы, чтобы перейти к следующей.
+3687|Чтение книг
+@ja
+3686|ページめくりとスクロールで設定を別々に保てます。明るさを変えるスワイプの場所を選べ、サイドパネルは指で出し入れでき、章の終わりで上に引くと次の章へ進みます。
+3687|本のリーダー
+@ko
+3686|페이지와 스크롤이 각자 설정을 가져요. 밀어서 밝기를 바꾸는 곳을 고르고, 옆 패널을 손가락으로 밀어 넣고 빼고, 장 끝에서 위로 당기면 다음 장으로 가요.
+3687|책 리더
+@zh
+3686|翻页和滚动各自保存设置。可以选择滑动调亮度的位置，用手指拉出和收起侧边面板，在章末向上拉即可进入下一章。
+3687|图书阅读器

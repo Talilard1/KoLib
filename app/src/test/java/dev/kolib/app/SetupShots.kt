@@ -27,6 +27,8 @@ import org.json.JSONObject
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -146,8 +148,24 @@ class SetupShots {
     @Test @Config(qualifiers = PHONE) fun phone5Turned() = shot("phone_5_turned", "phone", SetupStep.TURNING, page = 1)
     @Test @Config(qualifiers = PHONE) fun phone5Scrolling() = shot("phone_5_scrolling", "phone_scroll", SetupStep.TURNING)
     @Test @Config(qualifiers = PHONE) fun phone5Edges() = shot("phone_5b_edges", "phone", SetupStep.EDGES)
-    @Test @Config(qualifiers = PHONE) fun phone5Controls() = shot("phone_5c_controls", "phone", SetupStep.CONTROLS)
-    @Test @Config(qualifiers = TABLET) fun tablet5Controls() = shot("tablet_5c_controls", "tablet", SetupStep.CONTROLS)
+    @Test @Config(qualifiers = PHONE) fun phone5Taps() = shot("phone_5c_taps", "phone", SetupStep.TAPS)
+    @Test @Config(qualifiers = PHONE) fun phone5TapsTopBottom() = shot("phone_5c_taps_top_bottom", "phone", SetupStep.TAPS) {
+        compose.onNodeWithTag("taps-Top goes back, bottom goes forward", useUnmergedTree = true).performClick()
+        compose.mainClock.advanceTimeBy(1_500)
+    }
+    @Test @Config(qualifiers = PHONE) fun phone5TapSize() = shot("phone_5d_tap_size", "phone", SetupStep.TAP_SIZE)
+    @Test @Config(qualifiers = PHONE) fun phone5Keys() = shot("phone_5e_keys", "phone", SetupStep.KEYS)
+    @Test @Config(qualifiers = PHONE) fun phone5Swipes() = shot("phone_5f_swipes", "phone", SetupStep.SWIPES)
+    @Test @Config(qualifiers = PHONE) fun phone5Level() = shot("phone_5g_level", "phone", SetupStep.LEVEL)
+    @Test @Config(qualifiers = PHONE) fun phone5LevelBottom() = shot("phone_5g_level_bottom", "phone", SetupStep.LEVEL) {
+        compose.onNodeWithTag("levelside-Both", useUnmergedTree = true).performClick()
+        compose.onNodeWithTag("levelstart-Bottom", useUnmergedTree = true).performClick()
+        compose.mainClock.advanceTimeBy(1_500)
+    }
+    @Test @Config(qualifiers = PHONE) fun phone6Kept() = shot("phone_6b_kept", "phone", SetupStep.KEPT)
+    @Test @Config(qualifiers = TABLET) fun tablet5Taps() = shot("tablet_5c_taps", "tablet", SetupStep.TAPS)
+    @Test @Config(qualifiers = TABLET) fun tablet5Level() = shot("tablet_5g_level", "tablet", SetupStep.LEVEL)
+    @Test @Config(qualifiers = PHONE_ACROSS) fun phoneAcrossLevel() = shot("phone_across_level", "phone_across", SetupStep.LEVEL)
     @Test @Config(qualifiers = PHONE) fun phone6Menu() = shot("phone_6_menu", "phone", SetupStep.MENU)
     @Test @Config(qualifiers = PHONE) fun phone6MenuOpen() = shot("phone_6_menu_open", "phone", SetupStep.MENU) { it.controlsVisible = true }
     @Test @Config(qualifiers = PHONE) fun phone7Done() = shot("phone_7_done", "phone", SetupStep.DONE)

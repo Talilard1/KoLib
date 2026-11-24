@@ -82,6 +82,27 @@ class ReaderDefaultsTest {
         assertEquals(ReaderHyphens.ON, again.hyphens)
     }
 
+    /** The look kept for the other of pages and scrolling is kept too, both ways the device is held. */
+    @Test
+    @Config(qualifiers = "w411dp-h914dp-port-420dpi")
+    fun theOtherFlowsLookIsKept() {
+        ReaderSettingsStore(context).update { it.copy(fontScale = 1.2f).withFlow(ReaderFlow.SCROLL).copy(fontScale = 1.8f) }
+        ReaderSettingsStore(context).update(true) { it.copy(fontScale = 0.9f).withFlow(ReaderFlow.PAGES) }
+        val store = ReaderSettingsStore(context)
+        assertEquals(ReaderFlow.SCROLL to 1.8f, store.usual(false).flow to store.usual(false).fontScale)
+        assertEquals(1.2f, store.usual(false).withFlow(ReaderFlow.PAGES).fontScale)
+        assertEquals(ReaderFlow.PAGES, store.usual(true).flow)
+    }
+
+    /** The brightness swipe's side and where it starts are kept. */
+    @Test
+    @Config(qualifiers = "w411dp-h914dp-port-420dpi")
+    fun theBrightnessSwipesSideAndStartAreKept() {
+        ReaderSettingsStore(context).update { it.copy(levelSide = LevelSide.BOTH, levelStart = LevelStart.BOTTOM) }
+        val again = ReaderSettingsStore(context).settings.value
+        assertEquals(LevelSide.BOTH to LevelStart.BOTTOM, again.levelSide to again.levelStart)
+    }
+
     @Test
     @Config(qualifiers = "w411dp-h914dp-port-420dpi")
     fun settingsKeptBeforeThePhonesWereChosenStayAsTheyWere() {

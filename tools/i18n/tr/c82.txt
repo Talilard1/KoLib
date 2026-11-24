@@ -1,0 +1,308 @@
+@fr
+3655|KoLib sur GitHub
+3656|Une présentation plus simple
+3657|Un seul bouton pour filtrer, trier et choisir l’affichage des livres, un onglet Plus, les réglages de lecture les plus utilisés en premier, et une présentation pour les téléphones tenus à l’horizontale.
+3658|Balayage de luminosité
+3659|Glissez vers le haut ou le bas sur ce bord de la page pour régler la luminosité.
+3660|Départ du balayage
+3661|Gardez-le loin de l’endroit où votre pouce se pose pour défiler.
+3662|Réglez plutôt la luminosité dans les réglages Écran.
+3663|Toucher la page
+3664|Choisissez l’effet d’un toucher de chaque côté, puis essayez.
+3665|Jusqu’où, depuis les bords, un toucher tourne la page. Essayez.
+3666|Touches de volume et écran
+3667|Essayez : appuyez sur une touche de volume.
+3668|L’écran reste allumé tant qu’un livre est ouvert.
+3669|Essayez : glissez depuis un bord, puis repoussez le panneau.
+3670|C’est ça. Dans un livre, il revient en arrière, comme Retour.
+3671|Essayez : glissez depuis l’un des bords.
+3672|Glissements depuis les bords
+3673|Réglez plutôt la luminosité dans les Réglages de lecture.
+3674|Essayez : glissez vers le haut ou le bas sur la zone marquée.
+3675|Les réglages propres à chaque livre
+3676|Modifiez le texte, la page ou la mise en page pendant la lecture : seul ce livre change.
+3677|Touchez Définir par défaut dans les Réglages de lecture pour les appliquer à tous les livres.
+3678|Le portrait et le paysage ont des réglages distincts.
+3679|Glissez vers le haut ou le bas sur le bord droit pour régler la luminosité.
+3680|Glissez vers le haut ou le bas sur l’un des bords pour régler la luminosité.
+3681|N’importe où
+@de
+3655|KoLib auf GitHub
+3656|Ein einfacheres Layout
+3657|Ein Knopf zum Filtern, Sortieren und für die Ansicht der Bücher, ein Mehr-Tab, die meistgenutzten Leseeinstellungen ganz vorn und ein Layout für quer gehaltene Handys.
+3658|Helligkeit per Wischen
+3659|Am gewählten Rand nach oben oder unten wischen, um die Helligkeit zu ändern.
+3660|Wo das Wischen beginnt
+3661|Halte es fern von der Stelle, an der dein Daumen beim Scrollen liegt.
+3662|Ändere die Helligkeit stattdessen in den Bildschirm-Einstellungen.
+3663|Auf die Seite tippen
+3664|Wähle, was ein Tippen an den Rändern bewirkt, und probier’s aus.
+3665|Wie weit vom Rand ein Tippen umblättert. Probier’s aus.
+3666|Lautstärketasten und Bildschirm
+3667|Probier’s aus: Drück eine Lautstärketaste.
+3668|Der Bildschirm bleibt an, solange ein Buch offen ist.
+3669|Probier’s aus: Wische vom Rand herein und die Leiste dann wieder weg.
+3670|Genau so. In einem Buch geht es damit zurück, wie mit Zurück.
+3671|Probier’s aus: Wische von einem der Ränder herein.
+3672|Wischen vom Rand
+3673|Ändere die Helligkeit stattdessen in den Leseeinstellungen.
+3674|Probier’s aus: Wische im markierten Bereich nach oben oder unten.
+3675|Eigene Einstellungen für jedes Buch
+3676|Änderst du beim Lesen Text, Seite oder Layout, ändert sich nur dieses Buch.
+3677|Tippe in den Leseeinstellungen auf „Als Standard festlegen“, um sie für alle Bücher zu nutzen.
+3678|Hoch- und Querformat haben getrennte Einstellungen.
+3679|Am rechten Rand nach oben oder unten wischen, um die Helligkeit zu ändern.
+3680|An einem der Ränder nach oben oder unten wischen, um die Helligkeit zu ändern.
+3681|Überall
+@es
+3655|KoLib en GitHub
+3656|Un diseño más sencillo
+3657|Un solo botón para filtrar, ordenar y elegir cómo se ven los libros, una pestaña Más, los ajustes de lectura que más cambias al principio y un diseño para teléfonos en horizontal.
+3658|Brillo al deslizar
+3659|Desliza hacia arriba o abajo por ese borde de la página para cambiar el brillo.
+3660|Dónde empieza el deslizamiento
+3661|Mantenlo lejos de donde apoyas el pulgar para desplazarte.
+3662|Cambia el brillo desde los ajustes de Pantalla.
+3663|Tocar la página
+3664|Elige qué hace un toque en cada lado y pruébalo.
+3665|Hasta dónde, desde los bordes, un toque pasa la página. Pruébalo.
+3666|Teclas de volumen y pantalla
+3667|Pruébalo: pulsa una tecla de volumen.
+3668|La pantalla se queda encendida mientras haya un libro abierto.
+3669|Pruébalo: desliza desde un borde y luego aparta el panel deslizándolo.
+3670|Eso es. En un libro, vuelve atrás, igual que Atrás.
+3671|Pruébalo: desliza desde cualquiera de los bordes.
+3672|Deslizar desde los bordes
+3673|Cambia el brillo desde los Ajustes de lectura.
+3674|Pruébalo: desliza hacia arriba o abajo donde está marcado.
+3675|Los ajustes propios de cada libro
+3676|Si cambias el texto, la página o el diseño mientras lees, solo cambia ese libro.
+3677|Toca Establecer por defecto en Ajustes de lectura para usarlos en todos los libros.
+3678|Vertical y horizontal tienen ajustes separados.
+3679|Desliza hacia arriba o abajo por el borde derecho para cambiar el brillo.
+3680|Desliza hacia arriba o abajo por cualquiera de los bordes para cambiar el brillo.
+3681|En cualquier parte
+@it
+3655|KoLib su GitHub
+3656|Un layout più semplice
+3657|Un solo pulsante per filtrare, ordinare e scegliere come mostrare i libri, una scheda Altro, le impostazioni di lettura che cambi di più in cima e un layout per i telefoni tenuti in orizzontale.
+3658|Luminosità con lo scorrimento
+3659|Scorri in su o in giù lungo quel bordo della pagina per cambiare la luminosità.
+3660|Dove inizia lo scorrimento
+3661|Tienilo lontano da dove appoggi il pollice per scorrere.
+3662|Cambia la luminosità dalle impostazioni Schermo.
+3663|Toccare la pagina
+3664|Scegli cosa fa un tocco su ogni lato, poi prova.
+3665|Quanto lontano dai bordi un tocco gira la pagina. Prova.
+3666|Tasti del volume e schermo
+3667|Prova: premi un tasto del volume.
+3668|Lo schermo resta acceso finché un libro è aperto.
+3669|Prova: scorri da un bordo, poi fai scorrere via il pannello.
+3670|Proprio così. In un libro torna indietro, come Indietro.
+3671|Prova: scorri da uno dei due bordi.
+3672|Scorrimenti dai bordi
+3673|Cambia la luminosità dalle Impostazioni di lettura.
+3674|Prova: scorri in su o in giù dove è segnato.
+3675|Le impostazioni di ogni libro
+3676|Se cambi il testo, la pagina o il layout mentre leggi, cambia solo quel libro.
+3677|Tocca Imposta come predefinite nelle Impostazioni di lettura per usarle in tutti i libri.
+3678|Verticale e orizzontale hanno impostazioni separate.
+3679|Scorri in su o in giù lungo il bordo destro per cambiare la luminosità.
+3680|Scorri in su o in giù lungo uno dei due bordi per cambiare la luminosità.
+3681|Ovunque
+@nl
+3655|KoLib op GitHub
+3656|Een eenvoudigere indeling
+3657|Eén knop om te filteren, sorteren en te kiezen hoe boeken worden getoond, een tabblad Meer, de leesinstellingen die je het vaakst wijzigt bovenaan, en een indeling voor telefoons die je liggend vasthoudt.
+3658|Helderheid met vegen
+3659|Veeg omhoog of omlaag langs die rand van de pagina om de helderheid te wijzigen.
+3660|Waar het vegen begint
+3661|Houd het weg van waar je duim rust om te scrollen.
+3662|Wijzig de helderheid in plaats daarvan in de Scherm-instellingen.
+3663|Op de pagina tikken
+3664|Kies wat een tik aan elke kant doet, en probeer het.
+3665|Hoe ver vanaf de randen een tik de pagina omslaat. Probeer het.
+3666|Volumeknoppen en scherm
+3667|Probeer het: druk op een volumeknop.
+3668|Het scherm blijft aan zolang er een boek open is.
+3669|Probeer het: veeg vanaf een rand naar binnen en veeg het paneel daarna weg.
+3670|Precies. In een boek ga je ermee terug, net als met Terug.
+3671|Probeer het: veeg vanaf een van de randen naar binnen.
+3672|Vegen vanaf de rand
+3673|Wijzig de helderheid in plaats daarvan in de Leesinstellingen.
+3674|Probeer het: veeg omhoog of omlaag waar het is aangegeven.
+3675|Eigen instellingen per boek
+3676|Wijzig je tijdens het lezen de tekst, pagina of indeling, dan verandert alleen dat boek.
+3677|Tik in de Leesinstellingen op Als standaard instellen om ze voor elk boek te gebruiken.
+3678|Staand en liggend hebben aparte instellingen.
+3679|Veeg omhoog of omlaag langs de rechterrand om de helderheid te wijzigen.
+3680|Veeg omhoog of omlaag langs een van de randen om de helderheid te wijzigen.
+3681|Overal
+@pt
+3655|KoLib no GitHub
+3656|Um layout mais simples
+3657|Um botão só para filtrar, ordenar e escolher como os livros aparecem, uma aba Mais, as configurações de leitura que você mais muda no topo e um layout para celulares na horizontal.
+3658|Brilho ao deslizar
+3659|Deslize para cima ou para baixo nessa borda da página para mudar o brilho.
+3660|Onde o deslize começa
+3661|Mantenha longe de onde o polegar fica para rolar.
+3662|Mude o brilho nas configurações de Tela.
+3663|Tocar na página
+3664|Escolha o que um toque em cada lado faz e experimente.
+3665|Até onde, a partir das bordas, um toque vira a página. Experimente.
+3666|Teclas de volume e tela
+3667|Experimente: aperte uma tecla de volume.
+3668|A tela fica ligada enquanto um livro estiver aberto.
+3669|Experimente: deslize a partir de uma borda e depois deslize o painel para fora.
+3670|Isso mesmo. Num livro, ele volta, igual ao Voltar.
+3671|Experimente: deslize a partir de qualquer uma das bordas.
+3672|Deslizar das bordas
+3673|Mude o brilho nas Configurações de leitura.
+3674|Experimente: deslize para cima ou para baixo onde está marcado.
+3675|As configurações de cada livro
+3676|Se você muda o texto, a página ou o layout durante a leitura, só esse livro muda.
+3677|Toque em Definir como padrão nas Configurações de leitura para usá-las em todos os livros.
+3678|Retrato e paisagem têm configurações separadas.
+3679|Deslize para cima ou para baixo na borda direita para mudar o brilho.
+3680|Deslize para cima ou para baixo em qualquer uma das bordas para mudar o brilho.
+3681|Em qualquer lugar
+@ro
+3655|KoLib pe GitHub
+3656|Un aspect mai simplu
+3657|Un singur buton pentru filtrare, sortare și modul în care se afișează cărțile, o filă Mai multe, setările de citire pe care le schimbi cel mai des în față și un aspect pentru telefoanele ținute orizontal.
+3658|Luminozitate prin glisare
+3659|Glisează în sus sau în jos pe acea margine a paginii ca să schimbi luminozitatea.
+3660|De unde începe glisarea
+3661|Ține-o departe de locul unde îți sprijini degetul mare ca să derulezi.
+3662|Schimbă luminozitatea din setările Ecran.
+3663|Atingerea paginii
+3664|Alege ce face o atingere pe fiecare parte, apoi încearcă.
+3665|Cât de departe de margini o atingere întoarce pagina. Încearcă.
+3666|Tastele de volum și ecranul
+3667|Încearcă: apasă o tastă de volum.
+3668|Ecranul rămâne pornit cât timp e deschisă o carte.
+3669|Încearcă: glisează de la o margine, apoi glisează panoul înapoi.
+3670|Exact. Într-o carte, te duce înapoi, la fel ca Înapoi.
+3671|Încearcă: glisează de la oricare margine.
+3672|Glisări de pe margini
+3673|Schimbă luminozitatea din Setări de citire.
+3674|Încearcă: glisează în sus sau în jos unde e marcat.
+3675|Setările proprii ale fiecărei cărți
+3676|Dacă schimbi textul, pagina sau aspectul în timp ce citești, se schimbă doar acea carte.
+3677|Atinge Setează ca implicit în Setări de citire ca să le folosești pentru toate cărțile.
+3678|Vertical și orizontal au setări separate.
+3679|Glisează în sus sau în jos pe marginea dreaptă ca să schimbi luminozitatea.
+3680|Glisează în sus sau în jos pe oricare margine ca să schimbi luminozitatea.
+3681|Oriunde
+@ru
+3655|KoLib на GitHub
+3656|Более простой вид
+3657|Одна кнопка для фильтра, сортировки и вида книг, вкладка «Ещё», самые нужные настройки чтения в начале и вид для телефона, повёрнутого горизонтально.
+3658|Яркость смахиванием
+3659|Проведите вверх или вниз у этого края страницы, чтобы изменить яркость.
+3660|Откуда начинать
+3661|Держите это место подальше от того, где лежит большой палец при прокрутке.
+3662|Меняйте яркость в настройках «Экран».
+3663|Касание страницы
+3664|Выберите, что делает касание с каждой стороны, и попробуйте.
+3665|Как далеко от краёв касание листает страницу. Попробуйте.
+3666|Кнопки громкости и экран
+3667|Попробуйте: нажмите кнопку громкости.
+3668|Экран не гаснет, пока открыта книга.
+3669|Попробуйте: проведите от края, а затем смахните панель обратно.
+3670|Вот так. В книге этот жест возвращает назад, как кнопка «Назад».
+3671|Попробуйте: проведите от любого края.
+3672|Смахивания от краёв
+3673|Меняйте яркость в настройках чтения.
+3674|Попробуйте: проведите вверх или вниз в отмеченном месте.
+3675|Свои настройки у каждой книги
+3676|Если во время чтения изменить текст, страницу или макет, изменится только эта книга.
+3677|Нажмите «Сделать настройками по умолчанию» в настройках чтения, чтобы применить их ко всем книгам.
+3678|У книжной и альбомной ориентации отдельные настройки.
+3679|Проведите вверх или вниз по правому краю, чтобы изменить яркость.
+3680|Проведите вверх или вниз по любому краю, чтобы изменить яркость.
+3681|Где угодно
+@ja
+3655|GitHub の KoLib
+3656|よりシンプルなレイアウト
+3657|本の絞り込み・並べ替え・表示をまとめた 1 つのボタン、「その他」タブ、よく変える読書の設定を先頭に、そして横向きのスマホ用のレイアウト。
+3658|スワイプで明るさ
+3659|ページのその端を上下にスワイプすると、明るさを変えられます。
+3660|スワイプを始める場所
+3661|スクロールするときに親指を置く場所から離しておきましょう。
+3662|明るさは「画面」の設定で変えてください。
+3663|ページのタップ
+3664|両側をタップしたときの動きを選んで、試してみましょう。
+3665|端からどこまでのタップでページをめくるか。試してみましょう。
+3666|音量キーと画面
+3667|試してみましょう：音量キーを押します。
+3668|本を開いている間は画面がつけたままになります。
+3669|試してみましょう：端からスワイプして、パネルをスワイプで閉じます。
+3670|そのとおり。本の中では「戻る」と同じように戻ります。
+3671|試してみましょう：どちらかの端からスワイプします。
+3672|端からのスワイプ
+3673|明るさは「読書の設定」で変えてください。
+3674|試してみましょう：印のところを上下にスワイプします。
+3675|本ごとの設定
+3676|読みながら文字・ページ・レイアウトを変えると、その本だけが変わります。
+3677|すべての本に使うには、読書の設定で「既定に設定」をタップします。
+3678|縦向きと横向きで設定は別々です。
+3679|右端を上下にスワイプすると、明るさを変えられます。
+3680|どちらかの端を上下にスワイプすると、明るさを変えられます。
+3681|どこでも
+@ko
+3655|GitHub의 KoLib
+3656|더 단순해진 레이아웃
+3657|책 거르기·정렬·보기를 한 버튼에, 더보기 탭, 자주 바꾸는 읽기 설정을 맨 위에, 그리고 가로로 든 휴대폰용 레이아웃.
+3658|밀어서 밝기 조절
+3659|페이지의 그 가장자리를 위아래로 밀면 밝기가 바뀌어요.
+3660|밀기 시작 위치
+3661|스크롤할 때 엄지가 놓이는 곳과 겹치지 않게 하세요.
+3662|밝기는 화면 설정에서 바꾸세요.
+3663|페이지 탭하기
+3664|양쪽을 탭했을 때 할 일을 고르고 해 보세요.
+3665|가장자리에서 어디까지 탭해야 페이지가 넘어갈지예요. 해 보세요.
+3666|볼륨 키와 화면
+3667|해 보세요: 볼륨 키를 눌러 보세요.
+3668|책이 열려 있는 동안 화면이 켜져 있어요.
+3669|해 보세요: 가장자리에서 밀어 넣은 다음, 패널을 밀어서 닫아 보세요.
+3670|바로 그거예요. 책에서는 뒤로 버튼처럼 뒤로 가요.
+3671|해 보세요: 어느 쪽 가장자리에서든 밀어 보세요.
+3672|가장자리 밀기
+3673|밝기는 읽기 설정에서 바꾸세요.
+3674|해 보세요: 표시된 곳을 위아래로 밀어 보세요.
+3675|책마다 따로 있는 설정
+3676|읽는 중에 글자, 페이지, 레이아웃을 바꾸면 그 책만 바뀌어요.
+3677|모든 책에 쓰려면 읽기 설정에서 기본값으로 설정을 탭하세요.
+3678|세로와 가로 설정은 따로 있어요.
+3679|오른쪽 가장자리를 위아래로 밀면 밝기가 바뀌어요.
+3680|어느 쪽 가장자리든 위아래로 밀면 밝기가 바뀌어요.
+3681|어디서나
+@zh
+3655|GitHub 上的 KoLib
+3656|更简洁的布局
+3657|一个按钮完成筛选、排序和选择书的显示方式，新增“更多”标签页，最常改的阅读设置放在最前面，还有横握手机时的布局。
+3658|滑动调亮度
+3659|沿页面的这一侧边缘上下滑动可以调整亮度。
+3660|滑动起始位置
+3661|别放在滚动时拇指常放的地方。
+3662|请在“屏幕”设置里调整亮度。
+3663|点按页面
+3664|选择点按两侧时的操作，然后试试看。
+3665|从边缘往里多远的点按会翻页。试试看。
+3666|音量键和屏幕
+3667|试试看：按一下音量键。
+3668|打开书时屏幕保持常亮。
+3669|试试看：从边缘滑入，再把面板滑走。
+3670|就是这样。在书里，它会像“返回”一样返回。
+3671|试试看：从任一边缘滑入。
+3672|边缘滑动
+3673|请在阅读设置里调整亮度。
+3674|试试看：在标出的地方上下滑动。
+3675|每本书自己的设置
+3676|阅读时更改文字、页面或版式，只有这本书会变。
+3677|在阅读设置里点按“设为默认”，就能用于所有书。
+3678|竖屏和横屏的设置是分开的。
+3679|沿右边缘上下滑动可以调整亮度。
+3680|沿任一边缘上下滑动可以调整亮度。
+3681|任意位置

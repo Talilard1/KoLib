@@ -1,0 +1,55 @@
+@fr
+3682|Pages et défilement ont aussi des réglages distincts. Ceux-ci sont ceux du défilement.
+3683|Pages et défilement ont aussi des réglages distincts. Ceux-ci sont ceux des pages.
+3684|Pages et défilement ont aussi des réglages distincts.
+3685|Réglez chacun à votre goût : modifier l’un ne change pas l’autre.
+@de
+3682|Seiten und Scrollen haben auch getrennte Einstellungen. Das sind die fürs Scrollen.
+3683|Seiten und Scrollen haben auch getrennte Einstellungen. Das sind die für Seiten.
+3684|Seiten und Scrollen haben auch getrennte Einstellungen.
+3685|Stell beides ein, wie du magst: Änderst du das eine, bleibt das andere, wie es ist.
+@es
+3682|Páginas y desplazamiento también tienen ajustes separados. Estos son los de desplazamiento.
+3683|Páginas y desplazamiento también tienen ajustes separados. Estos son los de páginas.
+3684|Páginas y desplazamiento también tienen ajustes separados.
+3685|Ajusta cada uno a tu gusto: cambiar uno no afecta al otro.
+@it
+3682|Anche pagine e scorrimento hanno impostazioni separate. Queste sono quelle dello scorrimento.
+3683|Anche pagine e scorrimento hanno impostazioni separate. Queste sono quelle delle pagine.
+3684|Anche pagine e scorrimento hanno impostazioni separate.
+3685|Imposta ciascuno come preferisci: cambiarne uno non tocca l’altro.
+@nl
+3682|Pagina’s en scrollen hebben ook aparte instellingen. Dit zijn die van scrollen.
+3683|Pagina’s en scrollen hebben ook aparte instellingen. Dit zijn die van pagina’s.
+3684|Pagina’s en scrollen hebben ook aparte instellingen.
+3685|Stel ze allebei in zoals je wilt: wijzig je het ene, dan blijft het andere hetzelfde.
+@pt
+3682|Páginas e rolagem também têm configurações separadas. Estas são as de rolagem.
+3683|Páginas e rolagem também têm configurações separadas. Estas são as de páginas.
+3684|Páginas e rolagem também têm configurações separadas.
+3685|Ajuste cada um do seu jeito: mudar um não altera o outro.
+@ro
+3682|Și paginile, și derularea au setări separate. Acestea sunt pentru derulare.
+3683|Și paginile, și derularea au setări separate. Acestea sunt pentru pagini.
+3684|Și paginile, și derularea au setări separate.
+3685|Configurează-le pe fiecare cum îți place: dacă îl schimbi pe unul, celălalt rămâne la fel.
+@ru
+3682|У страниц и прокрутки тоже отдельные настройки. Это настройки прокрутки.
+3683|У страниц и прокрутки тоже отдельные настройки. Это настройки страниц.
+3684|У страниц и прокрутки тоже отдельные настройки.
+3685|Настройте каждый режим как удобно: изменения в одном не затрагивают другой.
+@ja
+3682|ページめくりとスクロールでも設定は別々です。これはスクロールの設定です。
+3683|ページめくりとスクロールでも設定は別々です。これはページめくりの設定です。
+3684|ページめくりとスクロールでも設定は別々です。
+3685|それぞれ好きなように設定できます。片方を変えても、もう片方はそのままです。
+@ko
+3682|페이지와 스크롤 설정도 따로 있어요. 이건 스크롤 설정이에요.
+3683|페이지와 스크롤 설정도 따로 있어요. 이건 페이지 설정이에요.
+3684|페이지와 스크롤 설정도 따로 있어요.
+3685|각각 원하는 대로 설정하세요. 하나를 바꿔도 다른 하나는 그대로예요.
+@zh
+3682|翻页和滚动的设置也是分开的。这些是滚动的设置。
+3683|翻页和滚动的设置也是分开的。这些是翻页的设置。
+3684|翻页和滚动的设置也是分开的。
+3685|按自己的喜好分别设置：改动其中一个，另一个保持不变。

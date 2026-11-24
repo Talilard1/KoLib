@@ -84,6 +84,28 @@ enum class TapWidth(val label: String, val fraction: Float) {
     WIDE(tr("Large"), 0.28f),
 }
 
+/** Which side of the page a swipe up or down sets the brightness on (or neither). */
+enum class LevelSide(val label: String) {
+    LEFT(tr("Left")),
+    RIGHT(tr("Right")),
+    BOTH(tr("Both")),
+    OFF(tr("Off")),
+}
+
+/**
+ * Where up the side a swipe that sets the brightness has to start: anywhere, or in its top, middle or bottom third
+ * (kept clear of where a thumb rests to scroll). [from] and [to] are how far down the page that is.
+ */
+enum class LevelStart(val label: String, val from: Float, val to: Float) {
+    ANYWHERE(tr("Anywhere"), 0f, 1f),
+    TOP(tr("Top"), 0f, 1f / 3),
+    MIDDLE(tr("Middle"), 1f / 3, 2f / 3),
+    BOTTOM(tr("Bottom"), 2f / 3, 1f);
+
+    /** A touch [down] of the way down the page (0 the top, 1 the foot) is in it. */
+    fun covers(down: Float): Boolean = down >= from && (down < to || to >= 1f)
+}
+
 /** What's done with pictures so they sit on the page's colour rather than in a white box. */
 enum class PictureBlend(val label: String, val js: String, val help: String) {
     OFF(tr("Off"), "off", tr("Pictures aren't changed.")),
@@ -373,8 +395,45 @@ data class ReaderSettings(
     val progressLine: ProgressLine = ProgressLine.BOOK,
     /** How strongly that line, and autoscroll's, is drawn. */
     val barShade: BarShade = BarShade.DIM,
+    /** Which side a swipe up or down sets the brightness on (or neither). */
+    val levelSide: LevelSide = LevelSide.LEFT,
+    /** Where up that side such a swipe has to start. */
+    val levelStart: LevelStart = LevelStart.ANYWHERE,
+    /**
+     * The look (see [withLookOf]) kept for the other of pages and scrolling, as [lookJson] writes it: each has one of
+     * its own, brought back when it's gone back to (see [withFlow]). Null till the other has been used.
+     */
+    val otherLook: String? = null,
 ) {
     val scrolling: Boolean get() = flow == ReaderFlow.SCROLL
+
+    /**
+     * Gone over to pages or to scrolling ([to]): its own look comes back (the first time, it starts as this one), and
+     * this one is kept for when it's come back to. So each is set up as it's liked, and changing one leaves the other.
+     */
+    fun withFlow(to: ReaderFlow): ReaderSettings {
+        if (to == flow) return this
+        val mine = lookJson().apply { remove(OTHER_LOOK) }.toString()
+        val theirs = otherLook?.let { runCatching { JSONObject(it) }.getOrNull() }
+        val back = if (theirs != null) withLook(this, theirs) else this
+        return back.copy(flow = to, otherLook = mine)
+    }
+
+    /**
+     * A swipe up or down that starts at ([x], [y]) on a page [w] wide and [h] high sets the brightness: it's in the
+     * strip down a side that's set for it ([LEVEL_STRIP] of the page's width), in the part of it it's to start in.
+     */
+    fun startsLevelSwipe(x: Float, y: Float, w: Float, h: Float): Boolean {
+        if (w <= 0f || h <= 0f) return false
+        val strip = w * LEVEL_STRIP
+        val onSide = when (levelSide) {
+            LevelSide.LEFT -> x < strip
+            LevelSide.RIGHT -> x > w - strip
+            LevelSide.BOTH -> x < strip || x > w - strip
+            LevelSide.OFF -> false
+        }
+        return onSide && levelStart.covers(y / h)
+    }
 
     /** Where the page goes beside a camera in the screen, while reading full screen. */
     val cameraRoom: CameraRoom get() = when {
@@ -646,7 +705,7 @@ data class ReaderSettings(
         hyphens = book.hyphens, spread = book.spread, flow = book.flow, marginItems = book.marginItems, plainMargins = book.plainMargins, runningHeads = book.runningHeads,
         headTitlePlace = book.headTitlePlace, headSize = book.headSize, headGap = book.headGap, collectionTitle = book.collectionTitle,
         pictures = book.pictures, colourLinks = book.colourLinks, joinOpenings = book.joinOpenings, rectoOpenings = book.rectoOpenings,
-        printHeads = book.printHeads, dropCaps = book.dropCaps,
+        printHeads = book.printHeads, dropCaps = book.dropCaps, otherLook = book.otherLook,
     )
 
     /** These and [other] give a book the same look (see [withLookOf]). */
@@ -659,10 +718,11 @@ data class ReaderSettings(
         .put("marginItems", MarginItem.write(marginItems)).put("plainMargins", MarginItem.writeSet(plainMargins)).put("heads", runningHeads.name).put("headTitles", headTitlePlace.name)
         .put("headSize", headSize.name).put("headGap", headGap.name).put("collectionTitle", collectionTitle.name)
         .put("pictures", pictures.name).put("linkColour", colourLinks).put("openings", joinOpenings).put("rectoOpenings", rectoOpenings)
-        .put("printHeads", printHeads).put("dropCaps", dropCaps)
+        .put("printHeads", printHeads).put("dropCaps", dropCaps).put(OTHER_LOOK, otherLook)
 
     fun pageOnly(): ReaderSettings = copy(
         volumeKeys = true, edgePanels = true, edgeBack = false, keepScreenOn = true, brightness = -1f, brightnessFromScreen = true,
+        levelSide = LevelSide.LEFT, levelStart = LevelStart.ANYWHERE, otherLook = null,
         marginItems = if (scrolling) marginItems else MarginItem.DEFAULTS,
         runningHeads = if (scrolling) runningHeads else RunningHeads.TOP,
         headTitlePlace = HeadTitlePlace.CENTRED, collectionTitle = CollectionTitle.BOOK,
@@ -786,8 +846,12 @@ data class ReaderSettings(
                 rectoOpenings = o.optBoolean("rectoOpenings", base.rectoOpenings),
                 printHeads = o.optBoolean("printHeads", base.printHeads),
                 dropCaps = o.optBoolean("dropCaps", base.dropCaps),
+                otherLook = if (o.has(OTHER_LOOK)) o.optString(OTHER_LOOK).takeIf { it.isNotEmpty() } else base.otherLook,
             )
         }
+
+        /** Where a look keeps the other of pages and scrolling's look (see [otherLook]). */
+        private const val OTHER_LOOK = "otherLook"
 
         /**
          * How the reader starts on a phone, where a page is small and held close: a typeface made for small
@@ -809,6 +873,8 @@ data class ReaderSettings(
         val FONT_SCALES = listOf(0.7f, 0.8f, 0.9f, 1f, 1.1f, 1.2f, 1.3f, 1.45f, 1.6f, 1.8f, 2f, 2.3f, 2.6f)
         val LINE_SPACINGS = listOf(0f, 1.2f, 1.4f, 1.6f, 1.8f, 2f)
         const val MAX_DIM = 0.7f
+        /** How much of the page's width, in from a side, a swipe that sets the brightness starts in. */
+        const val LEVEL_STRIP = 0.07f
         /** The page headings' size before they could be bigger, in sp. */
         const val HEAD_SMALL = 13f
         /** How tall the bands are that margin items show in when scrolling, in dp (the page's pixels). */
@@ -916,6 +982,9 @@ class ReaderSettingsStore(context: Context) {
             .putBoolean("volume", next.volumeKeys)
             .putBoolean("edgePanels", next.edgePanels)
             .putBoolean("edgeBack", next.edgeBack)
+            .putString("levelSide", next.levelSide.name)
+            .putString("levelStart", next.levelStart.name)
+            .putString("otherLook", next.otherLook)
             .putBoolean("clearOfCamera", next.clearOfCamera)
             .putBoolean("fullscreen", next.fullscreen)
             .putBoolean("roundCamera", next.roundCamera)
@@ -995,6 +1064,9 @@ class ReaderSettingsStore(context: Context) {
             volumeKeys = prefs.getBoolean("volume", d.volumeKeys),
             edgePanels = prefs.getBoolean("edgePanels", d.edgePanels),
             edgeBack = prefs.getBoolean("edgeBack", d.edgeBack),
+            levelSide = enumOf("levelSide", d.levelSide),
+            levelStart = enumOf("levelStart", d.levelStart),
+            otherLook = prefs.getString("otherLook", null),
             clearOfCamera = prefs.getBoolean("clearOfCamera", d.clearOfCamera),
             fullscreen = prefs.getBoolean("fullscreen", d.fullscreen),
             roundCamera = prefs.getBoolean("roundCamera", d.roundCamera),

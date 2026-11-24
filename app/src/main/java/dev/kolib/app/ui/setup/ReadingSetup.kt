@@ -55,6 +55,7 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.StayCurrentLandscape
 import androidx.compose.material.icons.outlined.StayCurrentPortrait
 import androidx.compose.material.icons.outlined.Swipe
+import androidx.compose.material.icons.outlined.SwapVert
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -76,6 +77,14 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.animation.animateContentSize
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.draw.shadow
@@ -121,14 +130,23 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import dev.kolib.app.reader.TapWidth
+import dev.kolib.app.reader.LevelStart
+import dev.kolib.app.reader.LevelSide
 
 /** The reading setup's steps, in order. */
-internal enum class SetupStep { COLOUR, FONT, SIZE, SPACING, ROTATION, TURNING, CONTROLS, EDGES, MENU, DONE }
+internal enum class SetupStep { COLOUR, FONT, SIZE, SPACING, ROTATION, TURNING, TAPS, TAP_SIZE, KEYS, SWIPES, LEVEL, EDGES, MENU, KEPT, DONE }
+
+/** The steps gone through with these settings: how far in a tap turns the page is only asked while taps do. */
+internal fun setupSteps(s: ReaderSettings): List<SetupStep> = SetupStep.entries.filter { it != SetupStep.TAP_SIZE || s.taps != TapZones.OFF }
+
+/** Steps where the page can be touched: to turn pages, and to try what's being chosen. */
+private val LiveSteps = setOf(SetupStep.TURNING, SetupStep.TAPS, SetupStep.TAP_SIZE, SetupStep.KEYS, SetupStep.SWIPES, SetupStep.LEVEL, SetupStep.MENU)
 
 /**
  * The reading setup: the reader itself, open at an example book, with a card over the page that goes
  * through the choices that matter most (the page's colour, the font, its size, the spacing, which way the
- * screen is held, how pages turn, the controls) and then shows how the reader works (turning a page, its menu). Each choice
+ * screen is held, how pages turn, the controls, a card for each and tried on the page) and then shows how the reader
+ * works (its menu). Each choice
  * changes the page under it there and then, so what's seen is what books will look like. It's laid out for
  * the screen as it's held, upright or on its side, on a phone or a tablet.
  *
@@ -168,7 +186,12 @@ internal fun ReadingSetupScreen(
     startAt: SetupStep = SetupStep.COLOUR,
 ) {
     var step by rememberSaveable { mutableStateOf(startAt) }
-    val steps = SetupStep.entries
+    val steps = setupSteps(controller.settings)
+    val before = steps.lastOrNull { it.ordinal < step.ordinal }
+    val after = steps.firstOrNull { it.ordinal > step.ordinal }
+    val goBack = { if (before == null) onClose(null) else step = before }
+    // KoLib's back swipe, tried on its step: it's said that it worked, rather than going back a step.
+    var backTried by remember { mutableStateOf(false) }
 
     // What's been tried on the page while it's shown how pages turn: a page forward, then one back.
     var turns by remember { mutableIntStateOf(0) }
@@ -191,6 +214,7 @@ internal fun ReadingSetupScreen(
     LaunchedEffect(step) {
         if (step != SetupStep.EDGES && !controller.loading && (controller.page > 0 || controller.chapterProgress > 0.02f)) controller.goToStart()
         if (step == SetupStep.TURNING) turns = 0
+        backTried = false
     }
     // But what shows round the page is chosen on a page that has it all: a chapter's first page has no heading over
     // it (as in print), so it's the one after, where the book's title and the chapter's are over the text.
@@ -208,16 +232,24 @@ internal fun ReadingSetupScreen(
         onSettings = controller::applySettings,
         onClose = { onClose(controller.settings) },
         pagePreview = pagePreview,
-        guide = ReaderGuide(menu = step == SetupStep.MENU) { over ->
+        guide = ReaderGuide(
+            menu = step == SetupStep.MENU,
+            // The swipes in from the sides are tried on their own step.
+            panels = step == SetupStep.MENU || step == SetupStep.SWIPES,
+            onBack = { if (step == SetupStep.SWIPES) backTried = true else goBack() },
+        ) { over ->
             SetupGuide(
                 controller = controller,
                 step = step,
+                count = steps.size,
+                at = steps.count { it.ordinal < step.ordinal },
                 turns = turns,
+                backTried = backTried,
                 over = over,
                 // Something of the reader's own is open over the page: Back closes that first.
                 readerHasBack = over.panelOpen || controller.note != null || controller.image != null || controller.browsing != null || controller.openAnnotation != null,
-                onBack = { if (step.ordinal == 0) onClose(null) else step = steps[step.ordinal - 1] },
-                onNext = { if (step == steps.last()) onClose(controller.settings) else step = steps[step.ordinal + 1] },
+                onBack = goBack,
+                onNext = { if (after == null) onClose(controller.settings) else step = after },
                 onSkip = { onClose(controller.settings) },
             )
         },
@@ -233,7 +265,11 @@ private fun twoPages(s: ReaderSettings, width: Dp, height: Dp): Boolean =
 private fun BoxScope.SetupGuide(
     controller: ReaderController,
     step: SetupStep,
+    /** How many steps there are, and how many come before this one. */
+    count: Int,
+    at: Int,
     turns: Int,
+    backTried: Boolean,
     over: GuideSpace,
     readerHasBack: Boolean,
     onBack: () -> Unit,
@@ -256,7 +292,7 @@ private fun BoxScope.SetupGuide(
         val onBlankPage = twoPages(s, w, h) && s.rectoOpenings && w / 2 >= 360.dp
         val side = onBlankPage || (w > h && h < 520.dp)
         val menuOpen = controller.controlsVisible
-        val pageLive = step == SetupStep.TURNING || step == SetupStep.MENU
+        val pageLive = step in LiveSteps
         // Trying page turns with the card on the left-hand page: once that page has text on it, the card makes way,
         // down to the corner with only what it says, until the first page is turned back to.
         val madeWay = onBlankPage && step == SetupStep.TURNING && controller.page > 0
@@ -264,10 +300,15 @@ private fun BoxScope.SetupGuide(
         // While choosing, the page is only to look at: touches stop here.
         if (!pageLive) Box(Modifier.fillMaxSize().pointerInput(Unit) { awaitPointerEventScope { while (true) awaitPointerEvent().changes.forEach { it.consume() } } })
 
+        // While the brightness swipe is tried, the card keeps off the sides it's on, and away from where it starts.
+        val levelStep = step == SetupStep.LEVEL && s.levelSide != LevelSide.OFF
+        val keep = w * ReaderSettings.LEVEL_STRIP + 4.dp
+        val clearStart by animateDpAsState(if (levelStep && s.levelSide != LevelSide.RIGHT) keep else 0.dp, label = "clearStart")
+        val clearEnd by animateDpAsState(if (levelStep && s.levelSide != LevelSide.LEFT) keep else 0.dp, label = "clearEnd")
         val cardWidth = when {
             onBlankPage -> minOf(440.dp, w / 2 - 48.dp)
             side -> minOf(380.dp, w * 0.46f)
-            else -> minOf(w - 20.dp, 520.dp)
+            else -> minOf(w - 20.dp - clearStart - clearEnd, 520.dp)
         }
         var cardHeight by remember { mutableIntStateOf(0) }
         val cardHeightDp = with(LocalDensity.current) { cardHeight.toDp() }
@@ -276,14 +317,23 @@ private fun BoxScope.SetupGuide(
         val tapsTurn = s.taps != TapZones.OFF && !s.scrolling
         val tapBack = tapsTurn && s.taps == TapZones.SIDES && (!side || onBlankPage)
 
+        // While where taps go is chosen, the card goes to the middle when the top and the foot of the page turn it.
+        val tapSteps = step == SetupStep.TAPS || step == SetupStep.TAP_SIZE
+        val middled = tapSteps && s.taps == TapZones.TOP_BOTTOM && !side
+        // How far down the page a hint goes: the middle of the page that shows above the card (or of the whole page,
+        // with the card beside it or in the middle).
+        val y = when {
+            madeWay -> (h - cardHeightDp - 12.dp) / 2
+            side || middled -> h / 2
+            else -> ((h - cardHeightDp - 12.dp) / 2).coerceAtLeast(110.dp)
+        }
+        // Where taps go, shown for a moment as the step starts and each time it's changed (under the card); and where
+        // the brightness swipe starts, while it's tried.
+        if (tapSteps) TapZonesHint(s, step, ink, if (middled) h * s.tapWidth.fraction / 2 else y)
+        if (step == SetupStep.LEVEL) LevelZonesHint(s, ink)
+
         // Where to touch the page.
         if (pageLive) {
-            // In the middle of the page that shows above the card (or of the whole page, with the card beside it).
-            val y = when {
-                madeWay -> (h - cardHeightDp - 12.dp) / 2
-                side -> h / 2
-                else -> ((h - cardHeightDp - 12.dp) / 2).coerceAtLeast(110.dp)
-            }
             val edge = w * s.tapWidth.fraction / 2
             val size = 88.dp
             // The middle of the page, clear of a card beside it, and still between the sides that turn the page.
@@ -304,12 +354,21 @@ private fun BoxScope.SetupGuide(
             when {
                 // Its middle a quarter of the way across: the middle of the left-hand page.
                 onBlankPage -> ((w / 2 - cardWidth - 20.dp) / (w - cardWidth - 20.dp) - 1f).coerceIn(-1f, 0f)
-                side -> -1f
+                // On its side, it goes to the right while the brightness swipe is tried on the left.
+                side -> if (levelStep && s.levelSide == LevelSide.LEFT) 1f else -1f
                 else -> 0f
             },
             spring(stiffness = Spring.StiffnessLow), label = "across",
         )
-        val down by animateFloatAsState(if ((side && !madeWay) || menuOpen || step == SetupStep.EDGES) 0f else 1f, spring(dampingRatio = 0.86f, stiffness = Spring.StiffnessLow), label = "down")
+        val down by animateFloatAsState(
+            when {
+                // The brightness swipe tried from the foot of the page: the card goes to the top.
+                levelStep && s.levelStart == LevelStart.BOTTOM && !side -> -1f
+                (side && !madeWay) || menuOpen || step == SetupStep.EDGES || middled -> 0f
+                else -> 1f
+            },
+            spring(dampingRatio = 0.86f, stiffness = Spring.StiffnessLow), label = "down",
+        )
         var arrived by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) { arrived = true }
         val arriving by animateFloatAsState(if (arrived) 1f else 0f, tween(420), label = "arriving")
@@ -317,14 +376,16 @@ private fun BoxScope.SetupGuide(
         val barTop by animateDpAsState(over.barTop, label = "barTop")
         val barBottom by animateDpAsState(over.barBottom, label = "barBottom")
         val shape = RoundedCornerShape(30.dp)
-        Box(Modifier.fillMaxSize().padding(top = barTop, bottom = barBottom)) {
+        Box(Modifier.fillMaxSize().padding(top = barTop, bottom = barBottom, start = clearStart, end = clearEnd)) {
             Column(
                 Modifier
                     .align(BiasAlignment(across, down))
                     .windowInsetsPadding(WindowInsets.displayCutout)
                     .padding(start = 10.dp, end = 10.dp, top = 10.dp, bottom = 12.dp)
                     .width(cardWidth)
-                    .heightIn(max = (h - barTop - barBottom - 22.dp).coerceAtLeast(160.dp))
+                    // In the middle, between where the top and the foot of the page turn it, it keeps clear of both
+                    // (what's in it scrolls, if it has to).
+                    .heightIn(max = (if (middled) h * (1f - 2 * s.tapWidth.fraction) - 16.dp else h - barTop - barBottom - 22.dp).coerceAtLeast(160.dp))
                     .graphicsLayer {
                         alpha = arriving
                         translationY = (1f - arriving) * 36.dp.toPx()
@@ -338,7 +399,7 @@ private fun BoxScope.SetupGuide(
                     .pointerInput(Unit) { awaitPointerEventScope { while (true) awaitPointerEvent() } }
                     .testTag("setup-card"),
             ) {
-                GuideHeader(SetupStep.entries.size, step.ordinal, c, onBack = onBack.takeIf { step.ordinal > 0 }, onSkip = onSkip.takeIf { step != SetupStep.DONE })
+                GuideHeader(count, at, c, onBack = onBack.takeIf { at > 0 }, onSkip = onSkip.takeIf { step != SetupStep.DONE })
                 AnimatedContent(
                     targetState = step,
                     transitionSpec = {
@@ -375,9 +436,14 @@ private fun BoxScope.SetupGuide(
                                 SetupStep.SPACING -> SpacingStep(s, c, change)
                                 SetupStep.ROTATION -> RotationStep(s, c, change)
                                 SetupStep.TURNING -> TurningStep(s, c, turns, tapBack, choices = !madeWay, change)
-                                SetupStep.CONTROLS -> ControlsStep(s, c, change)
+                                SetupStep.TAPS -> TapsStep(s, c, change)
+                                SetupStep.TAP_SIZE -> TapSizeStep(s, c, change)
+                                SetupStep.KEYS -> KeysStep(s, c, change)
+                                SetupStep.SWIPES -> SwipesStep(s, c, backTried, change)
+                                SetupStep.LEVEL -> LevelStep(s, c, change)
                                 SetupStep.EDGES -> EdgesStep(s, c, change)
                                 SetupStep.MENU -> MenuStep(c, menuOpen)
+                                SetupStep.KEPT -> KeptStep(c)
                                 SetupStep.DONE -> DoneStep(s, c)
                             }
                         }
@@ -521,7 +587,7 @@ private fun TurningStep(s: ReaderSettings, c: SetupColours, turns: Int, tapBack:
     AnimatedVisibility(choices, enter = expandVertically() + fadeIn(), exit = shrinkVertically() + fadeOut()) {
         Column {
             Spacer(Modifier.height(16.dp))
-            Segments(ReaderFlow.entries, s.flow, c, "flow", describe = { it.label }, modifier = Modifier.padding(horizontal = Edge), onPick = { change(s.copy(flow = it)) }) { f, chosen ->
+            Segments(ReaderFlow.entries, s.flow, c, "flow", describe = { it.label }, modifier = Modifier.padding(horizontal = Edge), onPick = { change(s.withFlow(it)) }) { f, chosen ->
                 SegmentWords(f.label, chosen, c)
             }
             AnimatedVisibility(!s.scrolling, enter = expandVertically() + fadeIn(), exit = shrinkVertically() + fadeOut()) {
@@ -537,31 +603,53 @@ private fun TurningStep(s: ReaderSettings, c: SetupColours, turns: Int, tapBack:
     }
 }
 
-/**
- * How the reader is worked: what a tap on the page does and how much of the page it's on, and the rest (the volume
- * keys, the screen staying on, swipes in from its edges), as in the reading settings' Controls.
- */
+/** What a tap on either side of the page does: tried there and then, with where taps go shown on the page. */
 @Composable
-private fun ControlsStep(s: ReaderSettings, c: SetupColours, change: (ReaderSettings) -> Unit) {
-    StepTitle(tr("Controls"), tr("Choose how you turn pages and get around."), c)
+private fun TapsStep(s: ReaderSettings, c: SetupColours, change: (ReaderSettings) -> Unit) {
+    StepTitle(tr("Tapping the page"), tr("Choose what a tap on each side does, then try it."), c)
     Spacer(Modifier.height(16.dp))
-    GroupName(tr("Tap to turn pages"), c)
     ChoiceList(TapZones.entries, s.taps, c, "taps", describe = { it.label }, modifier = Modifier.padding(horizontal = Edge)) { change(s.copy(taps = it)) }
-    val help = listOf(s.taps.help, tr("Tap the middle of the page to open the menu.")).filter { it.isNotEmpty() }.joinToString(" ")
-    Text(help, color = c.soft, style = SetupLabel.copy(fontWeight = FontWeight.Normal), modifier = Modifier.padding(start = Edge + 2.dp, end = Edge, top = 7.dp))
-    AnimatedVisibility(s.taps != TapZones.OFF, enter = expandVertically() + fadeIn(), exit = shrinkVertically() + fadeOut()) {
-        Column {
-            Spacer(Modifier.height(16.dp))
-            GroupName(tr("Tap zone size"), c)
-            Segments(
-                TapWidth.entries, s.tapWidth, c, "tapzone", describe = { it.label }, modifier = Modifier.padding(horizontal = Edge),
-                onPick = { change(s.copy(tapWidth = it)) },
-            ) { w, chosen -> SegmentWords(w.label, chosen, c) }
+    Box(Modifier.animateContentSize()) {
+        if (s.taps.help.isNotEmpty()) {
+            Text(s.taps.help, color = c.soft, style = SetupLabel.copy(fontWeight = FontWeight.Normal), modifier = Modifier.padding(start = Edge + 2.dp, end = Edge, top = 7.dp))
         }
     }
-    Spacer(Modifier.height(10.dp))
-    SetupSwitch(tr("Volume keys turn pages"), null, s.volumeKeys, c, "setup-volume-keys") { change(s.copy(volumeKeys = it)) }
-    SetupSwitch(tr("Keep screen on"), null, s.keepScreenOn, c, "setup-keep-on") { change(s.copy(keepScreenOn = it)) }
+}
+
+/** How far in from the edges a tap turns the page: tried there and then, with where taps go shown on the page. */
+@Composable
+private fun TapSizeStep(s: ReaderSettings, c: SetupColours, change: (ReaderSettings) -> Unit) {
+    StepTitle(tr("Tap zone size"), tr("How far in from the edges a tap turns the page. Try it."), c)
+    Spacer(Modifier.height(16.dp))
+    Segments(
+        TapWidth.entries, s.tapWidth, c, "tapzone", describe = { it.label }, modifier = Modifier.padding(horizontal = Edge),
+        onPick = { change(s.copy(tapWidth = it)) },
+    ) { w, chosen -> SegmentWords(w.label, chosen, c) }
+}
+
+/** The volume keys (tried there and then) and the screen staying on. */
+@Composable
+private fun KeysStep(s: ReaderSettings, c: SetupColours, change: (ReaderSettings) -> Unit) {
+    StepTitle(tr("Volume keys and screen"), null, c)
+    Spacer(Modifier.height(8.dp))
+    SetupSwitch(
+        tr("Volume keys turn pages"), if (s.volumeKeys) tr("Try it: press a volume key.") else null,
+        s.volumeKeys, c, "setup-volume-keys",
+    ) { change(s.copy(volumeKeys = it)) }
+    SetupSwitch(tr("Keep screen on"), tr("The screen stays on while a book is open."), s.keepScreenOn, c, "setup-keep-on") { change(s.copy(keepScreenOn = it)) }
+}
+
+/** Swipes in from the sides: for the side panels, or KoLib's own back gesture. Tried there and then. */
+@Composable
+private fun SwipesStep(s: ReaderSettings, c: SetupColours, backTried: Boolean, change: (ReaderSettings) -> Unit) {
+    val tryIt = when {
+        s.edgePanels -> tr("Try it: swipe in from an edge, then swipe the panel away.")
+        s.edgeBack && backTried -> tr("That's it. In a book, it goes back, just like Back.")
+        s.edgeBack -> tr("Try it: swipe in from either edge.")
+        else -> null
+    }
+    StepTitle(tr("Edge swipes"), tryIt, c)
+    Spacer(Modifier.height(8.dp))
     SetupSwitch(
         tr("Edge swipes open panels"), tr("Swipe in from the left edge for contents, or from the right for settings."),
         s.edgePanels, c, "setup-edge-panels",
@@ -572,6 +660,138 @@ private fun ControlsStep(s: ReaderSettings, c: SetupColours, change: (ReaderSett
             if (s.edgeBack) tr("Swipe from either edge and let go when the arrow fills in.") else tr("Android's back gesture is used."),
             s.edgeBack, c, "setup-edge-back",
         ) { change(s.copy(edgeBack = it)) }
+    }
+}
+
+/** Which side a swipe up or down sets the brightness on, and where up it it starts: tried there and then. */
+@Composable
+private fun LevelStep(s: ReaderSettings, c: SetupColours, change: (ReaderSettings) -> Unit) {
+    StepTitle(
+        tr("Brightness swipe"),
+        if (s.levelSide == LevelSide.OFF) tr("Change the brightness in Reading settings instead.") else tr("Try it: swipe up or down where it's marked."),
+        c,
+    )
+    Spacer(Modifier.height(16.dp))
+    Segments(
+        LevelSide.entries, s.levelSide, c, "levelside", describe = { it.label }, modifier = Modifier.padding(horizontal = Edge),
+        onPick = { change(s.copy(levelSide = it)) },
+    ) { o, chosen -> SegmentWords(o.label, chosen, c) }
+    AnimatedVisibility(s.levelSide != LevelSide.OFF, enter = expandVertically() + fadeIn(), exit = shrinkVertically() + fadeOut()) {
+        Column {
+            Spacer(Modifier.height(16.dp))
+            GroupName(tr("Start the swipe from"), c)
+            Segments(
+                LevelStart.entries, s.levelStart, c, "levelstart", describe = { it.label }, modifier = Modifier.padding(horizontal = Edge),
+                onPick = { change(s.copy(levelStart = it)) },
+            ) { o, chosen -> SegmentWords(o.label, chosen, c) }
+            Text(
+                tr("Keep it clear of where your thumb rests to scroll."), color = c.soft, style = SetupLabel.copy(fontWeight = FontWeight.Normal),
+                modifier = Modifier.padding(start = Edge + 2.dp, end = Edge, top = 7.dp),
+            )
+        }
+    }
+}
+
+/**
+ * Where a swipe up or down sets the brightness, marked on the page while it's tried: the strip down each side it's set
+ * for, as far up it as it starts, with arrows up and down. It takes no touches, so they reach the page under it.
+ */
+@Composable
+private fun LevelZonesHint(s: ReaderSettings, ink: Color) {
+    if (s.levelSide == LevelSide.OFF) return
+    Canvas(Modifier.fillMaxSize().testTag("setup-level-zones")) {
+        val w = size.width
+        val h = size.height
+        val strip = w * ReaderSettings.LEVEL_STRIP
+        val top = h * s.levelStart.from
+        val bottom = h * s.levelStart.to
+        val sides = when (s.levelSide) {
+            LevelSide.LEFT -> listOf(0f)
+            LevelSide.RIGHT -> listOf(w - strip)
+            else -> listOf(0f, w - strip)
+        }
+        val dash = PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 5.dp.toPx()))
+        val stroke = 1.4.dp.toPx()
+        sides.forEach { left ->
+            drawRect(ink.copy(alpha = 0.1f), Offset(left, top), Size(strip, bottom - top))
+            val inner = if (left == 0f) strip else left
+            drawLine(ink.copy(alpha = 0.4f), Offset(inner, top), Offset(inner, bottom), stroke, pathEffect = dash)
+            if (top > 0f) drawLine(ink.copy(alpha = 0.4f), Offset(left, top), Offset(left + strip, top), stroke, pathEffect = dash)
+            if (bottom < h) drawLine(ink.copy(alpha = 0.4f), Offset(left, bottom), Offset(left + strip, bottom), stroke, pathEffect = dash)
+            // Arrows up and down, in the middle of it.
+            val x = left + strip / 2
+            val y = (top + bottom) / 2
+            val k = 6.dp.toPx()
+            val gap = 9.dp.toPx()
+            listOf(-1f, 1f).forEach { way ->
+                val tip = y + way * (gap + k)
+                val chevron = Path().apply {
+                    moveTo(x - k, tip - way * k)
+                    lineTo(x, tip)
+                    lineTo(x + k, tip - way * k)
+                }
+                drawPath(chevron, ink.copy(alpha = 0.62f), style = Stroke(2.2.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+            }
+        }
+    }
+}
+
+/**
+ * Where taps on the page go, shown over it for a moment when [step] starts and each time the taps are changed: the
+ * parts that go back and those that go on, each with an arrow (at [arrowAt] down the page, on the sides). It takes no
+ * touches, so taps reach the page under it.
+ */
+@Composable
+private fun TapZonesHint(s: ReaderSettings, step: SetupStep, ink: Color, arrowAt: Dp) {
+    var shown by remember { mutableStateOf(false) }
+    LaunchedEffect(step, s.taps, s.tapWidth) {
+        shown = true
+        kotlinx.coroutines.delay(3_000)
+        shown = false
+    }
+    val a = easedIn(shown)
+    if (a <= 0f || s.taps == TapZones.OFF) return
+    Canvas(Modifier.fillMaxSize().alpha(a).testTag("setup-tap-zones")) {
+        val f = s.tapWidth.fraction
+        val w = size.width
+        val h = size.height
+        val arrowY = arrowAt.toPx().coerceIn(0f, h)
+        // Each part: where it is, whether it goes on, and where its arrow sits.
+        val parts = when (s.taps) {
+            TapZones.FORWARD -> listOf(
+                Triple(Rect(0f, 0f, w * f, h), true, Offset(w * f / 2, arrowY)),
+                Triple(Rect(w * (1 - f), 0f, w, h), true, Offset(w * (1 - f / 2), arrowY)),
+            )
+            TapZones.TOP_BOTTOM -> listOf(
+                Triple(Rect(0f, 0f, w, h * f), false, Offset(w / 2, h * f / 2)),
+                Triple(Rect(0f, h * (1 - f), w, h), true, Offset(w / 2, h * (1 - f / 2))),
+                Triple(Rect(0f, h * f, w * f, h * (1 - f)), false, Offset(w * f / 2, h / 2)),
+                Triple(Rect(w * (1 - f), h * f, w, h * (1 - f)), true, Offset(w * (1 - f / 2), h / 2)),
+            )
+            else -> listOf(
+                Triple(Rect(0f, 0f, w * f, h), false, Offset(w * f / 2, arrowY)),
+                Triple(Rect(w * (1 - f), 0f, w, h), true, Offset(w * (1 - f / 2), arrowY)),
+            )
+        }
+        val dash = PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 5.dp.toPx()))
+        val stroke = 1.4.dp.toPx()
+        parts.forEach { (r, on, arrow) ->
+            drawRect(ink.copy(alpha = if (on) 0.11f else 0.06f), r.topLeft, r.size)
+            // Its edges inside the page, dashed.
+            if (r.left > 0f) drawLine(ink.copy(alpha = 0.4f), Offset(r.left, r.top), Offset(r.left, r.bottom), stroke, pathEffect = dash)
+            if (r.right < w) drawLine(ink.copy(alpha = 0.4f), Offset(r.right, r.top), Offset(r.right, r.bottom), stroke, pathEffect = dash)
+            if (r.top > 0f) drawLine(ink.copy(alpha = 0.4f), Offset(r.left, r.top), Offset(r.right, r.top), stroke, pathEffect = dash)
+            if (r.bottom < h) drawLine(ink.copy(alpha = 0.4f), Offset(r.left, r.bottom), Offset(r.right, r.bottom), stroke, pathEffect = dash)
+            // A chevron: pointing on, or back.
+            val k = 7.dp.toPx() * (if (on) 1f else -1f)
+            val v = 9.dp.toPx()
+            val chevron = Path().apply {
+                moveTo(arrow.x - k / 2, arrow.y - v)
+                lineTo(arrow.x + k / 2, arrow.y)
+                lineTo(arrow.x - k / 2, arrow.y + v)
+            }
+            drawPath(chevron, ink.copy(alpha = 0.62f), style = Stroke(2.2.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+        }
     }
 }
 
@@ -690,12 +910,37 @@ private fun MenuStep(c: SetupColours, menuOpen: Boolean) {
     }
 }
 
+/**
+ * How settings are kept: changes to how a book looks while it's read are that book's own, till they're set as the
+ * default; each way the device is held has settings of its own; and so do pages and scrolling.
+ */
+@Composable
+private fun KeptStep(c: SetupColours) {
+    StepTitle(tr("Each book's own settings"), null, c)
+    Column(Modifier.padding(start = Edge, end = Edge, top = 10.dp)) {
+        IconLine(
+            Icons.AutoMirrored.Outlined.MenuBook, tr("Change the text, page or layout while reading, and only that book changes."), c,
+            note = tr("Tap Set as default in Reading settings to use them for every book."),
+        )
+        IconLine(Icons.Outlined.ScreenRotation, tr("Portrait and landscape have separate settings."), c)
+        IconLine(
+            Icons.Outlined.SwapVert, tr("Pages and scrolling have separate settings too."), c,
+            note = tr("Set each up as you like: changing one leaves the other as it is."),
+        )
+    }
+}
+
 @Composable
 private fun DoneStep(s: ReaderSettings, c: SetupColours) {
     StepTitle(tr("You’re all set"), tr("Change anything later in Reading settings."), c)
     Column(Modifier.padding(start = Edge, end = Edge, top = 10.dp)) {
         if (s.edgePanels) IconLine(Icons.Outlined.Swipe, tr("Swipe from the left edge for contents, or the right edge for settings."), c)
-        IconLine(Icons.Outlined.BrightnessMedium, tr("Swipe up or down the left edge to change the brightness."), c)
+        when (s.levelSide) {
+            LevelSide.LEFT -> tr("Swipe up or down the left edge to change the brightness.")
+            LevelSide.RIGHT -> tr("Swipe up or down the right edge to change the brightness.")
+            LevelSide.BOTH -> tr("Swipe up or down either edge to change the brightness.")
+            LevelSide.OFF -> null
+        }?.let { IconLine(Icons.Outlined.BrightnessMedium, it, c) }
         IconLine(Icons.Outlined.BorderColor, tr("Hold a word to highlight it, add a note or look it up."), c)
     }
 }

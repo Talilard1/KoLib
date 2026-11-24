@@ -41,6 +41,7 @@ class WhatsNewTest {
     private var due by mutableStateOf(true)
     private var seen by mutableStateOf(setOf(Tours.SAMPLES))
     private var told = 0
+    private var opening by mutableStateOf(false)
 
     @Before
     fun setUp() {
@@ -60,7 +61,7 @@ class WhatsNewTest {
             KoLibTheme {
                 AppRoot(
                     vm, libraryVm, toursSeen = seen, onTourSeen = { seen = seen + it },
-                    newsDue = due, onNewsSeen = { told++; due = false },
+                    newsDue = due, onNewsSeen = { told++; due = false }, openingPlaying = opening,
                 )
             }
         }
@@ -81,6 +82,24 @@ class WhatsNewTest {
         val notes = WhatsNew.notes(BuildConfig.VERSION_NAME)
         assertTrue("notes for ${BuildConfig.VERSION_NAME}", !notes.isNullOrEmpty())
         assertEquals(null, WhatsNew.notes("0.1"))
+    }
+
+    /** The first thing it says is that the layout's been reworked. */
+    @Test
+    fun theReworkedLayoutComesFirst() {
+        assertEquals(dev.kolib.app.tr("A simpler layout"), WhatsNew.notes("3.5")!!.first().title)
+    }
+
+    /** While the opening animation plays, it waits (and so do the tours); once it's done, it shows. */
+    @Test
+    fun itWaitsForTheOpeningAnimation() {
+        opening = true
+        show()
+        assertTrue(!showing("whats-new"))
+        assertTrue(!showing("tour"))
+        opening = false
+        settle()
+        assertTrue(showing("whats-new"))
     }
 
     @Test

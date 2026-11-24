@@ -199,6 +199,38 @@ class ChaptersPaneTest {
         assertEquals(before, titles(state))
     }
 
+    /** Held on its handle or on its menu button, a chapter isn't chosen: those are for moving it and for its menu. */
+    @Test
+    fun aHoldOnTheHandleOrTheMenuButtonDoesntChooseIt() {
+        val state = open { TestBooks.garden(it) }
+        show(state)
+        val before = titles(state)
+        val handle = compose.onAllNodesWithContentDescription(tr("Drag to reorder"), useUnmergedTree = true)[1]
+        handle.performTouchInput {
+            down(center)
+            advanceEventTime(900)
+            moveBy(Offset(0f, 1f))
+        }
+        compose.waitForIdle()
+        compose.onNodeWithText(tr("1 chapter selected")).assertDoesNotExist()
+        handle.performTouchInput { up() }
+        settle(state)
+        compose.onNodeWithText(tr("1 chapter selected")).assertDoesNotExist()
+        assertEquals(before, titles(state))
+
+        val menu = compose.onNodeWithContentDescription(tr("Options for “{0}”", "Chapter 2"), useUnmergedTree = true)
+        menu.performTouchInput {
+            down(center)
+            advanceEventTime(900)
+            moveBy(Offset(0f, 1f))
+        }
+        compose.waitForIdle()
+        compose.onNodeWithText(tr("1 chapter selected")).assertDoesNotExist()
+        menu.performTouchInput { up() }
+        compose.waitForIdle()
+        compose.onNodeWithText(tr("1 chapter selected")).assertDoesNotExist()
+    }
+
     @Test
     fun holdingChoosesAndChosenChaptersMoveOrGoTogether() {
         val state = open { TestBooks.garden(it) }

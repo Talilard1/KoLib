@@ -105,7 +105,10 @@ class ReaderFrame(context: Context, val controller: ReaderController) : FrameLay
         }
     }
 
-    /** A swipe up or down the left edge sets the brightness: told the new level (see [ReaderSettings.level]). */
+    /**
+     * A swipe up or down a side sets the brightness (the side, and where up it, as the reader's set: see
+     * [ReaderSettings.startsLevelSwipe]): told the new level (see [ReaderSettings.level]).
+     */
     var onLevel: ((Float) -> Unit)? = null
     /** The brightness level to start such a swipe from. */
     var currentLevel: () -> Float = { 0.5f }
@@ -117,8 +120,15 @@ class ReaderFrame(context: Context, val controller: ReaderController) : FrameLay
     private var edgeStartY = 0f
     private var edgeStartLevel = 0f
 
-    /** A swipe in from the left (-1) or the right (1) edge: the side panel on that side opens. */
+    /** A swipe in from the left (-1) or the right (1) edge: the side panel on that side starts to come out. */
     var onSideSwipe: ((Int) -> Unit)? = null
+    /** As that swipe goes on: how far in from its edge the finger is, in pixels (the panel follows it). */
+    var onSidePull: ((Float) -> Unit)? = null
+    /** That swipe let go: how fast the finger was going in from the edge, in pixels a second (less than 0, back out). */
+    var onSideLetGo: ((Float) -> Unit)? = null
+    private var sideVelocity: VelocityTracker? = null
+    /** The edge the panel being pulled out is on (-1 left, 1 right). */
+    private var pulledFrom = 0
 
     /**
      * Whether the side edges are the reader's just now: a swipe in from one opens the panel on that side,
@@ -171,7 +181,7 @@ class ReaderFrame(context: Context, val controller: ReaderController) : FrameLay
         }
         if (sideSwipe(ev) || edgeSwipe(ev)) return true
         val turning = turner.touch(ev)
-        // Kept while it may yet be a swipe in from a side edge, or up or down the left one.
+        // Kept while it may yet be a swipe in from a side edge, or up or down one for the brightness.
         return turning || (ev.actionMasked == MotionEvent.ACTION_DOWN && (side != 0 || edgeTracking))
     }
 
@@ -191,18 +201,25 @@ class ReaderFrame(context: Context, val controller: ReaderController) : FrameLay
                 }
                 sideDownX = ev.x
                 sideDownY = ev.y
+                sideVelocity?.recycle()
+                sideVelocity = if (side != 0) VelocityTracker.obtain().also { it.addMovement(ev) } else null
             }
             MotionEvent.ACTION_POINTER_DOWN -> if (!sideTaken) side = 0
             MotionEvent.ACTION_MOVE -> {
-                if (sideTaken) return true
+                sideVelocity?.addMovement(ev)
+                if (sideTaken) {
+                    onSidePull?.invoke(fromEdge(ev.x))
+                    return true
+                }
                 if (side != 0) {
                     val inward = (ev.x - sideDownX) * -side
                     val across = abs(ev.y - sideDownY)
                     if (inward > slop && inward > across * 1.5f) {
                         sideTaken = true
-                        val from = side
+                        pulledFrom = side
                         side = 0
-                        onSideSwipe?.invoke(from)
+                        onSideSwipe?.invoke(pulledFrom)
+                        onSidePull?.invoke(fromEdge(ev.x))
                         return true
                     }
                     if (across > slop || inward < -slop) side = 0
@@ -210,6 +227,16 @@ class ReaderFrame(context: Context, val controller: ReaderController) : FrameLay
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 val was = sideTaken
+                if (was) {
+                    sideVelocity?.addMovement(ev)
+                    val speed = sideVelocity?.let { v ->
+                        v.computeCurrentVelocity(1000)
+                        v.xVelocity * -pulledFrom
+                    } ?: 0f
+                    onSideLetGo?.invoke(if (ev.actionMasked == MotionEvent.ACTION_CANCEL) 0f else speed)
+                }
+                sideVelocity?.recycle()
+                sideVelocity = null
                 sideTaken = false
                 side = 0
                 return was
@@ -218,11 +245,15 @@ class ReaderFrame(context: Context, val controller: ReaderController) : FrameLay
         return false
     }
 
-    /** True once a swipe down the left edge has started (it then gets the rest of the touch). */
+    /** How far in from the edge the panel being pulled out is on [x] is. */
+    private fun fromEdge(x: Float): Float = (if (pulledFrom < 0) x else width - x).coerceAtLeast(0f)
+
+    /** True once a swipe up or down a side that sets the brightness has started (it then gets the rest of the touch). */
     private fun edgeSwipe(ev: MotionEvent): Boolean {
         when (ev.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                edgeTracking = onLevel != null && ev.x < width * 0.07f && !controller.selecting
+                edgeTracking = onLevel != null && !controller.selecting &&
+                    controller.settings.startsLevelSwipe(ev.x, ev.y, width.toFloat(), height.toFloat())
                 edgeActive = false
                 edgeDownX = ev.x
                 edgeStartY = ev.y

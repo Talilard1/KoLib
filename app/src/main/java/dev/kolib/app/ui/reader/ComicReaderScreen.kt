@@ -619,7 +619,9 @@ internal fun ComicView(
     val menuNow by rememberUpdatedState(menu)
     val setMenuNow by rememberUpdatedState(setMenu)
     val toggleMenu = remember { { setMenuNow(!menuNow) } }
-    // The menu stays as it is while pages are turned or the strip scrolled, by a swipe or from the menu.
+    // The menu stays up while pages are swiped, the strip scrolled, or pages gone to from the menu; a tap on the page
+    // that turns it is reading on, and the menu goes (as in Mihon).
+    val hideMenu = remember { { if (menuNow) setMenuNow(false) } }
     LaunchedEffect(comic.id, page) {
         // On its first page (its cover) it isn't being read: not read yet, or still finished if it was.
         if (page == 0) {
@@ -719,7 +721,7 @@ internal fun ComicView(
         ) {
             // Changed from turning pages to a strip (or back), it carries on from the page reached, not the one it opened on.
             val from = remember(generation, mode.paged) { page }
-            key(generation) {
+            key(generation) { CompositionLocalProvider(LocalTapTurn provides hideMenu) {
                 if (mode.paged) {
                     PagedComic(
                         current = comic, before = before, after = after, s = s, mode = mode, startPage = from, series = series, ink = ink,
@@ -732,7 +734,7 @@ internal fun ComicView(
                         onClose = onClose, nudges = nudges, jumps = jumps,
                     )
                 }
-            }
+            } }
             if (s.colourFilter) {
                 val blend = s.blend.toBlendMode()
                 Canvas(Modifier.fillMaxSize().testTag("comic-colour-filter")) { drawRect(Color(s.colour), blendMode = blend) }
@@ -910,6 +912,9 @@ private suspend fun savePage(context: android.content.Context, pages: ComicPages
     }
     Toast.makeText(context, if (ok) tr("Saved to Pictures/KoLib.") else tr("The page couldn't be saved."), Toast.LENGTH_SHORT).show()
 }
+
+/** What a tap on the page that turns it does besides (the menu goes). */
+private val LocalTapTurn = androidx.compose.runtime.staticCompositionLocalOf<() -> Unit> { {} }
 
 /** Where taps go, coloured, for a moment: back a page, on a page, and the menu. */
 @Composable
@@ -1183,6 +1188,7 @@ private fun BetweenPage(
 ) {
     val turnNow by rememberUpdatedState(onTurn)
     val menuNow by rememberUpdatedState(onMenu)
+    val tapTurnNow by rememberUpdatedState(LocalTapTurn.current)
     val sNow by rememberUpdatedState(s)
     if (nudges != null) LaunchedEffect(nudges) { nudges.collect { turnNow(it) } }
     Box(
@@ -1190,7 +1196,7 @@ private fun BetweenPage(
             detectTapGestures { p ->
                 val st = sNow
                 val a = ComicLayout.tapAction(p.x / size.width, p.y / size.height, st.taps(mode), mode, st.invertTaps(mode))
-                if (a != 0) turnNow(a) else menuNow()
+                if (a != 0) { turnNow(a); tapTurnNow() } else menuNow()
             }
         },
         contentAlignment = Alignment.Center,
@@ -1296,6 +1302,7 @@ private fun ComicPage(
     val pullNow by rememberUpdatedState(onPull)
     val letGoNow by rememberUpdatedState(onLetGo)
     val menuNow by rememberUpdatedState(onMenu)
+    val tapTurnNow by rememberUpdatedState(LocalTapTurn.current)
     val longPressNow by rememberUpdatedState(onLongPress)
     val filterNow by rememberUpdatedState(filter)
     // Read here, outside the box that measures the screen, so the page is drawn again as soon as it's known.
@@ -1569,9 +1576,9 @@ private fun ComicPage(
                                 // As in Mihon, a tap waits a moment in case a second follows: two zoom.
                                 val second = withTimeoutOrNull(viewConfiguration.doubleTapTimeoutMillis) { awaitFirstDown(requireUnconsumed = false) }
                                 when {
-                                    second == null -> if (action != 0) step(action) else menuNow()
+                                    second == null -> if (action != 0) { step(action); tapTurnNow() } else menuNow()
                                     (second.position - up).getDistance() > doubleTapSlop -> {
-                                        if (action != 0) step(action) else menuNow()
+                                        if (action != 0) { step(action); tapTurnNow() } else menuNow()
                                         touch(second)
                                     }
                                     else -> secondTap(second)
@@ -1697,6 +1704,7 @@ private fun StripComic(
     val known = regions.toMap()
     val sNow by rememberUpdatedState(s)
     val menuNow by rememberUpdatedState(onMenu)
+    val tapTurnNow by rememberUpdatedState(LocalTapTurn.current)
     val longPressNow by rememberUpdatedState(onLongPress)
     val movedNow by rememberUpdatedState(onMoved)
     val onAtNow by rememberUpdatedState(onAt)
@@ -1897,9 +1905,9 @@ private fun StripComic(
                                     awaitFirstDown(requireUnconsumed = false, pass = pass)
                                 }
                                 when {
-                                    second == null -> if (action != 0) scrollStrip(action) else menuNow()
+                                    second == null -> if (action != 0) { scrollStrip(action); tapTurnNow() } else menuNow()
                                     (second.position - up).getDistance() > doubleTapSlop -> {
-                                        if (action != 0) scrollStrip(action) else menuNow()
+                                        if (action != 0) { scrollStrip(action); tapTurnNow() } else menuNow()
                                         touch(second)
                                     }
                                     else -> secondTap(second)

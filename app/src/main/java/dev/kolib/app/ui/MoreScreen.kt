@@ -19,6 +19,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Info
@@ -52,7 +53,6 @@ fun MoreScreen(
     version: String,
     onSettings: () -> Unit,
     onStats: () -> Unit,
-    onTours: (() -> Unit)?,
     onLog: () -> Unit,
     onBackups: () -> Unit,
     onAbout: () -> Unit,
@@ -60,6 +60,8 @@ fun MoreScreen(
     onStorage: () -> Unit = {},
     /** What's new in this version; null where it has nothing to say. */
     onWhatsNew: (() -> Unit)? = null,
+    /** The AI's settings: the model that explains words, summarises and answers questions, and the dictionary. */
+    onAi: (() -> Unit)? = null,
 ) {
     Column(
         Modifier
@@ -79,7 +81,7 @@ fun MoreScreen(
             HorizontalDivider()
             MoreItem(Icons.Outlined.Settings, tr("Settings"), tr("Look, reading, library and updates"), "more-settings", onSettings)
             MoreItem(Icons.Outlined.BarChart, tr("Reading stats"), tr("Time read, here and on the Kobo"), "more-stats", onStats)
-            onTours?.let { MoreItem(Icons.Outlined.Explore, tr("Show the tours again"), tr("Each screen's tour shows the next time you open it."), "more-tours", it) }
+            onAi?.let { MoreItem(Icons.Outlined.AutoAwesome, tr("AI and dictionary"), tr("Meanings of words, chapter summaries and questions about a book"), "more-ai", it) }
             HorizontalDivider()
             MoreItem(Icons.Outlined.Storage, tr("Storage"), tr("How much space KoLib takes up, and by what"), "more-storage", onStorage)
             MoreItem(Icons.Outlined.Restore, tr("Database backups"), tr("Copies of the Kobo's library, saved before each change"), "more-backups", onBackups)
@@ -114,11 +116,12 @@ private fun MoreItem(icon: ImageVector, title: String, detail: String, tag: Stri
     }
 }
 
-/** KoLib's newest release, on its GitHub page. */
+/** KoLib on GitHub: its newest release, or ([home]) the front page of its repository. */
 @Composable
-internal fun ReleasesButton(modifier: Modifier = Modifier) {
+internal fun ReleasesButton(modifier: Modifier = Modifier, home: Boolean = false) {
     val links = androidx.compose.ui.platform.LocalUriHandler.current
-    androidx.compose.material3.IconButton(onClick = { runCatching { links.openUri(dev.kolib.app.update.Updates.PAGE) } }, modifier = modifier) {
-        Icon(dev.kolib.app.ui.components.SourceIcons.Release, tr("Newest release on GitHub"), tint = MaterialTheme.colorScheme.primary)
+    val url = if (home) dev.kolib.app.update.Updates.HOME else dev.kolib.app.update.Updates.PAGE
+    androidx.compose.material3.IconButton(onClick = { runCatching { links.openUri(url) } }, modifier = modifier) {
+        Icon(dev.kolib.app.ui.components.SourceIcons.Release, if (home) tr("KoLib on GitHub") else tr("Newest release on GitHub"), tint = MaterialTheme.colorScheme.primary)
     }
 }

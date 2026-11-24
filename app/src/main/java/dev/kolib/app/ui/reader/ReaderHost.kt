@@ -22,7 +22,6 @@ import dev.kolib.app.library.ComicSeries
 import dev.kolib.app.reader.PdfPlace
 import dev.kolib.app.reader.ReaderStore
 import dev.kolib.app.ui.LookDialog
-import dev.kolib.app.ui.ai.AiSetupDialog
 import dev.kolib.app.ui.library.LanguageDialog
 import dev.kolib.app.ui.library.libraryComics
 
@@ -48,7 +47,6 @@ fun ReaderHost(
     val book = books.firstOrNull { it.id == id }
     var showLook by remember { mutableStateOf(false) }
     var showLanguage by remember { mutableStateOf(false) }
-    var showAi by remember { mutableStateOf(false) }
     // The readers' tours, the first time a book and a comic are read.
     val themes = app.themeSettings
     val seenTours by themes.toursSeen.collectAsStateWithLifecycle()
@@ -124,7 +122,6 @@ fun ReaderHost(
                 showLook = false
                 showLanguage = true
             },
-            onAi = { showAi = true },
             onShowTours = {
                 showLook = false
                 themes.showToursAgain()
@@ -134,5 +131,4 @@ fun ReaderHost(
         )
     }
     if (showLanguage) LanguageDialog(onDismiss = { showLanguage = false })
-    if (showAi) AiSetupDialog(onDismiss = { showAi = false })
 }

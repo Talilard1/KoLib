@@ -186,13 +186,13 @@ fun ShelfLine(shown: Int, total: Int, narrowed: Boolean, filters: String?, order
     }
 }
 
-/** The Comics tab's one button: which series show, their order, and how they show (and, wide, where a series opens). */
+/** The Comics tab's one button: which series show, their order, and how they show. A series opens beside the shelf. */
 @Composable
 fun comicShelfExtras(browse: LibraryBrowseState, wide: Boolean) = ShelfExtras(
     filter = { ComicFilterChoices(browse) },
     sort = { SortChoices(ComicSort.entries, browse.comicSort, false, { it.label }, { _, _ -> "" }, turns = false) { browse.comicSort = it } },
     filtered = browse.comicsFiltered,
-    display = if (wide) ({ SeriesOpenChoice(browse) }) else null,
+    display = null,
 )
 
 /** The comics' filters that are on, in a few words. */
@@ -219,18 +219,6 @@ private fun ColumnScope.ComicFilterChoices(browse: LibraryBrowseState) {
         browse.comicOnKobo = null
     }
 }
-
-/** On a wide screen, where a series opens when it's tapped. */
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun ColumnScope.SeriesOpenChoice(browse: LibraryBrowseState) {
-    SheetHeading(tr("When you tap a series"))
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        FilterChip(selected = !browse.seriesInPlace, onClick = { browse.openSeriesInPlace(false) }, label = { Text(tr("Show it beside your comics")) }, modifier = Modifier.testTag("series-beside"))
-        FilterChip(selected = browse.seriesInPlace, onClick = { browse.openSeriesInPlace(true) }, label = { Text(tr("Show it full screen")) }, modifier = Modifier.testTag("series-in-place"))
-    }
-}
-
 
 /**
  * A tap on the Library tab while it's showing: what's open over the shelf closes (a book, a series, a collection), or,

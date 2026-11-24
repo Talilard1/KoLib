@@ -492,7 +492,7 @@ fun AppRoot(
         }
     }
 
-    BackHandler(enabled = overlay == "log" || overlay == "backups" || overlay == "about" || overlay == "stats") { overlay = null }
+    BackHandler(enabled = overlay == "log" || overlay == "backups" || overlay == "about" || overlay == "stats" || overlay == "storage") { overlay = null }
     BackHandler(enabled = overlay == null && section != Section.LIBRARY) { section = Section.LIBRARY }
 
     val koboExtras = remember(books, state.koboTags) { KoboExtras(books, state.koboTags) }
@@ -599,6 +599,7 @@ fun AppRoot(
                     koboDays = koboDays,
                 )
             }
+            current == "storage" -> StorageScreen(onBack = { overlay = null })
             current == "backups" -> BackupsScreen(
                 backups = state.backups,
                 onExport = vm::exportBackup,
@@ -722,6 +723,7 @@ fun AppRoot(
                         },
                         onAbout = { overlay = "about" },
                         onUpdates = { (appContext.applicationContext as dev.kolib.app.KoLibApp).updater.lookNow() },
+                        onStorage = { overlay = "storage" },
                     )
                     Section.DEVICES -> dev.kolib.app.ui.link.DevicesScreen(link, devicesActions, onEject = if (liveSession != null) ({ showEject = true }) else null)
                     Section.LIBRARY -> CompositionLocalProvider(dev.kolib.app.ui.ocr.LocalOcrActions provides ocrActions) { LibraryScreen(
@@ -1145,8 +1147,6 @@ fun AppRoot(
             onAi = { showAi = true },
             comicsTab = libraryBrowse.comicsTab,
             onComicsTab = { libraryBrowse.comicsTab = it },
-            seriesInPlace = libraryBrowse.seriesInPlace,
-            onSeriesInPlace = { libraryBrowse.openSeriesInPlace(it) },
             tour = !toursOff && toursSeen?.let { Tours.SETTINGS !in it } == true,
             onTourDone = { onTourSeen(Tours.SETTINGS) },
             onShowTours = onShowToursAgain?.let { again -> { showLook = false; if (section == Section.MORE) section = Section.LIBRARY; again() } },
@@ -1432,8 +1432,6 @@ fun LookDialog(
     comicsTab: Boolean? = null,
     onComicsTab: (Boolean) -> Unit = {},
     /** On a wide screen, a series opens in place of the comics' shelf rather than beside it. */
-    seriesInPlace: Boolean = false,
-    onSeriesInPlace: (Boolean) -> Unit = {},
     /** The tour of Settings is given: it's the first time they're opened. */
     tour: Boolean = false,
     onTourDone: () -> Unit = {},
@@ -1493,33 +1491,6 @@ fun LookDialog(
             val library: (@Composable ColumnScope.() -> Unit)? = if (comicsTab == null) null else ({
                 Column(Modifier.tourPlace("settings-comics")) {
                     SwitchLine(tr("Comics tab"), tr("Comics get a tab of their own, with each series as one entry. When this is off, they're with your books."), comicsTab, onComicsTab)
-                    // Only where there's room for a series beside the comics: a tablet.
-                    if (comicsTab && androidx.compose.ui.platform.LocalConfiguration.current.smallestScreenWidthDp >= 600) {
-                        Text(
-                            tr("When you tap a series"),
-                            style = MaterialTheme.typography.titleSmall,
-                            modifier = Modifier.padding(start = 4.dp, top = 12.dp, bottom = 2.dp),
-                        )
-                        for (inPlace in listOf(false, true)) {
-                            Row(
-                                Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
-                                    .selectable(seriesInPlace == inPlace, role = Role.RadioButton) { onSeriesInPlace(inPlace) }
-                                    .padding(vertical = 2.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                RadioButton(selected = seriesInPlace == inPlace, onClick = null, modifier = Modifier.padding(horizontal = 10.dp))
-                                Column(Modifier.weight(1f).padding(vertical = 6.dp)) {
-                                    Text(if (inPlace) tr("Show it full screen") else tr("Show it beside your comics"), style = MaterialTheme.typography.bodyLarge)
-                                    Text(
-                                        if (inPlace) tr("It fills the screen, with its comics as covers or a list. Go back to return to your comics.")
-                                        else tr("Its comics open in a panel on the right, with the rest of your comics still on the left."),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                }
-                            }
-                        }
-                    }
                 }
             })
             val look: @Composable ColumnScope.() -> Unit = {

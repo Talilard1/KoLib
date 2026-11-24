@@ -98,10 +98,10 @@ class LinkManagerTest {
 
     private val devices = ArrayList<Device>()
 
-    private fun device(name: String): Device {
+    private fun device(name: String, battery: Int? = null): Device {
         val dir = File(base, name).apply { mkdirs() }
         val host = FakeHost(dir)
-        val link = LinkManager(LinkStore(File(dir, "link")), host, { name }, scope, port = 0, discover = false)
+        val link = LinkManager(LinkStore(File(dir, "link")), host, { name }, scope, port = 0, discover = false, battery = { battery })
         return Device(name, host, link).also { d ->
             devices += d
             link.start()
@@ -169,6 +169,17 @@ class LinkManagerTest {
         waitFor("the message") { phone.messages.any { "Received 2 files from Tablet" in it } }
         waitFor("the message") { tablet.messages.any { "Sent 2 files to Phone" in it } }
         assertTrue(tablet.link.transfers.value.isEmpty())
+    }
+
+    /** Saying hello, each tells the other how charged it is: the one asking hears the other's, and the other the asker's. */
+    @Test
+    fun devicesTellEachOtherTheirBattery() {
+        val tablet = device("Tablet", battery = 82)
+        val phone = device("Phone", battery = 54)
+        pair(phone, tablet)
+        runBlocking { phone.link.reach(address(tablet)) }
+        assertEquals(82, phone.link.nearby.value.first { it.id == tablet.link.identity.id }.battery)
+        waitFor("the phone's battery, at the tablet") { tablet.link.nearby.value.firstOrNull { it.id == phone.link.identity.id }?.battery == 54 }
     }
 
     @Test

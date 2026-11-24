@@ -5,6 +5,7 @@ import androidx.core.app.NotificationCompat
 import androidx.test.core.app.ApplicationProvider
 import dev.kolib.app.tr
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -24,8 +25,8 @@ class LinkNotificationTest {
     fun waitingWithADevicePairedOffersSendSendClipboardAndStop() {
         val n = LinkService.build(context, emptyList(), paired = true, said = null)
         assertEquals(listOf(tr("Send"), tr("Send clipboard"), tr("Stop")), actions(n))
-        assertEquals(tr("Ready to receive from your devices"), NotificationCompat.getContentTitle(n).toString())
-        assertEquals(tr("Paired devices can send while KoLib is closed."), NotificationCompat.getContentText(n).toString())
+        assertEquals(tr("Not connected"), NotificationCompat.getContentTitle(n).toString())
+        assertNull(NotificationCompat.getContentText(n))
         // Send asks what to send, over whatever's on the screen; Send clipboard opens a screen that can read the
         // clipboard (only what's in front can) and sends it.
         val send = shadowOf(NotificationCompat.getAction(n, 0)!!.actionIntent).savedIntent
@@ -41,6 +42,19 @@ class LinkNotificationTest {
     @Test
     fun withNoDevicePairedOnlyStop() {
         assertEquals(listOf(tr("Stop")), actions(LinkService.build(context, emptyList(), paired = false, said = null)))
+    }
+
+    /** With paired devices here: Connected to them, and how charged each is (where it says). */
+    @Test
+    fun connectedToTheDevicesHereWithTheirBattery() {
+        val one = LinkService.build(context, emptyList(), paired = true, said = null, here = listOf("Tablet" to 82))
+        assertEquals(tr("Connected to: {0}", "Tablet"), NotificationCompat.getContentTitle(one).toString())
+        assertEquals(tr("Battery {0}%", 82), NotificationCompat.getContentText(one).toString())
+        val two = LinkService.build(context, emptyList(), paired = true, said = null, here = listOf("Tablet" to 82, "Phone" to 54))
+        assertEquals(tr("Connected to: {0}", "Tablet, Phone"), NotificationCompat.getContentTitle(two).toString())
+        assertEquals(tr("{0}: {1}%", "Tablet", 82) + " · " + tr("{0}: {1}%", "Phone", 54), NotificationCompat.getContentText(two).toString())
+        val unknown = LinkService.build(context, emptyList(), paired = true, said = null, here = listOf("Tablet" to null))
+        assertNull(NotificationCompat.getContentText(unknown))
     }
 
     @Test

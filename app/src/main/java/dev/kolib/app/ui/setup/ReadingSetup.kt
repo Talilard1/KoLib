@@ -291,8 +291,9 @@ private fun BoxScope.SetupGuide(
             easedIn(middle).let { a -> if (a > 0f) TouchHere(ink, Modifier.offset(x = middleX - size / 2, y = y - size / 2).alpha(a)) }
         }
 
-        // The card: at the foot of the page, in the middle of it while the reader's own bars are up, or on the blank
-        // left-hand page.
+        // The card: at the foot of the page, in the middle of it while the reader's own bars are up (or while what
+        // shows round the page is chosen, so the headings above it and the progress bar below it can be seen), or on
+        // the blank left-hand page.
         val across by animateFloatAsState(
             when {
                 // Its middle a quarter of the way across: the middle of the left-hand page.
@@ -302,7 +303,7 @@ private fun BoxScope.SetupGuide(
             },
             spring(stiffness = Spring.StiffnessLow), label = "across",
         )
-        val down by animateFloatAsState(if ((side && !madeWay) || menuOpen) 0f else 1f, spring(dampingRatio = 0.86f, stiffness = Spring.StiffnessLow), label = "down")
+        val down by animateFloatAsState(if ((side && !madeWay) || menuOpen || step == SetupStep.EDGES) 0f else 1f, spring(dampingRatio = 0.86f, stiffness = Spring.StiffnessLow), label = "down")
         var arrived by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) { arrived = true }
         val arriving by animateFloatAsState(if (arrived) 1f else 0f, tween(420), label = "arriving")

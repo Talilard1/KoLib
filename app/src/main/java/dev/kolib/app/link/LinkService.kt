@@ -23,6 +23,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.launch
 
@@ -44,10 +45,17 @@ class LinkService : Service() {
         private const val SAID_FOR = 10_000L
 
         /**
-         * The notification: what's being sent or taken in, or, while it waits, that it's ready, with what came of the
-         * last thing done ([said]) for a while, and Send and Send clipboard (with a device [paired]) and Stop.
+         * The notification: what's being sent or taken in; or, while it waits, simply which paired devices are [here]
+         * (each with how charged it is, where it says), or Not connected, with what came of the last thing done
+         * ([said]) for a while; and Send and Send clipboard (with a device [paired]) and Stop.
          */
-        internal fun build(context: Context, transfers: List<Transfer>, paired: Boolean, said: String?): android.app.Notification {
+        internal fun build(
+            context: Context,
+            transfers: List<Transfer>,
+            paired: Boolean,
+            said: String?,
+            here: List<Pair<String, Int?>> = emptyList(),
+        ): android.app.Notification {
             val open = PendingIntent.getActivity(
                 context, 0, Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
@@ -70,8 +78,10 @@ class LinkService : Service() {
                     context, 1, Intent(context, LinkService::class.java).setAction(ACTION_STOP),
                     PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
                 )
-                b.setContentTitle(tr("Ready to receive from your devices"))
-                    .setContentText(said ?: tr("Paired devices can send while KoLib is closed."))
+                b.setContentTitle(if (here.isEmpty()) tr("Not connected") else tr("Connected to: {0}", here.joinToString(", ") { it.first }))
+                val charge = if (here.size == 1) here[0].second?.let { tr("Battery {0}%", it) }
+                else here.mapNotNull { (name, battery) -> battery?.let { tr("{0}: {1}%", name, it) } }.joinToString(" · ").ifEmpty { null }
+                (said ?: charge)?.let { b.setContentText(it) }
                 if (paired) {
                     // What to send, and to which device, is chosen next, over whatever's on the screen.
                     val send = PendingIntent.getActivity(
@@ -129,7 +139,9 @@ class LinkService : Service() {
         if (watching == null) {
             watching = scope.launch {
                 @OptIn(kotlinx.coroutines.FlowPreview::class)
-                combine(link.transfers, link.settings, link.paired) { t, s, _ -> t to s }.sample(1000).collect { (t, s) ->
+                // (Which devices are here, and their batteries: only when that changes, not each time one is heard.)
+                val hereNow = combine(link.paired, link.nearby) { _, _ -> here() }.distinctUntilChanged()
+                combine(link.transfers, link.settings, hereNow) { t, s, _ -> t to s }.sample(1000).collect { (t, s) ->
                     if (t.isEmpty() && !s.stayReachable) finish()
                     else renotify()
                 }
@@ -195,5 +207,11 @@ class LinkService : Service() {
         }
     }
 
-    private fun notification(): android.app.Notification = build(this, link.transfers.value, link.paired.value.isNotEmpty(), said)
+    private fun notification(): android.app.Notification = build(this, link.transfers.value, link.paired.value.isNotEmpty(), said, here())
+
+    /** The paired devices here now, by name, each with its battery where it's said. */
+    private fun here(): List<Pair<String, Int?>> {
+        val near = link.nearby.value
+        return link.paired.value.mapNotNull { d -> near.firstOrNull { it.id == d.id }?.let { n -> n.name to n.battery } }
+    }
 }

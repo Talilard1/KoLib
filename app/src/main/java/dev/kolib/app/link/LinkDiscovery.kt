@@ -29,7 +29,7 @@ class LinkDiscovery(
     private val port: Int = PORT,
 ) {
     /** A device heard on the network. */
-    data class Heard(val id: String, val name: String, val address: String, val port: Int)
+    data class Heard(val id: String, val name: String, val address: String, val port: Int, val battery: Int? = null)
 
     private var listening: Job? = null
     private var announcing: Job? = null
@@ -137,15 +137,18 @@ class LinkDiscovery(
         /** Interfaces that are never a local network shared with the user's other devices: mobile data, VPNs and the like. */
         private val NOT_LOCAL = listOf("rmnet", "ccmni", "pdp", "v4-", "clat", "dummy", "tun", "ppp", "ipsec", "ifb", "lo", "seth", "usb_rmnet", "rev_rmnet")
 
-        /** What a device says about itself: KoLib, its id and name, and the port it takes connections on. */
-        fun announcement(id: String, name: String, port: Int): JSONObject =
-            JSONObject().put("kolib", LinkHandshake.VERSION).put("id", id).put("name", name).put("port", port)
+        /** What a device says about itself: KoLib, its id and name, the port it takes connections on, and its battery. */
+        fun announcement(id: String, name: String, port: Int, battery: Int? = null): JSONObject =
+            JSONObject().put("kolib", LinkHandshake.VERSION).put("id", id).put("name", name).put("port", port).putOpt("battery", battery)
 
         fun parse(text: String, from: InetAddress): Heard? = runCatching {
             val o = JSONObject(text)
             if (!o.has("kolib")) return null
             val port = o.getInt("port").takeIf { it in 1..65535 } ?: return null
-            Heard(o.getString("id").take(64), o.optString("name").take(80).ifBlank { "KoLib" }, from.hostAddress ?: return null, port)
+            Heard(
+                o.getString("id").take(64), o.optString("name").take(80).ifBlank { "KoLib" }, from.hostAddress ?: return null, port,
+                o.optInt("battery", -1).takeIf { it in 0..100 },
+            )
         }.getOrNull()
 
         /** The local networks this device is on: Wi-Fi, its hotspot, a cable; not mobile data. */

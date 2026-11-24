@@ -261,7 +261,8 @@ fun DevicesContent(view: DevicesView, actions: DevicesActions, onEject: (() -> U
                 }
                 view.paired.forEachIndexed { i, d ->
                     if (i > 0) HorizontalDivider(Modifier.padding(vertical = 12.dp))
-                    PairedRow(d, here = view.nearby.any { it.id == d.id }, actions)
+                    val near = view.nearby.firstOrNull { it.id == d.id }
+                    PairedRow(d, here = near != null, actions, battery = near?.battery)
                 }
             }
 
@@ -380,7 +381,7 @@ fun DevicesContent(view: DevicesView, actions: DevicesActions, onEject: (() -> U
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun PairedRow(d: PairedDevice, here: Boolean, actions: DevicesActions) {
+private fun PairedRow(d: PairedDevice, here: Boolean, actions: DevicesActions, battery: Int? = null) {
     var menu by remember { mutableStateOf(false) }
     Column {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -394,7 +395,7 @@ private fun PairedRow(d: PairedDevice, here: Boolean, actions: DevicesActions) {
                     ) {}
                     Spacer(Modifier.width(6.dp))
                     Text(
-                        if (here) tr("Here") else tr("Not found on this network"),
+                        if (here) battery?.let { tr("Here · battery {0}%", it) } ?: tr("Here") else tr("Not found on this network"),
                         style = MaterialTheme.typography.bodySmall,
                         color = if (here) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                     )

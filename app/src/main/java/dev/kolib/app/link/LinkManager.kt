@@ -166,13 +166,15 @@ class LinkManager(
     private val discoveryPort: Int = LinkDiscovery.PORT,
     /** Told when it starts and stops listening (to let the Wi-Fi hand it what's sent to everyone meanwhile). */
     private val onRunning: (Boolean) -> Unit = {},
+    /** This device's battery, in percent: told to the others (null where it can't be told). */
+    private val battery: () -> Int? = { null },
 ) {
     val identity: LinkIdentity get() = store.identity(deviceName())
     val paired: StateFlow<List<PairedDevice>> get() = store.devices
     val settings: StateFlow<LinkSettings> get() = store.settings
 
     /** A device heard on the network lately, or reached by its address. */
-    data class Nearby(val id: String, val name: String, val address: String, val port: Int, val at: Long)
+    data class Nearby(val id: String, val name: String, val address: String, val port: Int, val at: Long, val battery: Int? = null)
 
     private val _nearby = MutableStateFlow<List<Nearby>>(emptyList())
     /** KoLib on the other devices on this network, heard in the last few seconds (paired or not). */
@@ -200,11 +202,12 @@ class LinkManager(
     private var serverJob: Job? = null
     private var expiry: Job? = null
     private var checking: Job? = null
+    private var presence: Job? = null
     private var users = 0
     /** Of the [users], those that want other devices looked for too (not only connections taken). */
     private var lookers = 0
     private val discovery = LinkDiscovery(
-        announcement = { if (_port.value > 0) identity.let { LinkDiscovery.announcement(it.id, it.name, _port.value) } else null },
+        announcement = { if (_port.value > 0) identity.let { LinkDiscovery.announcement(it.id, it.name, _port.value, battery()) } else null },
         onHeard = ::heard,
         port = discoveryPort,
     )
@@ -229,6 +232,14 @@ class LinkManager(
                     delay(2_000)
                     val now = System.currentTimeMillis()
                     _nearby.update { list -> list.filter { it.at >= now - FORGET_AFTER } }
+                }
+            }
+            // Paired devices are said hello to now and then, so whether each is here (and its battery) stays known
+            // with nothing looking: for the notification, and the Devices screen.
+            presence = scope.launch(Dispatchers.IO) {
+                while (isActive) {
+                    keepInTouch()
+                    delay(PRESENCE_EVERY)
                 }
             }
         }
@@ -270,6 +281,7 @@ class LinkManager(
         }
         if (users > 0) return
         expiry?.cancel()
+        presence?.cancel()
         serverJob?.cancel()
         runCatching { server?.close() }
         server = null
@@ -306,7 +318,7 @@ class LinkManager(
     private fun heard(h: LinkDiscovery.Heard) {
         if (h.id == identity.id) return
         val now = System.currentTimeMillis()
-        found(h.id, h.name, h.address, h.port, now)
+        found(h.id, h.name, h.address, h.port, now, h.battery)
         // It may not hear what this device sends to everyone (a phone's hotspot often keeps that from the devices
         // on it), so it's told directly too, every few seconds while it's heard: both then see each other.
         if (discover && now - (repliedAt[h.id] ?: 0L) >= 4_000) {
@@ -319,13 +331,13 @@ class LinkManager(
      * A device is here, at [address]: it's kept in the list until [until] (or it's heard again). Returns whether it's
      * newly found. A paired device newly found has its places in books brought into step (by one of the two).
      */
-    private fun found(id: String, name: String, address: String, port: Int, until: Long): Boolean {
+    private fun found(id: String, name: String, address: String, port: Int, until: Long, battery: Int? = null): Boolean {
         val me = identity.id
         if (id == me) return false
         val wasHere = _nearby.value.any { it.id == id }
         _nearby.update { list ->
             val old = list.firstOrNull { it.id == id }
-            list.filter { it.id != id } + Nearby(id, name, address, port, maxOf(until, old?.at ?: 0))
+            list.filter { it.id != id } + Nearby(id, name, address, port, maxOf(until, old?.at ?: 0), battery ?: old?.battery)
         }
         val paired = store.device(id) ?: return !wasHere
         store.seen(id, name, address, port)
@@ -339,6 +351,14 @@ class LinkManager(
             }
         }
         return !wasHere
+    }
+
+    /** Says hello to each paired device where it was last: found, it's here a while longer, with its battery. */
+    private suspend fun keepInTouch() {
+        for (d in store.devices.value) {
+            val address = d.address ?: continue
+            runCatching { reach("$address:${d.port ?: PORT}", quick = true, keepFor = PRESENCE_GRACE) }
+        }
     }
 
     /** Looks for each paired device not found lately where it was last. Returns whether any is still missing. */
@@ -383,7 +403,7 @@ class LinkManager(
     // ---- connecting ---------------------------------------------------------------------------------------
 
     /** What's asked of another device, with where this one takes connections, so it can reach back. */
-    private fun request(op: String) = JSONObject().put("op", op).put("port", _port.value)
+    private fun request(op: String) = JSONObject().put("op", op).put("port", _port.value).putOpt("battery", battery())
 
     private fun open(address: String, port: Int, pairing: Boolean, connectTimeout: Int = 5_000): LinkSession {
         val socket = Socket()
@@ -430,13 +450,18 @@ class LinkManager(
         session.use {
             runCatching { it.channel.sendJson(request("hello")) }
             if (it.peerId == identity.id) return@withContext null
+            // Its answer says how charged it is (before 3.5, KoLib didn't answer: it just closed).
+            val theirs = runCatching {
+                it.waitAtMost(2_000)
+                it.channel.receiveJson().optInt("battery", -1).takeIf { b -> b in 0..100 }
+            }.getOrNull()
             // A paired device's key must be the one it paired with to count as it.
             val known = store.device(it.peerId)
             if (known != null && !LinkCrypto.same(known.keyBytes(), it.peerKey)) return@withContext null
             // Not heard on the network, so kept for a while longer than one that is.
             val until = System.currentTimeMillis() + keepFor
-            found(it.peerId, it.peerName, host, port, until)
-            Nearby(it.peerId, it.peerName, host, port, until)
+            found(it.peerId, it.peerName, host, port, until, theirs)
+            Nearby(it.peerId, it.peerName, host, port, until, theirs)
         }
     }
 
@@ -685,10 +710,11 @@ class LinkManager(
                 val from = socket.inetAddress?.hostAddress
                 val theirPort = request.optInt("port").takeIf { it in 1..65535 }
                 if (from != null && theirPort != null && s.peerId != identity.id && (known != null || store.device(s.peerId) == null)) {
-                    found(s.peerId, s.peerName, from, theirPort, System.currentTimeMillis() + CONNECTED_GRACE)
+                    found(s.peerId, s.peerName, from, theirPort, System.currentTimeMillis() + CONNECTED_GRACE, request.optInt("battery", -1).takeIf { it in 0..100 })
                 }
                 when {
-                    op == "hello" -> Unit
+                    // Hello, back: with how charged this one is.
+                    op == "hello" -> runCatching { s.channel.sendJson(JSONObject().put("ok", true).putOpt("battery", battery())) }
                     op == "pair" -> servePairing(s, from, theirPort, request.optString("token"))
                     known == null -> s.channel.sendJson(JSONObject().put("ok", false).put("error", "not paired"))
                     else -> {
@@ -964,6 +990,9 @@ class LinkManager(
         private const val CONNECTED_GRACE = 60_000L
         /** A device found by looking for it stays this much longer (it's looked for again every 15 seconds). */
         private const val CHECKED_GRACE = 40_000L
+        /** How often paired devices are said hello to, and how long one that answers is here after. */
+        private const val PRESENCE_EVERY = 45_000L
+        private const val PRESENCE_GRACE = 100_000L
         /** How long pairing waits for both to say yes. */
         private const val PAIRING_WAIT = 120_000L
         /** Room kept free when taking in books. */

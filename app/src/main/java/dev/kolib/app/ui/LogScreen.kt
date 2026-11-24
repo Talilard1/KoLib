@@ -18,7 +18,8 @@ import dev.kolib.app.tr
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.graphics.Color
 import android.content.ClipData
-import androidx.compose.material.icons.outlined.BugReport
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.platform.LocalUriHandler
 import dev.kolib.app.update.Updates
 import android.content.ClipboardManager
@@ -150,7 +151,7 @@ private fun ReportLine() {
                 modifier = Modifier.weight(1f).padding(end = 8.dp),
             )
             IconButton(onClick = { runCatching { links.openUri(Updates.ISSUES) } }, modifier = Modifier.testTag("log-issues")) {
-                Icon(Icons.Outlined.BugReport, tr("Report a problem on GitHub"), tint = MaterialTheme.colorScheme.primary)
+                Icon(dev.kolib.app.ui.components.SourceIcons.Report, tr("Report a problem on GitHub"), tint = MaterialTheme.colorScheme.primary)
             }
         }
     }

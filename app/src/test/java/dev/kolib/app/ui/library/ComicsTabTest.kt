@@ -267,6 +267,42 @@ class ComicsTabTest {
         compose.waitForIdle()
     }
 
+    /** Chosen on the shelf (a whole series) or in a series (one comic), comics go to another device from the bar. */
+    @Test
+    fun chosenComicsAreSentToAnotherDevice() {
+        val sent = mutableListOf<List<String>>()
+        compose.setContent {
+            AppSurface {
+                androidx.compose.runtime.CompositionLocalProvider(
+                    dev.kolib.app.ui.link.LocalLinkActions provides dev.kolib.app.ui.link.LinkActions { sent += it },
+                ) {
+                    LibraryComicsTab(comics, covers, browse, koboConnected = false, here = { null }, actions = ComicActions()) { _, _, _ -> }
+                }
+            }
+        }
+        compose.waitForIdle()
+        compose.onNodeWithText("Saga").performTouchInput { longClick() }
+        compose.waitForIdle()
+        tapInBar("comics-to-device", "comics-more")
+        assertEquals("Saga's three comics", 3, sent.single().size)
+        compose.onNodeWithText("Saga").performClick()
+        compose.waitForIdle()
+        compose.onAllNodesWithTag("comic-issue")[0].performTouchInput { longClick() }
+        compose.waitForIdle()
+        tapInBar("comic-issues-to-device", "comic-issues-more")
+        assertEquals("the one comic held", 1, sent.last().size)
+    }
+
+    /** An action in the selection bar, or in its More if it isn't in the bar itself. */
+    private fun tapInBar(tag: String, more: String) {
+        if (compose.onAllNodesWithTag(tag).fetchSemanticsNodes().isEmpty()) {
+            compose.onNodeWithTag(more).performClick()
+            compose.waitForIdle()
+        }
+        compose.onNodeWithTag(tag).performClick()
+        compose.waitForIdle()
+    }
+
     /** A comic of the series open, by its place: held, then Info in the bar (in its More, if it's there). */
     private fun comicInfo(index: Int) {
         compose.onAllNodesWithTag("comic-issue")[index].performTouchInput { longClick() }
@@ -503,24 +539,20 @@ class ComicsTabTest {
         compose.onAllNodesWithTag("comics-info").assertCountEquals(0)
     }
 
+    /** On a tablet a series opens beside the shelf, always: there's no choice of full screen to make. */
     @Test
-    fun switchedToInPlaceOfTheShelfTheShelfShows() {
+    fun aSeriesAlwaysOpensBesideTheShelf() {
         showWithDetails()
-        // Open beside the shelf.
         compose.onNodeWithText("Saga").performClick()
         compose.waitForIdle()
         assertEquals("s:saga", browse.comicKey)
-        // Where a series opens is with how the comics show, in the one button over the shelf.
+        compose.onNodeWithTag("comic-shelf").assertExists()
         compose.onNodeWithTag("comic-display").performClick()
         compose.waitForIdle()
         compose.onNodeWithTag("display-tab-display").performClick()
         compose.waitForIdle()
-        compose.onNodeWithTag("series-in-place").performScrollTo().performClick()
-        compose.waitForIdle()
-        assertTrue(browse.seriesInPlace)
-        assertNull(browse.comicKey)
-        compose.onNodeWithTag("comic-shelf").assertExists()
-        compose.onAllNodesWithTag("comic-series-page").assertCountEquals(0)
+        compose.onAllNodesWithTag("series-in-place").assertCountEquals(0)
+        compose.onAllNodesWithTag("series-beside").assertCountEquals(0)
     }
 
     /**

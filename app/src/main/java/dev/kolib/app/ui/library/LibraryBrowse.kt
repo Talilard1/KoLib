@@ -116,18 +116,6 @@ class LibraryBrowseState {
         comicPicked.clear()
     }
 
-    /**
-     * A series is to open in place of the shelf, or beside it. Changed to in its place, what was open beside the shelf
-     * (a series, or a comic's details) closes: the shelf shows, not what had been beside it.
-     */
-    fun openSeriesInPlace(inPlace: Boolean) {
-        if (inPlace && !seriesInPlace) {
-            comicKey = null
-            comicBookId = null
-            if (comicSelecting == ComicSelecting.ISSUES) stopComicSelecting()
-        }
-        seriesInPlace = inPlace
-    }
 
     /** Choosing several books (to send them, for instance). */
     var selecting by mutableStateOf(false)

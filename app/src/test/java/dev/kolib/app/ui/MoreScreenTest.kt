@@ -26,12 +26,15 @@ class MoreScreenTest {
     @Test
     fun checkForUpdatesIsAboveAboutAndTheNewestReleaseIsAtTheFoot() {
         var asked = 0
+        var storage = 0
         compose.setContent {
             MoreScreen(
                 version = "Version 3.4", onSettings = {}, onStats = {}, onTours = null, onLog = {}, onBackups = {}, onAbout = {},
-                onUpdates = { asked++ },
+                onUpdates = { asked++ }, onStorage = { storage++ },
             )
         }
+        compose.onNodeWithTag("more-storage").performClick()
+        assertEquals("Storage opens", 1, storage)
         val updates = compose.onNodeWithTag("more-updates").fetchSemanticsNode().boundsInRoot
         val about = compose.onNodeWithTag("more-about").fetchSemanticsNode().boundsInRoot
         assertTrue("Check for updates is just above About", updates.bottom <= about.top + 1f && about.top - updates.bottom < 2f)

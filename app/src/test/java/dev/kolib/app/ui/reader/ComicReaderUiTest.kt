@@ -40,6 +40,8 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeLeft
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -148,6 +150,17 @@ class ComicReaderUiTest {
         settle()
         assertEquals(ComicMode.STRIP, own.mode)
         compose.onAllNodesWithTag("comic-mode-sheet").assertCountEquals(0)
+    }
+
+    /** Turned with a swipe, the page changes and the menu stays up. */
+    @Test
+    fun theMenuStaysWhenAPageIsSwiped() {
+        open(pages = 8, shown = true)
+        compose.onRoot().performTouchInput { swipeLeft(startX = 380f, endX = 40f, durationMillis = 300) }
+        settle()
+        assertEquals(1, ReaderStore.pdfPlace(dir)!!.page)
+        assertTrue("the menu is still up", menu)
+        compose.onNodeWithTag("comic-top-bar").assertExists()
     }
 
     /** Changed from turning pages to a long strip, and back, it stays on the page reached, not the one it opened on. */

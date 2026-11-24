@@ -619,11 +619,7 @@ internal fun ComicView(
     val menuNow by rememberUpdatedState(menu)
     val setMenuNow by rememberUpdatedState(setMenu)
     val toggleMenu = remember { { setMenuNow(!menuNow) } }
-    // As in Mihon, the menu goes when the page is turned or the strip scrolled, other than from the menu itself.
-    var menuMovedAt by remember { mutableLongStateOf(-1_000_000L) }
-    val fromMenu = { menuMovedAt = SystemClock.uptimeMillis() }
-    val moved = remember { { if (menuNow && SystemClock.uptimeMillis() - menuMovedAt > 1500) setMenuNow(false) } }
-    LaunchedEffect(mode.paged) { if (mode.paged) snapshotFlow { turns }.drop(1).collect { moved() } }
+    // The menu stays as it is while pages are turned or the strip scrolled, by a swipe or from the menu.
     LaunchedEffect(comic.id, page) {
         // On its first page (its cover) it isn't being read: not read yet, or still finished if it was.
         if (page == 0) {
@@ -732,7 +728,7 @@ internal fun ComicView(
                 } else {
                     StripComic(
                         current = comic, before = before, after = after, s = s, mode = mode, startPage = from, series = series, ink = ink,
-                        matrix = matrix, onAt = onAt, onGapShown = onGapShown, onMenu = toggleMenu, onLongPress = longPress, onMoved = moved,
+                        matrix = matrix, onAt = onAt, onGapShown = onGapShown, onMenu = toggleMenu, onLongPress = longPress, onMoved = {},
                         onClose = onClose, nudges = nudges, jumps = jumps,
                     )
                 }
@@ -769,9 +765,9 @@ internal fun ComicView(
                 page = page,
                 count = count,
                 rtl = mode == ComicMode.RIGHT_TO_LEFT,
-                onPage = { p -> fromMenu(); jumps.tryEmit(p) },
-                previous = before?.let { b -> { fromMenu(); onGoTo(b.id) } },
-                next = after?.let { a -> { fromMenu(); onGoTo(a.id) } },
+                onPage = { p -> jumps.tryEmit(p) },
+                previous = before?.let { b -> { onGoTo(b.id) } },
+                next = after?.let { a -> { onGoTo(a.id) } },
             ),
             vertical = mode in s.verticalIn,
             verticalLeft = s.verticalLeft,

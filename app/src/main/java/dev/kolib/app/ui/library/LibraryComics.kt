@@ -55,6 +55,7 @@ import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material.icons.automirrored.outlined.ViewList
 import androidx.compose.material.icons.automirrored.outlined.PlaylistAdd
+import androidx.compose.material.icons.automirrored.outlined.SendToMobile
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.outlined.Delete
@@ -431,7 +432,7 @@ private fun ComicShelf(
                     onSelectAll = { pickable.forEach { browse.comicPicked[it] = true } }, onDeselectAll = { browse.comicPicked.clear() }, onCancel = done,
                     onInvert = { browse.comicPicked.invertPicks(pickable) }, allSelected = browse.comicPicked.hasAll(pickable),
                     moreTag = "comics-reading-more",
-                    actions = readingActions(chosenCount, readingChosen, actions, done, onRemove = { confirmRemove = readingChosen() }) { id -> openComic(id) },
+                    actions = readingActions(chosenCount, readingChosen, actions, done, onRemove = { confirmRemove = readingChosen() }, toDevice = dev.kolib.app.ui.link.LocalLinkActions.current?.let { l -> l.sendBooks }) { id -> openComic(id) },
                 )
             }
             if (choosing && !phone) AtFoot {
@@ -442,13 +443,14 @@ private fun ComicShelf(
                     moreTag = "comics-more",
                     actions = comicShelfActions(chosenCount, onSend = { actions.onSend(chosen()); done() }, onRead = { actions.onMarkFinished(chosen()); done() },
                         onUnread = { actions.onMarkUnread(chosen()); done() }, onAddTo = { adding = chosen() }, onRemove = remove,
-                        onInfo = if (inPlace && chosenCount == 1) ({ chosenEntries().firstOrNull()?.let(showInfo) }) else null),
+                        onInfo = if (inPlace && chosenCount == 1) ({ chosenEntries().firstOrNull()?.let(showInfo) }) else null,
+                        onToDevice = dev.kolib.app.ui.link.LocalLinkActions.current?.let { l -> { l.sendBooks(chosen()); done() } }),
                 )
             }
         }
         if (pickingReading && phone) {
             PhoneActionBar(
-                readingActions(browse.comicPicked.size, readingChosen, actions, done, onRemove = { confirmRemove = readingChosen() }) { id -> openComic(id) },
+                readingActions(browse.comicPicked.size, readingChosen, actions, done, onRemove = { confirmRemove = readingChosen() }, toDevice = dev.kolib.app.ui.link.LocalLinkActions.current?.let { l -> l.sendBooks }) { id -> openComic(id) },
                 Modifier.align(Alignment.BottomCenter),
                 moreTag = "comics-reading-more",
             )
@@ -457,7 +459,8 @@ private fun ComicShelf(
             val count = browse.comicPicked.size
             PhoneActionBar(
                 comicShelfActions(count, onSend = { actions.onSend(chosen()); done() }, onRead = { actions.onMarkFinished(chosen()); done() },
-                    onUnread = { actions.onMarkUnread(chosen()); done() }, onAddTo = { adding = chosen() }, onRemove = remove),
+                    onUnread = { actions.onMarkUnread(chosen()); done() }, onAddTo = { adding = chosen() }, onRemove = remove,
+                    onToDevice = dev.kolib.app.ui.link.LocalLinkActions.current?.let { l -> { l.sendBooks(chosen()); done() } }),
                 Modifier.align(Alignment.BottomCenter),
                 moreTag = "comics-more",
             )
@@ -511,6 +514,7 @@ private fun readingActions(
     actions: ComicActions,
     done: () -> Unit,
     onRemove: () -> Unit,
+    toDevice: ((List<String>) -> Unit)? = null,
     onInfo: (String) -> Unit,
 ) = comicIssueActions(
     count, inSeries = false,
@@ -520,6 +524,7 @@ private fun readingActions(
     onTakeOut = {},
     onRemove = onRemove,
     onInfo = if (count == 1) ({ chosen().firstOrNull()?.let(onInfo) }) else null,
+    onToDevice = toDevice?.let { send -> { send(chosen()); done() } },
 )
 
 /** The entries chosen on the shelf, of those [shown]. */
@@ -570,10 +575,13 @@ private fun comicShelfActions(
     onRemove: () -> Unit,
     /** The one chosen's details (or its series' page); null with more than one chosen, or where there's no need. */
     onInfo: (() -> Unit)? = null,
+    /** To another of the user's devices; null where there's no linking. */
+    onToDevice: (() -> Unit)? = null,
 ): List<BarAction> {
     val any = count > 0
     return listOfNotNull(
         BarAction(Icons.AutoMirrored.Filled.Send, tr("To Kobo"), onSend, enabled = any, main = true, tag = "comics-send", longLabel = tr("Send to Kobo")),
+        onToDevice?.let { BarAction(Icons.AutoMirrored.Outlined.SendToMobile, tr("To device"), it, enabled = any, tag = "comics-to-device", canWait = true, longLabel = tr("Send to device")) },
         BarAction(Icons.Outlined.DoneAll, dev.kolib.app.trc("mark", "Read"), onRead, enabled = any, tag = "comics-mark-read", longLabel = tr("Mark as read")),
         BarAction(Icons.Outlined.RemoveDone, dev.kolib.app.trc("mark", "Unread"), onUnread, enabled = any, tag = "comics-mark-unread", longLabel = tr("Mark as unread")),
         BarAction(Icons.AutoMirrored.Outlined.PlaylistAdd, tr("Add to series"), onAddTo, enabled = any, tag = "comics-add-to-series", canWait = true),
@@ -593,10 +601,13 @@ private fun comicIssueActions(
     onRemove: () -> Unit,
     /** The one chosen's details; null with more than one chosen, or where there's no need. */
     onInfo: (() -> Unit)? = null,
+    /** To another of the user's devices; null where there's no linking. */
+    onToDevice: (() -> Unit)? = null,
 ): List<BarAction> {
     val any = count > 0
     return listOfNotNull(
         BarAction(Icons.AutoMirrored.Filled.Send, tr("To Kobo"), onSend, enabled = any, main = true, tag = "comic-issues-send", longLabel = tr("Send to Kobo")),
+        onToDevice?.let { BarAction(Icons.AutoMirrored.Outlined.SendToMobile, tr("To device"), it, enabled = any, tag = "comic-issues-to-device", canWait = true, longLabel = tr("Send to device")) },
         BarAction(Icons.Outlined.DoneAll, dev.kolib.app.trc("mark", "Read"), onRead, enabled = any, tag = "comics-mark-read", longLabel = tr("Mark as read")),
         BarAction(Icons.Outlined.RemoveDone, dev.kolib.app.trc("mark", "Unread"), onUnread, enabled = any, tag = "comic-issues-mark-unread", longLabel = tr("Mark as unread")),
         if (inSeries) BarAction(Icons.Outlined.LayersClear, tr("Take out"), onTakeOut, enabled = any, tag = "comic-issues-take-out", canWait = true, longLabel = tr("Take out of the series")) else null,
@@ -959,6 +970,7 @@ internal fun ComicSeriesPage(
                             onUnread = { actions.onMarkUnread(chosen()); done() }, onTakeOut = { actions.onTakeOut(chosen()); done() },
                             onRemove = { confirmRemove = chosen() },
                             onInfo = if (infoAtTop && count2 == 1) ({ chosen().firstOrNull()?.let { id -> done(); browse.comicBookId = id } }) else null,
+                            onToDevice = dev.kolib.app.ui.link.LocalLinkActions.current?.let { l -> { l.sendBooks(chosen()); done() } },
                         )
                     },
                 )
@@ -974,6 +986,7 @@ internal fun ComicSeriesPage(
                     onRemove = { confirmRemove = chosen() },
                     // A comic's details: held, then Info here (as on a wider screen).
                     onInfo = if (infoAtTop && count == 1) ({ chosen().firstOrNull()?.let { id -> done(); browse.comicBookId = id } }) else null,
+                    onToDevice = dev.kolib.app.ui.link.LocalLinkActions.current?.let { l -> { l.sendBooks(chosen()); done() } },
                 ),
                 Modifier.align(Alignment.BottomCenter),
                 moreTag = "comic-issues-more",

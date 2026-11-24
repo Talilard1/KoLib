@@ -1,0 +1,110 @@
+@fr
+3529|L'espace qu'occupe KoLib, et par quoi
+3530|Calcul en cours…
+3531|KoLib occupe {0}
+3532|Couvertures
+3533|Modèles d’IA et discussions
+3534|Polices
+3535|Mises à jour téléchargées
+3536|L’application elle-même
+3537|Autre
+@de
+3529|Wie viel Platz KoLib belegt, und wofür
+3530|Wird berechnet…
+3531|KoLib belegt {0}
+3532|Cover
+3533|KI-Modelle und Chats
+3534|Schriftarten
+3535|Heruntergeladene Updates
+3536|Die App selbst
+3537|Sonstiges
+@es
+3529|Cuánto espacio ocupa KoLib, y en qué
+3530|Calculando…
+3531|KoLib ocupa {0}
+3532|Portadas
+3533|Modelos de IA y chats
+3534|Fuentes
+3535|Actualizaciones descargadas
+3536|La propia app
+3537|Otros
+@it
+3529|Quanto spazio occupa KoLib, e per cosa
+3530|Calcolo in corso…
+3531|KoLib occupa {0}
+3532|Copertine
+3533|Modelli IA e chat
+3534|Caratteri
+3535|Aggiornamenti scaricati
+3536|L’app stessa
+3537|Altro
+@nl
+3529|Hoeveel ruimte KoLib inneemt, en waarvoor
+3530|Bezig met berekenen…
+3531|KoLib gebruikt {0}
+3532|Omslagen
+3533|AI-modellen en chats
+3534|Lettertypen
+3535|Gedownloade updates
+3536|De app zelf
+3537|Overig
+@pt
+3529|Quanto espaço o KoLib ocupa, e com o quê
+3530|Calculando…
+3531|O KoLib ocupa {0}
+3532|Capas
+3533|Modelos de IA e conversas
+3534|Fontes
+3535|Atualizações baixadas
+3536|O próprio app
+3537|Outros
+@ro
+3529|Cât spațiu ocupă KoLib și cu ce
+3530|Se calculează…
+3531|KoLib ocupă {0}
+3532|Coperți
+3533|Modele AI și conversații
+3534|Fonturi
+3535|Actualizări descărcate
+3536|Aplicația în sine
+3537|Altele
+@ru
+3529|Сколько места занимает KoLib и чем
+3530|Подсчёт…
+3531|KoLib занимает {0}
+3532|Обложки
+3533|Модели ИИ и чаты
+3534|Шрифты
+3535|Загруженные обновления
+3536|Само приложение
+3537|Прочее
+@ja
+3529|KoLibが使っている容量とその内訳
+3530|計算中…
+3531|KoLibの使用量: {0}
+3532|表紙
+3533|AIモデルとチャット
+3534|フォント
+3535|ダウンロード済みのアップデート
+3536|アプリ本体
+3537|その他
+@ko
+3529|KoLib이 차지하는 공간과 그 내역
+3530|계산하는 중…
+3531|KoLib 사용량: {0}
+3532|표지
+3533|AI 모델과 채팅
+3534|글꼴
+3535|다운로드한 업데이트
+3536|앱 자체
+3537|기타
+@zh
+3529|KoLib 占用多少空间，以及都用在哪里
+3530|正在计算…
+3531|KoLib 占用 {0}
+3532|封面
+3533|AI 模型和对话
+3534|字体
+3535|已下载的更新
+3536|应用本身
+3537|其他

@@ -22,7 +22,9 @@ import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
 import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.NewReleases
+import androidx.compose.material.icons.outlined.Storage
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.material.icons.outlined.SystemUpdate
 import androidx.compose.material.icons.outlined.Restore
 import androidx.compose.material.icons.outlined.Settings
@@ -54,6 +56,7 @@ fun MoreScreen(
     onBackups: () -> Unit,
     onAbout: () -> Unit,
     onUpdates: () -> Unit = {},
+    onStorage: () -> Unit = {},
 ) {
     Column(
         Modifier
@@ -75,6 +78,7 @@ fun MoreScreen(
             MoreItem(Icons.Outlined.BarChart, tr("Reading stats"), tr("Time read, here and on the Kobo"), "more-stats", onStats)
             onTours?.let { MoreItem(Icons.Outlined.Explore, tr("Show the tours again"), tr("Each screen's tour shows the next time you open it."), "more-tours", it) }
             HorizontalDivider()
+            MoreItem(Icons.Outlined.Storage, tr("Storage"), tr("How much space KoLib takes up, and by what"), "more-storage", onStorage)
             MoreItem(Icons.Outlined.Restore, tr("Database backups"), tr("Copies of the Kobo's library, saved before each change"), "more-backups", onBackups)
             MoreItem(Icons.AutoMirrored.Outlined.ReceiptLong, tr("Log"), tr("A record of what KoLib did, to send when something goes wrong"), "more-log", onLog)
             HorizontalDivider()
@@ -111,6 +115,6 @@ private fun MoreItem(icon: ImageVector, title: String, detail: String, tag: Stri
 internal fun ReleasesButton(modifier: Modifier = Modifier) {
     val links = androidx.compose.ui.platform.LocalUriHandler.current
     androidx.compose.material3.IconButton(onClick = { runCatching { links.openUri(dev.kolib.app.update.Updates.PAGE) } }, modifier = modifier) {
-        Icon(Icons.Outlined.NewReleases, tr("Newest release on GitHub"), tint = MaterialTheme.colorScheme.primary)
+        Icon(dev.kolib.app.ui.components.SourceIcons.Release, tr("Newest release on GitHub"), tint = MaterialTheme.colorScheme.primary)
     }
 }

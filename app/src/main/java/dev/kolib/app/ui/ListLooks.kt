@@ -30,7 +30,6 @@ object ListLooks {
             }
             s.mode = modeOf(p, "library")
             s.comicsTab = p.getBoolean("library_comics_tab", true)
-            s.seriesInPlace = p.getBoolean("library_series_in_place", false)
             s.comicMode = ShelfMode.entries.firstOrNull { it.name == p.getString("library_comic_mode", null) } ?: ShelfMode.COMFORTABLE
             s.seriesMode = ShelfMode.entries.firstOrNull { it.name == p.getString("library_series_mode", null) }
                 ?: if (p.getBoolean("library_series_grid", false)) ShelfMode.COMFORTABLE else ShelfMode.LIST

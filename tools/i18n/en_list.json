@@ -3522,5 +3522,19 @@
 "Something wrong? Report it on GitHub, with the log and screenshots if you can.",
 "Report a problem on GitHub",
 "See if there's a newer KoLib on GitHub",
-"Newest release on GitHub"
+"Newest release on GitHub",
+"Here · battery {0}%",
+"Not connected",
+"Connected to: {0}",
+"Battery {0}%",
+"{0}: {1}%",
+"How much space KoLib takes up, and by what",
+"Working it out…",
+"KoLib uses {0}",
+"Covers",
+"AI models and chats",
+"Fonts",
+"Downloaded updates",
+"The app itself",
+"Other"
 ]

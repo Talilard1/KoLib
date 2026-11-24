@@ -210,7 +210,7 @@ class ComicsShots {
     fun settingsWithTheLibraryChoices() {
         compose.setContent {
             AppSurface(ThemeChoice.SYSTEM) {
-                dev.kolib.app.ui.LookDialog(current = ThemeChoice.SYSTEM, onPick = {}, onDismiss = {}, comicsTab = true, seriesInPlace = true)
+                dev.kolib.app.ui.LookDialog(current = ThemeChoice.SYSTEM, onPick = {}, onDismiss = {}, comicsTab = true)
             }
         }
         shot("comics_settings_library")

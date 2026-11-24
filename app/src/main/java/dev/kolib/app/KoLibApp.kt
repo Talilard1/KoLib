@@ -187,6 +187,7 @@ class KoLibApp : Application() {
             host = dev.kolib.app.link.AppLinkHost(this, library, readingHere),
             deviceName = ::deviceName,
             scope = appScope,
+            battery = { dev.kolib.app.link.batteryPercent(this) },
             // Some Wi-Fi hands an app what's sent to every device on the network only while it holds this.
             onRunning = { on ->
                 if (on) {

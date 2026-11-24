@@ -201,7 +201,7 @@ class EditorTourTest {
         val state = editorState()
         compose.setContent { AppSurface(ThemeChoice.SYSTEM) { TextEditorScreen(state, onClose = {}, onRead = {}, pagePreview = { FakeEditorPage() }) } }
         compose.waitForIdle()
-        for (name in listOf("Bold", "Italic", "Paragraph", "Alignment", "Scene break", "Picture", "Split the chapter here", "Select and copy", "Code")) {
+        for (name in listOf("Bold", "Italic", "More text styles", "Paragraph", "Alignment", "Insert", "Split the chapter here", "Select and copy", "Code")) {
             compose.onNodeWithContentDescription(name).assertIsDisplayed()
         }
         if (home.exists()) {
@@ -218,7 +218,7 @@ class EditorTourTest {
         val state = editorState(CopiedSections(File(context.filesDir, "copied-" + UUID.randomUUID())))
         compose.setContent { AppSurface(ThemeChoice.SYSTEM) { TextEditorScreen(state, onClose = {}, onRead = {}, pagePreview = { FakeEditorPage() }) } }
         compose.waitForIdle()
-        for (name in listOf("Bold", "Italic", "Paragraph", "Alignment", "Scene break", "Picture", "Split the chapter here", "Select and copy", "Copied sections", "Code")) {
+        for (name in listOf("Bold", "Italic", "More text styles", "Paragraph", "Alignment", "Insert", "Split the chapter here", "Select and copy", "Copied sections", "Code")) {
             compose.onNodeWithContentDescription(name).assertIsDisplayed()
         }
         if (home.exists()) {

@@ -14,6 +14,8 @@ internal object EditorPlace {
     const val TOOLBAR = "toolbar"
     const val BOLD = "bold"
     const val ITALIC = "italic"
+    const val TEXT_STYLES = "text-styles"
+    const val INSERT = "insert"
     const val HEADING = "heading"
     const val ALIGN = "align"
     const val SCENE_BREAK = "scene-break"
@@ -55,12 +57,12 @@ internal fun editorTourStops(places: TourPlaces, toolbar: ScrollState, toolsInMe
         TourStop(listOf(EditorPlace.CHAPTERS), tr("Chapters"), tr("Tap a chapter to open it. Drag one to move it, or tap ⋮ to rename, split, join or delete it.")),
         inToolbar(EditorPlace.CHAPTER_NAME, title = tr("Chapters"), text = tr("Tap the chapter’s name to see them all. There you can move, rename, split, join and delete chapters.")),
         inToolbar(
-            EditorPlace.BOLD, EditorPlace.ITALIC, EditorPlace.HEADING, EditorPlace.ALIGN, title = tr("Style"),
-            text = tr("Select some words to make them bold or italic. Headings and alignment change the whole paragraph."),
+            EditorPlace.BOLD, EditorPlace.ITALIC, EditorPlace.TEXT_STYLES, EditorPlace.HEADING, EditorPlace.ALIGN, title = tr("Style"),
+            text = tr("Select some words to make them bold or italic; the A button has underline and more. Headings, lists, quotes and alignment change the whole paragraph."),
         ),
         inToolbar(
-            EditorPlace.SCENE_BREAK, EditorPlace.PICTURE, EditorPlace.SPLIT, title = tr("Add and split"),
-            text = tr("Add a scene break or a picture where the cursor is, or split the chapter in two there."),
+            EditorPlace.INSERT, EditorPlace.SPLIT, title = tr("Add and split"),
+            text = tr("Add a link, footnote, table, picture, scene break or special character where the cursor is, or split the chapter in two there."),
         ),
         inToolbar(
             EditorPlace.SELECT, title = tr("Select and copy"),

@@ -57,6 +57,19 @@ data class ToolbarState(
     val align: String? = null,
     /** Some text is selected. */
     val selection: Boolean = false,
+    val underline: Boolean = false, val strike: Boolean = false, val sup: Boolean = false, val sub: Boolean = false,
+    /** The kind of list the cursor is in ("ul" or "ol"), if it's in one. */
+    val list: String? = null,
+    /** The list item the cursor is in can go in a level (there's one before it). */
+    val canIndent: Boolean = false,
+    /** The cursor is in a quote. */
+    val quote: Boolean = false,
+    /** Where the link the cursor is in goes, if it's in one. */
+    val link: String? = null,
+    /** The words of that link, or those selected (in one paragraph). */
+    val text: String = "",
+    /** The cursor is in a table. */
+    val table: Boolean = false,
 )
 
 /**
@@ -209,6 +222,7 @@ class TextEditState(
             loadedWhole = !servedAsXhtml(path)
             startJson = JSONObject().apply {
                 put("whole", loadedWhole)
+                put("epub3", runCatching { structure.opf.isEpub3 }.getOrDefault(true))
                 put("dark", dark)
                 put("scrollY", scrollY)
                 pendingFind?.let { put("find", it) }
@@ -288,9 +302,13 @@ class TextEditState(
         @JavascriptInterface
         fun state(json: String) = main.post {
             val o = runCatching { JSONObject(json) }.getOrNull() ?: return@post
-            toolbar = ToolbarState(o.optBoolean("bold"), o.optBoolean("italic"), o.optString("block").takeIf { it.isNotEmpty() && it != "null" },
-                o.optString("image").takeIf { it.isNotEmpty() && it != "null" },
-                o.optString("align").takeIf { it.isNotEmpty() && it != "null" }, o.optBoolean("selection"))
+            fun text(key: String) = if (o.isNull(key)) null else o.optString(key).takeIf { it.isNotEmpty() && it != "null" }
+            toolbar = ToolbarState(
+                o.optBoolean("bold"), o.optBoolean("italic"), text("block"), text("image"), text("align"), o.optBoolean("selection"),
+                underline = o.optBoolean("underline"), strike = o.optBoolean("strike"), sup = o.optBoolean("sup"), sub = o.optBoolean("sub"),
+                list = text("list"), canIndent = o.optBoolean("indent"), quote = o.optBoolean("quote"), link = text("link"),
+                text = o.optString("text"), table = o.optBoolean("table"),
+            )
             scrollY = o.optInt("scrollY", scrollY)
         }
 
@@ -545,6 +563,51 @@ class TextEditState(
     fun command(name: String, arg: String? = null) {
         if (showCode) return
         js("KLED.cmd(${JSONObject.quote(name)}, ${arg?.let { JSONObject.quote(it) } ?: "null"})")
+    }
+
+    /** A link on the words selected (or the link the cursor is in, or new words [text]) to [href]. */
+    fun link(href: String, text: String) = command("link", JSONObject().put("href", href).put("text", text).toString())
+
+    fun unlink() = command("unlink")
+
+    /** A new table of [rows] (the first a header if [header]) and [cols], after the paragraph the cursor is in. */
+    fun insertTable(rows: Int, cols: Int, header: Boolean) =
+        command("table", JSONObject().put("rows", rows).put("cols", cols).put("header", header).toString())
+
+    /** A row or column added to the table the cursor is in, or taken out: rowAbove, rowBelow, colLeft, colRight, delRow, delCol or delTable. */
+    fun tableOp(op: String) = command("tableOp", op)
+
+    /** A footnote where the cursor is, with [text] at the end of the chapter. */
+    fun footnote(text: String) = command("footnote", text)
+
+    fun insertCharacter(c: String) = command("char", c)
+
+    /** Where a link in this chapter to [chapter] goes. */
+    fun hrefTo(chapter: dev.kolib.app.epub.Chapter): String {
+        val from = currentPath ?: return chapter.path
+        return if (from == chapter.path) "#" else dev.kolib.app.epub.EpubFile.relativeHref(from, chapter.path)
+    }
+
+    /** The chapter a link in this chapter goes to, if it goes to one. */
+    fun chapterOf(href: String): dev.kolib.app.epub.Chapter? {
+        val from = currentPath ?: return null
+        if (href.contains(':') || href.startsWith("#")) return null
+        val target = dev.kolib.app.epub.EpubFile.resolvePath(from.substringBeforeLast('/', ""), href.substringBefore('#'))
+        return structure.chapters.firstOrNull { it.path == target }
+    }
+
+    /** The words selected in the page, to count ("" if there are none). */
+    fun selectedText(then: (String) -> Unit) {
+        if (showCode) return then("")
+        js("KLED.selectedText()") { raw -> then(raw?.let { runCatching { JSONArray("[$it]").optString(0) }.getOrNull() }.orEmpty()) }
+    }
+
+    /** How many words there are in the chapter open and in the whole book (its chapters in reading order), unsaved changes and all. */
+    suspend fun wordCounts(): Pair<Int, Int> = withContext(Dispatchers.Default) {
+        val counts = structure.chapters.map { it.path }.distinct().associateWith { p ->
+            edit.text(p)?.let { dev.kolib.app.epub.EpubText.countWords(dev.kolib.app.epub.EpubText.plainText(it)) } ?: 0
+        }
+        (currentPath?.let { counts[it] } ?: 0) to counts.values.sum()
     }
 
     /** Selects in the page without dragging: "all", "toStart", "toEnd" (from the cursor) or "paragraph". */

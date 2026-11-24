@@ -19,10 +19,15 @@
   var timer = 0;
   var stateTimer = 0;
   var selectedImg = null;
+  /** Where the cursor last was in the chapter, for a command that comes after a window has been open over the page. */
+  var lastRange = null;
+  /** An EPUB 3 book (footnotes are marked as such for e-readers that show them in a pop-up). */
+  var epub3 = true;
   var original = typeof WeakSet !== 'undefined' ? new WeakSet() : null;
   /** The book's own styled spans, by what they say: a copy the browser makes of one (splitting a paragraph) is the book's too. */
   var ownSpans = {};
   var XHTML = 'http://www.w3.org/1999/xhtml';
+  var OPS = 'http://www.idpf.org/2007/ops';
   /** Characters XML can't hold: one in the chapter would stop it being read back. */
   var BAD = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g;
 
@@ -99,7 +104,7 @@
   /** Italics, bold and the like made here, given a look by the browser to match where they were pasted: just the tag is wanted. */
   function dropBrowserStyles() {
     if (!original) return;
-    var els = body.querySelectorAll('i[style],b[style],em[style],strong[style],sup[style],sub[style]');
+    var els = body.querySelectorAll('i[style],b[style],em[style],strong[style],sup[style],sub[style],u[style],s[style]');
     for (var i = 0; i < els.length; i++) {
       var el = els[i];
       if (original.has(el)) continue;
@@ -125,6 +130,8 @@
   function tidy() {
     unwrapBrowserSpans();
     dropRepeatedIds();
+    fixStrikes();
+    tidyNotes();
   }
 
   function serialize() {
@@ -183,11 +190,25 @@
       var range = has && !sel.isCollapsed;
       // Over many paragraphs, asking the browser whether it's all bold is slow, and says little.
       var wide = range && blockOf(sel.focusNode) !== block;
+      var at = has && body.contains(sel.anchorNode) ? sel.anchorNode : null;
+      if (at) lastRange = sel.getRangeAt(0).cloneRange();
+      var li = at ? closestIn(at, 'li') : null;
+      var link = at ? closestIn(at, 'a[href]') : null;
       var st = {
         bold: !wide && safeState('bold'),
         italic: !wide && safeState('italic'),
+        underline: !wide && !!(at && closestIn(at, 'u')),
+        strike: !wide && !!(at && closestIn(at, 's,strike,del')),
+        sup: !wide && !!(at && closestIn(at, 'sup')),
+        sub: !wide && !!(at && closestIn(at, 'sub')),
         block: block ? block.localName.toLowerCase() : null,
         align: alignOf(block),
+        list: li && li.parentNode ? li.parentNode.localName.toLowerCase() : null,
+        indent: !!(li && li.previousElementSibling && li.previousElementSibling.localName === 'li'),
+        quote: !!(at && closestIn(at, 'blockquote')),
+        link: link ? link.getAttribute('href') : null,
+        text: link ? link.textContent.slice(0, 300) : (range && !wide ? sel.toString().slice(0, 300) : ''),
+        table: !!(at && closestIn(at, 'td,th')),
         selection: range,
         image: selectedImg ? selectedImg.getAttribute('src') : null,
         scrollY: window.scrollY,
@@ -299,10 +320,25 @@
 
   function cmd(name, arg) {
     if (!body) return;
-    body.focus();
+    ensureCursor();
     switch (name) {
       case 'bold': document.execCommand('bold'); break;
       case 'italic': document.execCommand('italic'); break;
+      case 'underline': document.execCommand('underline'); break;
+      case 'strike': document.execCommand('strikeThrough'); fixStrikes(); break;
+      case 'sup': document.execCommand('superscript'); break;
+      case 'sub': document.execCommand('subscript'); break;
+      case 'clear': if (!clearFormatting()) return; break;
+      case 'list': if (!toggleList(arg === 'ol' ? 'ol' : 'ul')) return; break;
+      case 'indent': if (!indentItem(false)) return; break;
+      case 'outdent': if (!indentItem(true)) return; break;
+      case 'quote': if (!toggleQuote()) return; break;
+      case 'link': if (!setLink(arg)) return; break;
+      case 'unlink': if (!removeLink()) return; break;
+      case 'table': if (!insertTable(arg)) return; break;
+      case 'tableOp': if (!tableOp(arg)) return; break;
+      case 'footnote': if (!addFootnote(arg)) return; break;
+      case 'char': if (!arg) return; document.execCommand('insertText', false, arg); break;
       case 'block': document.execCommand('formatBlock', false, arg || 'p'); break;
       case 'align': if (!align(arg)) return; break;
       case 'scenebreak': {
@@ -335,6 +371,533 @@
     }
     schedule();
     reportState();
+  }
+
+  // ---- underlines and strikes, lists, quotes, links, tables and footnotes --------------------------------------
+
+  function make(name) { return document.createElementNS(XHTML, name); }
+  function elementOf(node) { return node && node.nodeType !== 1 ? node.parentNode : node; }
+
+  /** The nearest element round [node] (or [node] itself) matching [selector], in the chapter. */
+  function closestIn(node, selector) {
+    var e = elementOf(node);
+    var c = e && e.closest ? e.closest(selector) : null;
+    return c && c !== body && body.contains(c) ? c : null;
+  }
+
+  /** The cursor back in the page, where it was before a window opened over it. */
+  function ensureCursor() {
+    var sel = window.getSelection();
+    var inside = sel && sel.rangeCount && body.contains(sel.getRangeAt(0).commonAncestorContainer);
+    body.focus();
+    if (!inside && lastRange && body.contains(lastRange.commonAncestorContainer)) {
+      try { sel.removeAllRanges(); sel.addRange(lastRange); } catch (e) {}
+    }
+  }
+
+  /** Where the selection is, to put back after paragraphs are moved about ([swap] gives an element's stand-in). */
+  function saveSel() {
+    var s = window.getSelection();
+    return s && s.rangeCount ? { an: s.anchorNode, ao: s.anchorOffset, fn: s.focusNode, fo: s.focusOffset } : null;
+  }
+
+  function restoreSel(at, swap) {
+    if (!at) return false;
+    var an = swap ? swap(at.an) : at.an, fn = swap ? swap(at.fn) : at.fn;
+    if (!an || !fn || !body.contains(an) || !body.contains(fn)) return false;
+    try { window.getSelection().setBaseAndExtent(an, Math.min(at.ao, lengthOf(an)), fn, Math.min(at.fo, lengthOf(fn))); return true; } catch (e) { return false; }
+  }
+
+  function swapper(pairs) {
+    return function (n) { for (var i = 0; i < pairs.length; i++) if (pairs[i][0] === n) return pairs[i][1]; return n; };
+  }
+
+  function caretIn(el, atEnd) {
+    var r = document.createRange();
+    r.selectNodeContents(el);
+    r.collapse(!atEnd);
+    var s = window.getSelection();
+    s.removeAllRanges();
+    s.addRange(r);
+  }
+
+  function caretAfter(node) {
+    var r = document.createRange();
+    r.setStartAfter(node);
+    r.collapse(true);
+    var s = window.getSelection();
+    s.removeAllRanges();
+    s.addRange(r);
+  }
+
+  /** Puts [node] in place of what's selected (or at the cursor), with the cursor after it. */
+  function insertInline(node) {
+    var sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return false;
+    var r = sel.getRangeAt(0);
+    if (!body.contains(r.commonAncestorContainer)) return false;
+    if (!r.collapsed) r.deleteContents();
+    r.insertNode(node);
+    caretAfter(node);
+    return true;
+  }
+
+  /** [el] as a [name] instead, with what's in it and its attributes. */
+  function renamed(el, name) {
+    var n = make(name);
+    for (var i = 0; i < el.attributes.length; i++) {
+      var a = el.attributes[i];
+      try { n.setAttributeNS(a.namespaceURI, a.name, a.value); } catch (e) {}
+    }
+    while (el.firstChild) n.appendChild(el.firstChild);
+    el.parentNode.replaceChild(n, el);
+    return n;
+  }
+
+  /** The browser strikes words through with <strike>, which a book can't have: <s> it is. */
+  function fixStrikes() {
+    var old = body.querySelectorAll('strike');
+    var pairs = [];
+    for (var i = 0; i < old.length; i++) if (!(original && original.has(old[i]))) pairs.push([old[i], null]);
+    if (!pairs.length) return;
+    var at = saveSel();
+    for (var j = 0; j < pairs.length; j++) pairs[j][1] = renamed(pairs[j][0], 's');
+    restoreSel(at, swapper(pairs));
+  }
+
+  /** Clears the bold, italics and the like from what's selected (or the paragraph the cursor's in), and how it's lined up. */
+  function clearFormatting() {
+    var sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return false;
+    var at = null;
+    if (sel.isCollapsed) {
+      var block = blockOf(sel.anchorNode);
+      if (!block) return false;
+      at = saveSel();
+      var r = document.createRange();
+      r.selectNodeContents(block);
+      sel.removeAllRanges();
+      sel.addRange(r);
+    }
+    var blocks = selectedBlocks();
+    document.execCommand('removeFormat');
+    for (var i = 0; i < blocks.length; i++) {
+      var el = blocks[i];
+      if (!el.parentNode) continue;
+      el.style.removeProperty('text-align');
+      if (/^0(px|em|%)?$/.test(el.style.textIndent)) el.style.removeProperty('text-indent');
+      if (!el.getAttribute('style')) el.removeAttribute('style');
+    }
+    if (at && !restoreSel(at)) sel.collapseToStart();
+    return true;
+  }
+
+  /** What a paragraph in a list item can be made from. */
+  var itemBlocks = /^(p|h[1-6]|div)$/i;
+
+  /** A list item made a paragraph again (or its paragraphs, if it has some), where it was: the list is split round it. */
+  function unlist(li) {
+    var list = li.parentNode, parent = list.parentNode;
+    var rest = null;
+    while (li.nextSibling) {
+      if (!rest) { rest = list.cloneNode(false); rest.removeAttribute('id'); }
+      rest.appendChild(li.nextSibling);
+    }
+    var frag = document.createDocumentFragment();
+    var p = null;
+    while (li.firstChild) {
+      var n = li.firstChild;
+      if (n.nodeType === 1 && blockTags.test(n.localName)) { p = null; frag.appendChild(n); continue; }
+      if (!p) {
+        if (n.nodeType === 3 && !/\S/.test(n.data)) { li.removeChild(n); continue; }
+        p = make('p');
+        frag.appendChild(p);
+      }
+      p.appendChild(n);
+    }
+    if (!frag.firstChild) { p = make('p'); p.appendChild(make('br')); frag.appendChild(p); }
+    var first = frag.firstChild, last = frag.lastChild;
+    if (li.getAttribute('id') && !first.getAttribute('id')) first.setAttribute('id', li.getAttribute('id'));
+    parent.insertBefore(frag, list.nextSibling);
+    if (rest && rest.querySelector('li')) parent.insertBefore(rest, last.nextSibling);
+    list.removeChild(li);
+    if (!list.querySelector('li')) parent.removeChild(list);
+    return first;
+  }
+
+  /** Paragraphs made the items of a list; side by side, they're one list (joined to one of the kind just before or after). */
+  function listify(blocks, kind, pairs) {
+    var groups = [];
+    for (var i = 0; i < blocks.length; i++) {
+      var b = blocks[i];
+      if (!itemBlocks.test(b.localName)) continue;
+      var g = groups[groups.length - 1];
+      if (g && g.last.parentNode === b.parentNode && g.last.nextElementSibling === b) { g.items.push(b); g.last = b; }
+      else groups.push({ items: [b], last: b });
+    }
+    for (var k = 0; k < groups.length; k++) {
+      var items = groups[k].items;
+      var list = make(kind);
+      items[0].parentNode.insertBefore(list, items[0]);
+      for (var j = 0; j < items.length; j++) {
+        var li = make('li');
+        if (items[j].getAttribute('id')) li.setAttribute('id', items[j].getAttribute('id'));
+        while (items[j].firstChild) li.appendChild(items[j].firstChild);
+        list.appendChild(li);
+        items[j].parentNode.removeChild(items[j]);
+        pairs.push([items[j], li]);
+      }
+      var before = list.previousElementSibling, after = list.nextElementSibling;
+      if (after && after.localName === kind) { while (after.firstChild) list.appendChild(after.firstChild); after.parentNode.removeChild(after); }
+      if (before && before.localName === kind) { while (list.firstChild) before.appendChild(list.firstChild); list.parentNode.removeChild(list); }
+    }
+    return groups.length > 0;
+  }
+
+  /** Makes the paragraphs selected a list of [kind] (ul or ol); a list of that kind already, they're paragraphs again. */
+  function toggleList(kind) {
+    var blocks = selectedBlocks();
+    if (!blocks.length) return false;
+    var at = saveSel(), pairs = [], items = [], others = [];
+    for (var i = 0; i < blocks.length; i++) {
+      var li = blocks[i].localName === 'li' ? blocks[i] : closestIn(blocks[i], 'li');
+      if (li) { if (items.indexOf(li) < 0) items.push(li); } else others.push(blocks[i]);
+    }
+    if (!others.length) {
+      var same = items.every(function (it) { return it.parentNode.localName === kind; });
+      if (same) {
+        for (var j = 0; j < items.length; j++) pairs.push([items[j], unlist(items[j])]);
+      } else {
+        var lists = [];
+        items.forEach(function (it) { if (lists.indexOf(it.parentNode) < 0) lists.push(it.parentNode); });
+        lists.forEach(function (l) {
+          if (l.localName === kind) return;
+          var n = renamed(l, kind);
+          if (kind === 'ul') { n.removeAttribute('start'); n.removeAttribute('reversed'); n.removeAttribute('type'); }
+          pairs.push([l, n]);
+        });
+      }
+    } else if (!listify(others, kind, pairs)) return false;
+    if (!restoreSel(at, swapper(pairs)) && pairs.length && pairs[0][1]) caretIn(pairs[0][1], true);
+    return true;
+  }
+
+  /** The list item the cursor is in goes in a level (under the one before it), or out a level (out of a list, a paragraph). */
+  function indentItem(out) {
+    var sel = window.getSelection();
+    var li = sel && sel.rangeCount ? closestIn(sel.anchorNode, 'li') : null;
+    if (!li) return false;
+    var at = saveSel(), list = li.parentNode;
+    if (!out) {
+      var prev = li.previousElementSibling;
+      if (!prev || prev.localName !== 'li') return false;
+      var inner = prev.lastElementChild;
+      if (!inner || inner.localName !== list.localName) { inner = make(list.localName); prev.appendChild(inner); }
+      inner.appendChild(li);
+    } else {
+      var holder = list.parentNode;
+      if (!holder || holder.localName !== 'li') {
+        var p = unlist(li);
+        if (!restoreSel(at, swapper([[li, p]]))) caretIn(p, true);
+        return true;
+      }
+      // The items after it go with it, as a list under it.
+      var rest = null;
+      while (li.nextSibling) {
+        if (!rest) { rest = list.cloneNode(false); rest.removeAttribute('id'); }
+        rest.appendChild(li.nextSibling);
+      }
+      if (rest && rest.querySelector('li')) li.appendChild(rest);
+      holder.parentNode.insertBefore(li, holder.nextSibling);
+      if (!list.querySelector('li')) list.parentNode.removeChild(list);
+    }
+    if (!restoreSel(at)) caretIn(li, true);
+    return true;
+  }
+
+  /** The outermost element of [block] that sits straight in a box of paragraphs (a list item's list, say). */
+  function outerOf(block) {
+    var e = block;
+    while (e.parentNode && e.parentNode !== body && !holdsBlocks.test(e.parentNode.localName)) e = e.parentNode;
+    return e;
+  }
+
+  /** Puts the paragraphs selected in a quote; in one, takes them out of it. */
+  function toggleQuote() {
+    var blocks = selectedBlocks();
+    if (!blocks.length || /^(td|th)$/i.test(blocks[0].localName)) return false;
+    var at = saveSel(), pairs = [];
+    var q = closestIn(blocks[0], 'blockquote');
+    if (q) {
+      // What was in it goes where it was; words straight in it become a paragraph.
+      var parent = q.parentNode, p = null;
+      while (q.firstChild) {
+        var n = q.firstChild;
+        if (n.nodeType === 1 && blockTags.test(n.localName)) { p = null; parent.insertBefore(n, q); continue; }
+        if (!p) {
+          if (n.nodeType === 3 && !/\S/.test(n.data)) { parent.insertBefore(n, q); continue; }
+          p = make('p');
+          parent.insertBefore(p, q);
+          if (!pairs.length) pairs.push([q, p]);
+        }
+        p.appendChild(n);
+      }
+      parent.removeChild(q);
+    } else {
+      var first = outerOf(blocks[0]), last = outerOf(blocks[blocks.length - 1]);
+      if (last.parentNode !== first.parentNode) last = first;
+      var quote = make('blockquote');
+      first.parentNode.insertBefore(quote, first);
+      for (var m = first; m;) {
+        var next = m.nextSibling;
+        quote.appendChild(m);
+        if (m === last) break;
+        m = next;
+      }
+    }
+    restoreSel(at, swapper(pairs));
+    return true;
+  }
+
+  /** A link to [href] (a web address, or a place in the book) on what's selected, the link the cursor's in, or new words. */
+  function setLink(arg) {
+    var o = parse(arg);
+    var href = String(o.href || '').replace(BAD, '').trim();
+    var text = String(o.text || '').replace(BAD, '');
+    if (!href) return false;
+    var sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return false;
+    var a = closestIn(sel.anchorNode, 'a[href]');
+    if (a) {
+      a.setAttribute('href', href);
+      if (text && text !== a.textContent) a.textContent = text;
+      caretAfter(a);
+    } else if (!sel.isCollapsed && (!text || text === sel.toString())) {
+      document.execCommand('createLink', false, href);
+    } else {
+      var made = make('a');
+      made.setAttribute('href', href);
+      made.appendChild(document.createTextNode(text || href));
+      if (!insertInline(made)) return false;
+    }
+    return true;
+  }
+
+  /** Takes the link off the words the cursor is in (or those selected); the words stay. */
+  function removeLink() {
+    var sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return false;
+    var a = closestIn(sel.anchorNode, 'a[href]');
+    if (!a) {
+      if (sel.isCollapsed) return false;
+      document.execCommand('unlink');
+      return true;
+    }
+    var at = saveSel(), parent = a.parentNode, first = a.firstChild;
+    while (a.firstChild) parent.insertBefore(a.firstChild, a);
+    parent.removeChild(a);
+    if (!restoreSel(at, swapper([[a, parent]])) && first) caretAfter(first);
+    return true;
+  }
+
+  var CELL = 'border: 1px solid; padding: 0.25em 0.5em; vertical-align: top;';
+
+  /** An empty cell for a table: like [like] (its look), or new. */
+  function blankCell(tag, like) {
+    var c = make(tag);
+    if (like && like.localName === tag) {
+      if (like.getAttribute('style')) c.setAttribute('style', like.getAttribute('style'));
+      if (like.getAttribute('class')) c.setAttribute('class', like.getAttribute('class'));
+    } else c.setAttribute('style', tag === 'td' ? CELL + ' text-align: left;' : CELL);
+    c.appendChild(make('br'));
+    return c;
+  }
+
+  /** A new table after the paragraph the cursor is in: {rows, cols, header}, the header (if any) its first row. */
+  function insertTable(arg) {
+    var o = parse(arg);
+    var rows = Math.max(1, Math.min(100, (o.rows | 0) || 3)), cols = Math.max(1, Math.min(12, (o.cols | 0) || 3));
+    var t = make('table'), r, i, j;
+    t.setAttribute('style', 'border-collapse: collapse; margin: 1em 0; width: 100%;');
+    if (o.header) {
+      var head = make('thead');
+      r = make('tr');
+      for (j = 0; j < cols; j++) r.appendChild(blankCell('th', null));
+      head.appendChild(r);
+      t.appendChild(head);
+      rows--;
+    }
+    if (rows > 0) {
+      var tb = make('tbody');
+      for (i = 0; i < rows; i++) {
+        r = make('tr');
+        for (j = 0; j < cols; j++) r.appendChild(blankCell('td', null));
+        tb.appendChild(r);
+      }
+      t.appendChild(tb);
+    }
+    insertBlock(t);
+    caretIn(t.querySelector('th,td'), false);
+    return true;
+  }
+
+  function cellsOf(row) {
+    var out = [];
+    for (var n = row.firstElementChild; n; n = n.nextElementSibling) if (/^(td|th)$/i.test(n.localName)) out.push(n);
+    return out;
+  }
+
+  function rowsOf(table) {
+    return Array.prototype.filter.call(table.querySelectorAll('tr'), function (tr) { return tr.closest('table') === table; });
+  }
+
+  function dropTable(table) {
+    var next = table.nextElementSibling || table.previousElementSibling;
+    var parent = table.parentNode;
+    parent.removeChild(table);
+    if (!next) { next = make('p'); next.appendChild(make('br')); parent.appendChild(next); }
+    caretIn(next, false);
+    return true;
+  }
+
+  /** Rows and columns added round the cell the cursor's in, or taken out; or the whole table taken out. */
+  function tableOp(op) {
+    var sel = window.getSelection();
+    var cell = sel && sel.rangeCount ? closestIn(sel.anchorNode, 'td,th') : null;
+    if (!cell) return false;
+    var row = cell.parentNode, table = row.closest('table');
+    if (!table || !body.contains(table)) return false;
+    var col = cellsOf(row).indexOf(cell), next = null, rows, k;
+    if (op === 'rowAbove' || op === 'rowBelow') {
+      var inHead = row.parentNode.localName === 'thead';
+      var tr = make('tr');
+      cellsOf(row).forEach(function (c) { tr.appendChild(blankCell(inHead && op === 'rowBelow' ? 'td' : c.localName, c)); });
+      if (inHead && op === 'rowBelow') {
+        var tb = table.querySelector('tbody');
+        if (!tb || tb.closest('table') !== table) { tb = make('tbody'); table.appendChild(tb); }
+        tb.insertBefore(tr, tb.firstChild);
+      } else row.parentNode.insertBefore(tr, op === 'rowAbove' ? row : row.nextSibling);
+      var made = cellsOf(tr);
+      next = made[Math.min(col, made.length - 1)];
+    } else if (op === 'colLeft' || op === 'colRight') {
+      rows = rowsOf(table);
+      for (k = 0; k < rows.length; k++) {
+        var cs = cellsOf(rows[k]), ref = cs[Math.min(col, cs.length - 1)];
+        if (!ref) continue;
+        var c2 = blankCell(ref.localName, ref);
+        rows[k].insertBefore(c2, op === 'colLeft' ? ref : ref.nextSibling);
+        if (rows[k] === row) next = c2;
+      }
+    } else if (op === 'delRow') {
+      rows = rowsOf(table);
+      var at = rows.indexOf(row);
+      var stays = rows[at + 1] || rows[at - 1];
+      if (!stays) return dropTable(table);
+      row.parentNode.removeChild(row);
+      var sc = cellsOf(stays);
+      next = sc[Math.min(col, sc.length - 1)];
+    } else if (op === 'delCol') {
+      rows = rowsOf(table);
+      for (k = 0; k < rows.length; k++) {
+        var cells = cellsOf(rows[k]);
+        if (cells[col]) rows[k].removeChild(cells[col]);
+        if (!cellsOf(rows[k]).length) rows[k].parentNode.removeChild(rows[k]);
+      }
+      if (!rowsOf(table).length) return dropTable(table);
+      var left = cellsOf(row.parentNode ? row : rowsOf(table)[0]);
+      next = left[Math.min(col, left.length - 1)];
+    } else if (op === 'delTable') {
+      return dropTable(table);
+    } else return false;
+    // Sections of the table left with no rows go.
+    Array.prototype.forEach.call(table.querySelectorAll('thead,tbody,tfoot'), function (s) { if (!s.querySelector('tr')) s.parentNode.removeChild(s); });
+    if (next) caretIn(next, false);
+    return true;
+  }
+
+  var REF = 'kolib-ref-', NOTE = 'kolib-note-';
+
+  /** The box at the end of the chapter that its footnotes go in. */
+  function notesBox() {
+    var box = document.getElementById('kolib-notes');
+    if (box && body.contains(box)) return box;
+    box = make(epub3 ? 'section' : 'div');
+    box.setAttribute('id', 'kolib-notes');
+    if (epub3) box.setAttributeNS(OPS, 'epub:type', 'footnotes');
+    box.setAttribute('style', 'margin-top: 2em; padding-top: 0.5em; border-top: 1px solid; font-size: 0.85em;');
+    body.appendChild(document.createTextNode('\n'));
+    body.appendChild(box);
+    return box;
+  }
+
+  /** A footnote: its number where the cursor is, linked to [text] at the end of the chapter (and back). */
+  function addFootnote(text) {
+    text = String(text || '').replace(BAD, '').replace(/\s+/g, ' ').trim();
+    if (!text) return false;
+    var sel = window.getSelection();
+    if (!sel || !sel.rangeCount || !body.contains(sel.anchorNode)) return false;
+    if (!sel.isCollapsed) sel.collapseToEnd();
+    var inLink = closestIn(sel.anchorNode, 'a');
+    if (inLink) caretAfter(inLink);
+    var used = 0;
+    var marked = body.querySelectorAll('[id^="' + REF + '"],[id^="' + NOTE + '"]');
+    for (var i = 0; i < marked.length; i++) used = Math.max(used, parseInt(marked[i].getAttribute('id').replace(/^kolib-(ref|note)-/, ''), 10) || 0);
+    var key = used + 1;
+    var ref = make('a');
+    ref.setAttribute('id', REF + key);
+    ref.setAttribute('href', '#' + NOTE + key);
+    if (epub3) { ref.setAttributeNS(OPS, 'epub:type', 'noteref'); ref.setAttribute('role', 'doc-noteref'); }
+    var sup = make('sup');
+    sup.appendChild(document.createTextNode('0'));
+    ref.appendChild(sup);
+    if (!insertInline(ref)) return false;
+    var note = make(epub3 ? 'aside' : 'div');
+    note.setAttribute('id', NOTE + key);
+    if (epub3) { note.setAttributeNS(OPS, 'epub:type', 'footnote'); note.setAttribute('role', 'doc-footnote'); }
+    var p = make('p');
+    p.setAttribute('style', 'text-indent: 0; margin: 0.3em 0;');
+    var back = make('a');
+    back.setAttribute('href', '#' + REF + key);
+    if (epub3) back.setAttribute('role', 'doc-backlink');
+    back.appendChild(document.createTextNode('0.'));
+    p.appendChild(back);
+    p.appendChild(document.createTextNode(' ' + text));
+    note.appendChild(p);
+    notesBox().appendChild(note);
+    tidyNotes();
+    return true;
+  }
+
+  function setText(el, s) { if (el && el.textContent !== s) el.textContent = s; }
+
+  /** The chapter's footnotes numbered in the order they come, their notes in that order too; a note whose number has gone goes too. */
+  function tidyNotes() {
+    var refs = body.querySelectorAll('a[id^="' + REF + '"]');
+    var box = document.getElementById('kolib-notes');
+    if (!refs.length && !box) return;
+    var notes = box ? box.querySelectorAll('[id^="' + NOTE + '"]') : [];
+    var byKey = {}, inOrder = [];
+    for (var i = 0; i < notes.length; i++) byKey[notes[i].getAttribute('id').slice(NOTE.length)] = notes[i];
+    var n = 0;
+    for (var j = 0; j < refs.length; j++) {
+      var key = refs[j].getAttribute('id').slice(REF.length);
+      var note = byKey[key];
+      if (!note) continue;
+      n++;
+      setText(refs[j].querySelector('sup') || refs[j], String(n));
+      setText(note.querySelector('a[href="#' + REF + key + '"]'), n + '.');
+      inOrder.push(note);
+      delete byKey[key];
+    }
+    var gone = Object.keys(byKey);
+    var now = Array.prototype.filter.call(notes, function (x) { return inOrder.indexOf(x) >= 0; });
+    var moved = now.some(function (x, k) { return x !== inOrder[k]; });
+    if (!gone.length && !moved && (!box || notes.length)) return;
+    var at = saveSel();
+    gone.forEach(function (k) { var x = byKey[k]; if (x.parentNode) x.parentNode.removeChild(x); });
+    if (moved) inOrder.forEach(function (x) { box.appendChild(x); });
+    if (box && !box.querySelector('[id^="' + NOTE + '"]')) box.parentNode.removeChild(box);
+    restoreSel(at);
   }
 
   // ---- selecting, copying and pasting ---------------------------------------------------------------
@@ -381,7 +944,7 @@
 
   var blockTags = /^(p|div|h[1-6]|li|blockquote|pre|section|article|aside|header|footer|main|figure|figcaption|tr|dt|dd|ul|ol|dl|table|tbody|thead|tfoot|td|th|hr|address|center)$/;
   var skipTags = /^(script|style|head|title|meta|link|template|noscript|svg|math|iframe|object|img|picture|video|audio|canvas|button|input|select|textarea)$/;
-  var keptTags = { i: 'i', em: 'em', b: 'b', strong: 'strong', sup: 'sup', sub: 'sub' };
+  var keptTags = { i: 'i', em: 'em', b: 'b', strong: 'strong', sup: 'sup', sub: 'sub', u: 'u', s: 's', strike: 's', del: 's' };
 
   /**
    * What's under [node] as plain paragraphs: each a tag (p, or the heading it was), its words, and its words
@@ -433,7 +996,7 @@
     walk(node, false);
     flush();
     // Tags left with nothing in them say nothing.
-    for (var i = 0; i < out.length; i++) out[i].html = out[i].html.replace(/<(i|em|b|strong|sup|sub)><\/\1>/g, '');
+    for (var i = 0; i < out.length; i++) out[i].html = out[i].html.replace(/<(i|em|b|strong|sup|sub|u|s)><\/\1>/g, '');
     return out;
   }
 
@@ -632,6 +1195,7 @@
     if (!body) return;
     var st = parse(KLE.start());
     whole = !!st.whole;
+    epub3 = st.epub3 !== false;
     root.classList.add('kl-edit');
     if (st.dark) root.classList.add('kl-dark');
     if (original) {
@@ -699,6 +1263,8 @@
     splitHere: splitHere,
     scrollY: function () { return window.scrollY; },
     deselect: function () { selectImage(null); },
+    /** The words selected, to count. */
+    selectedText: function () { var s = window.getSelection(); return s && s.rangeCount && !s.isCollapsed ? s.toString() : ''; },
     select: select,
     copy: copySelection,
     paste: pasteIn,

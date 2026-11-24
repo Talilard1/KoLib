@@ -183,6 +183,91 @@ def main():
         pg.evaluate("() => { const t = document.getElementById('a').firstChild; getSelection().setBaseAndExtent(t, 6, t, 30); }"); pg.evaluate('KLED.around()')
         pg.evaluate('([t, h]) => KLED.addAfter(t, h)', ['Six.', '<p>Six.</p>']); settle(pg)
         check('with words selected, it writes after them and they stay', '<p class="first" id="a">Alpha one two three four five.</p><p class="first">Six.</p>' in pg.evaluate(BODY), True)
+
+        # Underlines and strikes, lists, quotes, links, tables and footnotes.
+        SELW = """([id, a, b]) => { const el = document.getElementById(id); let n = el.firstChild; while (n && n.nodeType !== 3) n = n.firstChild || n.nextSibling;
+          getSelection().setBaseAndExtent(n, a, n, b); document.body.focus(); }"""
+        STATE = "() => { KLED.cmd('noop'); return new Promise(r => setTimeout(() => r(JSON.parse(window.__state)), 200)); }"
+        pg = fresh(); pg.evaluate(SELW, ['a', 6, 9]); pg.evaluate("KLED.cmd('strike')"); settle(pg)
+        check('words struck through are an <s>, not the <strike> books cannot have', ['Alpha <s>one</s> two' in pg.evaluate(BODY), '<strike' in pg.evaluate(BODY)], [True, False])
+        check('and the toolbar knows', pg.evaluate(STATE)['strike'], True)
+        pg.evaluate("KLED.cmd('strike')"); settle(pg)
+        check('struck again, they are as they were', 'Alpha one two' in pg.evaluate(BODY), True)
+        pg = fresh(); pg.evaluate(SELW, ['a', 6, 9]); pg.evaluate("KLED.cmd('underline')"); pg.evaluate("KLED.cmd('sup')"); settle(pg)
+        check('underlined and raised', pg.evaluate(BODY), lambda g: '<u>' in g and '<sup>' in g and 'one</' in g)
+        pg = fresh(); pg.evaluate(SET, ['b', 2]); pg.evaluate("KLED.cmd('clear')"); settle(pg)
+        check('with nothing selected, clearing the formatting clears the paragraph the cursor is in',
+              '<p id="b">Bravo italic words and bold words six seven.</p>' in pg.evaluate(BODY), True)
+
+        pg = fresh(); pg.evaluate("() => { const a = document.getElementById('a').firstChild, d = document.getElementById('d').firstChild; getSelection().setBaseAndExtent(a, 2, document.getElementById('c').lastChild, 3); document.body.focus(); }")
+        pg.evaluate("KLED.cmd('list', 'ol')"); settle(pg)
+        body = pg.evaluate(BODY)
+        check('paragraphs made a numbered list, keeping their ids, words and italics',
+              ['<ol><li id="a">Alpha one two three four five.</li><li id="b">Bravo <i>italic words</i>' in body, '<li id="c">Charlie' in body, pg.evaluate(VALID)], [True, True, True])
+        check('the selection stays on them', pg.evaluate("() => getSelection().toString().slice(0, 5)"), 'pha o')
+        pg.evaluate("KLED.cmd('list', 'ol')"); settle(pg)
+        body = pg.evaluate(BODY)
+        check('and a list again, paragraphs', ['<ol' in body, '<p id="a">Alpha one' in body, '<p id="c">Charlie' in body, pg.evaluate(VALID)], [False, True, True, True])
+        pg = fresh(); pg.evaluate(SET, ['d', 2]); pg.evaluate("KLED.cmd('list', 'ul')"); settle(pg)
+        check('a paragraph made a list item just after a list joins it', '<ul><li id="li1">Item one</li><li>Item two</li><li id="d">Delta' in pg.evaluate(BODY), True)
+        pg.evaluate("KLED.cmd('indent')"); settle(pg)
+        check('in a level, it goes under the item before it', '<li>Item two<ul><li id="d">Delta eleven twelve.</li></ul></li></ul>' in pg.evaluate(BODY), True)
+        check('the toolbar knows it is in a list', pg.evaluate(STATE)['list'], 'ul')
+        pg.evaluate("KLED.cmd('outdent')"); settle(pg)
+        check('out a level, it is back after it', '<li>Item two</li><li id="d">Delta eleven twelve.</li></ul>' in pg.evaluate(BODY), True)
+        pg.evaluate("KLED.cmd('outdent')"); settle(pg)
+        check('out of the list, a paragraph again', ['<li>Item two</li></ul><p id="d">Delta eleven twelve.</p>' in pg.evaluate(BODY), pg.evaluate(VALID)], [True, True])
+        pg = fresh(); pg.evaluate(SET, ['li1', 2]); pg.evaluate("KLED.cmd('list', 'ul')"); settle(pg)
+        check('the first item of a list made a paragraph: the list goes on after it', '<p id="li1">Item one</p><ul><li>Item two</li></ul>' in pg.evaluate(BODY), True)
+
+        pg = fresh(); pg.evaluate(SET, ['b', 2]); pg.evaluate("KLED.cmd('quote')"); settle(pg)
+        check('a paragraph put in a quote', ['<blockquote><p id="b">Bravo' in pg.evaluate(BODY), pg.evaluate(STATE)['quote']], [True, True])
+        pg.evaluate("KLED.cmd('quote')"); settle(pg)
+        check('and out of it again', ['<blockquote' in pg.evaluate(BODY), '<p id="b">Bravo' in pg.evaluate(BODY)], [False, True])
+
+        pg = fresh(); pg.evaluate(SELW, ['a', 6, 9]); pg.evaluate("""KLED.cmd('link', JSON.stringify({ href: 'https://example.org/?a=1&b=2', text: 'one' }))"""); settle(pg)
+        check('selected words made a link', ['Alpha <a href="https://example.org/?a=1&amp;b=2">one</a> two' in pg.evaluate(BODY), pg.evaluate(VALID)], [True, True])
+        pg.evaluate(SELW, ['a', 1, 1]); pg.evaluate("() => { const a = document.querySelector('#a a').firstChild; getSelection().collapse(a, 1); }")
+        check('the toolbar knows the link and its words', [pg.evaluate(STATE)['link'], pg.evaluate(STATE)['text']], ['https://example.org/?a=1&b=2', 'one'])
+        pg.evaluate("""KLED.cmd('link', JSON.stringify({ href: 'chapter2.xhtml', text: 'one' }))"""); settle(pg)
+        check('changed, the link goes somewhere else', 'Alpha <a href="chapter2.xhtml">one</a> two' in pg.evaluate(BODY), True)
+        pg.evaluate("() => { const a = document.querySelector('#a a').firstChild; getSelection().collapse(a, 1); }"); pg.evaluate("KLED.cmd('unlink')"); settle(pg)
+        check('taken off, the words stay', '<p class="first" id="a">Alpha one two three four five.</p>' in pg.evaluate(BODY), True)
+        pg = fresh(); pg.evaluate(SET, ['d', 6]); pg.evaluate("""KLED.cmd('link', JSON.stringify({ href: 'https://example.org/', text: 'a site' }))"""); settle(pg)
+        check('with nothing selected, the link comes with its words', 'Delta <a href="https://example.org/">a site</a>eleven' in pg.evaluate(BODY), True)
+
+        pg = fresh(); pg.evaluate(SET, ['a', 3]); pg.evaluate("""KLED.cmd('table', JSON.stringify({ rows: 3, cols: 2, header: true }))"""); settle(pg)
+        t = pg.evaluate("() => { const t = document.querySelector('table'); return [t.previousElementSibling.id, t.querySelectorAll('thead th').length, t.querySelectorAll('tbody tr').length, t.querySelectorAll('tbody td').length, getSelection().anchorNode.closest('th') !== null]; }")
+        check('a table goes after the paragraph, with its header row, and the cursor in its first cell', t, ['a', 2, 2, 4, True])
+        check('the table is well-formed', pg.evaluate(VALID), True)
+        check('the toolbar knows it is in a table', pg.evaluate(STATE)['table'], True)
+        pg.evaluate("KLED.cmd('tableOp', 'rowBelow')"); pg.evaluate("KLED.cmd('tableOp', 'colRight')")
+        check('a row added under the header goes at the top of the body, and a column added to every row',
+              pg.evaluate("() => { const t = document.querySelector('table'); return [t.querySelectorAll('tbody tr').length, t.querySelector('thead tr').children.length, t.querySelector('tbody tr').children.length]; }"), [3, 3, 3])
+        pg.evaluate("KLED.cmd('tableOp', 'delCol')"); pg.evaluate("KLED.cmd('tableOp', 'delRow')"); settle(pg)
+        check('a column and a row taken out', pg.evaluate("() => { const t = document.querySelector('table'); return [t.querySelectorAll('tr').length, t.querySelector('tr').children.length]; }"), [3, 2])
+        pg.evaluate("KLED.cmd('tableOp', 'delTable')"); settle(pg)
+        check('the table taken out', [pg.evaluate("() => !!document.querySelector('table')"), pg.evaluate(VALID)], [False, True])
+
+        pg = fresh(); pg.evaluate(SET, ['d', 5]); pg.evaluate("KLED.cmd('footnote', 'A second note.')")
+        pg.evaluate(SET, ['a', 5]); pg.evaluate("KLED.cmd('footnote', 'The first note.')"); settle(pg)
+        body = pg.evaluate(BODY)
+        check('footnotes are numbered in the order they come, wherever they were added',
+              [pg.evaluate("() => Array.from(document.querySelectorAll('a[id^=kolib-ref-] sup')).map(s => s.textContent).join(',')"),
+               pg.evaluate("() => Array.from(document.querySelectorAll('#kolib-notes p')).map(p => p.textContent).join(' | ')")],
+              ['1,2', '1. The first note. | 2. A second note.'])
+        check('their notes link back, and the chapter is well-formed', ['<a href="#kolib-ref-2" role="doc-backlink">1.</a> The first note.' in body, pg.evaluate(VALID)], [True, True])
+        check('the cursor is left just after the number', pg.evaluate(CARET)[1][:5], ' one ')
+        pg.keyboard.type('X'); settle(pg)
+        check('so typing carries on after it, not in it', pg.evaluate("() => document.querySelector('#a').textContent.slice(0, 8)"), 'Alpha1X ')
+        pg.evaluate("() => { const r = document.getElementById('kolib-ref-2'); r.parentNode.removeChild(r); KLED.flush(); }")
+        check('a footnote taken out takes its note, and the rest are renumbered',
+              pg.evaluate("() => Array.from(document.querySelectorAll('#kolib-notes p')).map(p => p.textContent).join(' | ')"), '1. A second note.')
+
+        pg = fresh(); pg.evaluate(SET, ['d', 5]); pg.evaluate("KLED.cmd('char', '\u2014')"); settle(pg)
+        check('a special character goes in at the cursor', 'Delta\u2014 eleven' in pg.evaluate(BODY), True)
+        pg = fresh(); pg.evaluate(SET, ['b', 3]); pg.evaluate(PASTE, ['x', '<p>An <u>under</u> and <strike>struck</strike> word</p>']); settle(pg)
+        check('underlines and strikes come through a paste', 'An <u>under</u> and <s>struck</s> word' in pg.evaluate(BODY), True)
         b.close()
     server.shutdown(); shutil.rmtree(site, ignore_errors=True)
     print(f"\n{'ALL PASSED' if not failed else str(len(failed)) + ' FAILED: ' + '; '.join(failed)}")

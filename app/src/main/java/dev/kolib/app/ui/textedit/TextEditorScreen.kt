@@ -130,6 +130,37 @@ import dev.kolib.app.epub.Cleanups
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.automirrored.outlined.FormatIndentDecrease
+import androidx.compose.material.icons.automirrored.outlined.FormatIndentIncrease
+import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
+import androidx.compose.material.icons.automirrored.outlined.StickyNote2
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.outlined.AddBox
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.EmojiSymbols
+import androidx.compose.material.icons.outlined.FormatClear
+import androidx.compose.material.icons.outlined.FormatListNumbered
+import androidx.compose.material.icons.outlined.FormatQuote
+import androidx.compose.material.icons.outlined.FormatStrikethrough
+import androidx.compose.material.icons.outlined.FormatUnderlined
+import androidx.compose.material.icons.outlined.Link
+import androidx.compose.material.icons.outlined.Numbers
+import androidx.compose.material.icons.outlined.Subscript
+import androidx.compose.material.icons.outlined.Superscript
+import androidx.compose.material.icons.outlined.TableChart
+import androidx.compose.material.icons.outlined.TextFormat
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.RadioButton
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import dev.kolib.app.epub.EpubText
 
 /**
  * Editing a book's text: its chapters down the side, the chapter as a page to type into (or its code),
@@ -158,6 +189,7 @@ fun TextEditorScreen(
     var showCleanups by remember { mutableStateOf(false) }
     var assistant by remember { mutableStateOf(false) }
     var confirmRevert by remember { mutableStateOf(false) }
+    var counting by remember { mutableStateOf(false) }
     var narrowShowsEditor by remember { mutableStateOf(state.currentPath != null) }
     val dark = MaterialTheme.colorScheme.background.luminance() < 0.4f
 
@@ -215,7 +247,7 @@ fun TextEditorScreen(
             onCleanups = { showCleanups = true }, onRevert = { confirmRevert = true }, onTour = { touring = true },
             onAssistant = { assistant = true },
             onChapters = if (chaptersApart && pageShowing) ({ narrowShowsEditor = false }) else null,
-            onToolsInMenu = { toolsInMenu = it })
+            onToolsInMenu = { toolsInMenu = it }, onWordCount = { counting = true })
         BoxWithConstraints(Modifier.fillMaxSize().imePadding()) {
             val wide = maxWidth >= 1000.dp
             val medium = maxWidth >= 600.dp
@@ -328,6 +360,7 @@ fun TextEditorScreen(
     }
 
     if (showCleanups) CleanupsDialog(state, onDismiss = { showCleanups = false })
+    if (counting) WordCountDialog(state, onDismiss = { counting = false })
     if (assistant) EditorAssistant(state, onDismiss = { assistant = false })
 
     if (confirmClose) {
@@ -407,6 +440,7 @@ private fun EditorTopBar(
     onChapters: (() -> Unit)? = null,
     /** Told whether the less used buttons are in the menu (there isn't the width for them in the bar). */
     onToolsInMenu: (Boolean) -> Unit = {},
+    onWordCount: () -> Unit = {},
 ) {
     Surface(color = MaterialTheme.colorScheme.surfaceContainer, shadowElevation = 2.dp) {
         // The status bar is hidden while the editor is open, but a camera cutout, or the status bar
@@ -464,6 +498,10 @@ private fun EditorTopBar(
                             DropdownMenuItem(text = { Text(tr("Preview in reader")) }, leadingIcon = { Icon(Icons.AutoMirrored.Filled.MenuBook, null) }, onClick = { menu = false; onRead() })
                             HorizontalDivider()
                         }
+                        DropdownMenuItem(
+                            text = { Text(tr("Word count")) }, leadingIcon = { Icon(Icons.Outlined.Numbers, null) },
+                            onClick = { menu = false; onWordCount() }, modifier = Modifier.testTag("editor-word-count"),
+                        )
                         DropdownMenuItem(text = { Text(tr("Check for problems")) }, leadingIcon = { Icon(Icons.Outlined.FactCheck, null) },
                             onClick = { menu = false; state.checkBook() })
                         DropdownMenuItem(
@@ -533,13 +571,47 @@ private fun EditorToolbar(state: TextEditState, onPicture: () -> Unit, copiedCou
                     ) {
                         IconToggleButton(checked = t.bold && page, onCheckedChange = { state.command("bold") }, enabled = page, colors = on, modifier = Modifier.tourPlace(EditorPlace.BOLD)) { Icon(Icons.Outlined.FormatBold, tr("Bold")) }
                         IconToggleButton(checked = t.italic && page, onCheckedChange = { state.command("italic") }, enabled = page, colors = on, modifier = Modifier.tourPlace(EditorPlace.ITALIC)) { Icon(Icons.Outlined.FormatItalic, tr("Italic")) }
+                        // Underlined, struck through, raised and lowered letters; and clearing all of it.
+                        var styling by remember { mutableStateOf(false) }
+                        Box(Modifier.tourPlace(EditorPlace.TEXT_STYLES)) {
+                            IconToggleButton(
+                                checked = page && (t.underline || t.strike || t.sup || t.sub), onCheckedChange = { styling = true }, enabled = page, colors = on,
+                                modifier = Modifier.testTag("editor-styles"),
+                            ) { Icon(Icons.Outlined.TextFormat, tr("More text styles")) }
+                            DropdownMenu(expanded = styling, onDismissRequest = { styling = false }) {
+                                listOf(
+                                    Triple("underline", tr("Underline"), Icons.Outlined.FormatUnderlined) to t.underline,
+                                    Triple("strike", tr("Strikethrough"), Icons.Outlined.FormatStrikethrough) to t.strike,
+                                    Triple("sup", tr("Superscript"), Icons.Outlined.Superscript) to t.sup,
+                                    Triple("sub", tr("Subscript"), Icons.Outlined.Subscript) to t.sub,
+                                ).forEach { (style, lit) ->
+                                    val (name, label, icon) = style
+                                    DropdownMenuItem(
+                                        text = { Text(label) }, leadingIcon = { Icon(icon, null) }, trailingIcon = ticked(lit),
+                                        onClick = { styling = false; state.command(name) }, modifier = Modifier.testTag("editor-style-$name"),
+                                    )
+                                }
+                                HorizontalDivider()
+                                DropdownMenuItem(
+                                    text = { Text(tr("Clear formatting")) }, leadingIcon = { Icon(Icons.Outlined.FormatClear, null) },
+                                    onClick = { styling = false; state.command("clear") }, modifier = Modifier.testTag("editor-style-clear"),
+                                )
+                            }
+                        }
                         var headings by remember { mutableStateOf(false) }
-                        val block = when (t.block) { "h1" -> tr("Heading 1"); "h2" -> tr("Heading 2"); "h3" -> tr("Heading 3"); "h4", "h5", "h6" -> tr("Heading"); else -> tr("Paragraph") }
+                        val block = when {
+                            t.list == "ul" -> tr("Bulleted list")
+                            t.list == "ol" -> tr("Numbered list")
+                            else -> when (t.block) { "h1" -> tr("Heading 1"); "h2" -> tr("Heading 2"); "h3" -> tr("Heading 3"); "h4", "h5", "h6" -> tr("Heading"); else -> tr("Paragraph") }
+                        }
                         Box(Modifier.tourPlace(EditorPlace.HEADING)) {
                             if (compact) {
                                 // Lit while the cursor is in a heading.
-                                IconToggleButton(checked = page && t.block?.startsWith("h") == true, onCheckedChange = { headings = true }, enabled = page, colors = on) {
-                                    Icon(Icons.Outlined.Title, block)
+                                IconToggleButton(checked = page && (t.block?.startsWith("h") == true || t.list != null || t.quote), onCheckedChange = { headings = true }, enabled = page, colors = on) {
+                                    Icon(
+                                        when (t.list) { "ul" -> Icons.AutoMirrored.Outlined.FormatListBulleted; "ol" -> Icons.Outlined.FormatListNumbered; else -> Icons.Outlined.Title },
+                                        block,
+                                    )
                                 }
                             } else {
                                 TextButton(onClick = { headings = true }, enabled = page) {
@@ -552,8 +624,32 @@ private fun EditorToolbar(state: TextEditState, onPicture: () -> Unit, copiedCou
                                 listOf("p" to tr("Paragraph"), "h1" to tr("Heading 1 (part)"), "h2" to tr("Heading 2 (chapter)"), "h3" to tr("Heading 3 (section)")).forEach { (tag, label) ->
                                     DropdownMenuItem(
                                         text = { Text(label) },
-                                        trailingIcon = if ((t.block ?: "p") == tag) ({ Icon(Icons.Filled.Check, null, Modifier.size(18.dp)) }) else null,
+                                        trailingIcon = if (t.list == null && (t.block ?: "p") == tag) ({ Icon(Icons.Filled.Check, null, Modifier.size(18.dp)) }) else null,
                                         onClick = { headings = false; state.command("block", tag) },
+                                    )
+                                }
+                                // Lists and quotes: what the paragraph (or every paragraph selected) is part of.
+                                HorizontalDivider()
+                                DropdownMenuItem(
+                                    text = { Text(tr("Bulleted list")) }, leadingIcon = { Icon(Icons.AutoMirrored.Outlined.FormatListBulleted, null) }, trailingIcon = ticked(t.list == "ul"),
+                                    onClick = { headings = false; state.command("list", "ul") }, modifier = Modifier.testTag("editor-list-ul"),
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(tr("Numbered list")) }, leadingIcon = { Icon(Icons.Outlined.FormatListNumbered, null) }, trailingIcon = ticked(t.list == "ol"),
+                                    onClick = { headings = false; state.command("list", "ol") }, modifier = Modifier.testTag("editor-list-ol"),
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(tr("Quote")) }, leadingIcon = { Icon(Icons.Outlined.FormatQuote, null) }, trailingIcon = ticked(t.quote),
+                                    onClick = { headings = false; state.command("quote") }, modifier = Modifier.testTag("editor-quote"),
+                                )
+                                if (t.list != null) {
+                                    DropdownMenuItem(
+                                        text = { Text(tr("Indent more")) }, leadingIcon = { Icon(Icons.AutoMirrored.Outlined.FormatIndentIncrease, null) }, enabled = t.canIndent,
+                                        onClick = { headings = false; state.command("indent") }, modifier = Modifier.testTag("editor-indent"),
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(tr("Indent less")) }, leadingIcon = { Icon(Icons.AutoMirrored.Outlined.FormatIndentDecrease, null) },
+                                        onClick = { headings = false; state.command("outdent") }, modifier = Modifier.testTag("editor-outdent"),
                                     )
                                 }
                             }
@@ -578,17 +674,72 @@ private fun EditorToolbar(state: TextEditState, onPicture: () -> Unit, copiedCou
                                 }
                             }
                         }
-                        IconButton(onClick = { state.command("scenebreak") }, enabled = page, modifier = Modifier.tourPlace(EditorPlace.SCENE_BREAK)) { Icon(Icons.Outlined.HorizontalRule, tr("Scene break")) }
-                        val picture = if (t.image != null) tr("Replace picture") else tr("Picture")
-                        if (compact) {
-                            IconButton(onClick = onPicture, enabled = page, modifier = Modifier.tourPlace(EditorPlace.PICTURE)) { Icon(Icons.Outlined.Image, picture) }
-                        } else {
-                            TextButton(onClick = onPicture, enabled = page, modifier = Modifier.tourPlace(EditorPlace.PICTURE)) {
-                                Icon(Icons.Outlined.Image, null, Modifier.size(18.dp))
-                                Spacer(Modifier.width(6.dp))
-                                Text(picture)
+                        // Links, footnotes, tables, pictures, scene breaks and characters not on the keyboard, where the cursor is;
+                        // in a table, its rows and columns.
+                        var inserting by remember { mutableStateOf(false) }
+                        var linking by remember { mutableStateOf(false) }
+                        var newTable by remember { mutableStateOf(false) }
+                        var noting by remember { mutableStateOf(false) }
+                        var characters by remember { mutableStateOf(false) }
+                        Box(Modifier.tourPlace(EditorPlace.INSERT)) {
+                            if (compact) {
+                                IconButton(onClick = { inserting = true }, enabled = page, modifier = Modifier.testTag("editor-insert")) { Icon(Icons.Outlined.AddBox, tr("Insert")) }
+                            } else {
+                                TextButton(onClick = { inserting = true }, enabled = page, modifier = Modifier.testTag("editor-insert")) {
+                                    Icon(Icons.Outlined.AddBox, null, Modifier.size(18.dp))
+                                    Spacer(Modifier.width(6.dp))
+                                    Text(tr("Insert"))
+                                }
+                            }
+                            DropdownMenu(expanded = inserting, onDismissRequest = { inserting = false }) {
+                                if (t.table) {
+                                    listOf(
+                                        "rowAbove" to tr("Add row above"), "rowBelow" to tr("Add row below"),
+                                        "colLeft" to tr("Add column to the left"), "colRight" to tr("Add column to the right"),
+                                    ).forEach { (op, label) ->
+                                        DropdownMenuItem(
+                                            text = { Text(label) }, leadingIcon = { Icon(Icons.Outlined.TableChart, null) },
+                                            onClick = { inserting = false; state.tableOp(op) }, modifier = Modifier.testTag("editor-table-$op"),
+                                        )
+                                    }
+                                    listOf("delRow" to tr("Delete row"), "delCol" to tr("Delete column"), "delTable" to tr("Delete table")).forEach { (op, label) ->
+                                        DropdownMenuItem(
+                                            text = { Text(label, color = MaterialTheme.colorScheme.error) }, leadingIcon = { Icon(Icons.Outlined.Delete, null, tint = MaterialTheme.colorScheme.error) },
+                                            onClick = { inserting = false; state.tableOp(op) }, modifier = Modifier.testTag("editor-table-$op"),
+                                        )
+                                    }
+                                    HorizontalDivider()
+                                }
+                                DropdownMenuItem(
+                                    text = { Text(if (t.link != null) tr("Edit link…") else tr("Link…")) }, leadingIcon = { Icon(Icons.Outlined.Link, null) },
+                                    onClick = { inserting = false; linking = true }, modifier = Modifier.testTag("editor-link"),
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(tr("Footnote…")) }, leadingIcon = { Icon(Icons.AutoMirrored.Outlined.StickyNote2, null) },
+                                    onClick = { inserting = false; noting = true }, modifier = Modifier.testTag("editor-footnote"),
+                                )
+                                if (!t.table) DropdownMenuItem(
+                                    text = { Text(tr("Table…")) }, leadingIcon = { Icon(Icons.Outlined.TableChart, null) },
+                                    onClick = { inserting = false; newTable = true }, modifier = Modifier.testTag("editor-table"),
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(if (t.image != null) tr("Replace picture…") else tr("Picture…")) }, leadingIcon = { Icon(Icons.Outlined.Image, null) },
+                                    onClick = { inserting = false; onPicture() }, modifier = Modifier.testTag("editor-picture"),
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(tr("Scene break")) }, leadingIcon = { Icon(Icons.Outlined.HorizontalRule, null) },
+                                    onClick = { inserting = false; state.command("scenebreak") }, modifier = Modifier.testTag("editor-scene-break"),
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(tr("Special character…")) }, leadingIcon = { Icon(Icons.Outlined.EmojiSymbols, null) },
+                                    onClick = { inserting = false; characters = true }, modifier = Modifier.testTag("editor-characters"),
+                                )
                             }
                         }
+                        if (linking) LinkDialog(state, onDismiss = { linking = false })
+                        if (newTable) TableDialog(onAdd = { r, c, h -> newTable = false; state.insertTable(r, c, h) }, onDismiss = { newTable = false })
+                        if (noting) FootnoteDialog(onAdd = { noting = false; state.footnote(it) }, onDismiss = { noting = false })
+                        if (characters) CharactersDialog(onPick = { characters = false; state.insertCharacter(it) }, onDismiss = { characters = false })
                         IconButton(onClick = { state.splitAtCursor() }, enabled = page, modifier = Modifier.tourPlace(EditorPlace.SPLIT)) { Icon(Icons.Outlined.CallSplit, tr("Split the chapter here")) }
                         // Selecting without dragging, and the clipboard: a long chapter is hard to select by its handles.
                         var selecting by remember { mutableStateOf(false) }
@@ -650,6 +801,196 @@ private fun EditorToolbar(state: TextEditState, onPicture: () -> Unit, copiedCou
             }
         }
     }
+}
+
+/** A tick at the end of a menu item, when it's what the paragraph (or the words) are. */
+private fun ticked(lit: Boolean): (@Composable () -> Unit)? = if (lit) ({ Icon(Icons.Filled.Check, null, Modifier.size(18.dp)) }) else null
+
+/**
+ * A link on the words selected (or the link the cursor is in): to a web address or to a chapter of the book. The words
+ * shown can be changed, or written, when nothing was selected; a link can be taken off.
+ */
+@Composable
+private fun LinkDialog(state: TextEditState, onDismiss: () -> Unit) {
+    val t = remember { state.toolbar }
+    val chapters = remember(state.version) { state.structure.chapters.distinctBy { it.path } }
+    val was = remember { t.link?.let { state.chapterOf(it) } }
+    var toChapter by remember { mutableStateOf(was != null) }
+    var chapter by remember { mutableStateOf(was) }
+    var address by remember { mutableStateOf(if (t.link != null && was == null) t.link else "") }
+    var words by remember { mutableStateOf(t.text) }
+    val href = if (toChapter) chapter?.let { state.hrefTo(it) } else webHref(address)
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(if (t.link != null) tr("Edit link") else tr("Add a link")) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                OutlinedTextField(
+                    words, { words = it }, singleLine = true, label = { Text(tr("Words shown")) },
+                    modifier = Modifier.fillMaxWidth().testTag("link-words"),
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(selected = !toChapter, onClick = { toChapter = false }, label = { Text(tr("Web address")) }, modifier = Modifier.testTag("link-to-web"))
+                    FilterChip(selected = toChapter, onClick = { toChapter = true }, label = { Text(tr("A chapter")) }, modifier = Modifier.testTag("link-to-chapter"))
+                }
+                if (!toChapter) {
+                    OutlinedTextField(
+                        address, { address = it }, singleLine = true, label = { Text(tr("Web address")) }, placeholder = { Text("https://") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri), modifier = Modifier.fillMaxWidth().testTag("link-address"),
+                    )
+                } else {
+                    Column(Modifier.heightIn(max = 280.dp).verticalScroll(rememberScrollState())) {
+                        chapters.forEach { c ->
+                            Row(
+                                Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).clickable { chapter = c }.padding(vertical = 2.dp).testTag("link-chapter"),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                RadioButton(selected = chapter?.path == c.path, onClick = { chapter = c })
+                                Text(c.title.ifBlank { c.path.substringAfterLast('/') }, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { href?.let { state.link(it, words) }; onDismiss() }, enabled = href != null,
+                modifier = Modifier.testTag("link-done"),
+            ) { Text(if (t.link != null) tr("Save") else tr("Add")) }
+        },
+        dismissButton = {
+            Row {
+                if (t.link != null) TextButton(onClick = { state.unlink(); onDismiss() }, modifier = Modifier.testTag("link-remove")) {
+                    Text(tr("Remove link"), color = MaterialTheme.colorScheme.error)
+                }
+                TextButton(onClick = onDismiss) { Text(tr("Cancel")) }
+            }
+        },
+    )
+}
+
+/** Where a web address typed for a link goes: one typed without its beginning (example.org) is a web page's. */
+internal fun webHref(typed: String): String? {
+    val a = typed.trim().takeIf { it.isNotEmpty() } ?: return null
+    return if (Regex("^[a-zA-Z][a-zA-Z0-9+.-]*:").containsMatchIn(a)) a else "https://$a"
+}
+
+/** A new table: how many rows and columns, and whether the first row is a header. */
+@Composable
+private fun TableDialog(onAdd: (rows: Int, cols: Int, header: Boolean) -> Unit, onDismiss: () -> Unit) {
+    var rows by remember { mutableIntStateOf(3) }
+    var cols by remember { mutableIntStateOf(3) }
+    var header by remember { mutableStateOf(true) }
+    @Composable
+    fun Count(label: String, value: Int, range: IntRange, tag: String, onChange: (Int) -> Unit) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
+            IconButton(onClick = { onChange(value - 1) }, enabled = value > range.first, modifier = Modifier.testTag("$tag-less")) { Icon(Icons.Filled.Remove, tr("Fewer")) }
+            Text("$value", Modifier.width(36.dp).testTag(tag), textAlign = TextAlign.Center, style = MaterialTheme.typography.titleMedium)
+            IconButton(onClick = { onChange(value + 1) }, enabled = value < range.last, modifier = Modifier.testTag("$tag-more")) { Icon(Icons.Filled.Add, tr("More")) }
+        }
+    }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(tr("Add a table")) },
+        text = {
+            Column {
+                Count(tr("Rows"), rows, 1..100, "table-rows") { rows = it }
+                Count(tr("Columns"), cols, 1..12, "table-cols") { cols = it }
+                Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).clickable { header = !header }, verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(header, { header = it })
+                    Text(tr("First row is a header"))
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = { onAdd(rows, cols, header) }, modifier = Modifier.testTag("table-add")) { Text(tr("Add")) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Cancel")) } },
+    )
+}
+
+/** A footnote's words: its number goes where the cursor is, and the note at the end of the chapter. */
+@Composable
+private fun FootnoteDialog(onAdd: (String) -> Unit, onDismiss: () -> Unit) {
+    var text by remember { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(tr("Add a footnote")) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(tr("Its number goes where the cursor is, and the note at the end of the chapter."), style = MaterialTheme.typography.bodyMedium)
+                OutlinedTextField(text, { text = it }, minLines = 3, label = { Text(tr("Footnote")) }, modifier = Modifier.fillMaxWidth().testTag("footnote-text"))
+            }
+        },
+        confirmButton = { TextButton(onClick = { onAdd(text) }, enabled = text.isNotBlank(), modifier = Modifier.testTag("footnote-add")) { Text(tr("Add")) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("Cancel")) } },
+    )
+}
+
+/** Characters that aren't on most keyboards: dashes, quotes, marks and signs. */
+private val specialCharacters = listOf(
+    "—", "–", "…", "“", "”", "‘", "’", "«", "»", "„", "‹", "›", "•", "·", "§", "¶", "†", "‡", "※", "⁂",
+    "©", "®", "™", "°", "×", "÷", "±", "≈", "≠", "½", "¼", "¾", "€", "£", "¥", "¢", "→", "←", "♥", "★", "✓", "\u00A0",
+)
+
+/** Picks a character to put in where the cursor is. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun CharactersDialog(onPick: (String) -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(tr("Special characters")) },
+        text = {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                specialCharacters.forEach { c ->
+                    val nbsp = c == "\u00A0"
+                    Surface(
+                        onClick = { onPick(c) }, shape = RoundedCornerShape(8.dp), color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        modifier = Modifier.size(if (nbsp) 96.dp else 44.dp, 44.dp).testTag("character")
+                            .semantics { contentDescription = if (nbsp) tr("Non-breaking space") else c },
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(if (nbsp) tr("Non-breaking space") else c, style = if (nbsp) MaterialTheme.typography.labelSmall else MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center)
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(tr("Close")) } },
+    )
+}
+
+/** How many words there are in the chapter, the whole book, and the words selected. */
+@Composable
+private fun WordCountDialog(state: TextEditState, onDismiss: () -> Unit) {
+    var selected by remember { mutableStateOf("") }
+    val counts by produceState<Pair<Int, Int>?>(null) {
+        state.selectedText { selected = it }
+        state.flush()
+        value = state.wordCounts()
+    }
+    fun words(n: Int) = if (n == 1) tr("1 word") else tr("{0} words", "%,d".format(n))
+    @Composable
+    fun Line(label: String, value: String?, tag: String) {
+        Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
+            if (value == null) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
+            else Text(value, style = MaterialTheme.typography.titleMedium, modifier = Modifier.testTag(tag))
+        }
+    }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = { Icon(Icons.Outlined.Numbers, null) },
+        title = { Text(tr("Word count")) },
+        text = {
+            Column {
+                Line(tr("This chapter"), counts?.let { words(it.first) }, "words-chapter")
+                Line(tr("The whole book"), counts?.let { words(it.second) }, "words-book")
+                if (selected.isNotBlank()) Line(tr("Selected"), words(EpubText.countWords(selected)), "words-selected")
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text("OK") } },
+    )
 }
 
 @Composable

@@ -1,0 +1,484 @@
+@fr
+3615|Sélectionnez des mots pour les mettre en gras ou en italique ; le bouton A propose le soulignement et plus. Les titres, listes, citations et l’alignement s’appliquent à tout le paragraphe.
+3574|Ajoutez un lien, une note de bas de page, un tableau, une image, un séparateur de scène ou un caractère spécial à l’endroit du curseur, ou divisez-y le chapitre en deux.
+3575|Nombre de mots
+3576|Autres styles de texte
+3577|Barré
+3578|Exposant
+3579|Indice
+3580|Effacer la mise en forme
+3581|Citation
+3582|Augmenter le retrait
+3583|Diminuer le retrait
+3584|Insérer
+3585|Ajouter une ligne au-dessus
+3586|Ajouter une ligne en dessous
+3587|Ajouter une colonne à gauche
+3588|Ajouter une colonne à droite
+3589|Supprimer la ligne
+3590|Supprimer la colonne
+3591|Supprimer le tableau
+3592|Modifier le lien…
+3593|Lien…
+3594|Note de bas de page…
+3595|Tableau…
+3596|Remplacer l’image…
+3597|Image…
+3598|Caractère spécial…
+3599|Modifier le lien
+3600|Ajouter un lien
+3601|Texte affiché
+3602|Adresse web
+3603|Un chapitre
+3604|Supprimer le lien
+3605|Moins
+3606|Ajouter un tableau
+3607|Lignes
+3608|Colonnes
+3609|La première ligne est un en-tête
+3610|Ajouter une note de bas de page
+3611|Son numéro s’insère à l’endroit du curseur, et la note à la fin du chapitre.
+3612|Caractères spéciaux
+3613|Espace insécable
+3614|Le livre entier
+3616|Note de bas de page
+@de
+3615|Wähle Wörter aus, um sie fett oder kursiv zu machen; unter der Schaltfläche A gibt es Unterstreichen und mehr. Überschriften, Listen, Zitate und Ausrichtung gelten für den ganzen Absatz.
+3574|Füge an der Cursorposition einen Link, eine Fußnote, eine Tabelle, ein Bild, einen Szenenwechsel oder ein Sonderzeichen ein, oder teile das Kapitel dort in zwei.
+3575|Wortanzahl
+3576|Weitere Textstile
+3577|Durchgestrichen
+3578|Hochgestellt
+3579|Tiefgestellt
+3580|Formatierung entfernen
+3581|Zitat
+3582|Einzug vergrößern
+3583|Einzug verkleinern
+3584|Einfügen
+3585|Zeile darüber einfügen
+3586|Zeile darunter einfügen
+3587|Spalte links einfügen
+3588|Spalte rechts einfügen
+3589|Zeile löschen
+3590|Spalte löschen
+3591|Tabelle löschen
+3592|Link bearbeiten…
+3593|Link…
+3594|Fußnote…
+3595|Tabelle…
+3596|Bild ersetzen…
+3597|Bild…
+3598|Sonderzeichen…
+3599|Link bearbeiten
+3600|Link hinzufügen
+3601|Angezeigter Text
+3602|Webadresse
+3603|Ein Kapitel
+3604|Link entfernen
+3605|Weniger
+3606|Tabelle hinzufügen
+3607|Zeilen
+3608|Spalten
+3609|Erste Zeile ist eine Kopfzeile
+3610|Fußnote hinzufügen
+3611|Ihre Nummer kommt an die Cursorposition, die Anmerkung ans Ende des Kapitels.
+3612|Sonderzeichen
+3613|Geschütztes Leerzeichen
+3614|Das ganze Buch
+3616|Fußnote
+@es
+3615|Selecciona unas palabras para ponerlas en negrita o cursiva; el botón A tiene subrayado y más. Los títulos, las listas, las citas y la alineación cambian todo el párrafo.
+3574|Añade un enlace, una nota al pie, una tabla, una imagen, un cambio de escena o un carácter especial donde está el cursor, o divide ahí el capítulo en dos.
+3575|Recuento de palabras
+3576|Más estilos de texto
+3577|Tachado
+3578|Superíndice
+3579|Subíndice
+3580|Borrar formato
+3581|Cita
+3582|Aumentar sangría
+3583|Reducir sangría
+3584|Insertar
+3585|Añadir fila encima
+3586|Añadir fila debajo
+3587|Añadir columna a la izquierda
+3588|Añadir columna a la derecha
+3589|Eliminar fila
+3590|Eliminar columna
+3591|Eliminar tabla
+3592|Editar enlace…
+3593|Enlace…
+3594|Nota al pie…
+3595|Tabla…
+3596|Reemplazar imagen…
+3597|Imagen…
+3598|Carácter especial…
+3599|Editar enlace
+3600|Añadir un enlace
+3601|Texto que se muestra
+3602|Dirección web
+3603|Un capítulo
+3604|Quitar enlace
+3605|Menos
+3606|Añadir una tabla
+3607|Filas
+3608|Columnas
+3609|La primera fila es un encabezado
+3610|Añadir una nota al pie
+3611|Su número va donde está el cursor, y la nota al final del capítulo.
+3612|Caracteres especiales
+3613|Espacio de no separación
+3614|El libro entero
+3616|Nota al pie
+@it
+3615|Seleziona alcune parole per metterle in grassetto o corsivo; il pulsante A ha la sottolineatura e altro. Titoli, elenchi, citazioni e allineamento cambiano tutto il paragrafo.
+3574|Aggiungi un link, una nota a piè di pagina, una tabella, un’immagine, un cambio di scena o un carattere speciale dove si trova il cursore, o dividi lì il capitolo in due.
+3575|Conteggio parole
+3576|Altri stili di testo
+3577|Barrato
+3578|Apice
+3579|Pedice
+3580|Cancella formattazione
+3581|Citazione
+3582|Aumenta rientro
+3583|Riduci rientro
+3584|Inserisci
+3585|Aggiungi riga sopra
+3586|Aggiungi riga sotto
+3587|Aggiungi colonna a sinistra
+3588|Aggiungi colonna a destra
+3589|Elimina riga
+3590|Elimina colonna
+3591|Elimina tabella
+3592|Modifica link…
+3593|Link…
+3594|Nota a piè di pagina…
+3595|Tabella…
+3596|Sostituisci immagine…
+3597|Immagine…
+3598|Carattere speciale…
+3599|Modifica link
+3600|Aggiungi un link
+3601|Testo visualizzato
+3602|Indirizzo web
+3603|Un capitolo
+3604|Rimuovi link
+3605|Meno
+3606|Aggiungi una tabella
+3607|Righe
+3608|Colonne
+3609|La prima riga è un’intestazione
+3610|Aggiungi una nota a piè di pagina
+3611|Il suo numero va dove si trova il cursore, e la nota alla fine del capitolo.
+3612|Caratteri speciali
+3613|Spazio unificatore
+3614|L’intero libro
+3616|Nota a piè di pagina
+@nl
+3615|Selecteer wat woorden om ze vet of cursief te maken; onder de knop A vind je onderstrepen en meer. Koppen, lijsten, citaten en uitlijning gelden voor de hele alinea.
+3574|Voeg een link, voetnoot, tabel, afbeelding, scènewissel of speciaal teken toe waar de cursor staat, of splits het hoofdstuk daar in tweeën.
+3575|Aantal woorden
+3576|Meer tekststijlen
+3577|Doorhalen
+3578|Superscript
+3579|Subscript
+3580|Opmaak wissen
+3581|Citaat
+3582|Inspringing vergroten
+3583|Inspringing verkleinen
+3584|Invoegen
+3585|Rij erboven toevoegen
+3586|Rij eronder toevoegen
+3587|Kolom links toevoegen
+3588|Kolom rechts toevoegen
+3589|Rij verwijderen
+3590|Kolom verwijderen
+3591|Tabel verwijderen
+3592|Link bewerken…
+3593|Link…
+3594|Voetnoot…
+3595|Tabel…
+3596|Afbeelding vervangen…
+3597|Afbeelding…
+3598|Speciaal teken…
+3599|Link bewerken
+3600|Link toevoegen
+3601|Weergegeven tekst
+3602|Webadres
+3603|Een hoofdstuk
+3604|Link verwijderen
+3605|Minder
+3606|Tabel toevoegen
+3607|Rijen
+3608|Kolommen
+3609|Eerste rij is een kop
+3610|Voetnoot toevoegen
+3611|Het nummer komt waar de cursor staat, en de noot aan het eind van het hoofdstuk.
+3612|Speciale tekens
+3613|Vaste spatie
+3614|Het hele boek
+3616|Voetnoot
+@pt
+3615|Selecione algumas palavras para deixá-las em negrito ou itálico; o botão A tem sublinhado e mais. Títulos, listas, citações e alinhamento mudam o parágrafo inteiro.
+3574|Adicione um link, uma nota de rodapé, uma tabela, uma imagem, uma quebra de cena ou um caractere especial onde está o cursor, ou divida o capítulo em dois ali.
+3575|Contagem de palavras
+3576|Mais estilos de texto
+3577|Tachado
+3578|Sobrescrito
+3579|Subscrito
+3580|Limpar formatação
+3581|Citação
+3582|Aumentar recuo
+3583|Diminuir recuo
+3584|Inserir
+3585|Adicionar linha acima
+3586|Adicionar linha abaixo
+3587|Adicionar coluna à esquerda
+3588|Adicionar coluna à direita
+3589|Excluir linha
+3590|Excluir coluna
+3591|Excluir tabela
+3592|Editar link…
+3593|Link…
+3594|Nota de rodapé…
+3595|Tabela…
+3596|Substituir imagem…
+3597|Imagem…
+3598|Caractere especial…
+3599|Editar link
+3600|Adicionar um link
+3601|Texto exibido
+3602|Endereço da web
+3603|Um capítulo
+3604|Remover link
+3605|Menos
+3606|Adicionar uma tabela
+3607|Linhas
+3608|Colunas
+3609|A primeira linha é um cabeçalho
+3610|Adicionar uma nota de rodapé
+3611|O número vai onde está o cursor, e a nota no fim do capítulo.
+3612|Caracteres especiais
+3613|Espaço não separável
+3614|O livro inteiro
+3616|Nota de rodapé
+@ro
+3615|Selectează câteva cuvinte ca să le faci aldine sau cursive; butonul A are subliniere și altele. Titlurile, listele, citatele și alinierea schimbă tot paragraful.
+3574|Adaugă un link, o notă de subsol, un tabel, o imagine, un separator de scenă sau un caracter special unde e cursorul, ori împarte acolo capitolul în două.
+3575|Număr de cuvinte
+3576|Mai multe stiluri de text
+3577|Tăiat
+3578|Exponent
+3579|Indice
+3580|Șterge formatarea
+3581|Citat
+3582|Mărește indentarea
+3583|Micșorează indentarea
+3584|Inserează
+3585|Adaugă rând deasupra
+3586|Adaugă rând dedesubt
+3587|Adaugă coloană la stânga
+3588|Adaugă coloană la dreapta
+3589|Șterge rândul
+3590|Șterge coloana
+3591|Șterge tabelul
+3592|Editează linkul…
+3593|Link…
+3594|Notă de subsol…
+3595|Tabel…
+3596|Înlocuiește imaginea…
+3597|Imagine…
+3598|Caracter special…
+3599|Editează linkul
+3600|Adaugă un link
+3601|Text afișat
+3602|Adresă web
+3603|Un capitol
+3604|Elimină linkul
+3605|Mai puține
+3606|Adaugă un tabel
+3607|Rânduri
+3608|Coloane
+3609|Primul rând e antet
+3610|Adaugă o notă de subsol
+3611|Numărul ei apare unde e cursorul, iar nota la sfârșitul capitolului.
+3612|Caractere speciale
+3613|Spațiu neîntrerupt
+3614|Toată cartea
+3616|Notă de subsol
+@ru
+3615|Выделите слова, чтобы сделать их жирными или курсивными; в кнопке A есть подчёркивание и другое. Заголовки, списки, цитаты и выравнивание меняют весь абзац.
+3574|Добавьте ссылку, сноску, таблицу, картинку, смену сцены или особый символ там, где стоит курсор, или разделите главу в этом месте на две.
+3575|Число слов
+3576|Другие стили текста
+3577|Зачёркнутый
+3578|Надстрочный
+3579|Подстрочный
+3580|Очистить форматирование
+3581|Цитата
+3582|Увеличить отступ
+3583|Уменьшить отступ
+3584|Вставить
+3585|Добавить строку выше
+3586|Добавить строку ниже
+3587|Добавить столбец слева
+3588|Добавить столбец справа
+3589|Удалить строку
+3590|Удалить столбец
+3591|Удалить таблицу
+3592|Изменить ссылку…
+3593|Ссылка…
+3594|Сноска…
+3595|Таблица…
+3596|Заменить картинку…
+3597|Картинка…
+3598|Особый символ…
+3599|Изменить ссылку
+3600|Добавить ссылку
+3601|Текст ссылки
+3602|Веб-адрес
+3603|Глава
+3604|Убрать ссылку
+3605|Меньше
+3606|Добавить таблицу
+3607|Строки
+3608|Столбцы
+3609|Первая строка — заголовок
+3610|Добавить сноску
+3611|Номер появится там, где стоит курсор, а сама сноска — в конце главы.
+3612|Особые символы
+3613|Неразрывный пробел
+3614|Вся книга
+3616|Сноска
+@ja
+3615|文字を選択して太字や斜体にできます。A ボタンには下線などもあります。見出し、リスト、引用、行揃えは段落全体に適用されます。
+3574|カーソルの位置にリンク、脚注、表、画像、場面転換、特殊文字を追加したり、そこで章を 2 つに分割したりできます。
+3575|単語数
+3576|その他の文字スタイル
+3577|取り消し線
+3578|上付き
+3579|下付き
+3580|書式をクリア
+3581|引用
+3582|インデントを増やす
+3583|インデントを減らす
+3584|挿入
+3585|上に行を追加
+3586|下に行を追加
+3587|左に列を追加
+3588|右に列を追加
+3589|行を削除
+3590|列を削除
+3591|表を削除
+3592|リンクを編集…
+3593|リンク…
+3594|脚注…
+3595|表…
+3596|画像を置き換える…
+3597|画像…
+3598|特殊文字…
+3599|リンクを編集
+3600|リンクを追加
+3601|表示する文字
+3602|ウェブアドレス
+3603|章
+3604|リンクを解除
+3605|減らす
+3606|表を追加
+3607|行
+3608|列
+3609|1 行目を見出しにする
+3610|脚注を追加
+3611|番号はカーソルの位置に、注はこの章の最後に入ります。
+3612|特殊文字
+3613|改行しないスペース
+3614|本全体
+3616|脚注
+@ko
+3615|단어를 선택하면 굵게나 기울임꼴로 만들 수 있어요. A 버튼에는 밑줄 등이 있어요. 제목, 목록, 인용, 정렬은 문단 전체를 바꿔요.
+3574|커서 위치에 링크, 각주, 표, 그림, 장면 구분, 특수 문자를 넣거나, 거기서 챕터를 둘로 나누세요.
+3575|단어 수
+3576|텍스트 스타일 더 보기
+3577|취소선
+3578|위 첨자
+3579|아래 첨자
+3580|서식 지우기
+3581|인용
+3582|들여쓰기
+3583|내어쓰기
+3584|삽입
+3585|위에 행 추가
+3586|아래에 행 추가
+3587|왼쪽에 열 추가
+3588|오른쪽에 열 추가
+3589|행 삭제
+3590|열 삭제
+3591|표 삭제
+3592|링크 편집…
+3593|링크…
+3594|각주…
+3595|표…
+3596|그림 바꾸기…
+3597|그림…
+3598|특수 문자…
+3599|링크 편집
+3600|링크 추가
+3601|표시할 텍스트
+3602|웹 주소
+3603|챕터
+3604|링크 삭제
+3605|줄이기
+3606|표 추가
+3607|행
+3608|열
+3609|첫 행을 머리글로
+3610|각주 추가
+3611|번호는 커서 위치에, 내용은 챕터 끝에 들어가요.
+3612|특수 문자
+3613|줄 바꿈 없는 공백
+3614|책 전체
+3616|각주
+@zh
+3615|选中一些文字即可设为粗体或斜体；A 按钮里还有下划线等。标题、列表、引用和对齐会改变整个段落。
+3574|在光标处添加链接、脚注、表格、图片、场景分隔或特殊字符，或从那里把章节拆成两章。
+3575|字数统计
+3576|更多文字样式
+3577|删除线
+3578|上标
+3579|下标
+3580|清除格式
+3581|引用
+3582|增加缩进
+3583|减少缩进
+3584|插入
+3585|在上方添加行
+3586|在下方添加行
+3587|在左侧添加列
+3588|在右侧添加列
+3589|删除行
+3590|删除列
+3591|删除表格
+3592|编辑链接…
+3593|链接…
+3594|脚注…
+3595|表格…
+3596|替换图片…
+3597|图片…
+3598|特殊字符…
+3599|编辑链接
+3600|添加链接
+3601|显示的文字
+3602|网址
+3603|章节
+3604|移除链接
+3605|减少
+3606|添加表格
+3607|行数
+3608|列数
+3609|首行为表头
+3610|添加脚注
+3611|编号放在光标处，注释放在本章末尾。
+3612|特殊字符
+3613|不间断空格
+3614|整本书
+3616|脚注

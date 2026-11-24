@@ -1,5 +1,6 @@
 package dev.kolib.app.ui.library
 
+import dev.kolib.app.ui.tour.tourPlace
 import dev.kolib.app.ui.components.shelfScroll
 import dev.kolib.app.ui.components.invertPicks
 import dev.kolib.app.ui.components.hasAll
@@ -300,7 +301,7 @@ private fun ComicShelf(
             browse.comicBookId = id
         }
     }
-    Box(modifier) {
+    Box(modifier.tourPlace("comics-shelf")) {
         Column(Modifier.fillMaxSize()) {
             val chosenCount = browse.comicPicked.size
             val title = when {
@@ -849,7 +850,7 @@ internal fun ComicSeriesPage(
             }
             // [inset]: the room the grid leaves at its sides already, so the head lines up as it does in the list.
             val head: @Composable (inset: Dp) -> Unit = { inset ->
-                Column(Modifier.fillMaxWidth()) {
+                Column(Modifier.fillMaxWidth().tourPlace("comic-series-head")) {
                     Row(Modifier.fillMaxWidth().padding(start = 20.dp - inset, end = 12.dp - inset, top = if (phone || onBack != null) 8.dp else 20.dp)) {
                         LibraryCover(entry.cover, covers, large = false, modifier = Modifier.width(if (phone) 108.dp else 132.dp))
                         Spacer(Modifier.width(16.dp))
@@ -950,26 +951,26 @@ internal fun ComicSeriesPage(
                     ) {
                         item(key = "head", span = { GridItemSpan(maxLineSpan) }) { head(8.dp) }
                         items(issues, key = { it.id }) { issue ->
-                            ComicIssueTile(
+                            Box(if (issue === issues.first()) Modifier.tourPlace("comic-series-issue") else Modifier) { ComicIssueTile(
                                 issue, entry, here(issue), covers,
                                 picked = if (choosing) browse.comicPicked.containsKey(issue.id) else null,
                                 onTap = { tap(issue) },
                                 onHold = { hold(issue) },
                                 onDetails = if (infoAtTop) null else ({ browse.comicBookId = issue.id }),
-                            )
+                            ) }
                         }
                     }
                     }
                 } else LazyColumn(Modifier.fillMaxSize(), state = browse.comicIssues, contentPadding = PaddingValues(bottom = if (phone) 104.dp else 24.dp)) {
                     item(key = "head") { head(0.dp) }
                     items(issues, key = { it.id }) { issue ->
-                        ComicIssueRow(
+                        Box(if (issue === issues.first()) Modifier.tourPlace("comic-series-issue") else Modifier) { ComicIssueRow(
                             issue, entry, here(issue),
                             picked = if (choosing) browse.comicPicked.containsKey(issue.id) else null,
                             onTap = { tap(issue) },
                             onHold = { hold(issue) },
                             onDetails = if (infoAtTop) null else ({ browse.comicBookId = issue.id }),
-                        )
+                        ) }
                     }
                 }
             }
@@ -1050,7 +1051,7 @@ private fun SeriesMenu(
     onAddTo: () -> Unit,
     onRemove: () -> Unit,
 ) {
-    Box {
+    Box(Modifier.tourPlace("comic-series-menu")) {
         IconButton(onClick = { setOpen(true) }, modifier = Modifier.testTag("comic-series-menu")) { Icon(Icons.Outlined.MoreVert, tr("More")) }
         DropdownMenu(open, onDismissRequest = { setOpen(false) }) {
             val ids = entry.issues.map { it.id }

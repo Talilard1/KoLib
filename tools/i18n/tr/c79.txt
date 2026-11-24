@@ -1,0 +1,165 @@
+@fr
+3617|Plus pour ce livre
+3618|Marquez-le comme terminé ou non lu, envoyez-le à un autre appareil, enregistrez-le en fichier, dupliquez-le ou divisez-le. Vous pouvez aussi le retirer de la bibliothèque ici.
+3619|Le modifier
+3620|Modifiez ses détails ou sa couverture, ou son texte : chapitres, styles, liens, tableaux et notes de bas de page. Les pages d’une BD se modifient ici aussi.
+3621|Vos BD
+3622|Chaque série est une seule entrée, avec ses BD dedans. Touchez une série pour l’ouvrir, ou maintenez-en une pour en choisir plusieurs : pour les envoyer, les marquer comme lues, les dupliquer ou les enregistrer en fichiers.
+3623|Ajouter des BD
+3624|Ajoutez des fichiers de BD depuis cet appareil, ou créez votre propre BD à partir d’images.
+3625|La série
+3626|Combien de BD elle compte et combien vous n’avez pas lues. Continuer ouvre la prochaine à lire.
+3627|Le menu de la série
+3628|Marquez toute la série comme lue ou non lue, renommez-la, mettez ses BD dans une autre série, ou retirez-la.
+3629|Ses BD
+3630|Touchez une BD pour la lire. Maintenez-en une pour en choisir plusieurs, pour les envoyer, les marquer, les dupliquer ou les enregistrer. Infos, dans cette barre, montre les détails d’une BD, où vous pouvez modifier ses pages ou la diviser.
+@de
+3617|Mehr für dieses Buch
+3618|Markiere es als beendet oder ungelesen, sende es an ein anderes Gerät, speichere es als Datei, dupliziere es oder teile es auf. Hier kannst du es auch aus der Bibliothek entfernen.
+3619|Ändern
+3620|Bearbeite seine Details oder sein Cover, oder seinen Text: Kapitel, Stile, Links, Tabellen und Fußnoten. Auch die Seiten eines Comics werden hier bearbeitet.
+3621|Deine Comics
+3622|Jede Reihe ist ein Eintrag, mit ihren Comics darin. Tippe auf eine Reihe, um sie zu öffnen, oder halte eine gedrückt, um mehrere auszuwählen: zum Senden, als gelesen Markieren, Duplizieren oder Speichern als Dateien.
+3623|Comics hinzufügen
+3624|Füge Comic-Dateien von diesem Gerät hinzu, oder erstelle aus Bildern einen eigenen Comic.
+3625|Die Reihe
+3626|Wie viele Comics sie hat und wie viele du noch nicht gelesen hast. Weiter öffnet den nächsten.
+3627|Das Menü der Reihe
+3628|Markiere die ganze Reihe als gelesen oder ungelesen, benenne sie um, verschiebe ihre Comics in eine andere Reihe oder entferne sie.
+3629|Ihre Comics
+3630|Tippe auf einen Comic, um ihn zu lesen. Halte einen gedrückt, um mehrere auszuwählen, zum Senden, Markieren, Duplizieren oder Speichern. Infos in dieser Leiste zeigt die Details eines Comics, wo du seine Seiten bearbeiten oder ihn aufteilen kannst.
+@es
+3617|Más para este libro
+3618|Márcalo como terminado o no leído, envíalo a otro dispositivo, guárdalo como archivo, duplícalo o divídelo. También puedes quitarlo de la biblioteca aquí.
+3619|Cambiarlo
+3620|Edita sus datos o su portada, o su texto: capítulos, estilos, enlaces, tablas y notas al pie. Las páginas de un cómic también se editan aquí.
+3621|Tus cómics
+3622|Cada serie es una sola entrada, con sus cómics dentro. Toca una serie para abrirla, o mantén pulsada una para elegir varias: para enviarlas, marcarlas como leídas, duplicarlas o guardarlas como archivos.
+3623|Añadir cómics
+3624|Añade archivos de cómic desde este dispositivo, o crea tu propio cómic con imágenes.
+3625|La serie
+3626|Cuántos cómics tiene y cuántos no has leído. Continuar abre el siguiente que toca leer.
+3627|El menú de la serie
+3628|Marca toda la serie como leída o no leída, cámbiale el nombre, pon sus cómics en otra serie o quítala.
+3629|Sus cómics
+3630|Toca un cómic para leerlo. Mantén pulsado uno para elegir varios, para enviarlos, marcarlos, duplicarlos o guardarlos. Información, en esa barra, muestra los datos de un cómic, donde puedes editar sus páginas o dividirlo.
+@it
+3617|Altro per questo libro
+3618|Segnalo come finito o non letto, invialo a un altro dispositivo, salvalo come file, duplicalo o dividilo. Qui puoi anche rimuoverlo dalla libreria.
+3619|Modificalo
+3620|Modifica i suoi dettagli o la copertina, o il testo: capitoli, stili, link, tabelle e note a piè di pagina. Anche le pagine di un fumetto si modificano qui.
+3621|I tuoi fumetti
+3622|Ogni serie è una sola voce, con i suoi fumetti dentro. Tocca una serie per aprirla, o tienine premuta una per sceglierne diverse: per inviarle, segnarle come lette, duplicarle o salvarle come file.
+3623|Aggiungi fumetti
+3624|Aggiungi file di fumetti da questo dispositivo, o crea un fumetto tuo partendo da immagini.
+3625|La serie
+3626|Quanti fumetti ha e quanti non hai letto. Continua apre il prossimo da leggere.
+3627|Il menu della serie
+3628|Segna tutta la serie come letta o non letta, rinominala, sposta i suoi fumetti in un’altra serie o rimuovila.
+3629|I suoi fumetti
+3630|Tocca un fumetto per leggerlo. Tienine premuto uno per sceglierne diversi, per inviarli, segnarli, duplicarli o salvarli. Info, in quella barra, mostra i dettagli di un fumetto, dove puoi modificarne le pagine o dividerlo.
+@nl
+3617|Meer voor dit boek
+3618|Markeer het als uitgelezen of ongelezen, stuur het naar een ander apparaat, sla het op als bestand, dupliceer het of splits het. Hier kun je het ook uit de bibliotheek verwijderen.
+3619|Wijzigen
+3620|Bewerk de gegevens of het omslag, of de tekst: hoofdstukken, stijlen, links, tabellen en voetnoten. Ook de pagina’s van een strip bewerk je hier.
+3621|Je strips
+3622|Elke reeks is één item, met de strips erin. Tik op een reeks om die te openen, of houd er een vast om er meer te kiezen: om ze te sturen, als gelezen te markeren, te dupliceren of als bestanden op te slaan.
+3623|Strips toevoegen
+3624|Voeg stripbestanden van dit apparaat toe, of maak een eigen strip van afbeeldingen.
+3625|De reeks
+3626|Hoeveel strips erin zitten en hoeveel je nog niet hebt gelezen. Doorgaan opent de volgende om te lezen.
+3627|Het menu van de reeks
+3628|Markeer de hele reeks als gelezen of ongelezen, geef haar een andere naam, zet de strips in een andere reeks of verwijder haar.
+3629|De strips
+3630|Tik op een strip om hem te lezen. Houd er een vast om er meer te kiezen, om ze te sturen, te markeren, te dupliceren of op te slaan. Info in die balk toont de gegevens van een strip, waar je de pagina’s kunt bewerken of hem kunt splitsen.
+@pt
+3617|Mais para este livro
+3618|Marque-o como concluído ou não lido, envie-o para outro dispositivo, salve-o como arquivo, duplique-o ou divida-o. Você também pode removê-lo da biblioteca aqui.
+3619|Alterar
+3620|Edite os detalhes ou a capa, ou o texto: capítulos, estilos, links, tabelas e notas de rodapé. As páginas de um quadrinho também são editadas aqui.
+3621|Seus quadrinhos
+3622|Cada série é uma única entrada, com seus quadrinhos dentro. Toque em uma série para abri-la, ou segure uma para escolher várias: para enviá-las, marcá-las como lidas, duplicá-las ou salvá-las como arquivos.
+3623|Adicionar quadrinhos
+3624|Adicione arquivos de quadrinhos deste dispositivo, ou crie seu próprio quadrinho com imagens.
+3625|A série
+3626|Quantos quadrinhos ela tem e quantos você ainda não leu. Continuar abre o próximo a ler.
+3627|O menu da série
+3628|Marque a série inteira como lida ou não lida, renomeie-a, coloque seus quadrinhos em outra série ou remova-a.
+3629|Seus quadrinhos
+3630|Toque em um quadrinho para lê-lo. Segure um para escolher vários, para enviar, marcar, duplicar ou salvar. Informações, nessa barra, mostra os detalhes de um quadrinho, onde você pode editar as páginas ou dividi-lo.
+@ro
+3617|Mai multe pentru această carte
+3618|Marchează-o ca terminată sau necitită, trimite-o pe alt dispozitiv, salveaz-o ca fișier, duplic-o sau împarte-o. Tot aici o poți scoate din bibliotecă.
+3619|Modific-o
+3620|Editează-i detaliile sau coperta, ori textul: capitole, stiluri, linkuri, tabele și note de subsol. Paginile unei benzi desenate se editează tot aici.
+3621|Benzile tale desenate
+3622|Fiecare serie e o singură intrare, cu benzile ei desenate în ea. Atinge o serie ca s-o deschizi, sau ține apăsat pe una ca să alegi mai multe: ca să le trimiți, să le marchezi ca citite, să le duplici sau să le salvezi ca fișiere.
+3623|Adaugă benzi desenate
+3624|Adaugă fișiere cu benzi desenate de pe acest dispozitiv, sau creează-ți propria bandă desenată din imagini.
+3625|Seria
+3626|Câte benzi desenate are și câte n-ai citit. Continuă o deschide pe următoarea de citit.
+3627|Meniul seriei
+3628|Marchează toată seria ca citită sau necitită, redenumește-o, mută-i benzile desenate în altă serie sau elimin-o.
+3629|Benzile ei desenate
+3630|Atinge o bandă desenată ca s-o citești. Ține apăsat pe una ca să alegi mai multe, ca să le trimiți, să le marchezi, să le duplici sau să le salvezi. Informații, în bara aceea, arată detaliile unei benzi desenate, unde îi poți edita paginile sau o poți împărți.
+@ru
+3617|Ещё для этой книги
+3618|Отметьте её как прочитанную или непрочитанную, отправьте на другое устройство, сохраните как файл, создайте копию или разделите. Здесь же её можно убрать из библиотеки.
+3619|Изменить
+3620|Измените сведения о ней или обложку, или текст: главы, стили, ссылки, таблицы и сноски. Страницы комикса тоже меняются здесь.
+3621|Ваши комиксы
+3622|Каждая серия — одна запись, с её комиксами внутри. Нажмите на серию, чтобы открыть её, или удерживайте, чтобы выбрать несколько: отправить, отметить как прочитанные, создать копии или сохранить как файлы.
+3623|Добавить комиксы
+3624|Добавьте файлы комиксов с этого устройства или создайте свой комикс из картинок.
+3625|Серия
+3626|Сколько в ней комиксов и сколько вы ещё не прочитали. «Продолжить» открывает следующий.
+3627|Меню серии
+3628|Отметьте всю серию как прочитанную или непрочитанную, переименуйте её, перенесите её комиксы в другую серию или уберите её.
+3629|Её комиксы
+3630|Нажмите на комикс, чтобы читать его. Удерживайте, чтобы выбрать несколько: отправить, отметить, создать копии или сохранить. «Сведения» на этой панели показывают данные комикса, где можно изменить его страницы или разделить его.
+@ja
+3617|この本のその他の操作
+3618|読了や未読にする、別のデバイスに送る、ファイルに保存する、複製する、分割する、ができます。ライブラリからの削除もここです。
+3619|変更する
+3620|詳細や表紙、本文（章、スタイル、リンク、表、脚注）を編集できます。コミックのページもここで編集します。
+3621|コミック
+3622|シリーズごとに 1 つの項目にまとめられています。シリーズをタップすると開きます。長押しすると複数選んで、送信、既読にする、複製、ファイルに保存ができます。
+3623|コミックを追加
+3624|このデバイスからコミックのファイルを追加したり、画像から自分のコミックを作ったりできます。
+3625|シリーズ
+3626|コミックの数と未読の数です。「続ける」で次に読むものが開きます。
+3627|シリーズのメニュー
+3628|シリーズ全体を既読・未読にする、名前を変える、コミックを別のシリーズに入れる、削除する、ができます。
+3629|シリーズのコミック
+3630|タップすると読めます。長押しすると複数選んで、送信、マーク、複製、保存ができます。そのバーの「情報」でコミックの詳細が開き、ページの編集や分割ができます。
+@ko
+3617|이 책의 다른 메뉴
+3618|다 읽음이나 안 읽음으로 표시하고, 다른 기기로 보내고, 파일로 저장하고, 복제하거나 나눌 수 있어요. 서재에서 빼는 것도 여기서 해요.
+3619|바꾸기
+3620|정보나 표지, 또는 본문(챕터, 스타일, 링크, 표, 각주)을 편집하세요. 만화의 페이지도 여기서 편집해요.
+3621|내 만화
+3622|시리즈마다 항목 하나에 만화가 들어 있어요. 시리즈를 탭하면 열리고, 길게 누르면 여러 개를 골라 보내기, 읽음 표시, 복제, 파일로 저장을 할 수 있어요.
+3623|만화 추가
+3624|이 기기에서 만화 파일을 추가하거나, 그림으로 나만의 만화를 만드세요.
+3625|시리즈
+3626|만화가 몇 권이고 몇 권을 아직 안 읽었는지 보여요. 계속을 누르면 다음에 읽을 만화가 열려요.
+3627|시리즈 메뉴
+3628|시리즈 전체를 읽음이나 안 읽음으로 표시하고, 이름을 바꾸고, 만화를 다른 시리즈에 넣거나, 시리즈를 빼세요.
+3629|시리즈의 만화
+3630|만화를 탭하면 읽을 수 있어요. 길게 누르면 여러 권을 골라 보내기, 표시, 복제, 저장을 할 수 있어요. 그 바의 정보에서 만화의 세부 정보를 열어 페이지를 편집하거나 나눌 수 있어요.
+@zh
+3617|这本书的更多操作
+3618|把它标记为读完或未读、发送到其他设备、另存为文件、创建副本或拆分。也可以在这里把它从书库移除。
+3619|修改
+3620|编辑它的信息或封面，或者正文：章节、样式、链接、表格和脚注。漫画的页面也在这里编辑。
+3621|你的漫画
+3622|每个系列是一个条目，里面是它的漫画。点按系列即可打开，按住可选择多个：发送、标记为已读、创建副本或另存为文件。
+3623|添加漫画
+3624|从这台设备添加漫画文件，或用图片制作你自己的漫画。
+3625|系列
+3626|它有几本漫画、你还有几本没读。“继续”会打开下一本要读的。
+3627|系列菜单
+3628|把整个系列标记为已读或未读、重命名、把它的漫画放进另一个系列，或移除它。
+3629|它的漫画
+3630|点按一本漫画即可阅读。按住可选择多本，用来发送、标记、创建副本或保存。那个栏里的“信息”会显示漫画的详情，可以在那里编辑页面或拆分。

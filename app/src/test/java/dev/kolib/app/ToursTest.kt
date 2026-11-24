@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -319,6 +320,89 @@ class ToursTest {
         )
         assertEquals(1, done)
         compose.onNodeWithTag("comic-bottom-bar").assertIsDisplayed()
+    }
+
+    // ---- tours as the parts they're about first show ---------------------------------------------------
+
+    private fun settle() {
+        repeat(8) {
+            compose.mainClock.advanceTimeBy(250)
+            compose.waitForIdle()
+        }
+    }
+
+    private fun noTour() = compose.onAllNodesWithTag("tour").fetchSemanticsNodes().isEmpty()
+
+    @Test
+    @Config(qualifiers = TABLET)
+    fun aBooksDetailsHaveATourTheFirstTimeTheyShow() {
+        // (Looks for the screen's words in English.)
+        org.junit.Assume.assumeTrue(TestLanguage.code == null)
+        seen = setOf(Tours.SAMPLES, Tours.LIBRARY)
+        withABook()
+        showApp()
+        settle()
+        assertTrue("none on the shelf", noTour())
+        compose.onAllNodesWithText("The Garden")[0].performClick()
+        settle()
+        assertEquals(listOf("More for this book", "Change it"), goThrough("book_details_tablet"))
+        assertTrue(Tours.BOOK_DETAILS in seen)
+    }
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun onAPhoneABooksDetailsHaveTheirTourToo() {
+        org.junit.Assume.assumeTrue(TestLanguage.code == null)
+        seen = setOf(Tours.SAMPLES, Tours.LIBRARY)
+        withABook()
+        showApp()
+        settle()
+        compose.onAllNodesWithText("The Garden")[0].performClick()
+        settle()
+        assertEquals(listOf("More for this book", "Change it"), goThrough("book_details_phone"))
+    }
+
+    @Test
+    @Config(qualifiers = TABLET)
+    fun theComicsTabAndASeriesHaveToursOfTheirOwn() {
+        org.junit.Assume.assumeTrue(TestLanguage.code == null)
+        seen = setOf(Tours.SAMPLES, Tours.LIBRARY, Tours.BOOK_DETAILS)
+        runBlocking {
+            if (!app.library.loaded) app.library.load()
+            for (n in listOf("001", "002")) {
+                val file = TestComics.comic(File(app.cacheDir, "lantern-${UUID.randomUUID()}.cbz"), pages = 3, info = false)
+                app.library.import("Lantern $n.cbz", { file.inputStream() }, BookSource.FILE)
+            }
+        }
+        showApp()
+        settle()
+        assertTrue("none on the Books tab", noTour())
+        compose.onNodeWithTag("tab-comics").performClick()
+        settle()
+        assertEquals(listOf("Your comics", "Add comics"), goThrough("comics_tablet"))
+        assertTrue(Tours.COMICS in seen)
+        // A series opened: its own.
+        compose.onAllNodesWithText("Lantern")[0].performClick()
+        settle()
+        assertEquals(listOf("The series", "The series' menu", "Its comics"), goThrough("comic_series_tablet"))
+        assertTrue(Tours.COMIC_SERIES in seen)
+    }
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun theNewToursCanTurnThemAllOffToo() {
+        org.junit.Assume.assumeTrue(TestLanguage.code == null)
+        seen = setOf(Tours.SAMPLES, Tours.LIBRARY)
+        withABook()
+        showApp()
+        settle()
+        compose.onAllNodesWithText("The Garden")[0].performClick()
+        settle()
+        compose.onNodeWithTag("tour-card").assertIsDisplayed()
+        compose.onNodeWithTag("tour-off").performClick()
+        settle()
+        assertTrue("tours are off", off)
+        assertTrue(noTour())
     }
 
     // ---- the sample books ------------------------------------------------------------------------

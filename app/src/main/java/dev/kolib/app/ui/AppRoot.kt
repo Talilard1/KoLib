@@ -571,7 +571,19 @@ fun AppRoot(
     val seenTours = toursSeen
     val koboShowing = koboView != null && (connection is Connection.Connected || connection is Connection.Waiting)
     val sectionTour = if (seenTours == null || toursOff || !introSeen || !asksSeen || readingSetup || overlay != null || showLook) null else when (section) {
-        Section.LIBRARY -> Tours.LIBRARY.takeIf { books.isNotEmpty() && Tours.SAMPLES in seenTours }
+        // The library's own tour first; then, as they first show, a book's details, the Comics tab, and a series of comics.
+        Section.LIBRARY -> when {
+            books.isEmpty() || Tours.SAMPLES !in seenTours -> null
+            Tours.LIBRARY !in seenTours -> Tours.LIBRARY
+            libraryBrowse.selecting || libraryBrowse.comicSelecting != null -> null
+            libraryBrowse.tab == 2 && libraryBrowse.comicsTab -> when {
+                libraryBrowse.comicBookId != null -> Tours.BOOK_DETAILS
+                libraryBrowse.comicKey != null -> Tours.COMIC_SERIES
+                else -> Tours.COMICS
+            }
+            libraryBrowse.tab == 1 -> Tours.BOOK_DETAILS.takeIf { libraryBrowse.collectionBookId != null }
+            else -> Tours.BOOK_DETAILS.takeIf { libraryBrowse.selectedId != null }
+        }
         Section.KOBO -> if (koboShowing) Tours.KOBO else Tours.KOBO_CONNECT
         Section.DEVICES -> Tours.DEVICES
         Section.MORE -> null
@@ -940,6 +952,9 @@ fun AppRoot(
                 val stops = remember(name) {
                     when (name) {
                         Tours.LIBRARY -> Tours.library()
+                        Tours.BOOK_DETAILS -> Tours.bookDetails()
+                        Tours.COMICS -> Tours.comics()
+                        Tours.COMIC_SERIES -> Tours.comicSeries()
                         Tours.KOBO -> Tours.kobo()
                         Tours.KOBO_CONNECT -> Tours.koboConnect()
                         else -> Tours.devices()

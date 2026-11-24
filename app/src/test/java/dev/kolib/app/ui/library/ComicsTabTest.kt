@@ -583,4 +583,31 @@ class ComicsTabTest {
         assertEquals(setOf("Saga 002.cbz", "Watchmen.cbz"), unread.single().toSet())
         assertNull(browse.comicSelecting)
     }
+
+    @Test
+    @Config(qualifiers = "w400dp-h800dp-mdpi")
+    fun onAPhoneAComicsPageEditsItsPagesAndSplitsIt() {
+        var edited = 0
+        var split = 0
+        val book = comic("Watchmen.cbz", title = "Watchmen")
+        compose.setContent {
+            AppSurface {
+                PhoneBookPage(
+                    book, covers, koboConnected = false, onBack = {}, onRead = {}, onSend = {}, onEdit = {}, onCover = {},
+                    onEditText = { edited++ }, onSplit = { split++ }, onExport = {}, onDuplicate = {}, onDelete = {}, onCollection = {}, onTag = {},
+                    readHere = null, reading = null, readingLive = false,
+                )
+            }
+        }
+        compose.waitForIdle()
+        compose.onNodeWithText("Edit text").assertDoesNotExist()
+        compose.onNodeWithTag("book-edit-pages").performClick()
+        compose.onNodeWithTag("book-more").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Split into comics").assertExists()
+        compose.onNodeWithTag("book-split").performClick()
+        compose.waitForIdle()
+        assertEquals(1, edited)
+        assertEquals(1, split)
+    }
 }

@@ -17,6 +17,12 @@ object Tours {
     const val COMIC_READER = "comic-reader"
     /** Kept with the tours seen: the sample books were offered (added to a library with none, the first time KoLib starts). */
     const val SAMPLES = "samples"
+    /** The first time a book's details show (its screen on a phone, beside the shelf on a tablet). */
+    const val BOOK_DETAILS = "book-details"
+    /** The first time the Comics tab shows. */
+    const val COMICS = "comics"
+    /** The first time a series of comics is opened. */
+    const val COMIC_SERIES = "comic-series"
 
     fun library() = listOf(
         TourStop(listOf("library-shelf"), tr("Your library"), tr("Tap a book to see it, read it or send it to your Kobo. Hold one to choose several at once.")),
@@ -35,6 +41,37 @@ object Tours {
         TourStop(listOf("nav-kobo"), tr("Your Kobo"), tr("Plug in your Kobo to see what's on it, send it books and back it up.")),
         TourStop(listOf("nav-devices"), tr("Your other devices"), tr("Send books to KoLib on your other phones and tablets over Wi-Fi, or to your Kobo without the cable.")),
         TourStop(listOf("nav-settings"), tr("More"), tr("Settings, reading stats, these tours again, the Kobo's backups, the log and KoLib's details.")),
+    )
+
+    fun bookDetails() = listOf(
+        TourStop(
+            listOf("book-more"), tr("More for this book"),
+            tr("Mark it as finished or unread, send it to another device, save it as a file, duplicate it or split it. You can remove it from the library here too."),
+        ),
+        TourStop(
+            listOf("book-edit"), tr("Change it"),
+            tr("Edit its details or cover, or its text: chapters, styles, links, tables and footnotes. A comic's pages are edited here too."),
+        ),
+    )
+
+    fun comics() = listOf(
+        TourStop(
+            listOf("comics-shelf"), tr("Your comics"),
+            tr("Each series is one entry, with its comics in it. Tap a series to open it, or hold one to choose several: to send them, mark them read, duplicate them or save them as files."),
+        ),
+        TourStop(listOf("library-add"), tr("Add comics"), tr("Add comic files from this device, or make a comic of your own from pictures.")),
+    )
+
+    fun comicSeries() = listOf(
+        TourStop(listOf("comic-series-head"), tr("The series"), tr("How many comics it has and how many you haven't read. Continue opens the next one to read.")),
+        TourStop(
+            listOf("comic-series-menu"), tr("The series' menu"),
+            tr("Mark the whole series read or unread, rename it, put its comics in another series, or remove it."),
+        ),
+        TourStop(
+            listOf("comic-series-issue"), tr("Its comics"),
+            tr("Tap a comic to read it. Hold one to choose several, to send, mark, duplicate or save them. Info in that bar has a comic's details, where you can edit its pages or split it."),
+        ),
     )
 
     fun koboConnect() = listOf(

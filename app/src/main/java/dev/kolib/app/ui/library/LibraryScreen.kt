@@ -1167,7 +1167,7 @@ fun LibraryDetailPane(
                     }
                 )
             }
-            Box {
+            Box(Modifier.tourPlace("book-more")) {
                 IconButton(onClick = { more = true }, modifier = Modifier.testTag("book-more")) { Icon(Icons.Filled.MoreVert, tr("More options")) }
                 DropdownMenu(expanded = more, onDismissRequest = { more = false }) {
                     if (!finished && onMarkFinished != null) DropdownMenuItem(
@@ -1203,7 +1203,7 @@ fun LibraryDetailPane(
             }
         }
         Spacer(Modifier.height(8.dp))
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.tourPlace("book-edit")) {
             OutlinedButton(onClick = onEdit) {
                 Icon(Icons.Outlined.Edit, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))

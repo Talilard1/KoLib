@@ -74,6 +74,7 @@ import dev.kolib.app.ui.components.OutlinedButton
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.EditNote
+import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.outlined.FileOpen
 import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.Image
@@ -603,8 +604,8 @@ internal fun PhoneBookPage(
             title = { if (titleGone) Text(meta.title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
             navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, tr("Back to the library")) } },
             actions = {
-                Box {
-                    IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, tr("More options")) }
+                Box(Modifier.tourPlace("book-more")) {
+                    IconButton(onClick = { menu = true }, modifier = Modifier.testTag("book-more")) { Icon(Icons.Filled.MoreVert, tr("More options")) }
                     // What's done now and then with a book, kept off the page so Read and Send stand out (as Apple's
                     // More menu): marking it read or not, copies of it, splitting it, and removing it.
                     DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
@@ -628,10 +629,12 @@ internal fun PhoneBookPage(
                         }
                         DropdownMenuItem(text = { Text(tr("Save as file")) }, leadingIcon = { Icon(Icons.Outlined.SaveAlt, null) }, onClick = { menu = false; onExport() })
                         DropdownMenuItem(text = { Text(tr("Duplicate")) }, leadingIcon = { Icon(Icons.Outlined.ContentCopy, null) }, onClick = { menu = false; onDuplicate() })
-                        if (!book.isComic) DropdownMenuItem(
-                            text = { Text(tr("Split into books")) },
+                        // A comic is split in the comic editor, at the pages its parts start on.
+                        DropdownMenuItem(
+                            text = { Text(if (book.isComic) tr("Split into comics") else tr("Split into books")) },
                             leadingIcon = { Icon(Icons.AutoMirrored.Outlined.CallSplit, null) },
                             onClick = { menu = false; onSplit() },
+                            modifier = Modifier.testTag("book-split"),
                         )
                         HorizontalDivider()
                         DropdownMenuItem(
@@ -749,18 +752,23 @@ internal fun PhoneBookPage(
             }
 
             Spacer(Modifier.height(16.dp))
-            // A comic's pages are pictures in its comic file: there's no text to edit or split.
-            // The changes made most often; the rest are in the menu at the top.
-            val tiles = listOfNotNull(
+            // The changes made most often; the rest are in the menu at the top. A comic's pages are pictures: they're
+            // edited in the comic editor, not as text.
+            val tiles = listOf(
                 Triple(Icons.Outlined.Edit, tr("Edit details"), onEdit),
                 Triple(Icons.Outlined.Image, tr("Change cover"), onCover),
-                Triple(Icons.Outlined.EditNote, tr("Edit text"), onEditText).takeUnless { book.isComic },
+                if (book.isComic) Triple(Icons.Outlined.PhotoLibrary, tr("Edit pages"), onEditText) else Triple(Icons.Outlined.EditNote, tr("Edit text"), onEditText),
             )
-            tiles.chunked(3).forEach { row ->
-                Row(Modifier.fillMaxWidth().padding(bottom = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    row.forEach { (icon, label, action) -> ActionTile(icon, label, action, Modifier.weight(1f)) }
-                    // A short last row keeps its tiles the size of the others.
-                    repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
+            Column(Modifier.tourPlace("book-edit")) {
+                tiles.chunked(3).forEach { row ->
+                    Row(Modifier.fillMaxWidth().padding(bottom = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        row.forEach { (icon, label, action) ->
+                            val tag = if (action === onEditText) (if (book.isComic) "book-edit-pages" else "book-edit-text") else null
+                            ActionTile(icon, label, action, Modifier.weight(1f).then(if (tag != null) Modifier.testTag(tag) else Modifier))
+                        }
+                        // A short last row keeps its tiles the size of the others.
+                        repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
+                    }
                 }
             }
 

@@ -721,6 +721,7 @@ fun AppRoot(
                             overlay = "backups"
                         },
                         onAbout = { overlay = "about" },
+                        onUpdates = { (appContext.applicationContext as dev.kolib.app.KoLibApp).updater.lookNow() },
                     )
                     Section.DEVICES -> dev.kolib.app.ui.link.DevicesScreen(link, devicesActions, onEject = if (liveSession != null) ({ showEject = true }) else null)
                     Section.LIBRARY -> CompositionLocalProvider(dev.kolib.app.ui.ocr.LocalOcrActions provides ocrActions) { LibraryScreen(

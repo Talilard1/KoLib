@@ -3518,5 +3518,9 @@
 "So KoLib can update itself.",
 "Allow all",
 "Allowed",
-"Allow"
+"Allow",
+"Something wrong? Report it on GitHub, with the log and screenshots if you can.",
+"Report a problem on GitHub",
+"See if there's a newer KoLib on GitHub",
+"Newest release on GitHub"
 ]

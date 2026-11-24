@@ -2,6 +2,8 @@ package dev.kolib.app.ui.update
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -90,6 +92,7 @@ fun UpdateWindow(updater: Updater) {
                 is Updater.State.Available -> {
                     if (s.stopped) {
                         Text(tr("The update wasn't installed."), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
+                        AutoBlockerNote()
                     } else {
                         Text(tr("You have {0}.", updater.installed), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
@@ -136,6 +139,7 @@ fun UpdateWindow(updater: Updater) {
                 }
                 is Updater.State.Failed -> {
                     Text(s.message, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
+                    if (s.installing) AutoBlockerNote()
                     Buttons {
                         TextButton(onClick = { updater.dismiss() }) { Text(tr("Close")) }
                         TextButton(onClick = { page(s.release.page) }) { Text(tr("Open the download page")) }
@@ -162,4 +166,36 @@ private fun androidx.compose.foundation.layout.ColumnScope.Notes(release: Releas
 @Composable
 private fun Buttons(content: @Composable () -> Unit) {
     FlowRow(Modifier.fillMaxWidth().padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End), verticalArrangement = Arrangement.Center) { content() }
+}
+
+/**
+ * On a Samsung, why an update may not have installed: Auto Blocker stops apps from outside the Galaxy Store and Play
+ * Store being installed, updates to KoLib included. How to turn it off, and a way to Settings.
+ */
+@Composable
+private fun AutoBlockerNote(samsung: Boolean = Build.MANUFACTURER.equals("samsung", ignoreCase = true)) {
+    if (!samsung) return
+    val context = LocalContext.current
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceContainerLowest,
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier.fillMaxWidth().padding(top = 10.dp).testTag("update-auto-blocker"),
+    ) {
+        Column(Modifier.padding(start = 14.dp, end = 8.dp, top = 12.dp, bottom = 4.dp)) {
+            Text(tr("Samsung's Auto Blocker may have stopped it."), style = MaterialTheme.typography.titleSmall)
+            Text(
+                tr("Turn it off in Settings > Security and privacy > Auto Blocker, then try again. You can turn it back on afterwards."),
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp, end = 6.dp),
+            )
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                TextButton(onClick = {
+                    // Security and privacy, where Auto Blocker is; or Settings itself, if that can't be opened.
+                    listOf(Settings.ACTION_SECURITY_SETTINGS, Settings.ACTION_SETTINGS).firstOrNull { action ->
+                        runCatching { context.startActivity(Intent(action).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }.isSuccess
+                    }
+                }) { Text(tr("Open Settings")) }
+            }
+        }
+    }
 }

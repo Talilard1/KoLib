@@ -22,6 +22,8 @@ import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
 import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.NewReleases
+import androidx.compose.material.icons.outlined.SystemUpdate
 import androidx.compose.material.icons.outlined.Restore
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.HorizontalDivider
@@ -51,6 +53,7 @@ fun MoreScreen(
     onLog: () -> Unit,
     onBackups: () -> Unit,
     onAbout: () -> Unit,
+    onUpdates: () -> Unit = {},
 ) {
     Column(
         Modifier
@@ -75,9 +78,11 @@ fun MoreScreen(
             MoreItem(Icons.Outlined.Restore, tr("Database backups"), tr("Copies of the Kobo's library, saved before each change"), "more-backups", onBackups)
             MoreItem(Icons.AutoMirrored.Outlined.ReceiptLong, tr("Log"), tr("A record of what KoLib did, to send when something goes wrong"), "more-log", onLog)
             HorizontalDivider()
+            MoreItem(Icons.Outlined.SystemUpdate, tr("Check for updates"), tr("See if there's a newer KoLib on GitHub"), "more-updates", onUpdates)
             MoreItem(Icons.Outlined.Info, tr("About KoLib"), tr("Version, licences and how to get help"), "more-about", onAbout)
         }
-        Spacer(Modifier.height(24.dp))
+        ReleasesButton(Modifier.padding(top = 12.dp).testTag("more-releases"))
+        Spacer(Modifier.height(16.dp))
     }
 }
 
@@ -98,5 +103,14 @@ private fun MoreItem(icon: ImageVector, title: String, detail: String, tag: Stri
             Text(title, style = MaterialTheme.typography.titleMedium)
             Text(detail, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
+    }
+}
+
+/** KoLib's newest release, on its GitHub page. */
+@Composable
+internal fun ReleasesButton(modifier: Modifier = Modifier) {
+    val links = androidx.compose.ui.platform.LocalUriHandler.current
+    androidx.compose.material3.IconButton(onClick = { runCatching { links.openUri(dev.kolib.app.update.Updates.PAGE) } }, modifier = modifier) {
+        Icon(Icons.Outlined.NewReleases, tr("Newest release on GitHub"), tint = MaterialTheme.colorScheme.primary)
     }
 }

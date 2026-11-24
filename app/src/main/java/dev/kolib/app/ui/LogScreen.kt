@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Surface
-import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.SaveAlt
 import android.net.Uri
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,6 +18,9 @@ import dev.kolib.app.tr
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.graphics.Color
 import android.content.ClipData
+import androidx.compose.material.icons.outlined.BugReport
+import androidx.compose.ui.platform.LocalUriHandler
+import dev.kolib.app.update.Updates
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
@@ -95,10 +97,7 @@ fun LogScreen(onBack: () -> Unit, onMessage: (String) -> Unit) {
         if (entries.isEmpty()) {
             EmptyState(Icons.AutoMirrored.Outlined.Article, tr("The log is empty"), tr("KoLib's activity is recorded here."), Modifier.padding(padding))
         } else Column(Modifier.padding(padding).fillMaxSize()) {
-            ReportLine {
-                context.getSystemService(ClipboardManager::class.java).setPrimaryClip(ClipData.newPlainText(REPORT_ADDRESS, REPORT_ADDRESS))
-                onMessage(tr("Copied."))
-            }
+            ReportLine()
             SelectionContainer(Modifier.weight(1f)) {
                 LazyColumn(state = listState, contentPadding = PaddingValues(16.dp), modifier = Modifier.fillMaxSize()) {
                     items(entries, key = { it.id }) { e ->
@@ -132,28 +131,27 @@ fun LogScreen(onBack: () -> Unit, onMessage: (String) -> Unit) {
     }
 }
 
-/** Where to send the log, and screenshots, when something's gone wrong. */
-const val REPORT_ADDRESS = "KoLib2505@gmail.com"
-
 /**
- * Something gone wrong: where to send the log (and screenshots), with the address to copy. The log goes with Share, in
- * whichever app the user sends it with: KoLib doesn't make out the email itself.
+ * Something gone wrong: where to report it, on KoLib's GitHub, with the log (from Share or Save) and screenshots. KoLib
+ * doesn't send the log anywhere itself.
  */
 @Composable
-private fun ReportLine(onCopy: () -> Unit) {
+private fun ReportLine() {
+    val links = LocalUriHandler.current
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainerLow,
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 4.dp).testTag("log-report"),
     ) {
-        Row(Modifier.padding(start = 14.dp, end = 6.dp, top = 6.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Outlined.Email, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+        Row(Modifier.padding(start = 14.dp, end = 4.dp, top = 4.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(
-                tr("Something wrong? Email the log, and screenshots if you can, to {0}.", REPORT_ADDRESS),
+                tr("Something wrong? Report it on GitHub, with the log and screenshots if you can."),
                 style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.weight(1f).padding(horizontal = 12.dp),
+                modifier = Modifier.weight(1f).padding(end = 8.dp),
             )
-            TextButton(onClick = onCopy, modifier = Modifier.testTag("log-copy-address")) { Text(tr("Copy")) }
+            IconButton(onClick = { runCatching { links.openUri(Updates.ISSUES) } }, modifier = Modifier.testTag("log-issues")) {
+                Icon(Icons.Outlined.BugReport, tr("Report a problem on GitHub"), tint = MaterialTheme.colorScheme.primary)
+            }
         }
     }
 }

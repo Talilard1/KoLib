@@ -1,0 +1,55 @@
+@fr
+3520|Un problème ? Signalez-le sur GitHub, avec le journal et des captures d'écran si possible.
+3521|Signaler un problème sur GitHub
+3522|Voir s'il existe une version plus récente de KoLib sur GitHub
+3523|Dernière version sur GitHub
+@de
+3520|Stimmt etwas nicht? Melde es auf GitHub, wenn möglich mit dem Protokoll und Screenshots.
+3521|Problem auf GitHub melden
+3522|Sieh nach, ob es auf GitHub ein neueres KoLib gibt
+3523|Neueste Version auf GitHub
+@es
+3520|¿Algo va mal? Avísanos en GitHub, con el registro y capturas de pantalla si puedes.
+3521|Informar de un problema en GitHub
+3522|Mira si hay un KoLib más nuevo en GitHub
+3523|Última versión en GitHub
+@it
+3520|Qualcosa non va? Segnalalo su GitHub, con il registro e degli screenshot se puoi.
+3521|Segnala un problema su GitHub
+3522|Controlla se su GitHub c'è un KoLib più recente
+3523|Ultima versione su GitHub
+@nl
+3520|Gaat er iets mis? Meld het op GitHub, met het logboek en schermafbeeldingen als het kan.
+3521|Probleem melden op GitHub
+3522|Kijk of er een nieuwere KoLib op GitHub staat
+3523|Nieuwste versie op GitHub
+@pt
+3520|Algo errado? Relate no GitHub, com o registro e capturas de tela se puder.
+3521|Relatar um problema no GitHub
+3522|Veja se há um KoLib mais novo no GitHub
+3523|Versão mais recente no GitHub
+@ro
+3520|Ceva nu merge? Raportează pe GitHub, cu jurnalul și capturi de ecran dacă poți.
+3521|Raportează o problemă pe GitHub
+3522|Vezi dacă există un KoLib mai nou pe GitHub
+3523|Cea mai nouă versiune pe GitHub
+@ru
+3520|Что-то не так? Сообщите об этом на GitHub, по возможности с журналом и снимками экрана.
+3521|Сообщить о проблеме на GitHub
+3522|Проверить, есть ли на GitHub более новая версия KoLib
+3523|Новейшая версия на GitHub
+@ja
+3520|問題がありましたか？GitHub で報告してください。できればログとスクリーンショットも添えてください。
+3521|GitHub で問題を報告
+3522|GitHub に新しい KoLib があるか確認します
+3523|GitHub の最新リリース
+@ko
+3520|문제가 있나요? GitHub에 알려 주세요. 가능하면 로그와 스크린샷도 함께 보내 주세요.
+3521|GitHub에서 문제 신고
+3522|GitHub에 더 새로운 KoLib이 있는지 확인해요
+3523|GitHub의 최신 릴리스
+@zh
+3520|遇到问题？请在 GitHub 上报告，可以的话附上日志和截图。
+3521|在 GitHub 上报告问题
+3522|查看 GitHub 上是否有更新的 KoLib
+3523|GitHub 上的最新版本

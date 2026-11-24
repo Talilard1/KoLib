@@ -98,6 +98,34 @@ class ComicDraft(start: List<DraftPage>) {
         change(list)
     }
 
+    /** The order the pages were in when one was picked up to be dragged, till it's put down. */
+    private var beforeDrag: List<DraftPage>? = null
+
+    /** A page picked up to be dragged: it's moved about as it goes ([dragTo]), and the whole move is one change ([drop]). */
+    fun pickUp() {
+        beforeDrag = pages
+    }
+
+    /** The page [key], being dragged, put at [to]; the rest make way. */
+    fun dragTo(key: Long, to: Int) {
+        val from = pages.indexOfFirst { it.key == key }
+        if (from < 0 || to !in pages.indices || from == to) return
+        val list = pages.toMutableList()
+        list.add(to, list.removeAt(from))
+        pages = list
+    }
+
+    /** The page being dragged put down where it is now: one change, undone as one. */
+    fun drop() {
+        val before = beforeDrag ?: return
+        beforeDrag = null
+        if (before == pages) return
+        undos.addLast(before)
+        if (undos.size > 300) undos.removeFirst()
+        redos.clear()
+        sync()
+    }
+
     /** The pages [keys], in their order, moved so the first of them is at [to] (counted among the rest). */
     fun moveTo(keys: Set<Long>, to: Int) {
         val moving = pages.filter { it.key in keys }

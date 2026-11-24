@@ -92,4 +92,25 @@ class ComicDraftTest {
         d.delete(setOf(d.pages[1].key, d.pages[2].key))
         assertEquals(listOf(2, 0, 1, 1), d.order())
     }
+
+    @Test
+    fun aPageDraggedAboutIsOneMoveUndoneAsOne() {
+        val d = draft(5)
+        d.pickUp()
+        d.dragTo(1, 1)
+        d.dragTo(1, 3)
+        d.dragTo(1, 4)
+        assertEquals(listOf(1, 2, 3, 4, 0), d.order())
+        d.drop()
+        assertTrue(d.canUndo)
+        d.undo()
+        assertEquals(listOf(0, 1, 2, 3, 4), d.order())
+        assertFalse(d.canUndo)
+        // Put back where it was picked up from: no change at all.
+        d.pickUp()
+        d.dragTo(3, 0)
+        d.dragTo(3, 2)
+        d.drop()
+        assertFalse(d.canUndo)
+    }
 }

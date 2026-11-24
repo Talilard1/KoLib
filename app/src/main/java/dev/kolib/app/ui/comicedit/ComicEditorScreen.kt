@@ -11,8 +11,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -66,6 +64,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -83,11 +82,9 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
@@ -113,6 +110,39 @@ import java.io.Closeable
 import java.io.File
 import kotlin.math.abs
 import kotlin.math.min
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.GridView
+import androidx.compose.material.icons.outlined.SaveAlt
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalViewConfiguration
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.toSize
+import androidx.compose.foundation.clickable
+import kotlinx.coroutines.isActive
 
 /**
  * What the comic editor works on: the pages it starts with and each page's picture (the comic's own file's, or
@@ -239,6 +269,10 @@ fun ComicEditorScreen(
     }
 }
 
+/** How wide the pages are shown, about: small, medium or large; and how sharp their pictures are drawn for it. */
+private val TileWidths = listOf(84.dp, 118.dp, 176.dp)
+private val TileHeights = listOf(260, 360, 540)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ComicEditor(
@@ -250,11 +284,19 @@ private fun ComicEditor(
     onClose: () -> Unit,
 ) {
     val context = LocalContext.current
+    val density = LocalDensity.current
+    val slop = LocalViewConfiguration.current.touchSlop
     val draft = remember(pictures) { ComicDraft(pictures.start) }
     val thumbs = remember(pictures) { Thumbs(pictures) }
     var picked by remember { mutableStateOf(emptySet<Long>()) }
     var cropping by remember { mutableStateOf<DraftPage?>(null) }
     var asking by remember { mutableStateOf<Asking?>(null) }
+    // The pages Move to page moves: those chosen, or the one whose menu it was chosen from.
+    var moving by remember { mutableStateOf(emptySet<Long>()) }
+    // A page shown on its own, as big as the screen allows (swiping goes on to the others).
+    var viewing by remember { mutableStateOf<Long?>(null) }
+    var size by rememberSaveable { mutableIntStateOf(1) }
+    val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val grid = rememberLazyGridState()
     val changed = draft.canUndo || isNew
@@ -281,12 +323,116 @@ private fun ComicEditor(
         }
     }
 
-    // A page held is lifted and follows the finger; let go over another page, it's put there.
-    var lifted by remember { mutableStateOf<Long?>(null) }
-    var liftedBy by remember { mutableStateOf(Offset.Zero) }
-    var liftedFrom by remember { mutableStateOf(Offset.Zero) }
+    // A page saved as a picture of its own, as it'll be in the comic (halved, turned and cropped): a JPEG, unless it's
+    // a PNG used as it is.
+    var toWrite by remember { mutableStateOf<ByteArray?>(null) }
+    val written: (Uri?) -> Unit = { uri ->
+        val bytes = toWrite
+        toWrite = null
+        if (uri != null && bytes != null) scope.launch {
+            val ok = withContext(Dispatchers.IO) { runCatching { context.contentResolver.openOutputStream(uri)?.use { it.write(bytes) } != null }.getOrDefault(false) }
+            snackbar.showSnackbar(if (ok) tr("Page saved.") else tr("The page couldn't be saved."))
+        }
+    }
+    val saveJpeg = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("image/jpeg"), written)
+    val savePng = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("image/png"), written)
+    fun savePicture(page: DraftPage) {
+        val n = draft.pages.indexOfFirst { it.key == page.key } + 1
+        scope.launch {
+            val made = withContext(Dispatchers.IO) {
+                runCatching {
+                    val raw = pictures.bytes(page.source)
+                    val kind = ComicWriter.kindOf(raw)
+                    if (page.asIs && kind == "png") raw to true else if (page.asIs && kind == "jpg") raw to false else ComicWriter.render(raw, page) to false
+                }.getOrNull()
+            }
+            if (made == null) {
+                snackbar.showSnackbar(tr("The page couldn't be saved."))
+                return@launch
+            }
+            toWrite = made.first
+            val name = (if (isNew) tr("New comic") else title).replace(Regex("[\\\\/:*?\"<>|]"), " ").trim() + " - " + tr("Page {0}", n)
+            if (made.second) savePng.launch("$name.png") else saveJpeg.launch("$name.jpg")
+        }
+    }
+
+    // Dragging: a page held is picked up and follows the finger, the others making way as it goes; near the top or the
+    // foot of the pages, they scroll on under it. Let go, it stays where it is. A swipe that isn't held first scrolls.
+    val haptics = LocalHapticFeedback.current
+    val places = remember { HashMap<Long, Rect>() }
+    var gridOrigin by remember { mutableStateOf(Offset.Zero) }
+    var gridHeight by remember { mutableFloatStateOf(0f) }
+    var dragKey by remember { mutableStateOf<Long?>(null) }
+    // Where the finger is, in the pages; where on the page it took hold; and from where the grid lays a page out to
+    // where it shows, in the pages.
+    var finger by remember { mutableStateOf(Offset.Zero) }
+    var grab by remember { mutableStateOf(Offset.Zero) }
+    var shift by remember { mutableStateOf(Offset.Zero) }
+    fun slotAt(at: Offset): Int? = grid.layoutInfo.visibleItemsInfo.firstOrNull { item ->
+        val x = item.offset.x + shift.x
+        val y = item.offset.y + shift.y
+        at.x >= x && at.x < x + item.size.width && at.y >= y && at.y < y + item.size.height
+    }?.index
+    fun follow() {
+        val key = dragKey ?: return
+        slotAt(finger)?.let { draft.dragTo(key, it) }
+    }
+    fun putDown() {
+        if (dragKey == null) return
+        draft.drop()
+        dragKey = null
+    }
+    LaunchedEffect(dragKey != null) {
+        if (dragKey == null) return@LaunchedEffect
+        val edge = with(density) { 72.dp.toPx() }
+        val fastest = with(density) { 20.dp.toPx() }
+        while (isActive && dragKey != null) {
+            val y = finger.y
+            val by = when {
+                y < edge -> -fastest * ((edge - y) / edge).coerceIn(0f, 1f)
+                y > gridHeight - edge -> fastest * ((y - (gridHeight - edge)) / edge).coerceIn(0f, 1f)
+                else -> 0f
+            }
+            if (by != 0f && grid.scrollBy(by) != 0f) follow()
+            withFrameNanos { }
+        }
+    }
+
+    // A page's own menu: what can be done with it alone.
+    @Composable
+    fun PageMenu(page: DraftPage, index: Int, open: Boolean, onDismiss: () -> Unit) {
+        DropdownMenu(expanded = open, onDismissRequest = onDismiss) {
+            @Composable
+            fun Item(label: String, icon: ImageVector, tag: String, enabled: Boolean = true, danger: Boolean = false, act: () -> Unit) {
+                val colour = if (danger) MaterialTheme.colorScheme.error else androidx.compose.ui.graphics.Color.Unspecified
+                DropdownMenuItem(
+                    text = { Text(label, color = colour) },
+                    leadingIcon = { Icon(icon, null, tint = if (danger) MaterialTheme.colorScheme.error else LocalContentColor.current) },
+                    enabled = enabled,
+                    onClick = { onDismiss(); act() },
+                    modifier = Modifier.testTag(tag),
+                )
+            }
+            Item(tr("View"), Icons.Outlined.Visibility, "comic-page-view") { viewing = page.key }
+            Item(tr("Save as picture"), Icons.Outlined.SaveAlt, "comic-page-save") { savePicture(page) }
+            Item(tr("Move to page…"), Icons.Outlined.SwapVert, "comic-page-move") { moving = setOf(page.key); asking = Asking.MOVE }
+            HorizontalDivider()
+            Item(tr("Turn left"), Icons.Filled.RotateLeft, "comic-page-turn-left") { draft.turn(setOf(page.key), -1) }
+            Item(tr("Turn right"), Icons.Filled.RotateRight, "comic-page-turn-right") { draft.turn(setOf(page.key), 1) }
+            Item(tr("Crop"), Icons.Outlined.Crop, "comic-page-crop") { cropping = page }
+            if (page.half == null) Item(tr("Split a two-page spread"), Icons.Outlined.VerticalSplit, "comic-page-halves") { draft.splitSpreads(setOf(page.key), pictures.rightToLeft) }
+            Item(tr("Duplicate"), Icons.Outlined.ContentCopy, "comic-page-duplicate") { draft.duplicate(setOf(page.key)) }
+            if (index > 0) {
+                Item(tr("Make it the cover"), Icons.Outlined.Image, "comic-page-cover") { draft.toFront(page.key) }
+                Item(tr("A new comic starts here"), Icons.AutoMirrored.Outlined.CallSplit, "comic-page-new-comic") { draft.toggleStart(page.key) }
+            }
+            HorizontalDivider()
+            Item(tr("Delete"), Icons.Outlined.Delete, "comic-page-delete", danger = true) { draft.delete(setOf(page.key)); picked = picked - page.key }
+        }
+    }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
             TopAppBar(
                 navigationIcon = { IconButton(onClick = close, modifier = Modifier.testTag("comic-edit-close")) { Icon(Icons.Filled.Close, tr("Close")) } },
@@ -309,7 +455,7 @@ private fun ComicEditor(
                         BarAction(Icons.Filled.RotateRight, tr("Right"), { draft.turn(picked, 1) }, tag = "comic-edit-turn-right", longLabel = tr("Turn right")),
                         BarAction(Icons.Outlined.Crop, tr("Crop"), { cropping = one }, enabled = one != null, tag = "comic-edit-crop"),
                         BarAction(Icons.Outlined.VerticalSplit, tr("Halves"), { draft.splitSpreads(picked, pictures.rightToLeft); picked = emptySet() }, tag = "comic-edit-halves", canWait = true, longLabel = tr("Split a two-page spread")),
-                        BarAction(Icons.Outlined.SwapVert, tr("Move"), { asking = Asking.MOVE }, tag = "comic-edit-move", canWait = true, longLabel = tr("Move to page…")),
+                        BarAction(Icons.Outlined.SwapVert, tr("Move"), { moving = picked; asking = Asking.MOVE }, tag = "comic-edit-move", canWait = true, longLabel = tr("Move to page…")),
                         BarAction(Icons.Outlined.Image, tr("Cover"), { one?.let { draft.toFront(it.key) } }, enabled = one != null && at > 0, tag = "comic-edit-cover", canWait = true, longLabel = tr("Make it the cover")),
                         BarAction(Icons.AutoMirrored.Outlined.CallSplit, tr("New comic"), { one?.let { draft.toggleStart(it.key) } }, enabled = one != null && at > 0, tag = "comic-edit-new-comic", canWait = true, longLabel = tr("A new comic starts here")),
                         BarAction(Icons.Outlined.ContentCopy, tr("Duplicate"), { draft.duplicate(picked) }, tag = "comic-edit-duplicate", canWait = true),
@@ -322,14 +468,29 @@ private fun ComicEditor(
         },
     ) { padding ->
         Column(Modifier.padding(padding).fillMaxSize()) {
-            Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 2.dp, bottom = 2.dp), verticalAlignment = Alignment.CenterVertically) {
                 if (picked.isEmpty()) {
                     Text(
                         if (splitting) tr("Tap the page a new comic starts on, then New comic in the bar.")
                         else tr("Tap pages to choose them. Hold one and drag it to move it."),
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(vertical = 12.dp),
+                        modifier = Modifier.weight(1f).padding(vertical = 8.dp),
                     )
+                    // How big the pages show.
+                    var sizing by remember { mutableStateOf(false) }
+                    Box {
+                        IconButton(onClick = { sizing = true }, modifier = Modifier.testTag("comic-edit-size")) { Icon(Icons.Outlined.GridView, tr("Page size")) }
+                        DropdownMenu(expanded = sizing, onDismissRequest = { sizing = false }) {
+                            listOf(tr("Small"), tr("Medium"), tr("Large")).forEachIndexed { i, label ->
+                                DropdownMenuItem(
+                                    text = { Text(label) },
+                                    trailingIcon = if (size == i) ({ Icon(Icons.Filled.Check, null, Modifier.size(18.dp)) }) else null,
+                                    onClick = { size = i; sizing = false },
+                                    modifier = Modifier.testTag("comic-edit-size-$i"),
+                                )
+                            }
+                        }
+                    }
                 } else {
                     Text(
                         if (picked.size == 1) tr("1 page chosen") else tr("{0} pages chosen", picked.size),
@@ -344,55 +505,61 @@ private fun ComicEditor(
                     Text(tr("No pages. Add pictures to make a comic."), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             } else LazyVerticalGrid(
-                columns = GridCells.Adaptive(104.dp),
+                columns = GridCells.Adaptive(TileWidths[size]),
                 state = grid,
-                contentPadding = PaddingValues(12.dp),
-                modifier = Modifier.fillMaxSize().testTag("comic-edit-pages"),
+                // While a page is being dragged, the finger is moving it, not the pages (they scroll on by themselves at the edges).
+                userScrollEnabled = dragKey == null,
+                contentPadding = PaddingValues(start = 10.dp, end = 10.dp, top = 4.dp, bottom = 24.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .onGloballyPositioned { gridOrigin = it.positionInRoot(); gridHeight = it.size.height.toFloat() }
+                    .pointerInput(draft) {
+                        detectDragGesturesAfterLongPress(
+                            onDragStart = { at ->
+                                val there = gridOrigin + at
+                                val hit = places.entries.firstOrNull { it.value.contains(there) }
+                                val item = hit?.let { h -> grid.layoutInfo.visibleItemsInfo.firstOrNull { it.key == h.key } }
+                                if (hit != null && item != null) {
+                                    shift = (hit.value.topLeft - gridOrigin) - Offset(item.offset.x.toFloat(), item.offset.y.toFloat())
+                                    grab = there - hit.value.topLeft
+                                    finger = at
+                                    draft.pickUp()
+                                    dragKey = hit.key
+                                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                }
+                            },
+                            onDrag = { change, by ->
+                                if (dragKey != null) {
+                                    change.consume()
+                                    finger += by
+                                    if (by.getDistance() > 0f) follow()
+                                }
+                            },
+                            onDragEnd = { putDown() },
+                            onDragCancel = { putDown() },
+                        )
+                    }
+                    .testTag("comic-edit-pages"),
             ) {
                 itemsIndexed(draft.pages, key = { _, p -> p.key }) { i, page ->
-                    PageCell(
-                        page, i, chosen = page.key in picked, thumbs = thumbs,
-                        lift = if (lifted == page.key) liftedBy else null,
-                        onTap = { toggle(page.key) },
-                        modifier = Modifier.pointerInput(page.key) {
-                            awaitEachGesture {
-                                val down = awaitFirstDown(requireUnconsumed = false)
-                                // Let go (a tap) or moved (scrolling) before it's held long enough: not lifted.
-                                val notHeld = withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
-                                    var result: Boolean? = null
-                                    while (result == null) {
-                                        val c = awaitPointerEvent().changes.firstOrNull { it.id == down.id }
-                                        if (c == null || !c.pressed) {
-                                            toggle(page.key)
-                                            result = true
-                                        } else if ((c.position - down.position).getDistance() > viewConfiguration.touchSlop) result = true
-                                    }
-                                    result
-                                }
-                                if (notHeld != null) return@awaitEachGesture
-                                val info = grid.layoutInfo.visibleItemsInfo.firstOrNull { it.key == page.key }
-                                lifted = page.key
-                                liftedBy = Offset.Zero
-                                liftedFrom = info?.let { Offset(it.offset.x + it.size.width / 2f, it.offset.y + it.size.height / 2f) } ?: Offset.Zero
-                                while (true) {
-                                    val c = awaitPointerEvent().changes.firstOrNull { it.id == down.id } ?: break
-                                    if (!c.pressed) break
-                                    liftedBy += c.positionChange()
-                                    c.consume()
-                                }
-                                // Held without moving: chosen; moved over another page: put there.
-                                val from = draft.pages.indexOfFirst { it.key == page.key }
-                                val over = (liftedFrom + liftedBy).let { at ->
-                                    grid.layoutInfo.visibleItemsInfo.firstOrNull {
-                                        at.x >= it.offset.x && at.x < it.offset.x + it.size.width && at.y >= it.offset.y && at.y < it.offset.y + it.size.height
-                                    }
-                                }
-                                if (liftedBy.getDistance() < viewConfiguration.touchSlop) toggle(page.key)
-                                else if (over != null && over.index != from) draft.move(from, over.index)
-                                lifted = null
-                                liftedBy = Offset.Zero
-                            }
+                    val lifted = page.key == dragKey
+                    var menuOpen by remember { mutableStateOf(false) }
+                    DisposableEffect(page.key) { onDispose { places.remove(page.key) } }
+                    PageTile(
+                        page, i, chosen = page.key in picked, thumbs = thumbs, height = TileHeights[size],
+                        lifted = lifted,
+                        // Under the finger, wherever the grid has the page now.
+                        lift = {
+                            val item = grid.layoutInfo.visibleItemsInfo.firstOrNull { it.key == page.key }
+                            if (item == null) Offset.Zero else finger - grab - (Offset(item.offset.x.toFloat(), item.offset.y.toFloat()) + shift)
                         },
+                        onTap = { toggle(page.key) },
+                        onMenu = { menuOpen = true },
+                        menu = { PageMenu(page, i, menuOpen) { menuOpen = false } },
+                        modifier = (if (lifted) Modifier else Modifier.animateItem())
+                            .onGloballyPositioned { places[page.key] = Rect(it.positionInRoot(), it.size.toSize()) },
                     )
                 }
             }
@@ -402,8 +569,12 @@ private fun ComicEditor(
     cropping?.let { page ->
         CropDialog(page, thumbs, onDone = { crop -> draft.crop(page.key, crop); cropping = null }, onDismiss = { cropping = null })
     }
+    viewing?.let { key ->
+        val pages = draft.pages
+        PageViewer(pages, pages.indexOfFirst { it.key == key }, thumbs, pictures.rightToLeft, onClose = { viewing = null })
+    }
     when (asking) {
-        Asking.MOVE -> MoveDialog(draft.pages.size, onMove = { to -> draft.moveTo(picked, to); asking = null }, onDismiss = { asking = null })
+        Asking.MOVE -> MoveDialog(draft.pages.size, onMove = { to -> draft.moveTo(moving, to); asking = null }, onDismiss = { asking = null })
         Asking.CLOSE -> AlertDialog(
             onDismissRequest = { asking = null },
             title = { Text(tr("Save your changes?")) },
@@ -425,50 +596,105 @@ private fun ComicEditor(
     }
 }
 
-/** A page in the grid: its picture as it'll be, its number, and whether it's chosen or starts a new comic. */
+/**
+ * A page in the grid: its picture as it'll be (halved, turned, cropped), its number, and a menu of its own; lit when
+ * it's chosen, marked where a new comic starts, and lifted (following the finger, by [lift]) while it's dragged.
+ */
 @Composable
-private fun PageCell(page: DraftPage, index: Int, chosen: Boolean, thumbs: Thumbs, lift: Offset?, onTap: () -> Unit, modifier: Modifier) {
-    val picture by produceState(thumbs.cached(page), page.source, page.half, page.turns, page.crop) { value = thumbs.load(page) }
-    val shape = RoundedCornerShape(6.dp)
-    Column(
+private fun PageTile(
+    page: DraftPage,
+    index: Int,
+    chosen: Boolean,
+    thumbs: Thumbs,
+    height: Int,
+    lifted: Boolean,
+    lift: () -> Offset,
+    onTap: () -> Unit,
+    onMenu: () -> Unit,
+    menu: @Composable () -> Unit,
+    modifier: Modifier,
+) {
+    val picture by produceState(thumbs.cached(page, height), page.source, page.half, page.turns, page.crop, height) { value = thumbs.load(page, height) }
+    val shape = RoundedCornerShape(10.dp)
+    val primary = MaterialTheme.colorScheme.primary
+    Box(
         modifier
-            .zIndex(if (lift != null) 1f else 0f)
+            .fillMaxWidth()
+            .aspectRatio(0.7f)
+            .zIndex(if (lifted) 1f else 0f)
             .graphicsLayer {
-                if (lift != null) {
-                    translationX = lift.x
-                    translationY = lift.y
-                    scaleX = 1.06f
-                    scaleY = 1.06f
-                    shadowElevation = 12.dp.toPx()
+                if (lifted) {
+                    val o = lift()
+                    translationX = o.x
+                    translationY = o.y
+                    scaleX = 1.07f
+                    scaleY = 1.07f
+                    shadowElevation = 16.dp.toPx()
                 }
+                this.shape = shape
+                clip = true
             }
-            .semantics { onClick(label = null) { onTap(); true } }
-            .padding(4.dp)
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            .then(if (chosen) Modifier.border(3.dp, primary, shape) else Modifier)
+            .clickable(onClick = onTap)
             .testTag("comic-edit-page"),
-        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .aspectRatio(0.68f)
-                .clip(shape)
-                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-                .then(if (chosen) Modifier.border(3.dp, MaterialTheme.colorScheme.primary, shape) else Modifier),
-            contentAlignment = Alignment.Center,
-        ) {
-            picture?.let { Image(it, null, Modifier.fillMaxSize().padding(3.dp), contentScale = ContentScale.Fit) }
-                ?: CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
-            if (chosen) Icon(
-                Icons.Filled.CheckCircle, null, tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.align(Alignment.TopEnd).padding(4.dp).size(22.dp).background(MaterialTheme.colorScheme.surface, CircleShape),
-            )
-            if (page.startsComic) Text(
-                tr("New comic"), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.align(Alignment.TopStart).padding(4.dp).background(MaterialTheme.colorScheme.primary, RoundedCornerShape(4.dp))
-                    .padding(horizontal = 6.dp, vertical = 2.dp).testTag("comic-edit-starts"),
+        picture?.let { Image(it, null, Modifier.fillMaxSize(), contentScale = ContentScale.Fit) }
+            ?: CircularProgressIndicator(Modifier.align(Alignment.Center).size(20.dp), strokeWidth = 2.dp)
+        if (chosen) {
+            Box(Modifier.matchParentSize().background(primary.copy(alpha = 0.16f)))
+            Icon(
+                Icons.Filled.CheckCircle, null, tint = primary,
+                modifier = Modifier.align(Alignment.Center).size(34.dp).background(MaterialTheme.colorScheme.surface, CircleShape),
             )
         }
-        Text("${index + 1}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 2.dp))
+        Text(
+            "${index + 1}", style = MaterialTheme.typography.labelMedium, color = Color.White,
+            modifier = Modifier.align(Alignment.TopStart).padding(5.dp).background(Color.Black.copy(alpha = 0.62f), RoundedCornerShape(6.dp))
+                .padding(horizontal = 7.dp, vertical = 2.dp),
+        )
+        Box(Modifier.align(Alignment.TopEnd)) {
+            Box(
+                Modifier.padding(3.dp).size(32.dp).clip(CircleShape).background(Color.Black.copy(alpha = 0.5f))
+                    .clickable(onClickLabel = tr("More for page {0}", index + 1), role = Role.Button, onClick = onMenu)
+                    .semantics { contentDescription = tr("More for page {0}", index + 1) }
+                    .testTag("comic-page-menu"),
+                contentAlignment = Alignment.Center,
+            ) { Icon(Icons.Filled.MoreVert, null, tint = Color.White, modifier = Modifier.size(18.dp)) }
+            menu()
+        }
+        if (page.startsComic) Text(
+            tr("New comic"), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onPrimary, textAlign = TextAlign.Center,
+            modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().background(primary).padding(vertical = 3.dp).testTag("comic-edit-starts"),
+        )
+    }
+}
+
+/** A page as big as the screen allows, to look at closely; swiping goes on to the pages either side. */
+@Composable
+private fun PageViewer(pages: List<DraftPage>, start: Int, thumbs: Thumbs, rightToLeft: Boolean, onClose: () -> Unit) {
+    if (pages.isEmpty()) return onClose()
+    val pager = rememberPagerState(initialPage = start.coerceIn(0, pages.size - 1)) { pages.size }
+    Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        Surface(Modifier.fillMaxSize().testTag("comic-viewer"), color = Color.Black) {
+            Box(Modifier.fillMaxSize()) {
+                HorizontalPager(pager, Modifier.fillMaxSize(), reverseLayout = rightToLeft, key = { pages[it].key }) { i ->
+                    val page = pages[i]
+                    val picture by produceState(thumbs.cached(page, Thumbs.LARGE), page.source, page.half, page.turns, page.crop) { value = thumbs.load(page, Thumbs.LARGE) }
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        picture?.let { Image(it, null, Modifier.fillMaxSize().systemBarsPadding().padding(8.dp), contentScale = ContentScale.Fit) }
+                            ?: CircularProgressIndicator(color = Color.White)
+                    }
+                }
+                Row(
+                    Modifier.fillMaxWidth().background(Color.Black.copy(alpha = 0.45f)).systemBarsPadding().padding(4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    IconButton(onClick = onClose, modifier = Modifier.testTag("comic-viewer-close")) { Icon(Icons.Filled.Close, tr("Close"), tint = Color.White) }
+                    Text(tr("Page {0} of {1}", pager.currentPage + 1, pages.size), color = Color.White, style = MaterialTheme.typography.titleMedium)
+                }
+            }
+        }
     }
 }
 

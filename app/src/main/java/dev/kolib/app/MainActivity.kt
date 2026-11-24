@@ -83,6 +83,7 @@ class MainActivity : ComponentActivity() {
             val openingEveryTime by themes.openingEveryTime.collectAsStateWithLifecycle()
             val introSeen by themes.introSeen.collectAsStateWithLifecycle()
             val asksSeen by themes.asksSeen.collectAsStateWithLifecycle()
+            val newsSeen by themes.newsSeen.collectAsStateWithLifecycle()
             val editorTourSeen by themes.editorTourSeen.collectAsStateWithLifecycle()
             val toursSeen by themes.toursSeen.collectAsStateWithLifecycle()
             val toursOff by themes.toursOff.collectAsStateWithLifecycle()
@@ -109,9 +110,12 @@ class MainActivity : ComponentActivity() {
                         openingLight = openingLight,
                         onOpeningLight = themes::setOpeningLight,
                         introSeen = introSeen,
-                        onIntroSeen = themes::setIntroSeen,
+                        // Someone new to KoLib has nothing to be told is new.
+                        onIntroSeen = { seen -> themes.setIntroSeen(seen); if (seen) themes.setNewsSeen(BuildConfig.VERSION_CODE) },
                         asksSeen = asksSeen,
                         onAsksSeen = { themes.setAsksSeen(true) },
+                        newsDue = newsSeen < BuildConfig.VERSION_CODE,
+                        onNewsSeen = { themes.setNewsSeen(BuildConfig.VERSION_CODE) },
                         editorTourSeen = editorTourSeen,
                         onEditorTourSeen = { themes.setEditorTourSeen(true) },
                         toursSeen = toursSeen,

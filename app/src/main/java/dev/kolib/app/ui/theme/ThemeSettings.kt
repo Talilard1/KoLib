@@ -89,6 +89,15 @@ class ThemeSettings(context: Context) {
         _asksSeen.value = seen
     }
 
+    private val _newsSeen = MutableStateFlow(prefs.getInt(NEWS_SEEN, -1))
+    /** The version (its code) whose What's new was last shown: it's shown once after each update. */
+    val newsSeen: StateFlow<Int> = _newsSeen.asStateFlow()
+
+    fun setNewsSeen(version: Int) {
+        prefs.edit().putInt(NEWS_SEEN, version).apply()
+        _newsSeen.value = version
+    }
+
     private val _editorTourSeen = MutableStateFlow(prefs.getBoolean(EDITOR_TOUR_SEEN, false))
     /** The text editor's tour has been gone through (or skipped): it's given the first time the editor is opened. */
     val editorTourSeen: StateFlow<Boolean> = _editorTourSeen.asStateFlow()
@@ -158,6 +167,7 @@ class ThemeSettings(context: Context) {
         const val OPENING_PLAYED = "openingPlayedFor"
         const val INTRO_SEEN = "introSeen"
         const val ASKS_SEEN = "asksSeen"
+        const val NEWS_SEEN = "newsSeen"
         const val EDITOR_TOUR_SEEN = "editorTourSeen"
         const val TOURS_SEEN = "toursSeen"
         const val TOURS_OFF = "toursOff"

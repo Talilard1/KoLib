@@ -17,6 +17,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import dev.kolib.app.epub.TestBooks
@@ -166,6 +167,36 @@ class ChaptersPaneTest {
         val at = titles(state).indexOf("Chapter 38")
         assertTrue("Chapter 38 went up a long way (to ${at + 1})", at < 22)
         assertEquals((1..40).map { "Chapter $it" }.minus("Chapter 38"), titles(state).minus("Chapter 38"))
+    }
+
+    @Test
+    fun aChapterHeldIsChosenBeforeItsLetGoAndOnlyItsHandleMovesIt() {
+        val state = open { TestBooks.garden(it) }
+        show(state)
+        val before = titles(state)
+        // Held, and not yet let go: chosen already.
+        compose.onNodeWithText("Chapter 1: Rose").performTouchInput {
+            down(center)
+            advanceEventTime(900)
+            moveBy(Offset(0f, 1f))
+        }
+        compose.waitForIdle()
+        compose.onNodeWithText(tr("1 chapter selected")).assertExists()
+        compose.onNodeWithText("Chapter 1: Rose").performTouchInput { up() }
+        compose.waitForIdle()
+        compose.onNodeWithText(tr("1 chapter selected")).assertExists()
+        compose.onNodeWithContentDescription(tr("Stop selecting")).performClick()
+        compose.waitForIdle()
+        // Dragged by the row (not its handle), held first or not, nothing moves.
+        compose.onNodeWithText("Chapter 2").performTouchInput {
+            down(center)
+            advanceEventTime(900)
+            repeat(20) { moveBy(Offset(0f, -12f)) }
+            up()
+        }
+        compose.onNodeWithText("Chapter 2").performTouchInput { swipeUp() }
+        settle(state)
+        assertEquals(before, titles(state))
     }
 
     @Test

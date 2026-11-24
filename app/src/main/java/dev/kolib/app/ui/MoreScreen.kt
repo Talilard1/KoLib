@@ -22,6 +22,7 @@ import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
 import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.NewReleases
 import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -57,6 +58,8 @@ fun MoreScreen(
     onAbout: () -> Unit,
     onUpdates: () -> Unit = {},
     onStorage: () -> Unit = {},
+    /** What's new in this version; null where it has nothing to say. */
+    onWhatsNew: (() -> Unit)? = null,
 ) {
     Column(
         Modifier
@@ -82,6 +85,7 @@ fun MoreScreen(
             MoreItem(Icons.Outlined.Restore, tr("Database backups"), tr("Copies of the Kobo's library, saved before each change"), "more-backups", onBackups)
             MoreItem(Icons.AutoMirrored.Outlined.ReceiptLong, tr("Log"), tr("A record of what KoLib did, to send when something goes wrong"), "more-log", onLog)
             HorizontalDivider()
+            onWhatsNew?.let { MoreItem(Icons.Outlined.NewReleases, tr("What's new"), tr("What changed in this version of KoLib"), "more-whats-new", it) }
             MoreItem(Icons.Outlined.SystemUpdate, tr("Check for updates"), tr("See if there's a newer KoLib on GitHub"), "more-updates", onUpdates)
             MoreItem(Icons.Outlined.Info, tr("About KoLib"), tr("Version, licences and how to get help"), "more-about", onAbout)
         }

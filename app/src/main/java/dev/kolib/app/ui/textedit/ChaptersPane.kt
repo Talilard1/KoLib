@@ -26,7 +26,6 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.semantics
 import dev.kolib.app.ui.PickRange
-import kotlin.math.abs
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.scrollBy
@@ -361,7 +360,7 @@ fun ChaptersPane(
             Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 8.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text(tr("Chapters"), style = MaterialTheme.typography.titleMedium)
-                    Text(tr("Drag to reorder, hold to select · {0}", Fmt.plural(chapters.size, "chapter")), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(tr("Drag the dots to reorder, hold to select · {0}", Fmt.plural(chapters.size, "chapter")), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 TextButton(onClick = { onAction(ChapterAction.Add(state.currentPath)) }) {
                     Icon(Icons.Filled.Add, null, Modifier.size(18.dp))
@@ -440,17 +439,13 @@ fun ChaptersPane(
                             }
                         }
                         .then(if (dragging == null) Modifier.animateItem() else Modifier)
+                        // Held, it's chosen there and then; chapters are moved by their handles alone, so the list scrolls
+                        // under a finger anywhere else.
                         .pointerInput(path) {
-                            holdOrDrag(
-                                canDrag = { !selecting },
-                                onHold = {
-                                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    hold(path)
-                                },
-                                onStart = { startDrag(path) },
-                                onDrag = { fingerBy(it) },
-                                onEnd = { endDrag() },
-                            )
+                            holdToChoose {
+                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                hold(path)
+                            }
                         }
                         .semantics { onLongClick(tr("Select")) { hold(path); true } },
                 )
@@ -515,45 +510,19 @@ private suspend fun PointerInputScope.dragAtOnce(onStart: () -> Unit, onDrag: (F
 }
 
 /**
- * A chapter's row held down: let go where it is, it's [onHold]; moved, it's dragged ([onStart], [onDrag],
- * [onEnd]) if [canDrag]. Either way, the press doesn't count as a tap too.
+ * A chapter's row held down: it's [onHold] as soon as it's been held long enough, not when it's let go, so it's plain
+ * it's been chosen. The rest of the press is taken before the row sees it, so it doesn't count as a tap too.
  */
-private suspend fun PointerInputScope.holdOrDrag(
-    canDrag: () -> Boolean,
-    onHold: () -> Unit,
-    onStart: () -> Unit,
-    onDrag: (Float) -> Unit,
-    onEnd: () -> Unit,
-) {
+private suspend fun PointerInputScope.holdToChoose(onHold: () -> Unit) {
     awaitEachGesture {
         val down = awaitFirstDown(requireUnconsumed = false)
         val held = awaitLongPressOrCancellation(down.id) ?: return@awaitEachGesture
-        var dragged = false
-        var moved = 0f
-        try {
-            while (true) {
-                // Taken before the row sees it, so the press isn't also a tap.
-                val event = awaitPointerEvent(PointerEventPass.Initial)
-                val change = event.changes.firstOrNull { it.id == held.id } ?: break
-                if (!change.pressed) {
-                    change.consume()
-                    if (!dragged) onHold()
-                    break
-                }
-                val dy = change.positionChange().y
-                change.consume()
-                if (dragged) onDrag(dy)
-                else {
-                    moved += dy
-                    if (abs(moved) > viewConfiguration.touchSlop && canDrag()) {
-                        dragged = true
-                        onStart()
-                        onDrag(moved)
-                    }
-                }
-            }
-        } finally {
-            if (dragged) onEnd()
+        onHold()
+        while (true) {
+            val event = awaitPointerEvent(PointerEventPass.Initial)
+            val change = event.changes.firstOrNull { it.id == held.id } ?: break
+            change.consume()
+            if (!change.pressed) break
         }
     }
 }

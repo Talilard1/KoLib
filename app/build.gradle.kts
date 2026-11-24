@@ -29,8 +29,8 @@ android {
         minSdk = 29
         // Keep at 36: from 37, Android drops the opt-out in the manifest that lets the readers turn a tablet's screen.
         targetSdk = 36
-        versionCode = 110
-        versionName = "3.4"
+        versionCode = 111
+        versionName = "3.5"
     }
 
     // An APK for each kind of processor, a little smaller, and a universal one that runs on any of them.

@@ -1,0 +1,253 @@
+@fr
+3631|Ce qui a changé dans cette version de KoLib
+3632|Éditeur de BD
+3633|Mettez les pages d’une BD dans l’ordre, tournez-les et recadrez-les, coupez les doubles pages, ou divisez-la en plusieurs BD. Vous pouvez aussi créer une BD à partir d’images.
+3634|Plus dans l’éditeur de texte
+3635|Liens, tableaux, listes, citations et notes de bas de page, soulignement et plus, caractères spéciaux et nombre de mots.
+3636|Une série s’ouvre à côté de l’étagère. Envoyez des BD à un autre appareil, dupliquez-les ou enregistrez-les en fichiers depuis la barre. Le menu de la liseuse reste affiché quand vous tournez la page en glissant.
+3637|La notification indique à quels appareils vous êtes connecté, et leur batterie. L’écran Appareils aussi.
+3638|Voyez la place qu’occupe KoLib, et par quoi, dans Plus.
+3639|Mises à jour et aide
+3640|Recherchez des mises à jour dans Plus, et signalez un problème sur GitHub depuis le journal.
+3641|Autorisations au même endroit
+3642|Ce dont KoLib a besoin qu’Android autorise est demandé sur un seul écran.
+3643|Nouvelles visites
+3644|De courtes visites présentent les options d’un livre, l’onglet BD et une série. Chacune peut désactiver les visites.
+3645|Nouveautés de KoLib {0}
+3646|Notes complètes sur GitHub
+3647|Faites glisser les points pour réordonner, maintenez pour sélectionner · {0}
+3648|Page enregistrée.
+3649|Voir
+3650|Enregistrer comme image
+3651|Taille des pages
+3652|Plus pour la page {0}
+@de
+3631|Was sich in dieser KoLib-Version geändert hat
+3632|Comic-Editor
+3633|Bringe die Seiten eines Comics in Reihenfolge, drehe und beschneide sie, teile Doppelseiten oder teile ihn in mehrere Comics auf. Du kannst auch aus Bildern einen Comic erstellen.
+3634|Mehr im Texteditor
+3635|Links, Tabellen, Listen, Zitate und Fußnoten, Unterstreichen und mehr, Sonderzeichen und eine Wortanzahl.
+3636|Eine Reihe öffnet sich neben dem Regal. Sende Comics an ein anderes Gerät, dupliziere sie oder speichere sie als Dateien über die Leiste. Das Menü des Lesers bleibt sichtbar, wenn du zum Umblättern wischst.
+3637|Die Benachrichtigung zeigt, mit welchen Geräten du verbunden bist, und ihren Akkustand. Der Bildschirm Geräte auch.
+3638|Sieh unter Mehr, wie viel Platz KoLib belegt, und wofür.
+3639|Updates und Hilfe
+3640|Suche unter Mehr nach Updates, und melde ein Problem auf GitHub über das Protokoll.
+3641|Berechtigungen an einem Ort
+3642|Was KoLib von Android braucht, wird auf einem Bildschirm abgefragt.
+3643|Neue Touren
+3644|Kurze Touren zeigen dir die Optionen eines Buchs, den Tab Comics und eine Reihe. Jede kann die Touren ausschalten.
+3645|Neu in KoLib {0}
+3646|Vollständige Hinweise auf GitHub
+3647|Zum Umsortieren die Punkte ziehen, zum Auswählen halten · {0}
+3648|Seite gespeichert.
+3649|Ansehen
+3650|Als Bild speichern
+3651|Seitengröße
+3652|Mehr für Seite {0}
+@es
+3631|Lo que ha cambiado en esta versión de KoLib
+3632|Editor de cómics
+3633|Ordena las páginas de un cómic, gíralas y recórtalas, divide las dobles páginas o divide el cómic en varios. También puedes crear un cómic con imágenes.
+3634|Más en el editor de texto
+3635|Enlaces, tablas, listas, citas y notas al pie, subrayado y más, caracteres especiales y recuento de palabras.
+3636|Una serie se abre junto a la estantería. Envía cómics a otro dispositivo, duplícalos o guárdalos como archivos desde la barra. El menú del lector se queda visible al pasar la página deslizando.
+3637|La notificación dice a qué dispositivos estás conectado, y su batería. La pantalla Dispositivos también.
+3638|Mira en Más cuánto espacio ocupa KoLib, y en qué.
+3639|Actualizaciones y ayuda
+3640|Busca actualizaciones en Más, e informa de un problema en GitHub desde el registro.
+3641|Permisos en un solo sitio
+3642|Lo que KoLib necesita que Android permita se pide en una sola pantalla.
+3643|Nuevos recorridos
+3644|Recorridos breves te enseñan las opciones de un libro, la pestaña Cómics y una serie. Cualquiera de ellos puede desactivar los recorridos.
+3645|Novedades de KoLib {0}
+3646|Notas completas en GitHub
+3647|Arrastra los puntos para reordenar, mantén pulsado para seleccionar · {0}
+3648|Página guardada.
+3649|Ver
+3650|Guardar como imagen
+3651|Tamaño de las páginas
+3652|Más para la página {0}
+@it
+3631|Cosa è cambiato in questa versione di KoLib
+3632|Editor di fumetti
+3633|Metti in ordine le pagine di un fumetto, ruotale e ritagliale, dividi le doppie pagine o dividi il fumetto in più fumetti. Puoi anche creare un fumetto da immagini.
+3634|Di più nell’editor di testo
+3635|Link, tabelle, elenchi, citazioni e note a piè di pagina, sottolineatura e altro, caratteri speciali e conteggio parole.
+3636|Una serie si apre accanto allo scaffale. Invia fumetti a un altro dispositivo, duplicali o salvali come file dalla barra. Il menu del lettore resta visibile quando giri pagina scorrendo.
+3637|La notifica dice a quali dispositivi sei connesso, e la loro batteria. Anche la schermata Dispositivi.
+3638|Guarda in Altro quanto spazio occupa KoLib, e per cosa.
+3639|Aggiornamenti e aiuto
+3640|Cerca aggiornamenti in Altro, e segnala un problema su GitHub dal registro.
+3641|Autorizzazioni in un solo posto
+3642|Ciò che KoLib ha bisogno che Android consenta viene chiesto in una sola schermata.
+3643|Nuove guide
+3644|Brevi guide ti mostrano le opzioni di un libro, la scheda Fumetti e una serie. Ognuna può disattivare le guide.
+3645|Novità di KoLib {0}
+3646|Note complete su GitHub
+3647|Trascina i puntini per riordinare, tieni premuto per selezionare · {0}
+3648|Pagina salvata.
+3649|Visualizza
+3650|Salva come immagine
+3651|Dimensione pagine
+3652|Altro per la pagina {0}
+@nl
+3631|Wat er is veranderd in deze versie van KoLib
+3632|Stripeditor
+3633|Zet de pagina’s van een strip op volgorde, draai en snijd ze bij, splits dubbele pagina’s, of splits de strip in meerdere strips. Je kunt ook een strip maken van afbeeldingen.
+3634|Meer in de teksteditor
+3635|Links, tabellen, lijsten, citaten en voetnoten, onderstrepen en meer, speciale tekens en een woordtelling.
+3636|Een reeks opent naast de plank. Stuur strips naar een ander apparaat, dupliceer ze of sla ze op als bestanden vanuit de balk. Het menu van de lezer blijft staan als je veegt om om te slaan.
+3637|De melding laat zien met welke apparaten je verbonden bent, en hun batterij. Het scherm Apparaten ook.
+3638|Zie onder Meer hoeveel ruimte KoLib inneemt, en waarmee.
+3639|Updates en hulp
+3640|Controleer onder Meer op updates, en meld een probleem op GitHub vanuit het logboek.
+3641|Toestemmingen op één plek
+3642|Wat KoLib van Android nodig heeft, wordt op één scherm gevraagd.
+3643|Nieuwe rondleidingen
+3644|Korte rondleidingen laten je de opties van een boek, het tabblad Strips en een reeks zien. Elke rondleiding kan ze uitzetten.
+3645|Nieuw in KoLib {0}
+3646|Volledige notities op GitHub
+3647|Sleep de puntjes om te ordenen, houd vast om te selecteren · {0}
+3648|Pagina opgeslagen.
+3649|Bekijken
+3650|Opslaan als afbeelding
+3651|Paginagrootte
+3652|Meer voor pagina {0}
+@pt
+3631|O que mudou nesta versão do KoLib
+3632|Editor de quadrinhos
+3633|Coloque as páginas de um quadrinho em ordem, gire e corte, divida páginas duplas ou divida o quadrinho em vários. Você também pode criar um quadrinho com imagens.
+3634|Mais no editor de texto
+3635|Links, tabelas, listas, citações e notas de rodapé, sublinhado e mais, caracteres especiais e contagem de palavras.
+3636|Uma série abre ao lado da estante. Envie quadrinhos para outro dispositivo, duplique-os ou salve-os como arquivos pela barra. O menu do leitor fica visível quando você desliza para virar a página.
+3637|A notificação mostra a quais dispositivos você está conectado, e a bateria deles. A tela Dispositivos também.
+3638|Veja em Mais quanto espaço o KoLib ocupa, e com o quê.
+3639|Atualizações e ajuda
+3640|Procure atualizações em Mais, e relate um problema no GitHub pelo registro.
+3641|Permissões em um só lugar
+3642|O que o KoLib precisa que o Android permita é pedido em uma só tela.
+3643|Novos tours
+3644|Tours curtos mostram as opções de um livro, a aba Quadrinhos e uma série. Qualquer um deles pode desativar os tours.
+3645|Novidades do KoLib {0}
+3646|Notas completas no GitHub
+3647|Arraste os pontos para reordenar, toque e segure para selecionar · {0}
+3648|Página salva.
+3649|Ver
+3650|Salvar como imagem
+3651|Tamanho das páginas
+3652|Mais para a página {0}
+@ro
+3631|Ce s-a schimbat în această versiune KoLib
+3632|Editor de benzi desenate
+3633|Pune în ordine paginile unei benzi desenate, rotește-le și decupează-le, împarte paginile duble sau împarte banda desenată în mai multe. Poți crea și o bandă desenată din imagini.
+3634|Mai mult în editorul de text
+3635|Linkuri, tabele, liste, citate și note de subsol, subliniere și altele, caractere speciale și număr de cuvinte.
+3636|O serie se deschide lângă raft. Trimite benzi desenate pe alt dispozitiv, duplică-le sau salvează-le ca fișiere din bară. Meniul cititorului rămâne afișat când glisezi ca să întorci pagina.
+3637|Notificarea arată la ce dispozitive ești conectat, și bateria lor. La fel și ecranul Dispozitive.
+3638|Vezi la Mai mult cât spațiu ocupă KoLib, și cu ce.
+3639|Actualizări și ajutor
+3640|Caută actualizări la Mai mult, și raportează o problemă pe GitHub din jurnal.
+3641|Permisiuni într-un singur loc
+3642|Ce are nevoie KoLib să permită Android se cere pe un singur ecran.
+3643|Tururi noi
+3644|Tururi scurte îți arată opțiunile unei cărți, fila Benzi desenate și o serie. Oricare dintre ele poate dezactiva tururile.
+3645|Ce e nou în KoLib {0}
+3646|Note complete pe GitHub
+3647|Trage de puncte ca să reordonezi, ține apăsat ca să selectezi · {0}
+3648|Pagină salvată.
+3649|Vezi
+3650|Salvează ca imagine
+3651|Mărimea paginilor
+3652|Mai mult pentru pagina {0}
+@ru
+3631|Что изменилось в этой версии KoLib
+3632|Редактор комиксов
+3633|Расставляйте страницы комикса по порядку, поворачивайте и обрезайте их, разделяйте развороты или делите комикс на несколько. Можно и создать комикс из картинок.
+3634|Больше в текстовом редакторе
+3635|Ссылки, таблицы, списки, цитаты и сноски, подчёркивание и другое, особые символы и число слов.
+3636|Серия открывается рядом с полкой. Отправляйте комиксы на другое устройство, создавайте копии или сохраняйте как файлы с панели. Меню читалки не исчезает, когда вы листаете свайпом.
+3637|Уведомление показывает, к каким устройствам вы подключены, и их заряд. Экран «Устройства» тоже.
+3638|В разделе «Ещё» видно, сколько места занимает KoLib и чем.
+3639|Обновления и помощь
+3640|Проверяйте обновления в разделе «Ещё» и сообщайте о проблеме на GitHub из журнала.
+3641|Разрешения в одном месте
+3642|Всё, что KoLib нужно разрешить в Android, запрашивается на одном экране.
+3643|Новые обзоры
+3644|Короткие обзоры покажут параметры книги, вкладку «Комиксы» и серию. В любом из них можно выключить обзоры.
+3645|Что нового в KoLib {0}
+3646|Полное описание на GitHub
+3647|Перетаскивайте за точки, чтобы изменить порядок, удерживайте, чтобы выбрать · {0}
+3648|Страница сохранена.
+3649|Посмотреть
+3650|Сохранить как картинку
+3651|Размер страниц
+3652|Ещё для страницы {0}
+@ja
+3631|このバージョンの KoLib の変更点
+3632|コミックエディタ
+3633|コミックのページの並べ替え、回転、切り抜き、見開きの分割、複数のコミックへの分割ができます。画像からコミックを作ることもできます。
+3634|テキストエディタの新機能
+3635|リンク、表、リスト、引用、脚注、下線など、特殊文字、単語数。
+3636|シリーズは棚の横に開きます。バーからコミックを別のデバイスに送ったり、複製したり、ファイルに保存したりできます。スワイプでページをめくってもリーダーのメニューは消えません。
+3637|通知に、接続中のデバイスとそのバッテリーが表示されます。デバイス画面にも表示されます。
+3638|「その他」で、KoLib が使っている容量とその内訳を確認できます。
+3639|アップデートとヘルプ
+3640|「その他」でアップデートを確認し、ログから GitHub で問題を報告できます。
+3641|権限をまとめて設定
+3642|KoLib が Android に許可してほしいことを 1 つの画面でまとめて確認します。
+3643|新しいツアー
+3644|本のオプション、コミックタブ、シリーズを短いツアーで紹介します。どのツアーからもツアーをオフにできます。
+3645|KoLib {0} の新機能
+3646|GitHub で詳しく見る
+3647|点をドラッグで並べ替え、長押しで選択 · {0}
+3648|ページを保存しました。
+3649|表示
+3650|画像として保存
+3651|ページの大きさ
+3652|ページ {0} のその他の操作
+@ko
+3631|이번 KoLib 버전에서 바뀐 점
+3632|만화 편집기
+3633|만화의 페이지를 순서대로 정리하고, 회전하고 자르고, 양면 펼침을 나누거나 여러 권으로 나누세요. 그림으로 만화를 만들 수도 있어요.
+3634|텍스트 편집기의 새 기능
+3635|링크, 표, 목록, 인용, 각주, 밑줄 등, 특수 문자, 단어 수.
+3636|시리즈가 책장 옆에 열려요. 바에서 만화를 다른 기기로 보내거나, 복제하거나, 파일로 저장하세요. 스와이프로 페이지를 넘겨도 리더 메뉴가 사라지지 않아요.
+3637|알림에 연결된 기기와 그 배터리가 표시돼요. 기기 화면에도 표시돼요.
+3638|더보기에서 KoLib가 차지하는 공간과 그 내역을 확인하세요.
+3639|업데이트와 도움말
+3640|더보기에서 업데이트를 확인하고, 로그에서 GitHub로 문제를 신고하세요.
+3641|권한을 한 곳에서
+3642|KoLib가 Android에서 허용받아야 하는 것을 한 화면에서 물어봐요.
+3643|새 둘러보기
+3644|짧은 둘러보기로 책 옵션, 만화 탭, 시리즈를 보여 줘요. 어느 둘러보기에서든 둘러보기를 끌 수 있어요.
+3645|KoLib {0}의 새로운 기능
+3646|GitHub에서 전체 내용 보기
+3647|점을 끌어 순서 바꾸기, 길게 눌러 선택 · {0}
+3648|페이지를 저장했어요.
+3649|보기
+3650|그림으로 저장
+3651|페이지 크기
+3652|{0}페이지 더보기
+@zh
+3631|这个版本的 KoLib 有哪些变化
+3632|漫画编辑器
+3633|整理漫画的页面顺序，旋转和裁剪页面，拆分跨页，或把漫画拆成几本。也可以用图片制作漫画。
+3634|文本编辑器的新功能
+3635|链接、表格、列表、引用和脚注，下划线等，特殊字符和字数统计。
+3636|系列会在书架旁打开。可以在栏中把漫画发送到其他设备、创建副本或另存为文件。滑动翻页时阅读器的菜单不会消失。
+3637|通知会显示你连接了哪些设备及其电量。“设备”界面也会显示。
+3638|在“更多”中查看 KoLib 占用了多少空间，以及用在哪里。
+3639|更新与帮助
+3640|在“更多”中检查更新，并可从日志到 GitHub 报告问题。
+3641|权限集中设置
+3642|KoLib 需要 Android 允许的事项，会在一个界面里一起询问。
+3643|新的导览
+3644|简短的导览会介绍书籍的选项、漫画标签页和系列。任何一个导览都能关闭导览。
+3645|KoLib {0} 新功能
+3646|在 GitHub 上查看完整说明
+3647|拖动圆点以重新排序，长按以选择 · {0}
+3648|页面已保存。
+3649|查看
+3650|另存为图片
+3651|页面大小
+3652|第 {0} 页的更多操作

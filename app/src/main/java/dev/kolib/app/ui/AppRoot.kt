@@ -160,6 +160,9 @@ fun AppRoot(
     onIntroSeen: (Boolean) -> Unit = {},
     asksSeen: Boolean = true,
     onAsksSeen: () -> Unit = {},
+    /** KoLib was updated since What's new was last shown: it's shown (once the first screens are done with). */
+    newsDue: Boolean = false,
+    onNewsSeen: () -> Unit = {},
     /** The text editor's tour has been given: it is the first time the editor is opened. */
     editorTourSeen: Boolean = true,
     onEditorTourSeen: () -> Unit = {},
@@ -570,7 +573,11 @@ fun AppRoot(
     val tourPlaces = remember { dev.kolib.app.ui.tour.TourPlaces() }
     val seenTours = toursSeen
     val koboShowing = koboView != null && (connection is Connection.Connected || connection is Connection.Waiting)
-    val sectionTour = if (seenTours == null || toursOff || !introSeen || !asksSeen || readingSetup || overlay != null || showLook) null else when (section) {
+    // What's new, after an update (or from More): over the library, before any tour.
+    val newsNotes = remember { WhatsNew.notes(dev.kolib.app.BuildConfig.VERSION_NAME) }
+    var newsAsked by remember { mutableStateOf(false) }
+    val showNews = newsNotes != null && introSeen && asksSeen && !readingSetup && overlay == null && (newsDue || newsAsked)
+    val sectionTour = if (seenTours == null || toursOff || !introSeen || !asksSeen || readingSetup || overlay != null || showLook || showNews) null else when (section) {
         // The library's own tour first; then, as they first show, a book's details, the Comics tab, and a series of comics.
         Section.LIBRARY -> when {
             books.isEmpty() || Tours.SAMPLES !in seenTours -> null
@@ -810,6 +817,7 @@ fun AppRoot(
                         onAbout = { overlay = "about" },
                         onUpdates = { (appContext.applicationContext as dev.kolib.app.KoLibApp).updater.lookNow() },
                         onStorage = { overlay = "storage" },
+                        onWhatsNew = newsNotes?.let { { newsAsked = true } },
                     )
                     Section.DEVICES -> dev.kolib.app.ui.link.DevicesScreen(link, devicesActions, onEject = if (liveSession != null) ({ showEject = true }) else null)
                     Section.LIBRARY -> CompositionLocalProvider(dev.kolib.app.ui.ocr.LocalOcrActions provides ocrActions) { LibraryScreen(
@@ -947,6 +955,10 @@ fun AppRoot(
         // The AI's window (or its bubble), over whatever screen is showing: about the book open, or the library.
         val libraryPlace = remember(books, readingHere) { dev.kolib.app.ui.ai.ChatPlace.Library(books, readingHere) { aiHost.library } }
         dev.kolib.app.ui.ai.AiLayer(aiHost.book ?: libraryPlace)
+        if (showNews) WhatsNewWindow(dev.kolib.app.BuildConfig.VERSION_NAME, newsNotes!!) {
+            newsAsked = false
+            if (newsDue) onNewsSeen()
+        }
         sectionTour?.let { name ->
             androidx.compose.runtime.key(name) {
                 val stops = remember(name) {

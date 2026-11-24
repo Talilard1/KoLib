@@ -15,6 +15,8 @@ object Updates {
     const val REPO = "Talilard1/KoLib"
     const val LATEST = "https://api.github.com/repos/$REPO/releases/latest"
     const val PAGE = "https://github.com/$REPO/releases/latest"
+    /** Every release, newest first, with its notes. */
+    const val RELEASES = "https://github.com/$REPO/releases"
     /** Where problems are reported. */
     const val ISSUES = "https://github.com/$REPO/issues"
     private const val DOWNLOADS = "https://github.com/$REPO/releases/download/"

@@ -2061,6 +2061,9 @@ class ReaderController(
     /** For tests: the chapters' lengths have been counted. */
     internal val lengthsCounted: Boolean get() = lengthsKnown
 
+    /** For pictures of the reader: the time its margins show, in place of the time now. */
+    internal var timeForPreview: Long? = null
+
     /** For pictures of the reading screen in tests, where there's no WebView to report pages. */
     /** For pictures of the reader made without a WebView: what the page is told as chapter [index] opens at its start. */
     internal fun startForPreview(index: Int): String {

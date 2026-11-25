@@ -55,7 +55,8 @@ object Wiktionary {
 
     private val formLink = Regex("""form-of-definition-link.*?href="/wiki/([^"#?]+)""")
 
-    private fun plain(html: String): String = EpubText.plainText(html).replace(Regex("\\s+"), " ").replace(" ,", ",").replace(" .", ".").replace("( ", "(").replace(" )", ")").trim()
+    private fun plain(html: String): String = EpubText.plainText(html).replace(Regex("\\s+"), " ")
+        .replace(Regex(" ([,.;:!?)])"), "$1").replace("( ", "(").trim()
 
     /**
      * Reads Wiktionary's answer for [word]: the entries for [language] (a code such as "en" or "fr") if it has

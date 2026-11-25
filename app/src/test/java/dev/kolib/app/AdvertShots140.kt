@@ -203,6 +203,13 @@ class AdvertShots140 {
 
     private fun Library.titled(title: String): LibraryBook = books.value.first { it.title == title }
 
+    /** The books read here first (so the shelf shows from its top, with Continue reading), Moby Dick open beside them. */
+    private fun LibraryBrowseState.readFirst(lib: Library) {
+        sort = LibrarySort.READ_HERE
+        descending = true
+        selectedId = lib.titled("Moby Dick").id
+    }
+
     private fun shot(name: String, theme: ThemeChoice = ThemeChoice.BOOKCASE, settle: Long = 1_000, content: @Composable () -> Unit) {
         out.mkdirs()
         compose.mainClock.autoAdvance = false
@@ -236,7 +243,7 @@ class AdvertShots140 {
     @Config(qualifiers = TAB)
     fun libraryShelves() {
         val (lib, covers) = library()
-        val browse = LibraryBrowseState().apply { selectedId = lib.titled("Moby Dick").id }
+        val browse = LibraryBrowseState().apply { readFirst(lib) }
         shot("ad_library") { LibraryPage(lib, covers, browse) }
     }
 
@@ -244,8 +251,10 @@ class AdvertShots140 {
     @Config(qualifiers = TAB)
     fun sending() {
         val (lib, covers) = library()
-        val picked = listOf("Pride and Prejudice", "Emma", "Persuasion").map { lib.titled(it) }
+        val picked = listOf("Moby Dick", "Alice's Adventures in Wonderland", "The Aeneid").map { lib.titled(it) }
         val browse = LibraryBrowseState().apply {
+            sort = LibrarySort.READ_HERE
+            descending = true
             selecting = true
             picked.forEach { this.picked[it.id] = true }
         }
@@ -508,8 +517,14 @@ class AdvertShots140 {
         }
     }
 
-    @Test @Config(qualifiers = TAB) fun koboBooks() = koboScreen("ad_kobo_books") { s -> selectedBookId = s.snapshot.books.first { it.title == "The Odyssey" }.contentId }
+    @Test @Config(qualifiers = TAB) fun koboBooks() = koboScreen("ad_kobo_books") { s ->
+        whereNoteSeen = true
+        sort = dev.kolib.app.ui.KoboSort.LAST_READ
+        descending = true
+        selectedBookId = s.snapshot.books.first { it.title == "The Odyssey" }.contentId
+    }
     @Test @Config(qualifiers = TAB) fun koboCollections() = koboScreen("ad_kobo_collections", tab = 1, collection = "Classics") { s ->
+        whereNoteSeen = true
         collectionBookId = s.snapshot.books.first { it.title == "Pride and Prejudice" }.contentId
     }
 
@@ -719,6 +734,7 @@ class AdvertShots140 {
         counted(c)
         val blank = if (blankFirst) 1 else 0
         c.showForPreview(at, screen, screens, columns, twoUp, blank)
+        c.timeForPreview = eveningTime()
         c.controlsVisible = controls
         c.lookTab = lookTab
         prepare(c)
@@ -741,6 +757,11 @@ class AdvertShots140 {
     }
 
     private val mobyBook = "herman-melville_moby-dick"
+
+    /** The time the reader's margins show in these pictures, the same in each: twenty to nine in the evening. */
+    private fun eveningTime(): Long = java.util.Calendar.getInstance().apply {
+        set(java.util.Calendar.HOUR_OF_DAY, 20); set(java.util.Calendar.MINUTE, 40); set(java.util.Calendar.SECOND, 0)
+    }.timeInMillis
     private fun mobyNow(name: String, settings: ReaderSettings, page: String, screen: Int, screens: Int = 4, columns: Int = 6, chapter: String = "chapter-1.xhtml", panel: Panel = Panel.NONE, lookTab: Int = 0) =
         readerNow(name, mobyBook, "Moby Dick", "Herman Melville", chapter, settings, page, screen, screens, columns, controls = panel != Panel.NONE, panel = panel, lookTab = lookTab)
 
@@ -843,7 +864,7 @@ class AdvertShots140 {
     /** The library, with Moby Dick open beside it, in [theme]. */
     private fun look(theme: ThemeChoice) {
         out = front
-        libraryIn("look_${theme.name.lowercase()}", theme) { selectedId = it.titled("Moby Dick").id }
+        libraryIn("look_${theme.name.lowercase()}", theme) { readFirst(it) }
     }
     @Test @Config(qualifiers = TAB) fun lookLight() = look(ThemeChoice.LIGHT)
     @Test @Config(qualifiers = TAB) fun lookDark() = look(ThemeChoice.DARK)
@@ -866,6 +887,54 @@ class AdvertShots140 {
         "reader_bars", prideBook, "Pride and Prejudice", "Jane Austen", "chapter-1.xhtml", prideDual(), "pride_dual_s1", 0, 2, 3,
         blankFirst = false, controls = true, into = front,
     )
+
+    /** The reading settings, open at their first page over Moby Dick. */
+    @Test @Config(qualifiers = TAB)
+    fun frontReaderSettings() = readerNow(
+        "reader_settings", mobyBook, "Moby Dick", "Herman Melville", "chapter-1.xhtml", nowSettings(), "moby_paper_s2", 1, 4, 6,
+        controls = true, panel = Panel.LOOK, lookTab = -1, into = front,
+    )
+
+    // ---- the themes GIF: the reader's page colours and layouts, with nothing open over the page ---------------------
+
+    private fun oneWide() = nowSettings(ReaderTheme.SEPIA).copy(spread = dev.kolib.app.reader.ReaderSpread.ONE, margins = dev.kolib.app.reader.ReaderMargins.WIDE)
+    private fun scrolling() = nowSettings(ReaderTheme.NIGHT, flow = ReaderFlow.SCROLL)
+
+    /** What the page is told for the GIF's own layouts: one page with wide margins, and scrolling (render5.py's gif part). */
+    @Test
+    @Config(qualifiers = TAB)
+    fun gifStarts() {
+        val dir = File(five, "start").apply { mkdirs() }
+        fun dump(name: String, settings: ReaderSettings) = withBook(mobyBook) { files, structure ->
+            val c = ReaderController(files, structure, "Moby Dick", "en", null, settings, context.assets, "Herman Melville")
+            counted(c)
+            val at = c.chapters.indexOfFirst { it.path.endsWith("chapter-1.xhtml") }
+            File(dir, "$name.json").writeText(c.startForPreview(at))
+        }
+        dump("moby_one_wide", oneWide())
+        dump("moby_scroll", scrolling())
+    }
+
+    private fun gifReader(name: String, settings: ReaderSettings, page: String, screen: Int = 1, screens: Int = 4, columns: Int = 6, twoUp: Boolean = true) =
+        readerNow("gif_$name", mobyBook, "Moby Dick", "Herman Melville", "chapter-1.xhtml", settings, page, screen, screens, columns, twoUp = twoUp, into = front)
+
+    @Test @Config(qualifiers = TAB) fun gifPaper() = gifReader("paper", nowSettings(), "moby_paper_s2")
+    @Test @Config(qualifiers = TAB) fun gifWhite() = gifReader("white", nowSettings(ReaderTheme.WHITE), "moby_white_s2")
+    @Test @Config(qualifiers = TAB) fun gifSepia() = gifReader("sepia", nowSettings(ReaderTheme.SEPIA), "moby_sepia_s2")
+    @Test @Config(qualifiers = TAB) fun gifSlate() = gifReader("slate", nowSettings(ReaderTheme.SLATE), "moby_slate_s2")
+    @Test @Config(qualifiers = TAB) fun gifNight() = gifReader("night", nowSettings(ReaderTheme.NIGHT), "moby_night_s2")
+    @Test @Config(qualifiers = TAB) fun gifBlack() = gifReader("black", nowSettings(ReaderTheme.BLACK), "moby_black_s2")
+    @Test @Config(qualifiers = TAB) fun gifLiterata() = gifReader("literata", nowSettings(font = ReaderFont.LITERATA, scale = 1.0f), "moby_font_literata_s2", columns = 7)
+    @Test @Config(qualifiers = TAB) fun gifAtkinson() = gifReader("atkinson", nowSettings(font = ReaderFont.HYPERLEGIBLE, scale = 1.0f), "moby_font_atkinson_s2")
+    @Test @Config(qualifiers = TAB) fun gifDyslexic() = gifReader("dyslexic", nowSettings(font = ReaderFont.DYSLEXIC, scale = 0.9f), "moby_font_dyslexic_s2", screens = 6, columns = 10)
+    @Test @Config(qualifiers = TAB) fun gifOneWide() {
+        val pages = File("/home/claude/advert5work/pages/moby_one_wide_pages.txt").readText().trim().toInt()
+        gifReader("one_wide", oneWide(), "moby_one_wide_s1", screen = 0, screens = pages, columns = pages, twoUp = false)
+    }
+    @Test @Config(qualifiers = TAB) fun gifScroll() {
+        val pages = File("/home/claude/advert5work/pages/moby_scroll_pages.txt").readText().trim().toInt()
+        gifReader("scroll", scrolling(), "moby_scroll_view", screen = 0, screens = pages, columns = pages, twoUp = false)
+    }
 
     /** The sample comic open at its spread across two pages, with the comic reader's bars showing. */
     @Test @Config(qualifiers = TAB)
@@ -892,6 +961,12 @@ class AdvertShots140 {
 
     /** What the AI says in the pictures: a summary of the chapter, who someone is, and what to read next. */
     private fun answers(messages: List<dev.kolib.app.ai.AiMessage>): String = when {
+        messages.last().content.contains("Define \"spiles\"") -> {
+            // As long as the model takes to answer on a tablet.
+            Thread.sleep(5_200)
+            "Meaning: noun, wooden posts or piles driven into the ground to hold up a pier or wharf\n" +
+                "Here: The crowds are leaning against the wooden posts along the wharves, all of them gazing out to sea."
+        }
         messages.last().content.contains("Summarise it") -> PRIDE_SUMMARY
         messages.first().content.contains("Books in the library:") ->
             "You're 81% of the way through The Count of Monte Cristo, so I'd finish that first. After that, you've read " +
@@ -959,7 +1034,7 @@ class AdvertShots140 {
         compose.setContent {
             AppSurface(ThemeChoice.BOOKCASE) {
                 Box(Modifier.fillMaxSize()) {
-                    LibraryPage(lib, covers, LibraryBrowseState().apply { selectedId = lib.titled("Moby Dick").id })
+                    LibraryPage(lib, covers, LibraryBrowseState().apply { readFirst(lib) })
                     dev.kolib.app.ui.ai.AiLayer(place)
                 }
             }
@@ -974,6 +1049,72 @@ class AdvertShots140 {
         repeat(10) { compose.waitForIdle(); Thread.sleep(50) }
         front.mkdirs()
         captureScreenRoboImage(File(front, "ai_library.png").path)
+    }
+
+    // ---- looking a word up on the page: Wiktionary's entry, and the AI's meaning of it there ------------------------
+
+    /**
+     * "spiles" looked up on Moby Dick's second screen ([withAi]: with a model to ask), with [act] done before the picture's
+     * taken. Wiktionary's entries are its own, as its definition API gives them; where the word is and its paragraph are
+     * from the page as Chrome lays it out (lookup_rect.py).
+     */
+    private fun lookUp(name: String, withAi: Boolean, act: () -> Unit) = withBook(mobyBook) { files, structure ->
+        dev.kolib.app.dict.Wiktionary.fetcher = { url ->
+            when (url.substringAfterLast('/').lowercase()) {
+                "spiles", "spile" -> javaClass.getResourceAsStream("/wiktionary/${url.substringAfterLast('/').lowercase()}.json")!!.bufferedReader().readText()
+                else -> null
+            }
+        }
+        try {
+            if (withAi) answeringModel(context, aiScope, ::answers)
+            val c = ReaderController(files, structure, "Moby Dick", "en", null, nowSettings(), context.assets, "Herman Melville")
+            counted(c)
+            val at = c.chapters.indexOfFirst { it.path.endsWith("chapter-1.xhtml") }
+            c.showForPreview(at, 1, 4, 6, true, 1)
+            c.timeForPreview = eveningTime()
+            val spot = org.json.JSONObject(File("/home/claude/advert5work/lookup/spiles.json").readText())
+            val r = spot.getJSONArray("rects").getJSONObject(0)
+            val x = r.getDouble("x").toFloat()
+            val y = r.getDouble("y").toFloat()
+            val word = android.graphics.RectF(x, y, x + r.getDouble("w").toFloat(), y + r.getDouble("h").toFloat())
+            val img = pageNow("moby_paper_s2")
+            compose.mainClock.autoAdvance = true
+            compose.setContent {
+                AppSurface(ThemeChoice.BOOKCASE) {
+                    ReaderScreen(
+                        c, onSettings = {}, onClose = {}, onEdit = {},
+                        pagePreview = { Image(img, null, Modifier.fillMaxSize(), contentScale = ContentScale.FillBounds) },
+                    )
+                }
+            }
+            compose.waitForIdle()
+            c.showForPreview(at, 1, 4, 6, true, 1)
+            c.lookUpForPreview("spiles", spot.getString("paragraph").replace("\uFEFF", ""), word)
+            act()
+            repeat(10) { compose.waitForIdle(); Thread.sleep(50) }
+            front.mkdirs()
+            captureScreenRoboImage(File(front, "$name.png").path)
+        } finally {
+            dev.kolib.app.dict.Wiktionary.fetcher = dev.kolib.app.dict.Wiktionary::get
+        }
+    }
+
+    /** The AI's meaning, and what it means in this sentence. */
+    @Test @Config(qualifiers = TAB)
+    fun frontLookUpAi() = lookUp("lookup_ai", withAi = true) { answered() }
+
+    /** That, with Wiktionary's entry opened out under it. */
+    @Test @Config(qualifiers = TAB)
+    fun frontLookUpDictionary() = lookUp("lookup_dictionary", withAi = true) {
+        answered()
+        compose.onNodeWithTag("look-up-dictionary-button").performClick()
+        compose.settleUntil { compose.onAllNodes(hasTestTag("look-up-dictionary")).fetchSemanticsNodes().isNotEmpty() }
+    }
+
+    /** The AI has answered, and what the word means in its sentence is opened out. */
+    private fun answered() {
+        compose.settleUntil { compose.onAllNodes(hasTestTag("look-up-ai")).fetchSemanticsNodes().isNotEmpty() && kolib.ai.busy.value == AiHub.State.IDLE }
+        compose.onNodeWithTag("look-up-here-button").performClick()
     }
 
     /** The five characters the AI can be, each doing something. */

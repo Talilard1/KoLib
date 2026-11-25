@@ -2361,8 +2361,8 @@ private fun MarginSpot.alignment(): Alignment = when (this) {
 private fun BoxWithConstraintsScope.Margins(controller: ReaderController, s: ReaderSettings, color: Color) {
     val context = LocalContext.current
     val clocked = s.shownSpotOf(MarginItem.CLOCK) != MarginSpot.OFF || s.shownSpotOf(MarginItem.BATTERY) != MarginSpot.OFF
-    var now by remember { mutableStateOf(System.currentTimeMillis()) }
-    if (clocked) {
+    var now by remember { mutableStateOf(controller.timeForPreview ?: System.currentTimeMillis()) }
+    if (clocked && controller.timeForPreview == null) {
         LaunchedEffect(Unit) {
             while (true) {
                 delay(60_000 - System.currentTimeMillis() % 60_000 + 50)

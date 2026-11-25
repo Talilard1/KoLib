@@ -57,6 +57,17 @@
   <img src="docs/images/phones-more.webp" width="860" alt="A Kobo's books, sending a book, the AI's summary of a chapter and the cover generator on a phone">
 </p>
 
+### Looking up a word
+
+See what a word means without leaving the page: the AI says what it means, and what it means in the sentence you're reading, with the dictionary entry a tap away.
+
+<table>
+  <tr>
+    <td align="center" width="50%"><a href="docs/images/lookup-ai.webp"><img src="docs/images/lookup-ai.webp" alt="A word looked up on the page: what it means, and what it means in its sentence"></a><br><b>What it means here</b></td>
+    <td align="center" width="50%"><a href="docs/images/lookup-dictionary.webp"><img src="docs/images/lookup-dictionary.webp" alt="The same word with its Wiktionary entry opened out under it"></a><br><b>Dictionary</b></td>
+  </tr>
+</table>
+
 ### The AI companion
 
 <table>
@@ -71,6 +82,10 @@
 </table>
 
 ### Themes
+
+<p align="center">
+  <img src="docs/images/themes.gif" width="860" alt="The library changing through every theme, then the reader's page colours, fonts and layouts">
+</p>
 
 <table>
   <tr>

@@ -406,7 +406,7 @@ class PhoneShots {
     private fun koboScreen(name: String, tab: Int = 0, collection: String? = null, theme: ThemeChoice = ThemeChoice.BOOKCASE, saved: Boolean = false, configure: BrowseState.(KoboSession) -> Unit = {}) {
         val (repo, s) = kobo()
         val after = runBlocking { repo.afterConnect(s) }
-        val browse = BrowseState().apply { deviceTab = tab }.apply { configure(s) }
+        val browse = BrowseState().apply { deviceTab = tab; whereNoteSeen = true }.apply { configure(s) }
         val state = UiState(
             connection = Connection.Connected(s, false),
             backups = repo.backups.list(),
@@ -733,6 +733,9 @@ class PhoneShots {
             counted(c)
             val pages = File(home, "pages/moby_now_pages.txt").takeIf { it.exists() }?.readText()?.trim()?.toIntOrNull() ?: 8
             c.showForPreview(at, 0, pages)
+            c.timeForPreview = java.util.Calendar.getInstance().apply {
+                set(java.util.Calendar.HOUR_OF_DAY, 20); set(java.util.Calendar.MINUTE, 40); set(java.util.Calendar.SECOND, 0)
+            }.timeInMillis
             c.controlsVisible = controls
             c.lookTab = lookTab
             val img = BitmapFactory.decodeFile(pageNow.path).asImageBitmap()

@@ -41,6 +41,15 @@ class WiktionaryTest {
         assertFalse(r.entries.any { e -> e.senses.any { it.contains('<') } })
     }
 
+    /** Where a link meets a semicolon, a colon or the like, no space is left before it ("a pile; a post", not "a pile ; a post"). */
+    @Test
+    fun noSpaceIsLeftBeforePunctuation() {
+        val r = Wiktionary.parse(page("spile"), "spile", "en")!!
+        assertEquals("A pile; a post or girder.", r.entries[1].senses[0])
+        assertEquals("(obsolete or dialectal, Cumbria, Lancashire) A splinter.", r.entries[0].senses[0])
+        assertEquals("plural of spile", Wiktionary.parse(page("spiles"), "spiles", "en")!!.form)
+    }
+
     @Test
     fun theBooksLanguageIsPreferredThenEnglish() {
         assertEquals("Dutch", Wiktionary.parse(page("brood"), "brood", "nl-NL")!!.language)

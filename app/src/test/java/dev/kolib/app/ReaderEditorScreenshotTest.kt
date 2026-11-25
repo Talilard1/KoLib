@@ -482,6 +482,45 @@ class ReaderEditorScreenshotTest {
         compose.onNodeWithTag("reader-settings-panel").assertExists()
     }
 
+    /**
+     * With edge swipes opening the panels, the sides are kept from Android's back swipe while no panel is open; with one
+     * open, they're Android's again, so its back swipe goes back (a step at a time).
+     */
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun withAPanelOpenAndroidsBackSwipeHasTheSides() {
+        val (files, structure) = garden()
+        val c = ReaderController(files, structure, "The Garden", "en", null, ReaderSettings(theme = ReaderTheme.PAPER, edgePanels = true), context.assets)
+        c.showForPreview(1, 3, 12)
+        val panel = androidx.compose.runtime.mutableStateOf(Panel.NONE)
+        compose.mainClock.autoAdvance = true
+        var back: androidx.activity.OnBackPressedDispatcher? = null
+        compose.setContent {
+            back = androidx.activity.compose.LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
+            AppSurface(ThemeChoice.SYSTEM) {
+                androidx.compose.runtime.key(panel.value) {
+                    ReaderScreen(c, onSettings = {}, onClose = {}, onEdit = {}, pagePreview = { FakePage(ReaderTheme.PAPER, 2) }, initialPanel = panel.value)
+                }
+            }
+        }
+        compose.waitForIdle()
+        compose.onNodeWithTag("edge-kept-left").assertExists()
+        panel.value = Panel.LOOK
+        compose.waitForIdle()
+        compose.onNodeWithTag("edge-kept-left").assertDoesNotExist()
+        compose.onNodeWithTag("edge-kept-right").assertDoesNotExist()
+        // Android's back: a step at a time, the settings' group first.
+        c.lookTab = dev.kolib.app.ui.reader.LookTab.TEXT.ordinal
+        compose.waitForIdle()
+        compose.runOnIdle { back!!.onBackPressed() }
+        compose.waitForIdle()
+        assertEquals(-1, c.lookTab)
+        compose.onNodeWithTag("reader-settings-panel").assertExists()
+        compose.runOnIdle { back!!.onBackPressed() }
+        compose.waitForIdle()
+        compose.onNodeWithTag("reader-panel").assertDoesNotExist()
+    }
+
     @Test
     @Config(qualifiers = LANDSCAPE)
     fun readerContentsTabsSwipe() {

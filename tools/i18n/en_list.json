@@ -3691,5 +3691,11 @@
 "Made while reading and sending. Android clears them when space runs low.",
 "Your library's records, settings, the log and the like",
 "Temporary files",
-"Records and settings"
+"Records and settings",
+"Clear temporary files?",
+"These are files KoLib makes as it works: pages and pictures got ready for reading, copies of books made while sending them, and pages the reader keeps to show them faster. None of your books, comics or settings are in them, and KoLib makes them again when it needs them, so a book may open a little more slowly the first time after.",
+"Cleared {0}.",
+"There was nothing to clear just now.",
+"Clear temporary files",
+"They can be cleared once KoLib's finished sending."
 ]

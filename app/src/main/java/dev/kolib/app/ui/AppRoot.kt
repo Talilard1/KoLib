@@ -18,6 +18,8 @@ import dev.kolib.app.UsbKobo
 import dev.kolib.app.tr
 import android.content.ActivityNotFoundException
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.systemGestureExclusion
+import dev.kolib.app.ui.reader.edgeBackSwipe
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -199,6 +201,7 @@ fun AppRoot(
     var showLook by remember { mutableStateOf(false) }
     // The reading setup, opened from the introduction (which is come back to after it, at [introAt]) or from the settings.
     var readingSetup by rememberSaveable { mutableStateOf(false) }
+    var setupFromSettings by rememberSaveable { mutableStateOf(false) }
     var introAt by rememberSaveable { mutableStateOf(0) }
     var showLanguage by remember { mutableStateOf(false) }
     var showAi by remember { mutableStateOf(false) }
@@ -662,7 +665,7 @@ fun AppRoot(
                     koboDays = koboDays,
                 )
             }
-            current == "storage" -> StorageScreen(onBack = { overlay = null })
+            current == "storage" -> StorageScreen(onBack = { overlay = null }, busy = job?.finished == false || state.syncing)
             current == "backups" -> BackupsScreen(
                 backups = state.backups,
                 onExport = vm::exportBackup,
@@ -1229,10 +1232,8 @@ fun AppRoot(
             opening = opening, onOpening = onOpening, openingSound = openingSound, onOpeningSound = onOpeningSound,
             openingLight = openingLight, onOpeningLight = onOpeningLight,
             openingEveryTime = openingEveryTime, onOpeningEveryTime = onOpeningEveryTime,
-            onLanguage = {
-                showLook = false
-                showLanguage = true
-            },
+            // The language is chosen over Settings, so going back from it comes back to them.
+            onLanguage = { showLanguage = true },
             booksFolder = androidx.compose.ui.platform.LocalContext.current.let { ctx -> remember(showLook) { libraryVm.booksFolder?.let { dev.kolib.app.library.BookFolders.nameOf(ctx.contentResolver, it) } } },
             onChangeFolder = {
                 showLook = false
@@ -1246,6 +1247,7 @@ fun AppRoot(
             onReadingSetup = if (overlay == null) ({
                 showLook = false
                 readingSetup = true
+                setupFromSettings = true
             }) else null,
             comicsTab = libraryBrowse.comicsTab,
             onComicsTab = { libraryBrowse.comicsTab = it },
@@ -1314,6 +1316,11 @@ fun AppRoot(
             // its last page, or to the page that offered the setup if it was backed out of.
             dev.kolib.app.ui.setup.ReadingSetup(libraryVm.readerSettings) { finished ->
                 readingSetup = false
+                // Opened from Settings, it goes back to them.
+                if (setupFromSettings) {
+                    setupFromSettings = false
+                    showLook = true
+                }
                 if (!introSeen) introAt = if (finished) dev.kolib.app.ui.onboarding.IntroPages.done else dev.kolib.app.ui.onboarding.IntroPages.reading
             }
         } else if (!introSeen) {
@@ -1534,6 +1541,8 @@ fun LookDialog(
     /** Tours are given, the first time each screen opens (null: not offered here). */
     toursOn: Boolean? = null,
     onToursOn: (Boolean) -> Unit = {},
+    /** Over a book whose reader has KoLib's own back swipe: it goes back here too (rather than Android's). */
+    kolibBack: Boolean = false,
 ) {
     val scroll = rememberScrollState()
     // A page of their own over the whole screen, on any device and either way up (a dialog is too small for them on a
@@ -1542,7 +1551,7 @@ fun LookDialog(
         onDismissRequest = onDismiss,
         properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false),
     ) {
-        SettingsPage(onBack = onDismiss) {
+        SettingsPage(onBack = onDismiss, kolibBack = kolibBack) {
             val context = androidx.compose.ui.platform.LocalContext.current
             val hasFileManager = remember { dev.kolib.app.ui.components.FileManagers.chosenName(context) != null }
             // What's in each part of Settings (null where there's nothing to show here: the reader's have fewer).
@@ -1667,7 +1676,7 @@ private fun SwitchLine(title: String, detail: String, on: Boolean, onChange: (Bo
  * [content] under them, no wider than lines are easy to read across.
  */
 @Composable
-private fun SettingsPage(onBack: () -> Unit, content: @Composable () -> Unit) {
+private fun SettingsPage(onBack: () -> Unit, kolibBack: Boolean = false, content: @Composable () -> Unit) {
     val view = androidx.compose.ui.platform.LocalView.current
     val window = (view.parent as? androidx.compose.ui.window.DialogWindowProvider)?.window
     // Dark icons on the bars over a light look, light ones over a dark look.
@@ -1680,7 +1689,9 @@ private fun SettingsPage(onBack: () -> Unit, content: @Composable () -> Unit) {
             }
         }
     }
-    Box(Modifier.fillMaxSize().appBackdrop().testTag("settings-page")) {
+    // KoLib's back swipe, as in the book open under it: the sides are kept from Android's own.
+    val backSwipe = remember { dev.kolib.app.ui.reader.EdgeBackState() }
+    Box(Modifier.fillMaxSize().appBackdrop().edgeBackSwipe(backSwipe, kolibBack, onBack).testTag("settings-page")) {
         CompositionLocalProvider(androidx.compose.material3.LocalContentColor provides MaterialTheme.colorScheme.onBackground) {
             Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))) {
                 Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -1692,6 +1703,11 @@ private fun SettingsPage(onBack: () -> Unit, content: @Composable () -> Unit) {
                     Box(Modifier.widthIn(max = 1200.dp).fillMaxSize()) { content() }
                 }
             }
+        }
+        if (kolibBack) {
+            Box(Modifier.align(Alignment.CenterStart).width(48.dp).fillMaxHeight().systemGestureExclusion())
+            Box(Modifier.align(Alignment.CenterEnd).width(48.dp).fillMaxHeight().systemGestureExclusion())
+            dev.kolib.app.ui.reader.EdgeBackIndicator(backSwipe)
         }
     }
 }

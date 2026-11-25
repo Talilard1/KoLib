@@ -120,6 +120,30 @@ class ReaderFrame(context: Context, val controller: ReaderController) : FrameLay
     private var edgeStartY = 0f
     private var edgeStartLevel = 0f
 
+    /**
+     * Scrolling: a pull on past the end of the chapter (1) or back past its start (-1), as the finger goes, with how full
+     * the ring showing it is (0 to 1). It fills once the finger's come [pullDead] past where the pull was taken, over
+     * [pullSpan] more, so it isn't started by chance. The page doesn't move while it's pulled, either way, till the
+     * finger's lifted.
+     */
+    var onChapterPull: ((Int, Float) -> Unit)? = null
+    /** That pull let go of (or taken away): whether the ring was full, and the next chapter (or the one before) is due. */
+    var onChapterLetGo: ((Int, Boolean) -> Unit)? = null
+    /** The page can scroll on (1) or back (-1) from where it is. */
+    var canScroll: (Int) -> Boolean = { webView.canScrollVertically(it) }
+    /** There's a chapter to pull on into (1) or back into (-1). */
+    var hasChapter: (Int) -> Boolean = { false }
+    private var pullDir = 0
+    private var pullFrom = 0f
+    private var pullDownX = 0f
+    private var pullDownY = 0f
+    private var pullLastY = 0f
+    private var pullTwo = false
+    private var pullFull = false
+    /** The page was at its foot (on) or its top (back) when the finger went down: only then can a pull start. */
+    private var pullOnAtDown = false
+    private var pullBackAtDown = false
+
     /** A swipe in from the left (-1) or the right (1) edge: the side panel on that side starts to come out. */
     var onSideSwipe: ((Int) -> Unit)? = null
     /** As that swipe goes on: how far in from its edge the finger is, in pixels (the panel follows it). */
@@ -143,6 +167,9 @@ class ReaderFrame(context: Context, val controller: ReaderController) : FrameLay
         }
 
     private val density = context.resources.displayMetrics.density
+    /** How far a chapter's pull goes before its ring starts to fill, and how much further it fills over. */
+    private val pullDead = 32 * density
+    private val pullSpan = 160 * density
     /** How near the edge a swipe in has to start, as for Android's own back swipe. */
     private val sideZone = 24 * density
     /** How much of each edge Android's back swipe is kept off: more than [sideZone], to cover however wide it's set. */
@@ -163,6 +190,7 @@ class ReaderFrame(context: Context, val controller: ReaderController) : FrameLay
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         if (sideSwipe(ev)) return true
         if (edgeSwipe(ev)) return true
+        if (chapterPull(ev)) return true
         // A swipe in from a side edge may be starting: the page doesn't turn under it.
         if (side != 0 && ev.actionMasked != MotionEvent.ACTION_DOWN) return false
         return turner.intercept(ev)
@@ -179,7 +207,11 @@ class ReaderFrame(context: Context, val controller: ReaderController) : FrameLay
             edgeSwipe(ev)
             return true
         }
-        if (sideSwipe(ev) || edgeSwipe(ev)) return true
+        if (pullDir != 0) {
+            chapterPull(ev)
+            return true
+        }
+        if (sideSwipe(ev) || edgeSwipe(ev) || chapterPull(ev)) return true
         val turning = turner.touch(ev)
         // Kept while it may yet be a swipe in from a side edge, or up or down one for the brightness.
         return turning || (ev.actionMasked == MotionEvent.ACTION_DOWN && (side != 0 || edgeTracking))
@@ -240,6 +272,63 @@ class ReaderFrame(context: Context, val controller: ReaderController) : FrameLay
                 sideTaken = false
                 side = 0
                 return was
+            }
+        }
+        return false
+    }
+
+    /**
+     * True once a pull on past the end of a scrolled chapter (or back past its start) has started: the page was at that
+     * end already when the finger went down, and it goes on that way, up or down. (A scroll that only gets to the end
+     * doesn't go on into a pull: reading on to the last lines doesn't open the next chapter by chance. The finger's
+     * lifted, and the pull's a fresh one.) It then gets the rest of the touch.
+     */
+    private fun chapterPull(ev: MotionEvent): Boolean {
+        when (ev.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                pullDir = 0
+                pullTwo = false
+                pullFull = false
+                pullDownX = ev.x
+                pullDownY = ev.y
+                pullLastY = ev.y
+                val pulls = onChapterPull != null && controller.settings.scrolling
+                pullOnAtDown = pulls && !canScroll(1)
+                pullBackAtDown = pulls && !canScroll(-1)
+            }
+            MotionEvent.ACTION_POINTER_DOWN -> if (pullDir == 0) pullTwo = true
+            MotionEvent.ACTION_MOVE -> {
+                if (pullDir != 0) {
+                    val travel = (pullFrom - ev.y) * pullDir
+                    val full = ((travel - pullDead) / pullSpan).coerceIn(0f, 1f)
+                    pullFull = full >= 1f
+                    onChapterPull?.invoke(pullDir, full)
+                    return true
+                }
+                val moved = ev.y - pullLastY
+                pullLastY = ev.y
+                if (pullTwo || onChapterPull == null || !controller.settings.scrolling || controller.selecting) return false
+                val down = abs(ev.y - pullDownY)
+                if (down < slop || down < abs(ev.x - pullDownX)) return false
+                val dir = when {
+                    moved < 0 && pullOnAtDown && !canScroll(1) && hasChapter(1) -> 1
+                    moved > 0 && pullBackAtDown && !canScroll(-1) && hasChapter(-1) -> -1
+                    else -> 0
+                }
+                if (dir == 0) return false
+                pullDir = dir
+                pullFrom = ev.y
+                pullFull = false
+                onChapterPull?.invoke(dir, 0f)
+                return true
+            }
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                val dir = pullDir
+                pullDir = 0
+                if (dir != 0) {
+                    onChapterLetGo?.invoke(dir, ev.actionMasked == MotionEvent.ACTION_UP && pullFull)
+                    return true
+                }
             }
         }
         return false

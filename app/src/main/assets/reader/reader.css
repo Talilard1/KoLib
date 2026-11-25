@@ -105,11 +105,11 @@ html.kl-paged.kl-scroll body {
 
 /* The end of a scrolled chapter, and that pulling up goes on: a little room under it, and no more. Only when
    scrolling. */
-#kl-end, #kl-pull, #kl-autobar { display: none; }
+#kl-end, #kl-autobar { display: none; }
 html.kl-scroll #kl-end {
   display: block;
   max-width: var(--kl-measure, 46em);
-  min-height: calc(var(--kl-vh, 100vh) * 0.2);
+  min-height: calc(var(--kl-vh, 100vh) * 0.3);
   margin: 2.5em auto 0;
   padding: 1.4em 0 0;
   border-top: 1px solid rgba(127, 127, 127, 0.35);
@@ -122,30 +122,6 @@ html.kl-scroll #kl-end {
 }
 #kl-end .kl-end-label { opacity: 0.6; letter-spacing: 0.04em; }
 #kl-end .kl-end-hint { margin-top: 0.5em; font-size: 13px; opacity: 0.5; }
-/* Pulling past either end of a scrolled chapter: a ring, as a loading circle is, that fills clockwise as it's pulled
-   and empties as it's let off; full, letting go opens the next chapter (or the one before), and it swells a little. */
-html.kl-scroll #kl-pull {
-  display: block;
-  position: fixed;
-  left: 50%;
-  width: 46px;
-  height: 46px;
-  margin-left: -23px;
-  z-index: 20;
-  pointer-events: none;
-  opacity: 0;
-  transform: scale(0.6);
-  transition: opacity 0.12s, transform 0.12s;
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.22));
-}
-html.kl-scroll #kl-pull.kl-on { opacity: 1; transform: scale(1); }
-html.kl-scroll #kl-pull.kl-on.kl-full { transform: scale(1.12); }
-html.kl-scroll #kl-pull.kl-bottom { bottom: calc(var(--kl-band-bottom, 0px) + 22px); }
-html.kl-scroll #kl-pull.kl-top { top: calc(var(--kl-band-top, 0px) + 22px); }
-#kl-pull svg { display: block; width: 46px; height: 46px; overflow: visible; }
-#kl-pull .kl-pull-disc { fill: var(--kl-bg); }
-#kl-pull .kl-pull-track { fill: none; stroke: var(--kl-fg); stroke-opacity: 0.16; stroke-width: 3.5; }
-#kl-pull .kl-pull-ring { fill: none; stroke: var(--kl-fg); stroke-width: 3.5; stroke-linecap: round; }
 /* Autoscroll on pages: a thin line right along the foot of the page fills until the page turns. It's
    in the reading progress bar's colour, and below it: the progress bar (drawn by the app) is 5px up
    from the bottom and 3px thick, so this one, 2px thick at the very bottom, leaves a gap between them. */

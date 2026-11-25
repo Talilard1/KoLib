@@ -2,6 +2,8 @@ package dev.kolib.app
 
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
 import java.nio.file.Files
@@ -48,11 +50,28 @@ class StorageUseTest {
         assertEquals(10L, parts[StorageUse.Kind.FONTS])
         assertEquals(20L, parts[StorageUse.Kind.BACKUPS])
         assertEquals(30L, parts[StorageUse.Kind.UPDATES])
-        // What's kept for a while: the cache but for the updates, and the web view's.
-        assertEquals(75L, parts[StorageUse.Kind.TEMP])
-        // A folder in the library that isn't a book, and the database: the rest.
-        assertEquals(12L, parts[StorageUse.Kind.OTHER])
+        // What's kept for a while: the cache but for the updates.
+        assertEquals(60L, parts[StorageUse.Kind.TEMP])
+        // A folder in the library that isn't a book, the database and the web view's own: the rest.
+        assertEquals(27L, parts[StorageUse.Kind.OTHER])
         assertEquals(90_000L, parts[StorageUse.Kind.APP])
-        assertEquals(1000L + 2000 + 300 + 350 + 440 + 10 + 20 + 30 + 75 + 12 + 90_000, use.kolib)
+        assertEquals(1000L + 2000 + 300 + 350 + 440 + 10 + 20 + 30 + 60 + 27 + 90_000, use.kolib)
+    }
+
+    /** Clearing the temporary files leaves downloaded updates, and what's been changed just now (it may be in use). */
+    @Test
+    fun clearingTheTemporaryFilesLeavesUpdatesAndWhatsInUse() {
+        val now = System.currentTimeMillis()
+        file("cache/updates/KoLib-3.5.apk", 30).setLastModified(now - 3_600_000)
+        file("cache/pictures/page1.jpg", 60).setLastModified(now - 3_600_000)
+        File(data, "cache/pictures").setLastModified(now - 3_600_000)
+        file("cache/old.epub", 40).setLastModified(now - 3_600_000)
+        file("cache/send/book.kepub.epub", 25).setLastModified(now - 10_000)
+        val freed = StorageUse.clearTemporary(File(data, "cache"), now = now)
+        assertEquals(100L, freed)
+        assertTrue("updates kept", File(data, "cache/updates/KoLib-3.5.apk").exists())
+        assertTrue("in use just now, kept", File(data, "cache/send/book.kepub.epub").exists())
+        assertFalse(File(data, "cache/pictures").exists())
+        assertFalse(File(data, "cache/old.epub").exists())
     }
 }

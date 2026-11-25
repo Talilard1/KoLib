@@ -8,6 +8,8 @@ import android.util.LruCache
 import android.view.KeyEvent
 import android.view.WindowManager
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.systemGestureExclusion
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
@@ -426,7 +428,18 @@ internal fun PdfPagesView(
         pages.size(page)
         wide = pages.widePages()
     }
-    BoxWithConstraints(Modifier.fillMaxSize().background(background)) {
+    // Back: the contents first, then the bars, then out of the book (Android's back, or KoLib's own back swipe where the
+    // book reader has it).
+    val goBack = {
+        when {
+            showContents -> showContents = false
+            controls -> setControls(false)
+            else -> onClose()
+        }
+    }
+    val kolibBack = s.edgeBack && !s.edgePanels
+    val backSwipe = remember { EdgeBackState() }
+    BoxWithConstraints(Modifier.fillMaxSize().background(background).edgeBackSwipe(backSwipe, kolibBack) { goBack() }) {
         val density = LocalDensity.current
         val landscape = constraints.maxWidth > constraints.maxHeight * 1.1f && with(density) { constraints.maxWidth.toDp() } >= 560.dp
         var twoChosen by remember { mutableStateOf<Boolean?>(null) }
@@ -473,13 +486,7 @@ internal fun PdfPagesView(
                 }
                 onDispose { ReaderKeys.handler = null }
             }
-            BackHandler {
-                when {
-                    showContents -> showContents = false
-                    controls -> setControls(false)
-                    else -> onClose()
-                }
-            }
+            BackHandler { goBack() }
             HorizontalPager(
                 pager,
                 Modifier.fillMaxSize(),
@@ -594,6 +601,12 @@ internal fun PdfPagesView(
                 }
             }
         }
+        // With KoLib's back swipe, the sides are kept from Android's; its arrow shows over everything.
+        if (kolibBack) {
+            Box(Modifier.align(Alignment.CenterStart).width(48.dp).fillMaxHeight().systemGestureExclusion())
+            Box(Modifier.align(Alignment.CenterEnd).width(48.dp).fillMaxHeight().systemGestureExclusion())
+        }
+        EdgeBackIndicator(backSwipe)
     }
 }
 

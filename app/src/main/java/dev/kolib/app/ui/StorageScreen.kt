@@ -5,6 +5,17 @@ import android.content.Context
 import android.os.Process
 import android.os.storage.StorageManager
 import androidx.compose.foundation.background
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.AlertDialog
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.material3.HorizontalDivider
@@ -40,7 +51,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -63,11 +73,25 @@ import kotlinx.coroutines.withContext
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StorageScreen(onBack: () -> Unit, measure: (Context) -> StorageUse = ::measureHere) {
+fun StorageScreen(
+    onBack: () -> Unit,
+    measure: (Context) -> StorageUse = ::measureHere,
+    /** Something's being sent or saved just now: the temporary files aren't cleared under it. */
+    busy: Boolean = false,
+    /** Clears the temporary files, giving how much space that freed (see [StorageUse.clearTemporary]). */
+    clear: (Context) -> Long = { StorageUse.clearTemporary(it.cacheDir) },
+) {
     val context = LocalContext.current
-    val use by produceState<StorageUse?>(null) { value = withContext(Dispatchers.IO) { measure(context) } }
+    // Worked out as the page opens, and again once the temporary files are cleared.
+    var use by remember { mutableStateOf<StorageUse?>(null) }
+    var round by remember { mutableIntStateOf(0) }
+    LaunchedEffect(round) { use = withContext(Dispatchers.IO) { measure(context) } }
+    val snackbar = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    var asking by remember { mutableStateOf(false) }
     Scaffold(
         containerColor = Color.Transparent,
+        snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
@@ -86,16 +110,45 @@ fun StorageScreen(onBack: () -> Unit, measure: (Context) -> StorageUse = ::measu
                     Text(tr("Working it out…"), style = MaterialTheme.typography.bodyMedium)
                     LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 12.dp))
                 } else {
-                    StorageDetails(u)
+                    StorageDetails(u, busy = busy, onClear = { asking = true })
                 }
             }
         }
+    }
+    // What they are, before they're cleared.
+    if (asking) {
+        AlertDialog(
+            onDismissRequest = { asking = false },
+            title = { Text(tr("Clear temporary files?")) },
+            text = {
+                Text(
+                    tr("These are files KoLib makes as it works: pages and pictures got ready for reading, copies of books made while sending them, and pages the reader keeps to show them faster. None of your books, comics or settings are in them, and KoLib makes them again when it needs them, so a book may open a little more slowly the first time after."),
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        asking = false
+                        scope.launch {
+                            val freed = withContext(Dispatchers.IO) { clear(context) }
+                            round++
+                            snackbar.showSnackbar(
+                                if (freed > 0) tr("Cleared {0}.", Fmt.bytes(context, freed).orEmpty())
+                                else tr("There was nothing to clear just now."),
+                            )
+                        }
+                    },
+                    modifier = Modifier.testTag("storage-clear-yes"),
+                ) { Text(tr("Clear")) }
+            },
+            dismissButton = { TextButton(onClick = { asking = false }) { Text(tr("Cancel")) } },
+        )
     }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun StorageDetails(u: StorageUse) {
+private fun StorageDetails(u: StorageUse, busy: Boolean = false, onClear: () -> Unit = {}) {
     val context = LocalContext.current
     fun bytes(b: Long) = Fmt.bytes(context, b).orEmpty()
     // What KoLib keeps, biggest first, in the bar and the list alike, each as a share of all KoLib uses.
@@ -106,6 +159,18 @@ private fun StorageDetails(u: StorageUse) {
     if (u.kolib > 0) PartsBar(parts.map { (kind, b) -> colourOf(kind) to b }, Modifier.padding(top = 16.dp, bottom = 12.dp).testTag("storage-parts-bar"))
     parts.forEach { (kind, b) ->
         Line(colourOf(kind), nameOf(kind), tr("{0} · {1}", bytes(b), percent(b)), Modifier.testTag("storage-${kind.name.lowercase()}"), about = aboutOf(kind))
+        // The temporary files can be cleared from here (not while something's being sent or saved).
+        if (kind == StorageUse.Kind.TEMP) {
+            TextButton(onClick = onClear, enabled = !busy, modifier = Modifier.padding(start = 12.dp).testTag("storage-clear")) {
+                Text(tr("Clear temporary files"))
+            }
+            if (busy) {
+                Text(
+                    tr("They can be cleared once KoLib's finished sending."), style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 24.dp, bottom = 4.dp),
+                )
+            }
+        }
     }
 
     // The device as a whole, apart from KoLib's own: KoLib among everything else on it, and what's free.

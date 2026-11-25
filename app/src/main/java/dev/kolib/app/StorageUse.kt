@@ -22,7 +22,8 @@ class StorageUse(
          * [library] ([comic] says which it is; null for a folder that isn't one) counts less its cover and the text read
          * from its pages, which count as covers and text recognition; then the text recognition languages, AI models
          * and chats, fonts, the Kobo's database backups and downloaded updates; what's only kept for a while (the
-         * [cache], and the web view's own); and whatever else, together (the library's records, the settings, the log).
+         * [cache], which [clearTemporary] clears); and whatever else, together (the library's records, the settings, the
+         * log).
          * [app] is the app itself; [total] and [free], the device's storage.
          */
         fun measure(
@@ -45,19 +46,39 @@ class StorageUse(
             }
             listOf(
                 Kind.TEXT to File(files, "ocr"), Kind.AI to File(files, "models"), Kind.AI to File(files, "ai"),
-                Kind.FONTS to File(files, "fonts"), Kind.BACKUPS to File(files, "backups"), Kind.UPDATES to File(cache, "updates"),
+                Kind.FONTS to File(files, "fonts"), Kind.BACKUPS to File(files, "backups"), Kind.UPDATES to File(cache, UPDATES),
             ).forEach { (kind, f) ->
                 val bytes = sizeOf(f)
                 add(kind, bytes)
                 counted += bytes
             }
-            // Kept for a while: the cache (but for the updates, counted already), and what the web view keeps.
-            val temp = sizeOf(cache) - sizeOf(File(cache, "updates")) + sizeOf(File(data, "app_webview")) + sizeOf(File(data, "code_cache"))
+            // Kept for a while: the cache (but for the updates, counted already).
+            val temp = sizeOf(cache) - sizeOf(File(cache, UPDATES))
             add(Kind.TEMP, temp)
             counted += temp
             add(Kind.OTHER, sizeOf(data) - counted)
             add(Kind.APP, app)
             return StorageUse(Kind.entries.mapNotNull { k -> sizes[k]?.let { k to it } }, total, free)
+        }
+
+        /** Where downloaded updates are kept, in the cache (they're counted, and kept, apart from the rest of it). */
+        private const val UPDATES = "updates"
+
+        /**
+         * Clears what's only kept for a while: everything in [cache] but downloaded updates, and but what's been changed
+         * in the last [quiet] milliseconds (something may be using it just now: a book being sent, a page being got
+         * ready). Gives how much space was freed.
+         */
+        fun clearTemporary(cache: File, quiet: Long = 5 * 60_000L, now: Long = System.currentTimeMillis()): Long {
+            var freed = 0L
+            cache.listFiles()?.forEach { f ->
+                if (f.name == UPDATES) return@forEach
+                val newest = if (f.isDirectory) f.walkTopDown().maxOfOrNull { it.lastModified() } ?: 0L else f.lastModified()
+                if (now - newest < quiet) return@forEach
+                val bytes = sizeOf(f)
+                if (f.deleteRecursively()) freed += bytes else freed += bytes - sizeOf(f)
+            }
+            return freed
         }
 
         /** Everything in [f], however deep, not following links out of it. */

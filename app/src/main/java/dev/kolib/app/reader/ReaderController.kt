@@ -1354,6 +1354,15 @@ class ReaderController(
         } else open(i, target("start"))
     }
 
+    /** Scrolling: there's a chapter after this one ([direction] 1), or before it (-1), to pull on into. */
+    fun hasChapter(direction: Int): Boolean = nextLinear(chapterIndex, direction) != null
+
+    /** A pull on past the end of a scrolled chapter (or back past its start) let go full: on into the next (or back). */
+    fun pullOn(direction: Int) {
+        if (turner?.edge(direction) == true) return
+        if (direction > 0) nextChapter() else previousChapter(atItsEnd = true)
+    }
+
     /** For the end of a scrolled chapter: the next chapter's title, and whether there are chapters either side. */
     private fun aroundJs(index: Int): JSONObject = JSONObject().apply {
         val next = nextLinear(index, 1)

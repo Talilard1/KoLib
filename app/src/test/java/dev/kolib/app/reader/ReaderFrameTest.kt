@@ -128,6 +128,97 @@ class ReaderFrameTest {
         assertEquals(0, levels)
     }
 
+    /** Scrolling, at the foot of a chapter: the frame's, with what it was told of each pull. */
+    private fun ReaderFrame.pulls(atFoot: Boolean = true, atTop: Boolean = false): Pair<MutableList<Pair<Int, Float>>, MutableList<Pair<Int, Boolean>>> {
+        val pulls = mutableListOf<Pair<Int, Float>>()
+        val letGo = mutableListOf<Pair<Int, Boolean>>()
+        canScroll = { d -> if (d > 0) !atFoot else !atTop }
+        hasChapter = { true }
+        onChapterPull = { d, f -> pulls += d to f }
+        onChapterLetGo = { d, go -> letGo += d to go }
+        return pulls to letGo
+    }
+
+    private val scrolled = ReaderSettings(flow = ReaderFlow.SCROLL)
+
+    /** Pulled up far enough at the foot of a scrolled chapter, the ring fills; let go full, it's on to the next. */
+    @Test
+    fun pulledOnFarEnoughTheRingFillsAndItsOnToTheNext() = withFrame(scrolled) { frame ->
+        val (pulls, letGo) = frame.pulls()
+        frame.drag(640f, 700f, 640f, 200f)
+        assertTrue("told as it went: $pulls", pulls.size >= 4 && pulls.all { it.first == 1 })
+        assertEquals(1f, pulls.last().second)
+        assertEquals(listOf(1 to true), letGo)
+    }
+
+    /** It takes some pulling before it starts to fill, and a short pull goes nowhere. */
+    @Test
+    fun aShortPullDoesntGoOn() = withFrame(scrolled) { frame ->
+        val (pulls, letGo) = frame.pulls()
+        frame.drag(640f, 700f, 640f, 670f)
+        assertTrue("not filling yet: $pulls", pulls.all { it.second == 0f })
+        assertEquals(listOf(1 to false), letGo.ifEmpty { listOf(1 to false) })
+    }
+
+    /** Let off part way, it empties; the touch stays the frame's (the page doesn't scroll back under it). */
+    @Test
+    fun letOffItEmpties() = withFrame(scrolled) { frame ->
+        val (pulls, letGo) = frame.pulls()
+        val t = SystemClock.uptimeMillis()
+        frame.dispatchTouchEvent(MotionEvent.obtain(t, t, MotionEvent.ACTION_DOWN, 640f, 700f, 0))
+        for (i in 1..10) frame.dispatchTouchEvent(MotionEvent.obtain(t, t + i * 16L, MotionEvent.ACTION_MOVE, 640f, 700f - i * 30f, 0))
+        val most = pulls.last().second
+        for (i in 1..10) frame.dispatchTouchEvent(MotionEvent.obtain(t, t + 200 + i * 16L, MotionEvent.ACTION_MOVE, 640f, 400f + i * 30f, 0))
+        assertTrue("emptied: $most then ${pulls.last().second}", most > 0.5f && pulls.last().second == 0f)
+        frame.dispatchTouchEvent(MotionEvent.obtain(t, t + 400, MotionEvent.ACTION_UP, 640f, 700f, 0))
+        assertEquals(listOf(1 to false), letGo)
+    }
+
+    /**
+     * A scroll that only gets to the foot in this touch doesn't go on into a pull (reading on to the last lines doesn't
+     * open the next chapter by chance); a fresh touch there does.
+     */
+    @Test
+    fun aScrollThatGetsToTheFootDoesntGoOnIntoAPull() = withFrame(scrolled) { frame ->
+        val (pulls, letGo) = frame.pulls()
+        var atFoot = false
+        frame.canScroll = { d -> if (d > 0) !atFoot else true }
+        val t = SystemClock.uptimeMillis()
+        frame.dispatchTouchEvent(MotionEvent.obtain(t, t, MotionEvent.ACTION_DOWN, 640f, 750f, 0))
+        for (i in 1..16) {
+            if (i == 4) atFoot = true
+            frame.dispatchTouchEvent(MotionEvent.obtain(t, t + i * 16L, MotionEvent.ACTION_MOVE, 640f, 750f - i * 40f, 0))
+        }
+        frame.dispatchTouchEvent(MotionEvent.obtain(t, t + 300, MotionEvent.ACTION_UP, 640f, 110f, 0))
+        assertTrue("no pull in that touch: $pulls $letGo", pulls.isEmpty() && letGo.isEmpty())
+        frame.drag(640f, 700f, 640f, 200f)
+        assertEquals(listOf(1 to true), letGo)
+    }
+
+    /** At the top, pulled down: back into the chapter before. */
+    @Test
+    fun atTheTopItsBackToTheOneBefore() = withFrame(scrolled) { frame ->
+        val (pulls, letGo) = frame.pulls(atFoot = false, atTop = true)
+        frame.drag(640f, 100f, 640f, 600f)
+        assertTrue(pulls.all { it.first == -1 })
+        assertEquals(listOf(-1 to true), letGo)
+    }
+
+    /** Part way through the chapter, or turning pages, there's no pull: the page has the touch. */
+    @Test
+    fun midChapterOrOnPagesThereIsNoPull() {
+        withFrame(scrolled) { frame ->
+            val (pulls, letGo) = frame.pulls(atFoot = false)
+            frame.drag(640f, 700f, 640f, 200f)
+            assertTrue(pulls.isEmpty() && letGo.isEmpty())
+        }
+        withFrame { frame ->
+            val (pulls, _) = frame.pulls()
+            frame.drag(640f, 700f, 640f, 200f)
+            assertTrue(pulls.isEmpty())
+        }
+    }
+
     @Test
     fun withSomethingOverThePageTheEdgesAreLeftToAndroid() = withFrame { frame ->
         val sides = mutableListOf<Int>()

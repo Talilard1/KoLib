@@ -198,6 +198,7 @@ import dev.kolib.app.reader.HeadGap
 import dev.kolib.app.reader.CollectionTitle
 import dev.kolib.app.ui.theme.Garamond
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
@@ -314,6 +315,8 @@ internal fun ReaderScreen(
     var panel by remember { mutableStateOf(initialPanel) }
     // A side panel being pulled out by a swipe in from its edge: how far out it is (0 to 1), as the finger goes.
     var pulling by remember { mutableStateOf<Float?>(null) }
+    // Scrolling: a pull on past the end of the chapter (or back past its start), and the ring that shows it.
+    val chapterPull = remember { ChapterPull() }
     // The AI, about this book: its chapter summary, its notes on the book (written as it's read, when they're
     // kept), and the chat, which goes on from wherever it was. Its window is the app's, over this screen.
     val app = context.applicationContext as dev.kolib.app.KoLibApp
@@ -529,6 +532,18 @@ internal fun ReaderScreen(
                         pulling = null
                         if (speed < -flingPx || (out < 0.5f && speed < flingPx)) panel = Panel.NONE
                     }
+                    // Scrolling: pulled on past the end of the chapter (or back past its start), a ring fills; let go full,
+                    // the next chapter opens (or the one before). The page stays put while it's pulled.
+                    frame.hasChapter = { d -> controller.hasChapter(d) }
+                    frame.onChapterPull = { d, full ->
+                        chapterPull.dir = d
+                        chapterPull.full = full
+                        chapterPull.on = true
+                    }
+                    frame.onChapterLetGo = { d, go ->
+                        chapterPull.on = false
+                        if (go) controller.pullOn(d) else chapterPull.full = 0f
+                    }
                 },
                 modifier = Modifier.fillMaxSize(),
                 onRelease = { frame ->
@@ -553,6 +568,7 @@ internal fun ReaderScreen(
                 if (s.progressLine != ProgressLine.OFF) ProgressLineBar(controller, s)
             }
         }
+        if (s.scrolling) ChapterPullRing(chapterPull, inkColor, pageColor, top = s.bandTop(cut).dp + 18.dp, bottom = s.bandBottom(cut).dp + 18.dp)
       }
 
         // The reading setup's card and hints: over the page, under the controls (and told how far in their bars come).
@@ -760,10 +776,11 @@ internal fun ReaderScreen(
             )
         }
 
-        // The sides are kept from Android's own swipes while the reader uses them: for its back swipe, the swipes in for
-        // the side panels, and dragging beside an open panel to close it. (With the bars hidden, Android would show
-        // them for a swipe in from a side.) KoLib's back swipe arrow shows over everything.
-        if (backSwipe || (s.edgePanels && panelsAllowed) || panel != Panel.NONE) {
+        // The sides are kept from Android's own swipes while the reader uses them: for its back swipe, and the swipes in
+        // for the side panels. (With the bars hidden, Android would show them for a swipe in from a side.) With a panel
+        // open, Android's back swipe goes back, a step at a time (a group of the settings, then the panel), unless
+        // KoLib's own is on. KoLib's back swipe arrow shows over everything.
+        if (backSwipe || (s.edgePanels && panelsAllowed && panel == Panel.NONE)) {
             Box(Modifier.align(Alignment.CenterStart).width(48.dp).fillMaxHeight().systemGestureExclusion().testTag("edge-kept-left"))
             Box(Modifier.align(Alignment.CenterEnd).width(48.dp).fillMaxHeight().systemGestureExclusion().testTag("edge-kept-right"))
         }
@@ -834,6 +851,69 @@ private fun androidx.compose.foundation.layout.BoxScope.ScrollBands(s: ReaderSet
             .height(bandBottom.dp)
             .background(androidx.compose.ui.graphics.Brush.verticalGradient(0f to paper.copy(alpha = 0f), solidFrom to paper, 1f to paper))
     )
+}
+
+/** A pull on past the end of a scrolled chapter (or back past its start), as the ring showing it has it. */
+@androidx.compose.runtime.Stable
+internal class ChapterPull {
+    /** Which end: 1 the foot, -1 the top (kept as the ring goes, once it's let go). */
+    var dir by androidx.compose.runtime.mutableIntStateOf(1)
+    /** How full the ring is, 0 to 1. */
+    var full by androidx.compose.runtime.mutableFloatStateOf(0f)
+    /** It's being pulled. */
+    var on by mutableStateOf(false)
+}
+
+/**
+ * The ring for a pull on past the end of a scrolled chapter (or back past its start): at the foot (or the top), clear of
+ * the bands there, it fills clockwise as the pull goes on and empties as it's let off, smoothly, swelling a little (and
+ * a tap felt) once it's full and letting go goes on.
+ */
+@Composable
+private fun BoxScope.ChapterPullRing(pull: ChapterPull, ink: Color, page: Color, top: androidx.compose.ui.unit.Dp, bottom: androidx.compose.ui.unit.Dp) {
+    val shown by androidx.compose.animation.core.animateFloatAsState(
+        if (pull.on && pull.full > 0f) 1f else 0f, androidx.compose.animation.core.tween(if (pull.on) 120 else 220), label = "pullShown",
+    )
+    // Smoothed a touch, so the ring follows the finger without jerking with it.
+    val fill by androidx.compose.animation.core.animateFloatAsState(
+        pull.full, androidx.compose.animation.core.spring(dampingRatio = 1f, stiffness = androidx.compose.animation.core.Spring.StiffnessMedium), label = "pullFill",
+    )
+    val full = pull.on && pull.full >= 1f
+    val swell by androidx.compose.animation.core.animateFloatAsState(
+        if (full) 1.12f else 1f, androidx.compose.animation.core.spring(dampingRatio = 0.55f, stiffness = androidx.compose.animation.core.Spring.StiffnessMedium), label = "pullSwell",
+    )
+    val view = LocalView.current
+    LaunchedEffect(full) {
+        if (full) view.performHapticFeedback(
+            if (android.os.Build.VERSION.SDK_INT >= 34) android.view.HapticFeedbackConstants.GESTURE_THRESHOLD_ACTIVATE else android.view.HapticFeedbackConstants.CONTEXT_CLICK,
+        )
+    }
+    if (shown <= 0f) return
+    val atFoot = pull.dir > 0
+    Box(
+        Modifier
+            .align(if (atFoot) Alignment.BottomCenter else Alignment.TopCenter)
+            .padding(top = if (atFoot) 0.dp else top, bottom = if (atFoot) bottom else 0.dp)
+            .size(46.dp)
+            .graphicsLayer {
+                alpha = shown
+                val k = (0.7f + 0.3f * shown) * swell
+                scaleX = k
+                scaleY = k
+            }
+            .shadow(3.dp, CircleShape)
+            .background(page, CircleShape)
+            .testTag("chapter-pull"),
+    ) {
+        androidx.compose.foundation.Canvas(Modifier.fillMaxSize().padding(5.dp)) {
+            val width = 3.5.dp.toPx()
+            drawCircle(ink.copy(alpha = 0.16f), style = androidx.compose.ui.graphics.drawscope.Stroke(width))
+            if (fill > 0.001f) drawArc(
+                ink, startAngle = -90f, sweepAngle = 360f * fill.coerceIn(0f, 1f), useCenter = false,
+                style = androidx.compose.ui.graphics.drawscope.Stroke(width, cap = androidx.compose.ui.graphics.StrokeCap.Round),
+            )
+        }
+    }
 }
 
 /**
@@ -1020,7 +1100,7 @@ private fun ContentsPanel(controller: ReaderController, wide: Boolean, onPicked:
 }
 
 /** How much of a panel, from its top, a swipe across goes to the next tab or back (below, it closes the panel). */
-internal const val TAB_SWIPE_ZONE = 0.35f
+internal const val TAB_SWIPE_ZONE = 0.5f
 
 /**
  * A swipe across the top part of this ([TAB_SWIPE_ZONE] of it) moves [pager] to the next tab or back, following the

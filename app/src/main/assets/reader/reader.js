@@ -2249,84 +2249,9 @@
     root.appendChild(box);
   }
 
-  // Pulling a scrolled chapter on past its end (or back past its start) opens the next (or previous) one.
-  var pull = null, hasPrev = true;
-  function pullThreshold() { return Math.max(70, Math.min(140, H * 0.1)); }
-
-  function pullMove(t) {
-    var max = maxScroll();
-    var atEnd = scroller.scrollTop >= max - 1 && !isLast;
-    var atStart = scroller.scrollTop <= 1 && hasPrev;
-    if (atEnd && atStart) {
-      // A chapter too short to scroll (a dedication, a title page): it's at both ends at once, so the way
-      // the finger goes says which way it pulls.
-      if (!pull) pull = { dir: 0, from: t.clientY, dist: 0 };
-      var d = t.clientY - pull.from;
-      pull.dir = d < 0 ? 1 : -1;
-      pull.dist = Math.abs(d);
-    } else if (pull && pull.dir !== 0) {
-      // A pull under way goes on from where it started, whether or not the page has come back a little under the
-      // finger: let off, it lessens (and the ring empties), till it's gone.
-      pull.dist = Math.max(0, (pull.from - t.clientY) * pull.dir);
-      if (pull.dist <= 0) pull = null;
-    } else if (atEnd) {
-      pull = { dir: 1, from: t.clientY, dist: 0 };
-    } else if (atStart) {
-      pull = { dir: -1, from: t.clientY, dist: 0 };
-    } else pull = null;
-    showPull();
-  }
-
-  function pullEnd() {
-    var p = pull;
-    pull = null;
-    showPull();
-    if (p && p.dist >= pullThreshold()) KL.edge(p.dir);
-  }
-
-  /**
-   * While a scrolled chapter is pulled on past its end (or back past its start): a ring at that end of the screen, as
-   * a loading circle is, that fills clockwise from the top as the pull goes on and empties as it's let off. Full,
-   * letting go opens the next chapter (or the one before).
-   */
-  var SVG = 'http://www.w3.org/2000/svg';
-  var RING = 2 * Math.PI * 19;
-  function pullRing() {
-    var svg = document.createElementNS(SVG, 'svg');
-    svg.setAttribute('viewBox', '0 0 46 46');
-    function circle(cls, r) {
-      var c = document.createElementNS(SVG, 'circle');
-      c.setAttribute('cx', '23');
-      c.setAttribute('cy', '23');
-      c.setAttribute('r', String(r));
-      c.setAttribute('class', cls);
-      svg.appendChild(c);
-      return c;
-    }
-    circle('kl-pull-disc', 22);
-    circle('kl-pull-track', 19);
-    var ring = circle('kl-pull-ring', 19);
-    ring.setAttribute('transform', 'rotate(-90 23 23)');
-    ring.setAttribute('stroke-dasharray', RING.toFixed(2));
-    return svg;
-  }
-
-  function showPull() {
-    var el = document.getElementById('kl-pull');
-    var full = pull ? Math.min(1, pull.dist / pullThreshold()) : 0;
-    if (!pull || pull.dist < 6) {
-      if (el) el.classList.remove('kl-on');
-      return;
-    }
-    if (!el) {
-      el = document.createElementNS(XHTML, 'div');
-      el.id = 'kl-pull';
-      el.appendChild(pullRing());
-      root.appendChild(el);
-    }
-    el.setAttribute('class', 'kl-on ' + (pull.dir > 0 ? 'kl-bottom' : 'kl-top') + (full >= 1 ? ' kl-full' : ''));
-    el.querySelector('.kl-pull-ring').setAttribute('stroke-dashoffset', (RING * (1 - full)).toFixed(2));
-  }
+  // Pulling a scrolled chapter on past its end (or back past its start) is the app's: it takes the touch, so the page
+  // stays put, and shows a ring that fills as it's pulled. The end of the chapter says so.
+  var hasPrev = true;
 
   /** Runs [done] once the WebView has a size (it can load a page before it's been laid out). */
   function whenSized(done) {
@@ -2570,7 +2495,6 @@
     var t = e.touches[0];
     cancelAnimation();
     touch = { x: t.clientX, y: t.clientY, t: Date.now(), base: page * W, moved: false, lastX: t.clientX, lastT: Date.now(), v: 0 };
-    pull = null;
   }, { passive: true });
 
   function onTouchMove(e) {
@@ -2578,9 +2502,8 @@
     var t = e.touches[0];
     var dx = t.clientX - touch.x, dy = t.clientY - touch.y;
     if (scrolled) {
-      // The page scrolls by itself; this only watches for a pull past either end.
+      // The page scrolls by itself (a pull past either end is the app's).
       if (!touch.moved && Math.abs(dy) > 10) touch.moved = true;
-      pullMove(t);
       return;
     }
     if (!touch.moved) {
@@ -2621,7 +2544,6 @@
       if (t.moved) suppressClick = true;
       // Set to keep going: after a drag, a moment for any glide to begin, then on it goes.
       if (t.moved && auto.on && keepsGoing()) autoWaitUntil = Math.max(autoWaitUntil, performance.now() + 250);
-      pullEnd();
       return;
     }
     if (!t.moved) return;
@@ -2653,8 +2575,6 @@
     if (!e.touches || !e.touches.length) autoTouch(false);
     touch = null;
     suppressClick = false;
-    pull = null;
-    showPull();
   }, { passive: true });
 
   // The app needs to know when text is selected: a drag then moves the selection, not the page.

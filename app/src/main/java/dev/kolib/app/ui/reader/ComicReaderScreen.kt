@@ -17,6 +17,7 @@ import android.view.KeyEvent
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.systemGestureExclusion
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -687,14 +688,19 @@ internal fun ComicView(
         }
         onDispose { ReaderKeys.handler = null }
     }
-    // Back closes the comic, whether the bars are showing or not (a sheet open over it closes first).
-    BackHandler {
+    // Back closes the comic, whether the bars are showing or not (a sheet open over it closes first): Android's back,
+    // or KoLib's own back swipe where the book reader has it.
+    val goBack = {
         when {
             sheet != null -> sheet = null
             actionsFor != null -> actionsFor = null
             else -> onClose()
         }
     }
+    BackHandler { goBack() }
+    val readerSettings by (context.applicationContext as dev.kolib.app.KoLibApp).readerSettings.settings.collectAsStateWithLifecycle()
+    val kolibBack = readerSettings.edgeBack && !readerSettings.edgePanels
+    val backSwipe = remember { EdgeBackState() }
     val tone by produceState(Color.Black, s.background, comic.id, page) {
         value = when (s.background) {
             ComicBackground.BLACK -> Color.Black
@@ -712,7 +718,7 @@ internal fun ComicView(
         !s.cutout -> WindowInsets.displayCutout
         else -> WindowInsets(0)
     }
-    Box(Modifier.fillMaxSize().background(tone)) {
+    Box(Modifier.fillMaxSize().background(tone).edgeBackSwipe(backSwipe, kolibBack) { goBack() }) {
         val longPress = { c: OpenComic, i: Int -> if (s.longTap) actionsFor = c to i }
         // The pages, and the colour filter over them (mixed with them alone, where it's blended).
         Box(
@@ -849,6 +855,12 @@ internal fun ComicView(
                 Spacer(Modifier.height(16.dp))
             }
         }
+        // With KoLib's back swipe, the sides are kept from Android's; its arrow shows over everything.
+        if (kolibBack) {
+            Box(Modifier.align(Alignment.CenterStart).width(48.dp).fillMaxHeight().systemGestureExclusion())
+            Box(Modifier.align(Alignment.CenterEnd).width(48.dp).fillMaxHeight().systemGestureExclusion())
+        }
+        EdgeBackIndicator(backSwipe)
     }
 }
 

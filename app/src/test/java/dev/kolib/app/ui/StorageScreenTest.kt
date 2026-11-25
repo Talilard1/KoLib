@@ -6,6 +6,10 @@ import dev.kolib.app.StorageUse
 import dev.kolib.app.ui.theme.AppSurface
 import androidx.compose.ui.test.onNodeWithText
 import org.junit.Assert.assertTrue
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.assertIsNotEnabled
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,6 +60,40 @@ class StorageScreenTest {
         assertTrue("the device after KoLib's own", top("storage-device") > top("storage-app"))
         compose.onNodeWithTag("storage-others", useUnmergedTree = true).assertExists()
         compose.onNodeWithText("Other apps and files", substring = true).assertExists()
+    }
+
+    /** The temporary files are cleared once it's been said what they are, and the figures worked out again. */
+    @Test
+    fun theTemporaryFilesAreClearedAfterSayingWhatTheyAre() {
+        var measured = 0
+        var cleared = 0
+        val use = StorageUse(
+            listOf(StorageUse.Kind.BOOKS to 3_000_000L, StorageUse.Kind.TEMP to 6_000_000L), total = 100_000_000L, free = 40_000_000L,
+        )
+        compose.setContent {
+            AppSurface { StorageScreen(onBack = {}, measure = { measured++; use }, clear = { cleared++; 6_000_000L }) }
+        }
+        compose.waitForIdle()
+        assertEquals(1, measured)
+        compose.onNodeWithTag("storage-clear").performScrollTo().performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Clear temporary files?").assertExists()
+        compose.onNodeWithText("None of your books, comics or settings are in them", substring = true).assertExists()
+        assertEquals("nothing cleared before it's agreed to", 0, cleared)
+        compose.onNodeWithTag("storage-clear-yes").performClick()
+        compose.waitForIdle()
+        assertEquals(1, cleared)
+        assertEquals("worked out again", 2, measured)
+        compose.onNodeWithText("Cleared", substring = true).assertExists()
+    }
+
+    /** While something's being sent, they can't be cleared. */
+    @Test
+    fun notWhileSending() {
+        val use = StorageUse(listOf(StorageUse.Kind.TEMP to 6_000_000L), total = 100_000_000L, free = 40_000_000L)
+        compose.setContent { AppSurface { StorageScreen(onBack = {}, measure = { use }, busy = true, clear = { error("not now") }) } }
+        compose.waitForIdle()
+        compose.onNodeWithTag("storage-clear").assertIsNotEnabled()
     }
 
     /** Laid out with a device's figures, for a look (and to check nothing's cut off). */

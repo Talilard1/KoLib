@@ -1,0 +1,77 @@
+@fr
+3693|Effacer les fichiers temporaires ?
+3694|Ce sont des fichiers que KoLib crée en travaillant : des pages et des images préparées pour la lecture, des copies de livres faites pendant leur envoi, et des pages que le lecteur garde pour les afficher plus vite. Ni vos livres, ni vos BD, ni vos réglages n’en font partie, et KoLib les recrée quand il en a besoin : un livre peut donc s’ouvrir un peu plus lentement la première fois ensuite.
+3695|{0} effacés.
+3696|Il n’y avait rien à effacer pour l’instant.
+3697|Effacer les fichiers temporaires
+3698|Vous pourrez les effacer une fois l’envoi terminé.
+@de
+3693|Temporäre Dateien löschen?
+3694|Das sind Dateien, die KoLib bei der Arbeit anlegt: zum Lesen vorbereitete Seiten und Bilder, Kopien von Büchern, die beim Senden entstehen, und Seiten, die der Leser aufhebt, um sie schneller zu zeigen. Deine Bücher, Comics und Einstellungen sind nicht darunter, und KoLib legt sie wieder an, wenn es sie braucht – ein Buch öffnet sich danach beim ersten Mal also vielleicht etwas langsamer.
+3695|{0} gelöscht.
+3696|Gerade gab es nichts zu löschen.
+3697|Temporäre Dateien löschen
+3698|Sie lassen sich löschen, sobald KoLib mit dem Senden fertig ist.
+@es
+3693|¿Borrar los archivos temporales?
+3694|Son archivos que KoLib crea mientras trabaja: páginas e imágenes preparadas para leer, copias de libros hechas al enviarlos y páginas que el lector guarda para mostrarlas más rápido. Ni tus libros, ni tus cómics, ni tus ajustes están en ellos, y KoLib los vuelve a crear cuando los necesita, así que un libro puede tardar un poco más en abrirse la primera vez después.
+3695|Se borraron {0}.
+3696|No había nada que borrar ahora mismo.
+3697|Borrar archivos temporales
+3698|Podrás borrarlos cuando KoLib termine de enviar.
+@it
+3693|Cancellare i file temporanei?
+3694|Sono file che KoLib crea mentre lavora: pagine e immagini preparate per la lettura, copie dei libri fatte durante l’invio e pagine che il lettore conserva per mostrarle più in fretta. Non contengono i tuoi libri, fumetti o impostazioni, e KoLib li ricrea quando servono, quindi la prima volta dopo un libro potrebbe aprirsi un po’ più lentamente.
+3695|{0} cancellati.
+3696|Al momento non c’era niente da cancellare.
+3697|Cancella i file temporanei
+3698|Potrai cancellarli quando KoLib avrà finito l’invio.
+@nl
+3693|Tijdelijke bestanden wissen?
+3694|Dit zijn bestanden die KoLib maakt terwijl het werkt: pagina’s en afbeeldingen die klaargezet zijn om te lezen, kopieën van boeken die tijdens het versturen ontstaan, en pagina’s die de lezer bewaart om ze sneller te tonen. Je boeken, strips en instellingen zitten er niet in, en KoLib maakt ze opnieuw als het ze nodig heeft, dus een boek kan daarna de eerste keer iets trager openen.
+3695|{0} gewist.
+3696|Er was op dit moment niets te wissen.
+3697|Tijdelijke bestanden wissen
+3698|Je kunt ze wissen zodra KoLib klaar is met versturen.
+@pt
+3693|Apagar os arquivos temporários?
+3694|São arquivos que o KoLib cria enquanto trabalha: páginas e imagens preparadas para a leitura, cópias de livros feitas ao enviá-los e páginas que o leitor guarda para mostrá-las mais rápido. Seus livros, quadrinhos e configurações não estão neles, e o KoLib os cria de novo quando precisa, então um livro pode abrir um pouco mais devagar na primeira vez depois disso.
+3695|{0} apagados.
+3696|Não havia nada para apagar agora.
+3697|Apagar arquivos temporários
+3698|Você pode apagá-los quando o KoLib terminar de enviar.
+@ro
+3693|Ștergi fișierele temporare?
+3694|Sunt fișiere pe care KoLib le creează în timp ce lucrează: pagini și imagini pregătite pentru citire, copii ale cărților făcute la trimitere și pagini pe care cititorul le păstrează ca să le arate mai repede. Cărțile, benzile desenate și setările tale nu sunt printre ele, iar KoLib le face din nou când are nevoie, așa că o carte se poate deschide puțin mai încet prima dată după aceea.
+3695|S-au șters {0}.
+3696|Nu era nimic de șters acum.
+3697|Șterge fișierele temporare
+3698|Le poți șterge după ce KoLib termină de trimis.
+@ru
+3693|Удалить временные файлы?
+3694|Это файлы, которые KoLib создаёт во время работы: страницы и картинки, подготовленные для чтения, копии книг, сделанные при отправке, и страницы, которые читалка хранит, чтобы показывать их быстрее. Ваших книг, комиксов и настроек среди них нет, а KoLib создаст их заново, когда понадобится, поэтому книга в первый раз после этого может открыться чуть медленнее.
+3695|Удалено: {0}.
+3696|Сейчас удалять нечего.
+3697|Удалить временные файлы
+3698|Их можно будет удалить, когда KoLib закончит отправку.
+@ja
+3693|一時ファイルを削除しますか？
+3694|KoLib が動作中に作るファイルです。読むために用意したページや画像、送信のときに作った本のコピー、すばやく表示するためにリーダーが保存しているページなどです。本やコミック、設定は含まれていません。必要になれば KoLib がまた作るので、削除した後は本を開くのに少し時間がかかることがあります。
+3695|{0} を削除しました。
+3696|いまは削除できるものがありませんでした。
+3697|一時ファイルを削除
+3698|KoLib の送信が終わったら削除できます。
+@ko
+3693|임시 파일을 지울까요?
+3694|KoLib가 작동하면서 만드는 파일이에요. 읽으려고 준비한 페이지와 그림, 보낼 때 만든 책 사본, 더 빨리 보여 주려고 리더가 저장해 둔 페이지 등이에요. 책, 만화, 설정은 들어 있지 않고, 필요하면 KoLib가 다시 만들어요. 그래서 지운 뒤 처음에는 책이 조금 느리게 열릴 수 있어요.
+3695|{0}를 지웠어요.
+3696|지금은 지울 것이 없었어요.
+3697|임시 파일 지우기
+3698|KoLib가 보내기를 마치면 지울 수 있어요.
+@zh
+3693|要清除临时文件吗？
+3694|这些是 KoLib 工作时生成的文件：为阅读准备的页面和图片、发送书籍时制作的副本，以及阅读器为加快显示而保存的页面。其中不包含你的书、漫画或设置，KoLib 需要时会重新生成，所以清除后第一次打开书可能会稍慢一些。
+3695|已清除 {0}。
+3696|目前没有可清除的内容。
+3697|清除临时文件
+3698|KoLib 发送完成后即可清除。

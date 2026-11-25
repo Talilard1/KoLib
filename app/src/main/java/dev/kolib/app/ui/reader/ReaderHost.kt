@@ -114,20 +114,21 @@ fun ReaderHost(
         val opening by themes.opening.collectAsStateWithLifecycle()
         val openingSound by themes.openingSound.collectAsStateWithLifecycle()
         val openingLight by themes.openingLight.collectAsStateWithLifecycle()
+        val reading by app.readerSettings.settings.collectAsStateWithLifecycle()
         LookDialog(
             current = theme, onPick = themes::set, onDismiss = { showLook = false },
             opening = opening, onOpening = themes::setOpening, openingSound = openingSound, onOpeningSound = themes::setOpeningSound,
             openingLight = openingLight, onOpeningLight = themes::setOpeningLight,
-            onLanguage = {
-                showLook = false
-                showLanguage = true
-            },
+            // The language is chosen over Settings, so going back from it comes back to them.
+            onLanguage = { showLanguage = true },
             onShowTours = {
                 showLook = false
                 themes.showToursAgain()
             },
             toursOn = !toursOff,
             onToursOn = { on -> themes.setToursOff(!on) },
+            // KoLib's back swipe, if it's the reader's, goes back here too.
+            kolibBack = reading.edgeBack && !reading.edgePanels,
         )
     }
     if (showLanguage) LanguageDialog(onDismiss = { showLanguage = false })

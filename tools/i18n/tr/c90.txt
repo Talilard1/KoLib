@@ -1,0 +1,55 @@
+@fr
+3728|Le lecteur a changé
+3729|Certains réglages de lecture fonctionnent autrement maintenant, et il y en a de nouveaux. Cela vaut la peine de refaire la configuration de la lecture pour les régler à votre goût.
+3730|Jetez aussi un œil aux réglages du lecteur (touchez le milieu d’une page, puis le bouton des réglages) : ils sont présentés autrement.
+3731|Lancer la configuration de la lecture
+@de
+3728|Der Reader hat sich verändert
+3729|Einige Leseeinstellungen funktionieren jetzt anders, und es gibt neue. Es lohnt sich, „Lesen einrichten“ noch einmal durchzugehen, um sie so einzustellen, wie du sie magst.
+3730|Schau dir auch die Einstellungen im Reader an (tippe in die Mitte einer Seite und dann auf den Einstellungen-Knopf): Sie sind neu angeordnet.
+3731|Lesen einrichten starten
+@es
+3728|El lector ha cambiado
+3729|Algunos ajustes de lectura funcionan de otra manera ahora, y hay ajustes nuevos. Vale la pena volver a hacer la configuración de la lectura para dejarlos a tu gusto.
+3730|Echa también un vistazo a los ajustes del lector (toca el centro de una página y luego el botón de ajustes): ahora están organizados de otra manera.
+3731|Empezar la configuración de la lectura
+@it
+3728|Il lettore è cambiato
+3729|Alcune impostazioni di lettura ora funzionano in modo diverso, e ce ne sono di nuove. Vale la pena rifare la configurazione della lettura per impostarle come preferisci.
+3730|Dai un’occhiata anche alle impostazioni del lettore (tocca il centro di una pagina, poi il pulsante delle impostazioni): sono organizzate in modo nuovo.
+3731|Avvia la configurazione della lettura
+@nl
+3728|De lezer is veranderd
+3729|Sommige leesinstellingen werken nu anders, en er zijn nieuwe bij. Het is de moeite waard om ‘Lezen instellen’ nog eens door te lopen om ze naar je zin te zetten.
+3730|Kijk ook even door de instellingen van de lezer (tik in het midden van een pagina en dan op de instellingenknop): ze zijn anders ingedeeld.
+3731|Lezen instellen starten
+@pt
+3728|O leitor mudou
+3729|Algumas configurações de leitura funcionam de outro jeito agora, e há configurações novas. Vale a pena refazer a configuração da leitura para deixá-las do seu jeito.
+3730|Dê uma olhada também nas configurações do leitor (toque no meio de uma página e depois no botão de configurações): elas estão organizadas de um jeito novo.
+3731|Começar a configuração da leitura
+@ro
+3728|Cititorul s-a schimbat
+3729|Unele setări de citire funcționează altfel acum și există setări noi. Merită să parcurgi din nou configurarea citirii, ca să le potrivești după gustul tău.
+3730|Aruncă o privire și prin setările cititorului (atinge mijlocul unei pagini, apoi butonul de setări): sunt aranjate altfel.
+3731|Începe configurarea citirii
+@ru
+3728|Читалка изменилась
+3729|Некоторые настройки чтения теперь работают иначе, и появились новые. Стоит снова пройти настройку чтения, чтобы выставить их по своему вкусу.
+3730|Загляните и в настройки читалки (коснитесь середины страницы, затем кнопки настроек): теперь они устроены по-новому.
+3731|Начать настройку чтения
+@ja
+3728|リーダーが新しくなりました
+3729|一部の読書設定の働きが変わり、新しい設定も加わりました。読書のセットアップをもう一度行って、お好みに合わせて設定することをおすすめします。
+3730|リーダーの設定もご覧ください（ページの中央をタップしてから設定ボタン）。新しい配置になっています。
+3731|読書のセットアップを始める
+@ko
+3728|리더가 바뀌었어요
+3729|일부 읽기 설정이 이제 다르게 작동하고, 새로운 설정도 생겼어요. 읽기 설정을 다시 한번 진행해서 원하는 대로 맞춰 보세요.
+3730|리더의 설정도 한번 살펴보세요(페이지 가운데를 탭한 다음 설정 버튼). 새롭게 배치되었어요.
+3731|읽기 설정 시작
+@zh
+3728|阅读器有了变化
+3729|部分阅读设置现在的作用方式不同了，还新增了一些设置。建议再走一遍阅读设置向导，按你的喜好重新设置。
+3730|也看看阅读器里的设置吧（点按页面中间，再点设置按钮）：它们换了新的布局。
+3731|开始阅读设置向导

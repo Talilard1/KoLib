@@ -111,8 +111,28 @@ class WhatsNewTest {
         settle()
         assertEquals(1, told)
         assertTrue(!showing("whats-new"))
+        // The reader changed in this update: going through the reading setup again is suggested, before any tour.
+        assertTrue(showing("reader-changed"))
+        assertTrue("no tour under it", !showing("tour"))
+        compose.onNodeWithTag("reader-changed-later").performClick()
+        settle()
+        assertTrue(!showing("reader-changed"))
         // The library's tour, now.
         assertTrue(showing("tour"))
+    }
+
+    /** After the update's What's new, the reading setup is a tap away. */
+    @Test
+    fun afterTheUpdateTheReadingSetupIsSuggested() {
+        assertTrue(WhatsNew.suggestsReadingSetup("3.5") && WhatsNew.suggestsReadingSetup("3.5 preview"))
+        assertTrue(!WhatsNew.suggestsReadingSetup("3.6"))
+        show()
+        compose.onNodeWithTag("whats-new-done").performClick()
+        settle()
+        compose.onNodeWithTag("reader-changed-setup").performClick()
+        settle()
+        assertTrue(!showing("reader-changed"))
+        assertTrue("the reading setup", showing("setup-card"))
     }
 
     @Test
@@ -131,6 +151,7 @@ class WhatsNewTest {
         compose.onNodeWithTag("whats-new-done").performClick()
         settle()
         assertTrue(!showing("whats-new"))
+        assertTrue("only after an update", !showing("reader-changed"))
         assertEquals("nothing to remember", 0, told)
     }
 }

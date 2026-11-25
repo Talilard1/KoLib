@@ -581,7 +581,10 @@ fun AppRoot(
     val newsNotes = remember { WhatsNew.notes(dev.kolib.app.BuildConfig.VERSION_NAME) }
     var newsAsked by remember { mutableStateOf(false) }
     val showNews = newsNotes != null && introSeen && asksSeen && !openingPlaying && !readingSetup && overlay == null && (newsDue || newsAsked)
-    val sectionTour = if (seenTours == null || toursOff || openingPlaying || !introSeen || !asksSeen || readingSetup || overlay != null || showLook || showNews) null else when (section) {
+    // Then, after an update that changed the reader's settings: the reading setup suggested again.
+    var suggestSetup by rememberSaveable { mutableStateOf(false) }
+    val showSetupSuggestion = suggestSetup && !showNews && !readingSetup && overlay == null
+    val sectionTour = if (seenTours == null || toursOff || openingPlaying || !introSeen || !asksSeen || readingSetup || overlay != null || showLook || showNews || showSetupSuggestion) null else when (section) {
         // The library's own tour first; then, as they first show, a book's details, the Comics tab, and a series of comics.
         Section.LIBRARY -> when {
             books.isEmpty() || Tours.SAMPLES !in seenTours -> null
@@ -960,8 +963,18 @@ fun AppRoot(
         dev.kolib.app.ui.ai.AiLayer(aiHost.book ?: libraryPlace)
         if (showNews) WhatsNewWindow(dev.kolib.app.BuildConfig.VERSION_NAME, newsNotes!!) {
             newsAsked = false
-            if (newsDue) onNewsSeen()
+            if (newsDue) {
+                onNewsSeen()
+                if (WhatsNew.suggestsReadingSetup(dev.kolib.app.BuildConfig.VERSION_NAME)) suggestSetup = true
+            }
         }
+        if (showSetupSuggestion) dev.kolib.app.ui.ReaderChangedWindow(
+            onSetUp = {
+                suggestSetup = false
+                readingSetup = true
+            },
+            onLater = { suggestSetup = false },
+        )
         sectionTour?.let { name ->
             androidx.compose.runtime.key(name) {
                 val stops = remember(name) {

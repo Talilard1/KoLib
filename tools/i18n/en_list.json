@@ -3726,5 +3726,9 @@
 "Swiping in the contents",
 "Swipe the contents closed as you usually would, and above that, a swipe across changes tab.",
 "1 chapter moved",
-"{0} chapters moved"
+"{0} chapters moved",
+"The reader has changed",
+"Some reading settings work differently now, and there are new ones. It's worth going through the reading setup again to set them how you like.",
+"Have a look through the reader's settings too (tap the middle of a page, then the settings button): they're laid out in a new way.",
+"Start the reading setup"
 ]

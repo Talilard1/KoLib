@@ -47,6 +47,12 @@ import dev.kolib.app.update.Updates
 object WhatsNew {
     class Note(val icon: ImageVector, val title: String, val text: String)
 
+    /**
+     * Whether, once the What's new that follows an update to [version] is closed, the reading setup is suggested: in it,
+     * the reader's settings changed and new ones came. (Someone new to KoLib isn't shown What's new, so isn't asked.)
+     */
+    fun suggestsReadingSetup(version: String): Boolean = version.substringBefore('-').substringBefore(' ').trim() == "3.5"
+
     /** The notes for KoLib [version] (its name, as "3.5"); null for a version that has none. */
     fun notes(version: String): List<Note>? = when (version.substringBefore('-').substringBefore(' ').trim()) {
         "3.5" -> listOf(
@@ -115,6 +121,69 @@ fun WhatsNewWindow(version: String, notes: List<WhatsNew.Note>, onDone: () -> Un
                     }
                     GoldButton(onClick = onDone, modifier = Modifier.testTag("whats-new-done")) { Text(tr("Got it")) }
                 }
+            }
+        }
+    }
+}
+
+/**
+ * After an update's What's new, when the reader's settings changed in it: going through the reading setup again is
+ * suggested, with the way to it, and the reader's own settings, laid out anew, are worth a look.
+ */
+@Composable
+fun ReaderChangedWindow(onSetUp: () -> Unit, onLater: () -> Unit) {
+    Dialog(onDismissRequest = onLater, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        Surface(
+            shape = RoundedCornerShape(28.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            modifier = Modifier.widthIn(max = 520.dp).fillMaxWidth(0.92f).testTag("reader-changed"),
+        ) {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
+                Column(Modifier.padding(start = 24.dp, end = 24.dp, top = 24.dp)) {
+                    Icon(Icons.AutoMirrored.Outlined.MenuBook, null, Modifier.size(32.dp), tint = MaterialTheme.colorScheme.primary)
+                    Spacer(Modifier.size(12.dp))
+                    Text(tr("The reader has changed"), style = MaterialTheme.typography.headlineSmall)
+                    Spacer(Modifier.size(12.dp))
+                    Text(
+                        tr("Some reading settings work differently now, and there are new ones. It's worth going through the reading setup again to set them how you like."),
+                        style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Spacer(Modifier.size(12.dp))
+                    Text(
+                        tr("Have a look through the reader's settings too (tap the middle of a page, then the settings button): they're laid out in a new way."),
+                        style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                ButtonsAtEnd(
+                    Modifier.fillMaxWidth().padding(start = 12.dp, end = 20.dp, top = 16.dp, bottom = 20.dp),
+                    later = { TextButton(onClick = onLater, modifier = Modifier.testTag("reader-changed-later")) { Text(tr("Not now")) } },
+                    go = { GoldButton(onClick = onSetUp, modifier = Modifier.testTag("reader-changed-setup")) { Text(tr("Start the reading setup")) } },
+                )
+            }
+        }
+    }
+}
+
+/** Two buttons at the end of a window, [later] then [go]; where they don't fit side by side, [go] above [later]. */
+@Composable
+private fun ButtonsAtEnd(modifier: Modifier, later: @Composable () -> Unit, go: @Composable () -> Unit) {
+    androidx.compose.ui.layout.Layout(content = { later(); go() }, modifier = modifier) { parts, constraints ->
+        val loose = constraints.copy(minWidth = 0, minHeight = 0)
+        val l = parts[0].measure(loose)
+        val g = parts[1].measure(loose)
+        val gap = 8.dp.roundToPx()
+        val w = constraints.maxWidth
+        if (l.width + gap + g.width <= w) {
+            val h = maxOf(l.height, g.height)
+            layout(w, h) {
+                g.placeRelative(w - g.width, (h - g.height) / 2)
+                l.placeRelative(w - g.width - gap - l.width, (h - l.height) / 2)
+            }
+        } else {
+            val between = 4.dp.roundToPx()
+            layout(w, g.height + between + l.height) {
+                g.placeRelative(w - g.width, 0)
+                l.placeRelative(w - l.width, g.height + between)
             }
         }
     }

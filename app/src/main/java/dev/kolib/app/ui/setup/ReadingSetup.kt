@@ -6,7 +6,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -96,7 +95,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
-import dev.kolib.app.ui.reader.drawChapterPull
+import dev.kolib.app.ui.reader.TabLineSetup
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -136,12 +135,10 @@ import dev.kolib.app.reader.LevelStart
 import dev.kolib.app.reader.LevelSide
 
 /** The reading setup's steps, in order. */
-internal enum class SetupStep { COLOUR, FONT, SIZE, SPACING, ROTATION, TURNING, PULL, TAPS, TAP_SIZE, KEYS, SWIPES, LEVEL, EDGES, MENU, KEPT, DONE }
+internal enum class SetupStep { COLOUR, FONT, SIZE, SPACING, ROTATION, TURNING, TAPS, TAP_SIZE, KEYS, SWIPES, TAB_LINE, LEVEL, EDGES, MENU, KEPT, DONE }
 
 /** The steps gone through with these settings: how far in a tap turns the page is only asked while taps do. */
-internal fun setupSteps(s: ReaderSettings): List<SetupStep> = SetupStep.entries.filter {
-    (it != SetupStep.TAP_SIZE || s.taps != TapZones.OFF) && (it != SetupStep.PULL || s.scrolling)
-}
+internal fun setupSteps(s: ReaderSettings): List<SetupStep> = SetupStep.entries.filter { it != SetupStep.TAP_SIZE || s.taps != TapZones.OFF }
 
 /** Steps where the page can be touched: to turn pages, and to try what's being chosen. */
 private val LiveSteps = setOf(SetupStep.TURNING, SetupStep.TAPS, SetupStep.TAP_SIZE, SetupStep.KEYS, SetupStep.SWIPES, SetupStep.LEVEL, SetupStep.MENU)
@@ -230,6 +227,9 @@ internal fun ReadingSetupScreen(
         controller.headsOnOpenings = step == SetupStep.EDGES && !controller.loading && controller.chapterPages <= 1
     }
     DisposableEffect(controller) { onDispose { controller.headsOnOpenings = false } }
+    // On its step, the line in the contents a swipe across changes tab above (and closes them below) is set: the contents
+    // open for it, and once it's set (or kept), it's on to the next step.
+    val tabLine = remember(step) { if (step == SetupStep.TAB_LINE) TabLineSetup(controller.settings.tabSwipeLine) else null }
 
     ReaderScreen(
         controller = controller,
@@ -238,9 +238,11 @@ internal fun ReadingSetupScreen(
         pagePreview = pagePreview,
         guide = ReaderGuide(
             menu = step == SetupStep.MENU,
-            // The swipes in from the sides are tried on their own step.
-            panels = step == SetupStep.MENU || step == SetupStep.SWIPES,
+            // The swipes in from the sides are tried on their own step, and swipes in the contents on the next.
+            panels = step == SetupStep.MENU || step == SetupStep.SWIPES || step == SetupStep.TAB_LINE,
             onBack = { if (step == SetupStep.SWIPES) backTried = true else goBack() },
+            tabLine = tabLine,
+            onTabLine = { if (after == null) onClose(controller.settings) else step = after },
         ) { over ->
             SetupGuide(
                 controller = controller,
@@ -440,11 +442,11 @@ private fun BoxScope.SetupGuide(
                                 SetupStep.SPACING -> SpacingStep(s, c, change)
                                 SetupStep.ROTATION -> RotationStep(s, c, change)
                                 SetupStep.TURNING -> TurningStep(s, c, turns, tapBack, choices = !madeWay, change)
-                                SetupStep.PULL -> PullStep(s, c, change)
                                 SetupStep.TAPS -> TapsStep(s, c, change)
                                 SetupStep.TAP_SIZE -> TapSizeStep(s, c, change)
                                 SetupStep.KEYS -> KeysStep(s, c, change)
                                 SetupStep.SWIPES -> SwipesStep(s, c, backTried, change)
+                                SetupStep.TAB_LINE -> TabLineStep(c)
                                 SetupStep.LEVEL -> LevelStep(s, c, change)
                                 SetupStep.EDGES -> EdgesStep(s, c, change)
                                 SetupStep.MENU -> MenuStep(c, menuOpen)
@@ -608,68 +610,6 @@ private fun TurningStep(s: ReaderSettings, c: SetupColours, turns: Int, tapBack:
     }
 }
 
-/**
- * Scrolling, the pull on past the end of a chapter for the next (or back past its start): played over and over on a strip
- * of the page, with the hill under the ring to keep or not.
- */
-@Composable
-private fun PullStep(s: ReaderSettings, c: SetupColours, change: (ReaderSettings) -> Unit) {
-    StepTitle(tr("Next chapter"), tr("At the end of a chapter, keep pulling up and let go once the ring is full. Pull down at the start to go back."), c)
-    Spacer(Modifier.height(14.dp))
-    PullDemo(s, Modifier.padding(horizontal = Edge).fillMaxWidth().height(124.dp).testTag("setup-pull-demo"))
-    Spacer(Modifier.height(8.dp))
-    SetupSwitch(
-        tr("Hill under the ring"), tr("As you pull past the end of a chapter, the page rises to meet the ring."),
-        s.pullHill, c, "setup-pull-hill",
-    ) { change(s.copy(pullHill = it)) }
-}
-
-/** A pull played over and over on a strip of the page, in the book's colours: the ring filling, the hill taking it in. */
-@Composable
-private fun PullDemo(s: ReaderSettings, modifier: Modifier) {
-    val page = Color(s.theme.bg)
-    val ink = Color(s.theme.fg)
-    val time = androidx.compose.animation.core.rememberInfiniteTransition(label = "pullDemo")
-    val t by time.animateFloat(
-        0f, 1f, androidx.compose.animation.core.infiniteRepeatable(tween<Float>(PULL_DEMO_MS, easing = androidx.compose.animation.core.LinearEasing)),
-        label = "pullDemoTime",
-    )
-    val shape = RoundedCornerShape(12.dp)
-    Box(modifier.clip(shape).background(page).border(0.5.dp, ink.copy(alpha = 0.18f), shape)) {
-        Text(
-            tr("End of chapter"), color = ink.copy(alpha = 0.6f), fontSize = 12.sp,
-            modifier = Modifier.align(Alignment.TopCenter).padding(top = 12.dp),
-        )
-        Canvas(Modifier.matchParentSize()) {
-            val (fill, merge, shown) = pullDemoAt(t)
-            if (shown > 0f) drawChapterPull(fill, merge, shown, atFoot = true, gap = 28.dp.toPx(), ink, page, s.pullHill)
-        }
-    }
-}
-
-/** One go of the pull's demo, in ms: pulled to full, held as the hill takes the ring in, let go, gone, and a rest. */
-private const val PULL_DEMO_MS = 3400
-
-/** The demo's pull at [t] (0 to 1 through a go): how full the ring is, how far the hill's taken it in, how much it shows. */
-internal fun pullDemoAt(t: Float): Triple<Float, Float, Float> {
-    val pulled = (t / 0.42f).coerceIn(0f, 1f)
-    val fill = 1f - (1f - pulled) * (1f - pulled)
-    // The hill takes the ring in as a spring would (as the reader's does), from the moment it's full.
-    val since = (t - 0.42f) * PULL_DEMO_MS / 1000f
-    val merge = if (since <= 0f) 0f else {
-        val w = kotlin.math.sqrt(420f)
-        val z = 0.62f
-        val wd = w * kotlin.math.sqrt(1f - z * z)
-        1f - kotlin.math.exp(-z * w * since) * (kotlin.math.cos(wd * since) + z * w / wd * kotlin.math.sin(wd * since))
-    }
-    val shown = when {
-        t < 0.74f -> 1f
-        t < 0.84f -> 1f - (t - 0.74f) / 0.1f
-        else -> 0f
-    }
-    return Triple(fill, merge, shown)
-}
-
 /** What a tap on either side of the page does: tried there and then, with where taps go shown on the page. */
 @Composable
 private fun TapsStep(s: ReaderSettings, c: SetupColours, change: (ReaderSettings) -> Unit) {
@@ -722,6 +662,15 @@ private fun SwipesStep(s: ReaderSettings, c: SetupColours, backTried: Boolean, c
     SetupSwitch(
         tr("Edge swipes always go back"), dev.kolib.app.ui.reader.edgeSwipesHelp(s.edgeBack), s.edgeBack, c, "setup-edge-back",
     ) { change(s.copy(edgeBack = it)) }
+}
+
+/**
+ * Where, in the contents, a swipe across changes tab, and where it closes them: set over the contents themselves (see
+ * [TabLineSetup]), which open for it. This is what shows if they're closed.
+ */
+@Composable
+private fun TabLineStep(c: SetupColours) {
+    StepTitle(tr("Swiping in the contents"), tr("Swipe the contents closed as you usually would, and above that, a swipe across changes tab."), c)
 }
 
 /** Which side a swipe up or down sets the brightness on, and where up it it starts: tried there and then. */

@@ -1,0 +1,33 @@
+@fr
+3726|1 chapitre déplacé
+3727|{0} chapitres déplacés
+@de
+3726|1 Kapitel verschoben
+3727|{0} Kapitel verschoben
+@es
+3726|1 capítulo movido
+3727|{0} capítulos movidos
+@it
+3726|1 capitolo spostato
+3727|{0} capitoli spostati
+@nl
+3726|1 hoofdstuk verplaatst
+3727|{0} hoofdstukken verplaatst
+@pt
+3726|1 capítulo movido
+3727|{0} capítulos movidos
+@ro
+3726|1 capitol mutat
+3727|{0} capitole mutate
+@ru
+3726|Перемещена 1 глава
+3727|Перемещено глав: {0}
+@ja
+3726|1 章を移動しました
+3727|{0} 章を移動しました
+@ko
+3726|1개 장을 옮겼어요
+3727|{0}개 장을 옮겼어요
+@zh
+3726|已移动 1 章
+3727|已移动 {0} 章

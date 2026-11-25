@@ -53,6 +53,13 @@ class MainActivity : ComponentActivity() {
         logScreen("Screen changed")
     }
 
+    /** When this KoLib was installed or last updated (the same version put on again counts as an update). */
+    private fun installedAt(): Long = runCatching {
+        val info = if (Build.VERSION.SDK_INT >= 33) packageManager.getPackageInfo(packageName, android.content.pm.PackageManager.PackageInfoFlags.of(0))
+        else @Suppress("DEPRECATION") packageManager.getPackageInfo(packageName, 0)
+        info.lastUpdateTime
+    }.getOrDefault(BuildConfig.VERSION_CODE.toLong())
+
     override fun onCreate(savedInstanceState: Bundle?) {
         // The starting theme's dark was only for while the app starts.
         setTheme(R.style.Theme_KoLib)
@@ -64,11 +71,14 @@ class MainActivity : ComponentActivity() {
         val fromRecents = ((intent?.flags ?: 0) and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0
         if (savedInstanceState == null && !fromRecents) handleIncoming(intent)
         val themes = app.themeSettings
+        // When this KoLib was put on the device (installed, or updated): the opening and What's new go by it, so they come
+        // once after each update, even one of the same version.
+        val installed = installedAt()
         // The opening plays when the app is started from its icon (not after a restart, nor when it's sent a book): the
         // first time, and after each update, or each time if that's chosen.
-        val playOpening = savedInstanceState == null && themes.openingDue(BuildConfig.VERSION_CODE) &&
+        val playOpening = savedInstanceState == null && themes.openingDue(installed) &&
             (intent?.action == null || intent?.action == Intent.ACTION_MAIN)
-        if (playOpening) themes.openingPlayed(BuildConfig.VERSION_CODE)
+        if (playOpening) themes.openingPlayed(installed)
         // The starting screen is for the next start: the opening's own, when it's to play each time.
         matchStartingScreen(themes.opening.value && themes.openingEveryTime.value)
         // The Kobo is looked for, and the link to other devices kept up, while KoLib is in use: the library or a reader.
@@ -111,12 +121,12 @@ class MainActivity : ComponentActivity() {
                         onOpeningLight = themes::setOpeningLight,
                         introSeen = introSeen,
                         // Someone new to KoLib has nothing to be told is new.
-                        onIntroSeen = { seen -> themes.setIntroSeen(seen); if (seen) themes.setNewsSeen(BuildConfig.VERSION_CODE) },
+                        onIntroSeen = { seen -> themes.setIntroSeen(seen); if (seen) themes.setNewsSeen(installed) },
                         asksSeen = asksSeen,
                         onAsksSeen = { themes.setAsksSeen(true) },
-                        newsDue = newsSeen < BuildConfig.VERSION_CODE,
+                        newsDue = newsSeen != installed,
                         openingPlaying = showOpening,
-                        onNewsSeen = { themes.setNewsSeen(BuildConfig.VERSION_CODE) },
+                        onNewsSeen = { themes.setNewsSeen(installed) },
                         editorTourSeen = editorTourSeen,
                         onEditorTourSeen = { themes.setEditorTourSeen(true) },
                         toursSeen = toursSeen,

@@ -195,6 +195,29 @@ class ReaderFrameTest {
         assertEquals(listOf(1 to true), letGo)
     }
 
+    /**
+     * Flung fast to the foot, a pull doesn't start for a moment after (the next swipe of a quick run of them isn't taken
+     * for one); a moment later, it does. Brought there slowly, one starts straight away.
+     */
+    @Test
+    fun flungToTheFootAPullWaitsAMoment() = withFrame(scrolled) { frame ->
+        val (pulls, letGo) = frame.pulls()
+        val now = SystemClock.uptimeMillis()
+        // Going fast (60 px a frame) when it got there.
+        for (i in 4 downTo 1) frame.scrolled(60, now - i * 16L)
+        frame.drag(640f, 700f, 640f, 200f)
+        assertTrue("no pull straight after: $pulls $letGo", pulls.isEmpty() && letGo.isEmpty())
+        // A moment after it got there, a pull starts.
+        for (i in 4 downTo 1) frame.scrolled(60, now - PULL_SETTLE_MS - 100 - i * 16L)
+        frame.drag(640f, 700f, 640f, 200f)
+        assertEquals(listOf(1 to true), letGo)
+        // Brought there slowly (1 px a frame), straight away.
+        letGo.clear()
+        for (i in 4 downTo 1) frame.scrolled(1, now - i * 16L)
+        frame.drag(640f, 700f, 640f, 200f)
+        assertEquals(listOf(1 to true), letGo)
+    }
+
     /** At the top, pulled down: back into the chapter before. */
     @Test
     fun atTheTopItsBackToTheOneBefore() = withFrame(scrolled) { frame ->

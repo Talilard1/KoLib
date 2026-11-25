@@ -71,7 +71,8 @@ class ComicZoomTest {
             menuShown = menu
             AppSurface(ThemeChoice.BOOKCASE) {
                 ComicView(
-                    book = book, pages = pages, dir = dir, s = s, mode = mode, menu = menu, setMenu = { menu = it },
+                    // The page number shown (it starts off), as these go by it.
+                    book = book, pages = pages, dir = dir, s = s.copy(pageNumber = true), mode = mode, menu = menu, setMenu = { menu = it },
                     onMode = {}, onSettings = {}, onClose = {}, onCover = {}, readingHere = null,
                 )
             }

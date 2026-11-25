@@ -923,6 +923,7 @@ private fun PhoneBooksPage(
         EmptyState(Icons.Outlined.SearchOff, tr("No matching books"), tr("Try a different search, or clear the filters."))
         return
     }
+    ContinueRowKeepsTop(continuing.isNotEmpty(), browse.gridState, browse.listState)
     // Room under the last row, so the Add books button (or the bar for chosen books) doesn't cover it.
     val underLast = 104.dp
     val perRow = chosenPerRow() ?: 3

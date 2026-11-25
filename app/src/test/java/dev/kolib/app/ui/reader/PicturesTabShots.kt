@@ -256,7 +256,8 @@ ${chapters.joinToString("\n") { (id, t) -> """<li><a href="text/$id.xhtml">$t</a
         shot("59f_reader_picture_swipe_tmp", c)
         assertEquals(1, c.browsedTo)
         fun swipe(left: Boolean) {
-            compose.onRoot().performTouchInput { if (left) swipeLeft() else swipeRight() }
+            // Started clear of the side edges (a swipe in from one is KoLib's back swipe, with a picture open).
+            compose.onRoot().performTouchInput { if (left) swipeLeft(startX = width * 0.85f, endX = width * 0.15f) else swipeRight(startX = width * 0.15f, endX = width * 0.85f) }
             repeat(6) { compose.waitForIdle(); Thread.sleep(30) }
         }
         swipe(left = true)

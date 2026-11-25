@@ -201,16 +201,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -254,8 +251,6 @@ import dev.kolib.app.reader.ReaderSpread
 import dev.kolib.app.reader.ReaderTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.math.abs
-import kotlin.math.pow
 import kotlin.math.roundToInt
 
 internal enum class Panel { NONE, CONTENTS, SEARCH, LOOK, STATS }
@@ -271,6 +266,10 @@ internal class ReaderGuide(
     val panels: Boolean = menu,
     /** KoLib's back swipe with nothing of the reader's own open: the guide's own back, not out of the book. */
     val onBack: (() -> Unit)? = null,
+    /** The line in the contents, a swipe across changing tab above it, being set on the guide's step: the contents open. */
+    val tabLine: TabLineSetup? = null,
+    /** That line set (or kept as it was), and where it is. */
+    val onTabLine: ((Float) -> Unit)? = null,
     /** Shown over the page; told what of the reader's own is over it. */
     val content: @Composable BoxScope.(over: GuideSpace) -> Unit,
 )
@@ -449,9 +448,37 @@ internal fun ReaderScreen(
     val stripBottom = with(density) { if (!s.fullscreen || below) cutBottomPx.toDp() else 0.dp }
     LaunchedEffect(Unit) { controller.start() }
 
+    // The line in the contents a swipe across changes tab above and closes them below, being set: from Controls, or on the
+    // reading setup's step. The contents stay open while it is (swiped closed, they come back).
+    var tabLineSetup by remember { mutableStateOf<TabLineSetup?>(null) }
+    val lineSetup = guide?.tabLine ?: tabLineSetup
+    var settingLine by remember { mutableStateOf(false) }
+    LaunchedEffect(lineSetup) {
+        if (lineSetup != null) {
+            panel = Panel.CONTENTS
+            settingLine = true
+        } else if (settingLine) {
+            settingLine = false
+            if (panel == Panel.CONTENTS) panel = Panel.NONE
+        }
+    }
+    // Set (or kept), from Controls: back to them.
+    fun lineSet(line: Float?) {
+        if (line != null && line != s.tabSwipeLine) onSettings(s.copy(tabSwipeLine = line))
+        if (guide?.tabLine != null) {
+            guide.onTabLine?.invoke(line ?: s.tabSwipeLine)
+        } else {
+            panel = Panel.LOOK
+            controller.lookTab = LookTab.CONTROLS.ordinal
+            tabLineSetup = null
+        }
+    }
+
     // Going back closes what's over the page, else the book: from Android's back, or KoLib's own back swipe.
     fun goBack() {
         when {
+            lineSetup != null && guide?.tabLine != null && panel == Panel.CONTENTS -> guide.onBack?.invoke() ?: run { panel = Panel.NONE }
+            lineSetup != null && guide?.tabLine == null -> lineSet(null)
             controller.openAnnotation != null -> controller.openAnnotation = null
             // In one of the reading settings' groups: back to their first page, not out of them.
             panel == Panel.LOOK && controller.lookTab >= 0 -> controller.lookTab = -1
@@ -479,7 +506,6 @@ internal fun ReaderScreen(
         }
     }
     val edgeBack = remember { EdgeBackState() }
-
     val pageColor = Color(s.theme.bg)
     val inkColor = Color(s.theme.fg)
     // Nothing shown over the page but (perhaps) the controls: a panel, a note, a picture, a question...
@@ -489,7 +515,8 @@ internal fun ReaderScreen(
     // A swipe in from a side pulls out a panel when nothing's over the page (unless KoLib's back gesture is set to have
     // the sides throughout); otherwise it's KoLib's back swipe. (Not while choosing words: the handles go to the edges.)
     val sidesOpenPanels = s.edgePanels && pageClear() && panelsAllowed
-    val backSwipe = !sidesOpenPanels && !controller.selecting
+    // (Nor while the line in the contents is being set: a swipe to close them from the very edge is part of that.)
+    val backSwipe = !sidesOpenPanels && !controller.selecting && lineSetup == null
     // The screen round the page: the page's colour, or black where a camera is hidden in a strip of its own.
     val stripColor = if (below && camera) Color.Black else pageColor
     CompositionLocalProvider(LocalTourPlaces provides tourPlaces.takeIf { touring }) {
@@ -582,7 +609,7 @@ internal fun ReaderScreen(
                 if (s.progressLine != ProgressLine.OFF) ProgressLineBar(controller, s)
             }
         }
-        if (s.scrolling) ChapterPullRing(chapterPull, inkColor, pageColor, top = s.bandTop(cut).dp + 18.dp, bottom = s.bandBottom(cut).dp + 18.dp, hill = s.pullHill)
+        if (s.scrolling) ChapterPullRing(chapterPull, inkColor, pageColor, top = s.bandTop(cut).dp + 18.dp, bottom = s.bandBottom(cut).dp + 18.dp)
       }
 
         // The reading setup's card and hints: over the page, under the controls (and told how far in their bars come).
@@ -707,12 +734,26 @@ internal fun ReaderScreen(
         val lastPanel = remember { mutableStateOf(Panel.NONE) }
         SideEffect { if (panel != Panel.NONE) lastPanel.value = panel }
         val fromLeft = (if (panel != Panel.NONE) panel else lastPanel.value) == Panel.CONTENTS
-        ReaderPanel(panel != Panel.NONE, wide, drawerWidth, dismiss, fromLeft = fromLeft, pulled = pulling) {
+        // While the line in the contents is being set, they stay open: swiped closed, they spring back.
+        val settingLineNow = lineSetup != null && panel == Panel.CONTENTS
+        ReaderPanel(
+            panel != Panel.NONE, wide, drawerWidth, dismiss, fromLeft = fromLeft, pulled = pulling, holdOpen = settingLineNow,
+            watch = if (settingLineNow && lineSetup != null) Modifier.watchesTabLine(lineSetup, closing = -1f) else Modifier,
+        ) {
             // A panel sliding shut still shows what it held.
             when (if (panel != Panel.NONE) panel else lastPanel.value) {
-                Panel.CONTENTS -> ContentsPanel(controller, wide, onPicked = { panel = Panel.NONE; controller.controlsVisible = false }, onClose = dismiss)
+                Panel.CONTENTS -> ContentsPanel(
+                    controller, wide, s.tabSwipeLine,
+                    onPicked = { panel = Panel.NONE; controller.controlsVisible = false }, onClose = dismiss,
+                    setup = lineSetup, onLineKept = { lineSet(null) }, onLine = { lineSet(it) },
+                )
                 Panel.SEARCH -> SearchPanel(controller, wide, onPicked = { panel = Panel.NONE; controller.controlsVisible = false }, onClose = dismiss)
-                Panel.LOOK -> LookPanel(s, onSettings, controller.lookTab, wide, onTab = { controller.lookTab = it }, onClose = dismiss, onAppSettings = onAppSettings, bookLook = bookLook, camera = camera)
+                Panel.LOOK -> LookPanel(
+                    s, onSettings, controller.lookTab, wide, onTab = { controller.lookTab = it }, onClose = dismiss, onAppSettings = onAppSettings,
+                    bookLook = bookLook, camera = camera,
+                    // (Not while the reading setup leads the way: it has a step of its own for it.)
+                    onSetTabLine = if (guide == null) ({ tabLineSetup = TabLineSetup(s.tabSwipeLine) }) else null,
+                )
                 Panel.STATS -> ReadingStatsPanel(controller, onClose = dismiss) { title, subtitle, _ -> DrawerHeader(title, subtitle) }
                 Panel.NONE -> Unit
             }
@@ -877,26 +918,22 @@ internal class ChapterPull {
 }
 
 /**
- * The ring for a pull on past the end of a scrolled chapter (or back past its start). It shows at the foot (or the top),
- * clear of the bands there, and stays put while it fills clockwise with the pull (emptying as it's let off). Under it
- * (unless [hill] is off), the edge of the page rises in a soft hill of the page's own colours, until it's just short of the
- * ring; once the ring is full (a tap felt, and letting go goes on), the hill takes it in, the two running together like a
- * drop.
+ * The ring for a pull on past the end of a scrolled chapter (or back past its start): at the foot (or the top), clear of
+ * the bands there, it fills clockwise as the pull goes on and empties as it's let off, smoothly, swelling a little (and
+ * a tap felt) once it's full and letting go goes on.
  */
 @Composable
-private fun BoxScope.ChapterPullRing(pull: ChapterPull, ink: Color, page: Color, top: androidx.compose.ui.unit.Dp, bottom: androidx.compose.ui.unit.Dp, hill: Boolean) {
+private fun BoxScope.ChapterPullRing(pull: ChapterPull, ink: Color, page: Color, top: androidx.compose.ui.unit.Dp, bottom: androidx.compose.ui.unit.Dp) {
     val shown by androidx.compose.animation.core.animateFloatAsState(
         if (pull.on && pull.full > 0f) 1f else 0f, androidx.compose.animation.core.tween(if (pull.on) 120 else 220), label = "pullShown",
     )
-    // Smoothed a touch, so the ring and the hill follow the finger without jerking with it.
+    // Smoothed a touch, so the ring follows the finger without jerking with it.
     val fill by androidx.compose.animation.core.animateFloatAsState(
         pull.full, androidx.compose.animation.core.spring(dampingRatio = 1f, stiffness = androidx.compose.animation.core.Spring.StiffnessMedium), label = "pullFill",
     )
     val full = pull.on && pull.full >= 1f
-    // The hill taking the ring in: springy, as a drop runs together (and as one comes apart, when it's let off). Let go
-    // full, it stays together as it fades.
-    val merge by androidx.compose.animation.core.animateFloatAsState(
-        if (pull.full >= 1f) 1f else 0f, androidx.compose.animation.core.spring(dampingRatio = 0.62f, stiffness = 420f), label = "pullMerge",
+    val swell by androidx.compose.animation.core.animateFloatAsState(
+        if (full) 1.12f else 1f, androidx.compose.animation.core.spring(dampingRatio = 0.55f, stiffness = androidx.compose.animation.core.Spring.StiffnessMedium), label = "pullSwell",
     )
     val view = LocalView.current
     LaunchedEffect(full) {
@@ -906,125 +943,30 @@ private fun BoxScope.ChapterPullRing(pull: ChapterPull, ink: Color, page: Color,
     }
     if (shown <= 0f) return
     val atFoot = pull.dir > 0
-    androidx.compose.foundation.Canvas(Modifier.matchParentSize().testTag("chapter-pull")) {
-        drawChapterPull(fill.coerceIn(0f, 1f), merge.coerceIn(0f, 1.2f), shown, atFoot, if (atFoot) bottom.toPx() else top.toPx(), ink, page, hill)
-    }
-}
-
-/**
- * The pull's ring and hill, drawn for the foot ([atFoot], else mirrored for the top): the ring's [gap] from the edge, [fill]
- * 0 to 1, [merge] how far the hill has taken the ring in (0 to 1, a little past as it springs), [shown] 0 to 1 as it fades.
- * Without the [hill], the ring's disc on its own (swelling a little as it's full).
- */
-internal fun androidx.compose.ui.graphics.drawscope.DrawScope.drawChapterPull(
-    fill: Float, merge: Float, shown: Float, atFoot: Boolean, gap: Float, ink: Color, page: Color, hill: Boolean = true,
-) {
-    val base = size.height
-    val cx = size.width / 2f
-    val r0 = 23.dp.toPx()
-    // Full, it swells a little: more on its own, as there's no hill taking it in to show it.
-    val swell = 1f + (if (hill) 0.04f else 0.1f) * merge
-    val r = r0 * swell
-    val discY = base - gap - r0
-    // The hill: up to just short of the ring as it fills, then round its lower part as it takes it in.
-    val short = 6.dp.toPx()
-    val h = (gap - short).coerceAtLeast(0f) * (1f - (1f - fill).pow(1.5f)) + merge * (short + r0 * 0.8f)
-    val w = 46.dp.toPx() + 72.dp.toPx() * fill.pow(0.7f) + 8.dp.toPx() * merge
-    fun hillY(x: Float): Float {
-        val t = (x - cx) / w
-        return if (abs(t) >= 1f) base else base - h * (1f - t * t).let { it * it }
-    }
-    fun hillSlope(x: Float): Float {
-        val t = (x - cx) / w
-        return if (abs(t) >= 1f) 0f else 4f * h * t * (1f - t * t) / w
-    }
-    val under = base + 4.dp.toPx()
-    val hillShape = android.graphics.Path().apply {
-        moveTo(cx - w - 1f, under)
-        val n = 72
-        for (i in 0..n) {
-            val x = cx - w + 2f * w * i / n
-            lineTo(x, hillY(x))
-        }
-        lineTo(cx + w + 1f, under)
-        close()
-    }
-    val disc = android.graphics.Path().apply { addCircle(cx, discY, r, android.graphics.Path.Direction.CW) }
-    val shape = if (hill) android.graphics.Path(hillShape).apply { op(disc, android.graphics.Path.Op.UNION) } else disc
-    // The neck between them, as the hill takes the ring in: from the ring's lower side, curving in and out again to the hill.
-    if (hill && merge > 0.001f) {
-        val s = merge.coerceAtMost(1f)
-        val crest = base - h
-        val reached = if (crest < discY + r) kotlin.math.acos(((crest - discY) / r).coerceIn(-1f, 1f)) else 0f
-        val a = minOf((Math.PI * 0.6).toFloat(), reached + 0.25f + 0.55f * s)
-        val out = maxOf(r * kotlin.math.sin(reached) + 6.dp.toPx(), 8.dp.toPx() + 26.dp.toPx() * s)
-        val neck = android.graphics.Path()
-        fun side(sg: Float, first: Boolean) {
-            val ax = cx + sg * r * kotlin.math.sin(a)
-            val ay = discY + r * kotlin.math.cos(a)
-            val bx = cx + sg * out
-            val by = hillY(bx)
-            val m = hillSlope(bx)
-            val len = kotlin.math.hypot(1f, m)
-            val tbx = sg / len
-            val tby = m * sg / len
-            val k = kotlin.math.hypot(bx - ax, by - ay) * (0.35f + 0.25f * s)
-            val c1x = ax - sg * kotlin.math.cos(a) * k
-            val c1y = ay + kotlin.math.sin(a) * k
-            val c2x = bx - tbx * k
-            val c2y = by - tby * k
-            if (first) {
-                neck.moveTo(ax, ay)
-                neck.cubicTo(c1x, c1y, c2x, c2y, bx, by)
-                neck.lineTo(cx, base)
-            } else {
-                neck.lineTo(bx, by)
-                neck.cubicTo(c2x, c2y, c1x, c1y, ax, ay)
-                neck.lineTo(cx, discY)
-                neck.close()
+    Box(
+        Modifier
+            .align(if (atFoot) Alignment.BottomCenter else Alignment.TopCenter)
+            .padding(top = if (atFoot) 0.dp else top, bottom = if (atFoot) bottom else 0.dp)
+            .size(46.dp)
+            .graphicsLayer {
+                alpha = shown
+                val k = (0.7f + 0.3f * shown) * swell
+                scaleX = k
+                scaleY = k
             }
+            .shadow(3.dp, CircleShape)
+            .background(page, CircleShape)
+            .testTag("chapter-pull"),
+    ) {
+        androidx.compose.foundation.Canvas(Modifier.fillMaxSize().padding(5.dp)) {
+            val width = 3.5.dp.toPx()
+            drawCircle(ink.copy(alpha = 0.16f), style = androidx.compose.ui.graphics.drawscope.Stroke(width))
+            if (fill > 0.001f) drawArc(
+                ink, startAngle = -90f, sweepAngle = 360f * fill.coerceIn(0f, 1f), useCenter = false,
+                style = androidx.compose.ui.graphics.drawscope.Stroke(width, cap = androidx.compose.ui.graphics.StrokeCap.Round),
+            )
         }
-        side(-1f, true)
-        side(1f, false)
-        shape.op(neck, android.graphics.Path.Op.UNION)
     }
-    // Of the page's own colours: a shade toward the ink (lighter on a dark page), deepening toward the edge.
-    val dark = page.luminance() < 0.5f
-    val tint = if (dark) 0.09f else 0.05f
-    val high = androidx.compose.ui.graphics.lerp(page, ink, if (dark) tint * 1.25f else tint * 0.2f).copy(alpha = shown)
-    val low = androidx.compose.ui.graphics.lerp(page, ink, if (dark) tint * 0.7f else tint).copy(alpha = shown)
-    val shade = android.graphics.LinearGradient(0f, discY - r0, 0f, base, high.toArgb(), low.toArgb(), android.graphics.Shader.TileMode.CLAMP)
-    drawIntoCanvas { c ->
-        val nc = c.nativeCanvas
-        nc.save()
-        // At the top, the same, upside down (the ring itself still fills clockwise).
-        if (!atFoot) nc.scale(1f, -1f, 0f, size.height / 2f)
-        val body = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
-            shader = shade
-            val shadow = if (dark) Color.Black.copy(alpha = 0.6f * shown) else ink.copy(alpha = 0.22f * shown)
-            setShadowLayer(8.dp.toPx(), 0f, 1.5.dp.toPx(), shadow.toArgb())
-        }
-        nc.drawPath(shape, body)
-        // A fine rim, so it shows on a page of any colour (the inner half under the body).
-        val rim = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
-            style = android.graphics.Paint.Style.STROKE
-            strokeWidth = 2.4.dp.toPx()
-            color = ink.copy(alpha = (if (dark) 0.165f else 0.11f) * shown).toArgb()
-        }
-        nc.drawPath(shape, rim)
-        body.clearShadowLayer()
-        nc.drawPath(shape, body)
-        nc.restore()
-    }
-    val ringY = if (atFoot) discY else size.height - discY
-    val ringR = 18.5.dp.toPx() * swell
-    val width = 3.5.dp.toPx()
-    drawCircle(ink.copy(alpha = 0.16f * shown), ringR, Offset(cx, ringY), style = androidx.compose.ui.graphics.drawscope.Stroke(width))
-    if (fill > 0.001f) drawArc(
-        ink.copy(alpha = shown), startAngle = -90f, sweepAngle = 360f * fill, useCenter = false,
-        topLeft = Offset(cx - ringR, ringY - ringR), size = androidx.compose.ui.geometry.Size(ringR * 2f, ringR * 2f),
-        style = androidx.compose.ui.graphics.drawscope.Stroke(width, cap = androidx.compose.ui.graphics.StrokeCap.Round),
-    )
 }
 
 /**
@@ -1043,6 +985,10 @@ internal fun ReaderPanel(
     onDismiss: () -> Unit,
     fromLeft: Boolean = false,
     pulled: Float? = null,
+    /** Dragged shut, or tapped beside, it springs back open rather than closing (it's closed some other way). */
+    holdOpen: Boolean = false,
+    /** Watching what's done over it (and beside it), for the whole screen. */
+    watch: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
     // How open it is: 1 open, 0 closed.
@@ -1062,10 +1008,11 @@ internal fun ReaderPanel(
     Box(
         Modifier
             .fillMaxSize()
+            .then(watch)
             .testTag("reader-panel")
             // Here, round the shade and the panel both (where it stays put as the panel moves under the finger): what's
             // in the panel hears of a drag first, and takes it if it's theirs.
-            .pointerInput(visible, widthPx, fromLeft) {
+            .pointerInput(visible, widthPx, fromLeft, holdOpen) {
                 if (!visible) return@pointerInput
                 val tracker = androidx.compose.ui.input.pointer.util.VelocityTracker()
                 detectHorizontalDragGestures(
@@ -1078,7 +1025,7 @@ internal fun ReaderPanel(
                     onDragEnd = {
                         // Positive: thrown the way that closes it.
                         val thrown = tracker.calculateVelocity().x * closing
-                        if (thrown > with(density) { 700.dp.toPx() } || open.value < 0.5f) onDismiss()
+                        if (!holdOpen && (thrown > with(density) { 700.dp.toPx() } || open.value < 0.5f)) onDismiss()
                         else scope.launch { open.animateTo(1f, androidx.compose.animation.core.spring(stiffness = androidx.compose.animation.core.Spring.StiffnessMediumLow)) }
                     },
                     onDragCancel = { scope.launch { open.animateTo(1f) } },
@@ -1091,7 +1038,7 @@ internal fun ReaderPanel(
                 .graphicsLayer { alpha = open.value }
                 .background(Color.Black.copy(alpha = if (wide) 0.32f else 0.4f))
                 .testTag("reader-panel-shade")
-                .pointerInput(visible) { if (visible) detectTapGestures { onDismiss() } }
+                .pointerInput(visible, holdOpen) { if (visible && !holdOpen) detectTapGestures { onDismiss() } }
         )
         val slide = Modifier.graphicsLayer { translationX = (1f - open.value) * widthPx * closing }
         if (wide) {
@@ -1174,14 +1121,40 @@ private fun DrawerTabs(tabs: List<DrawerTab>, pager: PagerState) {
     }
 }
 
+/**
+ * The book's contents, bookmarks, highlights and pictures, a tab each: a swipe across above [line] (of the panel's height)
+ * changes tab, and lower down closes the panel. While [setup] runs, that line's being set (see [TabLineOverlay]).
+ */
 @Composable
-private fun ContentsPanel(controller: ReaderController, wide: Boolean, onPicked: () -> Unit, onClose: () -> Unit) {
+private fun ContentsPanel(
+    controller: ReaderController,
+    wide: Boolean,
+    line: Float,
+    onPicked: () -> Unit,
+    onClose: () -> Unit,
+    setup: TabLineSetup? = null,
+    onLineKept: () -> Unit = {},
+    onLine: (Float) -> Unit = {},
+) {
     val pager = rememberPagerState(initialPage = controller.contentsTab.coerceIn(0, 3)) { 4 }
     // The book's pictures are looked for once the panel's open (the tab shows how many once they're found).
     LaunchedEffect(controller) { controller.findPictures() }
     val pictureCount = controller.pictures?.size ?: 0
     SwipedTabs(pager, controller.contentsTab) { controller.contentsTab = it }
-    Column(Modifier.fillMaxSize().swipesTabs(pager).testTag("contents-panel")) {
+    // While the line's being set: no tab's swiped to till it's measured (the first swipe is to close), then by the line set.
+    val zone = when {
+        setup == null -> line
+        !setup.measured -> 0f
+        else -> setup.line
+    }
+    Box(
+        Modifier
+            .fillMaxSize()
+            .swipesTabs(pager, zone)
+            .then(if (setup != null) Modifier.onGloballyPositioned { setup.contents = it } else Modifier)
+            .testTag("contents-panel"),
+    ) {
+    Column(Modifier.fillMaxSize()) {
         if (!wide) {
             DrawerHeader(
                 controller.bookTitle,
@@ -1208,23 +1181,23 @@ private fun ContentsPanel(controller: ReaderController, wide: Boolean, onPicked:
             }
         }
     }
+    if (setup != null) TabLineOverlay(setup, pager, onKeep = onLineKept, onDone = onLine)
+    }
 }
 
-/** How much of a panel, from its top, a swipe across goes to the next tab or back (below, it closes the panel). */
-internal const val TAB_SWIPE_ZONE = 0.5f
-
 /**
- * A swipe across the top part of this ([TAB_SWIPE_ZONE] of it) moves [pager] to the next tab or back, following the
+ * A swipe across the top part of this ([zone] of it, from the top) moves [pager] to the next tab or back, following the
  * finger; one that starts lower down is left alone (for the panel to be dragged shut). What's in it hears of a drag
  * first, so a list scrolled up or down keeps it.
  */
-internal fun Modifier.swipesTabs(pager: PagerState): Modifier = composed {
+internal fun Modifier.swipesTabs(pager: PagerState, zone: Float = ReaderSettings.TAB_LINE): Modifier = composed {
     val scope = rememberCoroutineScope()
     val flick = with(LocalDensity.current) { 400.dp.toPx() }
+    val zoneNow by rememberUpdatedState(zone)
     pointerInput(pager) {
         awaitEachGesture {
             val down = awaitFirstDown(requireUnconsumed = false)
-            if (down.position.y > size.height * TAB_SWIPE_ZONE) return@awaitEachGesture
+            if (down.position.y > size.height * zoneNow) return@awaitEachGesture
             val tracker = androidx.compose.ui.input.pointer.util.VelocityTracker()
             tracker.addPosition(down.uptimeMillis, down.position)
             val from = pager.settledPage
@@ -1524,6 +1497,8 @@ private fun LookPanel(
     bookLook: BookLook? = null,
     /** The screen has a camera in it, at its top or bottom. */
     camera: Boolean = false,
+    /** Sets where a swipe across the contents changes tab (see [TabLineSetup]). */
+    onSetTabLine: (() -> Unit)? = null,
 ) {
     // The group open: none (the panel's first page, with the settings changed most), or one of the groups after it.
     val group = LookTab.entries.getOrNull(tab)
@@ -1555,7 +1530,7 @@ private fun LookPanel(
                     LookTab.TEXT -> TextSettings(s, onChange, basics = false)
                     LookTab.PAGE -> PageSettings(s, onChange, camera, basics = false)
                     LookTab.LAYOUT -> LayoutSettings(s, onChange, basics = false)
-                    LookTab.CONTROLS -> ControlSettings(s, onChange)
+                    LookTab.CONTROLS -> ControlSettings(s, onChange, onSetTabLine)
                     LookTab.AUTOSCROLL -> AutoscrollSettings(s, onChange)
                 }
             }
@@ -1862,10 +1837,6 @@ internal fun LayoutSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Uni
             else tr("Turn pages, like a printed book.")
         )
     }
-    if (s.scrolling) {
-        SwitchRow(tr("Hill under the ring"), s.pullHill) { onChange(s.copy(pullHill = it)) }
-        Help(tr("As you pull past the end of a chapter, the page rises to meet the ring."))
-    }
 
     if (!s.scrolling) {
         Heading(tr("Pages side by side"), first = !basics)
@@ -1945,7 +1916,9 @@ internal fun LayoutSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Uni
 
 /** Taps, buttons, the screen staying on, and swipes in from the edges. (Rotation is a button in the controls.) */
 @Composable
-private fun ControlSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit) {
+private fun ControlSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Unit, onSetTabLine: (() -> Unit)? = null) {
+    // In groups, as a settings screen has them: taps, then the buttons and the screen, then swipes (in from the edges, and
+    // across the contents), then the brightness swipe. What each does is said under it.
     Heading(tr("Tap to turn pages"), first = true)
     RadioChoices(TapZones.entries, s.taps, { it.label }) { onChange(s.copy(taps = it)) }
     Help(listOf(s.taps.help, tr("Tap the middle of the page to open the menu.")).filter { it.isNotEmpty() }.joinToString(" "))
@@ -1954,11 +1927,17 @@ private fun ControlSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Uni
         Choices(TapWidth.entries, s.tapWidth, { it.label }) { onChange(s.copy(tapWidth = it)) }
     }
 
-    Spacer(Modifier.height(10.dp))
+    Heading(tr("Buttons and screen"))
     SwitchRow(tr("Volume keys turn pages"), s.volumeKeys) { onChange(s.copy(volumeKeys = it)) }
     SwitchRow(tr("Keep screen on"), s.keepScreenOn) { onChange(s.copy(keepScreenOn = it)) }
+
+    Heading(tr("Swipes"))
     SwitchRow(tr("Edge swipes always go back"), s.edgeBack) { onChange(s.copy(edgeBack = it)) }
     Help(edgeSwipesHelp(s.edgeBack))
+    // In the contents: where a swipe across changes tab (above the line), and closes them (below it), set by trying it.
+    Spacer(Modifier.height(8.dp))
+    ValueRow(tr("Tab swiping in the contents"), tr("Top {0}%", (s.tabSwipeLine * 100).roundToInt()), "set-tab-line", onSetTabLine)
+    Help(tr("Above the line, a swipe across the contents changes tab. Below it, it closes them. Set it where your thumb swipes."))
 
     // Which side a swipe up or down sets the brightness on, and where up it the swipe starts.
     Heading(tr("Brightness swipe"))
@@ -1970,6 +1949,27 @@ private fun ControlSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Uni
         Help(tr("Keep it clear of where your thumb rests to scroll."))
     } else {
         Help(tr("Change the brightness in the Screen settings instead."))
+    }
+}
+
+/**
+ * A setting that's set somewhere of its own: its name, what it is now, and an arrow, as a settings row that leads on has
+ * them. Without [onClick], just what it is now.
+ */
+@Composable
+private fun ValueRow(label: String, value: String, tag: String, onClick: (() -> Unit)?) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .heightIn(min = 48.dp)
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+            .padding(vertical = 6.dp)
+            .testTag(tag),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(label, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f).padding(end = 12.dp))
+        Text(value, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        if (onClick != null) Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 

@@ -59,12 +59,15 @@ class ThemeSettings(context: Context) {
         _openingEveryTime.value = on
     }
 
-    /** The opening is to play as [version] starts: each time, or the first time that version does. */
-    fun openingDue(version: Int): Boolean = _opening.value && (_openingEveryTime.value || prefs.getInt(OPENING_PLAYED, -1) != version)
+    /**
+     * The opening is to play as KoLib starts: each time, or once for each time it's installed or updated ([installed],
+     * when that was, so putting the same version on again counts too).
+     */
+    fun openingDue(installed: Long): Boolean = _opening.value && (_openingEveryTime.value || prefs.getLong(OPENING_PLAYED_AT, -1L) != installed)
 
-    /** The opening has played for [version]. */
-    fun openingPlayed(version: Int) {
-        prefs.edit().putInt(OPENING_PLAYED, version).apply()
+    /** The opening has played for the KoLib [installed] then. */
+    fun openingPlayed(installed: Long) {
+        prefs.edit().putLong(OPENING_PLAYED_AT, installed).apply()
     }
 
     private val _openingSound = MutableStateFlow(prefs.getBoolean(OPENING_SOUND, true))
@@ -89,13 +92,16 @@ class ThemeSettings(context: Context) {
         _asksSeen.value = seen
     }
 
-    private val _newsSeen = MutableStateFlow(prefs.getInt(NEWS_SEEN, -1))
-    /** The version (its code) whose What's new was last shown: it's shown once after each update. */
-    val newsSeen: StateFlow<Int> = _newsSeen.asStateFlow()
+    private val _newsSeen = MutableStateFlow(prefs.getLong(NEWS_SEEN_AT, -1L))
+    /**
+     * When the KoLib whose What's new was last shown was installed or updated: it's shown once after each update (putting
+     * the same version on again counts too).
+     */
+    val newsSeen: StateFlow<Long> = _newsSeen.asStateFlow()
 
-    fun setNewsSeen(version: Int) {
-        prefs.edit().putInt(NEWS_SEEN, version).apply()
-        _newsSeen.value = version
+    fun setNewsSeen(installed: Long) {
+        prefs.edit().putLong(NEWS_SEEN_AT, installed).apply()
+        _newsSeen.value = installed
     }
 
     private val _editorTourSeen = MutableStateFlow(prefs.getBoolean(EDITOR_TOUR_SEEN, false))
@@ -164,10 +170,11 @@ class ThemeSettings(context: Context) {
         const val OPENING_SOUND = "openingSound"
         const val OPENING_LIGHT = "openingLight"
         const val OPENING_EVERY_TIME = "openingEveryTime"
-        const val OPENING_PLAYED = "openingPlayedFor"
+        /** (Kept by when KoLib was installed or updated; before 3.5, by version, under other names.) */
+        const val OPENING_PLAYED_AT = "openingPlayedAt"
         const val INTRO_SEEN = "introSeen"
         const val ASKS_SEEN = "asksSeen"
-        const val NEWS_SEEN = "newsSeen"
+        const val NEWS_SEEN_AT = "newsSeenAt"
         const val EDITOR_TOUR_SEEN = "editorTourSeen"
         const val TOURS_SEEN = "toursSeen"
         const val TOURS_OFF = "toursOff"

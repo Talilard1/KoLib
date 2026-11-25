@@ -1,0 +1,209 @@
+@fr
+3708|Boutons et écran
+3709|Glissements
+3710|Changer d’onglet en glissant dans la table des matières
+3711|{0} % du haut
+3712|Au-dessus de la ligne, glisser en travers de la table des matières change d’onglet. En dessous, cela la ferme. Placez-la là où votre pouce glisse.
+3713|Fermez la table des matières en glissant
+3714|Tenez votre téléphone comme d’habitude et glissez en travers avec le pouce, sans l’étirer. Au-dessus de l’endroit où vous glissez, glisser changera d’onglet.
+3715|Garder tel quel
+3716|Onglet changé
+3717|Glissez ici pour changer d’onglet
+3718|Cela la ferme
+3719|Glissez ici pour fermer
+3720|Déplacer la ligne
+3721|Essayez de glisser au-dessus et en dessous de la ligne. Faites glisser la ligne pour la déplacer.
+3722|Glisser à nouveau
+3723|C’est bon
+3724|Glisser dans la table des matières
+3725|Fermez la table des matières en glissant comme d’habitude : au-dessus de cet endroit, glisser changera d’onglet.
+@de
+3708|Tasten und Bildschirm
+3709|Wischgesten
+3710|Tabs wechseln im Inhalt
+3711|Obere {0} %
+3712|Über der Linie wechselt ein Wischen quer über den Inhalt den Tab. Darunter schließt es ihn. Leg sie dorthin, wo dein Daumen wischt.
+3713|Wisch den Inhalt zu
+3714|Halte dein Handy wie gewohnt und wisch mit dem Daumen quer darüber, ohne ihn zu strecken. Oberhalb davon wechselt ein Wischen künftig den Tab.
+3715|So lassen
+3716|Tab gewechselt
+3717|Hier wischen, um den Tab zu wechseln
+3718|Das schließt ihn
+3719|Hier wischen, um zu schließen
+3720|Linie verschieben
+3721|Probier das Wischen über und unter der Linie aus. Zieh die Linie, um sie zu verschieben.
+3722|Noch mal wischen
+3723|Passt so
+3724|Wischen im Inhalt
+3725|Wisch den Inhalt wie gewohnt zu – darüber wechselt ein Wischen dann den Tab.
+@es
+3708|Botones y pantalla
+3709|Deslizamientos
+3710|Cambiar de pestaña deslizando en el índice
+3711|{0} % superior
+3712|Por encima de la línea, deslizar a lo ancho del índice cambia de pestaña. Por debajo, lo cierra. Colócala donde desliza tu pulgar.
+3713|Cierra el índice deslizando
+3714|Sujeta el móvil como sueles hacerlo y desliza a lo ancho con el pulgar, sin estirarlo. Por encima de donde deslices, deslizar cambiará de pestaña.
+3715|Dejarlo como está
+3716|Pestaña cambiada
+3717|Desliza aquí para cambiar de pestaña
+3718|Así se cierra
+3719|Desliza aquí para cerrar
+3720|Mover la línea
+3721|Prueba a deslizar por encima y por debajo de la línea. Arrastra la línea para moverla.
+3722|Deslizar de nuevo
+3723|Así está bien
+3724|Deslizar en el índice
+3725|Cierra el índice deslizando como sueles hacerlo; por encima de ese punto, deslizar cambiará de pestaña.
+@it
+3708|Tasti e schermo
+3709|Scorrimenti
+3710|Cambiare scheda scorrendo nell’indice
+3711|{0}% superiore
+3712|Sopra la linea, scorrere sull’indice cambia scheda. Sotto, lo chiude. Mettila dove scorre il tuo pollice.
+3713|Chiudi l’indice scorrendo
+3714|Tieni il telefono come fai di solito e scorri di traverso con il pollice, senza allungarlo. Sopra il punto in cui scorri, scorrere cambierà scheda.
+3715|Lascia com’è
+3716|Scheda cambiata
+3717|Scorri qui per cambiare scheda
+3718|Così si chiude
+3719|Scorri qui per chiudere
+3720|Sposta la linea
+3721|Prova a scorrere sopra e sotto la linea. Trascina la linea per spostarla.
+3722|Scorri di nuovo
+3723|Va bene così
+3724|Scorrere nell’indice
+3725|Chiudi l’indice scorrendo come fai di solito: sopra quel punto, scorrere cambierà scheda.
+@nl
+3708|Knoppen en scherm
+3709|Veeggebaren
+3710|Tabbladen vegen in de inhoud
+3711|Bovenste {0}%
+3712|Boven de lijn wissel je van tabblad door over de inhoud te vegen. Eronder sluit je de inhoud. Zet de lijn waar je duim veegt.
+3713|Veeg de inhoud dicht
+3714|Houd je telefoon vast zoals je gewend bent en veeg er met je duim overheen, zonder te rekken. Boven de plek waar je veegt, wissel je voortaan met vegen van tabblad.
+3715|Zo laten
+3716|Ander tabblad
+3717|Veeg hier om van tabblad te wisselen
+3718|Dat sluit de inhoud
+3719|Veeg hier om te sluiten
+3720|Lijn verplaatsen
+3721|Probeer te vegen boven en onder de lijn. Sleep de lijn om haar te verplaatsen.
+3722|Opnieuw vegen
+3723|Ziet er goed uit
+3724|Vegen in de inhoud
+3725|Veeg de inhoud dicht zoals je gewend bent; daarboven wissel je dan met vegen van tabblad.
+@pt
+3708|Botões e tela
+3709|Deslizes
+3710|Trocar de aba deslizando no sumário
+3711|{0}% superiores
+3712|Acima da linha, deslizar pelo sumário troca de aba. Abaixo dela, fecha o sumário. Coloque-a onde seu polegar desliza.
+3713|Feche o sumário deslizando
+3714|Segure o celular como de costume e deslize de lado a lado com o polegar, sem esticá-lo. Acima de onde você deslizar, deslizar vai trocar de aba.
+3715|Deixar como está
+3716|Aba trocada
+3717|Deslize aqui para trocar de aba
+3718|Isso fecha o sumário
+3719|Deslize aqui para fechar
+3720|Mover a linha
+3721|Experimente deslizar acima e abaixo da linha. Arraste a linha para movê-la.
+3722|Deslizar de novo
+3723|Está bom
+3724|Deslizar no sumário
+3725|Feche o sumário deslizando como de costume; acima desse ponto, deslizar vai trocar de aba.
+@ro
+3708|Butoane și ecran
+3709|Glisări
+3710|Schimbarea filelor prin glisare în cuprins
+3711|{0}% de sus
+3712|Deasupra liniei, o glisare peste cuprins schimbă fila. Dedesubt, îl închide. Pune linia acolo unde glisează degetul mare.
+3713|Închide cuprinsul glisând
+3714|Ține telefonul cum îl ții de obicei și glisează cu degetul mare, fără să-l întinzi. Deasupra locului unde glisezi, o glisare va schimba fila.
+3715|Lasă așa
+3716|Filă schimbată
+3717|Glisează aici ca să schimbi fila
+3718|Asta îl închide
+3719|Glisează aici ca să închizi
+3720|Mută linia
+3721|Încearcă să glisezi deasupra și dedesubtul liniei. Trage linia ca s-o muți.
+3722|Glisează din nou
+3723|E bine așa
+3724|Glisarea în cuprins
+3725|Închide cuprinsul glisând cum o faci de obicei; deasupra acelui loc, o glisare va schimba fila.
+@ru
+3708|Кнопки и экран
+3709|Смахивания
+3710|Смена вкладок смахиванием в содержании
+3711|Верхние {0}%
+3712|Выше линии смахивание по содержанию меняет вкладку. Ниже — закрывает его. Поставьте линию там, где смахивает ваш большой палец.
+3713|Закройте содержание смахиванием
+3714|Держите телефон как обычно и смахните большим пальцем, не вытягивая его. Выше места, где вы смахнули, смахивание будет менять вкладку.
+3715|Оставить как есть
+3716|Вкладка сменилась
+3717|Смахните здесь, чтобы сменить вкладку
+3718|Это закрывает его
+3719|Смахните здесь, чтобы закрыть
+3720|Переместить линию
+3721|Попробуйте смахнуть выше и ниже линии. Перетащите линию, чтобы её переместить.
+3722|Смахнуть снова
+3723|Хорошо
+3724|Смахивания в содержании
+3725|Закройте содержание смахиванием, как обычно; выше этого места смахивание будет менять вкладку.
+@ja
+3708|ボタンと画面
+3709|スワイプ
+3710|目次でスワイプしてタブを切り替え
+3711|上から{0}%
+3712|線より上で目次を横にスワイプするとタブが切り替わり、線より下では目次が閉じます。親指でスワイプする位置に合わせて設定します。
+3713|スワイプして目次を閉じましょう
+3714|いつものようにスマートフォンを持ち、親指を伸ばさずに横へスワイプしてください。スワイプした位置より上では、スワイプでタブが切り替わるようになります。
+3715|このままにする
+3716|タブを切り替えました
+3717|ここでスワイプしてタブを切り替え
+3718|これで閉じます
+3719|ここでスワイプして閉じる
+3720|線を動かす
+3721|線の上と下でスワイプして試してみましょう。線はドラッグして動かせます。
+3722|もう一度スワイプ
+3723|これでOK
+3724|目次でのスワイプ
+3725|いつものようにスワイプして目次を閉じます。その位置より上では、スワイプでタブが切り替わります。
+@ko
+3708|버튼과 화면
+3709|스와이프
+3710|목차에서 밀어서 탭 바꾸기
+3711|위쪽 {0}%
+3712|선 위에서 목차를 가로로 밀면 탭이 바뀌고, 선 아래에서는 목차가 닫혀요. 엄지로 미는 곳에 맞춰 정하세요.
+3713|밀어서 목차를 닫아 보세요
+3714|평소처럼 휴대폰을 쥐고, 엄지를 무리하게 뻗지 말고 가로로 밀어 보세요. 민 곳보다 위에서 밀면 탭이 바뀌게 돼요.
+3715|그대로 두기
+3716|탭이 바뀌었어요
+3717|여기서 밀면 탭이 바뀌어요
+3718|이러면 닫혀요
+3719|여기서 밀면 닫혀요
+3720|선 옮기기
+3721|선 위와 아래에서 밀어 보세요. 선을 끌어서 옮길 수 있어요.
+3722|다시 밀기
+3723|좋아요
+3724|목차에서 밀기
+3725|평소처럼 밀어서 목차를 닫으세요. 그보다 위에서 밀면 탭이 바뀌어요.
+@zh
+3708|按键与屏幕
+3709|滑动手势
+3710|在目录中滑动切换标签
+3711|上方 {0}%
+3712|在分界线上方横向滑动目录会切换标签，在下方滑动则会关闭目录。请按拇指滑动的位置来设置。
+3713|滑动关闭目录
+3714|像平时一样握住手机，用拇指横向滑动，不必伸长手指。在你滑动位置的上方，横向滑动将会切换标签。
+3715|保持不变
+3716|已切换标签
+3717|在此滑动可切换标签
+3718|这样会关闭目录
+3719|在此滑动可关闭
+3720|移动分界线
+3721|试着在分界线上方和下方滑动。拖动分界线即可移动它。
+3722|重新滑动
+3723|就这样
+3724|在目录中滑动
+3725|像平时一样滑动关闭目录，在那个位置上方横向滑动则会切换标签。

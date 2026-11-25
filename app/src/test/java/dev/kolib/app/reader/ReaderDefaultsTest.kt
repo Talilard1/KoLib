@@ -106,20 +106,21 @@ class ReaderDefaultsTest {
 
     @Test
     @Config(qualifiers = "w411dp-h914dp-port-420dpi")
-    fun edgeSwipesGoingBackAndTheHillAreKept() {
-        ReaderSettingsStore(context).update { it.copy(edgeBack = true, pullHill = false) }
+    fun edgeSwipesGoingBackAndTheContentsLineAreKept() {
+        assertEquals(0.62f, ReaderSettingsStore(context).settings.value.tabSwipeLine, 0.001f)
+        ReaderSettingsStore(context).update { it.copy(edgeBack = true, tabSwipeLine = 0.8f) }
         val again = ReaderSettingsStore(context).settings.value
-        assertEquals(true to false, again.edgeBack to again.pullHill)
+        assertEquals(true, again.edgeBack)
+        assertEquals(0.8f, again.tabSwipeLine, 0.001f)
         assertFalse(again.edgePanels)
     }
 
-    /** From before there was one switch for the sides: the panels turned off had them going back. */
+    /** Edge swipes going back starts off, for everyone: whatever the edge swipes were set to before there was one switch. */
     @Test
     @Config(qualifiers = "w411dp-h914dp-port-420dpi")
-    fun edgeSwipesSetBeforeTheOneSwitchStayAsTheyWere() {
-        prefs.edit().putString("theme", "SEPIA").putBoolean("edgePanels", false).putBoolean("edgeBack", false).commit()
-        assertTrue(ReaderSettingsStore(context).settings.value.edgeBack)
-        prefs.edit().clear().putString("theme", "SEPIA").putBoolean("edgePanels", true).commit()
+    fun edgeSwipesGoingBackStartsOff() {
+        assertFalse(ReaderSettingsStore(context).settings.value.edgeBack)
+        prefs.edit().clear().putString("theme", "SEPIA").putBoolean("edgePanels", false).putBoolean("edgeBack", true).commit()
         assertFalse(ReaderSettingsStore(context).settings.value.edgeBack)
     }
 

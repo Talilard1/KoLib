@@ -80,3 +80,17 @@ internal fun ContinueReadingRow(
         }
     }
 }
+
+/**
+ * The row of what's being read comes in at the top of a shelf once what's being read is known, often just after the
+ * shelf first shows (as when KoLib's just been updated): a shelf still at its top is kept at its very top, the row
+ * showing, rather than staying on its first books with the row above them, out of sight. One scrolled down stays put.
+ */
+@androidx.compose.runtime.Composable
+internal fun ContinueRowKeepsTop(shown: Boolean, grid: androidx.compose.foundation.lazy.grid.LazyGridState, list: androidx.compose.foundation.lazy.LazyListState) {
+    androidx.compose.runtime.LaunchedEffect(shown) {
+        if (!shown) return@LaunchedEffect
+        if (grid.firstVisibleItemIndex <= 1 && grid.firstVisibleItemScrollOffset == 0) grid.scrollToItem(0)
+        if (list.firstVisibleItemIndex <= 1 && list.firstVisibleItemScrollOffset == 0) list.scrollToItem(0)
+    }
+}

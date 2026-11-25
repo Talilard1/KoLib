@@ -8,7 +8,9 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipe
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import dev.kolib.app.L10n
 import dev.kolib.app.epub.BookStructure
@@ -183,6 +185,12 @@ class ReadingSetupTest {
         assertFalse(c.settings.edgeBack)
         tap("setup-next")
 
+        // Then where a swipe across the contents changes tab: the contents open for it. Kept as it is, it's on.
+        compose.onNodeWithTag("tabline-measure").assertIsDisplayed()
+        tap("tabline-keep")
+        assertEquals(ReaderSettings.TAB_LINE, c.settings.tabSwipeLine, 0.001f)
+        compose.onNodeWithTag("contents-panel").assertDoesNotExist()
+
         compose.onNodeWithText("Brightness swipe").assertIsDisplayed()
         compose.onNodeWithTag("setup-level-zones").assertExists()
         tap("levelside-Both")
@@ -280,25 +288,77 @@ class ReadingSetupTest {
         assertTrue("clear of the foot: $card", card.bottom < screen.height - zone)
     }
 
-    /** Scrolling, the setup shows the pull on to the next chapter (played over and over), with the hill to keep or not. */
+    /**
+     * On its step, the contents open to set where a swipe across them changes tab: a swipe to close, made as usual, puts
+     * the line just above it; either side is shown to try, the line can be dragged, and once it's right, it's on to the
+     * next step with it kept. Back goes back a step.
+     */
     @Test
-    fun scrollingTheSetupShowsTheChapterPullWithTheHillToKeepOrNot() {
-        assertFalse(SetupStep.PULL in setupSteps(ReaderSettings.PHONE))
-        val scrolling = ReaderSettings.PHONE.withFlow(dev.kolib.app.reader.ReaderFlow.SCROLL)
-        assertTrue(SetupStep.PULL in setupSteps(scrolling))
-        assertEquals(SetupStep.TURNING, setupSteps(scrolling).let { it[it.indexOf(SetupStep.PULL) - 1] })
-        val c = controller(scrolling)
-        setup(c, SetupStep.PULL)
-        compose.onNodeWithText("Next chapter").assertIsDisplayed()
-        compose.onNodeWithTag("setup-pull-demo").assertExists()
-        assertTrue(c.settings.pullHill)
-        tap("setup-pull-hill")
-        assertFalse(c.settings.pullHill)
-        // The demo: pulled to full, the hill taking the ring in (springing a little past), then let go and gone.
-        assertEquals(0f, pullDemoAt(0f).first, 0.001f)
-        assertEquals(1f to 0f, pullDemoAt(0.42f).let { it.first to it.second })
-        assertTrue(pullDemoAt(0.6f).second > 0.9f)
-        assertEquals(0f, pullDemoAt(0.9f).third, 0.001f)
+    fun theContentsLineIsSetFromASwipeToCloseThenTriedAndKept() {
+        val c = controller()
+        val closed = setup(c, SetupStep.TAB_LINE)
+        compose.onNodeWithTag("contents-panel").assertExists()
+        compose.onNodeWithTag("tabline-measure").assertIsDisplayed()
+        val panel = compose.onNodeWithTag("contents-panel").fetchSemanticsNode().boundsInRoot
+        // Swiped closed low down, as a thumb does: the contents spring back, with the line just above the swipe.
+        val y = panel.top + panel.height * 0.85f
+        compose.onRoot().performTouchInput {
+            down(Offset(panel.right * 0.8f, y))
+            repeat(12) { moveBy(Offset(-panel.width * 0.5f / 12, -2f), 16) }
+            up()
+        }
+        settle()
+        compose.onNodeWithTag("contents-panel").assertExists()
+        compose.onNodeWithTag("tabline-above").assertIsDisplayed()
+        compose.onNodeWithTag("tabline-below").assertIsDisplayed()
+        val line = (y - 24f - panel.top - with(compose.density) { 28.dp.toPx() }) / panel.height
+        compose.onNodeWithTag("tabline-done").performClick()
+        settle()
+        assertEquals(line, c.settings.tabSwipeLine, 0.03f)
+        compose.onNodeWithText("Brightness swipe").assertIsDisplayed()
+        compose.onNodeWithTag("contents-panel").assertDoesNotExist()
+        assertTrue(closed.isEmpty())
+    }
+
+    /** A swipe to close that starts at the very edge of the screen (beside the contents) sets the line too, not going back. */
+    @Test
+    fun aSwipeToCloseFromTheEdgeSetsTheLine() {
+        val c = controller()
+        val closed = setup(c, SetupStep.TAB_LINE)
+        val screen = compose.onRoot().fetchSemanticsNode().boundsInRoot
+        compose.onRoot().performTouchInput { swipe(Offset(screen.width - 2f, screen.height * 0.8f), Offset(screen.width * 0.3f, screen.height * 0.8f), 250) }
+        settle()
+        compose.onNodeWithTag("tabline-above").assertIsDisplayed()
+        compose.onNodeWithTag("contents-panel").assertExists()
+        assertTrue(closed.isEmpty())
+    }
+
+    /** Swiped again, the line's set afresh; dragged, it moves; and Back on the step goes back a step, the contents closing. */
+    @Test
+    fun theContentsLineCanBeSetAgainOrDraggedAndBackGoesBackAStep() {
+        val c = controller()
+        setup(c, SetupStep.TAB_LINE)
+        val panel = compose.onNodeWithTag("contents-panel").fetchSemanticsNode().boundsInRoot
+        compose.onRoot().performTouchInput { swipe(Offset(panel.right * 0.8f, panel.top + panel.height * 0.7f), Offset(panel.right * 0.2f, panel.top + panel.height * 0.7f), 200) }
+        settle()
+        compose.onNodeWithTag("tabline-handle").assertExists()
+        tap("tabline-again")
+        compose.onNodeWithTag("tabline-measure").assertIsDisplayed()
+        compose.onRoot().performTouchInput { swipe(Offset(panel.right * 0.8f, panel.top + panel.height * 0.6f), Offset(panel.right * 0.2f, panel.top + panel.height * 0.6f), 200) }
+        settle()
+        val handle = compose.onNodeWithTag("tabline-handle").fetchSemanticsNode().boundsInRoot
+        compose.onNodeWithTag("tabline-handle").performTouchInput {
+            down(center)
+            repeat(10) { moveBy(Offset(0f, -panel.height * 0.1f / 10), 16) }
+            up()
+        }
+        settle()
+        val moved = compose.onNodeWithTag("tabline-handle").fetchSemanticsNode().boundsInRoot
+        assertTrue("dragged up: ${handle.top} to ${moved.top}", moved.top < handle.top - panel.height * 0.05f)
+        back!!.onBackPressed()
+        settle()
+        compose.onNodeWithText("Edge swipes").assertIsDisplayed()
+        compose.onNodeWithTag("contents-panel").assertDoesNotExist()
     }
 
     /** KoLib's back swipe, tried on its step, says it worked: it doesn't go back a step, or out of the setup. */
@@ -350,7 +410,10 @@ class ReadingSetupTest {
         val c = controller()
         setup(c)
         assertTrue("A tap in the middle of the page does nothing while choosing", c.menuLocked)
-        repeat(SetupStep.MENU.ordinal) { tap("setup-next") }
+        // (On the contents' step, they're open over the card: the line's kept as it is.)
+        repeat(SetupStep.MENU.ordinal) {
+            if (compose.onAllNodesWithTag("tabline-keep").fetchSemanticsNodes().isNotEmpty()) tap("tabline-keep") else tap("setup-next")
+        }
         compose.onNodeWithText("The menu").assertIsDisplayed()
         assertFalse(c.menuLocked)
         c.controlsVisible = true

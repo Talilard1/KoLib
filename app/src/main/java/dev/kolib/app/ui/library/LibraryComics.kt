@@ -376,6 +376,7 @@ private fun ComicShelf(
                     browse.comicPicked[entry.key] = true
                 }
                 // Narrowed by a series opening beside it, the shelf keeps the series on the screen; closed, it's back.
+                ContinueRowKeepsTop(continuing.isNotEmpty(), browse.comicGrid, browse.comicList)
                 val lead = if (continuing.isNotEmpty()) 1 else 0
                 dev.kolib.app.ui.components.KeepsItsPlace(
                     if (browse.comicMode == dev.kolib.app.ui.components.ShelfMode.LIST) browse.comicList.shelfScroll() else browse.comicGrid.shelfScroll(),

@@ -535,6 +535,49 @@ class ReaderEditorScreenshotTest {
         compose.onNodeWithTag("reader-panel").assertDoesNotExist()
     }
 
+    /**
+     * From Controls, the line in the contents a swipe across changes tab above (and closes them below) is set: the
+     * contents open, a swipe to close made as usual puts the line just above it, a swipe above it then changes tab and
+     * one below it doesn't close them while it's being set, and once it's right, it's kept and it's back to Controls.
+     */
+    @Test
+    @Config(qualifiers = LANDSCAPE)
+    fun theContentsLineIsSetFromControls() {
+        val (files, structure) = garden()
+        val c = ReaderController(files, structure, "The Garden", "en", null, ReaderSettings(theme = ReaderTheme.PAPER), context.assets)
+        c.showForPreview(1, 3, 12)
+        c.lookTab = dev.kolib.app.ui.reader.LookTab.CONTROLS.ordinal
+        compose.mainClock.autoAdvance = true
+        compose.setContent {
+            AppSurface(ThemeChoice.SYSTEM) {
+                ReaderScreen(c, onSettings = { c.applySettings(it) }, onClose = {}, onEdit = {}, pagePreview = { FakePage(ReaderTheme.PAPER, 2) }, initialPanel = Panel.LOOK)
+            }
+        }
+        compose.waitForIdle()
+        compose.onNodeWithTag("set-tab-line").performScrollTo()
+        compose.onNodeWithText(tr("Top {0}%", 62)).assertExists()
+        compose.onNodeWithTag("set-tab-line").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("tabline-measure").assertExists()
+        // Swiped closed low down (700 of 800): the contents spring back, the line set just above the swipe.
+        compose.onRoot().performTouchInput { swipe(Offset(380f, 700f), Offset(60f, 690f), 250) }
+        compose.waitForIdle()
+        compose.onNodeWithTag("reader-panel").assertExists()
+        compose.onNodeWithTag("tabline-above").assertExists()
+        // Above it, a swipe changes tab; below it, one doesn't close them while the line's being set.
+        compose.onRoot().performTouchInput { swipe(Offset(380f, 500f), Offset(60f, 500f), 250) }
+        compose.waitForIdle()
+        assertEquals("on to the bookmarks", 1, c.contentsTab)
+        compose.onRoot().performTouchInput { swipe(Offset(380f, 760f), Offset(20f, 760f), 250) }
+        compose.waitForIdle()
+        compose.onNodeWithTag("reader-panel").assertExists()
+        compose.onNodeWithTag("tabline-done").performClick()
+        compose.waitForIdle()
+        assertEquals((690f - 28f) / 800f, c.settings.tabSwipeLine, 0.02f)
+        compose.onNodeWithTag("reader-settings-panel").assertExists()
+        assertEquals(dev.kolib.app.ui.reader.LookTab.CONTROLS.ordinal, c.lookTab)
+    }
+
     @Test
     @Config(qualifiers = LANDSCAPE)
     fun readerContentsTabsSwipe() {

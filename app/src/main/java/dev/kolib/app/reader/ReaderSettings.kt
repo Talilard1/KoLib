@@ -404,10 +404,10 @@ data class ReaderSettings(
      */
     val otherLook: String? = null,
     /**
-     * Scrolling, a pull on past the end of a chapter (or back past its start) has the edge of the page rise in a hill to
-     * meet the ring that fills with it; off, the ring shows on its own.
+     * In the contents, how far down (0 to 1 of its height) a swipe across goes to the next tab or back: below this line,
+     * a swipe across closes the contents. Set where a thumb swipes when the phone's held as usual (see the reading setup).
      */
-    val pullHill: Boolean = true,
+    val tabSwipeLine: Float = TAB_LINE,
 ) {
     val scrolling: Boolean get() = flow == ReaderFlow.SCROLL
 
@@ -729,7 +729,7 @@ data class ReaderSettings(
 
     fun pageOnly(): ReaderSettings = copy(
         volumeKeys = true, edgeBack = false, keepScreenOn = true, brightness = -1f, brightnessFromScreen = true,
-        levelSide = LevelSide.LEFT, levelStart = LevelStart.ANYWHERE, otherLook = null, pullHill = true,
+        levelSide = LevelSide.LEFT, levelStart = LevelStart.ANYWHERE, otherLook = null, tabSwipeLine = TAB_LINE,
         marginItems = if (scrolling) marginItems else MarginItem.DEFAULTS,
         runningHeads = if (scrolling) runningHeads else RunningHeads.TOP,
         headTitlePlace = HeadTitlePlace.CENTRED, collectionTitle = CollectionTitle.BOOK,
@@ -859,6 +859,12 @@ data class ReaderSettings(
 
         /** Where a look keeps the other of pages and scrolling's look (see [otherLook]). */
         private const val OTHER_LOOK = "otherLook"
+
+        /** In the contents, the line a swipe across changes tab above and closes them below (see [tabSwipeLine]). */
+        const val TAB_LINE = 0.62f
+        /** As high and as low as it goes: room for the tabs above it, and to close the contents below it. */
+        const val TAB_LINE_MIN = 0.3f
+        const val TAB_LINE_MAX = 0.92f
 
         /**
          * How the reader starts on a phone, where a page is small and held close: a typeface made for small
@@ -991,7 +997,7 @@ class ReaderSettingsStore(context: Context) {
             .putString("levelSide", next.levelSide.name)
             .putString("levelStart", next.levelStart.name)
             .putString("otherLook", next.otherLook)
-            .putBoolean("pullHill", next.pullHill)
+            .putFloat("tabSwipeLine", next.tabSwipeLine)
             .putBoolean("clearOfCamera", next.clearOfCamera)
             .putBoolean("fullscreen", next.fullscreen)
             .putBoolean("roundCamera", next.roundCamera)
@@ -1071,12 +1077,12 @@ class ReaderSettingsStore(context: Context) {
             spread = enumOf("spread", d.spread),
             pageTurn = enumOf("turn", d.pageTurn),
             volumeKeys = prefs.getBoolean("volume", d.volumeKeys),
-            // From before there was one switch: the sides going back was the panels being off.
-            edgeBack = if (prefs.contains(EDGE_BACK)) prefs.getBoolean(EDGE_BACK, d.edgeBack) else !prefs.getBoolean("edgePanels", true),
+            // A switch of its own, off to start with for everyone (whatever the edge swipes were before there was one switch).
+            edgeBack = prefs.getBoolean(EDGE_BACK, d.edgeBack),
             levelSide = enumOf("levelSide", d.levelSide),
             levelStart = enumOf("levelStart", d.levelStart),
             otherLook = prefs.getString("otherLook", null),
-            pullHill = prefs.getBoolean("pullHill", d.pullHill),
+            tabSwipeLine = prefs.getFloat("tabSwipeLine", d.tabSwipeLine).coerceIn(ReaderSettings.TAB_LINE_MIN, ReaderSettings.TAB_LINE_MAX),
             clearOfCamera = prefs.getBoolean("clearOfCamera", d.clearOfCamera),
             fullscreen = prefs.getBoolean("fullscreen", d.fullscreen),
             roundCamera = prefs.getBoolean("roundCamera", d.roundCamera),

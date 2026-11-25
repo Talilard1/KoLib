@@ -242,7 +242,7 @@ fun TextEditorScreen(
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
         // On a phone the chapters are a screen of their own: while the page shows, the chapter's name in the top bar leads there.
         val pageShowing = narrowShowsEditor && !state.find.open && !(state.copiedOpen && state.copied != null)
-        EditorTopBar(state, onBack = close, onRead = { scope.launch { state.flush(); onRead(state.currentPath) } },
+        EditorTopBar(state, onBack = close, onRead = { scope.launch { state.flush(); state.settleMoves(); onRead(state.currentPath) } },
             onFind = { state.find.open = !state.find.open; if (state.find.open) state.copiedOpen = false },
             onCleanups = { showCleanups = true }, onRevert = { confirmRevert = true }, onTour = { touring = true },
             onAssistant = { assistant = true },

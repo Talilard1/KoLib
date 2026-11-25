@@ -659,6 +659,7 @@ private fun LibraryBrowser(
             }
             val perRow = chosenPerRow()
             val minCell = shelfMinCell()
+            ContinueRowKeepsTop(continuing.isNotEmpty(), browse.gridState, browse.listState)
             // Narrowed by a book's details opening beside it, the shelf keeps the book on the screen; closed, it's back.
             val lead = if (continuing.isNotEmpty()) 1 else 0
             dev.kolib.app.ui.components.KeepsItsPlace(if (browse.grid) browse.gridState.shelfScroll() else browse.listState.shelfScroll(), selectedId) { id ->

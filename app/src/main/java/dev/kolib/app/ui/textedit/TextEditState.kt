@@ -117,10 +117,10 @@ class TextEditState(
     val find = FindState(this)
 
     val structure: BookStructure get() = edit.structure
-    val dirty: Boolean get() = version.let { edit.dirty }
-    val canUndo: Boolean get() = version.let { edit.canUndo }
-    val canRedo: Boolean get() = version.let { edit.canRedo }
-    val undoLabel: String? get() = version.let { edit.undoLabel }
+    val dirty: Boolean get() = version.let { edit.dirty } || moves != null
+    val canUndo: Boolean get() = version.let { edit.canUndo } || moves != null
+    val canRedo: Boolean get() = version.let { edit.canRedo } && moves == null
+    val undoLabel: String? get() = moves?.let { movedLabel(it) } ?: version.let { edit.undoLabel }
     val redoLabel: String? get() = version.let { edit.redoLabel }
     val chapter get() = version.let { structure.chapters.firstOrNull { it.path == currentPath } }
 
@@ -139,6 +139,8 @@ class TextEditState(
 
     fun bump() {
         version = edit.version
+        // Chapters moved and waiting go by the book's order as it was: changed some other way, they're let go of.
+        moves?.let { m -> if (structure.chapters.map { it.path }.distinct() != m.from) moves = null }
     }
 
     private var lastJob: kotlinx.coroutines.Job? = null
@@ -375,6 +377,11 @@ class TextEditState(
     }
 
     fun undo() {
+        // Chapters moved but not yet in the book: undone, it's they that go back.
+        if (moves != null) {
+            moves = null
+            return
+        }
         go {
             flush()
             val touched = edit.undo()
@@ -383,6 +390,7 @@ class TextEditState(
     }
 
     fun redo() {
+        if (moves != null) return
         go {
             flush()
             val touched = edit.redo()
@@ -404,35 +412,107 @@ class TextEditState(
 
     // ---- chapter operations ---------------------------------------------------------------------
 
+    // ---- chapters moved in the list, not yet in the book ----------------------------------------
+
+    /**
+     * Chapters moved in the list but not yet in the book: shown in their new [order], each one moved (in [moved], with the
+     * colour it's shown in) marked where it was in [from], till they're applied (put in the book, as one step to undo) or
+     * cancelled. [touched]: every chapter moved, the last moved last.
+     */
+    class Moves(val from: List<String>, val order: List<String>, val moved: Map<String, Int>, val touched: List<String>)
+
+    var moves by mutableStateOf<Moves?>(null)
+        private set
+
+    /** Where the chapter list was scrolled to (the first chapter showing, and how far into it). */
+    var chaptersAt: Pair<Int, Int> = 0 to 0
+
+    /** The list in [order] after [paths] were moved: it waits to be applied. (All back as they were, there's nothing to.) */
+    fun stageMoves(order: List<String>, paths: Collection<String>) {
+        val book = structure.chapters.map { it.path }.distinct()
+        val was = moves?.takeIf { it.from == book }
+        val from = was?.from ?: book
+        if (order.size != from.size || order.toSet() != from.toSet()) return
+        if (order == from) {
+            moves = null
+            return
+        }
+        val now = paths.filter { it in from }.toSet()
+        val touched = was?.touched.orEmpty().filter { it !in now } + order.filter { it in now }
+        val moved = ChapterMoves.moved(from, order, touched)
+        // Each keeps the colour it had; one newly moved takes the first that's free (in turn, once all are in use).
+        val colours = LinkedHashMap<String, Int>()
+        for (p in order) if (p in moved) was?.moved?.get(p)?.let { colours[p] = it }
+        for (p in order) if (p in moved && p !in colours) {
+            colours[p] = (0 until MOVE_COLOURS).firstOrNull { c -> c !in colours.values } ?: (colours.size % MOVE_COLOURS)
+        }
+        moves = Moves(from, order, colours, touched)
+    }
+
+    private fun movedLabel(m: Moves) = if (m.moved.size <= 1) tr("Moved a chapter") else tr("Moved {0} chapters", m.moved.size)
+
+    /** The chapters moved, put in the book as one step to undo (the list staying as it is). */
+    fun applyMoves() {
+        if (moves == null) return
+        go {
+            flush()
+            settleMoves()
+        }
+    }
+
+    /** The chapters moved, back where they are in the book. */
+    fun cancelMoves() {
+        moves = null
+    }
+
+    /**
+     * Any chapters moved, put in the book now, before something else is done (saving it, reading it, another change). The
+     * list shows them where they are throughout: they're let go of as the book's changed.
+     */
+    suspend fun settleMoves() {
+        val m = moves ?: return
+        val done = changeNow(done = { if (moves === m) moves = null; null }) { ChapterOps.reorder(edit, structure, m.order, movedLabel(m)) }
+        if (done && moves === m) moves = null
+    }
+
     /** Runs a change to the book's chapters as one undoable step, and opens [ChapterOps.Result.focus]. */
     /** [done]: what to say once the change is made (for one that might not be in view: a page added at the front). */
     fun change(done: (() -> String?)? = null, work: suspend () -> ChapterOps.Result?) {
         go {
             flush()
-            busy = tr("Working…")
-            try {
-                val result = withContext(Dispatchers.Default) { work() } ?: return@go
-                if (edit.apply(result.label, result.changes)) {
-                    bump()
-                    done?.invoke()?.let { message = it }
-                    val focus = result.focus?.takeIf { edit.has(it) }
-                    val current = currentPath
-                    when {
-                        focus != null && focus != current -> { currentPath = focus; load() }
-                        current == null || !edit.has(current) -> { currentPath = structure.chapters.firstOrNull()?.path; load() }
-                        current in result.changes.keys -> load(keepScroll = true)
-                    }
-                    find.bookChanged()
-                }
-            } catch (e: ChapterOps.OpError) {
-                message = e.message
-            } catch (e: Exception) {
-                AppLog.e("Editor", "A change to the book failed", e)
-                message = tr("That didn't work: {0}", e.message ?: e.javaClass.simpleName)
-            } finally {
-                busy = null
-            }
+            // Chapters moved but not yet applied go in first, so this is done to the book as it's shown.
+            settleMoves()
+            changeNow(done, work)
         }
+    }
+
+    /** [change], in the work already going: false if it failed (and was said so). */
+    private suspend fun changeNow(done: (() -> String?)? = null, work: suspend () -> ChapterOps.Result?): Boolean {
+        busy = tr("Working…")
+        try {
+            val result = withContext(Dispatchers.Default) { work() } ?: return true
+            if (edit.apply(result.label, result.changes)) {
+                bump()
+                done?.invoke()?.let { message = it }
+                val focus = result.focus?.takeIf { edit.has(it) }
+                val current = currentPath
+                when {
+                    focus != null && focus != current -> { currentPath = focus; load() }
+                    current == null || !edit.has(current) -> { currentPath = structure.chapters.firstOrNull()?.path; load() }
+                    current in result.changes.keys -> load(keepScroll = true)
+                }
+                find.bookChanged()
+            }
+            return true
+        } catch (e: ChapterOps.OpError) {
+            message = e.message
+        } catch (e: Exception) {
+            AppLog.e("Editor", "A change to the book failed", e)
+            message = tr("That didn't work: {0}", e.message ?: e.javaClass.simpleName)
+        } finally {
+            busy = null
+        }
+        return false
     }
 
     fun rename(path: String, title: String, alsoHeading: Boolean) = change { ChapterOps.rename(edit, structure, path, title, alsoHeading) }
@@ -777,6 +857,7 @@ class TextEditState(
     fun save(onSaved: (() -> Unit)? = null) {
         go {
             flush()
+            settleMoves()
             if (codeError != null) {
                 message = tr("The code has a mistake, so your change isn't in the book yet. Fix it or undo it first.")
                 return@go
@@ -809,6 +890,7 @@ class TextEditState(
     }
 
     fun discardChanges() {
+        moves = null
         edit.discardUnsaved()
         bump()
         if (currentPath?.let { edit.has(it) } != true) currentPath = structure.chapters.firstOrNull()?.path
@@ -826,6 +908,7 @@ class TextEditState(
     }
 
     fun revert(onDone: () -> Unit) {
+        moves = null
         go {
             busy = tr("Restoring the original text…")
             try {
@@ -887,6 +970,8 @@ class TextEditState(
     fun clearMatches() = js("if (window.KLED) KLED.clearFind()")
 
     companion object {
+        /** How many colours moved chapters are shown in, before they're used again. */
+        const val MOVE_COLOURS = 8
         private val nsDecl = Regex("""\s+xmlns(?::([A-Za-z_][\w.-]*))?\s*=\s*"([^"]*)"""")
 
         /** Namespace declarations in effect inside the body (on html and body). */

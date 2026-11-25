@@ -148,6 +148,7 @@ class SetupShots {
     @Test @Config(qualifiers = PHONE) fun phone5Turned() = shot("phone_5_turned", "phone", SetupStep.TURNING, page = 1)
     @Test @Config(qualifiers = PHONE) fun phone5Scrolling() = shot("phone_5_scrolling", "phone_scroll", SetupStep.TURNING)
     @Test @Config(qualifiers = PHONE) fun phone5Edges() = shot("phone_5b_edges", "phone", SetupStep.EDGES)
+    @Test @Config(qualifiers = PHONE) fun phone6TabLine() = shot("phone_6b_tabline", "phone", SetupStep.TAB_LINE)
     @Test @Config(qualifiers = PHONE) fun phone5Taps() = shot("phone_5c_taps", "phone", SetupStep.TAPS)
     @Test @Config(qualifiers = PHONE) fun phone5TapsTopBottom() = shot("phone_5c_taps_top_bottom", "phone", SetupStep.TAPS) {
         compose.onNodeWithTag("taps-Top goes back, bottom goes forward", useUnmergedTree = true).performClick()

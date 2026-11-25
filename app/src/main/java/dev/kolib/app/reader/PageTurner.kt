@@ -79,6 +79,11 @@ interface TurnPages {
  * The surface sits above the whole window, so a copy of the window (PixelCopy) never includes it:
  * the next page can be copied while the surface still shows this one.
  */
+/** Going this fast (dp a second) as it gets to a chapter's end, the page was flung there (see [ReaderFrame.scrolled]). */
+internal const val PULL_FAST_DP = 900f
+/** How long after it's flung to a chapter's end a pull on can't start: about as long as it takes to see it's the end. */
+internal const val PULL_SETTLE_MS = 650L
+
 class ReaderFrame(context: Context, val controller: ReaderController) : FrameLayout(context) {
     val webView: WebView = controller.createView(context)
     val surface = TurnSurface(context)
@@ -87,6 +92,8 @@ class ReaderFrame(context: Context, val controller: ReaderController) : FrameLay
 
     init {
         addView(webView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+        // Scrolling: how fast the page was going when it got to the foot of the chapter (or its top), for the pull on.
+        webView.setOnScrollChangeListener { _, _, y, _, oldY -> scrolled(y - oldY, android.os.SystemClock.uptimeMillis()) }
         controller.turner = turner
         // Every chapter's pages are counted under the page, at its size, for page numbers through the book.
         controller.createCounter(this)
@@ -143,6 +150,29 @@ class ReaderFrame(context: Context, val controller: ReaderController) : FrameLay
     /** The page was at its foot (on) or its top (back) when the finger went down: only then can a pull start. */
     private var pullOnAtDown = false
     private var pullBackAtDown = false
+    /** When the page was last scrolled, and how fast (pixels a second, down the chapter). */
+    private var scrolledAt = 0L
+    private var scrollSpeed = 0f
+    /** When it came to a stop at the chapter's foot (or its top) going fast, flung there: none, if it didn't. */
+    private var flungToFootAt = Long.MIN_VALUE / 2
+    private var flungToTopAt = Long.MIN_VALUE / 2
+
+    /**
+     * The page scrolled by [dy] pixels at [at] (uptime, in ms). If that brought it to the chapter's foot (or its top) going
+     * fast, a pull on (or back) can't start for a moment after: swiping fast, the next swipe straight after isn't taken
+     * for a pull on to the next chapter. Brought there gently, it can start straight away, as ever.
+     */
+    internal fun scrolled(dy: Int, at: Long) {
+        if (dy == 0) return
+        val dt = (at - scrolledAt).coerceIn(8L, 100L)
+        val speed = dy * 1000f / dt
+        // Smoothed over the last few frames, as a fling eases off.
+        scrollSpeed = if (at - scrolledAt > 100L) speed else scrollSpeed * 0.4f + speed * 0.6f
+        scrolledAt = at
+        val fast = PULL_FAST_DP * density
+        if (dy > 0 && !canScroll(1) && scrollSpeed > fast) flungToFootAt = at
+        if (dy < 0 && !canScroll(-1) && -scrollSpeed > fast) flungToTopAt = at
+    }
 
     /** A swipe in from the left (-1) or the right (1) edge: the side panel on that side starts to come out. */
     var onSideSwipe: ((Int) -> Unit)? = null
@@ -294,8 +324,9 @@ class ReaderFrame(context: Context, val controller: ReaderController) : FrameLay
                 pullDownY = ev.y
                 pullLastY = ev.y
                 val pulls = onChapterPull != null && controller.settings.scrolling
-                pullOnAtDown = pulls && !canScroll(1)
-                pullBackAtDown = pulls && !canScroll(-1)
+                // Just flung there, a pull doesn't start in this touch (see [scrolled]).
+                pullOnAtDown = pulls && !canScroll(1) && ev.eventTime - flungToFootAt > PULL_SETTLE_MS
+                pullBackAtDown = pulls && !canScroll(-1) && ev.eventTime - flungToTopAt > PULL_SETTLE_MS
             }
             MotionEvent.ACTION_POINTER_DOWN -> if (pullDir == 0) pullTwo = true
             MotionEvent.ACTION_MOVE -> {

@@ -74,6 +74,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -82,7 +83,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -132,6 +140,60 @@ internal object ChapterMoves {
         val at = if (after == null) 0 else rest.indexOf(after) + 1
         return rest.take(at) + moving + rest.drop(at)
     }
+
+    /**
+     * Which chapters in [order] have moved from where they were in [from], [touched] being those that were moved (the last
+     * moved last). Those never moved are where they were among each other; of the rest, as many as are back where they
+     * were, among those, aren't counted — and where it could be either of two, it's the one moved last that's counted.
+     */
+    fun moved(from: List<String>, order: List<String>, touched: List<String>): Set<String> {
+        val n = order.size
+        val place = HashMap<String, Int>(n * 2).apply { from.forEachIndexed { i, p -> put(p, i) } }
+        val when_ = HashMap<String, Int>(touched.size * 2).apply { touched.forEachIndexed { i, p -> put(p, i) } }
+        // The longest run of chapters still in their old order (each ending at i: from prev[i]), scored by how many never
+        // moved, then how many moved, then how long ago those were moved.
+        val still = IntArray(n)
+        val back = IntArray(n)
+        val age = LongArray(n)
+        val prev = IntArray(n) { -1 }
+        fun better(i: Int, j: Int): Boolean = when {
+            j < 0 -> true
+            still[i] != still[j] -> still[i] > still[j]
+            back[i] != back[j] -> back[i] > back[j]
+            else -> age[i] > age[j]
+        }
+        // By old place, the best run ending at or before it (a Fenwick tree).
+        val best = IntArray(n + 1) { -1 }
+        for (i in 0 until n) {
+            val v = place[order[i]] ?: continue
+            var b = -1
+            var q = v
+            while (q > 0) {
+                val c = best[q]
+                if (c >= 0 && better(c, b)) b = c
+                q -= q and -q
+            }
+            val w = when_[order[i]]
+            still[i] = (if (b >= 0) still[b] else 0) + (if (w == null) 1 else 0)
+            back[i] = (if (b >= 0) back[b] else 0) + (if (w != null) 1 else 0)
+            age[i] = (if (b >= 0) age[b] else 0L) + (if (w != null) (touched.size - w).toLong() else 0L)
+            prev[i] = b
+            var u = v + 1
+            while (u <= n) {
+                val c = best[u]
+                if (c < 0 || better(i, c)) best[u] = i
+                u += u and -u
+            }
+        }
+        var end = -1
+        for (i in 0 until n) if (place.containsKey(order[i]) && better(i, end)) end = i
+        val stayed = HashSet<String>()
+        while (end >= 0) {
+            stayed += order[end]
+            end = prev[end]
+        }
+        return order.filterTo(LinkedHashSet()) { it !in stayed }
+    }
 }
 
 /**
@@ -161,19 +223,27 @@ fun ChaptersPane(
     var dragOffset by remember { mutableFloatStateOf(0f) }
     // Which way the finger last went (-1 up, 1 down), so the list only runs on the way it's being dragged.
     var heading by remember { mutableIntStateOf(0) }
-    // The order shown, which follows the book; a drag still going when the book changes keeps its place.
+    // The order shown: the book's, or as chapters have been moved and wait to be applied; a drag still going when the book
+    // changes keeps its place.
+    val moves = state.moves
     val lastOrder = remember { arrayOfNulls<MutableState<List<String>>>(1) }
-    val orderState = remember(version) {
+    val orderState = remember(version, moves) {
         // Each page once, even in a book whose reading order lists one twice (a faulty book): the list goes by them.
         val book = chapters.map { it.path }.distinct()
         val inFlight = lastOrder[0]?.value?.takeIf { dragging != null && it.toSet() == book.toSet() }
-        mutableStateOf(inFlight ?: book).also { lastOrder[0] = it }
+        val waiting = moves?.order?.takeIf { it.toSet() == book.toSet() }
+        mutableStateOf(inFlight ?: waiting ?: book).also { lastOrder[0] = it }
     }
     val order by orderState
     // The gestures outlive changes to the book, so they go by these, which always hold the latest.
     val latestOrder by rememberUpdatedState(orderState)
     val latestChapters by rememberUpdatedState(chapters)
-    val listState = rememberLazyListState()
+    // Where the list was is kept with the book being edited, so it's there again when the list is (after a chapter's been
+    // open on a phone, say).
+    val listState = rememberLazyListState(state.chaptersAt.first, state.chaptersAt.second)
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset }.collect { state.chaptersAt = it }
+    }
     val byPath = remember(chapters) { chapters.associateBy { it.path } }
 
     // A chapter that's just been added (a new one, a copy, a cover page at the front) is brought into view. The
@@ -237,13 +307,34 @@ fun ChaptersPane(
     }
     BackHandler(enabled = selecting) { stopSelecting() }
 
-    fun reorderTo(next: List<String>, count: Int) {
+    /** [paths] moved, the list now in [next]: it's shown so, waiting to be applied (see [TextEditState.stageMoves]). */
+    fun reorderTo(next: List<String>, paths: Collection<String>) {
         if (next == latestOrder.value) return
         latestOrder.value = next
-        state.reorder(next, if (count == 1) tr("Moved a chapter") else tr("Moved {0} chapters", count))
+        state.stageMoves(next, paths)
+    }
+
+    // Where the list was when chapters were let go of, or their moves applied: kept there as the list's laid out again (the
+    // chapters are where they were shown, so nothing should move).
+    var keepAt by remember { mutableStateOf<Pair<Int, Int>?>(null) }
+    val settled = state.busy == null
+    LaunchedEffect(keepAt, version, settled) {
+        val at = keepAt ?: return@LaunchedEffect
+        if (!settled) return@LaunchedEffect
+        repeat(6) {
+            withFrameNanos { }
+            if (!listState.isScrollInProgress && (listState.firstVisibleItemIndex != at.first || listState.firstVisibleItemScrollOffset != at.second)) {
+                listState.scrollToItem(at.first, at.second)
+            }
+        }
+        keepAt = null
+    }
+    fun keepPlace() {
+        keepAt = listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset
     }
 
     // ---- dragging -----------------------------------------------------------------------------
+    var dragStart by remember { mutableStateOf<List<String>>(emptyList()) }
     fun dragBy(dy: Float) {
         val key = dragging ?: return
         dragOffset += dy
@@ -270,6 +361,7 @@ fun ChaptersPane(
 
     fun startDrag(path: String) {
         if (dragging != null) return
+        dragStart = latestOrder.value
         dragging = path
         dragOffset = 0f
         heading = 0
@@ -283,7 +375,11 @@ fun ChaptersPane(
 
     fun endDrag() {
         val now = latestOrder.value
-        if (dragging != null && now != latestChapters.map { it.path }) state.reorder(now)
+        val dragged = dragging
+        if (dragged != null && now != dragStart) {
+            keepPlace()
+            state.stageMoves(now, listOf(dragged))
+        }
         dragging = null
         dragOffset = 0f
         heading = 0
@@ -340,10 +436,10 @@ fun ChaptersPane(
                     }) { Text(if (all) tr("Select none") else tr("Select all")) }
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = { reorderTo(ChapterMoves.step(latestOrder.value, chosen, -1), chosen.size) }, enabled = canUp) {
+                    IconButton(onClick = { reorderTo(ChapterMoves.step(latestOrder.value, chosen, -1), chosen) }, enabled = canUp) {
                         Icon(Icons.Outlined.ArrowUpward, tr("Move up"))
                     }
-                    IconButton(onClick = { reorderTo(ChapterMoves.step(latestOrder.value, chosen, 1), chosen.size) }, enabled = canDown) {
+                    IconButton(onClick = { reorderTo(ChapterMoves.step(latestOrder.value, chosen, 1), chosen) }, enabled = canDown) {
                         Icon(Icons.Outlined.ArrowDownward, tr("Move down"))
                     }
                     TextButton(onClick = { moving = true }, enabled = someLeft) { Text(tr("Move to…")) }
@@ -391,7 +487,18 @@ fun ChaptersPane(
                 }
             }
         }
-        LazyColumn(state = listState, modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp)) {
+        // Chapters moved and waiting: how many, and the way to put them in the book or back where they were.
+        if (moves != null) MovesBar(moves.moved.size, onCancel = { state.cancelMoves() }, onApply = { keepPlace(); state.applyMoves() })
+        // Where each chapter moved was: after the nearest chapter before it (as the book has them) that hasn't moved, or at
+        // the top. Marked there by a line in the moved chapter's colour.
+        val marks: Map<String?, List<Int>> = remember(moves) {
+            if (moves == null) emptyMap()
+            else moves.moved.entries.groupBy({ (p, _) ->
+                val i = moves.from.indexOf(p)
+                (i - 1 downTo 0).map { moves.from[it] }.firstOrNull { it !in moves.moved }
+            }, { it.value })
+        }
+        LazyColumn(state = listState, modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(top = 4.dp, bottom = 24.dp)) {
             itemsIndexed(order, key = { _, p -> p }) { index, path ->
                 val c = byPath[path] ?: return@itemsIndexed
                 val isDragged = dragging == path
@@ -407,6 +514,7 @@ fun ChaptersPane(
                     picked = picked[path] == true,
                     first = index == 0,
                     last = index == order.size - 1,
+                    moved = moves?.moved?.get(path)?.let { MoveColours[it % MoveColours.size] },
                     onTap = { tap(path) },
                     onHold = { hold(path) },
                     onAction = onAction,
@@ -416,7 +524,7 @@ fun ChaptersPane(
                         val j = (i + delta).coerceIn(0, o.size - 1)
                         if (i >= 0 && i != j) {
                             o.add(j, o.removeAt(i))
-                            reorderTo(o, 1)
+                            reorderTo(o, listOf(path))
                         }
                     },
                     onHide = { state.setHidden(path, c.linear) },
@@ -427,7 +535,8 @@ fun ChaptersPane(
                         dragAtOnce(onStart = { startDrag(path) }, onDrag = { fingerBy(it) }, onEnd = { endDrag() })
                     },
                     modifier = Modifier
-                        .zIndex(if (isDragged) 1f else 0f)
+                        .zIndex(if (isDragged) 1f else if (marks.containsKey(path) || (index == 0 && marks.containsKey(null))) 0.5f else 0f)
+                        .movedFrom(if (index == 0) marks[null].orEmpty() else emptyList(), marks[path].orEmpty())
                         .graphicsLayer {
                             translationY = if (!isDragged) 0f else {
                                 // Kept in sight while the list runs under it.
@@ -450,7 +559,7 @@ fun ChaptersPane(
         val rest = order.filter { it !in chosen }
         fun place(after: String?) {
             moving = false
-            reorderTo(ChapterMoves.after(latestOrder.value, chosen, after), chosen.size)
+            reorderTo(ChapterMoves.after(latestOrder.value, chosen, after), chosen)
         }
         AlertDialog(
             onDismissRequest = { moving = false },
@@ -464,6 +573,53 @@ fun ChaptersPane(
             confirmButton = {},
             dismissButton = { TextButton(onClick = { moving = false }) { Text(tr("Cancel")) } },
         )
+    }
+}
+
+/** The colours chapters moved (and waiting to be applied) are shown in, one each, in turn: clear on a light or a dark list. */
+internal val MoveColours = listOf(
+    Color(0xFF2E9BD6), Color(0xFFE0782A), Color(0xFF8E5BD8), Color(0xFF2BA875),
+    Color(0xFFD84C8A), Color(0xFFC9A227), Color(0xFF3FB6B0), Color(0xFFD9534F),
+)
+
+/**
+ * Where chapters moved away from were: a line across, in each one's colour, along the top of this row ([above], for the
+ * first) or its foot ([below]) — between it and the chapter that's now beside it. Several there, one over another.
+ */
+private fun Modifier.movedFrom(above: List<Int>, below: List<Int>): Modifier =
+    if (above.isEmpty() && below.isEmpty()) this
+    else drawWithContent {
+        drawContent()
+        val thick = 3.dp.toPx()
+        val apart = 5.dp.toPx()
+        val inset = 16.dp.toPx()
+        fun lines(colours: List<Int>, y: Float, down: Boolean) = colours.forEachIndexed { k, c ->
+            val at = if (down) y + thick + k * apart else y + (k - (colours.size - 1) / 2f) * apart
+            val colour = MoveColours[c % MoveColours.size]
+            drawLine(colour, androidx.compose.ui.geometry.Offset(inset, at), androidx.compose.ui.geometry.Offset(size.width - inset, at), thick, androidx.compose.ui.graphics.StrokeCap.Round)
+            // The dot over the numbers, where a moved chapter's number shows on one of its colour.
+            drawCircle(colour, 5.dp.toPx(), androidx.compose.ui.geometry.Offset(59.dp.toPx(), at))
+        }
+        lines(above, 0f, down = true)
+        lines(below, size.height, down = false)
+    }
+
+/** Chapters moved, waiting: how many, and Cancel (back as they were) or Apply (into the book). */
+@Composable
+private fun MovesBar(count: Int, onCancel: () -> Unit, onApply: () -> Unit) {
+    Surface(
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp).testTag("moves-bar"),
+    ) {
+        Row(Modifier.padding(start = 14.dp, end = 6.dp, top = 4.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                if (count == 1) tr("1 chapter moved") else tr("{0} chapters moved", count),
+                style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f),
+            )
+            TextButton(onClick = onCancel, modifier = Modifier.testTag("moves-cancel")) { Text(tr("Cancel")) }
+            androidx.compose.material3.Button(onClick = onApply, modifier = Modifier.testTag("moves-apply")) { Text(tr("Apply")) }
+        }
     }
 }
 
@@ -536,6 +692,8 @@ private fun ChapterRow(
     picked: Boolean,
     first: Boolean,
     last: Boolean,
+    /** Moved, waiting to be applied: the colour it's shown in (and its place before, marked). */
+    moved: Color? = null,
     onTap: () -> Unit,
     onHold: () -> Unit,
     onAction: (ChapterAction) -> Unit,
@@ -563,6 +721,8 @@ private fun ChapterRow(
         color = when {
             dragged -> MaterialTheme.colorScheme.surfaceContainerHighest
             picked -> MaterialTheme.colorScheme.primaryContainer
+            moved != null && current && !selecting -> androidx.compose.ui.graphics.lerp(MaterialTheme.colorScheme.secondaryContainer, moved, 0.25f)
+            moved != null -> moved.copy(alpha = 0.14f)
             current && !selecting -> MaterialTheme.colorScheme.secondaryContainer
             else -> Color.Transparent
         },
@@ -582,7 +742,13 @@ private fun ChapterRow(
             }
             .clickable(onClick = onTap),
     ) {
-        Row(Modifier.padding(start = 2.dp, top = 6.dp, bottom = 6.dp, end = if (selecting) 8.dp else 0.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            Modifier
+                // Moved: a bar of its colour down its side.
+                .then(if (moved != null) Modifier.drawBehind { drawRect(moved, size = androidx.compose.ui.geometry.Size(4.dp.toPx(), size.height)) } else Modifier)
+                .padding(start = 2.dp, top = 6.dp, bottom = 6.dp, end = if (selecting) 8.dp else 0.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             if (selecting) {
                 Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) {
                     Checkbox(checked = picked, onCheckedChange = { onTap() })
@@ -592,7 +758,22 @@ private fun ChapterRow(
                     Icon(Icons.Filled.DragIndicator, tr("Drag to reorder"), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
-            Text("$number", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(26.dp))
+            Box(Modifier.width(26.dp), contentAlignment = Alignment.CenterStart) {
+                if (moved == null) Text("$number", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                // Moved: its number on a dot of its colour, like the one on the line where it was.
+                else Text(
+                    "$number",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .wrapContentWidth(Alignment.Start, unbounded = true)
+                        .background(androidx.compose.ui.graphics.lerp(moved, Color.Black, 0.22f), RoundedCornerShape(50))
+                        .defaultMinSize(minWidth = 22.dp)
+                        .padding(horizontal = 5.dp, vertical = 3.dp),
+                )
+            }
             Column(Modifier.weight(1f)) {
                 Text(
                     chapter.title,

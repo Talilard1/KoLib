@@ -40,11 +40,13 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.DialogWindowProvider
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
@@ -70,9 +72,13 @@ private const val CENTRED_FROM_DP = 720
  * down out of sight as it goes.
  */
 @Composable
-fun AdaptiveSheet(onDismiss: () -> Unit, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+fun AdaptiveSheet(onDismiss: () -> Unit, modifier: Modifier = Modifier, dim: Boolean = true, content: @Composable () -> Unit) {
     val centred = LocalConfiguration.current.smallestScreenWidthDp >= CENTRED_FROM_DP
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = true)) {
+        // What's behind is dimmed, as for any dialog, unless it's to be seen as it changes ([dim] off).
+        val window = (LocalView.current.parent as? DialogWindowProvider)?.window
+        val dimmed = remember(window) { window?.attributes?.dimAmount ?: 0f }
+        LaunchedEffect(window, dim) { window?.setDimAmount(if (dim) dimmed else 0f) }
         Sheet(centred, onDismiss, modifier, content)
     }
 }

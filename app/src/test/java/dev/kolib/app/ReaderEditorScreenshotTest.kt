@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher
@@ -483,14 +484,15 @@ class ReaderEditorScreenshotTest {
     }
 
     /**
-     * With edge swipes opening the panels, the sides are kept from Android's back swipe while no panel is open; with one
-     * open, they're Android's again, so its back swipe goes back (a step at a time).
+     * With edge swipes opening the panels, the sides are kept from Android's back swipe throughout: with a panel open, a
+     * swipe in from either side is KoLib's back swipe, going back a step at a time (the settings' group, then the panel),
+     * just as Android's back does.
      */
     @Test
     @Config(qualifiers = LANDSCAPE)
-    fun withAPanelOpenAndroidsBackSwipeHasTheSides() {
+    fun withAPanelOpenTheSidesGoBackAStepAtATime() {
         val (files, structure) = garden()
-        val c = ReaderController(files, structure, "The Garden", "en", null, ReaderSettings(theme = ReaderTheme.PAPER, edgePanels = true), context.assets)
+        val c = ReaderController(files, structure, "The Garden", "en", null, ReaderSettings(theme = ReaderTheme.PAPER, edgeBack = false), context.assets)
         c.showForPreview(1, 3, 12)
         val panel = androidx.compose.runtime.mutableStateOf(Panel.NONE)
         compose.mainClock.autoAdvance = true
@@ -507,15 +509,27 @@ class ReaderEditorScreenshotTest {
         compose.onNodeWithTag("edge-kept-left").assertExists()
         panel.value = Panel.LOOK
         compose.waitForIdle()
-        compose.onNodeWithTag("edge-kept-left").assertDoesNotExist()
-        compose.onNodeWithTag("edge-kept-right").assertDoesNotExist()
-        // Android's back: a step at a time, the settings' group first.
+        compose.onNodeWithTag("edge-kept-left").assertExists()
+        compose.onNodeWithTag("edge-kept-right").assertExists()
+        fun swipeInFromTheLeft() {
+            compose.onRoot().performTouchInput {
+                down(Offset(2f, height * 0.5f))
+                repeat(16) { moveBy(Offset(width * 0.3f / 16, 0f), 16) }
+                up()
+            }
+            compose.waitForIdle()
+        }
+        // KoLib's back swipe: a step at a time, the settings' group first.
         c.lookTab = dev.kolib.app.ui.reader.LookTab.TEXT.ordinal
         compose.waitForIdle()
-        compose.runOnIdle { back!!.onBackPressed() }
-        compose.waitForIdle()
+        swipeInFromTheLeft()
         assertEquals(-1, c.lookTab)
         compose.onNodeWithTag("reader-settings-panel").assertExists()
+        swipeInFromTheLeft()
+        compose.onNodeWithTag("reader-panel").assertDoesNotExist()
+        // Android's back does the same.
+        panel.value = Panel.LOOK
+        compose.waitForIdle()
         compose.runOnIdle { back!!.onBackPressed() }
         compose.waitForIdle()
         compose.onNodeWithTag("reader-panel").assertDoesNotExist()

@@ -37,9 +37,18 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
+import dev.kolib.app.tr
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
+
+/**
+ * What a swipe in from a side does in a book: with KoLib's back gesture set to have the sides throughout ([alwaysBack]),
+ * it goes back; else it pulls out a panel, and goes back with one open.
+ */
+internal fun edgeSwipesHelp(alwaysBack: Boolean): String =
+    if (alwaysBack) tr("Swiping in from either edge closes what's open, or leaves the book. Open the panels from the menu.")
+    else tr("Swipe in from the left edge for contents, or the right for settings. With a panel open, swiping in from an edge goes back.")
 
 /**
  * KoLib's own back swipe, for the reader: in from either side edge, with an arrow that grows out of the

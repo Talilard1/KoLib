@@ -74,7 +74,7 @@ class ComicEndTest {
      * The comics of a series, of [counts] pages each, as the reader has them: reading the one at [start], at its page
      * [at]; reading on into another makes it the one being read, as the reader does.
      */
-    private fun open(counts: List<Int>, start: Int, at: Int, s: ComicSettings = ComicSettings(), series: String? = "Saga") {
+    private fun open(counts: List<Int>, start: Int, at: Int, s: ComicSettings = ComicSettings(alwaysTransition = true), series: String? = "Saga") {
         comics = counts.mapIndexed { i, n -> comic("saga-${i + 1}", i + 1, n, if (i == start) at else null) }
         current = comics[start].id
         compose.setContent {
@@ -169,10 +169,10 @@ class ComicEndTest {
     @Test
     fun swipedOnTheSameHappens() {
         open(listOf(3, 4), start = 0, at = 2)
-        compose.onRoot().performTouchInput { swipeLeft(startX = 380f, endX = 40f, durationMillis = 300) }
+        compose.onRoot().performTouchInput { swipeLeft(startX = 360f, endX = 40f, durationMillis = 300) }
         settle()
         assertTrue(betweenShowing())
-        compose.onRoot().performTouchInput { swipeLeft(startX = 380f, endX = 40f, durationMillis = 300) }
+        compose.onRoot().performTouchInput { swipeLeft(startX = 360f, endX = 40f, durationMillis = 300) }
         settle()
         assertEquals("saga-2", current)
     }
@@ -203,7 +203,7 @@ class ComicEndTest {
 
     @Test
     fun inTheLongStripTheNextComicFollowsTheOneBefore() {
-        open(listOf(2, 3), start = 0, at = 1, s = ComicSettings(mode = ComicMode.STRIP))
+        open(listOf(2, 3), start = 0, at = 1, s = ComicSettings(mode = ComicMode.STRIP, alwaysTransition = true))
         var sawBetween = false
         for (i in 0 until 30) {
             if (current == "saga-2") break

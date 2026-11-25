@@ -156,7 +156,8 @@ class ComicReaderUiTest {
     @Test
     fun theMenuStaysWhenAPageIsSwiped() {
         open(pages = 8, shown = true)
-        compose.onRoot().performTouchInput { swipeLeft(startX = 380f, endX = 40f, durationMillis = 300) }
+        // Started clear of the side edge (a swipe in from it is KoLib's back swipe).
+        compose.onRoot().performTouchInput { swipeLeft(startX = 360f, endX = 40f, durationMillis = 300) }
         settle()
         assertEquals(1, ReaderStore.pdfPlace(dir)!!.page)
         assertTrue("the menu is still up", menu)
@@ -209,6 +210,19 @@ class ComicReaderUiTest {
         assertFalse(s.cropStrip)
     }
 
+    /** The page number and the page between comics start off; KoLib's back swipe has the sides till it's turned off. */
+    @Test
+    fun kolibsBackSwipeHasTheSidesTillItsTurnedOff() {
+        assertFalse(ComicSettings().alwaysTransition || ComicSettings().pageNumber)
+        open()
+        compose.onNodeWithTag("comic-edge-kept-left").assertExists()
+        compose.onNodeWithTag("comic-edge-kept-right").assertExists()
+        s = s.copy(edgeBack = false)
+        settle()
+        compose.onNodeWithTag("comic-edge-kept-left").assertDoesNotExist()
+        compose.onNodeWithTag("comic-edge-kept-right").assertDoesNotExist()
+    }
+
     @Test
     fun theSettingsHaveMihonsThreeTabsAndTheFilterTabClearsTheBars() {
         open()
@@ -220,6 +234,7 @@ class ComicReaderUiTest {
         compose.onNodeWithTag("comic-settings-tab-1").performClick()
         settle()
         compose.onNodeWithText("Always show the page between comics").assertExists()
+        compose.onNodeWithText("KoLib's back gesture").assertExists()
         compose.onNodeWithTag("comic-settings-tab-2").performClick()
         settle()
         // The page can be seen as it's filtered.

@@ -1,0 +1,110 @@
+@fr
+3699|Glisser depuis l’un des bords ferme ce qui est ouvert, ou quitte le livre. Ouvrez les panneaux depuis le menu.
+3700|Glissez depuis le bord gauche pour la table des matières, depuis le droit pour les réglages. Quand un panneau est ouvert, glisser depuis un bord revient en arrière.
+3701|Faites défiler chaque chapitre vers le bas. À la fin, continuez à tirer vers le haut pour passer au suivant.
+3702|Colline sous l’anneau
+3703|Quand vous tirez au-delà de la fin d’un chapitre, la page se soulève jusqu’à l’anneau.
+3704|Glisser depuis un bord revient toujours en arrière
+3705|À la fin d’un chapitre, continuez à tirer vers le haut et relâchez quand l’anneau est plein. Tirez vers le bas au début pour revenir en arrière.
+3706|Essayez : glissez depuis un bord pour ouvrir un panneau, puis à nouveau depuis un bord pour le fermer.
+3707|Glissez depuis l’un des bords pour revenir en arrière.
+@de
+3699|Ein Wischen von einem der Ränder schließt, was offen ist, oder verlässt das Buch. Die Leisten öffnest du über das Menü.
+3700|Vom linken Rand wischen für den Inhalt, vom rechten für die Einstellungen. Ist eine Leiste offen, geht ein Wischen vom Rand zurück.
+3701|Scrolle durch jedes Kapitel nach unten. Am Ende ziehst du weiter nach oben für das nächste.
+3702|Hügel unter dem Ring
+3703|Ziehst du über das Ende eines Kapitels hinaus, hebt sich die Seite dem Ring entgegen.
+3704|Wischen vom Rand geht immer zurück
+3705|Zieh am Ende eines Kapitels weiter nach oben und lass los, sobald der Ring voll ist. Zieh am Anfang nach unten, um zurückzugehen.
+3706|Probier’s aus: Wische vom Rand für eine Leiste herein und dann noch einmal vom Rand, um sie zu schließen.
+3707|Wische von einem der Ränder herein, um zurückzugehen.
+@es
+3699|Deslizar desde cualquiera de los bordes cierra lo que esté abierto o sale del libro. Abre los paneles desde el menú.
+3700|Desliza desde el borde izquierdo para el índice, o desde el derecho para los ajustes. Con un panel abierto, deslizar desde un borde vuelve atrás.
+3701|Desplázate hacia abajo por cada capítulo. Al final, sigue tirando hacia arriba para pasar al siguiente.
+3702|Colina bajo el anillo
+3703|Al tirar más allá del final de un capítulo, la página se eleva hasta el anillo.
+3704|Deslizar desde los bordes siempre vuelve atrás
+3705|Al final de un capítulo, sigue tirando hacia arriba y suelta cuando el anillo esté lleno. Tira hacia abajo al principio para volver atrás.
+3706|Pruébalo: desliza desde un borde para abrir un panel y luego otra vez desde un borde para cerrarlo.
+3707|Desliza desde cualquiera de los bordes para volver atrás.
+@it
+3699|Scorrere da uno dei due bordi chiude ciò che è aperto, o esce dal libro. Apri i pannelli dal menu.
+3700|Scorri dal bordo sinistro per l’indice, da quello destro per le impostazioni. Con un pannello aperto, scorrere da un bordo torna indietro.
+3701|Scorri verso il basso ogni capitolo. Alla fine, continua a tirare verso l’alto per passare al successivo.
+3702|Collina sotto l’anello
+3703|Quando tiri oltre la fine di un capitolo, la pagina si solleva fino all’anello.
+3704|Scorrere dai bordi torna sempre indietro
+3705|Alla fine di un capitolo, continua a tirare verso l’alto e rilascia quando l’anello è pieno. Tira verso il basso all’inizio per tornare indietro.
+3706|Prova: scorri da un bordo per aprire un pannello, poi di nuovo da un bordo per chiuderlo.
+3707|Scorri da uno dei due bordi per tornare indietro.
+@nl
+3699|Vegen vanaf een van de randen sluit wat open is, of verlaat het boek. Open de panelen via het menu.
+3700|Veeg vanaf de linkerrand voor de inhoud, of vanaf de rechterrand voor de instellingen. Met een paneel open ga je terug door vanaf een rand te vegen.
+3701|Scrol omlaag door elk hoofdstuk. Blijf aan het eind omhoog trekken voor het volgende.
+3702|Heuvel onder de ring
+3703|Als je voorbij het eind van een hoofdstuk trekt, komt de pagina omhoog naar de ring.
+3704|Vegen vanaf de rand gaat altijd terug
+3705|Blijf aan het eind van een hoofdstuk omhoog trekken en laat los zodra de ring vol is. Trek aan het begin omlaag om terug te gaan.
+3706|Probeer het: veeg vanaf een rand voor een paneel, en daarna nog eens vanaf een rand om het te sluiten.
+3707|Veeg vanaf een van de randen om terug te gaan.
+@pt
+3699|Deslizar a partir de qualquer uma das bordas fecha o que estiver aberto ou sai do livro. Abra os painéis pelo menu.
+3700|Deslize da borda esquerda para o sumário, ou da direita para as configurações. Com um painel aberto, deslizar de uma borda volta.
+3701|Role para baixo por cada capítulo. No fim, continue puxando para cima para ir ao próximo.
+3702|Colina sob o anel
+3703|Ao puxar além do fim de um capítulo, a página se ergue até o anel.
+3704|Deslizar das bordas sempre volta
+3705|No fim de um capítulo, continue puxando para cima e solte quando o anel estiver cheio. Puxe para baixo no início para voltar.
+3706|Experimente: deslize de uma borda para abrir um painel e depois de novo de uma borda para fechá-lo.
+3707|Deslize de qualquer uma das bordas para voltar.
+@ro
+3699|Glisarea de la oricare margine închide ce e deschis sau iese din carte. Deschide panourile din meniu.
+3700|Glisează de pe marginea stângă pentru cuprins sau de pe cea dreaptă pentru setări. Cu un panou deschis, glisarea de la o margine te duce înapoi.
+3701|Derulează în jos prin fiecare capitol. La final, continuă să tragi în sus pentru următorul.
+3702|Deal sub inel
+3703|Când tragi dincolo de sfârșitul unui capitol, pagina se ridică până la inel.
+3704|Glisarea de la margini duce mereu înapoi
+3705|La sfârșitul unui capitol, continuă să tragi în sus și dă drumul când inelul e plin. Trage în jos la început ca să revii.
+3706|Încearcă: glisează de la o margine pentru un panou, apoi din nou de la o margine ca să-l închizi.
+3707|Glisează de la oricare margine ca să revii.
+@ru
+3699|Смахивание от любого края закрывает то, что открыто, или выходит из книги. Панели открываются из меню.
+3700|Смахните от левого края, чтобы открыть содержание, от правого — настройки. Когда панель открыта, смахивание от края возвращает назад.
+3701|Прокручивайте каждую главу вниз. В конце продолжайте тянуть вверх, чтобы перейти к следующей.
+3702|Холм под кольцом
+3703|Когда вы тянете дальше конца главы, страница поднимается навстречу кольцу.
+3704|Смахивание от края всегда возвращает назад
+3705|В конце главы продолжайте тянуть вверх и отпустите, когда кольцо заполнится. В начале потяните вниз, чтобы вернуться.
+3706|Попробуйте: смахните от края, чтобы открыть панель, а затем ещё раз от края, чтобы закрыть её.
+3707|Смахните от любого края, чтобы вернуться.
+@ja
+3699|どちらかの端からスワイプすると、開いているものを閉じるか、本を閉じます。パネルはメニューから開きます。
+3700|左端からスワイプで目次、右端からで設定を開きます。パネルが開いているときは、端からのスワイプで戻ります。
+3701|各章を下へスクロールして読みます。章の終わりでさらに上へ引くと、次の章へ進みます。
+3702|リングの下の丘
+3703|章の終わりを越えて引くと、ページが盛り上がってリングに届きます。
+3704|端からのスワイプで常に戻る
+3705|章の終わりでさらに上へ引き、リングがいっぱいになったら指を離します。章の始めで下へ引くと前に戻ります。
+3706|試してみましょう：端からスワイプしてパネルを開き、もう一度端からスワイプして閉じます。
+3707|どちらかの端からスワイプすると戻ります。
+@ko
+3699|어느 쪽 가장자리에서든 밀면 열린 것을 닫거나 책에서 나가요. 패널은 메뉴에서 여세요.
+3700|왼쪽 가장자리에서 밀면 목차, 오른쪽에서 밀면 설정이 열려요. 패널이 열려 있을 때 가장자리에서 밀면 뒤로 가요.
+3701|각 장을 아래로 스크롤해요. 끝에서 계속 위로 당기면 다음 장으로 넘어가요.
+3702|링 아래 언덕
+3703|장의 끝을 지나 당기면 페이지가 솟아올라 링에 닿아요.
+3704|가장자리에서 밀면 항상 뒤로 가기
+3705|장 끝에서 계속 위로 당기다가 링이 가득 차면 손을 떼세요. 장 시작에서 아래로 당기면 뒤로 가요.
+3706|해 보세요: 가장자리에서 밀어 패널을 열고, 다시 가장자리에서 밀어 닫아 보세요.
+3707|어느 쪽 가장자리에서든 밀면 뒤로 가요.
+@zh
+3699|从任一边缘滑入会关闭已打开的内容，或退出本书。请从菜单打开面板。
+3700|从左边缘滑动打开目录，从右边缘滑动打开设置。面板打开时，从边缘滑入即可返回。
+3701|向下滚动阅读每一章。读到章末时继续向上拉，即可进入下一章。
+3702|圆环下方的山丘
+3703|拉过章节末尾时，页面会隆起与圆环相接。
+3704|边缘滑动始终返回
+3705|在章末继续向上拉，圆环填满后松开。在章首向下拉可返回。
+3706|试试看：从边缘滑入打开面板，再从边缘滑入将其关闭。
+3707|从任一边缘滑入即可返回。

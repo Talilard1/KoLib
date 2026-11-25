@@ -122,7 +122,7 @@ data class ComicSettings(
     val showTapZones: Boolean = false,
     val background: ComicBackground = ComicBackground.BLACK,
     val animate: Boolean = true,
-    val pageNumber: Boolean = true,
+    val pageNumber: Boolean = false,
     /** The long strip's space either side, in percent of the screen's width. */
     val sidePadding: Int = 0,
     val doubleTapZoom: Boolean = true,
@@ -135,7 +135,9 @@ data class ComicSettings(
     /** Pages drawn round the camera too, where the screen has a cutout for it. */
     val cutout: Boolean = true,
     /** The page between one comic and the next in its series always shown; otherwise they're joined, as one. */
-    val alwaysTransition: Boolean = true,
+    val alwaysTransition: Boolean = false,
+    /** A swipe in from either side edge goes back, with KoLib's own arrow; otherwise Android's back swipe is left to it. */
+    val edgeBack: Boolean = true,
     val flash: Boolean = false,
     val flashMillis: Int = 100,
     /** Every this many pages. */
@@ -172,7 +174,7 @@ data class ComicSettings(
         .put("showTapZones", showTapZones).put("background", background.name)
         .put("animate", animate).put("pageNumber", pageNumber).put("sidePadding", sidePadding).put("doubleTapZoom", doubleTapZoom)
         .put("volumeKeys", volumeKeys).put("invertVolume", invertVolume).put("longTap", longTap).put("keepScreenOn", keepScreenOn)
-        .put("fullscreen", fullscreen).put("cutout", cutout).put("alwaysTransition", alwaysTransition)
+        .put("fullscreen", fullscreen).put("cutout", cutout).put("alwaysTransition", alwaysTransition).put("edgeBack", edgeBack)
         .put("flash", flash).put("flashMillis", flashMillis).put("flashEvery", flashEvery).put("flashWith", flashWith.name)
         .put("verticalIn", JSONArray(verticalIn.map { it.name })).put("verticalLeft", verticalLeft).put("verticalHeight", verticalHeight)
         .put("customBrightness", customBrightness).put("brightness", brightness)
@@ -214,7 +216,7 @@ data class ComicSettings(
                 invertVolume = o.optBoolean("invertVolume", d.invertVolume), longTap = o.optBoolean("longTap", d.longTap),
                 keepScreenOn = o.optBoolean("keepScreenOn", d.keepScreenOn),
                 fullscreen = o.optBoolean("fullscreen", d.fullscreen), cutout = o.optBoolean("cutout", d.cutout),
-                alwaysTransition = o.optBoolean("alwaysTransition", d.alwaysTransition),
+                alwaysTransition = o.optBoolean("alwaysTransition", d.alwaysTransition), edgeBack = o.optBoolean("edgeBack", d.edgeBack),
                 flash = o.optBoolean("flash", d.flash), flashMillis = o.optInt("flashMillis", d.flashMillis).coerceIn(100, 1500),
                 flashEvery = o.optInt("flashEvery", d.flashEvery).coerceIn(1, 10), flashWith = o.enumOr("flashWith", d.flashWith),
                 verticalIn = vertical, verticalLeft = o.optBoolean("verticalLeft", d.verticalLeft),

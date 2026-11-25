@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -101,6 +102,25 @@ class ReaderDefaultsTest {
         ReaderSettingsStore(context).update { it.copy(levelSide = LevelSide.BOTH, levelStart = LevelStart.BOTTOM) }
         val again = ReaderSettingsStore(context).settings.value
         assertEquals(LevelSide.BOTH to LevelStart.BOTTOM, again.levelSide to again.levelStart)
+    }
+
+    @Test
+    @Config(qualifiers = "w411dp-h914dp-port-420dpi")
+    fun edgeSwipesGoingBackAndTheHillAreKept() {
+        ReaderSettingsStore(context).update { it.copy(edgeBack = true, pullHill = false) }
+        val again = ReaderSettingsStore(context).settings.value
+        assertEquals(true to false, again.edgeBack to again.pullHill)
+        assertFalse(again.edgePanels)
+    }
+
+    /** From before there was one switch for the sides: the panels turned off had them going back. */
+    @Test
+    @Config(qualifiers = "w411dp-h914dp-port-420dpi")
+    fun edgeSwipesSetBeforeTheOneSwitchStayAsTheyWere() {
+        prefs.edit().putString("theme", "SEPIA").putBoolean("edgePanels", false).putBoolean("edgeBack", false).commit()
+        assertTrue(ReaderSettingsStore(context).settings.value.edgeBack)
+        prefs.edit().clear().putString("theme", "SEPIA").putBoolean("edgePanels", true).commit()
+        assertFalse(ReaderSettingsStore(context).settings.value.edgeBack)
     }
 
     @Test

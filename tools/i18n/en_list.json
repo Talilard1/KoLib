@@ -3697,5 +3697,14 @@
 "Cleared {0}.",
 "There was nothing to clear just now.",
 "Clear temporary files",
-"They can be cleared once KoLib's finished sending."
+"They can be cleared once KoLib's finished sending.",
+"Swiping in from either edge closes what's open, or leaves the book. Open the panels from the menu.",
+"Swipe in from the left edge for contents, or the right for settings. With a panel open, swiping in from an edge goes back.",
+"Scroll down through each chapter. At the end, keep pulling up for the next one.",
+"Hill under the ring",
+"As you pull past the end of a chapter, the page rises to meet the ring.",
+"Edge swipes always go back",
+"At the end of a chapter, keep pulling up and let go once the ring is full. Pull down at the start to go back.",
+"Try it: swipe in from an edge for a panel, then in from an edge again to close it.",
+"Swipe in from either edge to go back."
 ]

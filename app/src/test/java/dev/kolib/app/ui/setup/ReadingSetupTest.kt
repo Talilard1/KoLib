@@ -172,13 +172,15 @@ class ReadingSetupTest {
         assertEquals(!volume, c.settings.volumeKeys)
         tap("setup-next")
 
-        // With edge swipes off, KoLib's own back gesture can be chosen.
+        // One switch: swipes in from the sides pull out the panels (going back with one open), or always go back.
         compose.onNodeWithText("Edge swipes").assertIsDisplayed()
-        compose.onNodeWithTag("setup-edge-back").assertDoesNotExist()
-        tap("setup-edge-panels")
+        compose.onNodeWithText("Try it: swipe in from an edge for a panel, then in from an edge again to close it.").assertIsDisplayed()
+        tap("setup-edge-back")
+        assertTrue(c.settings.edgeBack)
         assertFalse(c.settings.edgePanels)
-        compose.onNodeWithTag("setup-edge-back").assertExists()
-        tap("setup-edge-panels")
+        compose.onNodeWithText("Try it: swipe in from either edge.").assertIsDisplayed()
+        tap("setup-edge-back")
+        assertFalse(c.settings.edgeBack)
         tap("setup-next")
 
         compose.onNodeWithText("Brightness swipe").assertIsDisplayed()
@@ -278,10 +280,31 @@ class ReadingSetupTest {
         assertTrue("clear of the foot: $card", card.bottom < screen.height - zone)
     }
 
+    /** Scrolling, the setup shows the pull on to the next chapter (played over and over), with the hill to keep or not. */
+    @Test
+    fun scrollingTheSetupShowsTheChapterPullWithTheHillToKeepOrNot() {
+        assertFalse(SetupStep.PULL in setupSteps(ReaderSettings.PHONE))
+        val scrolling = ReaderSettings.PHONE.withFlow(dev.kolib.app.reader.ReaderFlow.SCROLL)
+        assertTrue(SetupStep.PULL in setupSteps(scrolling))
+        assertEquals(SetupStep.TURNING, setupSteps(scrolling).let { it[it.indexOf(SetupStep.PULL) - 1] })
+        val c = controller(scrolling)
+        setup(c, SetupStep.PULL)
+        compose.onNodeWithText("Next chapter").assertIsDisplayed()
+        compose.onNodeWithTag("setup-pull-demo").assertExists()
+        assertTrue(c.settings.pullHill)
+        tap("setup-pull-hill")
+        assertFalse(c.settings.pullHill)
+        // The demo: pulled to full, the hill taking the ring in (springing a little past), then let go and gone.
+        assertEquals(0f, pullDemoAt(0f).first, 0.001f)
+        assertEquals(1f to 0f, pullDemoAt(0.42f).let { it.first to it.second })
+        assertTrue(pullDemoAt(0.6f).second > 0.9f)
+        assertEquals(0f, pullDemoAt(0.9f).third, 0.001f)
+    }
+
     /** KoLib's back swipe, tried on its step, says it worked: it doesn't go back a step, or out of the setup. */
     @Test
     fun kolibsBackSwipeTriedOnItsStepSaysItWorked() {
-        val c = controller(ReaderSettings.PHONE.copy(edgePanels = false, edgeBack = true))
+        val c = controller(ReaderSettings.PHONE.copy(edgeBack = true))
         val closed = setup(c, SetupStep.SWIPES)
         compose.onNodeWithText("Try it: swipe in from either edge.").assertIsDisplayed()
         compose.onRoot().performTouchInput {

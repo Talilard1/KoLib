@@ -18,18 +18,15 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -83,19 +80,16 @@ internal fun ComicSettingsSheet(
     onDismiss: () -> Unit,
     startTab: Int = SETTINGS_TAB_MODE,
 ) {
-    val sheet = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val pager = rememberPagerState(startTab) { 3 }
     val onTabNow by rememberUpdatedState(onTab)
     LaunchedEffect(pager) { androidx.compose.runtime.snapshotFlow { pager.currentPage }.collect { onTabNow(it) } }
     val filtering = pager.currentPage == SETTINGS_TAB_FILTER
     val scope = rememberCoroutineScope()
     val most = LocalConfiguration.current.screenHeightDp.dp * 0.75f
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheet,
-        scrimColor = if (filtering) Color.Transparent else BottomSheetDefaults.ScrimColor,
-        modifier = Modifier.testTag("comic-settings"),
-    ) {
+    // As the library's Filter, Sort and Display sheet: dragged down (or what's in it, from its top), it closes only when let
+    // go well down or flicked, and let go moving up, it comes back up. On the filter's tab, what's behind isn't dimmed, so
+    // the page can be seen as it's filtered.
+    dev.kolib.app.ui.components.AdaptiveSheet(onDismiss, Modifier.testTag("comic-settings"), dim = !filtering) {
         Column(Modifier.fillMaxWidth().heightIn(max = most)) {
             // The app's own settings, a step away, as the book reader has them: its theme, language and books folder.
             if (onAppSettings != null) AppSettingsLink(onAppSettings, Modifier.padding(horizontal = 16.dp, vertical = 4.dp).testTag("comic-app-settings"))
@@ -203,6 +197,10 @@ private fun ColumnScope.GeneralPage(
     Check(tr("Show tap zones on opening"), s.showTapZones) { v -> onSettings { it.copy(showTapZones = v) } }
     Check(tr("Volume keys turn pages"), s.volumeKeys) { v -> onSettings { it.copy(volumeKeys = v) } }
     if (s.volumeKeys) Check(tr("Invert volume keys"), s.invertVolume) { v -> onSettings { it.copy(invertVolume = v) } }
+    Check(
+        tr("KoLib's back gesture"), s.edgeBack,
+        note = if (s.edgeBack) tr("Swipe from either edge and let go when the arrow fills in.") else tr("Android's back gesture is used."),
+    ) { v -> onSettings { it.copy(edgeBack = v) } }
     Heading(tr("For all comics"))
     Chips(tr("Default reading mode"), ComicMode.entries, s.mode, { it.label() }) { v -> onSettings { it.copy(mode = v) } }
     Chips(tr("Default rotation"), ComicRotation.entries, s.rotation, { it.label() }) { v -> onSettings { it.copy(rotation = v) } }

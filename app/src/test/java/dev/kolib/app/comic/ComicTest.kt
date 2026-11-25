@@ -249,7 +249,7 @@ class ComicTest {
         val s = ComicSettings(
             mode = ComicMode.STRIP_GAPS, rotation = ComicRotation.LOCKED_LANDSCAPE, scale = ComicScale.SMART, splitWide = true,
             tapsPaged = ComicTaps.KINDLE, tapsStrip = ComicTaps.EDGE, invertTapsStrip = ComicInvert.BOTH, sidePadding = 13,
-            background = ComicBackground.AUTO, alwaysTransition = false, flash = true, flashMillis = 300, flashEvery = 3,
+            background = ComicBackground.AUTO, alwaysTransition = true, pageNumber = true, edgeBack = false, flash = true, flashMillis = 300, flashEvery = 3,
             flashWith = ComicFlash.WHITE_BLACK, verticalIn = setOf(ComicMode.STRIP, ComicMode.VERTICAL), verticalLeft = true,
             verticalHeight = 80, customBrightness = true, brightness = -40, colourFilter = true, colour = 0x66FF8800,
             blend = ComicBlend.OVERLAY, greyscale = true, inverted = true, fullscreen = false, cutout = false,

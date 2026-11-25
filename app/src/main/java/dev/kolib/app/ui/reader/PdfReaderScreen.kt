@@ -428,8 +428,8 @@ internal fun PdfPagesView(
         pages.size(page)
         wide = pages.widePages()
     }
-    // Back: the contents first, then the bars, then out of the book (Android's back, or KoLib's own back swipe where the
-    // book reader has it).
+    // Back: the contents first, then the bars, then out of the book. KoLib's back swipe has the sides throughout (there's
+    // no panel to pull out of them here), and goes back as Android's back would.
     val goBack = {
         when {
             showContents -> showContents = false
@@ -437,9 +437,9 @@ internal fun PdfPagesView(
             else -> onClose()
         }
     }
-    val kolibBack = s.edgeBack && !s.edgePanels
     val backSwipe = remember { EdgeBackState() }
-    BoxWithConstraints(Modifier.fillMaxSize().background(background).edgeBackSwipe(backSwipe, kolibBack) { goBack() }) {
+    val backDispatcher = androidx.activity.compose.LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+    BoxWithConstraints(Modifier.fillMaxSize().background(background).edgeBackSwipe(backSwipe, true) { backDispatcher?.onBackPressed() ?: goBack() }) {
         val density = LocalDensity.current
         val landscape = constraints.maxWidth > constraints.maxHeight * 1.1f && with(density) { constraints.maxWidth.toDp() } >= 560.dp
         var twoChosen by remember { mutableStateOf<Boolean?>(null) }
@@ -601,11 +601,9 @@ internal fun PdfPagesView(
                 }
             }
         }
-        // With KoLib's back swipe, the sides are kept from Android's; its arrow shows over everything.
-        if (kolibBack) {
-            Box(Modifier.align(Alignment.CenterStart).width(48.dp).fillMaxHeight().systemGestureExclusion())
-            Box(Modifier.align(Alignment.CenterEnd).width(48.dp).fillMaxHeight().systemGestureExclusion())
-        }
+        // The sides are kept from Android's own back swipe for KoLib's; its arrow shows over everything.
+        Box(Modifier.align(Alignment.CenterStart).width(48.dp).fillMaxHeight().systemGestureExclusion())
+        Box(Modifier.align(Alignment.CenterEnd).width(48.dp).fillMaxHeight().systemGestureExclusion())
         EdgeBackIndicator(backSwipe)
     }
 }

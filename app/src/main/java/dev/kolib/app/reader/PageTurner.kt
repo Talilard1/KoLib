@@ -168,8 +168,9 @@ class ReaderFrame(context: Context, val controller: ReaderController) : FrameLay
 
     private val density = context.resources.displayMetrics.density
     /** How far a chapter's pull goes before its ring starts to fill, and how much further it fills over. */
-    private val pullDead = 32 * density
-    private val pullSpan = 160 * density
+    // Full a little past an eighth of a phone's height: further than a flick, not so far it's hard to get to.
+    private val pullDead = 16 * density
+    private val pullSpan = 120 * density
     /** How near the edge a swipe in has to start, as for Android's own back swipe. */
     private val sideZone = 24 * density
     /** How much of each edge Android's back swipe is kept off: more than [sideZone], to cover however wide it's set. */

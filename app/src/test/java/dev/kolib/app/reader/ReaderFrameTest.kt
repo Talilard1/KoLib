@@ -155,7 +155,7 @@ class ReaderFrameTest {
     @Test
     fun aShortPullDoesntGoOn() = withFrame(scrolled) { frame ->
         val (pulls, letGo) = frame.pulls()
-        frame.drag(640f, 700f, 640f, 670f)
+        frame.drag(640f, 700f, 640f, 682f)
         assertTrue("not filling yet: $pulls", pulls.all { it.second == 0f })
         assertEquals(listOf(1 to false), letGo.ifEmpty { listOf(1 to false) })
     }

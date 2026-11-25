@@ -831,11 +831,54 @@
   /** Where a place gone to sits on the screen: just under the top band. */
   function topInset() { return bandTop + Math.round(padY * 0.6); }
 
+  /**
+   * Scrolling, with the book's cover filling the first screen: what comes after it (with the end of the chapter and its
+   * room) fills at least a screen, so at the end the cover has gone right out of sight, not left as a strip at the top;
+   * and what comes after it starts no higher than a chapter does, under the band at the top. (Worked out afresh each time
+   * it's laid out, the reader kept where it is.)
+   */
+  function fitChapterEnd() {
+    var end = document.getElementById('kl-end');
+    if (!end) return;
+    var at = scroller.scrollTop;
+    end.style.minHeight = '';
+    var cover = document.querySelector('#kl-section > .kl-cover-part');
+    if (cover) cover.style.removeProperty('margin-bottom');
+    if (scrolled && cover) {
+      var next = cover.nextElementSibling || document.body;
+      var first = function () {
+        var r = document.createRange();
+        r.selectNodeContents(next);
+        var rects = r.getClientRects(), top = null;
+        for (var i = 0; i < rects.length; i++) {
+          if (rects[i].width > 0 && rects[i].height > 0 && (top === null || rects[i].top < top)) top = rects[i].top;
+        }
+        return top;
+      };
+      var top = first();
+      if (top !== null) {
+        // Room under the cover, as much as the band and a chapter's start take (its margin may run into what's below's,
+        // so it's tried again till it's there).
+        for (var k = 0, m = 0; k < 3; k++) {
+          var short = Math.round(topInset() - (top - cover.getBoundingClientRect().bottom));
+          if (short <= 0) break;
+          m += short;
+          cover.style.setProperty('margin-bottom', m + 'px', 'important');
+          top = first();
+        }
+        var need = (top + scroller.scrollTop - topInset()) + H - scroller.scrollHeight;
+        if (need > 0.5) end.style.minHeight = Math.ceil(end.getBoundingClientRect().height + need) + 'px';
+      }
+    }
+    if (Math.abs(scroller.scrollTop - at) > 0.5) scroller.scrollTop = at;
+  }
+
   function countPages() {
     laidOutWidth = W;
     var fill = pageFill();
     if (scrolled) {
       if (fill) fill.style.display = 'none';
+      try { fitChapterEnd(); } catch (e) { log(e); }
       pages = Math.max(1, Math.ceil(textMax() / stepH()) + 1);
       columns = pages;
       displayPage = false;

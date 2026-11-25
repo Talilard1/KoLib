@@ -326,11 +326,10 @@ data class ReaderSettings(
     val pageTurn: PageTurn = PageTurn.CURL,
     val volumeKeys: Boolean = false,
     /**
-     * A swipe in from the left side opens the contents, from the right the reading settings. Off, the
-     * sides are left to Android's back swipe.
+     * KoLib's back gesture: a swipe in from either side goes back, whatever's open (it closes that, or leaves the book).
+     * Off, a swipe in from the left opens the contents and from the right the reading settings, and it goes back only
+     * with something open. (Android's own back swipe is never used in the reader.)
      */
-    val edgePanels: Boolean = true,
-    /** With [edgePanels] off: KoLib's own back swipe at the sides, rather than Android's. */
     val edgeBack: Boolean = false,
     /**
      * The text keeps out from under a camera in the screen (scrolling, it fades out going by behind it). Off, it has
@@ -404,8 +403,16 @@ data class ReaderSettings(
      * its own, brought back when it's gone back to (see [withFlow]). Null till the other has been used.
      */
     val otherLook: String? = null,
+    /**
+     * Scrolling, a pull on past the end of a chapter (or back past its start) has the edge of the page rise in a hill to
+     * meet the ring that fills with it; off, the ring shows on its own.
+     */
+    val pullHill: Boolean = true,
 ) {
     val scrolling: Boolean get() = flow == ReaderFlow.SCROLL
+
+    /** A swipe in from a side, with nothing open, opens the panel on that side (see [edgeBack]). */
+    val edgePanels: Boolean get() = !edgeBack
 
     /**
      * Gone over to pages or to scrolling ([to]): its own look comes back (the first time, it starts as this one), and
@@ -721,8 +728,8 @@ data class ReaderSettings(
         .put("printHeads", printHeads).put("dropCaps", dropCaps).put(OTHER_LOOK, otherLook)
 
     fun pageOnly(): ReaderSettings = copy(
-        volumeKeys = true, edgePanels = true, edgeBack = false, keepScreenOn = true, brightness = -1f, brightnessFromScreen = true,
-        levelSide = LevelSide.LEFT, levelStart = LevelStart.ANYWHERE, otherLook = null,
+        volumeKeys = true, edgeBack = false, keepScreenOn = true, brightness = -1f, brightnessFromScreen = true,
+        levelSide = LevelSide.LEFT, levelStart = LevelStart.ANYWHERE, otherLook = null, pullHill = true,
         marginItems = if (scrolling) marginItems else MarginItem.DEFAULTS,
         runningHeads = if (scrolling) runningHeads else RunningHeads.TOP,
         headTitlePlace = HeadTitlePlace.CENTRED, collectionTitle = CollectionTitle.BOOK,
@@ -980,11 +987,11 @@ class ReaderSettingsStore(context: Context) {
             .putString("spread", next.spread.name)
             .putString("turn", next.pageTurn.name)
             .putBoolean("volume", next.volumeKeys)
-            .putBoolean("edgePanels", next.edgePanels)
-            .putBoolean("edgeBack", next.edgeBack)
+            .putBoolean(EDGE_BACK, next.edgeBack)
             .putString("levelSide", next.levelSide.name)
             .putString("levelStart", next.levelStart.name)
             .putString("otherLook", next.otherLook)
+            .putBoolean("pullHill", next.pullHill)
             .putBoolean("clearOfCamera", next.clearOfCamera)
             .putBoolean("fullscreen", next.fullscreen)
             .putBoolean("roundCamera", next.roundCamera)
@@ -1033,6 +1040,8 @@ class ReaderSettingsStore(context: Context) {
 
     private companion object {
         const val LANDSCAPE_LOOK = "lookLandscape"
+        /** KoLib's back gesture, as there's been one switch for the sides (see [ReaderSettings.edgeBack]). */
+        const val EDGE_BACK = "edgeSwipesBack"
     }
 
     private fun load(): ReaderSettings {
@@ -1062,11 +1071,12 @@ class ReaderSettingsStore(context: Context) {
             spread = enumOf("spread", d.spread),
             pageTurn = enumOf("turn", d.pageTurn),
             volumeKeys = prefs.getBoolean("volume", d.volumeKeys),
-            edgePanels = prefs.getBoolean("edgePanels", d.edgePanels),
-            edgeBack = prefs.getBoolean("edgeBack", d.edgeBack),
+            // From before there was one switch: the sides going back was the panels being off.
+            edgeBack = if (prefs.contains(EDGE_BACK)) prefs.getBoolean(EDGE_BACK, d.edgeBack) else !prefs.getBoolean("edgePanels", true),
             levelSide = enumOf("levelSide", d.levelSide),
             levelStart = enumOf("levelStart", d.levelStart),
             otherLook = prefs.getString("otherLook", null),
+            pullHill = prefs.getBoolean("pullHill", d.pullHill),
             clearOfCamera = prefs.getBoolean("clearOfCamera", d.clearOfCamera),
             fullscreen = prefs.getBoolean("fullscreen", d.fullscreen),
             roundCamera = prefs.getBoolean("roundCamera", d.roundCamera),

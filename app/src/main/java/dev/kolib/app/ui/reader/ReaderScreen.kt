@@ -201,6 +201,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -250,6 +254,8 @@ import dev.kolib.app.reader.ReaderSpread
 import dev.kolib.app.reader.ReaderTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.abs
+import kotlin.math.pow
 import kotlin.math.roundToInt
 
 internal enum class Panel { NONE, CONTENTS, SEARCH, LOOK, STATS }
@@ -453,10 +459,15 @@ internal fun ReaderScreen(
             controller.note != null -> controller.note = null
             controller.browsing != null -> controller.browsing = null
             controller.image != null -> controller.image = null
+            // Then the menu, before the book itself.
+            controller.controlsVisible -> controller.controlsVisible = false
             else -> guide?.onBack?.let { it() } ?: onClose()
         }
     }
     BackHandler { goBack() }
+    // KoLib's back swipe goes back as Android's back would: through whatever's listening for it, the innermost first. (In
+    // the reading setup, it's the reader's own going back, so it can be tried on its step without the setup going back.)
+    val backDispatcher = androidx.activity.compose.LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     // The tour: over the page with the bars showing and no panel open, lighting each part where it is.
     var touring by rememberSaveable { mutableStateOf(tour) }
     LaunchedEffect(tour) { if (tour) touring = true }
@@ -468,7 +479,6 @@ internal fun ReaderScreen(
         }
     }
     val edgeBack = remember { EdgeBackState() }
-    val backSwipe = s.edgeBack && !s.edgePanels && !controller.selecting
 
     val pageColor = Color(s.theme.bg)
     val inkColor = Color(s.theme.fg)
@@ -476,10 +486,14 @@ internal fun ReaderScreen(
     fun pageClear(): Boolean = panel == Panel.NONE && controller.note == null && controller.image == null && controller.browsing == null &&
         controller.externalLink == null && !controller.atEnd && controller.openAnnotation == null && controller.editingNote == null &&
         controller.lookUpText == null
+    // A swipe in from a side pulls out a panel when nothing's over the page (unless KoLib's back gesture is set to have
+    // the sides throughout); otherwise it's KoLib's back swipe. (Not while choosing words: the handles go to the edges.)
+    val sidesOpenPanels = s.edgePanels && pageClear() && panelsAllowed
+    val backSwipe = !sidesOpenPanels && !controller.selecting
     // The screen round the page: the page's colour, or black where a camera is hidden in a strip of its own.
     val stripColor = if (below && camera) Color.Black else pageColor
     CompositionLocalProvider(LocalTourPlaces provides tourPlaces.takeIf { touring }) {
-    BoxWithConstraints(Modifier.fillMaxSize().background(stripColor).edgeBackSwipe(edgeBack, backSwipe) { goBack() }.padding(horizontal = cutSide.dp)) {
+    BoxWithConstraints(Modifier.fillMaxSize().background(stripColor).edgeBackSwipe(edgeBack, backSwipe) { if (guide != null) goBack() else backDispatcher?.onBackPressed() ?: goBack() }.padding(horizontal = cutSide.dp)) {
         val wide = maxWidth >= 720.dp
         // On a phone, a panel is a drawer that leaves a strip of the page to tap to close it; on a tablet, a side panel.
         val drawerWidth = (maxWidth - 56.dp).coerceIn(280.dp, 360.dp)
@@ -520,8 +534,8 @@ internal fun ReaderScreen(
                     frame.currentLevel = { controller.settings.level ?: systemBrightness(context) }
                     // A swipe in from the left edge pulls out the contents, from the right the reading settings: the
                     // panel follows the finger, and opens when let go past half way or thrown in (else it goes back).
-                    // With that turned off, or something else over the page, Android's back swipe is left as it is.
-                    frame.sideSwipes = s.edgePanels && pageClear() && panelsAllowed
+                    // With something over the page (or the sides set to go back), it's KoLib's back swipe instead.
+                    frame.sideSwipes = sidesOpenPanels
                     frame.onSideSwipe = { side ->
                         pulling = 0f
                         panel = if (side < 0) Panel.CONTENTS else Panel.LOOK
@@ -568,7 +582,7 @@ internal fun ReaderScreen(
                 if (s.progressLine != ProgressLine.OFF) ProgressLineBar(controller, s)
             }
         }
-        if (s.scrolling) ChapterPullRing(chapterPull, inkColor, pageColor, top = s.bandTop(cut).dp + 18.dp, bottom = s.bandBottom(cut).dp + 18.dp)
+        if (s.scrolling) ChapterPullRing(chapterPull, inkColor, pageColor, top = s.bandTop(cut).dp + 18.dp, bottom = s.bandBottom(cut).dp + 18.dp, hill = s.pullHill)
       }
 
         // The reading setup's card and hints: over the page, under the controls (and told how far in their bars come).
@@ -776,14 +790,12 @@ internal fun ReaderScreen(
             )
         }
 
-        // The sides are kept from Android's own swipes while the reader uses them: for its back swipe, and the swipes in
-        // for the side panels. (With the bars hidden, Android would show them for a swipe in from a side.) With a panel
-        // open, Android's back swipe goes back, a step at a time (a group of the settings, then the panel), unless
-        // KoLib's own is on. KoLib's back swipe arrow shows over everything.
-        if (backSwipe || (s.edgePanels && panelsAllowed && panel == Panel.NONE)) {
-            Box(Modifier.align(Alignment.CenterStart).width(48.dp).fillMaxHeight().systemGestureExclusion().testTag("edge-kept-left"))
-            Box(Modifier.align(Alignment.CenterEnd).width(48.dp).fillMaxHeight().systemGestureExclusion().testTag("edge-kept-right"))
-        }
+        // The sides are kept from Android's own swipes throughout: they're for the swipes in for the side panels and
+        // KoLib's back swipe, which goes back a step at a time as Android's would (a group of the settings, then the
+        // panel, the menu, the book). (With the bars hidden, Android would show them for a swipe in from a side.)
+        // KoLib's back swipe arrow shows over everything.
+        Box(Modifier.align(Alignment.CenterStart).width(48.dp).fillMaxHeight().systemGestureExclusion().testTag("edge-kept-left"))
+        Box(Modifier.align(Alignment.CenterEnd).width(48.dp).fillMaxHeight().systemGestureExclusion().testTag("edge-kept-right"))
         EdgeBackIndicator(edgeBack)
         if (touring) {
             val stops = remember { dev.kolib.app.ui.tour.Tours.bookReader() }
@@ -865,22 +877,26 @@ internal class ChapterPull {
 }
 
 /**
- * The ring for a pull on past the end of a scrolled chapter (or back past its start): at the foot (or the top), clear of
- * the bands there, it fills clockwise as the pull goes on and empties as it's let off, smoothly, swelling a little (and
- * a tap felt) once it's full and letting go goes on.
+ * The ring for a pull on past the end of a scrolled chapter (or back past its start). It shows at the foot (or the top),
+ * clear of the bands there, and stays put while it fills clockwise with the pull (emptying as it's let off). Under it
+ * (unless [hill] is off), the edge of the page rises in a soft hill of the page's own colours, until it's just short of the
+ * ring; once the ring is full (a tap felt, and letting go goes on), the hill takes it in, the two running together like a
+ * drop.
  */
 @Composable
-private fun BoxScope.ChapterPullRing(pull: ChapterPull, ink: Color, page: Color, top: androidx.compose.ui.unit.Dp, bottom: androidx.compose.ui.unit.Dp) {
+private fun BoxScope.ChapterPullRing(pull: ChapterPull, ink: Color, page: Color, top: androidx.compose.ui.unit.Dp, bottom: androidx.compose.ui.unit.Dp, hill: Boolean) {
     val shown by androidx.compose.animation.core.animateFloatAsState(
         if (pull.on && pull.full > 0f) 1f else 0f, androidx.compose.animation.core.tween(if (pull.on) 120 else 220), label = "pullShown",
     )
-    // Smoothed a touch, so the ring follows the finger without jerking with it.
+    // Smoothed a touch, so the ring and the hill follow the finger without jerking with it.
     val fill by androidx.compose.animation.core.animateFloatAsState(
         pull.full, androidx.compose.animation.core.spring(dampingRatio = 1f, stiffness = androidx.compose.animation.core.Spring.StiffnessMedium), label = "pullFill",
     )
     val full = pull.on && pull.full >= 1f
-    val swell by androidx.compose.animation.core.animateFloatAsState(
-        if (full) 1.12f else 1f, androidx.compose.animation.core.spring(dampingRatio = 0.55f, stiffness = androidx.compose.animation.core.Spring.StiffnessMedium), label = "pullSwell",
+    // The hill taking the ring in: springy, as a drop runs together (and as one comes apart, when it's let off). Let go
+    // full, it stays together as it fades.
+    val merge by androidx.compose.animation.core.animateFloatAsState(
+        if (pull.full >= 1f) 1f else 0f, androidx.compose.animation.core.spring(dampingRatio = 0.62f, stiffness = 420f), label = "pullMerge",
     )
     val view = LocalView.current
     LaunchedEffect(full) {
@@ -890,30 +906,125 @@ private fun BoxScope.ChapterPullRing(pull: ChapterPull, ink: Color, page: Color,
     }
     if (shown <= 0f) return
     val atFoot = pull.dir > 0
-    Box(
-        Modifier
-            .align(if (atFoot) Alignment.BottomCenter else Alignment.TopCenter)
-            .padding(top = if (atFoot) 0.dp else top, bottom = if (atFoot) bottom else 0.dp)
-            .size(46.dp)
-            .graphicsLayer {
-                alpha = shown
-                val k = (0.7f + 0.3f * shown) * swell
-                scaleX = k
-                scaleY = k
-            }
-            .shadow(3.dp, CircleShape)
-            .background(page, CircleShape)
-            .testTag("chapter-pull"),
-    ) {
-        androidx.compose.foundation.Canvas(Modifier.fillMaxSize().padding(5.dp)) {
-            val width = 3.5.dp.toPx()
-            drawCircle(ink.copy(alpha = 0.16f), style = androidx.compose.ui.graphics.drawscope.Stroke(width))
-            if (fill > 0.001f) drawArc(
-                ink, startAngle = -90f, sweepAngle = 360f * fill.coerceIn(0f, 1f), useCenter = false,
-                style = androidx.compose.ui.graphics.drawscope.Stroke(width, cap = androidx.compose.ui.graphics.StrokeCap.Round),
-            )
-        }
+    androidx.compose.foundation.Canvas(Modifier.matchParentSize().testTag("chapter-pull")) {
+        drawChapterPull(fill.coerceIn(0f, 1f), merge.coerceIn(0f, 1.2f), shown, atFoot, if (atFoot) bottom.toPx() else top.toPx(), ink, page, hill)
     }
+}
+
+/**
+ * The pull's ring and hill, drawn for the foot ([atFoot], else mirrored for the top): the ring's [gap] from the edge, [fill]
+ * 0 to 1, [merge] how far the hill has taken the ring in (0 to 1, a little past as it springs), [shown] 0 to 1 as it fades.
+ * Without the [hill], the ring's disc on its own (swelling a little as it's full).
+ */
+internal fun androidx.compose.ui.graphics.drawscope.DrawScope.drawChapterPull(
+    fill: Float, merge: Float, shown: Float, atFoot: Boolean, gap: Float, ink: Color, page: Color, hill: Boolean = true,
+) {
+    val base = size.height
+    val cx = size.width / 2f
+    val r0 = 23.dp.toPx()
+    // Full, it swells a little: more on its own, as there's no hill taking it in to show it.
+    val swell = 1f + (if (hill) 0.04f else 0.1f) * merge
+    val r = r0 * swell
+    val discY = base - gap - r0
+    // The hill: up to just short of the ring as it fills, then round its lower part as it takes it in.
+    val short = 6.dp.toPx()
+    val h = (gap - short).coerceAtLeast(0f) * (1f - (1f - fill).pow(1.5f)) + merge * (short + r0 * 0.8f)
+    val w = 46.dp.toPx() + 72.dp.toPx() * fill.pow(0.7f) + 8.dp.toPx() * merge
+    fun hillY(x: Float): Float {
+        val t = (x - cx) / w
+        return if (abs(t) >= 1f) base else base - h * (1f - t * t).let { it * it }
+    }
+    fun hillSlope(x: Float): Float {
+        val t = (x - cx) / w
+        return if (abs(t) >= 1f) 0f else 4f * h * t * (1f - t * t) / w
+    }
+    val under = base + 4.dp.toPx()
+    val hillShape = android.graphics.Path().apply {
+        moveTo(cx - w - 1f, under)
+        val n = 72
+        for (i in 0..n) {
+            val x = cx - w + 2f * w * i / n
+            lineTo(x, hillY(x))
+        }
+        lineTo(cx + w + 1f, under)
+        close()
+    }
+    val disc = android.graphics.Path().apply { addCircle(cx, discY, r, android.graphics.Path.Direction.CW) }
+    val shape = if (hill) android.graphics.Path(hillShape).apply { op(disc, android.graphics.Path.Op.UNION) } else disc
+    // The neck between them, as the hill takes the ring in: from the ring's lower side, curving in and out again to the hill.
+    if (hill && merge > 0.001f) {
+        val s = merge.coerceAtMost(1f)
+        val crest = base - h
+        val reached = if (crest < discY + r) kotlin.math.acos(((crest - discY) / r).coerceIn(-1f, 1f)) else 0f
+        val a = minOf((Math.PI * 0.6).toFloat(), reached + 0.25f + 0.55f * s)
+        val out = maxOf(r * kotlin.math.sin(reached) + 6.dp.toPx(), 8.dp.toPx() + 26.dp.toPx() * s)
+        val neck = android.graphics.Path()
+        fun side(sg: Float, first: Boolean) {
+            val ax = cx + sg * r * kotlin.math.sin(a)
+            val ay = discY + r * kotlin.math.cos(a)
+            val bx = cx + sg * out
+            val by = hillY(bx)
+            val m = hillSlope(bx)
+            val len = kotlin.math.hypot(1f, m)
+            val tbx = sg / len
+            val tby = m * sg / len
+            val k = kotlin.math.hypot(bx - ax, by - ay) * (0.35f + 0.25f * s)
+            val c1x = ax - sg * kotlin.math.cos(a) * k
+            val c1y = ay + kotlin.math.sin(a) * k
+            val c2x = bx - tbx * k
+            val c2y = by - tby * k
+            if (first) {
+                neck.moveTo(ax, ay)
+                neck.cubicTo(c1x, c1y, c2x, c2y, bx, by)
+                neck.lineTo(cx, base)
+            } else {
+                neck.lineTo(bx, by)
+                neck.cubicTo(c2x, c2y, c1x, c1y, ax, ay)
+                neck.lineTo(cx, discY)
+                neck.close()
+            }
+        }
+        side(-1f, true)
+        side(1f, false)
+        shape.op(neck, android.graphics.Path.Op.UNION)
+    }
+    // Of the page's own colours: a shade toward the ink (lighter on a dark page), deepening toward the edge.
+    val dark = page.luminance() < 0.5f
+    val tint = if (dark) 0.09f else 0.05f
+    val high = androidx.compose.ui.graphics.lerp(page, ink, if (dark) tint * 1.25f else tint * 0.2f).copy(alpha = shown)
+    val low = androidx.compose.ui.graphics.lerp(page, ink, if (dark) tint * 0.7f else tint).copy(alpha = shown)
+    val shade = android.graphics.LinearGradient(0f, discY - r0, 0f, base, high.toArgb(), low.toArgb(), android.graphics.Shader.TileMode.CLAMP)
+    drawIntoCanvas { c ->
+        val nc = c.nativeCanvas
+        nc.save()
+        // At the top, the same, upside down (the ring itself still fills clockwise).
+        if (!atFoot) nc.scale(1f, -1f, 0f, size.height / 2f)
+        val body = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            shader = shade
+            val shadow = if (dark) Color.Black.copy(alpha = 0.6f * shown) else ink.copy(alpha = 0.22f * shown)
+            setShadowLayer(8.dp.toPx(), 0f, 1.5.dp.toPx(), shadow.toArgb())
+        }
+        nc.drawPath(shape, body)
+        // A fine rim, so it shows on a page of any colour (the inner half under the body).
+        val rim = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            style = android.graphics.Paint.Style.STROKE
+            strokeWidth = 2.4.dp.toPx()
+            color = ink.copy(alpha = (if (dark) 0.165f else 0.11f) * shown).toArgb()
+        }
+        nc.drawPath(shape, rim)
+        body.clearShadowLayer()
+        nc.drawPath(shape, body)
+        nc.restore()
+    }
+    val ringY = if (atFoot) discY else size.height - discY
+    val ringR = 18.5.dp.toPx() * swell
+    val width = 3.5.dp.toPx()
+    drawCircle(ink.copy(alpha = 0.16f * shown), ringR, Offset(cx, ringY), style = androidx.compose.ui.graphics.drawscope.Stroke(width))
+    if (fill > 0.001f) drawArc(
+        ink.copy(alpha = shown), startAngle = -90f, sweepAngle = 360f * fill, useCenter = false,
+        topLeft = Offset(cx - ringR, ringY - ringR), size = androidx.compose.ui.geometry.Size(ringR * 2f, ringR * 2f),
+        style = androidx.compose.ui.graphics.drawscope.Stroke(width, cap = androidx.compose.ui.graphics.StrokeCap.Round),
+    )
 }
 
 /**
@@ -1747,9 +1858,13 @@ internal fun LayoutSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Uni
         Heading(tr("Reading mode"), first = true)
         Choices(ReaderFlow.entries, s.flow, { it.label }) { onChange(s.withFlow(it)) }
         Help(
-            if (s.scrolling) tr("Scroll down through each chapter. At the end, tap Next chapter or keep pulling up.")
+            if (s.scrolling) tr("Scroll down through each chapter. At the end, keep pulling up for the next one.")
             else tr("Turn pages, like a printed book.")
         )
+    }
+    if (s.scrolling) {
+        SwitchRow(tr("Hill under the ring"), s.pullHill) { onChange(s.copy(pullHill = it)) }
+        Help(tr("As you pull past the end of a chapter, the page rises to meet the ring."))
     }
 
     if (!s.scrolling) {
@@ -1842,15 +1957,8 @@ private fun ControlSettings(s: ReaderSettings, onChange: (ReaderSettings) -> Uni
     Spacer(Modifier.height(10.dp))
     SwitchRow(tr("Volume keys turn pages"), s.volumeKeys) { onChange(s.copy(volumeKeys = it)) }
     SwitchRow(tr("Keep screen on"), s.keepScreenOn) { onChange(s.copy(keepScreenOn = it)) }
-    SwitchRow(tr("Edge swipes open panels"), s.edgePanels) { onChange(s.copy(edgePanels = it)) }
-    Help(tr("Swipe in from the left edge for contents, or from the right for settings."))
-    if (!s.edgePanels) {
-        SwitchRow(tr("KoLib's back gesture"), s.edgeBack) { onChange(s.copy(edgeBack = it)) }
-        Help(
-            if (s.edgeBack) tr("Swipe from either edge and let go when the arrow fills in.")
-            else tr("Android's back gesture is used.")
-        )
-    }
+    SwitchRow(tr("Edge swipes always go back"), s.edgeBack) { onChange(s.copy(edgeBack = it)) }
+    Help(edgeSwipesHelp(s.edgeBack))
 
     // Which side a swipe up or down sets the brightness on, and where up it the swipe starts.
     Heading(tr("Brightness swipe"))

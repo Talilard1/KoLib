@@ -88,6 +88,8 @@ class WhatsNewTest {
     @Test
     fun theReworkedLayoutComesFirst() {
         assertEquals(dev.kolib.app.tr("A simpler layout"), WhatsNew.notes("3.5")!!.first().title)
+        // 3.5.1 has 3.5's notes: someone updating to it from an earlier KoLib hasn't seen them.
+        assertEquals(WhatsNew.notes("3.5")!!.map { it.title }, WhatsNew.notes("3.5.1")!!.map { it.title })
     }
 
     /** While the opening animation plays, it waits (and so do the tours); once it's done, it shows. */
@@ -125,6 +127,7 @@ class WhatsNewTest {
     @Test
     fun afterTheUpdateTheReadingSetupIsSuggested() {
         assertTrue(WhatsNew.suggestsReadingSetup("3.5") && WhatsNew.suggestsReadingSetup("3.5 preview"))
+        assertTrue(WhatsNew.suggestsReadingSetup("3.5.1") && WhatsNew.suggestsReadingSetup("3.5.1 preview"))
         assertTrue(!WhatsNew.suggestsReadingSetup("3.6"))
         show()
         compose.onNodeWithTag("whats-new-done").performClick()

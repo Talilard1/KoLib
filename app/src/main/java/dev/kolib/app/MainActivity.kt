@@ -74,6 +74,9 @@ class MainActivity : ComponentActivity() {
         // When this KoLib was put on the device (installed, or updated): the opening and What's new go by it, so they come
         // once after each update, even one of the same version.
         val installed = installedAt()
+        // Someone who's used KoLib before gets the tours of the screens that have changed again (once, the first time
+        // this KoLib starts).
+        themes.renewToursAfterUpdate(updated = themes.introSeen.value)
         // The opening plays when the app is started from its icon (not after a restart, nor when it's sent a book): the
         // first time, and after each update, or each time if that's chosen.
         val playOpening = savedInstanceState == null && themes.openingDue(installed) &&

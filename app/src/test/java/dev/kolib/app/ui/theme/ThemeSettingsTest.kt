@@ -64,4 +64,31 @@ class ThemeSettingsTest {
         assertEquals(-1L, after.newsSeen.value)
         assertTrue(after.openingDue(3_000L))
     }
+
+    /**
+     * After the update, someone who's used KoLib before gets the library, book reader and Kobo tours again, once; the
+     * others they've had stay had. Someone new loses nothing (they've had none), and it isn't done again later.
+     */
+    @Test
+    fun theChangedToursAreGivenAgainOnceAfterTheUpdate() {
+        val T = dev.kolib.app.ui.tour.Tours
+        val had = setOf(T.SAMPLES, T.LIBRARY, T.KOBO, T.KOBO_CONNECT, T.DEVICES, T.BOOK_READER, T.COMIC_READER)
+        val themes = ThemeSettings(context)
+        had.forEach { themes.setTourSeen(it) }
+        themes.renewToursAfterUpdate(updated = true)
+        assertEquals(setOf(T.SAMPLES, T.KOBO_CONNECT, T.DEVICES, T.COMIC_READER), themes.toursSeen.value)
+        assertEquals(themes.toursSeen.value, ThemeSettings(context).toursSeen.value)
+        // Given again, and seen: the next start leaves them be.
+        themes.setTourSeen(T.LIBRARY)
+        ThemeSettings(context).renewToursAfterUpdate(updated = true)
+        assertTrue(T.LIBRARY in ThemeSettings(context).toursSeen.value)
+
+        // Someone new: the tours they go on to have aren't taken away later.
+        context.getSharedPreferences("settings", Context.MODE_PRIVATE).edit().clear().commit()
+        val fresh = ThemeSettings(context)
+        fresh.renewToursAfterUpdate(updated = false)
+        fresh.setTourSeen(T.LIBRARY)
+        ThemeSettings(context).renewToursAfterUpdate(updated = true)
+        assertTrue(T.LIBRARY in ThemeSettings(context).toursSeen.value)
+    }
 }

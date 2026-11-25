@@ -51,11 +51,11 @@ object WhatsNew {
      * Whether, once the What's new that follows an update to [version] is closed, the reading setup is suggested: in it,
      * the reader's settings changed and new ones came. (Someone new to KoLib isn't shown What's new, so isn't asked.)
      */
-    fun suggestsReadingSetup(version: String): Boolean = version.substringBefore('-').substringBefore(' ').trim() == "3.5"
+    fun suggestsReadingSetup(version: String): Boolean = version.substringBefore('-').substringBefore(' ').trim() in setOf("3.5", "3.5.1")
 
     /** The notes for KoLib [version] (its name, as "3.5"); null for a version that has none. */
     fun notes(version: String): List<Note>? = when (version.substringBefore('-').substringBefore(' ').trim()) {
-        "3.5" -> listOf(
+        "3.5", "3.5.1" -> listOf(
             Note(
                 Icons.Outlined.Dashboard, tr("A simpler layout"),
                 tr("One button to filter, sort and choose how books show, a More tab, the reading settings you change most up front, and a layout for phones held sideways."),

@@ -124,6 +124,22 @@ class ThemeSettings(context: Context) {
     }
 
     /**
+     * Once, the first time this KoLib starts: for someone who's used KoLib before ([updated]), the tours of the screens
+     * that have changed since they were given (the library, the book reader and the Kobo) are given again, the next time
+     * each screen opens. Someone new to KoLib gets every tour anyway. Tours turned off stay off.
+     */
+    fun renewToursAfterUpdate(updated: Boolean) {
+        if (prefs.getInt(TOURS_RENEWED, 0) >= TOURS_RENEWAL) return
+        val edit = prefs.edit().putInt(TOURS_RENEWED, TOURS_RENEWAL)
+        if (updated) {
+            val now = _toursSeen.value - RENEWED_TOURS
+            edit.putStringSet(TOURS_SEEN, now)
+            _toursSeen.value = now
+        }
+        edit.apply()
+    }
+
+    /**
      * Every tour is given again, the editor's too, the next time its screen is opened, with tours turned on. The
      * sample books aren't added again.
      */
@@ -178,5 +194,10 @@ class ThemeSettings(context: Context) {
         const val EDITOR_TOUR_SEEN = "editorTourSeen"
         const val TOURS_SEEN = "toursSeen"
         const val TOURS_OFF = "toursOff"
+        /** Which renewal of the tours (see [renewToursAfterUpdate]) has been made. */
+        const val TOURS_RENEWED = "toursRenewed"
+        /** 3.5.1: the library, the book reader and the Kobo, all changed since 3.1. */
+        const val TOURS_RENEWAL = 1
+        val RENEWED_TOURS = setOf(dev.kolib.app.ui.tour.Tours.LIBRARY, dev.kolib.app.ui.tour.Tours.BOOK_READER, dev.kolib.app.ui.tour.Tours.KOBO)
     }
 }

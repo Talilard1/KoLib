@@ -4,6 +4,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import dev.kolib.app.StorageUse
 import dev.kolib.app.ui.theme.AppSurface
+import androidx.compose.ui.test.onNodeWithText
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -11,6 +13,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.GraphicsMode(org.robolectric.annotation.GraphicsMode.Mode.NATIVE)
 @Config(sdk = [35], qualifiers = "w411dp-h891dp")
 class StorageScreenTest {
     @get:Rule
@@ -29,5 +32,46 @@ class StorageScreenTest {
         compose.onNodeWithTag("storage-comics").assertExists()
         compose.onNodeWithTag("storage-app").assertExists()
         compose.onNodeWithTag("storage-kolib").assertExists()
+    }
+
+    /**
+     * Biggest first, each as a share of what KoLib uses; the device as a whole apart, under its own heading, with what
+     * other apps take there, so it isn't taken for KoLib's.
+     */
+    @Test
+    fun biggestFirstAndTheDeviceApart() {
+        val use = StorageUse(
+            listOf(StorageUse.Kind.BOOKS to 3_000_000L, StorageUse.Kind.COMICS to 5_000_000L, StorageUse.Kind.APP to 2_000_000L),
+            total = 100_000_000L, free = 40_000_000L,
+        )
+        compose.setContent { AppSurface { StorageScreen(onBack = {}, measure = { use }) } }
+        compose.waitForIdle()
+        fun top(tag: String) = compose.onNodeWithTag(tag, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot.top
+        assertTrue("comics first", top("storage-comics") < top("storage-books"))
+        assertTrue(top("storage-books") < top("storage-app"))
+        compose.onNodeWithText("50%", substring = true).assertExists()
+        compose.onNodeWithText("30%", substring = true).assertExists()
+        compose.onNodeWithText("20%", substring = true).assertExists()
+        compose.onNodeWithText("Everything else on this device").assertDoesNotExist()
+        assertTrue("the device after KoLib's own", top("storage-device") > top("storage-app"))
+        compose.onNodeWithTag("storage-others", useUnmergedTree = true).assertExists()
+        compose.onNodeWithText("Other apps and files", substring = true).assertExists()
+    }
+
+    /** Laid out with a device's figures, for a look (and to check nothing's cut off). */
+    @Test
+    @Config(qualifiers = "w1280dp-h800dp-land-xhdpi")
+    fun onATablet() {
+        val use = StorageUse(
+            listOf(
+                StorageUse.Kind.BOOKS to 2_600_000_000L, StorageUse.Kind.COMICS to 884_000L, StorageUse.Kind.COVERS to 149_000_000L,
+                StorageUse.Kind.AI to 3_900_000_000L, StorageUse.Kind.BACKUPS to 16_000_000L, StorageUse.Kind.APP to 60_000_000L,
+                StorageUse.Kind.TEMP to 610_000_000L, StorageUse.Kind.OTHER to 180_000_000L,
+            ),
+            total = 113_000_000_000L, free = 15_000_000_000L,
+        )
+        compose.setContent { AppSurface(dev.kolib.app.ui.theme.ThemeChoice.BOOKCASE_DARK) { StorageScreen(onBack = {}, measure = { use }) } }
+        compose.waitForIdle()
+        com.github.takahirom.roborazzi.captureScreenRoboImage("build/outputs/roborazzi/storage_tablet.png")
     }
 }

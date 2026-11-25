@@ -11,7 +11,7 @@ class StorageUse(
     val total: Long,
     val free: Long,
 ) {
-    enum class Kind { BOOKS, COMICS, COVERS, TEXT, AI, FONTS, BACKUPS, UPDATES, APP, OTHER }
+    enum class Kind { BOOKS, COMICS, COVERS, TEXT, AI, FONTS, BACKUPS, UPDATES, APP, TEMP, OTHER }
 
     /** All that KoLib takes up. */
     val kolib: Long get() = parts.sumOf { it.second }
@@ -21,8 +21,9 @@ class StorageUse(
          * What's in KoLib's folders ([data], with [files] and [cache] in it), by kind. Each book's or comic's folder in
          * [library] ([comic] says which it is; null for a folder that isn't one) counts less its cover and the text read
          * from its pages, which count as covers and text recognition; then the text recognition languages, AI models
-         * and chats, fonts, the Kobo's database backups and downloaded updates; and whatever else, together. [app] is
-         * the app itself; [total] and [free], the device's storage.
+         * and chats, fonts, the Kobo's database backups and downloaded updates; what's only kept for a while (the
+         * [cache], and the web view's own); and whatever else, together (the library's records, the settings, the log).
+         * [app] is the app itself; [total] and [free], the device's storage.
          */
         fun measure(
             data: File, files: File, cache: File, library: File, comic: (String) -> Boolean?,
@@ -50,6 +51,10 @@ class StorageUse(
                 add(kind, bytes)
                 counted += bytes
             }
+            // Kept for a while: the cache (but for the updates, counted already), and what the web view keeps.
+            val temp = sizeOf(cache) - sizeOf(File(cache, "updates")) + sizeOf(File(data, "app_webview")) + sizeOf(File(data, "code_cache"))
+            add(Kind.TEMP, temp)
+            counted += temp
             add(Kind.OTHER, sizeOf(data) - counted)
             add(Kind.APP, app)
             return StorageUse(Kind.entries.mapNotNull { k -> sizes[k]?.let { k to it } }, total, free)

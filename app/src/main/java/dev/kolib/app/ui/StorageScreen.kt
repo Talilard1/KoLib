@@ -5,6 +5,14 @@ import android.content.Context
 import android.os.Process
 import android.os.storage.StorageManager
 import androidx.compose.foundation.background
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.border
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,7 +57,10 @@ import dev.kolib.app.ui.components.Fmt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-/** Storage, from More: how much of the device KoLib takes up, and by what, in one bar. */
+/**
+ * Storage, from More: what KoLib takes up, by what, biggest first, in a bar and a list; then, apart (so it isn't taken
+ * for KoLib's), the device as a whole: KoLib, other apps and files, and what's free.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StorageScreen(onBack: () -> Unit, measure: (Context) -> StorageUse = ::measureHere) {
@@ -82,33 +93,95 @@ fun StorageScreen(onBack: () -> Unit, measure: (Context) -> StorageUse = ::measu
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun StorageDetails(u: StorageUse) {
     val context = LocalContext.current
     fun bytes(b: Long) = Fmt.bytes(context, b).orEmpty()
+    // What KoLib keeps, biggest first, in the bar and the list alike, each as a share of all KoLib uses.
+    val parts = u.parts.sortedByDescending { it.second }
     fun percent(b: Long): String =
-        if (u.total <= 0) "" else (b * 100.0 / u.total).let { if (it < 0.1) "<0.1%" else if (it < 10) "%.1f%%".format(it) else "%.0f%%".format(it) }
-    val shares = u.parts.map { (kind, b) -> StorageShare(nameOf(kind), b, colourOf(kind)) }
+        if (u.kolib <= 0) "" else (b * 100.0 / u.kolib).let { if (it < 0.1) "<0.1%" else if (it < 10) "%.1f%%".format(it) else "%.0f%%".format(it) }
     Text(tr("KoLib uses {0}", bytes(u.kolib)), style = MaterialTheme.typography.headlineSmall, modifier = Modifier.testTag("storage-kolib"))
-    Text(
-        tr("{0} free of {1}", bytes(u.free), bytes(u.total)),
-        style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 4.dp),
-    )
-    if (u.total > 0) StorageBar(shares, u.total, u.free, Modifier.padding(top = 16.dp, bottom = 12.dp))
-    shares.forEachIndexed { i, s -> Line(s.colour, s.name, tr("{0} · {1}", bytes(s.bytes), percent(s.bytes)), Modifier.testTag("storage-${u.parts[i].first.name.lowercase()}")) }
-    val others = (u.total - u.free - u.kolib).coerceAtLeast(0L)
-    Line(MaterialTheme.colorScheme.outline, tr("Everything else on this device"), tr("{0} · {1}", bytes(others), percent(others)))
-    Line(MaterialTheme.colorScheme.surfaceContainerHighest, tr("Free"), tr("{0} · {1}", bytes(u.free), percent(u.free)))
+    if (u.kolib > 0) PartsBar(parts.map { (kind, b) -> colourOf(kind) to b }, Modifier.padding(top = 16.dp, bottom = 12.dp).testTag("storage-parts-bar"))
+    parts.forEach { (kind, b) ->
+        Line(colourOf(kind), nameOf(kind), tr("{0} · {1}", bytes(b), percent(b)), Modifier.testTag("storage-${kind.name.lowercase()}"), about = aboutOf(kind))
+    }
+
+    // The device as a whole, apart from KoLib's own: KoLib among everything else on it, and what's free.
+    if (u.total > 0) {
+        HorizontalDivider(Modifier.padding(top = 20.dp, bottom = 16.dp))
+        Text(tr("This device"), style = MaterialTheme.typography.titleMedium, modifier = Modifier.testTag("storage-device"))
+        Text(
+            tr("{0} free of {1}", bytes(u.free), bytes(u.total)),
+            style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 2.dp),
+        )
+        val kolibColour = MaterialTheme.colorScheme.primary
+        val others = (u.total - u.free - u.kolib).coerceAtLeast(0L)
+        StorageBar(listOf(StorageShare("KoLib", u.kolib, kolibColour)), u.total, u.free, Modifier.padding(top = 12.dp, bottom = 10.dp))
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Key(kolibColour, tr("{0} · {1}", "KoLib", bytes(u.kolib)))
+            Key(MaterialTheme.colorScheme.outline, tr("{0} · {1}", tr("Other apps and files"), bytes(others)), Modifier.testTag("storage-others"))
+            Key(MaterialTheme.colorScheme.surfaceContainerHighest, tr("{0} · {1}", tr("Free"), bytes(u.free)), outlined = true)
+        }
+    }
+}
+
+/** What KoLib keeps, as one bar the width of it all: a piece for each, in order, none too thin to see. */
+@Composable
+private fun PartsBar(parts: List<Pair<Color, Long>>, modifier: Modifier = Modifier) {
+    val track = MaterialTheme.colorScheme.surfaceContainerHighest
+    Canvas(modifier.fillMaxWidth().height(14.dp).clip(RoundedCornerShape(7.dp)).background(track)) {
+        val sum = parts.sumOf { it.second }.toFloat()
+        if (sum <= 0f || parts.isEmpty()) return@Canvas
+        val least = 5.dp.toPx()
+        val gap = 1.5.dp.toPx()
+        val room = size.width - gap * (parts.size - 1)
+        // The thinnest are made wide enough to see; the rest share what's left, in proportion.
+        val thin = parts.map { room * it.second / sum < least }
+        val restBytes = parts.filterIndexed { i, _ -> !thin[i] }.sumOf { it.second }.toFloat()
+        val restRoom = room - least * thin.count { it }
+        var x = 0f
+        parts.forEachIndexed { i, (colour, b) ->
+            val w = if (thin[i] || restBytes <= 0f) least else restRoom * b / restBytes
+            drawRect(colour, topLeft = Offset(x, 0f), size = Size(w, size.height))
+            x += w + gap
+        }
+    }
 }
 
 @Composable
-private fun Line(colour: Color, name: String, size: String, modifier: Modifier = Modifier) {
+private fun Line(colour: Color, name: String, size: String, modifier: Modifier = Modifier, about: String? = null) {
     Row(modifier.fillMaxWidth().padding(vertical = 5.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start) {
         Box(Modifier.size(12.dp).clip(RoundedCornerShape(3.dp)).background(colour))
         Spacer(Modifier.width(10.dp))
-        Text(name, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+        Column(Modifier.weight(1f)) {
+            Text(name, style = MaterialTheme.typography.bodyMedium)
+            if (about != null) Text(about, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Spacer(Modifier.width(12.dp))
         Text(size, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
+}
+
+/** A colour in the device's bar, and what it stands for. */
+@Composable
+private fun Key(colour: Color, text: String, modifier: Modifier = Modifier, outlined: Boolean = false) {
+    Row(modifier, verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            Modifier.size(10.dp).clip(RoundedCornerShape(3.dp)).background(colour)
+                .then(if (outlined) Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(3.dp)) else Modifier),
+        )
+        Spacer(Modifier.width(6.dp))
+        Text(text, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+/** A line under a part's name, for those whose name doesn't say it all. */
+private fun aboutOf(kind: StorageUse.Kind): String? = when (kind) {
+    StorageUse.Kind.TEMP -> tr("Made while reading and sending. Android clears them when space runs low.")
+    StorageUse.Kind.OTHER -> tr("Your library's records, settings, the log and the like")
+    else -> null
 }
 
 private fun nameOf(kind: StorageUse.Kind): String = when (kind) {
@@ -121,7 +194,8 @@ private fun nameOf(kind: StorageUse.Kind): String = when (kind) {
     StorageUse.Kind.BACKUPS -> tr("Database backups")
     StorageUse.Kind.UPDATES -> tr("Downloaded updates")
     StorageUse.Kind.APP -> tr("The app itself")
-    StorageUse.Kind.OTHER -> tr("Other")
+    StorageUse.Kind.TEMP -> tr("Temporary files")
+    StorageUse.Kind.OTHER -> tr("Records and settings")
 }
 
 private fun colourOf(kind: StorageUse.Kind): Color = Color(
@@ -135,6 +209,7 @@ private fun colourOf(kind: StorageUse.Kind): Color = Color(
         StorageUse.Kind.BACKUPS -> 0xFFC9A227
         StorageUse.Kind.UPDATES -> 0xFF7C83DB
         StorageUse.Kind.APP -> 0xFF8E8E93
+        StorageUse.Kind.TEMP -> 0xFF6F9FA8
         StorageUse.Kind.OTHER -> 0xFFB0A28A
     },
 )

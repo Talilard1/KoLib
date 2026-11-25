@@ -1,0 +1,66 @@
+@fr
+3688|Autres applis et fichiers
+3689|Créés pendant la lecture et les envois. Android les efface quand l’espace vient à manquer.
+3690|Les fiches de votre bibliothèque, les réglages, le journal et autres
+3691|Fichiers temporaires
+3692|Fiches et réglages
+@de
+3688|Andere Apps und Dateien
+3689|Entstehen beim Lesen und Senden. Android löscht sie, wenn der Platz knapp wird.
+3690|Die Daten deiner Bibliothek, Einstellungen, das Protokoll und Ähnliches
+3691|Temporäre Dateien
+3692|Daten und Einstellungen
+@es
+3688|Otras apps y archivos
+3689|Se crean al leer y enviar. Android los borra cuando falta espacio.
+3690|Los registros de tu biblioteca, los ajustes, el registro de actividad y demás
+3691|Archivos temporales
+3692|Registros y ajustes
+@it
+3688|Altre app e file
+3689|Creati durante la lettura e gli invii. Android li cancella quando lo spazio scarseggia.
+3690|I dati della tua libreria, le impostazioni, il registro e simili
+3691|File temporanei
+3692|Dati e impostazioni
+@nl
+3688|Andere apps en bestanden
+3689|Gemaakt tijdens het lezen en versturen. Android wist ze als de ruimte opraakt.
+3690|De gegevens van je bibliotheek, instellingen, het logboek en dergelijke
+3691|Tijdelijke bestanden
+3692|Gegevens en instellingen
+@pt
+3688|Outros apps e arquivos
+3689|Criados ao ler e enviar. O Android os apaga quando falta espaço.
+3690|Os registros da sua biblioteca, as configurações, o log e afins
+3691|Arquivos temporários
+3692|Registros e configurações
+@ro
+3688|Alte aplicații și fișiere
+3689|Create la citire și la trimitere. Android le șterge când rămâne puțin spațiu.
+3690|Evidența bibliotecii tale, setările, jurnalul și altele asemenea
+3691|Fișiere temporare
+3692|Evidențe și setări
+@ru
+3688|Другие приложения и файлы
+3689|Появляются при чтении и отправке. Android удаляет их, когда кончается место.
+3690|Записи вашей библиотеки, настройки, журнал и тому подобное
+3691|Временные файлы
+3692|Записи и настройки
+@ja
+3688|ほかのアプリとファイル
+3689|読書や送信のときに作られます。空き容量が少なくなると Android が削除します。
+3690|ライブラリの記録、設定、ログなど
+3691|一時ファイル
+3692|記録と設定
+@ko
+3688|다른 앱과 파일
+3689|읽고 보낼 때 만들어져요. 공간이 부족하면 Android가 지워요.
+3690|라이브러리 기록, 설정, 로그 등
+3691|임시 파일
+3692|기록과 설정
+@zh
+3688|其他应用和文件
+3689|在阅读和发送时生成。空间不足时 Android 会清除。
+3690|书库记录、设置、日志等
+3691|临时文件
+3692|记录和设置

@@ -1,0 +1,33 @@
+@fr
+3732|Ces nouveautés sont arrivées avec la 3.5. Si vous passez de la 3.5 et les avez déjà vues, vous pouvez passer.
+3733|Si vous passez de la 3.5 et avez déjà fait la configuration de la lecture à ce moment-là, vous pouvez passer.
+@de
+3732|Das kam mit 3.5. Wenn du von 3.5 aktualisierst und es schon gesehen hast, kannst du das überspringen.
+3733|Wenn du von 3.5 aktualisierst und „Lesen einrichten“ damals schon durchgegangen bist, kannst du das überspringen.
+@es
+3732|Esto llegó con la 3.5. Si actualizas desde la 3.5 y ya lo has visto, puedes saltártelo.
+3733|Si actualizas desde la 3.5 y ya hiciste entonces la configuración de la lectura, puedes saltártelo.
+@it
+3732|Queste novità sono arrivate con la 3.5. Se aggiorni dalla 3.5 e le hai già viste, puoi saltare.
+3733|Se aggiorni dalla 3.5 e allora hai già fatto la configurazione della lettura, puoi saltare.
+@nl
+3732|Dit kwam met 3.5. Als je bijwerkt vanaf 3.5 en het al gezien hebt, kun je dit overslaan.
+3733|Als je bijwerkt vanaf 3.5 en ‘Lezen instellen’ toen al hebt doorlopen, kun je dit overslaan.
+@pt
+3732|Isto chegou na 3.5. Se você está atualizando da 3.5 e já viu, pode pular.
+3733|Se você está atualizando da 3.5 e já fez a configuração da leitura naquela vez, pode pular.
+@ro
+3732|Acestea au venit în 3.5. Dacă actualizezi de la 3.5 și le-ai văzut deja, poți sări peste.
+3733|Dacă actualizezi de la 3.5 și ai parcurs atunci configurarea citirii, poți sări peste.
+@ru
+3732|Всё это появилось в 3.5. Если вы обновляетесь с 3.5 и уже видели это, можно пропустить.
+3733|Если вы обновляетесь с 3.5 и тогда уже прошли настройку чтения, это можно пропустить.
+@ja
+3732|これらは3.5で追加されたものです。3.5から更新していて、すでにご覧になった場合はスキップしてかまいません。
+3733|3.5から更新していて、そのときに読書のセットアップを済ませている場合は、スキップしてかまいません。
+@ko
+3732|이 내용은 3.5에서 추가됐어요. 3.5에서 업데이트하면서 이미 보셨다면 건너뛰어도 돼요.
+3733|3.5에서 업데이트하면서 그때 읽기 설정을 이미 진행하셨다면 건너뛰어도 돼요.
+@zh
+3732|这些是 3.5 版带来的。如果你是从 3.5 更新而来、已经看过了，可以跳过。
+3733|如果你是从 3.5 更新而来、当时已经走过阅读设置向导，可以跳过。

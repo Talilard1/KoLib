@@ -127,7 +127,7 @@ class MainActivity : ComponentActivity() {
                         onIntroSeen = { seen -> themes.setIntroSeen(seen); if (seen) themes.setNewsSeen(installed) },
                         asksSeen = asksSeen,
                         onAsksSeen = { themes.setAsksSeen(true) },
-                        newsDue = dev.kolib.app.ui.WhatsNew.due(BuildConfig.VERSION_NAME, newsSeen, installed),
+                        newsDue = newsSeen != installed,
                         openingPlaying = showOpening,
                         onNewsSeen = { themes.setNewsSeen(installed) },
                         editorTourSeen = editorTourSeen,

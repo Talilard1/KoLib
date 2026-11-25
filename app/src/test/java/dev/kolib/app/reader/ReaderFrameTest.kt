@@ -196,18 +196,22 @@ class ReaderFrameTest {
     }
 
     /**
-     * Flung fast to the foot, a pull doesn't start for a moment after (the next swipe of a quick run of them isn't taken
-     * for one); a moment later, it does. Brought there slowly, one starts straight away.
+     * Flung fast to the foot, the touch straight after (the next swipe of a quick run of them) isn't a pull; the one after
+     * it is, however soon. Left to stand still a moment first, or brought there slowly, a pull starts straight away.
      */
     @Test
-    fun flungToTheFootAPullWaitsAMoment() = withFrame(scrolled) { frame ->
+    fun flungToTheFootOnlyTheNextSwipeIsntAPull() = withFrame(scrolled) { frame ->
         val (pulls, letGo) = frame.pulls()
         val now = SystemClock.uptimeMillis()
-        // Going fast (60 px a frame) when it got there.
+        // Going fast (60 px a frame) when it got there, just now.
         for (i in 4 downTo 1) frame.scrolled(60, now - i * 16L)
         frame.drag(640f, 700f, 640f, 200f)
         assertTrue("no pull straight after: $pulls $letGo", pulls.isEmpty() && letGo.isEmpty())
-        // A moment after it got there, a pull starts.
+        // The touch after that pulls, straight away.
+        frame.drag(640f, 700f, 640f, 200f)
+        assertEquals(listOf(1 to true), letGo)
+        // Flung there, then left a moment (as long as it takes to see it's the end) before the finger goes down: it pulls.
+        letGo.clear()
         for (i in 4 downTo 1) frame.scrolled(60, now - PULL_SETTLE_MS - 100 - i * 16L)
         frame.drag(640f, 700f, 640f, 200f)
         assertEquals(listOf(1 to true), letGo)

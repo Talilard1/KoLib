@@ -84,19 +84,13 @@ class WhatsNewTest {
         assertEquals(null, WhatsNew.notes("0.1"))
     }
 
-    /**
-     * Once after each update; but 3.5.1's notes are 3.5's, so only someone coming from before 3.5 (who has no record of a
-     * What's new by when it was installed) is shown them.
-     */
+    /** 3.5.1 has 3.5's notes, and says so: someone coming from 3.5 has seen them, and the reading setup too. */
     @Test
-    fun itsDueOnceAfterEachUpdateBut351OnlyFromBefore35() {
-        assertTrue(WhatsNew.due("3.5", seen = -1, installed = 5))
-        assertTrue(WhatsNew.due("3.5", seen = 3, installed = 5))
-        assertTrue(!WhatsNew.due("3.5", seen = 5, installed = 5))
-        assertTrue("from before 3.5", WhatsNew.due("3.5.1", seen = -1, installed = 5))
-        assertTrue("from 3.5", !WhatsNew.due("3.5.1", seen = 3, installed = 5))
-        assertTrue(!WhatsNew.due("3.5.1 preview", seen = 3, installed = 5))
-        assertTrue(WhatsNew.due("3.6", seen = 3, installed = 5))
+    fun the351NotesSayTheyCameIn35() {
+        assertTrue(WhatsNew.seenBefore("3.5.1") != null && WhatsNew.seenBefore("3.5.1 preview") != null)
+        assertTrue(WhatsNew.setupSeenBefore("3.5.1") != null)
+        assertEquals(null, WhatsNew.seenBefore("3.5"))
+        assertEquals(null, WhatsNew.setupSeenBefore("3.5"))
     }
 
     /** The first thing it says is that the layout's been reworked. */
@@ -124,12 +118,15 @@ class WhatsNewTest {
         show()
         assertTrue(showing("whats-new"))
         assertTrue("no tour under it", !showing("tour"))
+        // This version's notes came in 3.5 (or it is 3.5): it says so, or doesn't.
+        assertEquals(WhatsNew.seenBefore(BuildConfig.VERSION_NAME) != null, showing("whats-new-seen-before"))
         compose.onNodeWithTag("whats-new-done").performClick()
         settle()
         assertEquals(1, told)
         assertTrue(!showing("whats-new"))
         // The reader changed in this update: going through the reading setup again is suggested, before any tour.
         assertTrue(showing("reader-changed"))
+        assertEquals(WhatsNew.setupSeenBefore(BuildConfig.VERSION_NAME) != null, showing("reader-changed-seen-before"))
         assertTrue("no tour under it", !showing("tour"))
         compose.onNodeWithTag("reader-changed-later").performClick()
         settle()

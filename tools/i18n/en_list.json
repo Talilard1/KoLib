@@ -3730,5 +3730,7 @@
 "The reader has changed",
 "Some reading settings work differently now, and there are new ones. It's worth going through the reading setup again to set them how you like.",
 "Have a look through the reader's settings too (tap the middle of a page, then the settings button): they're laid out in a new way.",
-"Start the reading setup"
+"Start the reading setup",
+"These came in 3.5. If you're updating from 3.5 and have seen them already, you can skip this.",
+"If you're updating from 3.5 and went through the reading setup then, you can skip this."
 ]

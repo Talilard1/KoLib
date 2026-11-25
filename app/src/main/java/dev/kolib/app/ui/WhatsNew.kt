@@ -54,12 +54,19 @@ object WhatsNew {
     fun suggestsReadingSetup(version: String): Boolean = version.substringBefore('-').substringBefore(' ').trim() in setOf("3.5", "3.5.1")
 
     /**
-     * Whether What's new is due as KoLib [version] starts: once after each update ([installed] is when that was, [seen]
-     * when the KoLib whose What's new was last shown was, or -1). 3.5.1's notes are 3.5's, so someone who's had 3.5 (and
-     * seen them, or started with them) isn't shown them again; someone coming from before 3.5 is.
+     * Said over What's new for a [version] whose notes came in the one before (3.5.1 has 3.5's): someone updating from
+     * that one has seen them. Null where there's nothing to say.
      */
-    fun due(version: String, seen: Long, installed: Long): Boolean =
-        seen != installed && !(version.substringBefore('-').substringBefore(' ').trim() == "3.5.1" && seen >= 0)
+    fun seenBefore(version: String): String? = when (version.substringBefore('-').substringBefore(' ').trim()) {
+        "3.5.1" -> tr("These came in 3.5. If you're updating from 3.5 and have seen them already, you can skip this.")
+        else -> null
+    }
+
+    /** Said under the reading setup's suggestion for a [version] that repeats the one before's (see [seenBefore]). */
+    fun setupSeenBefore(version: String): String? = when (version.substringBefore('-').substringBefore(' ').trim()) {
+        "3.5.1" -> tr("If you're updating from 3.5 and went through the reading setup then, you can skip this.")
+        else -> null
+    }
 
     /** The notes for KoLib [version] (its name, as "3.5"); null for a version that has none. */
     fun notes(version: String): List<Note>? = when (version.substringBefore('-').substringBefore(' ').trim()) {
@@ -106,6 +113,10 @@ fun WhatsNewWindow(version: String, notes: List<WhatsNew.Note>, onDone: () -> Un
                     Icon(Icons.Outlined.NewReleases, null, Modifier.size(32.dp), tint = MaterialTheme.colorScheme.primary)
                     Spacer(Modifier.size(12.dp))
                     Text(tr("What's new in KoLib {0}", version), style = MaterialTheme.typography.headlineSmall)
+                    WhatsNew.seenBefore(version)?.let { said ->
+                        Spacer(Modifier.size(8.dp))
+                        Text(said, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.testTag("whats-new-seen-before"))
+                    }
                 }
                 Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()).padding(horizontal = 24.dp)) {
                     notes.forEach { n ->
@@ -139,7 +150,7 @@ fun WhatsNewWindow(version: String, notes: List<WhatsNew.Note>, onDone: () -> Un
  * suggested, with the way to it, and the reader's own settings, laid out anew, are worth a look.
  */
 @Composable
-fun ReaderChangedWindow(onSetUp: () -> Unit, onLater: () -> Unit) {
+fun ReaderChangedWindow(onSetUp: () -> Unit, onLater: () -> Unit, seenBefore: String? = null) {
     Dialog(onDismissRequest = onLater, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(
             shape = RoundedCornerShape(28.dp),
@@ -161,6 +172,10 @@ fun ReaderChangedWindow(onSetUp: () -> Unit, onLater: () -> Unit) {
                         tr("Have a look through the reader's settings too (tap the middle of a page, then the settings button): they're laid out in a new way."),
                         style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                    seenBefore?.let { said ->
+                        Spacer(Modifier.size(12.dp))
+                        Text(said, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.testTag("reader-changed-seen-before"))
+                    }
                 }
                 ButtonsAtEnd(
                     Modifier.fillMaxWidth().padding(start = 12.dp, end = 20.dp, top = 16.dp, bottom = 20.dp),

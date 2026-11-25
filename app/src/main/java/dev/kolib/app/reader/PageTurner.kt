@@ -81,8 +81,11 @@ interface TurnPages {
  */
 /** Going this fast (dp a second) as it gets to a chapter's end, the page was flung there (see [ReaderFrame.scrolled]). */
 internal const val PULL_FAST_DP = 900f
-/** How long after it's flung to a chapter's end a pull on can't start: about as long as it takes to see it's the end. */
-internal const val PULL_SETTLE_MS = 650L
+/**
+ * How soon after it's flung to a chapter's end the next touch is still the quick run of swipes going on, so isn't a pull:
+ * only that touch, and only if the page had stopped no longer ago than this. Stood still longer, a pull starts as ever.
+ */
+internal const val PULL_SETTLE_MS = 300L
 
 class ReaderFrame(context: Context, val controller: ReaderController) : FrameLayout(context) {
     val webView: WebView = controller.createView(context)
@@ -159,8 +162,8 @@ class ReaderFrame(context: Context, val controller: ReaderController) : FrameLay
 
     /**
      * The page scrolled by [dy] pixels at [at] (uptime, in ms). If that brought it to the chapter's foot (or its top) going
-     * fast, a pull on (or back) can't start for a moment after: swiping fast, the next swipe straight after isn't taken
-     * for a pull on to the next chapter. Brought there gently, it can start straight away, as ever.
+     * fast, the touch straight after, if it comes as soon as the next of a quick run of swipes would, isn't taken for a
+     * pull on (or back). Brought there gently, or left to stand still a moment, a pull starts straight away, as ever.
      */
     internal fun scrolled(dy: Int, at: Long) {
         if (dy == 0) return
@@ -242,7 +245,8 @@ class ReaderFrame(context: Context, val controller: ReaderController) : FrameLay
             chapterPull(ev)
             return true
         }
-        if (sideSwipe(ev) || edgeSwipe(ev) || chapterPull(ev)) return true
+        // (A touch going down has been through onInterceptTouchEvent already: the pull's had it, and is decided once.)
+        if (sideSwipe(ev) || edgeSwipe(ev) || (ev.actionMasked != MotionEvent.ACTION_DOWN && chapterPull(ev))) return true
         val turning = turner.touch(ev)
         // Kept while it may yet be a swipe in from a side edge, or up or down one for the brightness.
         return turning || (ev.actionMasked == MotionEvent.ACTION_DOWN && (side != 0 || edgeTracking))
@@ -324,9 +328,11 @@ class ReaderFrame(context: Context, val controller: ReaderController) : FrameLay
                 pullDownY = ev.y
                 pullLastY = ev.y
                 val pulls = onChapterPull != null && controller.settings.scrolling
-                // Just flung there, a pull doesn't start in this touch (see [scrolled]).
+                // Flung there only just now, a pull doesn't start in this touch (see [scrolled]); the one after, it can.
                 pullOnAtDown = pulls && !canScroll(1) && ev.eventTime - flungToFootAt > PULL_SETTLE_MS
                 pullBackAtDown = pulls && !canScroll(-1) && ev.eventTime - flungToTopAt > PULL_SETTLE_MS
+                flungToFootAt = Long.MIN_VALUE / 2
+                flungToTopAt = Long.MIN_VALUE / 2
             }
             MotionEvent.ACTION_POINTER_DOWN -> if (pullDir == 0) pullTwo = true
             MotionEvent.ACTION_MOVE -> {

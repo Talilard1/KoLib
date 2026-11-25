@@ -974,6 +974,7 @@ fun AppRoot(
                 readingSetup = true
             },
             onLater = { suggestSetup = false },
+            seenBefore = WhatsNew.setupSeenBefore(dev.kolib.app.BuildConfig.VERSION_NAME),
         )
         sectionTour?.let { name ->
             androidx.compose.runtime.key(name) {

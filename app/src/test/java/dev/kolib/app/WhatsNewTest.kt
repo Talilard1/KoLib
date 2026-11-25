@@ -84,6 +84,21 @@ class WhatsNewTest {
         assertEquals(null, WhatsNew.notes("0.1"))
     }
 
+    /**
+     * Once after each update; but 3.5.1's notes are 3.5's, so only someone coming from before 3.5 (who has no record of a
+     * What's new by when it was installed) is shown them.
+     */
+    @Test
+    fun itsDueOnceAfterEachUpdateBut351OnlyFromBefore35() {
+        assertTrue(WhatsNew.due("3.5", seen = -1, installed = 5))
+        assertTrue(WhatsNew.due("3.5", seen = 3, installed = 5))
+        assertTrue(!WhatsNew.due("3.5", seen = 5, installed = 5))
+        assertTrue("from before 3.5", WhatsNew.due("3.5.1", seen = -1, installed = 5))
+        assertTrue("from 3.5", !WhatsNew.due("3.5.1", seen = 3, installed = 5))
+        assertTrue(!WhatsNew.due("3.5.1 preview", seen = 3, installed = 5))
+        assertTrue(WhatsNew.due("3.6", seen = 3, installed = 5))
+    }
+
     /** The first thing it says is that the layout's been reworked. */
     @Test
     fun theReworkedLayoutComesFirst() {

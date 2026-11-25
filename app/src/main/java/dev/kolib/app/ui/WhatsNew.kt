@@ -53,6 +53,14 @@ object WhatsNew {
      */
     fun suggestsReadingSetup(version: String): Boolean = version.substringBefore('-').substringBefore(' ').trim() in setOf("3.5", "3.5.1")
 
+    /**
+     * Whether What's new is due as KoLib [version] starts: once after each update ([installed] is when that was, [seen]
+     * when the KoLib whose What's new was last shown was, or -1). 3.5.1's notes are 3.5's, so someone who's had 3.5 (and
+     * seen them, or started with them) isn't shown them again; someone coming from before 3.5 is.
+     */
+    fun due(version: String, seen: Long, installed: Long): Boolean =
+        seen != installed && !(version.substringBefore('-').substringBefore(' ').trim() == "3.5.1" && seen >= 0)
+
     /** The notes for KoLib [version] (its name, as "3.5"); null for a version that has none. */
     fun notes(version: String): List<Note>? = when (version.substringBefore('-').substringBefore(' ').trim()) {
         "3.5", "3.5.1" -> listOf(

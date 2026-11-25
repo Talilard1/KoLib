@@ -175,50 +175,97 @@ class ReaderFrameTest {
     }
 
     /**
-     * A scroll that only gets to the foot in this touch doesn't go on into a pull (reading on to the last lines doesn't
-     * open the next chapter by chance); a fresh touch there does.
+     * A scroll that gets to the foot at a reading pace goes straight on into a pull in the same touch, as the finger goes
+     * on: there's no lifting it and pulling again.
      */
     @Test
-    fun aScrollThatGetsToTheFootDoesntGoOnIntoAPull() = withFrame(scrolled) { frame ->
+    fun aScrollThatGetsToTheFootGentlyGoesStraightOnIntoAPull() = withFrame(scrolled) { frame ->
         val (pulls, letGo) = frame.pulls()
         var atFoot = false
         frame.canScroll = { d -> if (d > 0) !atFoot else true }
         val t = SystemClock.uptimeMillis()
         frame.dispatchTouchEvent(MotionEvent.obtain(t, t, MotionEvent.ACTION_DOWN, 640f, 750f, 0))
-        for (i in 1..16) {
-            if (i == 4) atFoot = true
-            frame.dispatchTouchEvent(MotionEvent.obtain(t, t + i * 16L, MotionEvent.ACTION_MOVE, 640f, 750f - i * 40f, 0))
+        for (i in 1..40) {
+            // The page goes with the finger, 6 px a frame (a reading pace), till it's at the foot.
+            if (i == 10) atFoot = true
+            if (i <= 10) frame.scrolled(6, t + i * 16L)
+            frame.dispatchTouchEvent(MotionEvent.obtain(t, t + i * 16L, MotionEvent.ACTION_MOVE, 640f, 750f - i * 6f, 0))
+            if (i == 9) assertTrue("not before the foot: $pulls", pulls.isEmpty())
         }
-        frame.dispatchTouchEvent(MotionEvent.obtain(t, t + 300, MotionEvent.ACTION_UP, 640f, 110f, 0))
-        assertTrue("no pull in that touch: $pulls $letGo", pulls.isEmpty() && letGo.isEmpty())
-        frame.drag(640f, 700f, 640f, 200f)
+        assertTrue("pulled on in the same touch: $pulls", pulls.isNotEmpty() && pulls.all { it.first == 1 })
+        assertEquals(1f, pulls.last().second)
+        frame.dispatchTouchEvent(MotionEvent.obtain(t, t + 41 * 16L, MotionEvent.ACTION_UP, 640f, 750f - 40 * 6f, 0))
         assertEquals(listOf(1 to true), letGo)
     }
 
     /**
-     * Flung fast to the foot, the touch straight after (the next swipe of a quick run of them) isn't a pull; the one after
-     * it is, however soon. Left to stand still a moment first, or brought there slowly, a pull starts straight away.
+     * A swipe that runs on to the foot fast goes straight on into a pull too, but it takes a little more pulling to fill the
+     * ring (so a quick run of swipes doesn't open the next chapter by chance), as does the touch straight after it. The one
+     * after that fills as ever.
      */
     @Test
-    fun flungToTheFootOnlyTheNextSwipeIsntAPull() = withFrame(scrolled) { frame ->
+    fun aSwipeThatRunsOnToTheFootFastTakesALittleMorePulling() = withFrame(scrolled) { frame ->
+        val (pulls, letGo) = frame.pulls()
+        var atFoot = false
+        frame.canScroll = { d -> if (d > 0) !atFoot else true }
+        val t = SystemClock.uptimeMillis() - 5000
+        frame.dispatchTouchEvent(MotionEvent.obtain(t, t, MotionEvent.ACTION_DOWN, 640f, 750f, 0))
+        // 40 px a frame, with the page going with it till it's at the foot, then 160 px on past it.
+        for (i in 1..8) {
+            if (i == 4) atFoot = true
+            if (i <= 4) frame.scrolled(40, t + i * 16L)
+            frame.dispatchTouchEvent(MotionEvent.obtain(t, t + i * 16L, MotionEvent.ACTION_MOVE, 640f, 750f - i * 40f, 0))
+        }
+        assertTrue("pulled on in that touch: $pulls", pulls.isNotEmpty() && pulls.all { it.first == 1 })
+        // Far enough to fill the ring as ever, but not this time.
+        assertTrue("not full yet: ${pulls.last()}", pulls.last().second in 0.5f..0.95f)
+        frame.dispatchTouchEvent(MotionEvent.obtain(t, t + 9 * 16L, MotionEvent.ACTION_UP, 640f, 430f, 0))
+        assertEquals(listOf(1 to false), letGo)
+        // The very next swipe, straight after: still a little more.
+        letGo.clear()
+        val t2 = t + 9 * 16L + 120
+        frame.dispatchTouchEvent(MotionEvent.obtain(t2, t2, MotionEvent.ACTION_DOWN, 640f, 700f, 0))
+        for (i in 1..8) frame.dispatchTouchEvent(MotionEvent.obtain(t2, t2 + i * 16L, MotionEvent.ACTION_MOVE, 640f, 700f - i * 21f, 0))
+        frame.dispatchTouchEvent(MotionEvent.obtain(t2, t2 + 9 * 16L, MotionEvent.ACTION_UP, 640f, 532f, 0))
+        assertEquals(listOf(1 to false), letGo)
+        // The one after that, as ever.
+        letGo.clear()
+        frame.drag(640f, 700f, 640f, 530f)
+        assertEquals(listOf(1 to true), letGo)
+    }
+
+    /**
+     * Flung fast to the foot, the touch straight after (the next swipe of a quick run of them) pulls straight away, but takes
+     * a little more pulling to fill the ring; pulled further, on it goes. Left a moment first, or brought there slowly, it
+     * fills as ever.
+     */
+    @Test
+    fun flungToTheFootTheNextSwipeTakesALittleMorePulling() = withFrame(scrolled) { frame ->
         val (pulls, letGo) = frame.pulls()
         val now = SystemClock.uptimeMillis()
-        // Going fast (60 px a frame) when it got there, just now.
+        // Going fast (60 px a frame) when it got there, just now: a pull that would fill the ring as ever falls short.
         for (i in 4 downTo 1) frame.scrolled(60, now - i * 16L)
-        frame.drag(640f, 700f, 640f, 200f)
-        assertTrue("no pull straight after: $pulls $letGo", pulls.isEmpty() && letGo.isEmpty())
-        // The touch after that pulls, straight away.
-        frame.drag(640f, 700f, 640f, 200f)
+        frame.drag(640f, 700f, 640f, 530f)
+        assertTrue("pulled straight away: $pulls", pulls.isNotEmpty())
+        assertEquals(listOf(1 to false), letGo)
+        // The touch after that, as ever.
+        letGo.clear()
+        frame.drag(640f, 700f, 640f, 530f)
         assertEquals(listOf(1 to true), letGo)
-        // Flung there, then left a moment (as long as it takes to see it's the end) before the finger goes down: it pulls.
+        // Flung there, then left a moment before the finger goes down: as ever.
         letGo.clear()
         for (i in 4 downTo 1) frame.scrolled(60, now - PULL_SETTLE_MS - 100 - i * 16L)
-        frame.drag(640f, 700f, 640f, 200f)
+        frame.drag(640f, 700f, 640f, 530f)
         assertEquals(listOf(1 to true), letGo)
-        // Brought there slowly (1 px a frame), straight away.
+        // Brought there slowly (1 px a frame): as ever.
         letGo.clear()
         for (i in 4 downTo 1) frame.scrolled(1, now - i * 16L)
-        frame.drag(640f, 700f, 640f, 200f)
+        frame.drag(640f, 700f, 640f, 530f)
+        assertEquals(listOf(1 to true), letGo)
+        // Flung there just now, and pulled further: on into the next.
+        letGo.clear()
+        for (i in 4 downTo 1) frame.scrolled(60, now - i * 16L)
+        frame.drag(640f, 700f, 640f, 400f)
         assertEquals(listOf(1 to true), letGo)
     }
 
